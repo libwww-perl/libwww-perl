@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.9 1998/08/04 12:46:56 aas Exp $
+# $Id: Common.pm,v 1.10 1998/08/04 13:06:46 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -171,7 +171,7 @@ sub form_data   # RFC1867
 		return $p;
 	    }
 	    my($buf, $fh) = @$p;
-	    my $n = read($fh, $buf, 318, length($buf));
+	    my $n = read($fh, $buf, 2048, length($buf));
 	    if ($n) {
 		unshift(@parts, ["", $fh]);
 	    } else {

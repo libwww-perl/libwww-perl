@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.9 1995/09/12 08:05:09 aas Exp $
+# $Id: Element.pm,v 1.10 1995/09/12 08:48:25 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -170,18 +170,21 @@ sub implicit
 
 
 
-=item ->isInside('tag')
+=item ->isInside('tag',...)
 
-Returns true if this tag is contained inside the specified tag.
+Returns true if this tag is contained inside one of the specified tags.
 
 =cut
 
 sub isInside
 {
-    my($self, $tag) = @_;
+    my $self = shift;
     my $p = $self;
     while (defined $p) {
-	return 1 if $p->tag eq $tag;
+	my $ptag = $p->tag;
+	for (@_) {
+	    return 1 if $ptag eq $_;
+	}
 	$p = $p->parent;
     }
     0;

@@ -1,5 +1,41 @@
 package HTML::FormatText;
 
+# $Id: FormatText.pm,v 1.8 1995/09/14 13:05:21 aas Exp $
+
+=head1 NAME
+
+HTML::FormatText - Format HTML as text
+
+=head1 SYNOPSIS
+
+ require HTML::FormatText;
+ $html = parse_htmlfile("test.html");
+ $formatter = new HTML::FormatText;
+ print $formatter->format($html);
+
+=head1 DESCRIPTION
+
+The HTML::FormatText is a formatter that output plain latin1 text.
+All character attributes (bold/italic/underline) are ignored.
+Formatting of HTML tables and forms is not implemented.
+
+=head1 SEE ALSO
+
+L<HTML::Formatter>
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
 require HTML::Formatter;
 
 @ISA = qw(HTML::Formatter);
@@ -24,107 +60,107 @@ sub end
 
 sub header_start
 {
-    my($formatter, $level, $node) = @_;
-    $formatter->vspace(1 + (6-$level) * 0.4);
-    $formatter->{maxpos} = 0;
-    $formatter->eat_leading_space;
+    my($self, $level, $node) = @_;
+    $self->vspace(1 + (6-$level) * 0.4);
+    $self->{maxpos} = 0;
+    $self->eat_leading_space;
     1;
 }
 
 sub header_end
 {
-    my($formatter, $level, $node) = @_;
+    my($self, $level, $node) = @_;
     if ($level <= 2) {
 	my $line;
 	$line = '=' if $level == 1;
 	$line = '-' if $level == 2;
-	$formatter->vspace(0);
-	$formatter->out($line x ($formatter->{maxpos} - $formatter->{lm}));
+	$self->vspace(0);
+	$self->out($line x ($self->{maxpos} - $self->{lm}));
     }
-    $formatter->vspace(1);
+    $self->vspace(1);
     1;
 }
 
 sub hr_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->out('-' x ($formatter->{rm} - $formatter->{lm}));
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->vspace(1);
+    $self->out('-' x ($self->{rm} - $self->{lm}));
+    $self->vspace(1);
 }
 
 sub pre_out
 {
-    my $formatter = shift;
+    my $self = shift;
     # should really handle bold/italic etc.
-    if (defined $formatter->{vspace}) {
-	if ($formatter->{out}) {
-	    $formatter->nl() while $formatter->{vspace}-- > -0.5;
-	    $formatter->{vspace} = undef;
+    if (defined $self->{vspace}) {
+	if ($self->{out}) {
+	    $self->nl() while $self->{vspace}-- > -0.5;
+	    $self->{vspace} = undef;
 	}
     }
-    my $indent = ' ' x $formatter->{lm};
+    my $indent = ' ' x $self->{lm};
     my $pre = shift;
     $pre =~ s/^/$indent/gm;
-    $formatter->collect($pre);
-    $formatter->{out}++;
+    $self->collect($pre);
+    $self->{out}++;
 }
 
 sub out
 {
-    my $formatter = shift;
+    my $self = shift;
     my $text = shift;
 
-    if (defined $formatter->{vspace}) {
-	if ($formatter->{out}) {
-	    $formatter->nl while $formatter->{vspace}-- > 0;
-	    $formatter->goto_lm;
+    if (defined $self->{vspace}) {
+	if ($self->{out}) {
+	    $self->nl while $self->{vspace}-- > 0;
+	    $self->goto_lm;
 	} else {
-	    $formatter->goto_lm;
+	    $self->goto_lm;
 	}
-	$formatter->{vspace} = undef;
+	$self->{vspace} = undef;
     }
 
-    if ($formatter->{curpos} > $formatter->{rm}) { # line is too long, break it
+    if ($self->{curpos} > $self->{rm}) { # line is too long, break it
 	return if $text =~ /^\s*$/;  # white space at eol is ok
-	$formatter->nl;
-	$formatter->goto_lm;
+	$self->nl;
+	$self->goto_lm;
     }
     
-    if ($formatter->{pending_space}) {
-	$formatter->{pending_space} = 0;
-	$formatter->collect(' ');
-	my $pos = ++$formatter->{curpos};
-	$formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
+    if ($self->{pending_space}) {
+	$self->{pending_space} = 0;
+	$self->collect(' ');
+	my $pos = ++$self->{curpos};
+	$self->{maxpos} = $pos if $self->{maxpos} < $pos;
     }
 
-    $formatter->{pending_space} = 1 if $text =~ s/\s+$//;
+    $self->{pending_space} = 1 if $text =~ s/\s+$//;
     return unless length $text;
 
-    $formatter->collect($text);
-    my $pos = $formatter->{curpos} += length $text;
-    $formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
-    $formatter->{'out'}++;
+    $self->collect($text);
+    my $pos = $self->{curpos} += length $text;
+    $self->{maxpos} = $pos if $self->{maxpos} < $pos;
+    $self->{'out'}++;
 }
 
 sub goto_lm
 {
-    my $formatter = shift;
-    my $pos = $formatter->{curpos};
-    my $lm  = $formatter->{lm};
+    my $self = shift;
+    my $pos = $self->{curpos};
+    my $lm  = $self->{lm};
     if ($pos < $lm) {
-	$formatter->{curpos} = $lm;
-	$formatter->collect(" " x ($lm - $pos));
+	$self->{curpos} = $lm;
+	$self->collect(" " x ($lm - $pos));
     }
 }
 
 sub nl
 {
-    my $formatter = shift;
-    $formatter->{'out'}++;
-    $formatter->{pending_space} = 0;
-    $formatter->{curpos} = 0;
-    $formatter->collect("\n");
+    my $self = shift;
+    $self->{'out'}++;
+    $self->{pending_space} = 0;
+    $self->{curpos} = 0;
+    $self->collect("\n");
 }
 
 sub adjust_lm

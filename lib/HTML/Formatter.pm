@@ -1,5 +1,37 @@
 package HTML::Formatter;
 
+# $Id: Formatter.pm,v 1.10 1995/09/14 13:05:22 aas Exp $
+
+=head1 NAME
+
+HTML::Formatter - Base class for HTML formatters
+
+=head1 DESCRIPTION
+
+HTML formatters are able to format a HTML syntax tree into various
+printable formats.  Different formatters produce output for different
+output media.  Common for all formatters are that they will return the
+formatted output when the format() method is called.  Format() takes a
+HTML::Element as parameter.
+
+=head1 SEE ALSO
+
+L<HTML::FormatText>, L<HTML::FormatPS>, L<HTML::Element>
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
+
 require HTML::Element;
 
 use strict;
@@ -13,45 +45,45 @@ sub new
 
 sub format
 {
-    my($formatter, $html) = @_;
-    $formatter->begin();
+    my($self, $html) = @_;
+    $self->begin();
     $html->traverse(
 	sub {
 	    my($node, $start, $depth) = @_;
 	    if (ref $node) {
 		my $tag = $node->tag;
 		my $func = $tag . '_' . ($start ? "start" : "end");
-		return $formatter->$func($node);
+		return $self->$func($node);
 	    } else {
-		$formatter->textflow($node);
+		$self->textflow($node);
 	    }
 	    1;
 	}
      );
-    $formatter->end();
-    join('', @{$formatter->{output}});
+    $self->end();
+    join('', @{$self->{output}});
 }
 
 sub begin
 {
-    my $formatter = shift;
+    my $self = shift;
 
     # Flags
-    $formatter->{anchor}    = 0;
-    $formatter->{underline} = 0;
-    $formatter->{bold}      = 0;
-    $formatter->{italic}    = 0;
-    $formatter->{center}    = 0;
-    $formatter->{nobr}      = 0;
+    $self->{anchor}    = 0;
+    $self->{underline} = 0;
+    $self->{bold}      = 0;
+    $self->{italic}    = 0;
+    $self->{center}    = 0;
+    $self->{nobr}      = 0;
 
-    $formatter->{font_size}     = [3];   # last element is current size
-    $formatter->{basefont_size} = [3];  
+    $self->{font_size}     = [3];   # last element is current size
+    $self->{basefont_size} = [3];  
 
-    $formatter->{makers} = [];           # last element is current marker
-    $formatter->{vspace} = undef;        # vertical space
-    $formatter->{eat_leading_space} = 0;
+    $self->{makers} = [];           # last element is current marker
+    $self->{vspace} = undef;        # vertical space
+    $self->{eat_leading_space} = 0;
 
-    $formatter->{output} = [];
+    $self->{output} = [];
 }
 
 sub end
@@ -64,20 +96,20 @@ sub body_start { 1; }  sub body_end {}
 
 sub header_start
 {
-    my($formatter, $level, $node) = @_;
+    my($self, $level, $node) = @_;
     my $align = $node->attr('align');
     if (defined($align) && lc($align) eq 'center') {
-	$formatter->{center}++;
+	$self->{center}++;
     }
     1,
 }
 
 sub header_end
 {
-    my($formatter, $level, $node) = @_;
+    my($self, $level, $node) = @_;
     my $align = $node->attr('align');
     if (defined($align) && lc($align) eq 'center') {
-	$formatter->{center}--;
+	$self->{center}--;
     }
 }
 
@@ -97,17 +129,17 @@ sub h6_end   { shift->header_end(6, @_) }
 
 sub br_start
 {
-    my $formatter = shift;
-    $formatter->vspace(0);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->vspace(0);
+    $self->eat_leading_space;
     
 }
 
 sub hr_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->vspace(1);
+    $self->eat_leading_space;
 }
 
 sub img_start
@@ -199,40 +231,40 @@ sub wbr_start
 
 sub font_start
 {
-    my($formatter, $elem) = @_;
+    my($self, $elem) = @_;
     my $size = $elem->attr('size');
     return unless defined $size;
     if ($size =~ /^\s*[+\-]/) {
-	my $base = $formatter->{basefont_size}[-1];
+	my $base = $self->{basefont_size}[-1];
 	$size = $base + $size;
     }
-    push(@{$formatter->{font_size}}, $size);
+    push(@{$self->{font_size}}, $size);
     1;
 }
 
 sub font_end
 {
-    my($formatter, $elem) = @_;
+    my($self, $elem) = @_;
     my $size = $elem->attr('size');
     return unless defined $size;
-    pop(@{$formatter->{font_size}});
+    pop(@{$self->{font_size}});
 }
 
 sub basefont_start
 {
-    my($formatter, $elem) = @_;
+    my($self, $elem) = @_;
     my $size = $elem->attr('size');
     return unless defined $size;
-    push(@{$formatter->{basefont_size}}, $size);
+    push(@{$self->{basefont_size}}, $size);
     1;
 }
 
 sub basefont_end
 {
-    my($formatter, $elem) = @_;
+    my($self, $elem) = @_;
     my $size = $elem->attr('size');
     return unless defined $size;
-    pop(@{$formatter->{basefont_size}});
+    pop(@{$self->{basefont_size}});
 }
 
 # Aliases for logical markup
@@ -255,9 +287,9 @@ BEGIN {
 
 sub p_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->vspace(1);
+    $self->eat_leading_space;
     1;
 }
 
@@ -268,17 +300,17 @@ sub p_end
 
 sub pre_start
 {
-    my $formatter = shift;
-    $formatter->{pre}++;
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->{pre}++;
+    $self->vspace(1);
     1;
 }
 
 sub pre_end
 {
-    my $formatter = shift;
-    $formatter->{pre}--;
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->{pre}--;
+    $self->vspace(1);
 }
 
 BEGIN {
@@ -290,63 +322,63 @@ BEGIN {
 
 sub blockquote_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->eat_leading_space;
-    $formatter->adjust_lm( +2 );
-    $formatter->adjust_rm( -2 );
+    my $self = shift;
+    $self->vspace(1);
+    $self->eat_leading_space;
+    $self->adjust_lm( +2 );
+    $self->adjust_rm( -2 );
     1;
 }
 
 sub blockquote_end
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->adjust_lm( -2 );
-    $formatter->adjust_rm( +2 );
+    my $self = shift;
+    $self->vspace(1);
+    $self->adjust_lm( -2 );
+    $self->adjust_rm( +2 );
 }
 
 sub address_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->eat_leading_space;
-    $formatter->i_start(@_);
+    my $self = shift;
+    $self->vspace(1);
+    $self->eat_leading_space;
+    $self->i_start(@_);
     1;
 }
 
 sub address_end
 {
-    my $formatter = shift;
-    $formatter->i_end(@_);
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->i_end(@_);
+    $self->vspace(1);
 }
 
 # Handling of list elements
 
 sub ul_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    push(@{$formatter->{markers}}, "*");
-    $formatter->adjust_lm( +2 );
+    my $self = shift;
+    $self->vspace(1);
+    push(@{$self->{markers}}, "*");
+    $self->adjust_lm( +2 );
     1;
 }
 
 sub ul_end
 {
-    my $formatter = shift;
-    pop(@{$formatter->{markers}});
-    $formatter->adjust_lm( -2 );
-    $formatter->vspace(1);
+    my $self = shift;
+    pop(@{$self->{markers}});
+    $self->adjust_lm( -2 );
+    $self->vspace(1);
 }
 
 sub li_start
 {
-    my $formatter = shift;
-    $formatter->bullet($formatter->{markers}[-1]);
-    $formatter->adjust_lm(+2);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->bullet($self->{markers}[-1]);
+    $self->adjust_lm(+2);
+    $self->eat_leading_space;
     1;
 }
 
@@ -357,10 +389,10 @@ sub bullet
 
 sub li_end
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->adjust_lm( -2);
-    my $markers = $formatter->{markers};
+    my $self = shift;
+    $self->vspace(1);
+    $self->adjust_lm( -2);
+    my $markers = $self->{markers};
     if ($markers->[-1] =~ /^\d+/) {
 	# increment ordered markers
 	$markers->[-1]++;
@@ -369,43 +401,43 @@ sub li_end
 
 sub ol_start
 {
-    my $formatter = shift;
+    my $self = shift;
    
-    $formatter->vspace(1);
-    push(@{$formatter->{markers}}, 1);
-    $formatter->adjust_lm(+2);
+    $self->vspace(1);
+    push(@{$self->{markers}}, 1);
+    $self->adjust_lm(+2);
     1;
 }
 
 sub ol_end
 {
-    my $formatter = shift;
-    $formatter->adjust_lm(-2);
-    pop(@{$formatter->{markers}});
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->adjust_lm(-2);
+    pop(@{$self->{markers}});
+    $self->vspace(1);
 }
 
 
 sub dl_start
 {  
-    my $formatter = shift;
-    $formatter->adjust_lm(+2);
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->adjust_lm(+2);
+    $self->vspace(1);
     1;
 }
 
 sub dl_end
 {
-    my $formatter = shift;
-    $formatter->adjust_lm(-2);
-    $formatter->vspace(1);
+    my $self = shift;
+    $self->adjust_lm(-2);
+    $self->vspace(1);
 }
 
 sub dt_start
 {
-    my $formatter = shift;
-    $formatter->vspace(1);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->vspace(1);
+    $self->eat_leading_space;
     1;
 }
 
@@ -415,10 +447,10 @@ sub dt_end
 
 sub dd_start
 {
-    my $formatter = shift;
-    $formatter->adjust_lm(+6);
-    $formatter->vspace(0);
-    $formatter->eat_leading_space;
+    my $self = shift;
+    $self->adjust_lm(+6);
+    $self->vspace(0);
+    $self->eat_leading_space;
     1;
 }
 
@@ -436,17 +468,17 @@ sub form_start  { shift->out('[FORM NOT SHOWN]');  0; }
 
 sub textflow
 {
-    my $formatter = shift;
-    if ($formatter->{pre}) {
-	$formatter->pre_out($_[0]);
+    my $self = shift;
+    if ($self->{pre}) {
+	$self->pre_out($_[0]);
     } else {
 	for (split(/(\s+)/, $_[0])) {
 	    next unless length $_;
-	    if ($formatter->{eat_leading_space}) {
-		$formatter->{eat_leading_space} = 0;
+	    if ($self->{eat_leading_space}) {
+		$self->{eat_leading_space} = 0;
 		next if /^\s/;
 	    }
-	    $formatter->out($_);
+	    $self->out($_);
 	}
     }
 }
@@ -461,9 +493,9 @@ sub eat_leading_space
 
 sub vspace
 {
-    my($formatter, $new) = @_;
-    return if defined $formatter->{vspace} and $formatter->{vspace} > $new;
-    $formatter->{vspace} = $new;
+    my($self, $new) = @_;
+    return if defined $self->{vspace} and $self->{vspace} > $new;
+    $self->{vspace} = $new;
 }
 
 sub collect

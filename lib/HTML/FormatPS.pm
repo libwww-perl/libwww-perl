@@ -1,8 +1,112 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.13 1995/09/14 11:38:22 aas Exp $
+# $Id: FormatPS.pm,v 1.14 1995/09/14 13:05:20 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
+
+=head1 NAME
+
+HTML::FormatPS - Format HTML as postscript
+
+=head1 SYNOPSIS
+
+  require HTML::FormatPS;
+  $html = parse_htmlfile("test.html");
+  $formatter = new HTML::FormatPS
+                   FontFamily => 'Helvetica',
+                   PaperSize  => 'Letter';
+  print $formatter->format($html);
+
+=head1 DESCRIPTION
+
+The HTML::FormatPS is a formatter that output PostScript code.
+Formatting of HTML tables and forms is not implemented.
+
+You might specify the following parameters when constructing the formatter:
+
+=over 4
+
+=item PaperSize
+
+What kind of paper should we format for.  The value can be one of
+these: A3, A4, A5, B4, B5, Letter, Legal, Executive, Tabloid,
+Statement, Folio, 10x14, Quarto.
+
+The default is "A4".
+
+=item PaperWidth
+
+The width of the paper in points.  Setting PaperSize also defines this
+value.
+
+=item PaperHeight
+
+The height of the paper in points.  Setting PaperSize also defines
+this value.
+
+=item LeftMargin
+
+The left margin in points.
+
+=item RightMargin
+
+The right margin in points.
+
+=item HorizontalMargin
+
+Both left and right margin at the same time.  The default value is 4 cm.
+
+=item TopMargin
+
+The top margin in points.
+
+=item BottomMargin
+
+The bottom margin in points.
+
+=item VerticalMargin
+
+Both top and bottom margin at the same time.  The default value is 2 cm.
+
+=item PageNo
+
+The parameter determine if we should put page numbers on the pages.
+The default is yes, so you have to set this value to 0 in order to
+suppress page numbers.
+
+=item FontFamily
+
+The parameter specify which family of fonts to use for the formatting.
+Legal values are "Courier", "Helvetica" and "Times".  The default is
+"Times".
+
+=item FontScale
+
+All fontsizes might be scaled by this factor.
+
+=item Leading
+
+How much space between lines.  This is a factor of the fontsize used
+for that line.  Default is 0.1.
+
+=back
+
+=head1 SEE ALSO
+
+L<HTML::Formatter>
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
 
 use Carp;
 
@@ -150,8 +254,8 @@ sub findfont
     }
     $self->{currentfont} = $font_with_size;
     $self->{pointsize} = $size;
-    my $fontmod = "HTML::Font::$font";
-    $fontmod =~ s/-/_/g;
+    my $fontmod = "Font::$font";
+    $fontmod =~ s/-//g;
     my $fontfile = $fontmod . ".pm";
     $fontfile =~ s,::,/,g;
     require $fontfile;

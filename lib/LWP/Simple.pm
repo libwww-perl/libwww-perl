@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.28 1998/04/20 07:11:24 aas Exp $
+# $Id: Simple.pm,v 1.28.2.1 1998/09/11 11:03:20 aas Exp $
 
 =head1 NAME
 
@@ -35,7 +35,7 @@ The following functions are provided (and exported) by this module:
 
 The get() function will fetch the document identified by the given URL
 and return it.  It returns C<undef> if it fails.  The $url argument can
-be either a simple string or a reference to a URI::URL object.
+be either a simple string or a reference to a URI object.
 
 You will not be able to examine the response code or response headers
 (like 'Content-Type') when you are accessing the web using this
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28.2.1 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 

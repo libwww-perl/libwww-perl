@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.63.2.1 1998/09/11 12:17:50 aas Exp $
+# $Id: UserAgent.pm,v 1.63.2.2 1998/10/12 10:15:17 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.63.2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.63.2.2 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -401,9 +401,9 @@ sub get_basic_credentials
     my($self, $realm, $uri, $proxy) = @_;
     return if $proxy;
 
-    my $netloc = $uri->netloc;
-    if (exists $self->{'basic_authentication'}{$netloc}{$realm}) {
-	return @{ $self->{'basic_authentication'}{$netloc}{$realm} };
+    my $host_port = $uri->host_port;
+    if (exists $self->{'basic_authentication'}{$host_port}{$realm}) {
+	return @{ $self->{'basic_authentication'}{$host_port}{$realm} };
     }
 
     return (undef, undef);

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.36 1998/04/10 14:51:22 aas Exp $
+# $Id: Headers.pm,v 1.37 1999/10/28 12:09:12 gisle Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -508,6 +508,7 @@ sub server            { (shift->_header('Server',           @_))[0] }
 sub from              { (shift->_header('From',             @_))[0] }
 sub referer           { (shift->_header('Referer',          @_))[0] }
 sub warning           { (shift->_header('Warning',          @_))[0] }
+*referrer = \&referer;  # on tchrist's request
 
 sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
 sub authorization     { (shift->_header('Authorization',    @_))[0] }

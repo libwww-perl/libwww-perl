@@ -102,6 +102,7 @@ t/base/common-req.t		Test HTTP::Request::Common module
 t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
+t/base/headers-util.t		Test HTTP::Headers::Util module
 t/base/listing.t		Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response

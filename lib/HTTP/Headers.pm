@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.57 2004/04/09 15:07:04 gisle Exp $
+# $Id: Headers.pm,v 1.58 2004/04/10 21:47:00 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.58 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -279,6 +279,24 @@ sub content_type      {
   wantarray ? @ct : $ct[0];
 }
 
+sub referer           {
+    my $self = shift;
+    if (@_ && $_[0] =~ /#/) {
+	# Strip fragment per RFC 2616, section 14.36.
+	my $uri = shift;
+	if (ref($uri)) {
+	    $uri = $uri->clone;
+	    $uri->fragment(undef);
+	}
+	else {
+	    $uri =~ s/\#.*//;
+	}
+	unshift @_, $uri;
+    }
+    ($self->_header('Referer', @_))[0];
+}
+*referrer = \&referer;  # on tchrist's request
+
 sub title             { (shift->_header('Title',            @_))[0] }
 sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
 sub content_language  { (shift->_header('Content-Language', @_))[0] }
@@ -288,8 +306,6 @@ sub user_agent        { (shift->_header('User-Agent',       @_))[0] }
 sub server            { (shift->_header('Server',           @_))[0] }
 
 sub from              { (shift->_header('From',             @_))[0] }
-sub referer           { (shift->_header('Referer',          @_))[0] }
-*referrer = \&referer;  # on tchrist's request
 sub warning           { (shift->_header('Warning',          @_))[0] }
 
 sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
@@ -503,7 +519,7 @@ The most frequently used headers can also be accessed through the
 following convenience methods.  These methods can both be used to read
 and to set the value of a header.  The header value is set if you pass
 an argument to the method.  The old header value is always returned.
-If the given header did not exists then C<undef> is returned.
+If the given header did not exist then C<undef> is returned.
 
 Methods that deal with dates/times always convert their value to system
 time (seconds since Jan 1, 1970) and they also expect this kind of
@@ -629,6 +645,10 @@ By popular demand C<referrer> exists as an alias for this method so you
 can avoid this misspelling in your programs and still send the right
 thing on the wire.
 
+When setting the referrer, this method removes the fragment from the
+given URI if it is present, as mandated by RFC2616.  Note that
+the removal does I<not> happen automatically if using the header(),
+push_header() or init_header() method(s) to set the referrer.
 
 =item $h->www_authenticate
 

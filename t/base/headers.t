@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 144;
+plan tests => 149;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -219,6 +219,16 @@ ok($h->header("from", "Gisle\@ActiveState.com"));
 ok($h->referer("http://www.example.com"), undef);
 ok($h->referer, "http://www.example.com");
 ok($h->referrer, "http://www.example.com");
+ok($h->referer("http://www.example.com/#bar"), "http://www.example.com");
+ok($h->referer, "http://www.example.com/");
+{
+    require URI;
+    my $u = URI->new("http://www.example.com#bar");
+    $h->referer($u);
+    ok($u->as_string, "http://www.example.com#bar");
+    ok($h->referer->fragment, undef);
+    ok($h->referrer->as_string, "http://www.example.com");
+}
 
 ok($h->as_string, <<EOT);
 From: Gisle\@ActiveState.com

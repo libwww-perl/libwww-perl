@@ -1,0 +1,49 @@
+This code has not been released yet, but here's a change log detailing
+changes as I make them. This will be tidied up in future once the first
+alpha release has been made.
+
+Sun Jun 11 1995
+
+Added basic authentication support
+
+Added mirroring of single documents
+
+Change Protocol construction from
+whacky URL.pm (constructor returns
+subclass) to more normal C++'ish way.
+
+Wed June 7 ??? 1995
+
+Minor cleanups from printed code inspection
+
+Wed May 24 ??? 1995
+
+Added redirection resolution
+Added optional autoloading of protocols
+
+Tue May 23 ??? 1995
+
+Separated socket stuff into separate module
+Added HTTP proxy support
+Made alarm handling optional
+
+Added a LWP::Message or completeness sake
+Added LWP::MemberMixin to reduce code duplication
+
+Cosmetic changes to LWP::Date
+Renamed LWP::Error to LWP::StatusCode
+Renamed LWP::MIME to LWP::MIMEtype
+
+Changed the tests to cope with all this
+
+It's getting there...
+
+Mon, May 22 10:38:15 BST 1995
+
+Changed the socket reading to use sysread.
+This will have to go into a module of its own.
+
+
+Thu, 18 May 1995 10:55:30
+
+Mentioned on libwww-perl that I had changed the classes around lots.

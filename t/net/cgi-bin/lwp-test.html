@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>Testing the tests</title>
+  </head>
+  <body>
+    <h1>Testing the tests</h1>
+
+    <ul>
+      <li>
+	<a href="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl">
+	  No PATH_INFO
+	</a>
+
+      <li>
+	<A
+	  href="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/simple-text">
+	  Simple text
+	</a>
+
+      <li>
+	<A
+	  href="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/simple-html">
+	  Simple HTML
+	</a>
+	<A
+	  href="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/moved">
+	  Moved
+	</a>
+
+
+      <li>
+	<A
+	  href="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/timeout">
+	  Timeout
+	</a>
+    </ul>
+    <h2>Get vs Post</h2>
+    <hr>
+    <form action="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/post" method="get">
+      <input type="submit" value="Get">
+    </form>
+    <hr>
+    <form action="http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/post" method=POST>
+      <input type="submit" value="Post">
+    </form>
+    <hr>
+
+  </body>
+</html>

@@ -12,7 +12,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.38 1999/06/01 10:40:51 gisle Exp $
+# $Id: lwp-request.PL,v 1.39 1999/10/28 12:13:21 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -190,7 +190,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -340,8 +340,10 @@ if (defined $options{'t'}) {
     $options{'t'} =~ /^(\d+)([smh])?/;
     die "$progname: Illegal timeout value!\n" unless defined $1;
     $timeout = $1;
-    $timeout *= 60   if ($2 eq "m");
-    $timeout *= 3600 if ($2 eq "h");
+    if (defined $2) {
+        $timeout *= 60   if $2 eq "m";
+        $timeout *= 3600 if $2 eq "h";
+    }
     $ua->timeout($timeout);
 }
 

@@ -12,6 +12,9 @@
     or <input type=checkbox> and use that as the name of the checked
     value.
 
+    HTTP::Daemon's send_file() method did not work when given
+    a file name.  Patch by Dave W. Smith <dws@postcognitive.com>.
+
 
 
 2003-10-13   Gisle Aas <gisle@ActiveState.com>

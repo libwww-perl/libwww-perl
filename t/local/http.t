@@ -296,7 +296,15 @@ sub httpd_post_echo
    $c->print("Content-Type: text/plain");
    $c->send_crlf;
    $c->send_crlf;
-   $c->print($r->as_string);
+
+   # Do it the hard way to test the send_file
+   open(TMP, ">tmp$$") || die;
+   print TMP $r->as_string;
+   close(TMP) || die;
+
+   $c->send_file("tmp$$");
+
+   unlink("tmp$$");
 }
 
 $req = new HTTP::Request POST => url("/echo/foo", $base);

@@ -27,7 +27,7 @@ reference as argument.  The parser will update this header object as
 the various head elements are recognized.
 
 The following header fields are initialized from elements found in the
-L<lt>head> section of a HTML document:
+E<lt>head> section of a HTML document:
 
 =over 4
 
@@ -47,10 +47,11 @@ The I<Isindex> header will be added if there is a E<lt>isindex>
 element in the E<lt>head>.  The header value is initialized from the
 I<prompt> attribute if it is present.
 
-=item I<http-equiv>
+=item X-Meta-Foo
 
-Any other header field can be initialized from a E<lt>meta
-http-equiv="header" content="..."> element.
+All E<lt>meta> elements will initialize headers with the prefix
+"X-Meta-".  If the element contains a I<http-equiv> attribute, then it
+will be honored as the header name.
 
 =back
 
@@ -92,7 +93,7 @@ require HTTP::Headers;
 use strict;
 use vars qw($VERSION $DEBUG);
 #$DEBUG = 1;
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 my $FINISH = "HEAD PARSED\n";
 
@@ -162,9 +163,12 @@ sub start
     print "START[$tag]\n" if $DEBUG;
     $self->flush_text if $self->{'tag'};
     if ($tag eq 'meta') {
-	return unless exists $attr->{'http-equiv'};
-	$self->{'header'}->push_header($attr->{'http-equiv'} =>
-				       $attr->{content})
+	my $key = $attr->{'http-equiv'};
+	if (!defined $key) {
+	    return unless $attr->{'name'};
+	    $key = "X-Meta-\u$attr->{'name'}";
+	}
+	$self->{'header'}->push_header($key => $attr->{content});
     } elsif ($tag eq 'base') {
 	return unless exists $attr->{href};
 	$self->{'header'}->header('Content-Base' => $attr->{href});

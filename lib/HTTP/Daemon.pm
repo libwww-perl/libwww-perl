@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.9 1996/10/22 11:02:52 aas Exp $
+# $Id: Daemon.pm,v 1.10 1996/10/22 11:07:49 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -234,6 +234,7 @@ sub get_request
 		$chunk_head =~ /^([0-9A-Fa-f]+)/;
 		return undef unless length($1);
 		my $size = hex($1);
+		last CHUNK if $size == 0;
 
 		my $missing = $size - length($buf);
 		$missing += 2; # also read CRLF at chunk end
@@ -249,7 +250,7 @@ sub get_request
 		    $missing -= $n;
 		}
 		substr($body, -2, 2) = ''; # remove CRLF at end
-		last CHUNK if $size == 0;
+
 	    } else {
 		# need more data in order to have a complete chunk header
 		if ($timeout) {

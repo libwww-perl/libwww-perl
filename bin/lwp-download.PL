@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.3 1997/09/20 11:04:33 aas Exp $
+# $Id: lwp-download.PL,v 1.4 1997/09/26 12:11:13 aas Exp $
 
 =head1 NAME
 
@@ -61,14 +61,14 @@ use LWP::MediaTypes;
 use URI::URL;
 use strict;
 
-$progname = $0
-$progname =~ s,.*/,,;  # only basename left in progname
-$progname =~ s/\.\w*$//; strip extension if any
+my $progname = $0;
+$progname =~ s,.*/,,;    # only basename left in progname
+$progname =~ s/\.\w*$//; # strip extension if any
 
 #parse option
 use Getopt::Std;
 my %opts;
-unless (getopts('b', \%opts)) {
+unless (getopts('a', \%opts)) {
     usage();
 }
 my $opt_a = $opts{a}; # save in binary mode
@@ -243,6 +243,6 @@ sub show
 
 sub usage
 {
-    die "Usage: $progname [-b] <url> [<lpath>]\n";
+    die "Usage: $progname [-a] <url> [<lpath>]\n";
 }
 !NO!SUBS!

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.14 1998/11/19 21:45:00 aas Exp $
+# $Id: Common.pm,v 1.15 1999/03/20 07:37:36 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -248,14 +248,14 @@ is exactly equivalent to the following call
 
   HTTP::Request->new(GET => $url)
 
-but is less clutter.  It also reads better when used together with the
+but is less cluttered.  It also reads better when used together with the
 LWP::UserAgent->request() method:
 
   my $ua = new LWP::UserAgent;
   my $res = $ua->request(GET 'http://www.sn.no')
   if ($res->is_success) { ...
 
-You can also initialize the header values in the request by specifying
+You can also initialize header values in the request by specifying
 some key/value pairs as optional arguments.  For instance:
 
   $ua->request(GET 'http://www.sn.no',
@@ -276,7 +276,7 @@ Like GET() but the method in the request is PUT.
 
 =item POST $url, [$form_ref], [Header => Value,...]
 
-This works mostly like GET() with POST as method, but this function
+This works mostly like GET() with POST as the method, but this function
 also takes a second optional array or hash reference parameter
 ($form_ref).  This argument can be used to pass key/value pairs for
 the form content.  By default we will initialize a request using the
@@ -309,7 +309,7 @@ with the following interpretation:
   [ $file, $filename, Header => Value... ]
 
 The first value in the array ($file) is the name of a file to open.
-This file will be read an its content placed in the request.  The
+This file will be read and its content placed in the request.  The
 routine will croak if the file can't be opened.  Use an C<undef> as $file
 value if you want to specify the content directly.  The $filename is
 the filename to report in the request.  If this value is undefined,

@@ -1,10 +1,10 @@
-# $Id: RobotUA.pm,v 1.14 1998/11/19 21:45:00 aas Exp $
+# $Id: RobotUA.pm,v 1.15 1999/03/20 07:37:36 gisle Exp $
 
 package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -33,8 +33,8 @@ LWP::RobotUA - A class for Web Robots
 
 This class implements a user agent that is suitable for robot
 applications.  Robots should be nice to the servers they visit.  They
-should consult the F<robots.txt> file to ensure that they are welcomed
-and they should not send too frequent requests.
+should consult the F</robots.txt> file to ensure that they are welcomed
+and they should not make requests too frequently.
 
 But, before you consider writing a robot take a look at
 <URL:http://info.webcrawler.com/mak/projects/robots/robots.html>.
@@ -67,7 +67,7 @@ same methods. In addition the following methods are provided:
 =item $ua = LWP::RobotUA->new($agent_name, $from, [$rules])
 
 Your robot's name and the mail address of the human responsible for
-the robot (i.e. you) is required by the constructor.
+the robot (i.e. you) are required by the constructor.
 
 Optionally it allows you to specify the I<WWW::RobotRules> object to
 use.
@@ -107,11 +107,11 @@ default is 1 minute.
 
 =item $ua->use_sleep([$boolean])
 
-Get/set a value indicating wether the UA should sleep() if request
-arrive to fast (before $ua->delay minutes has passed).  The default is
+Get/set a value indicating whether the UA should sleep() if requests
+arrive too fast (before $ua->delay minutes has passed).  The default is
 TRUE.  If this value is FALSE then an internal SERVICE_UNAVAILABLE
 response will be generated.  It will have an Retry-After header that
-indicate when it is OK to send another request to this server.
+indicates when it is OK to send another request to this server.
 
 =cut
 
@@ -148,7 +148,7 @@ sub rules {
 
 Returns the number of documents fetched from this server host. Yes I
 know, this method should probably have been named num_visits() or
-something like that :-(
+something like that. :-(
 
 =cut
 
@@ -250,7 +250,7 @@ sub simple_request
 
 =item $ua->as_string
 
-Returns a text that describe the state of the UA.
+Returns a string that describes the state of the UA.
 Mainly useful for debugging.
 
 =cut

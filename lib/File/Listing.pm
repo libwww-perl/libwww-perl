@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.10 1998/03/11 11:57:17 aas Exp $
+# $Id: Listing.pm,v 1.11 1999/03/20 07:37:35 gisle Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -44,21 +44,20 @@ be strings like 'unix', 'vms', 'dos'.  Currently only 'unix' is
 implemented and this is also the default value.  Ideally, the listing
 type should be determined automatically.
 
-The fourth parameter specify how unparseable lines should be treated.
+The fourth parameter specifies how unparseable lines should be treated.
 Values can be 'ignore', 'warn' or a code reference.  Warn means that
 the perl warn() function will be called.  If a code reference is
 passed, then this routine will be called and the return value from it
 will be incorporated in the listing.  The default is 'ignore'.
 
-Only the first parameter is mandatory.  The parse_dir() prototype is
-($;$$$).
+Only the first parameter is mandatory.
 
 The return value from parse_dir() is a list of directory entries.  In
-scalar context the return value is a reference to the list.  The
+a scalar context the return value is a reference to the list.  The
 directory entries are represented by an array consisting of [
 $filename, $filetype, $filesize, $filetime, $filemode ].  The
 $filetype value is one of the letters 'f', 'd', 'l' or '?'.  The
-$filetime value is converted to seconds since Jan 1, 1970.  The
+$filetime value is the seconds since Jan 1, 1970.  The
 $filemode is a bitmask like the mode returned by stat().
 
 =head1 CREDITS

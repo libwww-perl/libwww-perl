@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.24 1999/03/19 21:01:29 gisle Exp $
+# $Id: MediaTypes.pm,v 1.25 1999/03/20 07:37:36 gisle Exp $
 
 package LWP::MediaTypes;
 
@@ -14,10 +14,10 @@ LWP::MediaTypes - guess media type for a file or a URL
 
 =head1 DESCRIPTION
 
-This module provides functions for handling of media (also known as
+This module provides functions for handling media (also known as
 MIME) types and encodings.  The mapping from file extentions to media
 types is defined by the F<media.types> file.  If the F<~/.media.types>
-file exist it is used as a replacement.
+file exists it is used instead.
 For backwards compatability we will also look for F<~/.mime.types>.
 
 The following functions are exported by default:
@@ -32,7 +32,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -75,22 +75,22 @@ read_media_types();
 
 =item guess_media_type($filename_or_url, [$header_to_modify])
 
-This function tries to guess media type and encoding for given file.
+This function tries to guess media type and encoding for a file or url.
 It returns the content-type, which is a string like C<"text/html">.
 In array context it also returns any content-encodings applied (in the
 order used to encode the file).  You can pass a URI object
-reference, instead of the file name, as the first parameter too.
+reference, instead of the file name.
 
-If the type can not be deduced from looking at the file name only,
+If the type can not be deduced from looking at the file name,
 then guess_media_type() will let the C<-T> Perl operator take a look.
 If this works (and C<-T> returns a TRUE value) then we return
 I<text/plain> as the type, otherwise we return
 I<application/octet-stream> as the type.
 
 The optional second argument should be a reference to a HTTP::Headers
-object (or any object that implement the $obj->header method in a
-similar way).  When present we will set the values of the
-'Content-Type' and 'Content-Encoding' for this header.
+object or any object that implements the $obj->header method in a
+similar way.  When it is present the values of the
+'Content-Type' and 'Content-Encoding' will be set for this header.
 
 =cut
 
@@ -155,7 +155,7 @@ sub guess_media_type
 =item media_suffix($type,...)
 
 This function will return all suffixes that can be used to denote the
-specified media type(s).  Wildcard types can be used.  In scalar
+specified media type(s).  Wildcard types can be used.  In a scalar
 context it will return the first suffix found.
 
 Examples:
@@ -224,7 +224,7 @@ sub add_type
 
 =item add_encoding($type, @ext)
 
-Associate a list of file extensions with and encoding type.
+Associate a list of file extensions with an encoding type.
 
 Example:
 
@@ -244,7 +244,7 @@ sub add_encoding
 
 =item read_media_types(@files)
 
-Parse a media types file from disk and add the type mappings found there.
+Parse media types files and add the type mappings found there.
 
 Example:
 

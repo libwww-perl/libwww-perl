@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.20 1998/11/19 21:44:59 aas Exp $
+# $Id: Daemon.pm,v 1.21 1999/03/20 07:37:35 gisle Exp $
 #
 
 use strict;
@@ -32,8 +32,8 @@ HTTP::Daemon - a simple http server class
 =head1 DESCRIPTION
 
 Instances of the I<HTTP::Daemon> class are HTTP/1.1 servers that
-listens on a socket for incoming requests. The I<HTTP::Daemon> is a
-sub-class of I<IO::Socket::INET>, so you can do socket operations
+listen on a socket for incoming requests. The I<HTTP::Daemon> is a
+sub-class of I<IO::Socket::INET>, so you can perform socket operations
 directly on it too.
 
 The accept() method will return when a connection from a client is
@@ -45,8 +45,8 @@ data from the client and return an I<HTTP::Request> object reference.
 This HTTP daemon does not fork(2) for you.  Your application, i.e. the
 user of the I<HTTP::Daemon> is reponsible for forking if that is
 desirable.  Also note that the user is responsible for generating
-responses that conforms to the HTTP/1.1 protocol.  The
-I<HTTP::Daemon::ClientConn> provide some methods that make this easier.
+responses that conform to the HTTP/1.1 protocol.  The
+I<HTTP::Daemon::ClientConn> class provides some methods that make this easier.
 
 =head1 METHODS
 
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -69,10 +69,10 @@ $PROTO = "HTTP/1.1";
 
 =item $d = new HTTP::Daemon
 
-The object constructor takes the same parameters as the
-I<IO::Socket::INET> constructor.  It can be called without specifying
+The constructor takes the same parameters as the
+I<IO::Socket::INET> constructor.  It can also be called without specifying
 any parameters. The daemon will then set up a listen queue of 5
-connections and allocate some random port number.  A server that want
+connections and allocate some random port number.  A server that wants
 to bind to some specific address on the standard HTTP port will be
 constructed like this:
 
@@ -102,9 +102,9 @@ sub new
 
 =item $c = $d->accept([$pkg])
 
-Same as I<IO::Socket::accept> but will return an
-I<HTTP::Daemon::ClientConn> reference by default.  It will return
-undef if you have specified a timeout and no connection is made within
+This method is the same as I<IO::Socket::accept> but returns an
+I<HTTP::Daemon::ClientConn> reference by default.  It returns
+undef if you specify a timeout and no connection is made within
 that time.
 
 =cut
@@ -174,21 +174,21 @@ my $HTTP_1_1 = _http_version("HTTP/1.1");
 
 The I<HTTP::Daemon::ClientConn> is also a I<IO::Socket::INET>
 subclass. Instances of this class are returned by the accept() method
-of the I<HTTP::Daemon>.  The following additional methods are
+of I<HTTP::Daemon>.  The following additional methods are
 provided:
 
 =over 4
 
 =item $c->get_request([$headers_only])
 
-This method will read data from the client and turn it into a
+Read data from the client and turn it into an
 I<HTTP::Request> object which is then returned.  It returns C<undef>
 if reading of the request fails.  If it fails, then the
 I<HTTP::Daemon::ClientConn> object ($c) should be discarded, and you
 should not call this method again.  The $c->reason method might give
-you some information on why $c->get_request returned C<undef>.
+you some information about why $c->get_request returned C<undef>.
 
-The $c->get_request method support HTTP/1.1 request content bodies,
+The $c->get_request method supports HTTP/1.1 request content bodies,
 including I<chunked> transfer encoding with footer and self delimiting
 I<multipart/*> content types.
 
@@ -199,9 +199,9 @@ chunked transfer encoding HTTP can even support infinite request
 messages - uploading live audio for instance).  If you pass a TRUE
 value as the $headers_only argument, then $c->get_request will return
 immediately after parsing the request headers and you are responsible
-for reading the rest of the request content (and if you are going to
+for reading the rest of the request content.  If you are going to
 call $c->get_request again on the same connection you better read the
-correct number of bytes).
+correct number of bytes.
 
 =cut
 
@@ -430,7 +430,7 @@ unconsumed bytes here.  You also need this buffer if you implement
 services like I<101 Switching Protocols>.
 
 This method always return the old buffer content and can optionally
-update the buffer content if you pass it an argument.
+replace the buffer content if you pass it an argument.
 
 =cut
 
@@ -465,7 +465,7 @@ sub reason
 
 =item $c->proto_ge($proto)
 
-Returns TRUE if the client announced a protocol with version number
+Return TRUE if the client announced a protocol with version number
 greater or equal to the given argument.  The $proto argument can be a
 string like "HTTP/1.1" or just "1.1".
 
@@ -486,7 +486,7 @@ sub _http_version
 
 =item $c->antique_client
 
-Returns TRUE if the client speaks the HTTP/0.9 protocol.  No status
+Return TRUE if the client speaks the HTTP/0.9 protocol.  No status
 code and no headers should be returned to such a client.  This should
 be the same as !$c->proto_ge("HTTP/1.0").
 
@@ -505,7 +505,7 @@ Make sure that $c->get_request will not try to read more requests off
 this connection.  If you generate a response that is not self
 delimiting, then you should signal this fact by calling this method.
 
-This attribute is turned on automatically if the client announce
+This attribute is turned on automatically if the client announces
 protocol HTTP/1.0 or worse and does not include a "Connection:
 Keep-Alive" header.  It is also turned on automatically when HTTP/1.1
 or better clients send the "Connection: close" request header.
@@ -521,7 +521,7 @@ sub force_last_request
 
 =item $c->send_status_line( [$code, [$mess, [$proto]]] )
 
-Sends the status line back to the client.  If $code is omitted 200 is
+Send the status line back to the client.  If $code is omitted 200 is
 assumed.  If $mess is omitted, then a message corresponding to $code
 is inserted.  If $proto is missing the content of the
 $HTTP::Daemon::PROTO variable is used.
@@ -554,7 +554,7 @@ sub send_crlf
 
 =item $c->send_basic_header( [$code, [$mess, [$proto]]] )
 
-Sends the status line and the "Date:" and "Server:" headers back to
+Send the status line and the "Date:" and "Server:" headers back to
 the client.  This header is assumed to be continued and does not end
 with an empty CRLF line.
 
@@ -573,17 +573,17 @@ sub send_basic_header
 
 =item $c->send_response( [$res] )
 
-Takes a I<HTTP::Response> object as parameter and write it back to the
-client as the response.  We try hard to make sure that the response is
+Write a I<HTTP::Response> object to the
+client as a response.  We try hard to make sure that the response is
 self delimiting so that the connection can stay persistent for further
 request/response exchanges.
 
 The content attribute of the I<HTTP::Response> object can be a normal
 string or a subroutine reference.  If it is a subroutine, then
-whatever this callback routine returns will be written back to the
+whatever this callback routine returns is written back to the
 client as the response content.  The routine will be called until it
 return an undefined or empty value.  If the client is HTTP/1.1 aware
-then we will use the chunked transfer encoding for the response.
+then we will use chunked transfer encoding for the response.
 
 =cut
 
@@ -640,9 +640,9 @@ sub send_response
 
 =item $c->send_redirect( $loc, [$code, [$entity_body]] )
 
-Sends a redirect response back to the client.  The location ($loc) can
-be an absolute or a relative URL. The $code must be one the redirect
-status codes, and it defaults to "301 Moved Permanently"
+Send a redirect response back to the client.  The location ($loc) can
+be an absolute or relative URL. The $code must be one the redirect
+status codes, and defaults to "301 Moved Permanently"
 
 =cut
 
@@ -700,8 +700,7 @@ EOT
 =item $c->send_file_response($filename)
 
 Send back a response with the specified $filename as content.  If the
-file happen to be a directory we will try to generate an HTML index
-of it.
+file is a directory we try to generate an HTML index of it.
 
 =cut
 
@@ -744,7 +743,7 @@ sub send_dir
 
 =item $c->send_file($fd);
 
-Copies the file back to the client.  The file can be a string (which
+Copy the file to the client.  The file can be a string (which
 will be interpreted as a filename) or a reference to an I<IO::Handle>
 or glob.
 

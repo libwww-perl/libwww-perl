@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.32 1998/11/19 21:45:00 aas Exp $
+# $Id: Response.pm,v 1.33 1999/03/20 07:37:35 gisle Exp $
 
 package HTTP::Response;
 
@@ -14,10 +14,10 @@ HTTP::Response - Class encapsulating HTTP Responses
 
 =head1 DESCRIPTION
 
-The C<HTTP::Response> class encapsulate HTTP style responses.  A
-response consist of a response line, some headers, and a (potential
-empty) content. Note that the LWP library will use HTTP style
-responses also for non-HTTP protocol schemes.
+The C<HTTP::Response> class encapsulates HTTP style responses.  A
+response consists of a response line, some headers, and (potentially
+empty) content. Note that the LWP library also uses HTTP style
+responses for non-HTTP protocol schemes.
 
 Instances of this class are usually created and returned by the
 C<request()> method of an C<LWP::UserAgent> object:
@@ -31,7 +31,7 @@ C<request()> method of an C<LWP::UserAgent> object:
  }
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods often used are header(),
+inherits its methods.  The inherited methods most often used are header(),
 push_header(), remove_header(), headers_as_string(), and content().
 The header convenience methods are also available.  See
 L<HTTP::Message> for details.
@@ -45,7 +45,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Status ();
 use strict;
@@ -89,11 +89,11 @@ sub clone
 
 =item $r->previous([$previousResponse])
 
-These methods provide public access to the member variables.  The
-first two containing respectively the response code and the message
+These methods provide public access to the object attributes.  The
+first two contain respectively the response code and the message
 of the response.
 
-The request attribute is a reference the request that gave this
+The request attribute is a reference the request that caused this
 response.  It does not have to be the same request as passed to the
 $ua->request() method, because there might have been redirects and
 authorization retries in between.
@@ -159,7 +159,7 @@ received some redirect responses first.
 When the LWP protocol modules produce the HTTP::Response object, then
 any base URL embedded in the document (step 1) will already have
 initialized the "Content-Base:" header. This means that this method
-only perform the last 2 steps (the content is not always available
+only performs the last 2 steps (the content is not always available
 either).
 
 =cut
@@ -178,7 +178,7 @@ sub base
 
 =item $r->as_string
 
-Method returning a textual representation of the response.  Mainly
+Returns a textual representation of the response.  Mainly
 useful for debugging purposes. It takes no arguments.
 
 =cut
@@ -229,7 +229,7 @@ sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 =item $r->error_as_HTML()
 
-Return a string containing a complete HTML document indicating what
+Returns a string containing a complete HTML document indicating what
 error occurred.  This method should only be called when $r->is_error
 is TRUE.
 
@@ -254,7 +254,7 @@ EOM
 
 =item $r->current_age
 
-This function will calculate the "current age" of the response as
+Calculates the "current age" of the response as
 specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.3.  The
 age of a response is the time since it was sent by the origin server.
 The returned value is a number representing the age in seconds.
@@ -297,7 +297,7 @@ sub current_age
 
 =item $r->freshness_lifetime
 
-This function will calculate the "freshness lifetime" of the response
+Calculates the "freshness lifetime" of the response
 as specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.4.  The
 "freshness lifetime" is the length of time between the generation of a
 response and its expiration time.  The returned value is a number
@@ -356,7 +356,7 @@ sub freshness_lifetime
 =item $r->is_fresh
 
 Returns TRUE if the response is fresh, based on the values of
-freshness_lifetime() and current_age().  If the response is not longer
+freshness_lifetime() and current_age().  If the response is no longer
 fresh, then it has to be refetched or revalidated by the origin
 server.
 

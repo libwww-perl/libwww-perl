@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.17 1998/11/19 21:45:02 aas Exp $
+# $Id: RobotRules.pm,v 1.18 1999/03/20 07:37:36 gisle Exp $
 
 package WWW::RobotRules;
 
@@ -30,15 +30,15 @@ WWW::RobotsRules - Parse robots.txt files
 
 =head1 DESCRIPTION
 
-This module parses a F<robots.txt> file as specified in
+This module parses a F</robots.txt> file as specified in
 "A Standard for Robot Exclusion", described in
 <http://info.webcrawler.com/mak/projects/robots/norobots.html>
-Webmasters can use the F<robots.txt> file to disallow conforming
-robots access to parts of their WWW server.
+Webmasters can use the F</robots.txt> file to disallow conforming
+robots access to parts of their web site.
 
 The parsed file is kept in the WWW::RobotRules object, and this object
-provide methods to check if access to a given URL is prohibited.  The
-same WWW::RobotRules object can parse multiple F<robots.txt> files.
+provides methods to check if access to a given URL is prohibited.  The
+same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
 The following methods are provided:
 
@@ -46,14 +46,14 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
 use URI ();
 
 
-=item $rules = new WWW::RobotRules 'MOMspider/1.0'
+=item $rules = WWW::RobotRules->new($robot_name)
 
 This is the constructor for WWW::RobotRules objects.  The first 
 argument given to new() is the name of the robot. 

@@ -1,4 +1,4 @@
-                                            $Date: 1998/09/02 21:43:14 $
+                                            $Date: 1999/03/20 07:37:35 $
 
 This is a list over things that we plan to implement in libwww-perl-5.
 The order of items does not reflect priority.
@@ -15,7 +15,7 @@ The order of items does not reflect priority.
 
   o  Cache previous ftp connections.  "Keep-Alive"?
 
-  o  Support MOVE, DELETE method for ftp.
+  o  Support MOVE and DELETE methods for ftp.
 
   o  Use Mail::Send to implement LWP::Protocol::mailto.  Today we just
      invoke sendmail directly, which is not very portable.
@@ -26,8 +26,8 @@ The order of items does not reflect priority.
   o  The lwp-request script should optionally consult Mail::Cap for
      handling of media types.
 
-  o  The lwp-request script should use the callback interface so that it
-     prints data as it is received.
+  o  The lwp-request script should use the callback interface so it can
+     print data as it is received.
 
   o  The lwp-mirror script should be able to work recursively.
 
@@ -38,4 +38,3 @@ The order of items does not reflect priority.
   o  More tests
 
   o  Fix bugs, if there are any...
-

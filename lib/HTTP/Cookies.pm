@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -33,16 +33,16 @@ HTTP::Cookies - Cookie storage and management
 
 Cookies are a general mechanism which server side connections can use
 to both store and retrieve information on the client side of the
-connection.  For more information about cookies referrer to
+connection.  For more information about cookies refer to
 <URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
 <URL:http://www.cookiecentral.com/>.  This module also implements the
-new style cookies as described in I<draft-ietf-http-state-man-mec-08.txt>.
-The two variants of cookies is supposed to be able to coexist happily.
+new style cookies described in I<draft-ietf-http-state-man-mec-08.txt>.
+The two variants of cookies are supposed to be able to coexist happily.
 
 Instances of the class I<HTTP::Cookies> are able to store a collection
-of Set-Cookie2: and Set-Cookie:-headers and is able to use this
+of Set-Cookie2: and Set-Cookie: headers and are able to use this
 information to initialize Cookie-headers in I<HTTP::Request> objects.
-The state of the I<HTTP::Cookies> can be saved and restored from
+The state of a I<HTTP::Cookies> object can be saved in and restored from
 files.
 
 =head1 METHODS
@@ -59,11 +59,11 @@ The following methods are provided:
 
 =item $cookie_jar = HTTP::Cookies->new;
 
-The constructor.  Takes hash style parameters.  The following
+The constructor takes hash style parameters.  The following
 parameters are recognized:
 
-  file:            name of the file to restore and save cookies to
-  autosave:        should we save during destruction (bool)
+  file:            name of the file to restore cookies from and save cookies to
+  autosave:        save during destruction (bool)
   ignore_discard:  save even cookies that are requested to be discarded (bool)
 
 Future parameters might include (not yet implemented):
@@ -95,7 +95,7 @@ sub new
 
 The add_cookie_header() method will set the appropriate Cookie:-header
 for the I<HTTP::Request> object given as argument.  The $request must
-have a valid url() attribute before this method is called.
+have a valid url attribute before this method is called.
 
 =cut
 
@@ -231,8 +231,8 @@ sub add_cookie_header
 =item $cookie_jar->extract_cookies($response);
 
 The extract_cookies() method will look for Set-Cookie: and
-Set-Cookie2:-headers in the I<HTTP::Response> object passed as
-argument.  If some of these headers are found they are used to update
+Set-Cookie2: headers in the I<HTTP::Response> object passed as
+argument.  Any of these headers that are found are used to update
 the state of the $cookie_jar.
 
 =cut
@@ -399,8 +399,8 @@ The set_cookie() method updates the state of the $cookie_jar.  The
 $key, $val, $domain, $port and $path arguments are strings.  The
 $path_spec, $secure, $discard arguments are boolean values. The $maxage
 value is a number indicating number of seconds that this cookie will
-live.  A value <= 0 will delete this cookie.  The %rest are a place
-for various other attributes like "Comment" and "CommentURL".
+live.  A value <= 0 will delete this cookie.  %rest defines
+various other attributes like "Comment" and "CommentURL".
 
 =cut
 
@@ -447,15 +447,15 @@ sub set_cookie
 
 =item $cookie_jar->save( [$file] );
 
-Calling this method file save the state of the $cookie_jar to a file.
+This method file saves the state of the $cookie_jar to a file.
 The state can then be restored later using the load() method.  If a
 filename is not specified we will use the name specified during
 construction.  If the attribute I<ignore_discared> is set, then we
 will even save cookies that are marked to be discarded.
 
-The default is to save a sequence of "Set-Cookie3" lines.  The
+The default is to save a sequence of "Set-Cookie3" lines.
 "Set-Cookie3" is a proprietary LWP format, not known to be compatible
-with any other browser.  The I<HTTP::Cookies::Netscape> sub-class can
+with any browser.  The I<HTTP::Cookies::Netscape> sub-class can
 be used to save in a format compatible with Netscape.
 
 =cut
@@ -474,7 +474,7 @@ sub save
 
 =item $cookie_jar->load( [$file] );
 
-This method will read the cookies from the file and add them to the
+This method reads the cookies from the file and adds them to the
 $cookie_jar.  The file must be in the format written by the save()
 method.
 
@@ -525,7 +525,8 @@ sub load
 
 =item $cookie_jar->revert;
 
-Will revert to the state of last save.
+This method empties the $cookie_jar and re-loads the $cookie_jar
+from the last save file.
 
 =cut
 
@@ -541,7 +542,7 @@ sub revert
 Invoking this method without arguments will empty the whole
 $cookie_jar.  If given a single argument only cookies belonging to
 that domain will be removed.  If given two arguments, cookies
-belonging to the specified path within that domain is removed.  If
+belonging to the specified path within that domain are removed.  If
 given three arguments, then the cookie with the specified key, path
 and domain is removed.
 
@@ -575,7 +576,7 @@ sub DESTROY
 =item $cookie_jar->scan( \&callback );
 
 The argument is a subroutine that will be invoked for each cookie
-stored within the $cookie_jar.  The subroutine will be invoked with
+stored in the $cookie_jar.  The subroutine will be invoked with
 the following arguments:
 
   0  version
@@ -614,7 +615,7 @@ sub scan
 
 The as_string() method will return the state of the $cookie_jar
 represented as a sequence of "Set-Cookie3" header lines separated by
-"\n".  If given a argument that is TRUE, it will not return lines for
+"\n".  If $skip_discard is TRUE, it will not return lines for
 cookies with the I<Discard> attribute.
 
 =cut
@@ -664,8 +665,8 @@ sub _normalize_path  # so that plain string compare can be used
 
 =head1 SUB CLASSES
 
-We also provide a subclass called I<HTTP::Cookies::Netscape> which make
-cookie loading and saving compatible with Netscape cookie files.  You
+We also provide a subclass called I<HTTP::Cookies::Netscape> which
+loads and saves Netscape compatible cookie files.  You
 should be able to have LWP share Netscape's cookies by constructing
 your $cookie_jar like this:
 
@@ -676,7 +677,7 @@ your $cookie_jar like this:
 
 Please note that the Netscape cookie file format is not able to store
 all the information available in the Set-Cookie2 headers, so you will
-probably loose some information if you save using this format.
+probably loose some information if you save in this format.
 
 =cut
 

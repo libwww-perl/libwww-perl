@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.24 1998/03/23 08:20:32 aas Exp $
+# $Id: Status.pm,v 1.25 1999/03/20 07:37:35 gisle Exp $
 
 package HTTP::Status;
 
@@ -25,7 +25,7 @@ HTTP::Status - HTTP Status code processing
 =head1 DESCRIPTION
 
 I<HTTP::Status> is a library of routines for defining and
-classification of HTTP status codes for libwww-perl.  Status codes are
+classifying HTTP status codes for libwww-perl.  Status codes are
 used to encode the overall outcome of a HTTP response message.  Codes
 correspond to those defined in F<draft-ietf-http-v11-spec-rev-03> (an
 update to RFC 2068).
@@ -90,7 +90,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 
 # Note also addition of mnemonics to @EXPORT below
 

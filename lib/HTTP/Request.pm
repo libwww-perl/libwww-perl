@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.25 1999/03/19 21:02:16 gisle Exp $
+# $Id: Request.pm,v 1.26 1999/03/20 07:37:35 gisle Exp $
 
 package HTTP::Request;
 
@@ -27,7 +27,7 @@ of an C<LWP::UserAgent> object:
  $response = $ua->request($request);
 
 C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods often used are header(),
+inherits its methods.  The inherited methods most often used are header(),
 push_header(), remove_header(), headers_as_string() and content().
 See L<HTTP::Message> for details.
 
@@ -39,7 +39,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -76,15 +76,15 @@ sub clone
 
 =item $r->uri([$val])
 
-These methods provide public access to the member variables containing
+These methods provide public access to the attributes containing
 respectively the method of the request and the URI object of the
 request.
 
-If an argument is given the member variable is given that as its new
+If an argument is given the attribute is given that as its new
 value. If no argument is given the value is not touched. In either
 case the previous value is returned.
 
-The url() method accept both a reference to a URI object and a
+The uri() method accept both a reference to a URI object and a
 string as its argument.  If a string is given, then it should be
 parseable as an absolute URI.
 

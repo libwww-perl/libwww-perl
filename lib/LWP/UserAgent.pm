@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.65 1998/11/21 08:14:33 aas Exp $
+# $Id: UserAgent.pm,v 1.66 1999/03/20 07:37:36 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -29,52 +29,52 @@ core of libwww-perl library. For simple uses this class can be used
 directly to dispatch WWW requests, alternatively it can be subclassed
 for application-specific behaviour.
 
-In normal usage the application creates a UserAgent object, and then
-configures it with values for timeouts proxies, name, etc. The next
-step is to create an instance of C<HTTP::Request> for the request that
+In normal use the application creates a UserAgent object, and then
+configures it with values for timeouts, proxies, name, etc. It next
+creates an instance of C<HTTP::Request> for the request that
 needs to be performed. This request is then passed to the UserAgent
 request() method, which dispatches it using the relevant protocol,
 and returns a C<HTTP::Response> object.
 
 The basic approach of the library is to use HTTP style communication
-for all protocol schemes, i.e. you will receive an C<HTTP::Response>
-object also for gopher or ftp requests.  In order to achieve even more
-similarities with HTTP style communications, gopher menus and file
-directories will be converted to HTML documents.
+for all protocol schemes, i.e. you also receive an C<HTTP::Response>
+object for gopher or ftp requests.  In order to achieve even more
+similarity to HTTP style communications, gopher menus and file
+directories are converted to HTML documents.
 
 The request() method can process the content of the response in one of
-three ways: in core, into a file, or into repeated calls of a
+three ways: in core, into a file, or into repeated calls to a
 subroutine.  You choose which one by the kind of value passed as the
 second argument to request().
 
-The in core variant simply returns the content in a scalar attribute
-called content() of the response object, and is suitable for small
+The in core variant simply stores the content in a scalar 'content' attribute
+of the response object and is suitable for small
 HTML replies that might need further parsing.  This variant is used if
 the second argument is missing (or is undef).
 
 The filename variant requires a scalar containing a filename as the
-second argument to request(), and is suitable for large WWW objects
-which need to be written directly to the file, without requiring large
+second argument to request() and is suitable for large WWW objects
+which need to be written directly to the file without requiring large
 amounts of memory. In this case the response object returned from
-request() will have empty content().  If the request fails, then the
-content() might not be empty, and the file will be untouched.
+request() will have an empty content attribute.  If the request fails, then the
+content might not be empty, and the file will be untouched.
 
 The subroutine variant requires a reference to callback routine as the
 second argument to request() and it can also take an optional chuck
-size as third argument.  This variant can be used to construct
+size as the third argument.  This variant can be used to construct
 "pipe-lined" processing, where processing of received chuncks can
 begin before the complete data has arrived.  The callback function is
 called with 3 arguments: the data received this time, a reference to
 the response object and a reference to the protocol object.  The
-response object returned from request() will have empty content().  If
-the request fails, then the the callback routine will not have been
-called, and the response->content() might not be empty.
+response object returned from request() will have empty content.  If
+the request fails, then the the callback routine is
+called, and the response->content might not be empty.
 
-The request can be aborted by calling die() within the callback
+The request can be aborted by calling die() in the callback
 routine.  The die message will be available as the "X-Died" special
 response header field.
 
-The library also accepts that you put a subroutine reference as
+The library also allows you to use a subroutine reference as
 content in the request object.  This subroutine should return the
 content (possibly in pieces) when called.  It should return an empty
 string when there is no more content.
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.65 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.66 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -141,7 +141,7 @@ sub new
 This method dispatches a single WWW request on behalf of a user, and
 returns the response received.  The C<$request> should be a reference
 to a C<HTTP::Request> object with values defined for at least the
-method() and url() attributes.
+method() and uri() attributes.
 
 If C<$arg> is a scalar it is taken as a filename where the content of
 the response is stored.
@@ -234,7 +234,7 @@ sub simple_request
 =item $ua->request($request, $arg [, $size])
 
 Process a request, including redirects and security.  This method may
-actually send several different simple reqeusts.
+actually send several different simple requests.
 
 The arguments are the same as for C<simple_request()>.
 
@@ -345,7 +345,7 @@ sub request
 =item $ua->redirect_ok
 
 This method is called by request() before it tries to do any
-redirects.  It should return a true value if the redirect is allowed
+redirects.  It should return a true value if a redirect is allowed
 to be performed. Subclasses might want to override this.
 
 The default implementation will return FALSE for POST request and TRUE
@@ -454,7 +454,7 @@ TRUE.  Do not turn this off, unless you know what you are doing.
 =item $ua->max_size([$bytes])
 
 Get/set the size limit for response content.  The default is undef,
-which means that there is not limit.  If the returned response content
+which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
 "X-Content-Range" header will be added to the response.
 

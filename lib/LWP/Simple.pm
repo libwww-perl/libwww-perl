@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.31 1999/03/19 21:34:49 gisle Exp $
+# $Id: Simple.pm,v 1.32 1999/03/20 07:37:36 gisle Exp $
 
 =head1 NAME
 
@@ -39,7 +39,7 @@ be either a simple string or a reference to a URI object.
 
 You will not be able to examine the response code or response headers
 (like 'Content-Type') when you are accessing the web using this
-function.  If you need this information you should use the full OO
+function.  If you need that information you should use the full OO
 interface (see L<LWP::UserAgent>).
 
 =item head($url)
@@ -53,8 +53,8 @@ successful.
 =item getprint($url)
 
 Get and print a document identified by a URL. The document is printed
-on STDOUT as data is received from the network.  If the request fails,
-then the status code and message is printed on STDERR.  The return
+to STDOUT as data is received from the network.  If the request fails,
+then the status code and message are printed on STDERR.  The return
 value is the HTTP response code.
 
 =item getstore($url, $file)
@@ -65,7 +65,7 @@ return value is the HTTP response code.
 =item mirror($url, $file)
 
 Get and store a document identified by a URL, using
-I<If-modified-since>, and checking of the I<Content-Length>.  Returns
+I<If-modified-since>, and checking the I<Content-Length>.  Returns
 the HTTP response code.
 
 =back
@@ -118,11 +118,11 @@ The HTTP::Status classification functions are:
 
 =item is_success($rc)
 
-Check if response code indicated successfull request.
+True if response code indicated a successful request.
 
 =item is_error($rc)
 
-Check if response code indicated that an error occured.
+True if response code indicated that an error occured.
 
 =back
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.26 1997/05/20 20:56:50 aas Exp $
+# $Id: Response.pm,v 1.27 1997/11/18 17:27:55 aas Exp $
 
 package HTTP::Response;
 
@@ -59,7 +59,7 @@ response code C<$rc> and optional message C<$msg>.
 sub new
 {
     my($class, $rc, $msg, $header, $content) = @_;
-    my $self = bless new HTTP::Message $header, $content;
+    my $self = $class->SUPER::new($header, $content);
     $self->code($rc);
     $self->message($msg);
     $self;

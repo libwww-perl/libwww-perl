@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.18 1997/10/09 07:22:41 aas Exp $
+# $Id: Request.pm,v 1.19 1997/11/18 17:27:55 aas Exp $
 
 package HTTP::Request;
 
@@ -55,7 +55,7 @@ argument should be a reference to a HTTP::Headers object.
 sub new
 {
     my($class, $method, $url, $header, $content) = @_;
-    my $self = bless new HTTP::Message $header, $content;
+    my $self = $class->SUPER::new($header, $content);
     $self->method($method);
     $self->url($url);
     $self;

@@ -1,10 +1,7 @@
-package Font::AFM;
+# This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
+# $Id: AFM.pm,v 1.6 1995/07/14 10:47:00 aas Exp $
 
-# This perl module is a simple parser for Adobe Font Metrics files.
-#
-# $Id: AFM.pm,v 1.5 1995/05/14 18:45:11 aas Exp $
-#
-# Author: Gisle Aas <aas@oslonett.no>
+package Font::AFM;
 
 =head1 NAME
 
@@ -34,17 +31,17 @@ The following methods are available:
 
 =over 3
 
-=item new
+=item new($fontname)
 
 Object constructor. Takes the name of the font as argument. It will
 croak if the font can not be found.
 
-=item latin1_wx_table
+=item latin1_wx_table()
 
 Returns an 256 elements array, where each element contains the width
 of the corresponding character.
 
-=item stringwidth
+=item stringwidth($string, [$fontsize])
 
 Returns the width of the string passed as argument. A second argument
 can be used to scale the width according to the font size.
@@ -154,17 +151,17 @@ Dumps the content of the Font::AFM object to STDOUT.  Useful for debugging.
 
 =item METRICS
 
-Contains the PATH to seach for AFM-files.
+Contains the path to seach for AFM-files.  Format is as for the PATH
+environment variable. The default path built into this library is:
+
+ /usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.
 
 =back
 
 
-=head1 AUTHORS / ACKNOWLEDGMENTS
-
-This module is written by Gisle Aas <aas@oslonett.no>.
-
-
 =head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -174,6 +171,11 @@ INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
 OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION (INCLUDING, BUT NOT
 LIMITED TO, LOST PROFITS) EVEN IF THE AUTHORS HAVE BEEN ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE. 
+
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
 
 
 =head1 AVAILABILITY
@@ -197,9 +199,13 @@ Lingature data is not parsed.
 
 use Carp;
 
+$VERSION = $VERSION =  # shut up -w
+   sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+
 # The metrics_path is used to locate metrics files
 #
-$metrics_path = $ENV{METRICS} || "/usr/openwin/lib/fonts/afm/:.";
+$metrics_path = $ENV{METRICS} ||
+    "/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.";
 @metrics_path = split(/:/, $metrics_path);
 foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 
@@ -382,5 +388,41 @@ sub dump
 	}
     }
 }
+
+
+####################################################################
+#
+# S E L F   T E S T   S E C T I O N
+#
+#####################################################################
+#
+# If we're not use'd or require'd execute self-test.
+# Handy for regression testing and as a quick reference :)
+#
+# Test is kept behind __END__ so it doesn't take uptime
+# and memory  unless explicitly required. If you're working
+# on the code you might find it easier to comment out the
+# eval and __END__ so that error line numbers make more sense.
+
+package main;
+
+eval join('',<DATA>) || die $@ unless caller();
+
+1;
+
+__END__
+
+
+$font = new Font::AFM "Helvetica";
+
+$sw = $font->stringwidth("Gisle Aas");
+
+if ($sw != 4279) {
+    warn "self test failed";
+    die  "The stringwidth of 'Gisle Aas' should be 4279 (is was $sw)\n";
+}
+
+print "Self test for Font::AFM $Font::AFM::VERSION ok\n";
+
 
 1;

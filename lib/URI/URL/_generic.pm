@@ -261,9 +261,7 @@ sub path_components {
     $old = "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
     if (@_) {
 	$self->_elem('path',
-		     join("/", map { uri_escape($_,
-						$URI::URL::reserved.".")
-				   } @_));
+		     join("/", map {uri_escape($_, $URI::URL::reserved)} @_));
     }
     map { uri_unescape($_) } split("/", $old, -1);
 }

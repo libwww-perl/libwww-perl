@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.2 1995/06/12 18:25:19 aas Exp $
+# $Id: Debug.pm,v 1.3 1995/07/11 11:57:07 aas Exp $
 #
 package LWP::Debug;
 
 =head1 NAME
 
-LWP::Debug -- debug routines
+LWP::Debug - debug routines
 
 =head1 SYNOPSIS
 
@@ -46,29 +46,27 @@ See L<lwp> for a complete overview of libwww-perl5.
 
 #####################################################################
 
-$Version = '$Revision: 1.2 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw( level trace conns debug debugl );
+@EXPORT_OK = qw(level trace conns debug debugl);
 
 # debuglevel may have been set before use/require
 # can be set any combination of the bitmasks below
 
 my $debuglevel = 0;
 
-my $bit_trace = 1;      # function calls
-my $bit_conns = 2;      # connection
-my $bit_debug = 4;      # debug messages
+my $bit_trace  = 1;      # function calls
+my $bit_conns  = 2;      # connection
+my $bit_debug  = 4;      # debug messages
 
 %levels = (
            'trace' => $bit_trace,
            'conns' => $bit_conns,
            'debug' => $bit_debug,
            );
-# timeout message, stored by _long_msg()
 
+# timeout message, stored by _long_msg()
 $timeoutMessage = undef;
 
 #####################################################################

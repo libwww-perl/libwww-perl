@@ -1,3 +1,6 @@
+Tue Dec  2 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.17
 
  o  All authentication handling moved out of LWP::UserAgent and into
     LWP::Authen::Basic and LWP::Authen::Digest.  We now also support
@@ -14,6 +17,8 @@
     argument (in addition to an array reference).
 
  o  LWP::Simple will initialize the $ua if it is exported.
+
+ o  Various documentation updates.
 
 
 

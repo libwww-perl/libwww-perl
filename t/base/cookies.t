@@ -567,8 +567,8 @@ Set-Cookie3: JSESSIONID="fkumjm7nt1.JS24"; path="/trs"; domain="www.trip.com"; p
 EOT
 
 #-------------------------------------------------------------------
-# Test if session cookies are deleted properly with
-# $jar->discard_session_cookies()
+# Test if temporary cookies are deleted properly with
+# $jar->clear_temporary_cookies()
 
 $req = HTTP::Request->new('GET', 'http://www.perlmeister.com/scripts');
 $res = HTTP::Response->new(200, "OK");
@@ -586,7 +586,7 @@ $c->extract_cookies($res);
 # How many session/permanent cookies do we have?
 my %counter = ("session_after" => 0);
 $c->scan( sub { $counter{"${_[2]}_before"}++ } );
-$c->discard_session_cookies();
+$c->clear_temporary_cookies();
 # How many now?
 $c->scan( sub { $counter{"${_[2]}_after"}++ } );
 print "not " if   # a permanent cookie got lost accidently

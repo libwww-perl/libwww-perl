@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -569,6 +569,27 @@ sub clear
     $self;
 }
 
+=item $cookie_jar->clear_temporary_cookies( );
+
+Discard all temporary cookies. Scans for all cookies in the jar 
+with either no expire field or a true C<discard> flag. To be 
+called when the user agent shuts down according to RFC 2965.
+
+=cut
+
+sub clear_temporary_cookies
+{
+    my($self) = @_;
+
+    $self->scan(sub {
+        if($_[9] or        # "Discard" flag set
+           not $_[8]) {    # No expire field?
+            $_[8] = -1;            # Set the expire/max_age field
+            $self->set_cookie(@_); # Clear the cookie
+        }
+      });
+}
+
 sub DESTROY
 {
     my $self = shift;
@@ -647,27 +668,6 @@ sub as_string
 	push(@res, "Set-Cookie3: " . join_header_words(\@h));
     });
     join("\n", @res, "");
-}
-
-=item $cookie_jar->discard_session_cookies( );
-
-Discard all session cookies. Scans for all cookies in the jar 
-with either no expire field or a true C<discard> flag. To be 
-called when the user agent shuts down according to RFC 2965.
-
-=cut
-
-sub discard_session_cookies
-{
-    my($self) = @_;
-
-    $self->scan(sub {
-        if($_[9] or        # "Discard" flag set
-           not $_[8]) {    # No expire field?
-            $_[8] = -1;            # Set the expire/max_age field
-            $self->set_cookie(@_); # Clear the cookie
-        }
-      });
 }
 
 sub _url_path

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.24 1996/07/22 13:05:56 aas Exp $
+# $Id: Headers.pm,v 1.25 1996/09/10 10:23:57 aas Exp $
 
 package HTTP::Headers;
 
@@ -217,10 +217,11 @@ Return the header fields as a formatted MIME header.  Since it
 internally uses the C<scan()> method to build the string, the result
 will use case as suggested by HTTP Spec, and it will follow
 recommended "Good Practice" of ordering the header fieds.  Long header
-values are I<never> folded.
+values are not folded. 
 
 The optional parameter specifies the line ending sequence to use.  The
-default is C<"\n">.
+default is C<"\n">.  Embedded "\n" characters in the header will be
+substitued with this line ending sequence.
 
 =cut
 
@@ -232,8 +233,13 @@ sub as_string
     my @result = ();
     $self->scan(sub {
 	my($field, $val) = @_;
-	Carp::croak("HTTP header ($field) contains newline")
-	   if $val =~ /\n/;
+	if ($val =~ /\n/) {
+	    # must handle header values with embedded newlines with care
+	    $val =~ s/\s+$//;          # trailing newlines and space must go
+	    $val =~ s/\n\n+/\n/g;      # no empty lines
+	    $val =~ s/\n([^\040\t])/\n $1/g;  # intial space for continuation
+	    $val =~ s/\n/$endl/g;      # substitute with requested line ending
+	}
 	push(@result, "$field: $val");
     });
 

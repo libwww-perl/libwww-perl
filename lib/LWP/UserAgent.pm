@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.64 1998/11/19 21:45:01 aas Exp $
+# $Id: UserAgent.pm,v 1.65 1998/11/21 08:14:33 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.64 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.65 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -103,8 +103,6 @@ use LWP::Debug ();
 use LWP::Protocol ();
 
 use Carp ();
-use AutoLoader ();
-*AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
 
 
 =item $ua = new LWP::UserAgent;
@@ -169,6 +167,9 @@ sub simple_request
 	unless $method;
     return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "URL missing")
 	unless $url;
+    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "URL must be absolute")
+	unless $url->scheme;
+	
 
     LWP::Debug::trace("$method $url");
 
@@ -474,20 +475,6 @@ sub use_alarm
 	if @_ > 1 && $^W;
     "";
 }
-
-
-# Declarations of AutoLoaded methods
-sub clone;
-sub is_protocol_supported;
-sub mirror;
-sub proxy;
-sub env_proxy;
-sub no_proxy;
-sub _need_proxy;
-
-
-1;
-__END__
 
 
 =item $ua->clone;

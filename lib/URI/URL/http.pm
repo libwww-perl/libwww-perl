@@ -26,7 +26,7 @@ sub keywords {
     $old = $self->{'query'};
     if (@_) {
 	# Try to set query string
-	$self->equery(join('+', map { URI::Escape::uri_escape($_, $URI::URL::reserved . "+") } @_));
+	$self->equery(join('+', map { URI::Escape::uri_escape($_, $URI::URL::reserved) } @_));
 	return undef;
     }
     return undef unless defined $old;

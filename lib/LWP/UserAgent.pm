@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.66 1999/03/20 07:37:36 gisle Exp $
+# $Id: UserAgent.pm,v 1.67 1999/06/25 08:54:50 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.66 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.67 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -199,6 +199,7 @@ sub simple_request
     # Set User-Agent and From headers if they are defined
     $request->header('User-Agent' => $agent) if $agent;
     $request->header('From' => $from) if $from;
+    $request->header('Range' => "bytes=0-$max_size") if $max_size;
     $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
     # Transfer some attributes to the protocol object

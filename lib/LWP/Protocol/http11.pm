@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.11 2001/04/20 18:23:47 gisle Exp $
+# $Id: http11.pm,v 1.12 2001/04/21 03:54:50 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -285,10 +285,12 @@ sub request
     $response->push_header('Client-Warning', 'LWP HTTP/1.1 support is experimental');
     $response->push_header('Client-Request-Num', ++${*$socket}{'myhttp_req_count'});
 
+    my $complete;
     $response = $self->collect($arg, $response, sub {
 	my $buf;
 	my $n = $socket->read_entity_body($buf, $size);
 	die $! unless defined $n;
+	$complete++ if $n == 0;
         return \$buf;
     } );
 
@@ -299,14 +301,16 @@ sub request
     }
 
     # keep-alive support
-    if (my $conn_cache = $self->{ua}{conn_cache}) {
-	my %connection = map { (lc($_) => 1) }
-	                 split(/\s*,\s*/, ($response->header("Connection") || ""));
-	if (($peer_http_version eq "1.1" && !$connection{close}) ||
-	    $connection{"keep-alive"})
-	{
-	    LWP::Debug::debug("Keep the http connection to $host:$port");
-	    $conn_cache->deposit("http", "$host:$port", $socket);
+    if ($complete) {
+	if (my $conn_cache = $self->{ua}{conn_cache}) {
+	    my %connection = map { (lc($_) => 1) }
+		             split(/\s*,\s*/, ($response->header("Connection") || ""));
+	    if (($peer_http_version eq "1.1" && !$connection{close}) ||
+		$connection{"keep-alive"})
+	    {
+		LWP::Debug::debug("Keep the http connection to $host:$port");
+		$conn_cache->deposit("http", "$host:$port", $socket);
+	    }
 	}
     }
 

@@ -26,7 +26,7 @@ or, as a perl one-liner using the getprint() function:
 
   perl -MLWP::Simple -e 'getprint "http://www.sn.no/libwww-perl/"'
 
-or, how about fetching the latest perl by running this:
+or, how about fetching the latest perl by running this command:
 
   perl -MLWP::Simple -e '
     getstore "ftp://ftp.sunet.se/pub/lang/perl/CPAN/src/latest.tar.gz",
@@ -45,7 +45,7 @@ handle the response returned.
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
   $ua->agent("$0/0.1 " . $ua->agent);
-  # $ua->agent("Mozilla/5.0") # pretend you are some very new Netscape browser
+  # $ua->agent("Mozilla/8.0") # pretend we are very capable browser
 
   $req = new HTTP::Request 'GET' => 'http://www.sn.no/libwww-perl';
   $req->header('Accept' => 'text/html');
@@ -57,7 +57,7 @@ handle the response returned.
   if ($res->is_success) {
      print $res->content;
   } else {
-     print "Error: " . $res->code . " " . $res->message;
+     print "Error: " . $res->status_line . "\n";
   }
 
 The lwp-request program (alias GET) that is distributed with the
@@ -87,7 +87,7 @@ above.  Just s/GET/HEAD/g.
 
 =head1 POST
 
-There is no simple interface for posting data to a WWW server.  You
+There is no simple procedural interface for posting data to a WWW server.  You
 must use the object oriented interface for this. The most common POST
 operation is to access a WWW form application:
 
@@ -101,7 +101,7 @@ operation is to access a WWW form application:
   my $res = $ua->request($req);
   print $res->as_string;
 
-You can also use the HTTP::Request::Common module to set up a suitable
+Lazy people use the HTTP::Request::Common module to set up a suitable
 POST request message (it handles all the escaping issues) and has a
 suitable default for the content_type:
 

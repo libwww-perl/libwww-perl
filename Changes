@@ -1,3 +1,8 @@
+    Use case insensitive lookup of hostname in $ua->credentials.
+    Patch by Andrew Pimlott <andrew@pimlott.net>.
+
+
+
 2004-04-06   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.77

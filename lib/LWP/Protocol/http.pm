@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.53 2001/04/16 10:41:59 gisle Exp $
+# $Id: http.pm,v 1.54 2001/08/07 20:50:55 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -156,27 +156,44 @@ sub request
 
     my $buf = $request_line . $h->as_string($CRLF) . $CRLF;
     my $n;  # used for return value from syswrite/sysread
+    my $length;
+    my $offset;
 
-    die "write timeout" if $timeout && !$sel->can_write($timeout);
-    $n = $socket->syswrite($buf, length($buf));
-    die $! unless defined($n);
-    die "short write" unless $n == length($buf);
+    # syswrite $buf
+    $length = length($buf);
+    $offset = 0;
+    while ( $offset < $length ) {
+	die "write timeout" if $timeout && !$sel->can_write($timeout);
+	$n = $socket->syswrite($buf, $length-$offset, $offset );
+	die $! unless defined($n);
+	$offset += $n;
+    }
     LWP::Debug::conns($buf);
 
     if ($ctype eq 'CODE') {
 	while ( ($buf = &$cont_ref()), defined($buf) && length($buf)) {
-	    die "write timeout" if $timeout && !$sel->can_write($timeout);
-	    $n = $socket->syswrite($buf, length($buf));
-	    die $! unless defined($n);
-	    die "short write" unless $n == length($buf);
+	    # syswrite $buf
+	    $length = length($buf);
+	    $offset = 0;
+	    while ( $offset < $length ) {
+		die "write timeout" if $timeout && !$sel->can_write($timeout);
+		$n = $socket->syswrite($buf, $length-$offset, $offset );
+		die $! unless defined($n);
+		$offset += $n;
+	    }
 	    LWP::Debug::conns($buf);
 	}
     }
     elsif (defined($$cont_ref) && length($$cont_ref)) {
-	die "write timeout" if $timeout && !$sel->can_write($timeout);
-	$n = $socket->syswrite($$cont_ref, length($$cont_ref));
-	die $! unless defined($n);
-	die "short write" unless $n == length($$cont_ref);
+	# syswrite $$cont_ref
+	$length = length($$cont_ref);
+	$offset = 0;
+	while ( $offset < $length ) {
+	    die "write timeout" if $timeout && !$sel->can_write($timeout);
+	    $n = $socket->syswrite($$cont_ref, $length-$offset, $offset );
+	    die $! unless defined($n);
+	    $offset += $n;
+	}
 	LWP::Debug::conns($$cont_ref);
     }
 

@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 1.1 1995/08/23 08:28:15 aas Exp $
+# $Id: QuotedPrint.pm,v 1.2 1995/08/23 11:18:03 aas Exp $
 
 package MIME::QuotedPrintable;
 
@@ -41,7 +41,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(qp_encode qp_decode);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 sub qp_encode
@@ -60,8 +60,8 @@ sub qp_encode
 sub qp_decode
 {
     $res = shift;
-    $res =~ s/\s+$//gm;  # rule #3 (any trailing white space must be deleted)
-    $res =~ s/=\n$//;    # rule #5 (soft line breaks)
+    $res =~ s/\s+(\r?\n)/$1/g; # rule #3 (trailing white space must be deleted)
+    $res =~ s/=\r?\n//g;       # rule #5 (soft line breaks)
     $res =~ s/=([\da-fA-F]{2})/pack("C", hex($1))/ge;
     $res;
 }

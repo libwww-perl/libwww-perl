@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.25 1996/11/11 17:46:39 aas Exp $
+# $Id: http.pm,v 1.26 1997/01/27 14:17:23 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -44,7 +44,7 @@ sub request
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
     LWP::Debug::trace('()');
 
-    $size = 4096 unless $size;
+    $size ||= 4096;
 
     # check method
     my $method = $request->method;
@@ -115,53 +115,87 @@ sub request
     # read response line from server
     LWP::Debug::debug('reading response');
 
-    my $line;
-    my $result = $socket->read_until("\015?\012", \$line, undef, $timeout);
-
+    my $res = "";
+    my $buf = "";
     my $response;
 
-    # parse response header
-    if ($line =~ /^HTTP\/(\d+\.\d+)\s+(\d+)\s+(.*)/) { # HTTP/1.0 or better
-	my $ver = $1;
-	LWP::Debug::debug("HTTP/$ver server");
+    # Inside this loop we will read the response line and all headers
+    # found in the response.
+    while ($socket->read(\$buf, undef, $timeout)) {
+	$res .= $buf;
+	if ($res =~ s/^(HTTP\/\d+\.\d+)\s+(\d+)\s+(.*)\012//) {
+	    # HTTP/1.0 response or better
+	    my($ver,$code,$msg) = ($1, $2, $3);
+	    $msg =~ s/\015$//;
+	    LWP::Debug::debug("$ver $code $msg");
+	    $response = HTTP::Response->new($code, $msg);
+	    $response->protocol($ver);
 
-	$response = HTTP::Response->new($2, $3);
-
-	LWP::Debug::debug('reading rest of response header');
-	my $header = '';
-	my $result = $socket->read_until("\015?\012\015?\012", \$header,
-					 undef, $timeout);
-
-	# now entire header is read, parse it
-	LWP::Debug::debug('parsing response header');
-	my($key, $val);
-	for (split(/\015?\012/, $header)) {
-	    if (/^(\S+?):\s*(.*)$/) {
-		$response->push_header($key, $val) if $key;
-		($key, $val) = ($1, $2);
-	    } elsif (/\s+(.*)/) {
-		next unless $key;
-		$val .= " $1";
+	    # ensure that we have read all headers.  The headers will be
+	    # terminated by two blank lines
+	    while ($res !~ /\015?\012\015?\012/) {
+		# must read more if we can...
+		LWP::Debug::debug("need more data for headers");
+		last unless $socket->read(\$buf, undef, $timeout);
+		$res .= $buf;
 	    }
+
+	    # now we start parsing the headers.  The strategy is to
+	    # remove one line at a time from the beginning of the header
+	    # buffer ($res).
+	    my($key, $val);
+	    while ($res =~ s/([^\012]*)\012//) {
+		my $line = $1;
+
+		# if we need to restore as content when illegal headers
+		# are found.
+		my $save = "$line\012"; 
+
+		$line =~ s/\015$//;
+		last unless length $line;
+
+		if ($line =~ /^([a-zA-Z0-9_\-]+)\s*:\s*(.*)/) {
+		    $response->push_header($key, $val) if $key;
+		    ($key, $val) = ($1, $2);
+		} elsif ($line =~ /^\s+(.*)/) {
+		    unless ($key) {
+			LWP::Debug::debug("Illegal continuation header");
+			$res = "$save$res";
+			last;
+		    }
+		    $val .= " $1";
+		} else {
+		    LWP::Debug::debug("Illegal header '$line'");
+		    $res = "$save$res";
+		    last;
+		}
+	    }
+	    $response->push_header($key, $val) if $key;
+	    last;
+
+	} elsif ((length($res) >= 5 and $res !~ /^HTTP\//) or
+		 $res =~ /\012/ ) {
+	    # HTTP/0.9 or worse
+	    LWP::Debug::debug("HTTP/0.9 assume OK");
+	    $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
+	    $response->protocol('HTTP/0.9');
+	    last;
+
+	} else {
+	    # need more data
+	    LWP::Debug::debug("need more data to know which protocol");
 	}
-	$response->push_header($key, $val) if $key;
-    } else {
-	# HTTP/0.9 or worse. Assume OK
-	LWP::Debug::debug('HTTP/0.9 server');
-	$response = HTTP::Response->new(&HTTP::Status::RC_OK,
-					'HTTP 0.9 server');
-	#XXX: Unfortunately, we have lost the line ending sequence.  So
-	# we just guess that it is '\n'.  This will not always be correct.
-	$socket->pushback("$line\n");
-    }
+    };
+    die "Unexpected EOF" unless $response;
+
+    $socket->pushback($res) if length $res;
     $response->request($request);
 
     # need to read content
     alarm($timeout) if $self->use_alarm and $timeout;
 
-    LWP::Debug::debug('Reading content');
     $response = $self->collect($arg, $response, sub {
-	LWP::Debug::debug('collecting');
+	LWP::Debug::debug('Collecting');
 	my $content = '';
 	my $result = $socket->read(\$content, $size, $timeout);
 	return \$content;

@@ -7,9 +7,8 @@ sub authenticate
 {
     my($class, $ua, $proxy, $auth_param, $response,
        $request, $arg, $size) = @_;
-    my %auth_param = @$auth_param;
 
-    my($user, $pass) = $ua->get_basic_credentials($auth_param{realm},
+    my($user, $pass) = $ua->get_basic_credentials($auth_param->{realm},
                                                   $request->url, $proxy);
     return $response unless defined $user and defined $pass;
 

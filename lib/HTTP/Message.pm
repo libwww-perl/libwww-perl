@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.8 1995/09/04 20:46:00 aas Exp $
+# $Id: Message.pm,v 1.9 1996/02/05 17:59:41 aas Exp $
 
 package HTTP::Message;
 
@@ -39,6 +39,7 @@ sub new
     } else {
         $header = new HTTP::Headers;
     }
+    $content = '' unless defined $content;
     bless {
         '_header'  => $header,
         '_content' => $content,

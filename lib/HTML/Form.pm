@@ -87,6 +87,10 @@ sub parse
     my($class, $html, $base_uri) = @_;
     require HTML::TokeParser;
     my $p = HTML::TokeParser->new(\$html);
+    eval {
+	# optimization
+	$p->report_only_tags(qw(form input textarea select optgroup option));
+    };
 
     my @forms;
     my $f;  # current form

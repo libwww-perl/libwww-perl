@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.14 2001/04/28 07:11:12 gisle Exp $
+# $Id: http11.pm,v 1.15 2001/04/29 04:40:58 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -338,12 +338,14 @@ sub request
     my $complete;
     $response = $self->collect($arg, $response, sub {
 	my $buf;
-	my $n = $socket->read_entity_body($buf, $size);
-	die $! unless defined $n;
-	$complete++ if !$n;
-	if ($n eq "0E0") {
-	    $buf = "x"; # XXX need to change this interface somehow...
+	my $n;
+      READ:
+	{
+	    $n = $socket->read_entity_body($buf, $size);
+	    die "Can't read entity body: $!" unless defined $n;
+	    redo READ if $n eq "0E0";
 	}
+	$complete++ if !$n;
         return \$buf;
     } );
     $drop_connection++ unless $complete;

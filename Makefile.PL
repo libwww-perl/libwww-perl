@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.15 1995/12/29 15:22:53 aas Exp $
+# $Id: Makefile.PL,v 1.16 1996/02/05 18:12:04 aas Exp $
 
 #--- Configuration section ---
 
@@ -8,7 +8,7 @@
 
 #--- End Configuration - You should not have to change anything below this line
 
-require 5.001;
+require 5.002;  # LWP needs this perl version
 
 # Allow us to suppress of all program installation with the -l (library only)
 # option.  This is for those that don't want to mess with this file.
@@ -20,10 +20,10 @@ unless (getopts("l")) {
 @programs_to_install = () if $opt_l;
 
 # Find the perl executable
-$PERL = find_perl(5.001, [ $^X, "perl", "perl5", "perl$]" ],
+$PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
                          [split ":", $ENV{PATH}], 0);
 $NAME = 'libwww-perl';
-$VERSION = '5b7';   #chomp ($VERSION = `$PERL VERSION`);
+$VERSION = '5b7save';
 
 # Write findings to a file so that other .PL files can read them.
 open(OUT, ">myConfig.out") or die "Can't open myConfig.out: $!";
@@ -39,50 +39,30 @@ close(OUT);
 # Generate Makefile
 use ExtUtils::MakeMaker;
 
-sub initialize
-{
-    %hash = (
-	NAME      => $NAME,
-	VERSION   => $VERSION,
-	SKIP      => [qw(static dynamic)],
-	PL_FILES  => {
-	    'bin/request.PL' => 'bin/request',
-	    'bin/mirror.PL'  => 'bin/mirror',
-	},
-	'clean'   => {FILES => '$(EXE_FILES)'},
-	'linkext' => {LINKTYPE => '' },
-	'dist'    => {
-            COMPRESS     => 'gzip -9f',
-	    SUFFIX       => 'gz', 
-            DIST_DEFAULT => 'all tardist'
-        },
-	'installpm' => {
-	    SPLITLIB     => '',
-	},
-    );
-    for (@programs_to_install) {
-	push(@{ $hash{EXE_FILES} }, "bin/$_");
-    }
-    \%hash;
-}
-
-
-if ($ExtUtils::MakeMaker::Version >= 4.15) {
-    # This is important only for the developer:
-    $hash{'macro'} = {
-        CONFIGDEP => '$(PERL_ARCHLIB)/Config.pm $(PERL_INC)/config.h'
-    };
-}
-
-if ($ExtUtils::MakeMaker::Version < 4.17) {
-    initialize();
-} else {
-    $hash{CONFIGURE} = \&initialize;
-}
-
-WriteMakefile(%hash);
+WriteMakefile(
+   NAME          => $NAME,
+   VERSION       => $VERSION,
+   #VERSION_FROM  => 'lib/LWP.pm',
+   SKIP          => [qw(static dynamic)],
+   PL_FILES      => {
+                      'bin/request.PL' => 'bin/request',
+	              'bin/mirror.PL'  => 'bin/mirror',
+	            },
+   EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
+   'clean'       => { FILES => '$(EXE_FILES)' },
+   'linkext'     => { LINKTYPE => '' },
+   'dist'        => {
+                      COMPRESS     => 'gzip -9f',
+	              SUFFIX       => 'gz', 
+                      DIST_DEFAULT => 'all tardist'
+                    },
+    'installpm'  => {
+	              SPLITLIB     => '',
+	            },
+);
 exit;
 
+# Some code to install programs the way we want
 sub MY::postamble {
     my @m;
     if (@request_aliases && grep($_ eq 'request', @programs_to_install)) {
@@ -96,16 +76,18 @@ EOT
     join "", @m;
 }
 
+# What happens when we say 'make test'
 sub MY::test {
-    q{
+    q(
 TEST_VERBOSE=0
 
 test:
 	$(FULLPERL) -I$(INST_LIB) t/TEST $(TEST_VERBOSE)
 
-};
+);
 }
 
+# Point out things that should *not* be installed
 sub MY::libscan {
     return '' if m:/(RCS|CVS)/:;
     return '' if m/~$/;

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.37 1996/11/10 22:19:57 aas Exp $
+# $Id: Makefile.PL,v 1.38 1996/11/11 17:48:04 aas Exp $
 
 #--- Configuration section ---
 
@@ -97,11 +97,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
    NAME          => 'libwww-perl',
    VERSION_FROM  => 'lib/LWP.pm',
-   PL_FILES      => {
-                      'bin/lwp-request.PL' => 'bin/lwp-request',
-		      'bin/lwp-rget.PL'    => 'bin/lwp-rget',
-	              'bin/lwp-mirror.PL'  => 'bin/lwp-mirror',
-	            },
+   PL_FILES      => { map {("bin/$_.PL" => "bin/$_")} @programs_to_install },
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
    'clean'       => { FILES => '$(EXE_FILES)' },
    'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: TkIO.pm,v 1.3 1995/12/29 15:12:04 aas Exp $
+# $Id: TkIO.pm,v 1.4 1996/04/07 20:39:06 aas Exp $
 
 require Tk;
 require LWP::Debug;
@@ -19,7 +19,8 @@ LWP::TkIO - Tk I/O routines for the LWP library
 
 This module provide replacement functions for the LWP::IO
 functions. Require this module if you use Tk and want non exclusive IO
-behaviour from LWP.
+behaviour from LWP.  This does not allow LWP to run simultaneous
+requests though.
 
 See also L<LWP::IO>.
 

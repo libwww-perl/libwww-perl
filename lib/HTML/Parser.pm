@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.10 1997/12/11 23:13:57 aas Exp $
+# $Id: Parser.pm,v 2.11 1997/12/11 23:35:24 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.11 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -126,6 +126,10 @@ sub parse
 		$self->text("</");
 	    }
 	# Then, finally we look for a start tag
+	} elsif ($$buf =~ s|^(<([a-zA-Z]+)>)||) {
+	    # special case plain start tags for slight speed-up (2.5%)
+	    $self->start(lc($2), {}, [], $1);
+
 	} elsif ($$buf =~ s|^<||) {
 	    # start tag
 	    my $eaten = '<';

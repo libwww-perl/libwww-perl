@@ -437,8 +437,7 @@ sub rel {
 	# it is already relative
 	return $rel;
     }
-    $path = "/$path" unless $path =~ m,^/,;
-    
+
     my($bscheme, $bnetloc, $bpath) = @{$base}{qw(scheme netloc path)};
     for ($bscheme, $bnetloc, $netloc) { $_ = '' unless defined }
 
@@ -446,7 +445,8 @@ sub rel {
 	# different location, can't make it relative
 	return $rel;
     }
-    $bpath = "/" if $bpath eq '';
+
+    for ($path, $bpath) {  $_ = "/$_" unless m,^/,; }
 
     # Make it relative by eliminating scheme and netloc
     $rel->{'scheme'} = undef;

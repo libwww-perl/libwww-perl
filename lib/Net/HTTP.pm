@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.9 2001/04/10 05:28:34 gisle Exp $
+# $Id: HTTP.pm,v 1.10 2001/04/10 05:50:28 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -152,7 +152,7 @@ sub my_read {
 	    return length($_[0]);
 	}
 	else {
-	    return $self->xread($_[1], $len);
+	    return $self->xread($_[0], $len);
 	}
     }
 }
@@ -177,15 +177,8 @@ sub my_readline {
     }
 }
 
-
-sub read_response_headers {
+sub read_header_lines {
     my $self = shift;
-    my $status = my_readline($self);
-    die "EOF instead of reponse status line" unless defined $status;
-    my($peer_ver, $code, $message) = split(' ', $status, 3);
-    die "Bad response status line: $status" unless $peer_ver =~ s,^HTTP/,,;
-    ${*$self}{'http_peer_version'} = $peer_ver;
-    ${*$self}{'http_status'} = $code;
     my @headers;
     while (my $line = my_readline($self)) {
 	if ($line =~ /^(\S+)\s*:\s*(.*)/s) {
@@ -198,6 +191,19 @@ sub read_response_headers {
 	    die "Bad header: $line\n";
 	}
     }
+    return @headers;
+}
+
+
+sub read_response_headers {
+    my $self = shift;
+    my $status = my_readline($self);
+    die "EOF instead of reponse status line" unless defined $status;
+    my($peer_ver, $code, $message) = split(' ', $status, 3);
+    die "Bad response status line: $status" unless $peer_ver =~ s,^HTTP/,,;
+    ${*$self}{'http_peer_version'} = $peer_ver;
+    ${*$self}{'http_status'} = $code;
+    my @headers = $self->read_header_lines;
 
     # pick out headers that read_entity_body might need
     my @te;
@@ -279,7 +285,7 @@ sub read_entity_body {
 	    }
 	    else {
 		# XXX read trailers
-		my_readline($self) eq "" || die "Chunked trailers not supported";
+		${*$self}{'http_trailers'} = [$self->read_header_lines];
 		$$buf_ref = "";
 		return 0;
 	    }
@@ -298,6 +304,11 @@ sub read_entity_body {
 	$size ||= 1024;
 	return my_read($self, $$buf_ref, $size);
     }
+}
+
+sub get_trailers {
+    my $self = shift;
+    @{${*$self}{'http_trailers'} || []};
 }
 
 1;

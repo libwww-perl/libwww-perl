@@ -57,6 +57,8 @@ The following constructor methods are available:
 
 =item @forms = HTML::Form->parse( $html_document, $base_uri )
 
+=item @forms = HTML::Form->parse( $response )
+
 The parse() class method will parse an HTML document and build up
 C<HTML::Form> objects for each <form> element found.  If called in scalar
 context only returns the first <form>.  Returns an empty list if there
@@ -69,8 +71,18 @@ $response->base() method, as shown by the following example:
 
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get("http://www.example.com/form.html");
-    my @forms = HTML::Form->parse( $response->content,
-				   $response->base);
+    my @forms = HTML::Form->parse($response->content,
+				  $response->base);
+
+The parse() method can parse from an C<HTTP::Response> object
+directly, so the example above can be better written as:
+
+    my $ua = LWP::UserAgent->new;
+    my $response = $ua->get("http://www.example.com/form.html");
+    my @forms = HTML::Form->parse($response);
+
+Note that any object that implements a content_ref() and base() method
+with similar behaviour as C<HTTP::Response> will do.
 
 =cut
 
@@ -78,11 +90,20 @@ sub parse
 {
     my($class, $html, $base_uri) = @_;
     require HTML::TokeParser;
-    my $p = HTML::TokeParser->new(\$html);
+    my $p = HTML::TokeParser->new(ref($html) ? $html->content_ref : \$html);
     eval {
 	# optimization
 	$p->report_tags(qw(form input textarea select optgroup option));
     };
+
+    unless (defined $base_uri) {
+	if (ref($html)) {
+	    $base_uri = $html->base;
+	}
+	else {
+	    Carp::croak("HTML::Form::parse: No $base_uri provided");
+	}
+    }
 
     my @forms;
     my $f;  # current form

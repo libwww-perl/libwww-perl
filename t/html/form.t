@@ -1,6 +1,6 @@
 #!perl -w
 
-print "1..14\n";
+print "1..15\n";
 
 use strict;
 use HTML::Form;
@@ -156,3 +156,23 @@ unlink($filename) || warn "Can't unlink '$filename': $!";
 
 print "not " if @warn;
 print "ok 14\n";
+
+# Try to parse form HTTP::Response directly
+{
+    package MyResponse;
+    use vars qw(@ISA);
+    require HTTP::Response;
+    @ISA = ('HTTP::Response');
+
+    sub base { "http://www.example.com" }
+}
+my $response = MyResponse->new(200, 'OK');
+$response->content("<form><input type=text value=42 name=x></form>");
+
+$f = HTML::Form->parse($response);
+
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 15\n";
+GET http://www.example.com?x=42
+
+
+EOT

@@ -1,3 +1,33 @@
+Thu Mar 14 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5b10
+
+ o  GET ftp://host/doc was never successful for normal files.
+
+ o  LWP::Socket: read_until() did not notice EOF condidtion.  I.e. if
+    a HTTP server closed the connection before any output was generated,
+    the we continued to read 0 bytes in a busy loop until the alarm()
+    killed us.
+
+ o  Added support for Digest Access Authentication.  Contributed by
+    Doug MacEachern <dougm@osf.org>.
+
+ o  Makefile.PL: check for MD5 library
+
+ o  No longer print message content in HTTP::Response::error_as_HTML()
+
+ o  Access to "file:/path" gave warning when the envirionment variable
+    no_proxy was set.
+
+ o  The http-post test sends a Content-Type header.  Some servers hang
+    if this header is missing.
+
+ o  HTML::Parse:
+     -   allow <SMALL> and <BIG> tags
+     -   allow empty attribute values
+
+
+
 Tue Mar  5 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b9

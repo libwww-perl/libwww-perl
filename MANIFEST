@@ -100,6 +100,7 @@ t/net/proxy.t
 t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
 t/robot/ua.t			Test LWP::RobotUA
+t/uri/abs-config.t              Test URI::URL configuration variables
 t/uri/base.t			Test URI::URL module
 t/uri/rel-base.t		Test URI::URL module some more
 t/uri/heuristic.t               Test URI::Heuristic module

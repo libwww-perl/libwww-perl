@@ -11,12 +11,14 @@ HTML::LinkExtor - Extract links from an HTML document
      my($tag, %links);
      print "$tag @{[%links]}\n";
  }
- $p->parsefile("index.html");
+ $p->parse_file("index.html");
 
 =head1 DESCRIPTION
 
 The I<HTML::LinkExtor> is a I<HTML::Parser> that calls a callback
-routine as various link attributes are recognized.
+routine as various link attributes are recognized.  If you do not like
+callbacks, then you can obtain the links by calling $p->links after
+parsing is done.
 
 =cut
 
@@ -93,8 +95,8 @@ sub start
 
 =head2 @links = $p->links
 
-Return links found in the document as a two dimentional array.  Each
-element contain an array with the follwing values:
+Return links found in the document as a two dimensional array.  Each
+element contain an array with the following values:
 
   [$tag, $attr1, $url1, $attr2, $url2,...]
 
@@ -107,6 +109,15 @@ sub links
 {
     my $self = shift;
     @{$self->{'links'}}
+}
+
+# We override the parse_file() method so that we can clear the links
+# before we start with a new file.
+sub parse_file
+{
+    my $self = shift;
+    delete $self->{links};
+    $self->SUPER::parse_file(@_);
 }
 
 

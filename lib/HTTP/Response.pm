@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.41 2003/10/24 10:25:16 gisle Exp $
+# $Id: Response.pm,v 1.42 2004/04/06 10:01:54 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -64,8 +64,8 @@ sub as_string
 {
     require HTTP::Status;
     my $self = shift;
+    my $eol = shift || "\n";
     my @result;
-    #push(@result, "---- $self ----");
     my $code = $self->code;
     my $status_message = HTTP::Status::status_message($code) || "Unknown code";
     my $message = $self->message || "";
@@ -76,13 +76,12 @@ sub as_string
     $status_line .= " ($status_message)" if $status_message ne $message;
     $status_line .= " $message";
     push(@result, $status_line);
-    push(@result, $self->headers_as_string);
+    push(@result, $self->headers_as_string($eol));
     my $content = $self->content;
     if (defined $content) {
 	push(@result, $content);
     }
-    #push(@result, ("-" x 40));
-    join("\n", @result, "");
+    join($eol, @result);
 }
 
 

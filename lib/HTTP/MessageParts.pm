@@ -3,12 +3,25 @@ package HTTP::MessageParts;
 use strict;
 require HTTP::Message;
 
+my $CRLF = "\015\012";   # "\r\n" is not portable
+
 sub HTTP::Message::parent {
     shift->_elem('_parent',  @_);
 }
 
 sub HTTP::Message::_content {
-    die "NYI";
+    my $self = shift;
+    my $ct = $self->content_type;
+    if ($ct =~ m,^message/,) {
+	$self->{_content} = $self->{_parts}[0]->as_string($CRLF);
+	return;
+    }
+
+    my @parts = map $_->as_string($CRLF), @{$self->{_parts}};
+    my $boundary = "XXXXXXXX";  # XXX
+    $self->{_content} = "--$boundary\n" .
+	                join("\n--$boundary\n", @parts) .
+			"\n--$boundary--\n";
 }
 
 sub HTTP::Message::_parts {

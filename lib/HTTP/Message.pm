@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.32 2004/04/06 09:27:04 gisle Exp $
+# $Id: Message.pm,v 1.33 2004/04/06 10:01:54 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -82,9 +82,10 @@ sub content_ref
 
 sub as_string
 {
-    my $self = shift;
-    return join("", $self->{'_headers'}->as_string ,
-		    "\n",
+    my($self, $eol) = @_;
+    $eol = "\n" unless defined $eol;
+    return join("", $self->{'_headers'}->as_string($eol),
+		    $eol,
 		    $self->content);
 }
 

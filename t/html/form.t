@@ -90,7 +90,7 @@ EOT
 #print $f->dump;
 #print $f->click->as_string;
 
-print "not " unless $f->click->as_string eq <<'EOT'; print "ok 10\n";
+print "not " unless $f->click->as_string . "\n" eq <<'EOT'; print "ok 10\n";
 POST http://localhost/
 Content-Length: 76
 Content-Type: application/x-www-form-urlencoded
@@ -121,7 +121,6 @@ POST http://localhost/
 Content-Length: 0
 Content-Type: multipart/form-data; boundary
 
-
 EOT
 
 my $filename = sprintf "foo-%08d.txt", $$;
@@ -149,7 +148,6 @@ Content-Type: text/plain\r
 This is some text
 \r
 --xYzZY--\r
-
 EOT
 
 unlink($filename) || warn "Can't unlink '$filename': $!";
@@ -174,7 +172,6 @@ $f = HTML::Form->parse($response);
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 15\n";
 GET http://www.example.com?x=42
 
-
 EOT
 
 $f = HTML::Form->parse(<<EOT, "http://www.example.com");
@@ -188,13 +185,11 @@ $f->find_input("x")->check;
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 16\n";
 GET http://www.example.com?x=on
 
-
 EOT
 
 $f->value("x", "off");
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 17\n";
 GET http://www.example.com
-
 
 EOT
 
@@ -202,13 +197,11 @@ $f->value("x", "I like it!");
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 18\n";
 GET http://www.example.com?x=on
 
-
 EOT
 
 $f->value("x", "I LIKE IT!");
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 19\n";
 GET http://www.example.com?x=on
-
 
 EOT
 
@@ -230,13 +223,11 @@ $f->value("x", "one");
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 20\n";
 GET http://www.example.com?x=1
 
-
 EOT
 
 $f->value("x", "TWO");
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 21\n";
 GET http://www.example.com?x=2
-
 
 EOT
 

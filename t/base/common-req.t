@@ -21,7 +21,7 @@ print "ok 3\n";
 
 $r = PUT "http://www.sn.no",
      Content => 'foo';
-print $r->as_string;
+print $r->as_string, "\n";
 
 print "not " unless $r->method eq "PUT" and $r->uri->host eq "www.sn.no";
 print "ok 4\n";
@@ -41,7 +41,7 @@ $r = POST "http://www.sn.no", [foo => 'bar;baz',
                                "space " => " + ",
                               ],
                               bar => 'foo';
-print $r->as_string;
+print $r->as_string, "\n";
 
 print "not " unless $r->method eq "POST" and
                     $r->content_type eq "application/x-www-form-urlencoded" and
@@ -138,7 +138,7 @@ print "ok 15\n";
 # The POST routine can now also take a hash reference.
 my %hash = (foo => 42, bar => 24);
 $r = POST 'http://www.perl.org/survey.cgi', \%hash;
-print $r->as_string;
+print $r->as_string, "\n";
 print "not " unless $r->content =~ /foo=42/ &&
                     $r->content =~ /bar=24/ &&
                     $r->content_type eq "application/x-www-form-urlencoded" &&
@@ -167,7 +167,7 @@ $r = POST 'http://www.perl.org/survey.cgi',
                          born   => '1964',
                          file   => [$file],
                        ];
-print $r->as_string;
+print $r->as_string, "\n";
 
 print "not " unless $r->method eq "POST" and
 	            $r->url->path eq "/survey.cgi" and
@@ -203,6 +203,5 @@ print "not " unless $r->as_string eq <<EOT; print "ok 20\n";
 POST http://www.example.com
 Content-Length: 0
 Content-Type: application/x-www-form-urlencoded
-
 
 EOT

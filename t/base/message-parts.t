@@ -2,7 +2,7 @@
 
 use strict;
 use Test qw(plan ok);
-plan tests => 37;
+plan tests => 38;
 
 use HTTP::MessageParts;
 use HTTP::Request::Common qw(POST);
@@ -94,5 +94,7 @@ ok($parts[0]->protocol, "HTTP/1.1");
 ok($parts[0]->content_type, "text/html");
 ok($parts[0]->content, "<H1>Hello world!</H1>\n");
 
+$m->parts(HTTP::Request->new("GET", "http://www.example.com"));
+ok($m->as_string, "Content-Type: message/http\n\nGET http://www.example.com\r\n\r\n");
 
 sub j { join(":", @_) }

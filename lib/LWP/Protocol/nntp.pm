@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.3 1996/04/09 15:44:39 aas Exp $
+# $Id: nntp.pm,v 1.4 1996/05/08 16:26:01 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -153,14 +153,7 @@ sub request
     if (defined $body) {
 	$body =~ s/\r//g;
 	$body =~ s/^\.\././gm;
-	# Let's collect once
-	my $first = 1;
-	$response = $self->collect($arg, $response, sub {
-	    if ($first--) {
-		return \$body;
-	    }
-	    return \ "";
-	});
+	$response = $self->collect_once($arg, $response, $body);
     }
 
     # Say godbye to the server

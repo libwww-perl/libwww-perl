@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.12 1996/04/09 15:44:36 aas Exp $
+# $Id: ftp.pm,v 1.13 1996/05/08 16:25:58 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -17,6 +17,7 @@ use File::Listing ();
 require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
 
+use strict;
 eval {
     require Net::FTP;
     Net::FTP->require_version('1.10');
@@ -47,7 +48,7 @@ sub request
     }
 
     # check method
-    $method = $request->method;
+    my $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'PUT') {
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
@@ -180,7 +181,7 @@ sub request
 		return new HTTP::Response &HTTP::Status::RC_NONE_ACCEPTABLE,
 				   "Neither HTML nor directory listing wanted";
 	    } elsif ($prefer eq 'html') {
-		$response->header('Content-Type', 'text/html');
+		$response->header('Content-Type' => 'text/html');
 		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
 		my $base = $request->url->clone;
 		my $path = $base->epath;
@@ -188,7 +189,7 @@ sub request
 		$content .= qq(<BASE HREF="$base">\n</HEAD>\n);
 		$content .= "<BODY>\n<UL>\n";
 		for (File::Listing::parse_dir(\@lsl, 'GMT')) {
-		    ($name, $type, $size, $mtime, $mode) = @$_;
+		    my($name, $type, $size, $mtime, $mode) = @$_;
 		    $content .= qq(  <LI> <a href="$name">$name</a>);
 		    $content .= " $size bytes" if $type eq 'f';
 		    $content .= "\n";
@@ -202,14 +203,7 @@ sub request
 	    $response->header('Content-Length', length($content));
 
 	    if ($method ne 'HEAD') {
-		# Let's collect once
-		my $first = 1;
-		$response = $self->collect($arg, $response, sub {
-		    if ($first--) {
-			return \$content;
-		    }
-		    return \ "";
-		});
+		$response = $self->collect_once($arg, $response, $content);
 	    }
 	} else {
 	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,

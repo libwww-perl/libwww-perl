@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.15 1996/04/24 08:16:07 aas Exp $
+# $Id: gopher.pm,v 1.16 1996/05/08 16:25:59 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -96,16 +96,17 @@ sub request
     
     if ($gophertype eq '7' && ! $url->search) {
       # the url is the prompt for a gopher search; supply boiler-plate
-      my @text;
-      my $ust = $url->as_string;
-      @tmp = ("<TITLE>Gopher Index $ust</TITLE>",
-	      "<H1>$ust <BR> Gopher Search</H1>\n",
-	      "This is a searchable Gopher index. ",
-	      "Use the search function of your browser to enter search terms.",
-	      "<ISINDEX>\n");
-      $response = $self->collect($arg, $response,
-				 sub {$_ = shift @tmp; \$_});
-      return $response;
+      return $self->collect_once($arg, $response, <<"EOT");
+<HEAD>
+<TITLE>Gopher Index</TITLE>
+<ISINDEX>
+</HEAD>
+<BODY>
+<H1>$url<BR>Gopher Search</H1>
+This is a searchable Gopher index.
+Use the search function of your browser to enter search terms.
+</BODY>
+EOT
     }
 
     my $host = $url->host;
@@ -158,14 +159,7 @@ sub request
     if ($gophertype eq '1' || $gophertype eq '7') {
 	my $content = menu2html($response->content);
 	if (defined $user_arg) {
-	    # let's collect once
-	    my $first = 1;
-	    $response = $self->collect($user_arg, $response, sub {
-		if ($first--) {
-		    return \$content;
-		}
-		return \ "";
-	    });
+	    $response = $self->collect_once($user_arg, $response, $content);
 	} else {
 	    $response->content($content);
 	}
@@ -202,9 +196,9 @@ sub menu2html {
 <HTML>
 <HEAD>
    <TITLE>Gopher menu</TITLE>
-   <H1>Gopher menu</H1>
 </HEAD>
 <BODY>
+<H1>Gopher menu</H1>
 EOT
     for (split("\n", $menu)) {
 	last if /^\./;

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.13 1996/04/09 15:44:35 aas Exp $
+# $Id: file.pm,v 1.14 1996/05/08 16:25:57 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -113,21 +113,14 @@ sub request
 			"<TITLE>Directory $path</TITLE>",
 			"<BASE HREF=\"$base\">",
 			"</HEAD>\n<BODY>",
+			"<H1>Directory listing of $path</H1>",
 			"<UL>", @files, "</UL>",
 			"</BODY>\n</HTML>\n");
 
 	$response->header('Content-Type',   'text/html');
 	$response->header('Content-Length', length $html);
 
-	# let's collect once
-	my $first = 1;
-	$response =  $self->collect($arg, $response, sub {
-	    if ($first) {
-	       $first = 0;
-	       return \$html;
-	    }
-	    return \ "";
-	});
+	return $self->collect_once($arg, $response, $html);
 
     } else {            # path is a regular file
 	my($type, @enc) = LWP::MediaTypes::guess_media_type($path);

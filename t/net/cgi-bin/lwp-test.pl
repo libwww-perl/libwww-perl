@@ -2,7 +2,7 @@
 #
 # Test script for the libwww-perl5 test suite.
 #
-# $Id: lwp-test.pl,v 1.1 1995/06/11 23:29:45 aas Exp $
+# $Id: lwp-test.pl,v 1.2 1995/07/16 07:06:20 aas Exp $
 
 use CGI::Base qw(:DEFAULT :CGI);
 use CGI::Request;
@@ -16,40 +16,40 @@ sub main {
 
     my @path = ();
     if (defined $PATH_INFO and $PATH_INFO) {
-	@path = split('/', $PATH_INFO);
-	shift @path if ($path[0] eq ''); # loose empty component
+        @path = split('/', $PATH_INFO);
+        shift @path if ($path[0] eq ''); # loose empty component
     }
     else {
-	&html('Missing PATH_INFO');
+        &html('Missing PATH_INFO');
     }
     $test = shift(@path);
 
     if ($test eq 'simple-text') {
-	&text("This is a simple text");
+        &text("This is a simple text");
     }
     elsif ($test eq 'simple-html') {
-	&html("This is a simple text");
+        &html("This is a simple text");
     }
     elsif ($test eq 'timeout') {
-	my $timeout = 5*60; # 5 minutes by default
-	$timeout = $path[0] if defined $path[0] and $path[0] =~ /^\d+$/;
-	sleep $timeout;
-	&text("I slept $timeout seconds\n");
+        my $timeout = 5*60; # 5 minutes by default
+        $timeout = $path[0] if defined $path[0] and $path[0] =~ /^\d+$/;
+        sleep $timeout;
+        &text("I slept $timeout seconds\n");
     }
     elsif ($test eq 'as_string') {
-	print $req->as_string;
+        print $req->as_string;
     }
     elsif ($test eq 'moved') {
-	print "Location: file://localhost/etc/motd\n\n";
+        print "Location: file://localhost/etc/motd\n\n";
     }
     elsif ($test eq 'server-header') {
-	print "Content-type: text/plain\r\n";
-	print "Server-Header-Test: testing 1 2 3\r\n";
-	print "\r\n";
-	print "This response included a 'Server-Header-Test' field\n";
+        print "Content-type: text/plain\r\n";
+        print "Server-Header-Test: testing 1 2 3\r\n";
+        print "\r\n";
+        print "This response included a 'Server-Header-Test' field\n";
     }
     else {
-	&html("Unknown test '$test'");
+        &html("Unknown test '$test'");
     }
 }
 

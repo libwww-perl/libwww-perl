@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -167,6 +167,17 @@ sub join_header_words
 
 =item split_etag_list( @header_values )
 
+Split a list of entity tag values.  The return value is a list
+consisting of one element per entity tag.  Suitable for parsing
+headers like C<If-Match>, C<If-None-Match>.  You might even want to
+use it on C<ETag> and C<If-Range> entity tag values, because it will
+normalize them to the common form.
+
+  entity-tag	  = [ weak ] opaque-tag
+  weak		  = "W/"
+  opaque-tag	  = quoted-string
+
+
 =cut
 
 sub split_etag_list
@@ -195,6 +206,12 @@ sub split_etag_list
    }
    @res;
 }
+
+=item join_etag_list(@list)
+
+Reverses the operation by split_etag_list().
+
+=cut
 
 sub join_etag_list
 {

@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.73 1998/03/25 13:17:42 aas Exp $
+# $Id: LWP.pm,v 1.74 1998/03/25 13:24:06 aas Exp $
 
 package LWP;
 
@@ -555,14 +555,6 @@ The following modules provide various functions and definitions.
  HTTP::Negotiate    -- HTTP content negotiation calculation
  HTML::Entities     -- Expand or unexpand entities in HTML text
  File::Listing      -- Parse directory listings
-
-The following modules does not have much to do with the World Wide
-Web, but are included just because I am lazy and did not bother to
-make separate distributions for them.  Regard them as bonus, provided
-free for your pleasure.
-
- Font::AFM          -- Parse Adobe Font Metric files
- File::CounterFile  -- Persistent counter class
 
 
 =head1 MORE DOCUMENTATION

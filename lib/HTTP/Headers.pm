@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.8 1995/08/03 07:27:15 aas Exp $
+# $Id: Headers.pm,v 1.9 1995/08/07 08:35:54 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -33,19 +33,21 @@ use Carp;
 # "Good Practice" order of HTTP message headers:
 #    - General-Headers
 #    - Request-Headers
+#    - Response-Headers
 #    - Entity-Headers
-# (From draft-ietf-http-v10-spec-00.ps)
+# (From draft-ietf-http-v10-spec-01.ps)
 
 my @header_order = qw( 
-   Date Forwarded Message-ID MIME-Version
+   Date Forwarded MIME-Version Pragma
 
    Accept Accept-Charset Accept-Encoding Accept-Language
-   Authorization From If-Modified-Since Praga Referer User-Agent
-   
-   Content-Encoding Content-Language Content-Length
-   Content-Transfer-Encoding Content-Type Derived-From
-   Expires Last-Modified Link Location Title URI-Header
-   Version
+   Authorization From If-Modified-Since Orig-URI Referer User-Agent
+
+   Location Public Retry-After Server WWW-Authenticate
+
+   Allow Content-Encoding Content-Language Content-Length
+   Content-Transfer-Encoding Content-Type
+   Expires Last-Modified Link Title URI
 );
 
 # Make alternative representations of @header_order.  This is used
@@ -128,7 +130,13 @@ sub header
     croak('need a field name') unless defined $field;
     croak('to many parameters') if @_ > 4;
 
-    my $thisHeader = \@{$self->{'_header'}{lc $field}};
+    my $lc_field = lc $field;
+    unless(defined $standard_case{$lc_field}) {
+        $field =~ s/\b(\w)/\u$1/g;
+        $standard_case{$lc_field} = $field;
+    }
+
+    my $thisHeader = \@{$self->{'_header'}{$lc_field}};
 
     my @old = ();
     if (!$push && defined $thisHeader) {
@@ -218,15 +226,8 @@ sub scan
         my $list = $self->{'_header'}{$field};
         if (defined $list) {
             my $val;
-            my $std_field = $standard_case{$field};
-            unless (defined $std_field) {
-                # unknown header, determine suitable "casing" for it
-                $std_field = $field;
-                $std_field =~ s/\b(\w)/\u$1/g;
-                $standard_case{$field} = $std_field; # remember it
-            }
             for $val (@$list) {
-                &$sub($std_field, $val);
+                &$sub($standard_case{$field} || $field, $val);
             }
         }
     }

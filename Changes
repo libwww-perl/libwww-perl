@@ -2,6 +2,9 @@
 
     Release 5.71
 
+    Support open-ended Range: header for ftp requests.
+    Patch by Matthew Eldridge <eldridge@Graphics.Stanford.EDU>.
+
     lwp-request now prints unsuccessful responses in the same way
     as successsful ones.  The status will still indicate failures.
     Based on a patch by Steve Hay <steve.hay@uk.radan.com>.
@@ -34,6 +37,8 @@
     LWP::Protocol::mailto will try harder to locate the sendmail
     program as suggested in <http://rt.cpan.org/Ticket/Display.html?id=2363>.
     Also let $ENV{SENDMAIL} override the search.
+
+    Patch to enable OS/2 build by Ilya Zakharevich.
 
 
 

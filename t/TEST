@@ -12,7 +12,7 @@ unless (-d "base") {
 
     # fix all relative library locations
     foreach (@INC) {
-	$_ = "../$_" unless m,^/,;
+	$_ = "../$_" unless m,^([a-z]:)?[/\\],i;
     }
 }
 # Pick up the library files from the ../blib directory

@@ -40,7 +40,7 @@ if ($D eq 'daemon') {
 else {
     use Config;
     my $perl = $Config{'perlpath'};
-    $perl = $^X if $^O eq 'VMS';
+    $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
     open(DAEMON, "$perl local/http-get.t daemon |") or die "Can't exec daemon: $!";
 }
 

@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.10";   # $Date: 1997/04/04 11:08:26 $
+$VERSION = "4.11";   # $Date: 1997/06/20 09:25:49 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -26,15 +26,18 @@ use Carp ();
 #  uchar        = unreserved | escape
 #  xchar        = unreserved | reserved | escape
 
+# draft-fielding-url-syntax-05.txt adds '+' to the reserved chars and
+# takes '~' out
+
 use strict;
 use vars qw($reserved $reserved_no_slash $reserved_no_form $unsafe
 	    $COMPAT_VER_3
 	    $Debug $Strict_URL
 	   );
 
-$reserved          = ";\\/?:\\@&=#%"; # RFC 1738 reserved pluss '#' and '%'
-$reserved_no_slash = ";?:\\@&=#%";    # used when escaping path
-$reserved_no_form  = ";\\/?:\\@#%";   # used when escaping params and query
+$reserved          = ";\\/?:\\@&=+#%"; # RFC 1738 reserved pluss '#' and '%'
+$reserved_no_slash = ";?:\\@&=+#%";    # used when escaping path
+$reserved_no_form  = ";\\/?:\\@#%";    # used when escaping params and query
 
 # This is the unsafe characters (excluding those reserved)
 $unsafe   = "\x00-\x20{}|\\\\^\\[\\]`<>\"\x7F-\xFF";

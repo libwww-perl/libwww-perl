@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.3 2002/08/18 03:29:47 gisle Exp $
+# $Id: UserAgent.pm,v 2.4 2003/02/04 16:36:55 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -88,7 +88,7 @@ The subroutine variant requires a reference to callback routine as the
 second argument to the request method and it can also take an optional
 chuck size as the third argument.  This variant can be used to
 construct "pipe-lined" processing, where processing of received
-chuncks can begin before the complete data has arrived.  The callback
+chunks can begin before the complete data has arrived.  The callback
 function is called with 3 arguments: the data received this time, a
 reference to the response object and a reference to the protocol
 object.  The response object returned from the request method will
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -295,7 +295,7 @@ sub send_request
 
     my($method, $url) = ($request->method, $request->uri);
 
-    local($SIG{__DIE__});  # protect agains user defined die handlers
+    local($SIG{__DIE__});  # protect against user defined die handlers
 
     # Check that we have a METHOD and a URL first
     return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, "Method missing")
@@ -323,7 +323,7 @@ sub send_request
       #  into class LWP::Protocol::nogo.
       my $x;
       if($x       = $self->protocols_allowed) {
-        if(grep $_ eq $scheme, @$x) {
+        if(grep lc($_) eq $scheme, @$x) {
           LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
         } else {
           LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
@@ -331,7 +331,7 @@ sub send_request
           $protocol = LWP::Protocol::nogo->new;
         }
       } elsif ($x = $self->protocols_forbidden) {
-        if(grep $_ eq $scheme, @$x) {
+        if(grep lc($_) eq $scheme, @$x) {
           LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
           require LWP::Protocol::nogo;
           $protocol = LWP::Protocol::nogo->new;
@@ -697,16 +697,16 @@ sub _process_colonic_headers {
 
 =item $ua->protocols_allowed( \@protocols ); # to set
 
-This reads (or sets) this user-agent's list of procotols that
+This reads (or sets) this user agent's list of protocols that
 C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will exclusively
-allow.
+allow.  The protocol names are case insensitive.
 
 For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
 means that this user agent will I<allow only> those protocols,
-and attempts to use this user-agent to access URLs with any other
+and attempts to use this user agent to access URLs with any other
 schemes (like "ftp://...") will result in a 500 error.
 
-To delete the list, call: 
+To delete the list, call:
 C<$ua-E<gt>protocols_allowed(undef)>
 
 By default, an object has neither a protocols_allowed list, nor
@@ -719,20 +719,21 @@ list causes any protocols_forbidden list to be ignored.
 
 =item $ua->protocols_forbidden( \@protocols ); # to set
 
-This reads (or sets) this user-agent's list of procotols that
+This reads (or sets) this user agent's list of protocols that
 C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will I<not> allow.
+The protocol names are case insensitive.
 
 For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
-means that this user-agent will I<not> allow those protocols, and
-attempts to use this user-agent to access URLs with those schemes
+means that this user agent will I<not> allow those protocols, and
+attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
 
-To delete the list, call: 
+To delete the list, call:
 C<$ua-E<gt>protocols_forbidden(undef)>
 
 =item $ua->is_protocol_supported($scheme)
 
-You can use this method to test whether this user-agent object supports the
+You can use this method to test whether this user agent object supports the
 specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
 'ftp') or it might be an URI object reference.)
 
@@ -757,12 +758,12 @@ sub is_protocol_supported
 
     my $x;
     if(ref($self) and $x       = $self->protocols_allowed) {
-      return 0 unless grep $_ eq $scheme, @$x;
+      return 0 unless grep lc($_) eq $scheme, @$x;
     } elsif (ref($self) and $x = $self->protocols_forbidden) {
-      return 0 if grep $_ eq $scheme, @$x;
+      return 0 if grep lc($_) eq $scheme, @$x;
     }
 
-    local($SIG{__DIE__});  # protect agains user defined die handlers
+    local($SIG{__DIE__});  # protect against user defined die handlers
     $x = LWP::Protocol::implementor($scheme);
     return 1 if $x and $x ne 'LWP::Protocol::nogo';
     return 0;
@@ -854,7 +855,7 @@ This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication or Digest Authentication.
 
 Should return username and password in a list.  Return undef to abort
-the authentication resolution atempts.
+the authentication resolution attempts.
 
 This implementation simply checks a set of pre-stored member
 variables. Subclasses can override this method to e.g. ask the user
@@ -899,7 +900,7 @@ Examples are:
 =item $ua->_agent
 
 Returns the default agent identifier.  This is a string of the form
-"libwww-perl/#.##", where "#.##" is substitued with the version numer
+"libwww-perl/#.##", where "#.##" is substituted with the version number
 of this library.
 
 =cut
@@ -948,7 +949,7 @@ The default is to have no cookie_jar, i.e. never automatically add
 
 Shortcut: If a reference to a plain hash is passed in as the
 $cookie_jar_object, then it is replaced with an instance of
-C<HTTP::Cookies> that is initalized based on the hash.  This form also
+C<HTTP::Cookies> that is initialized based on the hash.  This form also
 automatically loads the C<HTTP::Cookies> module.  It means that:
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
@@ -964,7 +965,7 @@ Get/set the I<LWP::ConnCache> object to use.
 
 =item $ua->parse_head([$boolean])
 
-Get/set a value indicating wether we should initialize response
+Get/set a value indicating whether we should initialize response
 headers from the E<lt>head> section of HTML documents. The default is
 TRUE.  Do not turn this off, unless you know what you are doing.
 
@@ -1145,10 +1146,10 @@ specify proxies like this (sh-syntax):
   no_proxy="localhost,my.domain"
   export gopher_proxy wais_proxy no_proxy
 
-Csh or tcsh users should use the C<setenv> command to define these
+csh or tcsh users should use the C<setenv> command to define these
 environment variables.
 
-On systems with case-insensitive environment variables there exists a
+On systems with case insensitive environment variables there exists a
 name clash between the CGI environment variables and the C<HTTP_PROXY>
 environment variable normally picked up by env_proxy().  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The

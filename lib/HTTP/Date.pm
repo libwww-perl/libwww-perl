@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 11:12:04 $
+package HTTP::Date;  # $Date: 1999/05/03 11:22:30 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -201,7 +201,9 @@ sub parse_date ($)
     }
 
     # Make sure clock elements are defined
-    for ($hr, $min, $sec) { $_ = 0 unless defined }
+    $hr  = 0 unless defined($hr);
+    $min = 0 unless defined($min);
+    $sec = 0 unless defined($sec);
 
     # Compensate for AM/PM
     if ($ampm) {

@@ -1,4 +1,4 @@
-print "1..15\n";
+print "1..16\n";
 
 require HTTP::Request;
 require HTTP::Response;
@@ -102,3 +102,10 @@ $res->content_type($1);
 
 $res->content_type eq "text/html" || print "not ";
 print "ok 15\n";
+
+# Check what happens when passed a new URI object
+require URI;
+$req = HTTP::Request->new(GET => URI->new("http://localhost"));
+print "not " unless $req->uri eq "http://localhost";
+print "ok 16\n";
+

@@ -250,26 +250,6 @@ argument is a code reference):
 
 
 
-=head1 PARSE URLS
-
-To access individual elements of a URL, try this:
-
-  use URI::URL;
-  $host = url("http://www.sn.no/")->host;
-
-or
-
-  use URI::URL;
-  $u = url("ftp://ftp.sn.no/test/aas;type=i");
-  print "Protocol scheme is ", $u->scheme, "\n";
-  print "Host is ", $u->host, " at port ", $u->port, "\n";
-
-or even
-
-  use URI::URL;
-  my($host,$port) = (url("ftp://ftp.sn.no/test/aas;type=i")->crack)[3,4];
-
-
 =head1 COPYRIGHT
 
 Copyright 1996-1998, Gisle Aas

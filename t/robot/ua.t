@@ -16,7 +16,7 @@ if ($D eq 'daemon') {
     while ($c = $d->accept) {
 	$r = $c->get_request;
 	if ($r) {
-	    my $p = ($r->url->path_components)[1];
+	    my $p = ($r->url->path_segments)[1];
 	    $p =~ s/\W//g;
 	    my $func = lc("httpd_" . $r->method . "_$p");
 	    #print STDERR "Calling $func...\n";
@@ -42,9 +42,13 @@ print "1..7\n";
 $greating = <DAEMON>;
 $greating =~ /(<[^>]+>)/;
 
-require URI::URL;
-URI::URL->import;
-my $base = new URI::URL $1;
+require URI;
+my $base = URI->new($1);
+sub url {
+   my $u = URI->new(@_);
+   $u = $u->abs($_[1]) if @_ > 1;
+   $u->as_string;
+}
 
 print "Will access HTTP server at $base\n";
 
@@ -126,10 +130,10 @@ print "ok 5\n";
 $ua->delay(1);
 
 # host_wait() should be around 60s now
-print "not " unless abs($ua->host_wait($base->netloc) - 60) < 5;
+print "not " unless abs($ua->host_wait($base->host_port) - 60) < 5;
 print "ok 6\n";
 
 # Number of visits to this place should be 
-print "not " unless $ua->no_visits($base->netloc) == 4;
+print "not " unless $ua->no_visits($base->host_port) == 4;
 print "ok 7\n";
 

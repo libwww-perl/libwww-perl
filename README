@@ -36,9 +36,10 @@ libwww-perl:
 
   URI
   MIME-Base64
+  URI
   HTML-Parser
   libnet
-  MD5
+  Digest::MD5
 
 These packages should be available on CPAN.
 

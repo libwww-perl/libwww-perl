@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.82 1998/08/04 10:47:35 aas Exp $
+# $Id: LWP.pm,v 1.83 1998/11/19 21:44:59 aas Exp $
 
 package LWP;
 
-$VERSION = "5.36";
+$VERSION = "5.4002";
 sub Version { $VERSION; }
 
 require 5.004;
@@ -69,10 +69,6 @@ Transparent redirect handling.
 =item *
 
 Supports access through proxy servers.
-
-=item *
-
-URL handling (both absolute and relative URLs are supported).
 
 =item *
 
@@ -525,8 +521,6 @@ library. Indentation shows class inheritance.
    HTTP::Request    -- HTTP request
    HTTP::Response   -- HTTP response
  HTTP::Daemon       -- A HTTP server class
-
- URI::URL           -- Uniform Resource Locators
 
  WWW::RobotRules    -- Parse robots.txt files
    WWW::RobotRules::AnyDBM_File -- Persistent RobotRules

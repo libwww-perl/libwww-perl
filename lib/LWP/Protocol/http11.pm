@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.7 2001/04/19 04:42:23 gisle Exp $
+# $Id: http11.pm,v 1.8 2001/04/19 05:39:43 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -30,26 +30,41 @@ my $CRLF = "\015\012";
     sub xread {
 	my $self = shift;
 	if (my $timeout = ${*$self}{io_socket_timeout}) {
-	    my $iosel = (${*$self}{myhttp_io_sel} ||=
-			 do {
-			     require IO::Select;
-			     IO::Select->new($self);
-			 });
-	    die "read timeout" unless $iosel->can_read($timeout);
+	    my $io_sel = (${*$self}{myhttp_io_sel} ||= $self->io_sel);
+	    die "read timeout" unless $io_sel->can_read($timeout);
 	}
 	sysread($self, $_[0], $_[1], $_[2] || 0);
+    }
+
+    sub io_sel {
+	my $self = shift;
+	my $io_sel = (${*$self}{myhttp_io_sel} ||=
+		      do {
+			  require IO::Select;
+			  IO::Select->new($self);
+		      });
+	return $io_sel;
     }
 }
 
 sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
+    if (my $sock = delete $self->{ua}{c_cache}{http}{"$host:$port"}) {
+	my $io_sel = $sock->io_sel;
+	return $sock unless $sock->io_sel->can_read(0);
+	# if the socket is readable, then either the peer has closed the
+	# connection or there are some garbage bytes on it.  In either
+	# case we abandon it.
+	$sock->close;
+    }
 
     local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = LWP::Protocol::MyHTTP->new(PeerAddr => $host,
 					  PeerPort => $port,
 					  Proto    => 'tcp',
 					  Timeout  => $timeout,
+					  KeepAlive => 1,
 					  $self->_extra_sock_opts($host, $port),
 					 );
     unless ($sock) {
@@ -243,7 +258,8 @@ sub request
     }
 
     my $response = HTTP::Response->new($code, $mess);
-    $response->protocol("HTTP/" . $socket->peer_http_version);
+    my $peer_http_version = $socket->peer_http_version;
+    $response->protocol("HTTP/$peer_http_version");
     while (@h) {
 	my($k, $v) = splice(@h, 0, 2);
 	$response->push_header($k, $v);
@@ -270,6 +286,16 @@ sub request
     while (@h) {
 	my($k, $v) = splice(@h, 0, 2);
 	$response->push_header($k, $v);
+    }
+
+    # keep-alive support
+    my %connection = map { (lc($_) => 1) }
+	             split(/\s*,\s*/, $response->header("Connection"));
+    if (($peer_http_version eq "1.1" && !$connection{close}) ||
+	$connection{"keep-alive"})
+    {
+	LWP::Debug::debug("Keep the http connection to $host:$port");
+	$self->{ua}{c_cache}{http}{"$host:$port"} = $socket;
     }
 
     $response;

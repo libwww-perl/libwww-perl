@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.34 1998/03/31 12:32:29 aas Exp $
+# $Id: Headers.pm,v 1.35 1998/04/02 13:38:17 aas Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -488,7 +488,7 @@ sub client_date         { shift->_date_header('Client-Date',         @_); }
 
 sub content_type      {
   my $ct = (shift->_header('Content-Type', @_))[0];
-  return '' unless defined $ct;
+  return '' unless defined($ct) && length($ct);
   my @ct = split(/\s*;\s*/, lc($ct));
   wantarray ? @ct : $ct[0];
 }

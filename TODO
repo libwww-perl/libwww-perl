@@ -1,4 +1,4 @@
-                                            $Date: 1996/07/23 19:57:10 $
+                                            $Date: 1996/09/10 08:00:41 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
@@ -9,6 +9,8 @@ This is a list over things that we plan to implement in libwww-perl-5
        Content-Range
        Multipart mime types
        Use HTTP/1.1 in the request line when we support it all.
+
+  o  Proxy authentication
 
   o  Support PICS??
 

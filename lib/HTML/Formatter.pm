@@ -34,15 +34,20 @@ sub format
 sub begin
 {
     my $formatter = shift;
-    # Flags
-    $formatter->{anchor} = 0;
-    $formatter->{underline} = 0;
-    $formatter->{bold} = 0;
-    $formatter->{italic} = 0;
-    $formatter->{center} = 0;
 
-    $formatter->{makers} = [];
-    $formatter->{vspace} = undef;
+    # Flags
+    $formatter->{anchor}    = 0;
+    $formatter->{underline} = 0;
+    $formatter->{bold}      = 0;
+    $formatter->{italic}    = 0;
+    $formatter->{center}    = 0;
+    $formatter->{nobr}      = 0;
+
+    $formatter->{font_size}     = [3];   # last element is current size
+    $formatter->{basefont_size} = [3];  
+
+    $formatter->{makers} = [];           # last element is current marker
+    $formatter->{vspace} = undef;        # vertical space
     $formatter->{eat_leading_space} = 0;
 }
 
@@ -57,12 +62,20 @@ sub body_start { 1; }  sub body_end {}
 sub header_start
 {
     my($formatter, $level, $node) = @_;
+    my $align = $node->attr('align');
+    if (defined($align) && lc($align) eq 'center') {
+	$formatter->{center}++;
+    }
     1,
 }
 
 sub header_end
 {
     my($formatter, $level, $node) = @_;
+    my $align = $node->attr('align');
+    if (defined($align) && lc($align) eq 'center') {
+	$formatter->{center}--;
+    }
 }
 
 sub h1_start { shift->header_start(1, @_) }
@@ -165,6 +178,60 @@ sub center_end
     shift->{center}--;
 }
 
+sub nobr_start
+{
+    shift->{nobr}++;
+    1;
+}
+
+sub nobr_end
+{
+    shift->{nobr}--;
+}
+
+sub wbr_start
+{
+    1;
+}
+
+sub font_start
+{
+    my($formatter, $elem) = @_;
+    my $size = $elem->attr('size');
+    return unless defined $size;
+    if ($size =~ /^\s*[+\-]/) {
+	my $base = $formatter->{basefont_size}[-1];
+	$size = $base + $size;
+    }
+    push(@{$formatter->{font_size}}, $size);
+    1;
+}
+
+sub font_end
+{
+    my($formatter, $elem) = @_;
+    my $size = $elem->attr('size');
+    return unless defined $size;
+    pop(@{$formatter->{font_size}});
+}
+
+sub basefont_start
+{
+    my($formatter, $elem) = @_;
+    my $size = $elem->attr('size');
+    return unless defined $size;
+    push(@{$formatter->{basefont_size}}, $size);
+    1;
+}
+
+sub basefont_end
+{
+    my($formatter, $elem) = @_;
+    my $size = $elem->attr('size');
+    return unless defined $size;
+    pop(@{$formatter->{basefont_size}});
+}
+
 # Aliases for logical markup
 BEGIN {
     *cite_start   = \&i_start;
@@ -250,15 +317,6 @@ sub address_end
     my $formatter = shift;
     $formatter->i_end(@_);
     $formatter->vspace(1);
-}
-
-sub nobr_start
-{
-    1;
-}
-
-sub nobr_end
-{
 }
 
 # Handling of list elements
@@ -365,7 +423,6 @@ sub dd_end
 # Things not formated at all
 sub table_start { shift->out('[TABLE NOT SHOWN]'); 0; }
 sub form_start  { shift->out('[FORM NOT SHOWN]');  0; }
-sub font_start  { 1; }  sub font_end {}
 
 
 

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.30 1996/03/18 17:49:58 aas Exp $
+# $Id: UserAgent.pm,v 1.31 1996/03/21 09:25:39 aas Exp $
 
 package LWP::UserAgent;
 
@@ -156,10 +156,17 @@ sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
 
-    LWP::Debug::trace($request->method . ' ' . $request->url);
+    my($method, $url) = ($request->method, $request->url);
+
+    # Check that we have a METHOD and a URL first
+    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "Method missing")
+        unless $method;
+    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "URL missing")
+        unless $url;
+
+    LWP::Debug::trace("$method $url");
 
     # Locate protocol to use
-    my $url = $request->url;
     my $scheme = '';
     my $proxy = $self->_need_proxy($url);
     if (defined $proxy) {

@@ -11,7 +11,7 @@ require LWP::UserAgent;
 
 $me = 'autoload';
 
-$url = 'http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/simple_html';
+$url = 'http://localhost/';
 
 LWP::Debug::level('+trace'); # maximum logging
 

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.5 1995/09/05 23:04:30 aas Exp $
+# $Id: Element.pm,v 1.6 1995/09/05 23:43:11 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -364,9 +364,6 @@ sub extractLinks
 	    return unless defined $attr;
 	    $attr = $self->attr($attr);
 	    return unless defined $attr;
-	    if (@types) {
-		
-	    }
 	    push(@links, [$attr, $self]);
 	}, 1);
     \@links;

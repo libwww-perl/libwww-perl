@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.25 1998/11/19 21:45:01 aas Exp $
+# $Id: ftp.pm,v 1.26 1999/09/20 13:08:35 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -112,9 +112,7 @@ sub request
     LWP::Debug::debug($ftp->message);
 
     # Get & fix the path
-    my @path =  $url->path_segments;
-    shift(@path);  # There will always be an empty first component
-    pop(@path) while @path && $path[-1] eq '';  # remove empty tailing comps
+    my @path =  grep { length } $url->path_components;
     my $remote_file = pop(@path);
     $remote_file = '' unless defined $remote_file;
 

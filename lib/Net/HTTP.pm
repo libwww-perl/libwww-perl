@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.7 2001/04/09 20:55:44 gisle Exp $
+# $Id: HTTP.pm,v 1.8 2001/04/10 05:13:01 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -37,6 +37,8 @@ sub configure {
 	$sock->keep_alive($keep_alive);
 	$sock->http_version($http_version);
 	$sock->peer_http_version($peer_http_version);
+
+	${*$self}{'http_buf'} = "";
     }
     return $sock;
 }
@@ -135,26 +137,61 @@ sub write_request {
 }
 
 
-sub read_line {
+sub xread {
     my $self = shift;
-    local $/ = "\012";
-    my $line = readline($self);
-    return undef unless defined $line;
-    $line =~ s/\015?\012\z//;
-    return $line;
+    for (${*$self}{'http_buf'}) {
+	return sysread($self, $_, $_[2] || 1024, length);
+    }
+}
+
+sub my_read {
+    die if @_ > 3;
+    my $self = shift;
+    my $len = $_[1];
+    for (${*$self}{'http_buf'}) {
+	if (length) {
+	    $_[0] = substr($_, 0, $len, "");
+	    return length($_[0]);
+	}
+	else {
+	    my $n = $self->xread($len);
+	    $_[0] = $_;  $_ = "";
+	    return $n;
+	}
+    }
+}
+
+
+sub my_readline {
+    my $self = shift;
+    for (${*$self}{'http_buf'}) {
+	my $pos;
+	while (1) {
+	    $pos = index($_, "\012");
+	    last if $pos >= 0;
+	    my $n = $self->xread(1024);
+	    if (!$n) {
+		return undef unless length;
+		return substr($_, 0, length, "");
+	    }
+	}
+	my $line = substr($_, 0, $pos+1, "");
+	$line =~ s/\015?\012\z//;
+	return $line;
+    }
 }
 
 
 sub read_response_headers {
     my $self = shift;
-    my $status = read_line($self);
+    my $status = my_readline($self);
     die "EOF instead of reponse status line" unless defined $status;
     my($peer_ver, $code, $message) = split(' ', $status, 3);
     die "Bad response status line: $status" unless $peer_ver =~ s,^HTTP/,,;
     ${*$self}{'http_peer_version'} = $peer_ver;
     ${*$self}{'http_status'} = $code;
     my @headers;
-    while (my $line = read_line($self)) {
+    while (my $line = my_readline($self)) {
 	if ($line =~ /^(\S+)\s*:\s*(.*)/s) {
 	    push(@headers, $1, $2);
 	}
@@ -226,18 +263,18 @@ sub read_entity_body {
 	if ($chunked > 0) {
 	    my $n = $chunked;
 	    $n = $size if $size && $size < $n;
-	    $n = read($self, $$buf_ref, $n);
+	    $n = my_read($self, $$buf_ref, $n);
 	    ${*$self}{'http_chunked'} = $chunked - $n;
 	    return $n;
 	}
 	else {
-	    my $line = read_line($self);
+	    my $line = my_readline($self);
 	    if ($chunked == 0) {
-		die unless $line eq "";
-		$line = read_line($self);
+		die "Not empty: '$line'" unless $line eq "";
+		$line = my_readline($self);
 	    }
 	    $line =~ s/;.*//;  # ignore potential chunk parameters
-	    $line =~ s/\s+$//;
+	    $line =~ s/\s+$//; # avoid warnings from hex()
 	    my $n = hex($line);
 	    if ($n) {
 		${*$self}{'http_chunked'} = $n;
@@ -245,8 +282,8 @@ sub read_entity_body {
 		return "0E0";
 	    }
 	    else {
-		# read trailers
-		read_line($self) eq "" || die;
+		# XXX read trailers
+		my_readline($self) eq "" || die "Chunked trailers not supported";
 		$$buf_ref = "";
 		return 0;
 	    }
@@ -256,18 +293,14 @@ sub read_entity_body {
 	return 0 unless $bytes;
 	my $n = $bytes;
 	$n = $size if $size && $size < $n;
-	$n = read($self, $$buf_ref, $n);
+	$n = my_read($self, $$buf_ref, $n);
 	${*$self}{'http_bytes'} = $bytes - $n;
 	return $n;
     }
     else {
 	# read until eof
-	return read($self, $$buf_ref, $size) if $size > 0;
-
-	# slurp rest
-	local $/ = undef;
-	$$buf_ref = <$self>;
-	return length($$buf_ref);
+	$size ||= 1024;
+	return my_read($self, $$buf_ref, $size);
     }
 }
 

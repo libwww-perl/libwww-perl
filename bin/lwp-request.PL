@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.12 1995/07/25 08:28:14 aas Exp $
+# $Id: lwp-request.PL,v 1.13 1995/08/07 15:55:31 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -26,6 +26,9 @@ for POST, PUT and CHECKIN methods is read from stdin.  The content of
 the response is printed on stdout.  Error messages are printed on
 stderr.  The program returns a status value indicating the number of
 URLs that failed.
+
+The program will ask for username and password if the document is
+protected by authorization.
 
 The options are:
 
@@ -94,6 +97,11 @@ Print requeset headers in addition to request method and absolute URL.
 
 Print response status code.
 
+=item -S
+
+Print response status chain. This shows redirect and autorization
+requests that are handled by the library.
+
 =item -e
 
 Print response headers.  This option is always on for HEAD requests.
@@ -131,7 +139,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -162,6 +170,40 @@ require LWP::Debug;
 );
 
 
+# We make our own specialization of LWP::UserAgent that asks for
+# user/password if document is protected.
+{
+    package RequestAgent;
+    @ISA = qw(LWP::UserAgent);
+
+    sub new
+    { 
+	my $self = LWP::UserAgent::new(@_);
+	$self->agent("LWP-$0/$main::VERSION");
+	$self;
+    }
+
+    sub getBasicCredentials
+    {
+	my($self, $realm) = @_;
+	if (-t) {
+	    print "Enter username for $realm: ";
+	    my $user = <STDIN>;
+	    chomp($user);
+	    return (undef, undef) unless length $user;
+	    print "Password: ";
+	    system("stty -echo");
+	    my $password = <STDIN>;
+	    system("stty echo");
+	    print "\n";  # because we disabled echo
+	    chomp($password);
+	    return ($user, $password);
+	} else {
+	    return (undef, undef)
+	}
+    }
+}
+
 $method = uc($0 eq "request" ? "GET" : $0);
 
 # Parse command line
@@ -177,6 +219,7 @@ $opt_c = undef;  # content type for POST
 $opt_u = undef;  # display method, URL and headers of request
 $opt_U = undef;  # display request headers also
 $opt_s = undef;  # display status code
+$opt_S = undef;  # display whole chain of status codes
 $opt_e = undef;  # display response headers (default for HEAD)
 $opt_d = undef;  # don't display content
 
@@ -187,7 +230,7 @@ $opt_x = undef;  # extra debugging info
 $opt_p = undef;  # proxy URL
 $opt_P = undef;  # don't load proxy setting from environment
 
-unless (getopts("xhvuUsedPp:b:t:i:c:m:f")) {
+unless (getopts("xhvuUsSedPp:b:t:i:c:m:f")) {
     usage();
 }
 
@@ -208,7 +251,7 @@ usage() if $opt_h || !@ARGV;
 LWP::Debug::level('+') if $opt_x;
 
 # Create the user agent object
-$ua = new LWP::UserAgent;
+$ua = new RequestAgent;
 
 # Load proxy settings from *_proxy environment variables.
 $ua->envProxy unless $opt_P;
@@ -277,7 +320,6 @@ if ($allowed_methods{$method} eq "C") {
 # Set up a request.  We use the same request for all URLs.
 $request = new LWP::Request $method;
 $request->header('If-Modified-Since', $opt_i) if defined $opt_i;
-$request->header('User-Agent', "LWP $0/$VERSION");
 $request->header('Accept', '*/*');
 if ($opt_c) { # will always be set for request that wants content
     $request->header('Content-Type', $opt_c);
@@ -296,18 +338,18 @@ while ($url = shift) {
     $ua->proxy($url->scheme, $opt_p) if $opt_p;
 
     $request->url($url, $opt_b);
-
     $response = $ua->request($request);
 
     if ($opt_u || $opt_U) {
-        my $url = $url->as_string;
+        my $url = $response->request->url->as_string;
         print "$method $url\n";
-        print $request->headerAsString, "\n" if $opt_U;
+        print $response->request->headerAsString, "\n" if $opt_U;
     }
 
-    if ($opt_s) {
+    if ($opt_S) {
+	printResponseChain($response);
+    } elsif ($opt_s) {
         # Display status code
-        require LWP::StatusCode;
         my $code = $response->code;
         print $code, " ", LWP::StatusCode::message($code), "\n";
         
@@ -330,6 +372,17 @@ while ($url = shift) {
 exit $errors;
 
 
+sub printResponseChain
+{
+    my($response) = @_;
+    return unless defined $response;
+    printResponseChain($response->previous);
+    my $method = $response->request->method;
+    my $url = $response->request->url->as_string;
+    my $code = $response->code;
+    print "$method $url --> ",$code," ",LWP::StatusCode::message($code),"\n";
+}
+
 
 sub usage
 {
@@ -345,8 +398,9 @@ Usage: $0 [-options] <url>...
     -P            don't load proxy settings from environment
 
     -u            Display method and URL before any response
-    -U            Display request headers after method and URL
+    -U            Display request headers (implies -u)
     -s            Display response status code
+    -S            Display response status chain
     -e            Display response headers
     -d            Do not display content
 

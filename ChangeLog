@@ -1,3 +1,13 @@
+Tue Sep 17 1996   Gisle Aas <aas@sn.no>
+
+ o  Hakan Ardo's persistent robot rules is now part of the standard
+    distribution.
+
+ o  New HTTP::Response methods: current_age(), freshness_lifetime(),
+    is_fresh()
+
+
+
 Fri Sep 13 1996   Gisle Aas <aas@sn.no>
 	
  o  Avoid '"my" variable $var masks earlier declaration in same scope'

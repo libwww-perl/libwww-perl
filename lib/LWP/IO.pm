@@ -1,10 +1,10 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.7 1996/04/09 15:44:26 aas Exp $
+# $Id: IO.pm,v 1.8 1996/10/07 09:37:31 aas Exp $
 
 require LWP::Debug;
-use AutoLoader;
-@ISA=qw(AutoLoader);
+use AutoLoader ();
+*AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
 
 sub read;
 sub write;

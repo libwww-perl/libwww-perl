@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.36 1996/07/23 19:53:59 aas Exp $
+# $Id: UserAgent.pm,v 1.37 1996/10/07 09:37:55 aas Exp $
 
 package LWP::UserAgent;
 
@@ -105,8 +105,7 @@ L<mirror> for examples of usage.
 
 
 require LWP::MemberMixin;
-require AutoLoader;
-@ISA = qw(LWP::MemberMixin AutoLoader);
+@ISA = qw(LWP::MemberMixin);
 
 require URI::URL;
 require HTTP::Request;
@@ -120,6 +119,9 @@ use LWP::Protocol ();
 
 use MIME::Base64 qw(encode_base64);
 use Carp ();
+
+use AutoLoader ();
+*AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
 
 
 =head2 $ua = new LWP::UserAgent;

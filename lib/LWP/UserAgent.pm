@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.16 1995/08/17 14:27:08 aas Exp $
+# $Id: UserAgent.pm,v 1.17 1995/08/27 23:02:34 aas Exp $
 
 package LWP::UserAgent;
 
@@ -98,7 +98,7 @@ require HTTP::Response;
 require LWP::Debug;
 require LWP::Protocol;
 
-use LWP::Base64 qw(Base64encode);
+use MIME::Base64 qw(encode_base64);
 use Carp;
 
 #####################################################################
@@ -329,7 +329,7 @@ sub request
 
                 if (defined $uid and defined $pwd) {
                     my $uidpwd = "$uid:$pwd";
-                    my $header = $scheme . ' ' . &Base64encode($uidpwd);
+                    my $header = "$scheme " . encode_base64($uidpwd, '');
 
                     # Need to check this isn't a repeated fail!
 		    my $r = $response;

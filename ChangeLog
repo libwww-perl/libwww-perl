@@ -15,6 +15,10 @@
  o  Allow "." in HTTP header names.  Patch by Marc Langheinrich
     <marc@ccm.cl.nec.co.jp>
 
+ o  Fixed reference to $uri->netloc in lwp-request
+
+ o  Cute animation in lwp-download
+
 
 
 Mon Nov 19 1998   Gisle Aas <aas@sn.no>

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.31 1996/05/19 11:20:36 aas Exp $
+# $Id: Makefile.PL,v 1.32 1996/05/26 10:43:38 aas Exp $
 
 #--- Configuration section ---
 
@@ -76,7 +76,7 @@ EOT
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-   VERSION_FROM  => 'lib/LWP.pm', # Can be enabled when the real thing is out
+   VERSION_FROM  => 'lib/LWP.pm',
    PL_FILES      => {
                       'bin/lwp-request.PL' => 'bin/lwp-request',
 		      'bin/lwp-rget.PL'    => 'bin/lwp-rget',
@@ -116,8 +116,9 @@ test:
 
 # Determine things that should *not* be installed
 sub MY::libscan {
-    return '' if m:/(RCS|CVS)/:;
-    return '' if m/~$/;
-    return '' if m/.(pl|dtd)$/;
+    my($self, $path) = @_;
+    return '' if $path =~ m/.(pl|dtd|sgml)$/;
+    return '' if $path =~ m:\bCVS/:;
+    return '' if $path =~ m/~$/;
     $_;
 }

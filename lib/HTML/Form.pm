@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.46 2004/06/18 07:13:20 gisle Exp $
+# $Id: Form.pm,v 1.47 2004/11/30 09:35:40 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -74,7 +74,7 @@ $response->base() method, as shown by the following example:
 
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get("http://www.example.com/form.html");
-    my @forms = HTML::Form->parse($response->content,
+    my @forms = HTML::Form->parse($response->decoded_content,
 				  $response->base);
 
 The parse() method can parse from an C<HTTP::Response> object

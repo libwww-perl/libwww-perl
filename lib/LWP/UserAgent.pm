@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.60 1998/04/02 13:06:05 aas Exp $
+# $Id: UserAgent.pm,v 1.61 1998/05/07 15:00:56 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.60 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.61 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -575,6 +575,11 @@ sub mirror
 	    }
 	    rename($tmpfile, $file) or
 		die "Cannot rename '$tmpfile' to '$file': $!\n";
+
+	    if (my $lm = $response->last_modified) {
+		# make sure the file has the same last modification time
+		utime $lm, $lm, $file;
+	    }
 	}
     } else {
 	unlink($tmpfile);

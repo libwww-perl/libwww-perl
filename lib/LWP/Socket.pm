@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.10 1995/09/04 15:24:20 aas Exp $
+# $Id: Socket.pm,v 1.11 1995/09/04 17:45:35 aas Exp $
 
 package LWP::Socket;
 
@@ -21,8 +21,7 @@ LWP::Socket - TCP/IP socket interface
 =head1 DESCRIPTION
 
 This class implements TCP/IP sockets.  It groups socket generation,
-TCP address manipulation, and reading using select and sysread, with
-internal buffering.
+TCP address manipulation and buffered reading.
 
 This class should really not be required, something like this should
 be part of the standard Perl5 library.
@@ -34,14 +33,14 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
 use Carp;
 
 require LWP::Debug;
-require LWP::IO unless defined &LWP::IO::read;
+require LWP::IO;
 
 my $tcp_proto = (getprotobyname('tcp'))[2];
 
@@ -153,19 +152,7 @@ sub readUntil
     my $buf = \$self->{'buffer'};
 
     until (length $delim and $$buf =~ /$delim/) {
-        my $rin = '';
-        vec($rin, fileno($socket), 1) = 1;
-        my $nfound = select($rin, undef, undef, $timeout);
-        if ($nfound == 0) {
-            die "Timeout";
-        } elsif ($nfound < 0) {
-            die "Select failed: $!";
-        } else {
-            my $n = sysread($socket, $$buf, $size, length($$buf));
-	    last if $n <= 0;
-            LWP::Debug::conns("Read $n bytes: '" .
-			      substr($$buf, length($$buf) - $n) ."'");
-        }
+	LWP::IO::read($socket, $$buf, $size, length($$buf), $timeout);
     }
 
     if (length $delim) {
@@ -181,8 +168,7 @@ sub readUntil
 =head2 read($bufref, [$size, $timeout])
 
 Reads data of the socket.  Not more than $size bytes.  Might return
-less if the data is available.  Returns 0 if timeout occured, 1
-otherwise.
+less if the data is available.  Dies on timeout.
 
 =cut
 
@@ -197,39 +183,9 @@ sub read
 	#print "Returning data from buffer...$self->{'buffer'}\n";
 	$$data_ref = substr($self->{'buffer'}, 0, $size);
 	substr($self->{'buffer'}, 0, $size) = '';
-	return 1;
+	return length $$data_ref;
     }
-
-    my $socket = $self->{'socket'};
-
-    if (defined @Tk::ISA) {
-	# we are running under Tk
-	my $done = 0;
-	Tk->fileevent($socket, 'readable',
-		      sub { sysread($socket, $$data_ref, $size); $done=1; }
-		     );
-	my $timer = Tk->after($timeout*1000, sub {$done = 2;} );
-
-	Tk::DoOneEvent(0) until ($done);
-
-	Tk->after(cancel => $timer);
-	Tk->fileevent($socket, 'readable', ''); # no more callbacks
-	die "Timeout" if $done == 2;
-	return;
-    }
-
-    my $rin = '';
-    vec($rin, fileno($socket), 1) = 1;
-    my $nfound = select($rin, undef, undef, $timeout);
-    if ($nfound == 0) {
-	die "Timeout";
-    } elsif ($nfound < 0) {
-	die "Select failed: $!";
-    } else {
-	my $n = sysread($socket, $$data_ref, $size);
-	LWP::Debug::conns("Read $n bytes: '$$data_ref'");
-	return 1;
-    }
+    LWP::IO::read($self->{'socket'}, $$data_ref, $size, undef, $timeout);
 }
 
 =head2 pushback($data)
@@ -263,41 +219,19 @@ sub write
     my $self = shift;
     my $timeout = $_[1];  # we don't want to copy data in $_[0]
     LWP::Debug::trace('()');
-    $socket = $self->{'socket'};
     my $bytes_written = 0;
     if (!ref $_[0]) {
-	# write data to socket
-	#XXX: Should do something special if Tk is present
-	my $len = length $_[0];
-	my $offset = 0;
-	while ($offset < $len) {
-	    my $win = '';
-	    vec($win, fileno($socket), 1) = 1;
-	    my $nfound = select(undef, $win, undef, $timeout);
-	    if ($nfound == 0) {
-		die "Timeout";
-		#return $bytes_written;
-	    } elsif ($nfound < 0) {
-		die "Select failed: $!";
-	    } else {
-		my $n = syswrite($socket, $_[0], $len-$offset, $offset);
-		return $bytes_written if $n <= 0;
-		LWP::Debug::conns("Write $n bytes: '" .
-				  substr($_[0], $offset, $n) .
-				  "'");
-		$offset += $n;
-	    }
-	}
+	$bytes_written = LWP::IO::write($self->{'socket'}, $_[0], $timeout);
     } elsif (ref($_[0]) eq 'CODE') {
 	# write data until $callback returns empty data '';
 	my $callback = shift;
 	while (1) {
 	    my $data = &$callback;
 	    last unless defined $data;
-	    my $dataRef = ref($data) : $data ? \$data;
+	    my $dataRef = ref($data) ? $data : \$data;
 	    my $len = length $$dataRef;
 	    last unless $len;
-	    my $n = $socket->write($$dataRef, $timeout);
+	    my $n = $self->write($$dataRef, $timeout);
 	    $bytes_written += $n;
 	    last if $n != $len;
 	}

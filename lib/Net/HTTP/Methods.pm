@@ -1,13 +1,13 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.14 2003/10/15 10:45:29 gisle Exp $
+# $Id: Methods.pm,v 1.15 2004/11/12 10:42:36 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "1.00";
+$VERSION = "1.01";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -311,7 +311,7 @@ sub read_response_headers {
 	# assume HTTP/0.9
 	${*$self}{'http_peer_http_version'} = "0.9";
 	${*$self}{'http_status'} = "200";
-	substr(${*$self}{'http_buf'}, 0, 0) = $status . $eol;
+	substr(${*$self}{'http_buf'}, 0, 0) = $status . ($eol || "");
 	return 200 unless wantarray;
 	return (200, "Assumed OK");
     };

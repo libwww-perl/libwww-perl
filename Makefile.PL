@@ -1,9 +1,12 @@
+# This -*- perl -*- script makes the Makefile
+# $Id: Makefile.PL,v 1.3 1995/07/24 13:23:11 aas Exp $
+
 use ExtUtils::MakeMaker;
 
 sub initialize
 {
     ### The URI::URL check will be coverable by PREREQ via MakeMaker
-    my $REQ_URIURL = 3.00;
+    my $REQ_URIURL = 3.02;
     eval {require URI::URL;};
     if ($@) {
 	die "You need to install the URI::URL module before you install LWP.\n";

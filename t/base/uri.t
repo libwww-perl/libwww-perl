@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 
-use URI::URL;
+use URI::URL qw(url);
 use URI::Escape;  # imports uri_escape() and uri_unescape()
 
 use Carp;
@@ -36,7 +36,7 @@ for (@INC) {
 
 $| = 1;
 
-print "1..6\n";  # for Test::Harness
+print "1..7\n";  # for Test::Harness
 
 # Do basic tests first.
 # Dies if an error has been detected, prints "ok" otherwise.
@@ -99,7 +99,13 @@ $url->foo;
 
 print "ok 6\n";
 
+# Test the new wash&go constructor
+print "not " if url("../foo.html", "http://www.sn.no/a/b")->abs->as_string
+                ne 'http://www.sn.no/foo.html';
+print "ok 7\n";
+
 print "URI::URL version $URI::URL::VERSION ok\n";
+
 exit 0;
 
 

@@ -1,6 +1,6 @@
-#!/local/bin/perl -w
+#!/usr/local/bin/perl -w
 
-# $Id: lwp-mirror.PL,v 1.3 1995/07/14 00:10:29 aas Exp $
+# $Id: lwp-mirror.PL,v 1.4 1995/07/16 07:16:43 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -45,7 +45,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -56,9 +56,10 @@ unless (getopts("hvb:t:")) {
 }
 
 if ($opt_v) {
-    require LWP;  $LWP::VERSION = $LWP::VERSION; # shut up -w
+    require LWP;
+    $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is LWP $0 version $VERSION (using LWP version $LWP::VERSION)
+This is LWP $0 version $VERSION (using LWP version $lwpVersion)
 
 Copyright (C) 1995 Gisle Aas. All rights reserved.
 

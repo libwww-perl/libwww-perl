@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.10 1996/03/14 15:51:33 aas Exp $
+# $Id: ftp.pm,v 1.11 1996/03/18 17:57:52 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -204,7 +204,7 @@ sub request
             if ($method ne 'HEAD') {
 		# Let's collect once
 		my $first = 1;
-		$response = $self->collect($user_arg, $response, sub {
+		$response = $self->collect($arg, $response, sub {
 		    if ($first--) {
 			return \$content;
 		    }

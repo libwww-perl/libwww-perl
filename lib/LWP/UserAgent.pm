@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.69 1999/09/21 05:53:30 gisle Exp $
+# $Id: UserAgent.pm,v 1.70 1999/11/22 10:36:04 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.69 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.70 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -169,7 +169,6 @@ sub simple_request
 	unless $url;
     return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "URL must be absolute")
 	unless $url->scheme;
-	
 
     LWP::Debug::trace("$method $url");
 
@@ -205,7 +204,7 @@ sub simple_request
     # Transfer some attributes to the protocol object
     $protocol->parse_head($parse_head);
     $protocol->max_size($max_size);
-    
+
     my $response;
     if ($use_eval) {
 	# we eval, and turn dies into responses below
@@ -252,7 +251,9 @@ sub request
     my $code = $response->code;
     $response->previous($previous) if defined $previous;
 
-    LWP::Debug::debug('Simple result: ' . HTTP::Status::status_message($code));
+    LWP::Debug::debug('Simple response: ' .
+		      (HTTP::Status::status_message($code) ||
+		       "Unknown code $code"));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
 	$code == &HTTP::Status::RC_MOVED_TEMPORARILY) {

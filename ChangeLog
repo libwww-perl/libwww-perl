@@ -2,17 +2,21 @@ Sat Sep 20 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.13
 
- o  New module (HTTP::Cookies) that stores cookies from
-    Set-Cookie and Set-Cookie2 headers from responses and that can
-    create appropriate Cookie headers for requests.
+ o  Brand new module called HTTP::Cookies.  It stores cookies
+    (Set-Cookie and Set-Cookie2 headers) from responses and can
+    create appropriate Cookie headers for requests.  It can also
+    share cookie files with Netscape.
 
  o  LWP::UserAgent now support the cookie_jar() attribute.  When
-    set to a HTTP::Cookies object, it will automatically manage
-    cookies.  Off by default.
+    set to an HTTP::Cookies object, it will automatically manage
+    the cookies sent to the servers.  Off by default.
+
+ o  New header utility functions in HTTP::Headers::Util.
 
  o  Win32 and OS/2 patches for the lwp-xxx utilities.  Turn on
-    binary mode and avoid modifying $0. Contributed by
-    Ben Coleman <bcoleman@mindspring.com>
+    binary mode by default (option to turn it off), avoid modifying $0,
+    and don't be confused about suffixes in the script names.
+    Contributed by Ben Coleman <bcoleman@mindspring.com>
 
  o  OpenVMS patch for Font:AFM by Brad Hughes <brad@tmc.naecker.com>
 

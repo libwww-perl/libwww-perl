@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.59 1998/03/20 05:50:32 aas Exp $
+# $Id: UserAgent.pm,v 1.60 1998/04/02 13:06:05 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.59 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.60 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -273,9 +273,11 @@ sub request
 	return $response unless $self->redirect_ok($referral);
 
 	# Check for loop in the redirects
+	my $count = 0;
 	my $r = $response;
 	while ($r) {
-	    if ($r->request->url->as_string eq $referral_uri->as_string) {
+	    if (++$count > 13 ||
+                $r->request->url->as_string eq $referral_uri->as_string) {
 		$response->header("Client-Warning" =>
 				  "Redirect loop detected");
 		return $response;

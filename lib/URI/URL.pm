@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: URL.pm,v 2.8 1995/04/28 10:45:22 aas Exp $'
+# $Id: URL.pm,v 2.9 1995/05/10 18:00:00 aas Exp $'
 #
 package URI::URL;
 require 5.001;
@@ -290,7 +290,7 @@ require Exporter;
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-($Version) = '$Revision: 2.8 $' =~ /(\d+\.\d+)/;
+($Version) = '$Revision: 2.9 $' =~ /(\d+\.\d+)/;
 $Version += 0;  # shut up -w
 
 # Define default unsafe characters.
@@ -544,7 +544,17 @@ sub frag     { shift->elem('frag',    @_); }
 sub user     { shift->elem('user',    @_); }
 sub password { shift->elem('password',@_); }
 sub host     { shift->elem('host',    @_); }
-sub port     { shift->elem('port',    @_); }
+sub port {
+    my($self, $port) = @_;
+    if (@_ > 1) {     # set
+      # if port is default then unset it (simplifies comparisons)
+      $port = undef if ($port and $port == $self->default_port);
+      return $self->elem('port', $port);
+    }
+    # get, return default if unset
+    $self->elem('port') || $self->default_port;
+}
+
 
 # optimisation to speed up elem() below:
 my %netloc_fields = qw(user 1 password 1 host 1 port 1);
@@ -1250,7 +1260,8 @@ sub parts_test {
     $url->_expect('as_string', 'http://web/1info?key+words#this');
 
     &netloc_test;
-
+    &port_test;
+		  
     $url->query(undef);
     $url->_expect('query', undef);
     $url->print_on;
@@ -1283,6 +1294,43 @@ sub netloc_test {
     $url->_expect('netloc', 'hst2');
 }
 
+#
+# port_test()
+#
+# Test port behaviour
+#
+sub port_test {
+    print "port_test:\n";
+
+    $url = URI::URL->new('http://foo/root/dir/');
+    my $port = $url->port;
+    die "Port undefined" unless defined $port;
+    die "Wrong port $port" unless $port == 80;
+    die "Wrong string" unless $url->as_string eq
+	'http://foo/root/dir/';
+
+    $url->port(8001);
+    $port = $url->port;
+    die "Port undefined" unless defined $port;
+    die "Wrong port $port" unless $port == 8001;
+    die "Wrong string" unless $url->as_string eq 
+	'http://foo:8001/root/dir/';
+
+    $url->port(80);
+    $port = $url->port;
+    die "Port undefined" unless defined $port;
+    die "Wrong port $port" unless $port == 80;
+    die "Wrong string" unless $url->as_string eq 
+	'http://foo/root/dir/';
+
+    $url->port(8001);
+    $url->port(undef);
+    $port = $url->port;
+    die "Port undefined" unless defined $port;
+    die "Wrong port $port" unless $port == 80;
+    die "Wrong string" unless $url->as_string eq 
+	'http://foo/root/dir/';
+}
 
 
 #####################################################################

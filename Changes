@@ -1,3 +1,22 @@
+2003-01-24   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.69
+
+    Include lwptut.pod contributed by Sean M. Burke C<sburke@cpan.org>.
+
+    The lwp-request aliases GET, HEAD, POST where installed when
+    no program should be.  Fixed by David Miller <dave@justdave.net>.
+
+    lwp-rget --help don't print double usage any more.
+
+    HTTP::Header::Util is now more reluctant to put quotes around
+    token values.
+
+    Net::HTTP: Avoid warning on unexpected EOF when reading chunk
+    header.
+
+
+
 2003-01-02   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.68

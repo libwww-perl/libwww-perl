@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -283,6 +283,7 @@ sub extract_cookies
 
 	# Check domain
 	my $domain  = delete $hash{domain};
+	$domain = lc($domain) if defined $domain;
 	if (defined($domain)
 	    && $domain ne $req_host && $domain ne ".$req_host") {
 	    if ($domain !~ /\./ && $domain ne "local") {
@@ -559,9 +560,9 @@ sub _host
     my($request, $url) = @_;
     if (my $h = $request->header("Host")) {
 	$h =~ s/:\d+$//;  # might have a port as well
-	return $h;
+	return lc($h);
     }
-    return $url->host;
+    return lc($url->host);
 }
 
 sub _url_path

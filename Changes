@@ -7,12 +7,21 @@
     HTML::Form's dump() method now print the name of the form if
     present.
 
+    HTML::Form documentation updated.  Lots of typo fixes and improves
+    by Martin Thurn <mthurn@northropgrumman.com>.
+
+    HTML::Form will treat any unknown input types as text input.
+    This appears to be what most browsers do.
+
     Patch to make HEAD requests work for ftp: URLs.
     Patch by Ville Skyttä <ville.skytta@iki.fi>.
 
     LWP::UserAgent: The protocols_allowed() and protocols_forbidden()
     methods are now case insensitive.  Patch by Ville Skyttä
     <ville.skytta@iki.fi>.
+
+    Avoid warning from HTTP::Date on certain invalid dates.
+    Patch by David Dick <david_dick@iprimus.com.au>.
 
 
 

@@ -1,5 +1,5 @@
 #
-# $Id: MemberMixin.pm,v 1.2 1995/07/11 13:20:59 aas Exp $
+# $Id: MemberMixin.pm,v 1.3 1996/02/26 19:12:24 aas Exp $
 
 package LWP::MemberMixin;
 
@@ -34,22 +34,6 @@ sub _elem
     my $old = $self->{$elem};
     $self->{$elem} = $val if defined $val;
     return $old;
-}
-
-
-=head2 _strElem($elem)
-
-Internal method to return a textual representation of
-a member variable C<$elem>. If the member is undefined
-the string 'undef' is returned.
-
-=cut
-
-sub _strElem
-{
-    my($self, $elem) = @_;
-    my $result = $self->_elem($elem);
-    return (defined $result ? $result : 'undef');
 }
 
 1;

@@ -375,11 +375,12 @@ sub textflow
 	$formatter->pre_out($_[0]);
     } else {
 	for (split(/(\s+)/, $_[0])) {
-	    if ($formatter->{eat_leading_space} && /^\s/) {
+	    next unless length $_;
+	    if ($formatter->{eat_leading_space}) {
 		$formatter->{eat_leading_space} = 0;
-		next;
+		next if /^\s/;
 	    }
-	    $formatter->out($_) if length $_;
+	    $formatter->out($_);
 	}
     }
 }

@@ -99,22 +99,26 @@ sub start
     }
 }
 
-=head2 @links = $p->links
+=head2 $p->links
 
-Return links found in the document as an array.  Each array element
-contains an anonymous array with the follwing values:
+Returns a list of all links found in the document.  The returned
+values will be anonymous arrays with the follwing elements:
 
   [$tag, $attr => $url1, $attr2 => $url2,...]
 
-Note that $p->links will always be empty if a callback routine was
-provided when the L<HTML::LinkExtor> was created.
+The $p->links method will also truncate the internal link list.  This
+means that if the method is called twice without any parsing in
+between then the second call will return an empty list.
+
+Also note that $p->links will always be empty if a callback routine
+was provided when the L<HTML::LinkExtor> was created.
 
 =cut
 
 sub links
 {
     my $self = shift;
-    exists($self->{'links'}) ? @{$self->{'links'}} : ();
+    exists($self->{'links'}) ? @{delete $self->{'links'}} : ();
 }
 
 # We override the parse_file() method so that we can clear the links

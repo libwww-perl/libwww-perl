@@ -1,4 +1,4 @@
-print "1..36\n";
+print "1..38\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -598,6 +598,35 @@ print "not " if   # a permanent cookie got lost accidently
                 $counter{"session_before"} == 0;
 #print $c->as_string;
 print "ok 36\n";
+
+
+# Test handling of 'secure ' attribute for classic cookies
+$c = HTTP::Cookies->new;
+$req = HTTP::Request->new(GET => "https://1.1.1.1/");
+$req->header("Host", "www.acme.com:80");
+
+$res = HTTP::Response->new(200, "OK");
+$res->request($req);
+$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/ ; secure");
+#print $res->as_string;
+$c->extract_cookies($res);
+
+$req = HTTP::Request->new(GET => "http://www.acme.com/");
+$c->add_cookie_header($req);
+
+print "not " if $req->header("Cookie");
+print "ok 37\n";
+
+$req->uri->scheme("https");
+$c->add_cookie_header($req);
+
+print "not " unless $req->header("Cookie") eq "CUSTOMER=WILE_E_COYOTE";
+print "ok 38\n";
+
+#print $req->as_string;
+#print $c->as_string;
+
+
 
 #-------------------------------------------------------------------
 

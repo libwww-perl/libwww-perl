@@ -1,6 +1,6 @@
 package HTTP::Cookies;
 
-# Based on draft-ietf-http-state-man-mec-03.txt and
+# Based on draft-ietf-http-state-man-mec-08.txt and
 # http://www.netscape.com/newsref/std/cookie_spec.html
 
 use strict;
@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -30,7 +30,7 @@ to both store and retrieve information on the client side of the
 connection.  For more information about cookies referrer to
 <URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
 <URL:http://www.cookiecentral.com/>.  This module also implements the
-new style cookies as described in I<draft-ietf-http-state-man-mec-03.txt>.
+new style cookies as described in I<draft-ietf-http-state-man-mec-08.txt>.
 The two variants of cookies is supposed to be able to coexist happily.
 
 Instances of the class I<HTTP::Cookies> are able to store a collection
@@ -99,6 +99,7 @@ sub add_cookie_header
     my $request = shift || return;
     my $url = $request->url;
     my $domain = $url->host;
+    $domain = "$domain.local" unless $domain =~ /\./;
     my $secure_request = ($url->scheme eq "https");
     my $req_path = $url->epath;
     my $req_port = $url->port;
@@ -108,7 +109,9 @@ sub add_cookie_header
     my @cval;    # cookie values for the "Cookie" header
     my $set_ver;
 
-    while (($domain =~ tr/././) >= 2) {   # must be at least 2 dots
+    while (($domain =~ tr/././) >= 2 || # must be at least 2 dots
+           $domain =~ /\.local$/)
+    {
 
         LWP::Debug::debug("Checking $domain for cookies");
 	my $cookies = $self->{COOKIES}{$domain};
@@ -137,11 +140,16 @@ sub add_cookie_header
 		    next;
 		}
 		if ($port) {
-		    #XXX: must also handle empty port ""
 		    my $found;
-		    my $p;
-		    for $p (split(/,/, $port)) {
-			$found++, last if $p eq $req_port;
+		    if ($port =~ s/^_//) {
+			# The correponding Set-Cookie attribute was empty
+			$found++ if $port eq $req_port;
+			$port = "";
+		    } else {
+			my $p;
+			for $p (split(/,/, $port)) {
+			    $found++, last if $p eq $req_port;
+			}
 		    }
 		    unless ($found) {
 		        LWP::Debug::debug("   port $port:$req_port does not fit");
@@ -216,6 +224,7 @@ sub extract_cookies
 
     my $url = $response->request->url;
     my $req_host = $url->host;
+    $req_host = "$req_host.local" unless $req_host =~ /\./;
     my $req_port = $url->port;
     my $req_path = $url->epath;
     $self->_normalize_path($req_path) if $req_path =~ /%/;
@@ -264,17 +273,20 @@ sub extract_cookies
 	while (@$set) {
 	    my $k = shift @$set;
 	    my $v = shift @$set;
-	    $v = 1 unless defined $v;
 	    my $lc = lc($k);
 	    # don't loose case distinction for unknown fields
 	    $k = $lc if $lc =~ /^(?:discard|domain|max-age|
                                     path|port|secure|version)$/x;
+	    if ($k eq "discard" || $k eq "secure") {
+		$v = 1 unless defined $v;
+	    }
 	    next if exists $hash{$k};  # only first value is signigicant
 	    $hash{$k} = $v;
 	};
 
 	my %orig_hash = %hash;
 	my $version   = delete $hash{version};
+	$version = 1 unless defined($version);
 	my $discard   = delete $hash{discard};
 	my $secure    = delete $hash{secure};
 	my $maxage    = delete $hash{'max-age'};
@@ -282,7 +294,7 @@ sub extract_cookies
 	# Check domain
 	my $domain  = delete $hash{domain};
 	if (defined($domain) && $domain ne $req_host) {
-	    unless ($domain =~ /\./) {
+	    if ($domain !~ /\./ && $domain ne "local") {
 	        LWP::Debug::debug("Domain $domain contains no dot");
 		next SET_COOKIE;
 	    }
@@ -324,9 +336,8 @@ sub extract_cookies
 	my $port;
 	if (exists $hash{port}) {
 	    $port = delete $hash{port};
-	    $port = "" unless defined $port;
-	    $port =~ s/\s+//g;
-	    if (length $port) {
+	    if (defined $port) {
+		$port =~ s/\s+//g;
 		my $found;
 		for my $p (split(/,/, $port)) {
 		    unless ($p =~ /^\d+$/) {
@@ -339,6 +350,8 @@ sub extract_cookies
 		    LWP::Debug::debug("Request port ($req_port) not found in $port");
 		    next SET_COOKIE;
 		}
+	    } else {
+		$port = "_$req_port";
 	    }
 	}
 	$self->set_cookie($version,$key,$val,$path,$domain,$port,$path_spec,$secure,$maxage,$discard, \%hash)
@@ -369,7 +382,8 @@ sub set_cookie
        $path_spec, $secure, $maxage, $discard, $rest) = @_;
 
     # there must always be at least 2 dots in a domain
-    return $self if ($domain =~ tr/././) < 2;
+    return $self if ($domain =~ tr/././) < 2 &&
+                     $domain !~ /\.local$/;
 
     # path and key can not be empty (key can't start with '$')
     return $self if !defined($path) || $path !~ m,^/, ||
@@ -377,7 +391,7 @@ sub set_cookie
 
     # ensure legal port
     if (defined $port) {
-	return $self unless $port eq "" || $port =~ /^\d+(?:,\d+)*$/;
+	return $self unless $port =~ /^_?\d+(?:,\d+)*$/;
     }
 
     my $expires;

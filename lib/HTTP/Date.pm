@@ -1,23 +1,26 @@
-# $Id: Date.pm,v 1.27 1997/12/01 10:05:55 aas Exp $
+# $Id: Date.pm,v 1.28 1997/12/02 10:58:31 aas Exp $
 #
 package HTTP::Date;
 
 =head1 NAME
 
-time2str, str2time - date conversion routines
+HTTP::Date - date conversion routines
 
 =head1 SYNOPSIS
 
  use HTTP::Date;
 
- $stringGMT = time2str(time);   # Format as GMT ASCII time
- $time = str2time($stringGMT);  # convert ASCII date to machine time
+ $string = time2str($time);    # Format as GMT ASCII time
+ $time = str2time($string);    # convert ASCII date to machine time
 
 =head1 DESCRIPTION
 
-This module provides two functions that deal with the HTTP date format.
+This module provides two functions that deal with the HTTP date
+format.  The following functions are provided:
 
-=head2 time2str([$time])
+=over 4
+
+=item time2str([$time])
 
 The time2str() function converts a machine time (seconds since epoch)
 to a string.  If the function is called without an argument, it will
@@ -30,7 +33,7 @@ format is:
 
    Thu, 03 Feb 1994 17:09:00 GMT
 
-=head2 str2time($str [, $zone])
+=item str2time($str [, $zone])
 
 The str2time() function converts a string to machine time.  It returns
 C<undef> if the format is unrecognized, or the year is not between 1970
@@ -78,6 +81,8 @@ zone is assumed.
 If the year is missing, then we assume that the date is the first
 matching date I<before> current time.
 
+=back
+
 =head1 BUGS
 
 Non-numerical time zones (like MET, PST) are all treated like GMT.
@@ -99,7 +104,7 @@ modify it under the same terms as Perl itself.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;

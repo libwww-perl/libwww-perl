@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.2 1996/02/26 20:27:17 aas Exp $
+# $Id: RobotUA.pm,v 1.3 1996/04/09 08:48:18 aas Exp $
 
 package LWP::RobotUA;
 
@@ -21,8 +21,8 @@ LWP::RobotUA - A class for Web Robots
 =head1 SYNOPSIS
 
   require LWP::RobotUA;
-  $ua = new LWP::RobotUA 'my-robot/0.1';
-  $ua->delay(10);  # be very nice
+  $ua = new LWP::RobotUA 'my-robot/0.1', 'me@foo.com';
+  $ua->delay(10);  # be very nice, go slowly
   ...
   # just use it just like a normal LWP::UserAgent
   $res = $ua->request($req); 
@@ -37,10 +37,10 @@ and they should not send too frequent requests.
 But, before you consider writing a robot take a look at
 <URL:http://info.webcrawler.com/mak/projects/robots/robots.html>.
 
-When you use a LWP::RobotUA as your user agent, then you do not have
-to think about these things.  Just send requests as you do when you
-are using a normal LWP::UserAgent and this special agent will make
-sure you are nice.
+When you use a LWP::RobotUA as your user agent, then you do not really
+have to think about these things yourself.  Just send requests as you
+do when you are using a normal LWP::UserAgent and this special agent
+will make sure you are nice.
 
 =head1 SEE ALSO
 
@@ -50,7 +50,7 @@ L<LWP::UserAgent>
 
 The LWP::RobotUA is a sub-class of LWP::UserAgent and implements the
 same methods.  The use_alarm() method also desides whether we will
-wait if a request is tried to early (if true), or will return an error
+wait if a request is tried too early (if true), or will return an error
 response (if false).
 
 In addition these methods are provided:
@@ -72,10 +72,12 @@ In addition these methods are provided:
 # $self->{'rules'}     A WWW::RobotRules object
 #
 
-=head2 $ua = new LWP::RobotUA $name
+=head2 $ua = LWP::RobotUA->new($agent_name, $from)
 
-A name for the robot is required by the constructor.  The name can be
-changed later though the agent() method.
+A name and the mail address of the human running the the robot is
+required by the constructor.  The name can be changed later though the
+agent() method.  The mail address chan be changed with the from()
+method.
 
 =cut
 
@@ -83,14 +85,17 @@ sub new
 {
     my $class = shift;
     my $name  = shift;
+    my $from  = shift;
 
-    Carp::croak('LWP::RobotUA name required') unless defined $name;
+    Carp::croak('LWP::RobotUA name required') unless $name;
+    Carp::croak('LWP::RobotUA from address required') unless $from;
 
     my $self = new LWP::UserAgent;
     $self = bless $self, $class;
 
     $self->{'delay'} = 1;   # minutes
     $self->{'agent'} = $name;
+    $self->{'from'}  = $from;
 
     $self->{'rules'} = new WWW::RobotRules $name;
     $self->{'visited'} = { };
@@ -119,7 +124,7 @@ sub agent
     $old;
 }
 
-=head2 $ua->host_count
+=head2 $ua->host_count($hostname)
 
 Returns the number of documents fetched from this server host.
 
@@ -135,7 +140,7 @@ sub host_count
     return undef;
 }
 
-=head2 $ua->host_wait
+=head2 $ua->host_wait($hostname)
 
 Returns the number of seconds you must wait before you can make a new
 request to this host.
@@ -225,7 +230,7 @@ sub as_string
 {
     my $self = shift;
     my @s;
-    push(@s, "Robot: $self->{'agent'} $self");
+    push(@s, "Robot: $self->{'agent'} operated by $self->{'from'}  [$self]");
     push(@s, "    Minimum delay: " . int($self->{'delay'}*60) . "s");
     push(@s, "    Will sleep if too early") if $self->{'use_alarm'};
     push(@s, "    Rules = $self->{'rules'}");

@@ -339,10 +339,13 @@ sub parts_test {
     die "\$url->keywords should croak when query is a form."
       unless $@;
     # Try this odd one
-    $url->equery('&=&=b&a=&a=b');
+    $url->equery('&=&=b&a=&a&a=b=c&&a=b');
     @a = $url->query_form;
     #print join(":", @a), "\n";
-    die "Wrong length" unless @a == 8;
+    die "Wrong length" unless @a == 16;
+    die "Wrong sequence" unless $a[4]  eq ""  && $a[5]  eq "b" &&
+                                $a[10] eq "a" && $a[11] eq "b=c";
+
     # Try array ref values in the key value pairs
     $url->query_form(a => ['foo', 'bar'], b => 'foo', c => ['bar', 'foo']);
     $url->_expect('as_string', 'http://web/?a=foo&a=bar&b=foo&c=bar&c=foo');

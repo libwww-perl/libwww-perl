@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.5 1995/07/17 10:07:20 aas Exp $
+# $Id: Status.pm,v 1.6 1995/08/07 08:19:01 aas Exp $
 
 package LWP::StatusCode;
 
@@ -29,12 +29,12 @@ The following functions can be used as mnemonic status codes:
    RC_OK
    RC_CREATED
    RC_ACCEPTED
-   RC_PROVISIONAL_INFORMATION
+   RC_NON_AUTHORITATIVE_INFORMATION
    RC_NO_CONTENT
    RC_MULTIPLE_CHOICES
    RC_MOVED_PERMANENTLY
    RC_MOVED_TEMPORARILY
-   RC_METHOD
+   RC_SEE_OTHER
    RC_NOT_MODIFIED
    RC_BAD_REQUEST
    RC_UNAUTHORIZED
@@ -47,6 +47,7 @@ The following functions can be used as mnemonic status codes:
    RC_REQUEST_TIMEOUT
    RC_CONFLICT
    RC_GONE
+   RC_AUTHORIZATION_NEEDED
    RC_INTERNAL_SERVER_ERROR
    RC_NOT_IMPLEMENTED
    RC_BAD_GATEWAY
@@ -75,12 +76,12 @@ my %StatusCode = (
     200 => 'OK',
     201 => 'Created',
     202 => 'Accepted',
-    203 => 'Provisional Information',
+    203 => 'Non-Authoritative Information',
     204 => 'No Content',
     300 => 'Multiple Choices',
     301 => 'Moved Permanently',
     302 => 'Moved Temporarily',
-    303 => 'Method',
+    303 => 'See Other',
     304 => 'Not Modified',
     400 => 'Bad Request',
     401 => 'Unauthorized',
@@ -93,6 +94,7 @@ my %StatusCode = (
     408 => 'Request Timeout',
     409 => 'Conflict',
     410 => 'Gone',
+    411 => 'Authorization Refused',
     500 => 'Internal Server Error',
     501 => 'Not Implemented',
     502 => 'Bad Gateway',

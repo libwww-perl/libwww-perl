@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.8 1995/08/21 13:54:44 aas Exp $
+# $Id: MediaTypes.pm,v 1.9 1995/08/29 10:13:19 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -13,8 +13,10 @@ mediaSuffix - returns file extentions for a media type
 
 This module provides functions for handling of media (also known as
 MIME) types and encodings.  The mapping from file extentions to media
-types is defined by the F<mime.types> file.  If the F<~/.mime.types>
+types is defined by the F<media.types> file.  If the F<~/.media.types>
 file exist it is used as a replacement.
+
+For backwards compatability we will also look for F<~/.mime.types>.
 
 =cut
 
@@ -40,14 +42,16 @@ my %suffixEncoding = (
 );
 
 
-# Try to locate "mime.types" file, and initialize %suffixType from it
-for $typefile ("$ENV{HOME}/.mime.types",
-	       map {"$_/LWP/mime.types"} @INC) {
+# Try to locate "media.types" file, and initialize %suffixType from it
+for $typefile ("$ENV{HOME}/.media.types",
+	       "$ENV{HOME}/.mime.types",
+	       map {"$_/LWP/media.types"} @INC) {
     if (open(TYPE, "$typefile")) {
 	%suffixType = ();  # forget default types
 	while (<TYPE>) {
 	    next if /^\s*#/; # comment line
 	    next if /^\s*$/; # blank line
+	    s/#.*//;         # remove end-of-line comments
 	    my($type, @exts) = split(' ', $_);
 	    for $ext (@exts) {
 		$suffixType{$ext} = $type;

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.24 1996/02/26 19:18:08 aas Exp $
+# $Id: UserAgent.pm,v 1.25 1996/02/27 13:46:45 aas Exp $
 
 package LWP::UserAgent;
 
@@ -559,11 +559,12 @@ sub env_proxy {
     while(($k, $v) = each %ENV) {
         $k = lc($k);
         next unless $k =~ /^(.*)_proxy$/;
-        if ($1 eq 'no') {
+        $k = $1;
+        if ($k eq 'no') {
             $self->no_proxy(split(/\s*,\s*/, $v));
         }
         else {
-            $self->proxy($1, $v);           
+            $self->proxy($k, $v);           
         }
     }
 }

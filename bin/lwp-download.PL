@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.8 1998/11/19 21:44:58 aas Exp $
+# $Id: lwp-download.PL,v 1.9 1999/02/25 21:41:38 aas Exp $
 
 =head1 NAME
 
@@ -167,7 +167,7 @@ my $res = $ua->request($req,
 	      $perc = int($perc*100);
 	      my $show = "$perc% of $flength";
 	      $show .= " (at $speed, $secs_left remaining)" if $speed;
-	      show($show);
+	      show($show, 1);
 	  }
       } else {
 	  show( fbytes($size) . " received");
@@ -234,11 +234,19 @@ sub fduration
     }
 }
 
-sub show
-{
-    my $mess = shift;
-    print "\r$mess", (" " x (75 - length $mess));
-    $shown++;
+
+BEGIN {
+    my @ani = qw(- \ | /);
+    my $ani = 0;
+
+    sub show
+    {
+        my($mess, $show_ani) = @_;
+        print "\r$mess" . (" " x (75 - length $mess));
+	print $show_ani ? "$ani[$ani++]\b" : " ";
+        $ani %= @ani;
+        $shown++;
+    }
 }
 
 sub usage

@@ -1,3 +1,36 @@
+2004-11-30   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.802
+
+    The HTTP::Message object now have a decoded_content() method.
+    This will return the content after any Content-Encodings and
+    charsets has been decoded.
+
+    Compress::Zlib is now a prerequisite module.
+
+    HTTP::Request::Common: The POST() function created an invalid
+    Content-Type header for file uploads with no parameters.
+
+    Net::HTTP: Allow Transfer-Encoding with trailing whitespace.
+    <http://rt.cpan.org/Ticket/Display.html?id=3929>
+
+    Net::HTTP: Don't allow empty content to be treated as a valid
+    HTTP/0.9 response.
+    <http://rt.cpan.org/Ticket/Display.html?id=4581>
+    <http://rt.cpan.org/Ticket/Display.html?id=6883>
+
+    File::Protocol::file: Fixup directory links in HTML generated
+    for directories.  Patch by Moshe Kaminsky <kaminsky@math.huji.ac.il>.
+
+    Makefile.PL will try to discover misconfigured systems that
+    can't talk to themselves and disable tests that depend on this.
+
+    Makefile.PL will not default to 'n' when asking about whether
+    to install the "GET", "HEAD", "POST" programs.  There has been
+    too many name clashes with these common names.
+
+
+
 2004-11-12   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.801

@@ -38,6 +38,7 @@ libwww-perl:
   HTML-Parser
   libnet
   Digest-MD5
+  Compress-Zlib
 
 These packages should be available on CPAN (see below).
 

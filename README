@@ -43,8 +43,8 @@ libwww-perl:
 These packages should be available on CPAN.
 
 If you want to access sites using the https protocol, then you need to
-install the Crypt-SSLeay modules first.  (The Net::SSLeay module is
-no longer supported.)
+install either the Crypt::SSLeay or the IO::Socket::SSL module.
+The README.SSL file will tell you more about the SSL support.
 
 
 INSTALLATION

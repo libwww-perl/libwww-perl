@@ -86,7 +86,6 @@ lib/URI/URL/wais.pm		Implements wais URLs
 lib/URI/URL/webster.pm		Implements webster URLs
 lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
-update_from_5b7			A script that helps you convert old programs
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/afm.t			Test Font::AFM module

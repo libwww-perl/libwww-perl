@@ -67,16 +67,20 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @TAGS = qw(html
-	   head title base link meta isindex nextid
-	   body h1 h2 h3 h4 h5 h6 p pre address blockquote
+	   head title base link meta isindex nextid script style
+	   body h1 h2 h3 h4 h5 h6 p pre div blockquote
 	   a img br hr
 	   ol ul dir menu li
 	   dl dt dd
-	   cite code em kbd samp strong var
+	   dfn cite code em kbd samp strong var address 
 	   b i u tt
+           center font big small strike
+           sub sup
 	   table tr td th caption
 	   form input select option textarea
-           center font
+           object applet param
+           map area
+           frame frameset noframe
 	  );
 
 for (@TAGS) {

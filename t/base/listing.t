@@ -57,6 +57,7 @@ print "ok 1\n";
 
 for (@dir) {
    ($name, $type, $size, $mtime, $mode) = @$_;
+   $size ||= 0;  # ensure that it is defined
    printf "%-25s $type %6d  ", $name, $size;
    print scalar(localtime($mtime));
    printf "  %06o", $mode;

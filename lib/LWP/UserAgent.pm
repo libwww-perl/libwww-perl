@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.90 2001/05/05 13:32:02 gisle Exp $
+# $Id: UserAgent.pm,v 1.91 2001/08/02 21:12:56 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -95,7 +95,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.90 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.91 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -296,7 +296,7 @@ sub simple_request
     unless($protocol) {
       $protocol = eval { LWP::Protocol::create($scheme, $self) };
       if ($@) {
-	$@ =~ s/\s+at\s+\S+\s+line\s+\d+.*//;  # remove file/line number
+	$@ =~ s/ at .* line \d+.*//s;  # remove file/line number
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@);
       }
     }
@@ -323,7 +323,7 @@ sub simple_request
 					   $arg, $size, $timeout);
 	};
 	if ($@) {
-	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+.*//;
+	    $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
 	    $response =
 	      HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				  $@);

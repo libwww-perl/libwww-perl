@@ -1,6 +1,68 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.2 1995/09/05 13:05:32 aas Exp $
+# $Id: Parse.pm,v 1.3 1995/09/05 14:32:39 aas Exp $
+
+=head1 NAME
+
+parse - Parse HTML text
+
+parsefile - Parse HTML text from file
+
+=head1 SYNOPSIS
+
+ use HTML::Parse;
+ $h = parsefile("test.html");
+ print $h->asHTML;
+ $h = parse("<p>Some more text", $h);
+ $h->delete;
+
+=head1 DESCRIPTION
+
+This module provides functions to parse HTML text.  The result of
+parsing text is a HTML syntax tree with HTML::Element objects as
+nodes.
+
+You must delete the parse tree explicitly to free the memory
+assosiated with it.  The reason for this is that the parse tree
+contains circular references (parents have references to their
+children and children have a reference to their parent).
+
+The following variables control how parsing takes place:
+
+=over 4
+
+=item $HTML::Parse::IMPLICIT
+
+Setting this variable to true will instruct the parser to try to
+deduce implicit elements and implicit end tags.  If this variable is
+false you get a parse tree that just reflects the text as it stands.
+Might be useful for quick & dirty parsing.  Default is true.
+
+=item $HTML::Parse::IGNORE_UNKNOWN
+
+This variable contols whether unknow tags should be represented as
+elements in the parse tree.  Default is true.
+
+=item $HTML::Parse::SPLIT_TEXT
+
+This variable controls whether the text content of elements should be
+cut into pieces. Default is false.
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
 
 require Exporter;
 @ISA = qw(Exporter);

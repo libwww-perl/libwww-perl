@@ -129,7 +129,9 @@ sub nl
 
 sub adjust_lm
 {
-    shift->{lm} += $_[0];
+    my $self = shift;
+    $self->{lm} += $_[0];
+    $self->goto_lm;
 }
 
 sub adjust_rm

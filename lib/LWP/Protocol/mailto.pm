@@ -1,5 +1,5 @@
 #
-# $Id: mailto.pm,v 1.4 1995/09/03 09:57:02 aas Exp $
+# $Id: mailto.pm,v 1.5 1995/09/04 17:43:55 aas Exp $
 #
 # This module implements the mailto protocol.  It is just a simple 
 # frontend to the Unix sendmail program.  In the long run this module
@@ -63,14 +63,13 @@ sub request
     print SENDMAIL "\n";
     my $content = $request->content;
     if (defined $content) {
-	$content = \$content unless ref($content);
-	if (ref($content) eq 'SCALAR') {
-	    print SENDMAIL $$content;
-	    $request->header('Content-Length', length $$content);
-	} elsif (ref($content) eq 'CODE') {
+	my $contRef = ref($content) ? $content : \$content;
+	if (ref($contRef) eq 'SCALAR') {
+	    print SENDMAIL $$contRef;
+	} elsif (ref($contRef) eq 'CODE') {
 	    # Callback provides data
 	    my $d;
-	    while (length($d = &$content)) {
+	    while (length($d = &$contRef)) {
 		print SENDMAIL $d;
 	    }
 	}

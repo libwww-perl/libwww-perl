@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.12 1995/09/03 09:57:01 aas Exp $
+# $Id: http.pm,v 1.13 1995/09/04 17:43:54 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -84,12 +84,13 @@ sub request
     # If we're sending content we *have* to specify a content length
     # otherwise the server won't know a messagebody is coming.
 
-    my $content = "aas"; #$request->content;
+    my $content = $request->content;
+    my $contRef;
     if (defined $content){
-	$content = \$content unless ref($content);
-	if (ref($content) eq 'SCALAR') {
-	    $request->header('Content-Length', length $$content);
-	} elsif (ref($content) eq 'CODE') {
+	$contRef = ref($content) ? $content : \$content;
+	if (ref($contRef) eq 'SCALAR') {
+	    $request->header('Content-Length', length $$contRef);
+	} elsif (ref($contRef) eq 'CODE') {
 	    croak('No Content-Length header for request with content')
 	      unless $request->header('Content-Length');
 	} else {
@@ -98,7 +99,7 @@ sub request
     }
 
     $socket->write($request_line . $request->headerAsString($endl) . $endl);
-    $socket->write($$content) if defined $content;
+    $socket->write($$contRef, $timeout) if defined $content;
 
     # read response line from server
     LWP::Debug::debugl('reading response');

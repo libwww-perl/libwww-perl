@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.19 1996/10/21 22:03:20 aas Exp $
+# $Id: Status.pm,v 1.20 1997/05/20 20:31:41 aas Exp $
 
 package HTTP::Status;
 
@@ -26,9 +26,12 @@ HTTP::Status - HTTP Status code processing
 I<HTTP::Status> is a library of routines for defining and
 classification of HTTP status codes for libwww-perl.  Status codes are
 used to encode the overall outcome of a HTTP response message.  Codes
-correspond to those defined in E<lt>draft-ietf-http-v11-spec-06>.
+correspond to those defined in RFC 2068.
 
-The following functions can be used as mnemonic status code names:
+=head1 CONSTANTS
+
+The following constant functions can be used as mnemonic status code
+names:
 
    RC_CONTINUE				(100)
    RC_SWITCHING_PROTOCOLS		(101)
@@ -72,14 +75,6 @@ The following functions can be used as mnemonic status code names:
    RC_GATEWAY_TIMEOUT			(504)
    RC_HTTP_VERSION_NOT_SUPPORTED	(505)
 
-The status_message() function will translate status codes to human
-readable strings.
-
-The is_info(), is_success(), is_redirect(), and is_error() functions
-will return a TRUE value if the status code passed as argument is
-informational, indicates success, and error, or a redirect
-respectively.
-
 =cut
 
 #####################################################################
@@ -88,6 +83,7 @@ respectively.
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
+@EXPORT_OK = qw(is_client_error is_server_error);
 
 # Note also addition of mnemonics to @EXPORT below
 
@@ -144,10 +140,18 @@ while (($code, $message) = each %StatusCode) {
 eval $mnemonicCode; # only one eval for speed
 die if $@;
 
+=head1 FUNCTIONS
 
-=head2 status_message($code)
+The following additional functions are provided.  Most of them are
+exported by default.
 
-Return user friendly error message for status code C<$code>
+=over 4
+
+=item status_message($code)
+
+The status_message() function will translate status codes to human
+readable strings. The string is the same as found in the constant
+names above.
 
 =cut
 
@@ -157,30 +161,34 @@ sub status_message ($)
     $StatusCode{$_[0]};
 }
 
-=head2 is_info($code)
+=item is_info($code)
 
 Return TRUE if C<$code> is an I<Informational> status code.
 
-=head2 is_success($code)
+=item is_success($code)
 
 Return TRUE if C<$code> is a I<Successful> status code.
 
-=head2 is_redirect($code)
+=item is_redirect($code)
 
 Return TRUE if C<$code> is a I<Redirection> status code.
 
-=head2 is_error($code)
+=item is_error($code)
 
-Return TRUE if C<$code> is an I<Error> status code.  The C<$code> can be
-both a client error or a server error.
+Return TRUE if C<$code> is an I<Error> status code.  The function
+return TRUE for both client error or a server error status codes.
 
-=head2 is_client_error($code)
+=item is_client_error($code)
 
-Return TRUE if C<$code> is an I<Client Error> status code.
+Return TRUE if C<$code> is an I<Client Error> status code.  This
+function is B<not> exported by default.
 
-=head2 is_server_error($code)
+=item is_server_error($code)
 
-Return TRUE if C<$code> is an I<Server Error> status code.
+Return TRUE if C<$code> is an I<Server Error> status code.   This
+function is B<not> exported by default.
+
+=back
 
 =cut
 

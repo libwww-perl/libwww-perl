@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.13 1996/05/08 16:25:58 aas Exp $
+# $Id: ftp.pm,v 1.14 1996/06/06 13:21:53 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -96,9 +96,8 @@ sub request
     LWP::Debug::debug("Logging in as $user (password $password)...");
     unless ($ftp->login($user, $password, $acct)) {
 	# Unauthorized.  Let's fake a RC_UNAUTHORIZED response
-	my $res =  new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $@;
+	my $res =  new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $ftp->message;
 	$res->header("WWW-Authenticate", qq(Basic Realm="FTP login"));
-	$res->content($ftp->message);
 	return $res;
     }
     LWP::Debug::debug($ftp->message);

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.29 1996/05/09 09:22:45 aas Exp $
+# $Id: Element.pm,v 1.30 1996/05/19 11:41:42 aas Exp $
 
 =head1 NAME
 
@@ -34,28 +34,37 @@ The following methods are available:
 =cut
 
 
-use Carp;
+use strict;
+use Carp ();
+use HTML::Entities ();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+use vars qw($VERSION
+	    %emptyElement %optionalEndTag %linkElements
+           );
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-# Elements that does not have corresponding end tags
-%noEndTag = map { $_ => 1 } qw(base link meta isindex nextid
-			       img br hr wbr
-			       input
-			      );
-%optionalEndTag = map { $_ => 1 } qw(p li dt dd option);
+# Elements that does not have corresponding end tags (i.e. are empty)
+%emptyElement   = map { $_ => 1 } qw(base link meta isindex
+			             img br hr wbr
+			             input area param
+			            );
+%optionalEndTag = map { $_ => 1 } qw(p li dt dd option th tr td);
 
-# Link elements an the name of the link attribute
+# Elements that might contain links and the name of the link attribute
 %linkElements =
 (
  body   => 'background',
  base   => 'href',
  a      => 'href',
- img    => 'src',
+ img    => [qw(src lowsrc usemap)],   # lowsrc is a Netscape invention
  form   => 'action',
- 'link' => 'href',   # need quotes since link is a perl builtin
+ input  => 'src',
+ 'link' => 'href',          # need quoting since link is a perl builtin
  frame  => 'src',
+ applet => 'codebase',
+ area   => 'href',
 );
 
 
@@ -71,7 +80,7 @@ sub new
 {
     my $class = shift;
     my $tag   = shift;
-    croak "No tag" unless defined $tag or length $tag;
+    Carp::croak("No tag") unless defined $tag or length $tag;
     my $self  = bless { _tag => lc $tag }, $class;
     my($attr, $val);
     while (($attr, $val) = splice(@_, 0, 2)) {
@@ -97,9 +106,9 @@ sub tag
 {
     my $self = shift;
     if (@_) {
-	$self->{_tag} = $_[0];
+	$self->{'_tag'} = $_[0];
     } else {
-	$self->{_tag};
+	$self->{'_tag'};
     }
 }
 
@@ -114,7 +123,7 @@ Returns the complete start tag for the element.  Including <> and attributes.
 sub starttag
 {
     my $self = shift;
-    my $tag = "<\U$self->{_tag}";
+    my $tag = "<\U$self->{'_tag'}";
     for (sort keys %$self) {
 	next if /^_/;
 	my $val = $self->{$_};
@@ -122,7 +131,7 @@ sub starttag
                             # value is better)
 	    $tag .= " \U$_";
 	} else {
-	    $val =~ s/([&\">])/"&#" . ord($1) . ";"/eg;
+	    HTML::Entities::encode_entities($val, '&">');
 	    $val = qq{"$val"} unless $val =~ /^\d+$/;
 	    $tag .= qq{ \U$_\E=$val};
 	}
@@ -140,7 +149,7 @@ Returns the complete end tag.
 
 sub endtag
 {
-    "</\U$_[0]->{_tag}>";
+    "</\U$_[0]->{'_tag'}>";
 }
 
 
@@ -211,9 +220,9 @@ the current object as root.
 sub pos
 {
     my $self = shift;
-    my $pos = $self->{_pos};
+    my $pos = $self->{'_pos'};
     if (@_) {
-	$self->{_pos} = $_[0];
+	$self->{'_pos'} = $_[0];
     }
     return $pos if defined($pos);
     $self;
@@ -284,13 +293,12 @@ sub insert_element
     } else {
 	$e = new HTML::Element $tag;
     }
-    $e->{_implicit} = 1 if $implicit;
-    my $pos = $self->{_pos};
+    $e->{'_implicit'} = 1 if $implicit;
+    my $pos = $self->{'_pos'};
     $pos = $self unless defined $pos;
-    $e->{_parent} = $pos;
     $pos->push_content($e);
-    unless ($noEndTag{$tag}) {
-	$self->{_pos} = $e;
+    unless ($emptyElement{$tag}) {
+	$self->{'_pos'} = $e;
 	$pos = $e;
     }
     $pos;
@@ -309,15 +317,19 @@ sub push_content
     my $self = shift;
     $self->{'_content'} = [] unless exists $self->{'_content'};
     my $content = $self->{'_content'};
-    if (@$content && !ref $content->[-1]) {  # last element is a text segment
-	if (ref $_[0]) {
-	    push(@$content, @_);
+    for (@_) {
+	if (ref $_) {
+	    $_->{'_parent'} = $self;
+	    push(@$content, $_);
 	} else {
-	    # just join the text segments together
-	    $content->[-1] .= $_[0];
+	    # The current element is a text segment
+	    if (@$content && !ref $content->[-1]) {
+		# last content element is also text segment
+		$content->[-1] .= $_;
+	    } else {
+		push(@$content, $_);
+	    }
 	}
-    } else {
-       push(@$content, @_);
     }
     $self;
 }
@@ -354,8 +366,8 @@ circular references.
 sub delete
 {
     $_[0]->delete_content;
-    delete $_[0]->{_parent};
-    delete $_[0]->{_pos};
+    delete $_[0]->{'_parent'};
+    delete $_[0]->{'_pos'};
     $_[0] = undef;
 }
 
@@ -387,7 +399,7 @@ sub traverse
 		&$callback($_, 1, $depth+1) unless $ignoretext;
 	    }
 	}
-	&$callback($self, 0, $depth) unless $noEndTag{$self->{_tag}};
+	&$callback($self, 0, $depth) unless $emptyElement{$self->{'_tag'}};
     }
     $self;
 }
@@ -426,11 +438,13 @@ sub extract_links
 	    return 1 if $wantType && !$wantType{$tag};
 	    my $attr = $linkElements{$tag};
 	    return 1 unless defined $attr;
-	    $attr = $self->attr($attr);
-	    return 1 unless defined $attr;
-	    push(@links, [$attr, $self]);
+	    $attr = [$attr] unless ref $attr;
+            for (@$attr) {
+	       my $val = $self->attr($_);
+	       push(@links, [$val, $self]) if defined $val;
+            }
 	    1;
-	}, 1);
+	}, 'ignoretext');
     \@links;
 }
 
@@ -450,7 +464,7 @@ sub dump
     my $depth = shift || 0;
     print STDERR "  " x $depth;
     print STDERR $self->starttag, "\n";
-    for (@{$self->{_content}}) {
+    for (@{$self->{'_content'}}) {
 	if (ref $_) {
 	    $_->dump($depth+1);
 	} else {
@@ -480,7 +494,7 @@ sub as_HTML
 		my $tag = $node->tag;
 		if ($start) {
 		    push(@html, $node->starttag);
-		} elsif (not ($noEndTag{$tag} or $optionalEndTag{$tag})) {
+		} elsif (not ($emptyElement{$tag} or $optionalEndTag{$tag})) {
 		    push(@html, $node->endtag);
 		}
 	    } else {
@@ -508,6 +522,15 @@ sub format
 
 __END__
 
+
+=head1 BUGS
+
+If you want to free the memory assosiated with the HTML parse tree,
+then you will have to delete it explicitly.  The reason for this is
+that perl currently has no proper garbage collector, but depends on
+reference counts in the objects.  This scheme fails because the parse
+tree contains circular references (parents have references to their
+children and children have a reference to their parent).
 
 =head1 COPYRIGHT
 

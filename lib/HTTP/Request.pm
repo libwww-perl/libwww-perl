@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.23 1998/04/01 07:00:07 aas Exp $
+# $Id: Request.pm,v 1.23.2.1 1998/09/11 11:52:16 aas Exp $
 
 package HTTP::Request;
 
@@ -39,26 +39,25 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23.2.1 $ =~ /(\d+)\.(\d+)/);
 
-use URI::URL ();
 use strict;
 
-=item $r = HTTP::Request->new($method, $url, [$header, [$content]])
+=item $r = HTTP::Request->new($method, $uri, [$header, [$content]])
 
 Constructs a new C<HTTP::Request> object describing a request on the
-object C<$url> using method C<$method>.  The C<$url> argument can be
-either a string, or a reference to a C<URI::URL> object.  The $header
+object C<$uri> using method C<$method>.  The C<$uri> argument can be
+either a string, or a reference to a C<URI> object.  The $header
 argument should be a reference to an C<HTTP::Headers> object.
 
 =cut
 
 sub new
 {
-    my($class, $method, $url, $header, $content) = @_;
+    my($class, $method, $uri, $header, $content) = @_;
     my $self = $class->SUPER::new($header, $content);
     $self->method($method);
-    $self->url($url);
+    $self->uri($uri);
     $self;
 }
 
@@ -68,50 +67,54 @@ sub clone
     my $self = shift;
     my $clone = bless $self->SUPER::clone, ref($self);
     $clone->method($self->method);
-    $clone->url($self->url);
+    $clone->uri($self->uri);
     $clone;
 }
 
 
 =item $r->method([$val])
 
-=item $r->url([$val])
+=item $r->uri([$val])
 
 These methods provide public access to the member variables containing
-respectively the method of the request and the URL object of the
+respectively the method of the request and the URI object of the
 request.
 
 If an argument is given the member variable is given that as its new
 value. If no argument is given the value is not touched. In either
 case the previous value is returned.
 
-The url() method accept both a reference to a URI::URL object and a
+The url() method accept both a reference to a URI object and a
 string as its argument.  If a string is given, then it should be
-parseable as an absolute URL.
+parseable as an absolute URI.
 
 =cut
 
 sub method  { shift->_elem('_method', @_); }
 
-sub url
+sub uri
 {
     my $self = shift;
-    my $old = $self->{'_url'};
+    my $old = $self->{'_uri'};
     if (@_) {
-	my $url = shift;
-	if (!defined $url) {
+	my $uri = shift;
+	if (!defined $uri) {
 	    # that's ok
-	} elsif (ref $url) {
-	    $url = $url->abs;
+	} elsif (ref $uri) {
+	    unless ($HTTP::URI_CLASS eq "URI") {
+		# Argh!! Hate this... old LWP legacy!
+		eval { $uri = $uri->abs; };
+		die $@ if $@ && $@ !~ /^Missing base argument/;
+	    }
 	} else {
-	    $url = eval { URI::URL->new($url) };
+	    $uri = $HTTP::URI_CLASS->new($uri);
 	}
-	$self->{'_url'} = $url;
+	$self->{'_uri'} = $uri;
     }
     $old;
 }
 
-*uri = \&url;  # this is the same for now
+*url = \&uri;  # this is the same for now
 
 =item $r->as_string()
 
@@ -126,9 +129,9 @@ sub as_string
     my @result;
     #push(@result, "---- $self -----");
     my $req_line = $self->method || "[NO METHOD]";
-    my $url = $self->url;
-    $url = (defined $url) ? $url->as_string : "[NO URL]";
-    $req_line .= " $url";
+    my $uri = $self->uri;
+    $uri = (defined $uri) ? $uri->as_string : "[NO URI]";
+    $req_line .= " $uri";
     my $proto = $self->protocol;
     $req_line .= " $proto" if $proto;
 

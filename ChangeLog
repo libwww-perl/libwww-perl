@@ -1,3 +1,34 @@
+Tue Mar 24 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.22
+
+ o  HTTP::Cookies made more compatible with Netscape cookies.  Allow
+    the domain to match host, allow dots in the part of the hostname
+    not covered by domain.  Don't quote the cookie value even when it
+    contains non-token chars.  Based on patch from Kartik Subbarao
+    <subbarao@computer.org>.
+
+ o  Updated HTTP::Status to reflect <draft-ietf-http-v11-spec-rev-03>.
+    RC_MOVED_TEMPORARILY renamed to RC_FOUND.  Added codes
+    RC_TEMPORARY_REDIRECT (307) and RC_EXPECTATION_FAILED (417).
+    Slightly more documentation too.
+
+ o The split_header_words() function HTTP::Headers::Util could go
+   into infinite loop on some header values.  Implemented split_etag_list()
+   too.  Added more documentation and test script for this module.
+
+ o  LWP::Simple now switch to full LWP implementation even for systems
+    that force all environment keys to be upper case.  Modification
+    suggested by Dale Couch <dcouch@training.orl.lmco.com>.
+
+ o  LWP::UserAgent allows redirects to a relative URL with scheme to be
+    made.  Suggested by Chris W. Unger <cunger@cas.org>.
+
+ o  Applied dtd2pm.pl patches from <peterm@zeta.org.au>.  It can now
+    extract information from the HTML40.dtd
+
+
+
 Thu Mar 12 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.21

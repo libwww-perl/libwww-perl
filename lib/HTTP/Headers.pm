@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.25 1996/09/10 10:23:57 aas Exp $
+# $Id: Headers.pm,v 1.26 1996/09/16 12:49:47 aas Exp $
 
 package HTTP::Headers;
 
@@ -439,6 +439,10 @@ sub date              { shift->_date_header('Date',              @_); }
 sub expires           { shift->_date_header('Expires',           @_); }
 sub if_modified_since { shift->_date_header('If-Modified-Since', @_); }
 sub last_modified     { shift->_date_header('Last-Modified',     @_); }
+
+# This is used as a private LWP extention.  The Client-Date header is
+# added as a timestamp to a response when it has been received.
+sub client_date       { shift->_date_header('Client-Date',       @_); }
 
 # The retry_after field is dual format (can also be a expressed as
 # number of seconds from now), so we don't provide an easy way to

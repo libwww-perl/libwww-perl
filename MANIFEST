@@ -27,7 +27,6 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/StatusCode.pm		HTTP Status code processing
 lib/LWP/UserAgent.pm		A WWW UserAgent class
-t/Makefile			Makefile for the test harness
 t/autoload.t
 t/cgi-bin/lwp-test.html
 t/cgi-bin/lwp-test.pl
@@ -41,5 +40,3 @@ t/moved.t
 t/proxy.t
 t/receiveHeaders-http.pl
 t/sendHeaders-http.pl
-
-

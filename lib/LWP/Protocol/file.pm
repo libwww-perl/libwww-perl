@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.9 1995/08/27 23:00:59 aas Exp $
+# $Id: file.pm,v 1.10 1995/09/15 17:05:35 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -94,6 +94,14 @@ sub request
     $response->header('Last-Modified', HTTP::Date::time2str($mtime));
 
     if (-d _) {         # If the path is a directory, process it
+	unless ($path =~ m,/$,) {
+	    # The path does not end with slash.  Return a redirect
+	    # response to ensures that paths get correct.
+	    my $resp = new HTTP::Response &HTTP::Status::RC_MOVED_PERMANENTLY,
+	                                  "Missing slash in directory";
+	    $resp->header('URI', "file:$path/");
+	    return $resp;
+	}
         # generate the HTML for directory
         opendir(D, $path) or
            return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.31 1997/05/30 09:27:11 aas Exp $
+# $Id: http.pm,v 1.32 1997/08/05 14:24:21 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -20,6 +20,11 @@ my $httpversion  = 'HTTP/1.0';     # for requests
 my $endl         = "\015\012";     # how lines should be terminated;
 				   # "\r\n" is not correct on all systems, for
 				   # instance MacPerl defines it to "\012\015"
+
+sub _new_socket
+{
+    LWP::Socket->new;
+}
 
 sub request
 {
@@ -55,7 +60,7 @@ sub request
     alarm($timeout) if $self->use_alarm and $timeout;
 
     # connect to remote site
-    my $socket = new LWP::Socket;
+    my $socket = $self->_new_socket();
     $socket->connect($host, $port);
 
     my $request_line = "$method $fullpath $httpversion$endl";

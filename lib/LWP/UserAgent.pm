@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.11 1995/07/18 12:13:55 aas Exp $
+# $Id: UserAgent.pm,v 1.12 1995/07/23 20:47:11 aas Exp $
 
 package LWP::UserAgent;
 
@@ -126,6 +126,7 @@ sub new
                 'useEval'     => 1,
                 'useAlarm'    => 1,
                 'maxRedirect' => 5,
+                'noProxy'     => [],
         }, $class;
     }
 }
@@ -495,6 +496,47 @@ sub proxy
     return undef;
 }
 
+=head2 envProxy()
+
+ $ua->envProxy();
+
+Load proxy settings from *_proxy environment variables.
+
+=cut
+
+sub envProxy {
+    my ($self) = @_;
+    while(($k, $v) = each %ENV) {
+        $k = lc($k);
+        next unless $k =~ /^(.*)_proxy$/;
+        if ($1 eq 'no') {
+            $self->noProxy(split(/\s*,\s*/, $v));
+        }
+        else {
+            $self->proxy($1, $v);           
+        }
+    }
+}
+
+=head2 noProxy($domain)
+
+ $ua->noProxy('localhost', ...);
+
+Don't proxy requests to the given domains.
+Calling noProxy without domains clears the
+list of domains.
+
+=cut
+
+sub noProxy {
+    my($self, @no) = @_;
+    if (@no) {
+        push(@{ $self->{'noProxy'} }, @no);
+    }
+    else {
+        $self->{'noProxy'} = [];
+    }
+}
 
 #####################################################################
 #
@@ -513,9 +555,20 @@ sub _needProxy
 
     LWP::Debug::trace("($url)");
 
+    # check the list of noproxies
+
+    if (@{ $self->{'noProxy'} }) {
+        my $host = $url->host;
+        my $domain;
+        for $domain (@{ $self->{'noProxy'} }) {
+            if ($host =~ /$domain$/) {
+                LWP::Debug::trace("noProxy configured");
+                return undef;
+            }
+        }
+    }
+
     # Currently configured per scheme.
-    # XXX Need to support exclusion domains for
-    # first public release.
     # Eventually want finer granularity
     
     my $scheme = $url->scheme;

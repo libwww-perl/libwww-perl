@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 
-# $Id: lwp-mirror.PL,v 1.2 1995/07/13 14:08:42 aas Exp $
+# $Id: lwp-mirror.PL,v 1.3 1995/07/14 00:10:29 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -10,7 +10,7 @@ mirror - Simple mirror utility for WWW
 
 =head1 SYNOPSIS
 
- mirror [-v] [-b <base URL>] [-t timeout] <url> <local file>
+ mirror [-v] [-t timeout] <url> <local file>
 
 =head1 DESCRIPTION
 
@@ -20,10 +20,11 @@ copy.  If the local copy is newer nothing happens.
 
 Use the C<-v> option to print the version number of this program.
 
-The timeout value specified with the C<-t> option time that the program
-will wait for response from the remote server before it fails.  The
-default unit for the timeout value is seconds.  You might append "m"
-to the timeout value to make it minutes.
+The timeout value specified with the C<-t> option.  The timeout value
+is the time that the program will wait for response from the remote
+server before it fails.  The default unit for the timeout value is
+seconds.  You might append "m" to the timeout value to make it
+minutes.
 
 Because this program is implemented using the LWP library, it only
 supports the protocols that LWP supports.
@@ -39,22 +40,15 @@ Gisle Aas <aas@oslonett.no>
 =cut
 
 
-use LWP;
-use URI::URL;
+use LWP::Simple;
 use Getopt::Std;
-
-#use LWP::Debug;
-#LWP::Debug::level('+trace');
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
-
-$ua = new LWP::UserAgent;
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
-$opt_b = undef;  # base url
 $opt_t = undef;  # timeout
 
 unless (getopts("hvb:t:")) {
@@ -62,6 +56,7 @@ unless (getopts("hvb:t:")) {
 }
 
 if ($opt_v) {
+    require LWP;  $LWP::VERSION = $LWP::VERSION; # shut up -w
     die <<"EOT";
 This is LWP $0 version $VERSION (using LWP version $LWP::VERSION)
 
@@ -82,18 +77,15 @@ if (defined $opt_t) {
     $timeout = $1;
     $timeout *= 60   if ($2 eq "m");
     $timeout *= 3600 if ($2 eq "h");
-    $ua->timeout($timeout);
+    $LWP::Simple::ua->timeout($timeout);
 }
 
+$rc = mirror($url, $file);
 
-$url = new URI::URL $url, $opt_b;
-
-$response = $ua->mirror($url, $file);
-
-if ($response->code == 304) {
+if ($rc == 304) {
     print STDERR "$0: $file was up to date\n"
-} elsif (!$response->isSuccess) {
-    print STDERR $response->errorAsHTML;
+} elsif (!isSuccess($rc)) {
+    print STDERR "$0: $rc ", message($rc), "   ($url)\n";
     exit 1;
 }
 exit;
@@ -104,7 +96,6 @@ sub usage
     die <<"EOT";
 Usage: $0 [-options] <url> <file>
     -v           print version number of program
-    -b <base>    Use the specified URL as base
     -t <timeout> Set timeout value
 EOT
 }

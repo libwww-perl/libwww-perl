@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.27 1997/04/05 12:38:06 aas Exp $
+# $Id: Protocol.pm,v 1.28 1997/05/08 07:00:13 aas Exp $
 
 package LWP::Protocol;
 
@@ -86,8 +86,7 @@ sub create
 	Carp::croak("Protocol scheme '$scheme' is not supported");
 
     # hand-off to scheme specific implementation sub-class
-    my $prot = new $impclass, $scheme;
-    return $prot;
+    return $impclass->new($scheme);
 }
 
 
@@ -108,8 +107,9 @@ sub implementor
     my $ic = $ImplementedBy{$scheme};
     return $ic if $ic;
 
-    return '' unless $scheme =~ /^([.+\-\w]+)$/;
+    return '' unless $scheme =~ /^([.+\-\w]+)$/;  # check valid URL schemes
     $scheme = $1; # untaint
+    $scheme =~ s/[.+\-]/_/g;  # make it a legal module name
 
     # scheme not yet known, look for a 'use'd implementation
     $ic = "LWP::Protocol::$scheme";  # default location
@@ -117,9 +117,8 @@ sub implementor
     no strict 'refs';
     # check we actually have one for the scheme:
     unless (defined @{"${ic}::ISA"}) {
-	my $package = "$ic.pm";
-	$package =~ s|::|/|g;   # Unix specific??
-	eval { require $package };
+	# try to autoload it
+	eval "require $ic";
 	if ($@) {
 	    if ($@ =~ /^Can't locate/) { #' #emacs get confused by '
 		$ic = '';

@@ -1,10 +1,10 @@
 package LWP::RobotUA;
 
-# $Id: RobotUA.pm,v 1.23 2003/10/24 11:13:03 gisle Exp $
+# $Id: RobotUA.pm,v 1.24 2004/04/06 11:02:50 gisle Exp $
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -126,7 +126,7 @@ sub simple_request
 	my $fresh_until = $robot_res->fresh_until;
 	if ($robot_res->is_success) {
 	    my $c = $robot_res->content;
-	    if ($robot_res->content_type =~ m,^text/, && $c =~ /Disallow/) {
+	    if ($robot_res->content_type =~ m,^text/, && $c =~ /^Disallow\s*:/mi) {
 		LWP::Debug::debug("Parsing robot rules");
 		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
 	    }

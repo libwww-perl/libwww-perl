@@ -1,22 +1,21 @@
-package HTTP::Date;  # $Date: 1999/04/23 13:07:11 $
+package HTTP::Date;  # $Date: 1999/05/01 22:21:59 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
-require 5.002;
+require 5.004;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(time2str str2time);
-@EXPORT_OK = qw(time2iso time2isoz);
+@EXPORT_OK = qw(parse_timestr time2iso time2isoz);
 
 use strict;
-use Time::Local ();
 
 use vars qw(@DoW @MoY %MoY);
 @DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 @MoY{map lc, @MoY} = (1..12);
 
-my %zulu_zone = (gmt => 0, utc => 0, ut => 0, z => 0);
+my %GMT_ZONE = (GMT => 1, UTC => 1, UT => 1, Z => 1);
 
 
 sub time2str (;$)
@@ -33,28 +32,46 @@ sub time2str (;$)
 
 sub str2time ($;$)
 {
-    my @d = &str2date;
+    my @d = &parse_timestr;
     return unless @d;
     $d[0] -= 1900;  # year
     $d[1]--;        # month
 
-    # timelocal() seems to go into an infinite loop if it is given out
-    # of range parameters.  Let's check the year at least.
-    # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
-    return if $d[0] > 138;
-    return if $d[0] <  70;  # 1970 is Unix epoch
+    require Time::Local;
+    my $tz = pop(@d);
+    unless (defined $tz) {
+	unless (defined($tz = shift)) {
+	    return eval { my $t = Time::Local::timelocal(reverse @d);
+			  $t < 0 ? undef : $t;
+		        };
+	}
+    }
 
-    my $mktime_func = pop(@d) ? \&Time::Local::timegm
-	                      : \&Time::Local::timelocal;
-    eval { &$mktime_func(reverse @d) };
+    my $offset = 0;
+    if ($GMT_ZONE{uc $tz}) {
+	# offset already zero
+    }
+    elsif ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
+	$offset = 3600 * $2;
+	$offset += 60 * $3 if $3;
+	$offset *= -1 if $1 && $1 ne '-';
+    }
+    else {
+	eval { require Time::Zone } || return;
+	$offset = Time::Zone::tz_offset($tz);
+	return unless defined $offset;
+    }
+    
+    return eval { my $t = Time::Local::timegm(reverse @d);
+		  $t < 0 ? undef : $t + $offset;
+		};
 }
 
 
-sub str2date ($;$)
+sub parse_timestr ($)
 {
     local($_) = shift;
     return unless defined;
-    my $default_zone = shift;
 
     s/^\s+//;  # kill leading space
     s/^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*,?\s*//i; # Useless weekday
@@ -76,7 +93,7 @@ sub str2date ($;$)
 	    (?::(\d\d))?       # optional seconds
 	 )?                    # optional clock
 	    \s*
-	 ([-+]?\d{2,4}|GMT|gmt)? # timezone
+	 ([-+]?\d{2,4}|(?![AP]M)[A-Z]+)? # timezone
 	    \s*$
 	/x
 	  and last PARSEDATE;
@@ -91,7 +108,7 @@ sub str2date ($;$)
 	 (\d\d?):(\d\d)        # hour:min
 	 (?::(\d\d))?          # optional seconds
 	    \s+
-	 (?:(GMT|gmt)\s+)?     # optional GMT timezone
+	 (?:([A-Z]+)\s+)?      # optional timezone
 	 (\d+)                 # year
 	    \s*$               # allow trailing whitespace
 	/x
@@ -155,21 +172,22 @@ sub str2date ($;$)
     if ($mon =~ /^\d+$/) {
 	# numeric month
 	return if $mon < 1 || $mon > 12;
-    } else {
+    }
+    else {
 	$mon = $MoY{lc $mon} || return;
     }
 
-    # If the year is missing, we assume some date before the current,
+    # If the year is missing, we assume first date before the current,
     # because of the formats we support such dates are mostly present
     # on "ls -l" listings.
     unless (defined $yr) {
-	my($cur_mon, $yr) = (localtime)[4, 5];
+	my $cur_mon;
+	($cur_mon, $yr) = (localtime)[4, 5];
 	$yr += 1900;
+	$cur_mon++;
 	$yr-- if $mon > $cur_mon;
     }
-
-    # Then we check if the year is acceptable
-    if (length($yr) < 3) {
+    elsif (length($yr) < 3) {
 	# Find "obvious" year
 	my $cur_yr = (localtime)[5] + 1900;
 	my $m = $cur_yr % 100;
@@ -182,7 +200,7 @@ sub str2date ($;$)
     }
 
     # Make sure clock elements are defined
-    for ($sec, $min, $hr) {  $_ = 0 unless defined   }
+    for ($hr, $min, $sec) { $_ = 0 unless defined }
 
     # Compensate for AM/PM
     if ($aorp) {
@@ -191,34 +209,18 @@ sub str2date ($;$)
 	$hr += 12 if $aorp eq 'PM' && $hr != 12;
     }
 
-    my $gmt;
-    $tz = shift unless defined $tz;
+    return($yr, $mon, $day, $hr, $min, $sec, $tz)
+	if wantarray;
+    
     if (defined $tz) {
-	$gmt++;
-
-	my $offset;
-	if (exists $zulu_zone{lc $tz}) {
-	    # ok
-	    $offset = 0;
-	} elsif ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
-	    $offset = 3600 * $2;
-	    $offset += 60 * $3 if $3;
-	    $offset *= -1 if $1 && $1 ne '-';
-	} else {
-	    require Time::Zone;
-	    die;
-	    $offset = Time::Zone::tz_offset($tz);
-	}
-	if ($offset) {
-	    die "NYI";
-	    
-	}
+	$tz = "Z" if $tz =~ /^(GMT|UTC?|[-+]?0+)$/;
+    } else {
+	$tz = "";
     }
-	
-    wantarray ? ($yr, $mon, $day, $hr, $min, $sec, $gmt)
-	      : sprintf("%04d-%02d-%02d %02d:%02d:%02d%s",
-			$yr, $mon, $day, $hr, $min, $sec, $gmt?"Z":"");
+    return sprintf("%04d-%02d-%02d %02d:%02d:%02d%s",
+		   $yr, $mon, $day, $hr, $min, $sec, $tz);
 }
+
 
 sub time2iso (;$)
 {
@@ -228,6 +230,7 @@ sub time2iso (;$)
     sprintf("%04d-%02d-%02d %02d:%02d:%02d",
 	    $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
+
 
 sub time2isoz (;$)
 {
@@ -239,6 +242,7 @@ sub time2isoz (;$)
 }
 
 1;
+
 
 __END__
 

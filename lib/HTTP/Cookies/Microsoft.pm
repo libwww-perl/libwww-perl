@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);
@@ -23,7 +23,7 @@ sub load_cookies_from_file
 		chomp($key);
 		chomp($value     = <COOKIES>);
 		chomp($domain_path= <COOKIES>);
-		chomp($flags     = <COOKIES>);		# 0x2000 bit is for secure I think
+		chomp($flags     = <COOKIES>);		# 0x0001 bit is for secure
 		chomp($lo_expire = <COOKIES>);
 		chomp($hi_expire = <COOKIES>);
 		chomp($lo_create = <COOKIES>);
@@ -131,7 +131,7 @@ sub load_cookie
 
 		foreach my $cookie (@{$cookie_data})
 		{
-			my $secure = ($cookie->{FLAGS} & 0x2000) != 0;
+			my $secure = ($cookie->{FLAGS} & 1) != 0;
 			my $expires = epoch_time_offset_from_win32_filetime($cookie->{HIXP}, $cookie->{LOXP});
 
 			$self->set_cookie(undef, $cookie->{KEY}, $cookie->{VALUE}, 

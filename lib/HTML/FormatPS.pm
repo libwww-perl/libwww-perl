@@ -1,8 +1,8 @@
 package HTML::FormatPS;
 
-require HTML::Format;
+require HTML::Formatter;
 
-@ISA = qw(HTML::Format);
+@ISA = qw(HTML::Formatter);
 
 %FontFamilies =
 (
@@ -63,7 +63,7 @@ sub findfont
 sub begin
 {
     my $self = shift;
-    $self->HTML::Format::begin;
+    $self->HTML::Formatter::begin;
 
     # Margins is points
     $self->{lm} = 100;

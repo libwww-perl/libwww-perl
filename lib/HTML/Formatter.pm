@@ -1,8 +1,9 @@
-package HTML::Format;
+package HTML::Formatter;
 
 require HTML::Element;
 
 use strict;
+use Carp;
 
 sub new
 {
@@ -12,7 +13,7 @@ sub new
 
 sub format
 {
-    my($html, $formatter) = @_;
+    my($formatter, $html) = @_;
     $formatter->begin();
     $html->traverse(
 	sub {
@@ -400,5 +401,14 @@ sub vspace
     $formatter->{vspace} = $new;
 }
 
+sub out
+{
+    confess "Must be overridden my subclass";
+}
+
+sub pre_out
+{
+    confess "Must be overridden my subclass";
+}
 
 1;

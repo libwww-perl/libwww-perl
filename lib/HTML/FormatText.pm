@@ -1,15 +1,15 @@
 package HTML::FormatText;
 
-require HTML::Format;
+require HTML::Formatter;
 
-@ISA = qw(HTML::Format);
+@ISA = qw(HTML::Formatter);
 
 use strict;
 
 sub begin
 {
     my $self = shift;
-    $self->HTML::Format::begin;
+    $self->HTML::Formatter::begin;
     $self->{lm}  =    3;  # left margin
     $self->{rm}  =   70;  # right margin
     $self->{pos} =    0;  # current output position.

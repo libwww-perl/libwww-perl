@@ -1,4 +1,4 @@
-                                            $Date: 1996/04/09 08:50:20 $
+                                            $Date: 1996/05/08 16:17:06 $
 
 This is a list over things that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -47,6 +47,11 @@ The order of items does not reflect priority.
   o  Make the HTML parser more correct: for instance <tag attr="val>ue">
      and things like that.
 
+  o  $h->as_HTML has trouble with this: <input name="name">
+
+  o  If comments are divided then between chunks to be parsed, then it
+     might not be recognised.  "<!-- This is a comment -"   "-> more text"
+
   o  Make the HTML parser much faster.  Perhaps we need to reimplement it
      as C code.
 
@@ -62,7 +67,8 @@ The order of items does not reflect priority.
   o  Parse full HTML 3.0 markup.
 
   o  The HTML::Element->asHTML() method breaks lines inside tags.  It does
-     not always look very nice.  The method should also entitify its output.
+     not always look very nice.  Try to use the formatter way, instead of
+     a recursive procedure.
 
   o  Formatters should support tables.  The postscript formatter should
      inline images.
@@ -70,13 +76,13 @@ The order of items does not reflect priority.
   o  The lwp-request -o processing should check for Content-Encoding as
      well as Content-Type.
 
-  o  The request script should optionally consult Mail::Cap for handling of
-     media types.
+  o  The lwp-request script should optionally consult Mail::Cap for
+     handling of media types.
 
-  o  The request script should use the callback interface so that it prints
-     data as it is received.
+  o  The lwp-request script should use the callback interface so that it
+     prints data as it is received.
 
-  o  The mirror script should be able to work recursively.
+  o  The lwp-mirror script should be able to work recursively.
 
   o  Make handcoded autoloading work on systems where the directory
      separator is not "/".

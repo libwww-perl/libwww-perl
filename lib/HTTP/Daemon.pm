@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.22 2001/01/04 21:43:10 gisle Exp $
+# $Id: Daemon.pm,v 1.23 2001/03/08 18:13:37 gisle Exp $
 #
 
 use strict;
@@ -14,7 +14,7 @@ HTTP::Daemon - a simple http server class
   use HTTP::Daemon;
   use HTTP::Status;
 
-  my $d = new HTTP::Daemon;
+  my $d = HTTP::Daemon->new || die;
   print "Please contact me at: <URL:", $d->url, ">\n";
   while (my $c = $d->accept) {
       while (my $r = $c->get_request) {
@@ -60,9 +60,9 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
-use IO::Socket ();
+use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
 
 $PROTO = "HTTP/1.1";
@@ -87,16 +87,7 @@ sub new
     my($class, %args) = @_;
     $args{Listen} ||= 5;
     $args{Proto}  ||= 'tcp';
-    my $self = $class->SUPER::new(%args);
-    return undef unless $self;
-
-    my $host = $args{LocalAddr};
-    unless ($host) {
-	require Sys::Hostname;
-	$host = lc Sys::Hostname::hostname();
-    }
-    ${*$self}{'httpd_server_name'} = $host;
-    $self;
+    return $class->SUPER::new(%args);
 }
 
 
@@ -129,7 +120,14 @@ sub url
 {
     my $self = shift;
     my $url = "http://";
-    $url .= ${*$self}{'httpd_server_name'};
+    my $addr = $self->sockaddr;
+    if ($addr eq INADDR_ANY) {
+ 	require Sys::Hostname;
+ 	$url .= lc Sys::Hostname::hostname();
+    }
+    else {
+	$url .= gethostbyaddr($addr, AF_INET) || inet_ntoa($addr);
+    }
     my $port = $self->sockport;
     $url .= ":$port" if $port != 80;
     $url .= "/";
@@ -216,7 +214,7 @@ sub get_request
     $self->reason("");
     my $buf = ${*$self}{'httpd_rbuf'};
     $buf = "" unless defined $buf;
-    
+
     my $timeout = $ {*$self}{'io_socket_timeout'};
     my $fdset = "";
     vec($fdset, $self->fileno, 1) = 1;
@@ -792,11 +790,11 @@ sub daemon
 
 RFC 2068
 
-L<IO::Socket>, L<Apache>
+L<IO::Socket::INET>, L<Apache>
 
 =head1 COPYRIGHT
 
-Copyright 1996-1998, Gisle Aas
+Copyright 1996-2001, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

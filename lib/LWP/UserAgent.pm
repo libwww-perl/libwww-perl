@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.51 1997/12/02 13:22:53 aas Exp $
+# $Id: UserAgent.pm,v 1.52 1997/12/12 19:52:36 aas Exp $
 
 package LWP::UserAgent;
 
@@ -204,7 +204,7 @@ sub simple_request
 	$protocol = LWP::Protocol::create($scheme);
     };
     if ($@) {
-	$@ =~ s/\s+at\s+\S+\s+line\s+\d+//;  # remove file/line number
+	$@ =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;  # remove file/line number
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@)
     }
 

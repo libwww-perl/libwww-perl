@@ -1,3 +1,9 @@
+    This change was actually part of 5.51:  Fix qop="auth"
+    handling for Digest authentication.
+    Patch by Dave Dunkin <dave_dunkin@hotmail.com>.
+
+
+
 2001-03-14   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.51

@@ -333,16 +333,55 @@ above:
    perl -MLWP::Simple -e "getprint 'http://www.perl.com/perl/'"
 </pre>
 
-Let's write a more "complete" web browser...
+<p>Let's write a more "complete" web browser...
 <hr>
 <pre>
 #!/local/bin/perl -w
 use LWP::Simple;
-getprint $ARGV[0] || die "Usage: $0 &lt;url&gt;\n";
+getprint shift || die "Usage: $0 &lt;url&gt;\n";
 </pre>
 <hr>
 
 
-
 <a name="ex3"><h3>Example 3</h3></a>
+
+Process data as it arrives from the network. Use a callback routine.
+
+<h3>Example 4</h3>
+
+Let's try to reformat the document using the HTML formatter.
+
+<p>Let's write an even more "complete" web browser...
+<hr>
+<pre>
+#!/local/bin/perl -w
+use LWP::Simple;
+use HTML::Parse;
+print parse_html(get shift || die "Usage : $0 &lt;url&gt;\n")->format;
+<pre>
+</hr>
+
+<p>Invoke a viewer for the document (MailCap)
+
+<h3>Example 5</h3>
+
+<ul>
+
+  <li> A robot
+
+  <li> Postscript output using the font metrics modules
+
+  <li> Base64/Quoted printable
+
+  <li> URL handling
+
+  <li> HTTP headers
+       
+</ul>
+
+
+
+
+
+
 

@@ -14,7 +14,6 @@ lib/HTTP/Request.pm		Class encapsulating HTTP Requests
 lib/HTTP/Response.pm		Class encapsulating HTTP Responses
 lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
-lib/LWP/Base64.pm		Base 64 encoding/decoding routines
 lib/LWP/Debug.pm		Debugging support
 lib/LWP/MediaTypes.pm		Library for MIME types
 lib/LWP/MemberMixin.pm		Helps you access %$self
@@ -28,7 +27,9 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/mime.types		Mapping from file extentions mime types
-lib/Mail/Cap.pm                 Parse mailcap files
+lib/MIME/Base64.pm		Base 64 encoding/decoding routines
+lib/MIME/QuotedPrint.pm		Quoted-Printable encoding/decoding routines
+lib/Mail/Cap.pm			Parse mailcap files
 lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/file.pm		Implements file URLs
@@ -50,18 +51,20 @@ lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
 t/README			How to run and set up tests
 t/TEST				Run tests
-t/base/base64.t			Test LWP::Base64 module
+t/base/base64.t			Test MIME::Base64 module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
-t/base/mailcap.t                Test Mail::Cap module
+t/base/mailcap.t		Test Mail::Cap module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
+t/base/quoted-print.t           Test MIME::QuotedPrint module
 t/base/robot-rules.t		Test WWW::RobotRules module
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
 t/local/autoload.t
 t/local/get.t			Try to get a local file
 t/net/cgi-bin/moved
+t/net/cgi-bin/nph-slowdata
 t/net/cgi-bin/test
 t/net/cgi-bin/timeout
 t/net/config.pl.dist		Suggested configuration for net tests

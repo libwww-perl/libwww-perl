@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.23 1997/10/13 14:10:27 aas Exp $
+# $Id: Simple.pm,v 1.24 1997/10/16 11:13:08 aas Exp $
 
 =head1 NAME
 
@@ -152,14 +152,14 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);
 @EXPORT_OK = qw($ua);
 
-# I really hate this.  I was a bad idea to to it in the first place.
+# I really hate this.  I was a bad idea to do it in the first place.
 # Wonder how to get rid of it???  (It even makes LWP::Simple 7% slower
 # for trivial tests)
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {$_ eq "http_proxy"} keys %ENV;
 
 

@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.24 1997/04/03 10:51:13 aas Exp $
+# $Id: Date.pm,v 1.25 1997/09/01 08:19:54 aas Exp $
 #
 package HTTP::Date;
 
@@ -99,7 +99,7 @@ modify it under the same terms as Perl itself.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -276,7 +276,7 @@ sub str2time ($;$)
    if ($aorp) {
        $aorp = uc $aorp;
        $hr = 0 if $hr == 12 && $aorp eq 'AM';
-       $hr += 12 if $aorp eq 'PM';
+       $hr += 12 if $aorp eq 'PM' && $hr != 12;
    }
 
    # Make sure things are defined

@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: dl.PL,v 1.3 1996/11/11 18:21:05 aas Exp $
+# $Id: dl.PL,v 1.4 1996/11/12 13:34:12 aas Exp $
 
 =head1 NAME
 
@@ -73,81 +73,84 @@ $| = 1;  # autoflush
 
 my $res = $ua->request($req,
   sub {
-	unless($file) {
-	    my $res = $_[1];
-	    unless ($argfile) {
-		# must find a suitable name to use.  First thing
-		# to do is to look for the "Content-Disposition"
-		# header defined by RFC1806.  This is also supported
-		# by Netscape
-		my $cd = $res->header("Content-Disposition");
-		if ($cd && $cd =~ /\bfilename\s*=\s*(\S+)/) {
-		    $file = $1;
-		    $file =~ s/;$//;
-		    $file =~ s/^([\"\'])(.*)\1$/$2/;
-		}
+      unless($file) {
+	  my $res = $_[1];
+	  unless ($argfile) {
+	      # must find a suitable name to use.  First thing
+	      # to do is to look for the "Content-Disposition"
+	      # header defined by RFC1806.  This is also supported
+	      # by Netscape
+	      my $cd = $res->header("Content-Disposition");
+	      if ($cd && $cd =~ /\bfilename\s*=\s*(\S+)/) {
+		  $file = $1;
+		  $file =~ s/;$//;
+		  $file =~ s/^([\"\'])(.*)\1$/$2/;
+	      }
 		
-		# if this fails we try to make something from the URL
-		unless ($file) {
-		    my $req = $res->request;  # now always there
-		    my $rurl = $req ? $req->url : $url;
-		
-		    $file = ($rurl->path_components)[-1];
-		    unless (length $file) {
-			$file = "index";
-			my $suffix = media_suffix($res->content_type);
-			$file .= ".$suffix" if $suffix;
-		    } elsif ($rurl->scheme eq 'ftp') {
-			# leave the filename as it is
-		    } else {
-			my $ct = guess_media_type($file);
-			unless ($ct eq $res->content_type) {
-			    # need a better suffix for this type
-			    my $suffix = media_suffix($res->content_type);
-			    $file .= ".$suffix" if $suffix;
-			}
-		    }
-		}
+	      # if this fails we try to make something from the URL
+	      unless ($file) {
+		  my $req = $res->request;  # now always there
+		  my $rurl = $req ? $req->url : $url;
+		  
+		  $file = ($rurl->path_components)[-1];
+		  unless (length $file) {
+		      $file = "index";
+		      my $suffix = media_suffix($res->content_type);
+		      $file .= ".$suffix" if $suffix;
+		  } elsif ($rurl->scheme eq 'ftp' ||
+			   $file =~ /\.tgz$/      ||
+			   $file =~ /\.tar(\.(Z|gz))?$/
+			  ) {
+		      # leave the filename as it was
+		  } else {
+		      my $ct = guess_media_type($file);
+		      unless ($ct eq $res->content_type) {
+			  # need a better suffix for this type
+			  my $suffix = media_suffix($res->content_type);
+			  $file .= ".$suffix" if $suffix;
+		      }
+		  }
+	      }
 
-		# Check if the file is already present
-		if (-f $file && -t) {
-		    print "Overwrite $file? [y] ";
-		    my $ans = <STDIN>;
-		    exit if !defined($ans) || !($ans =~ /^y?\n/);
-		} else {
-		    print "Saving to '$file'...\n";
-		}
-	    } else {
-		$file = $argfile;
-	    }
-	    open(FILE, ">$file") || die "Can't open $file: $!";
-	    $length = $res->content_length;
-	    $flength = fbytes($length) if defined $length;
-	    $start_t = time;
-	    $last_dur = 0;
-	}
-	$size += length($_[0]);
-	print FILE $_[0];
-	if (defined $length) {
-	    my $dur  = time - $start_t;
-	    if ($dur != $last_dur) {  # don't update too often
-		$last_dur = $dur;
-		my $perc = $size / $length;
-		my $speed;
-		$speed = fbytes($size/$dur) . "/sec" if $dur;
-		my $secs_left = fduration($dur/$perc - $dur);
-		$perc = int($perc*100);
-		my $show = "$perc% of $flength";
-		$show .= " ($speed, $secs_left left)" if $speed;
-		show($show);
-	    }
-	} else {
-	    show( fbytes($size) . " received");
-	}
+	      # Check if the file is already present
+	      if (-f $file && -t) {
+		  print "Overwrite $file? [y] ";
+		  my $ans = <STDIN>;
+		  exit if !defined($ans) || !($ans =~ /^y?\n/);
+	      } else {
+		  print "Saving to '$file'...\n";
+	      }
+	  } else {
+	      $file = $argfile;
+	  }
+	  open(FILE, ">$file") || die "Can't open $file: $!";
+	  $length = $res->content_length;
+	  $flength = fbytes($length) if defined $length;
+	  $start_t = time;
+	  $last_dur = 0;
+      }
+      $size += length($_[0]);
+      print FILE $_[0];
+      if (defined $length) {
+	  my $dur  = time - $start_t;
+	  if ($dur != $last_dur) {  # don't update too often
+	      $last_dur = $dur;
+	      my $perc = $size / $length;
+	      my $speed;
+	      $speed = fbytes($size/$dur) . "/sec" if $dur > 3;
+	      my $secs_left = fduration($dur/$perc - $dur);
+	      $perc = int($perc*100);
+	      my $show = "$perc% of $flength";
+	      $show .= " (at $speed, $secs_left remaining)" if $speed;
+	      show($show);
+	  }
+      } else {
+	  show( fbytes($size) . " received");
+      }
   }
 );
 
-if ($res->is_success) {
+if ($res->is_success || $res->message =~ /^Interrupted/) {
     show("");  # clear text
     print "\r";
     print fbytes($size);
@@ -160,7 +163,7 @@ if ($res->is_success) {
     }
     print "\n";
     my $died = $res->header("X-Died");
-    if ($died) {
+    if ($died || !$res->is_success) {
 	if (-t) {
 	    print "Transfer aborted.  Delete $file? [n] ";
 	    my $ans = <STDIN>;
@@ -170,6 +173,7 @@ if ($res->is_success) {
 	}
     }
 } else {
+    print "\n" if $shown;
     print "$0: Can't download: ", $res->code, " ", $res->message, "\n";
     exit 1;
 }
@@ -208,7 +212,7 @@ sub fduration
 sub show
 {
     my $mess = shift;
-    print "\r$mess", (" " x (70 - length $mess));
+    print "\r$mess", (" " x (75 - length $mess));
     $shown++;
 }
 

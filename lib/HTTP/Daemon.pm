@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.13 1996/11/13 13:22:21 aas Exp $
+# $Id: Daemon.pm,v 1.14 1997/11/14 15:24:49 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -100,22 +100,21 @@ sub new
 }
 
 
-=item $c = $d->accept
+=item $c = $d->accept([$pkg])
 
 Same as I<IO::Socket::accept> but will return an
-I<HTTP::Daemon::ClientConn> reference.  It will return undef if you
-have specified a timeout and no connection is made within that time.
+I<HTTP::Daemon::ClientConn> reference by default.  It will return
+undef if you have specified a timeout and no connection is made within
+that time.
 
 =cut
 
 sub accept
 {
     my $self = shift;
-    my $sock = $self->SUPER::accept(@_);
-    if ($sock) {
-	$sock = bless $sock, "HTTP::Daemon::ClientConn";
-	${*$sock}{'httpd_daemon'} = $self;
-    }
+    my $pkg = shift || "HTTP::Daemon::ClientConn";
+    my $sock = $self->SUPER::accept($pkg);
+    ${*$sock}{'httpd_daemon'} = $self if $sock;
     $sock;
 }
 

@@ -47,6 +47,7 @@ lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP protocol
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
+lib/LWP/Protocol/nntp.pm	Handles access to news: and nntp: URLs
 lib/LWP/RobotUA.pm              Easy creation of conforming robots
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface

@@ -73,6 +73,7 @@ lib/LWP/TkIO.pm			LWP::IO replacement for Tk
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/URI/Escape.pm		General URI escaping functions
+lib/URI/Heuristic.pm            User friendly URLs
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/_generic.pm		Implements generic hierarchical RL (RFC 1808)
 lib/URI/URL/_login.pm		Base class for telnet, tn3270 and rlogin
@@ -108,8 +109,6 @@ t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/negotiate.t		Test HTTP::Negotiation module
 t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
-t/base/uri.t			Test URI::URL module
-t/base/uri-extra.t		Test URI::URL module some more
 t/html/entities.t		Test HTML::Entities module
 t/html/oldparse.t		Test HTML::Parse compatability module
 t/html/parser.t			Test HTML::Parser module
@@ -136,3 +135,6 @@ t/net/proxy.t
 t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
 t/robot/ua.t			Test LWP::RobotUA
+t/uri/base.t			Test URI::URL module
+t/uri/rel-base.t		Test URI::URL module some more
+t/uri/heuristic.t               Test URI::Heuristic module

@@ -1,11 +1,11 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.12 2001/04/10 06:50:09 gisle Exp $
+# $Id: HTTP.pm,v 1.13 2001/04/13 03:50:49 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "0.01";
+$VERSION = "0.02";
 require IO::Socket::INET;
 @ISA=qw(IO::Socket::INET);
 
@@ -32,7 +32,10 @@ sub configure {
 
     my $sock = $self->SUPER::configure($cnf);
     if ($sock) {
-	$host .= ":" . $sock->peerport unless $host =~ /:/;
+	unless ($host =~ /:/) {
+	    my $p = $sock->peerport;
+	    $host .= ":$p"; # if $p != 80;
+	}
 	$sock->host($host);
 	$sock->keep_alive($keep_alive);
 	$sock->http_version($http_version);
@@ -79,7 +82,8 @@ sub peer_http_version {
     $old;
 }
 
-sub write_request {
+
+sub format_request {
     my $self = shift;
     my $method = shift;
     my $uri = shift;
@@ -92,51 +96,52 @@ sub write_request {
     }
 
     push(@{${*$self}{'http_request_method'}}, $method);
-
     my $ver = ${*$self}{'http_version'};
-    $self->autoflush(0);
-
     my $peer_ver = ${*$self}{'peer_http_version'} || "1.0";
 
-    print $self "$method $uri HTTP/$ver$CRLF";
-
-    my %given = (host => 0,
-		 "content-length" => 0,
-		 "connection" => 0,
-		);
+    my @h;
+    my @connection;
+    my %given = (host => 0, "content-length" => 0);
     while (@_) {
 	my($k, $v) = splice(@_, 0, 2);
 	my $lc_k = lc($k);
+	if ($lc_k eq "connection") {
+	    push(@connection, split(/\s*,\s*/, $v));
+	    next;
+	}
 	if (exists $given{$lc_k}) {
 	    $given{$lc_k}++;
 	}
-	print $self "$k: $v$CRLF";
+	push(@h, "$k: $v");
     }
 
     if (length($content) && !$given{'content-length'}) {
-	print $self "Content-length: " . length($content) . $CRLF;
+	push(@h, "Content-Length: " . length($content));
     }
 
-    unless ($given{'connection'}) {
+    my @h2;
+    unless (grep lc($_) eq "close", @connection) {
 	if ($self->keep_alive) {
 	    if ($peer_ver eq "1.0") {
-		# XXX from looking at Netscape's headers
-		print $self "Keep-Alive: 300$CRLF";
-		print $self "Connection: Keep-Alive$CRLF";
+		# from looking at Netscape's headers
+		push(@h2, "Keep-Alive: 300");
+		push(@connection, "Keep-Alive");
 	    }
 	}
 	else {
-	    print $self "Connection: close$CRLF" if $ver ge "1.1";
+	    push(@connection, "close") if $ver ge "1.1";
 	}
     }
+    push(@h2, "Connection: " . join(", ", @connection)) if @connection;
+    push(@h2, "Host: ${*$self}{'http_host'}")unless $given{host};
 
-    print $self "Host: ${*$self}{'http_host'}$CRLF"
-	unless $given{host};
+    return join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content);
+}
 
-    print $self $CRLF;
-    $self->autoflush(1);
 
-    print $self $content;
+sub write_request {
+    my $self = shift;
+    print $self $self->format_request(@_);
 }
 
 

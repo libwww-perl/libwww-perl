@@ -385,7 +385,7 @@ sub dump
     my $enctype = $self->{'enctype'};
     my $dump = "$method $uri";
     $dump .= " ($enctype)"
-	if $enctype eq "application/xxx-www-form-urlencoded";
+	if $enctype ne "application/x-www-form-urlencoded";
     $dump .= "\n";
     for ($self->inputs) {
 	$dump .= "  " . $_->dump . "\n";

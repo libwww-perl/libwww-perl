@@ -898,6 +898,8 @@ EOM
 	 ["http://abc/a?q", "http://abc/b",      "a?q"],
 	 ["http://abc/a;p", "http://abc/b",      "a;p"],
 	 ["http://abc/a",   "http://abc/a/b/c/", "../../../a"],
+         ["http://abc/a/",  "http://abc/a/",     "./"],
+         ["http://abc/a#f", "http://abc/a",      "#f"],
 
 	 ["file:/etc/motd", "file:/",            "etc/motd"],
 	 ["file:/etc/motd", "file:/etc/passwd",  "motd"],

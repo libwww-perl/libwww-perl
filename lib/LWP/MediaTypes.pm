@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.26 1999/10/12 17:49:07 gisle Exp $
+# $Id: MediaTypes.pm,v 1.27 1999/11/16 14:36:24 gisle Exp $
 
 package LWP::MediaTypes;
 
@@ -32,7 +32,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding read_media_types);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -49,7 +49,7 @@ my %suffixType = (
 
 my %suffixExt = (
     'text/plain' => 'txt',
-    'text/html'  => 'h',
+    'text/html'  => 'html',
     'image/gif'  => 'gif',
     'image/jpeg' => 'jpg',
 );
@@ -60,7 +60,8 @@ my %suffixEncoding = (
     'gz'  => 'gzip',
     'hqx' => 'x-hqx',
     'uu'  => 'x-uuencode',
-    'z'   => 'x-pack'
+    'z'   => 'x-pack',
+    'bz2' => 'x-bzip2',
 );
 
 sub _dump {

@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.7 1997/12/05 17:14:24 aas Exp $
+# $Id: Parser.pm,v 2.8 1997/12/11 18:36:26 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.8 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -115,8 +115,8 @@ sub parse
 	# Then, look for a end tag
 	} elsif ($$buf =~ s|^</||) {
 	    # end tag
-	    if ($$buf =~ s|^([a-zA-Z][a-zA-Z0-9\.\-]*)\s*>||) {
-		$self->end(lc($1));
+	    if ($$buf =~ s|^([a-zA-Z][a-zA-Z0-9\.\-]*)(\s*>)||) {
+		$self->end(lc($1), "</$1$2");
 	    } elsif ($$buf =~ m|^[a-zA-Z]*[a-zA-Z0-9\.\-]*\s*$|) {
 		$$buf = "</" . $$buf;  # need more data to be sure
 		return $self;
@@ -270,7 +270,7 @@ sub start
 
 sub end
 {
-    my($self, $tag) = @_;
+    my($self, $tag, $origtext) = @_;
 }
 
 1;
@@ -369,10 +369,11 @@ attribute keys in the original order.  The fourth argument is the
 original HTML text.
 
 
-=item $self->end($tag)
+=item $self->end($tag, $origtext)
 
 This method is called when an end tag has been recognized.  The
-argument is the lower case tag name.
+first argument is the lower case tag name, the second the original
+HTML text of the tag.
 
 =item $self->text($text)
 

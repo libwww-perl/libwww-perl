@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -108,6 +108,7 @@ sub add_cookie_header
 
     my @cval;    # cookie values for the "Cookie" header
     my $set_ver;
+    my $netscape_only = 0; # An exact domain match applies to any cookie
 
     while (($domain =~ tr/././) >= 2 || # must be at least 2 dots
            $domain =~ /\.local$/)
@@ -156,6 +157,12 @@ sub add_cookie_header
 			next;
 		    }
 		}
+		if ($version > 0 && $netscape_only) {
+		    LWP::Debug::debug("   domain $domain applies to " .
+				      "Netscape-style cookies only");
+		    next;
+		}
+		
 	        LWP::Debug::debug("   it's a match");
 
 		# set version number of cookie header.
@@ -191,8 +198,22 @@ sub add_cookie_header
         }
 
     } continue {
-	# Try with a more general domain:  www.sol.no ==> .sol.no
-	$domain =~ s/^\.?[^.]*//;
+	# Try with a more general domain, alternately stripping
+	# leading name components and leading dots.  When this
+	# results in a domain with no leading dot, it is for
+	# Netscape cookie compatibility only:
+	#   
+	# a.b.c.net	Any cookie
+	# .b.c.net	Any cookie
+	# b.c.net	Netscape cookie only
+	# .c.net	Any cookie
+
+	if ($domain =~ s/^\.+//) {
+	    $netscape_only = 1;
+	} else {
+	    $domain =~ s/[^.]*//;
+	    $netscape_only = 0;
+	}
     }
 
     $request->header(Cookie => join("; ", @cval)) if @cval;

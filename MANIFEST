@@ -8,6 +8,7 @@ bin/lwp-mirror.PL		Writes bin/lwp-mirror script
 bin/lwp-request.PL		Writes bin/lwp-request script
 bin/lwp-rget.PL			Writes bin/lwp-rget script
 lwpcook.pod			Libwww-perl examples
+lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/CounterFile.pm		Persistent counter class
 lib/File/Listing.pm		Parse directory listings
 lib/Font/AFM.pm			Parse Adobe Font Metric files

@@ -1,9 +1,9 @@
 package URI::URL;
 
-$VERSION = "4.12";   # $Date: 1997/09/22 17:31:26 $
+$VERSION = "4.12";   # $Date: 1997/10/05 12:09:09 $
 sub Version { $VERSION; }
 
-require 5.002;
+require 5.004;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -31,7 +31,6 @@ use Carp ();
 
 use strict;
 use vars qw($reserved $reserved_no_slash $reserved_no_form $unsafe
-	    $COMPAT_VER_3
 	    $Debug $Strict_URL
 	   );
 
@@ -44,7 +43,6 @@ $unsafe   = "\x00-\x20{}|\\\\^\\[\\]`<>\"\x7F-\xFF";
 #$unsafe .= "~";  # according to RFC1738 but not to common practice
 
 $Debug         = 0;     # set to 1 to print URLs on creation
-$COMPAT_VER_3  = 0;     # should we try to behave in the old way
 $Strict_URL    = 0;     # see new()
 
 use overload ( '""' => 'as_string', 'fallback' => 1 );
@@ -195,11 +193,13 @@ sub _init_implementor
 
 sub _elem
 {
-    my($self, $element, @val) = @_;
-    my $old = $self->{$element};
-    return $old unless @val;
-    $self->{$element} = $val[0]; # general case
-    $self->{'_str'} = '';        # void cached string
+    my $self = shift;
+    my $elem = shift;
+    my $old = $self->{$elem};
+    if (@_) {
+	$self->{$elem} = shift;
+	$self->{'_str'} = '';        # void cached string
+    }
     $old;
 }
 
@@ -244,9 +244,6 @@ sub rel;
 sub as_string;
 sub eq;
 sub print_on;
-sub unsafe;
-sub escape;
-sub unescape;
 
 # Don't need DESTROY but avoid trying to AUTOLOAD it.
 sub DESTROY { }
@@ -257,8 +254,8 @@ __END__
 sub newlocal
 {
     require URI::URL::file;
-    my($class, $path) = @_;
-    newlocal URI::URL::file $path;  # pass it on the the file class
+    my $class = shift;
+    URI::URL::file->newlocal(@_);  # pass it on the the file class
 }
 
 sub strict
@@ -272,16 +269,21 @@ sub strict
 # Access some attributes of a URL object:
 sub base {
     my $self = shift;
-    return $self->_elem('_base', @_) if @_;      # set
+    my $base  = $self->{'_base'};
+
+    if (@_) { # set
+	my $new_base = shift;
+	$new_base = $new_base->abs if ref($new_base);  # unsure absoluteness
+	$self->{_base} = $new_base;
+    }
+    return unless defined wantarray;
 
     # The base attribute supports 'lazy' conversion from URL strings
     # to URL objects. Strings may be stored but when a string is
     # fetched it will automatically be converted to a URL object.
     # The main benefit is to make it much cheaper to say:
     #   new URI::URL $random_url_string, 'http:'
-    my $base = $self->_elem('_base');            # get
-    return undef unless defined $base;
-    unless (ref $base){
+    if (defined($base) && !ref($base)) {
 	$base = new URI::URL $base;
 	$self->_elem('_base', $base); # set new object
     }
@@ -291,18 +293,18 @@ sub base {
 sub scheme {
     my $self = shift;
     my $old = $self->{'scheme'};
-    return $old unless @_;
-
-    my $newscheme = shift;
-    if (defined($newscheme) && length($newscheme)) {
-	# reparse URL with new scheme
-	my $str = $self->as_string;
-	$str =~ s/^[\w+\-.]+://;
-	my $newself = new URI::URL "$newscheme:$str";
-	%$self = %$newself;
-	bless $self, ref($newself);
-    } else {
-	$self->{'scheme'} = undef;
+    if (@_) {
+	my $new_scheme = shift;
+	if (defined($new_scheme) && length($new_scheme)) {
+	    # reparse URL with new scheme
+	    my $str = $self->as_string;
+	    $str =~ s/^[\w+\-.]+://;
+	    my $newself = new URI::URL "$new_scheme:$str";
+	    %$self = %$newself;
+	    bless $self, ref($newself);
+	} else {
+	    $self->{'scheme'} = undef;
+	}
     }
     $old;
 }
@@ -330,7 +332,7 @@ sub rel { shift->clone; }
 
 # This method should always be overridden in subclasses
 sub as_string {
-    "";
+    "<URL>";
 }
 
 # Compare two URLs, subclasses will provide a more correct implementation
@@ -357,33 +359,14 @@ sub print_on
 {
     no strict qw(refs);  # because we use strings as filehandles
     my $self = shift;
-    my $fh = shift || 'STDOUT';
+    my $fh = shift || 'STDERR';
     my($k, $v);
-    print $fh "Dump of URL $self...\n";
+    print $fh "Dump of URI::URL $self...\n";
     foreach $k (sort keys %$self){
 	$v = $self->{$k};
 	$v = 'UNDEF' unless defined $v;
 	print $fh "  $k\t'$v'\n";
     }
-}
-
-# These are just supported for some (bad) kind of backwards portability.
-
-sub unsafe {
-    Carp::croak("The unsafe() method not supported by URI::URL any more!
-If you need this feature badly, then you should make a subclass of
-the URL-schemes you need to modify the behavior for.  The method
-was called");
-}
-
-sub escape {
-    Carp::croak("The escape() method not supported by URI::URL any more!
-Use the URI::Escape module instead.  The method was called");
-}
-
-sub unescape {
-    Carp::croak("unescape() method not supported by URI::URL any more!
-Use the URI::Escape module instead.  The method was called");
 }
 
 1;
@@ -581,29 +564,23 @@ C<MYURL::foo> class. Existing URLs will not be affected.
 
 =over 3
 
-=item new URI::URL $url_string [, $base_url]
+=item $url = URI::URL->new( $url_string [, $base_url] )
 
 This is the object constructor.  It will create a new URI::URL object,
-initialized from the URL string.  To trap bad or unknown URL schemes
-use:
+initialized from the URL string.
 
- $obj = eval { new URI::URL "snews:comp.lang.perl.misc" };
-
-or set URI::URL::strict(0) if you do not care about bad or unknown
-schemes.
-
-=item newlocal URI::URL $path;
+=item $url = URI::URL->newlocal($path);
 
 Returns an URL object that denotes a path within the local filesystem.
 Paths not starting with '/' are interpreted relative to the current
 working directory.  This constructor always return an absolute 'file'
 URL.
 
-=item url($url_string, [, $base_url])
+=item $url = url($url_string, [, $base_url])
 
 Alternative constructor function.  The url() function is exported by
 the URI::URL module and is easier both to type and read than calling
-URI::URL->new directly.  Useful for constructs like this:
+C<URI::URL->new> directly.  Useful for constructs like this:
 
    $h = url($str)->host;
 
@@ -778,7 +755,7 @@ not match the base, then a copy of the original URL is returned.
 =item $url->print_on(*FILEHANDLE);
 
 Prints a verbose presentation of the contents of the URL object to
-the specified file handle (default STDOUT).  Mainly useful for
+the specified file handle (default STDERR).  Mainly useful for
 debugging.
 
 =item $url->scheme (*)
@@ -931,50 +908,6 @@ should be achieved by some form of transport agent class (see
 L<LWP::UserAgent>). The agent class can use the URL class, but should
 not be a subclass of it.
 
-=head1 COMPATIBILITY
-
-This is a listing incompatibilities with URI::URL version 3.x:
-
-=over 3
-
-=item unsafe(), escape() and unescape()
-
-These methods not supported any more.
-
-=item full_path() and as_string()
-
-These methods does no longer take a second argument which specify the
-set of characters to consider as unsafe.
-
-=item '+' in the query-string
-
-The '+' character in the query part of the URL was earlier considered
-to be an encoding of a space. This was just bad influence from Mosaic.
-Space is now encoded as '%20'.
-
-=item path() and query()
-
-This methods will croak if they loose information.  Use epath() or
-equery() instead.  The path() method will for instance loose
-information if any path segment contain an (encoded) '/' character.
-
-The path() now consider a leading '/' to be part of the path.  If the
-path is empty it will default to '/'.  You can get the old behaviour
-by setting $URI::URL::COMPAT_VER_3 to TRUE before accessing the path()
-method.
-
-=item netloc()
-
-The string passed to netloc is now assumed to be escaped.  The string
-returned will also be (partially) escaped.
-
-=item sub-classing
-
-The path, params and query is now stored internally in unescaped form.
-This might affect sub-classes of the URL scheme classes.
-
-=back
-
 =head1 AUTHORS / ACKNOWLEDGMENTS
 
 This module is (distantly) based on the C<wwwurl.pl> code in the
@@ -994,7 +927,7 @@ them to the libwww-perl mailing list at <libwww-perl@ics.uci.edu>.
 
 =head1 COPYRIGHT
 
-Copyright 1995-1996 Gisle Aas.
+Copyright 1995-1997 Gisle Aas.
 Copyright 1995 Martijn Koster.
 
 This program is free software; you can redistribute it and/or modify

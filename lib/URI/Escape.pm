@@ -1,5 +1,5 @@
 #
-# $Id: Escape.pm,v 3.3 1996/01/05 12:55:49 aas Exp $
+# $Id: Escape.pm,v 3.4 1996/02/05 17:46:10 aas Exp $
 #
 
 package URI::Escape;
@@ -14,18 +14,32 @@ uri_unescape - Unescape escaped characters
 
  use URI::Escape;
  $safe = uri_escape("10% is enough\n");
+ $verysafe = uri_escape("foo", "\0-\377");
  $str  = uri_unescape($safe);
 
 =head1 DESCRIPTION
 
-This module provide functions to escape and unescape URIs strings.
+This module provide functions to escape and unescape URI strings.
 Some characters are regarded as "unsafe" and must be escaped in
 accordance with RFC 1738.  Escaped characters are represented by a
 triplet consisting of the character "%" followed by two hexadecimal
 digits.
 
 The uri_escape() function takes an optional second argument that
-overrides the set of characters that are to be escaped.
+overrides the set of characters that are to be escaped.  The set is
+specified as a string that can be used in a regular expression
+character class (between [ ]).  E.g.:
+
+  \x00-\x1f\x7f-\xff          # all control and hi-bit characters
+  a-z                         # all lower case characters
+  ^A-Za-z                     # everything not a letter
+
+The default set of characters to be escaped is:
+
+  \x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF
+
+The module can also export the %escapes hash which contains the
+mapping from all characters to the corresponding escape code.
 
 =head1 SEE ALSO
 
@@ -38,6 +52,8 @@ require Exporter;
 @EXPORT = qw(uri_escape uri_unescape);
 @EXPORT_OK = qw(%escapes);
 
+use Carp;
+
 # Build a char->hex map
 for (0..255) {
     $escapes{chr($_)} = sprintf("%%%02X", $_);
@@ -46,30 +62,30 @@ for (0..255) {
 sub uri_escape
 {
     my($text, $patn) = @_;
+    return undef unless defined $text;
     if (defined $patn){
 	unless (exists  $subst{$patn}) {
 	    # Because we can't compile regex we fake it with a cached sub
 	    $subst{$patn} =
 	      eval "sub {\$_[0] =~ s/([$patn])/\$escapes{\$1}/g; }";
-	    die $@ if $@;
+	    croak "uri_escape: $@" if $@;
 	}
 	&{$subst{$patn}}($text);
-	return $text;
+    } else {
+	# Default unsafe characters. (RFC1738 section 2.2)
+        $text =~ s/([\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g; #"
     }
-    # Default unsafe characters. (RFC1738 section 2.2)
-    $text =~ s/([\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g; #"
     $text;
 }
 
 sub uri_unescape
 {
-    my($text) = @_;
-    return undef unless defined $text;
     # Note from RFC1630:  "Sequences which start with a percent sign
     # but are not followed by two hexadecimal characters are reserved
     # for future extension"
-    $text =~ s/%([\dA-Fa-f][\dA-Fa-f])/chr(hex($1))/eg;
-    $text;
+    my @copy = @_;
+    for (@copy) { s/%([\dA-Fa-f]{2})/chr(hex($1))/eg; }
+    wantarray ? @copy : $copy[0];
 }
 
 1;

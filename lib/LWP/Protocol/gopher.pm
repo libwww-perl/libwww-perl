@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.8 1995/09/04 18:39:13 aas Exp $
+# $Id: gopher.pm,v 1.9 1995/09/04 20:54:17 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -173,7 +173,7 @@ sub gopher2url
         $url = new URI::URL ($gophertype eq '8' ? 'telnet:' : 'tn3270:');
         $url->user($path) if defined $path;
     } else {
-        $path = URI::URL::uri_escape($path);
+        $path = URI::Escape::uri_escape($path);
         $url = new URI::URL "gopher:/$gophertype$path";
     }
     $url->host($host);

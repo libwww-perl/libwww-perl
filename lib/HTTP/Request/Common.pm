@@ -1,18 +1,21 @@
-# $Id: Common.pm,v 1.8 1998/04/06 21:32:26 aas Exp $
+# $Id: Common.pm,v 1.9 1998/08/04 12:46:56 aas Exp $
 #
 package HTTP::Request::Common;
 
 use strict;
-use vars qw(@EXPORT $VERSION);
+use vars qw(@EXPORT $VERSION $DYNAMIC_FILE_UPLOAD);
+
+$DYNAMIC_FILE_UPLOAD ||= 0;  # make it defined (don't know why)
 
 require Exporter;
 *import = \&Exporter::import;
-@EXPORT=qw(GET HEAD PUT POST);
+@EXPORT =qw(GET HEAD PUT POST);
+@EXPORT_OK = qw($DYNAMIC_FILE_UPLOAD);
 
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -87,6 +90,7 @@ sub form_data   # RFC1867
 {
     my($data, $boundary) = @_;
     my @data = ref($data) eq "HASH" ? %$data : @$data;  # copy
+    my $fhparts;
     my @parts;
     my($k,$v);
     while (($k,$v) = splice(@data, 0, 2)) {
@@ -106,18 +110,26 @@ sub form_data   # RFC1867
 	    my $h = HTTP::Headers->new(@headers);
 	    my $ct = $h->header("Content-Type");
 	    if ($file) {
-		local(*F);
-		local($/) = undef; # slurp files
-		open(F, $file) or Carp::croak("Can't open file $file: $!");
-		binmode(F);
-		$content = <F>;
-		close(F);
+		require Symbol;
+		my $fh = Symbol::gensym();
+		open($fh, $file) or Carp::croak("Can't open file $file: $!");
+		binmode($fh);
+		if ($DYNAMIC_FILE_UPLOAD) {
+		    # will read file later
+		    $content = $fh;
+		} else {
+		    local($/) = undef; # slurp files
+		    $content = <$fh>;
+		    close($fh);
+		    $h->header("Content-Length" => length($content));
+		}
 		unless ($ct) {
 		    require LWP::MediaTypes;
 		    $ct = LWP::MediaTypes::guess_media_type($file, $h);
 		}
 	    }
 	    if ($h->header("Content-Disposition")) {
+		# just to get it sorted first
 		$disp = $h->header("Content-Disposition");
 		$h->remove_header("Content-Disposition");
 	    }
@@ -125,31 +137,71 @@ sub form_data   # RFC1867
 		$content = $h->header("Content");
 		$h->remove_header("Content");
 	    }
-	    push(@parts, "Content-Disposition: $disp$CRLF" .
-                         $h->as_string($CRLF) .
-                         "$CRLF$content");
+	    my $head = join($CRLF, "Content-Disposition: $disp",
+			           $h->as_string($CRLF),
+			           "");
+	    if (ref $content) {
+		push(@parts, [$head, $content]);
+		$fhparts++;
+	    } else {
+		push(@parts, $head . $content);
+	    }
 	}
     }
     return "" unless @parts;
-    $boundary = boundary() unless $boundary;
 
-    my $bno = 0;
-  CHECK_BOUNDARY:
-    {
-	for (@parts) {
-	    if (index($_, "--$boundary") >= 0) {
-		# must have a better boundary
-		#warn "Need something better that '$boundary' as boundary\n";
-		$boundary = boundary(++$bno);
-		redo CHECK_BOUNDARY;
-	    }
+    my $content;
+    if ($fhparts) {
+	$boundary = boundary(10) # hopefully enough randomness
+	    unless $boundary;
+
+	# add the boundaries to the @parts array
+	for (1..@parts-1) {
+	    splice(@parts, $_*2-1, 0, "$CRLF--$boundary$CRLF");
 	}
-	last;
+	unshift(@parts, "--$boundary$CRLF");
+	push(@parts, "$CRLF--$boundary--$CRLF");
+
+	# set up a closure that will return content piecemeal
+	$content = sub {
+	  AGAIN:
+	    my $p = shift @parts;
+	    unless (ref $p) {
+		$p .= shift @parts while @parts && !ref($parts[0]);
+		return $p;
+	    }
+	    my($buf, $fh) = @$p;
+	    my $n = read($fh, $buf, 318, length($buf));
+	    if ($n) {
+		unshift(@parts, ["", $fh]);
+	    } else {
+		close($fh);
+	    }
+	    goto AGAIN unless length $buf;
+	    return $buf;
+	};
+
+    } else {
+	$boundary = boundary() unless $boundary;
+
+	my $bno = 0;
+      CHECK_BOUNDARY:
+	{
+	    for (@parts) {
+		if (index($_, "--$boundary") >= 0) {
+		    # must have a better boundary
+		    #warn "Need something better that '$boundary' as boundary\n";
+		    $boundary = boundary(++$bno);
+		    redo CHECK_BOUNDARY;
+		}
+	    }
+	    last;
+	}
+	$content = "--$boundary$CRLF" .
+	           join("$CRLF--$boundary$CRLF", @parts) .
+		   "$CRLF--$boundary--$CRLF";
     }
 
-    my $content = "--$boundary$CRLF" .
-                  join("$CRLF--$boundary$CRLF", @parts) .
-                  "$CRLF--$boundary--$CRLF";
     wantarray ? ($content, $boundary) : $content;
 }
 
@@ -307,6 +359,12 @@ different):
   export PATH
 
   --6G+f--
+
+If you set the $DYNAMIC_FILE_UPLOAD variable (exportable) to some TRUE
+value, then you get back a request object with a closure as the
+content attribute.  This allow you to upload arbitrary big files
+without using lots of memory.  You can even upload infinite files like
+F</dev/audio> if you wish.
 
 =back
 

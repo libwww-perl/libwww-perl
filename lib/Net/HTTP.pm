@@ -1,6 +1,8 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.19 2001/04/17 17:24:57 gisle Exp $
+# $Id: HTTP.pm,v 1.20 2001/04/19 05:43:52 gisle Exp $
+
+require 5.005;
 
 use strict;
 use vars qw($VERSION @ISA);

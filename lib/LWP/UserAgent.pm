@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.5 1995/07/11 22:37:03 aas Exp $
+# $Id: UserAgent.pm,v 1.6 1995/07/13 15:01:58 aas Exp $
 
 package LWP::UserAgent;
 
@@ -68,11 +68,10 @@ dies.
 
 =head1 SEE ALSO
 
-See L<lwp> for a complete overview of libwww-perl5.
+See L<LWP> for a complete overview of libwww-perl5.  See L<get> and
+L<mirror> for examples of usage.
 
-=head1 BUGS
-
-Need MDA security
+=head1 METHODS
 
 =cut
 
@@ -101,7 +100,7 @@ use Carp;
 #
 #####################################################################
 
-=head1 new()
+=head2 new()
 
 Constructor for the UserAgent.
 
@@ -132,13 +131,6 @@ sub new {
 }
 
 
-=head1 clone
-
-Copy constructor. You need not call this yourself, see the
-constructor.
-
-=cut
-
 sub clone
 {
     LWP::Debug::trace('()');
@@ -148,7 +140,31 @@ sub clone
 }
 
 
-=head1 simple_request($request, $arg [, $size])
+=head2 isProtocolSupported($scheme)
+
+You can use this method to query if the library currently support the
+specified C<scheme>.  The C<scheme> might be a string (like 'http' or
+'ftp') or it might be an URI::URL object reference.
+
+=cut
+
+sub isProtocolSupported
+{
+    my($self, $scheme) = @_;
+    if (ref $scheme) {
+	croak "ref is not an URI::URL object"
+	    unless ref($scheme) =~ "^URI::URL";
+	$scheme = $scheme->abs->scheme;
+    } else {
+	croak "Illeal scheme '$scheme' passed to isProtocolSupported"
+	    if $scheme =~ /\W/;
+	$scheme = lc $scheme;
+    }
+    return LWP::Protocol::implementor($scheme);
+}
+
+
+=head2 simpleRequest($request, $arg [, $size])
 
 This method dispatches WWW requests on behalf of a user, and returns
 the response received. See the description above for the use of the
@@ -156,7 +172,7 @@ method arguments.
 
 =cut
 
-sub simple_request {
+sub simpleRequest {
     my($self, $request, $arg, $size) = @_;
 
     LWP::Debug::trace('()');
@@ -228,13 +244,13 @@ sub simple_request {
 }
 
 
-=head1 request(...)
+=head2 request($request, $arg [, $size])
 
 Process a request, including redirects and security.
 This method may actually send several different 
 simple reqeusts.
 
-XXX This sub is getting a bit large...
+This sub is getting a bit large...
 
 =cut
 
@@ -250,7 +266,7 @@ sub request {
         $depth = 0;
     }
 
-    my $response = $self->simple_request($request, $arg, $size);
+    my $response = $self->simpleRequest($request, $arg, $size);
     
     my $code = $response->code;
 
@@ -337,7 +353,7 @@ sub credentials
 }
 
 
-=head1 getBasicCredentials
+=head2 getBasicCredentials($realm)
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication.
@@ -369,10 +385,11 @@ sub getBasicCredentials
 #
 #####################################################################
 
-=head1 mirror($url, $file)
+=head2 mirror($url, $file)
 
 Get and store a document identified by a URL, using If-Modified-Since,
-and checking of the content-length.  Returns response.
+and checking of the content-length.  Returns a reference to the
+response object.
 
 =cut
 
@@ -484,13 +501,8 @@ sub proxy {
 #####################################################################
 
 
-=head1 _needProxy()
-
-Private method which returns the URL of the Proxy configured for this
-URL, or undefined if none is configured.
-
-=cut
-
+# Private method which returns the URL of the Proxy configured for this
+# URL, or undefined if none is configured.
 sub _needProxy {
     my($self, $url) = @_;
 

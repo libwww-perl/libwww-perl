@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.11 1996/04/09 15:44:25 aas Exp $
+# $Id: Debug.pm,v 1.12 1997/12/02 13:22:52 aas Exp $
 #
 package LWP::Debug;
 
@@ -24,9 +24,11 @@ conns() function are called within the library and they log
 information at increasing levels of detail. Which level of detail is
 actually printed is controlled with the C<level()> function.
 
-=head1 FUNCTIONS
+The following functions are available:
 
-=head2 level(...)
+=over 4
+
+=item level(...)
 
 The C<level()> function controls the level of detail being
 logged. Passing '+' or '-' indicates full and no logging
@@ -47,23 +49,25 @@ your namespace):
   use LWP::Debug qw(+);
   use LWP::Debug qw(level); level('+');
 
-=head2 trace($msg)
+=item trace($msg)
 
 The C<trace()> function is used for tracing function
 calls. The package and calling subroutine name is
 printed along with the passed argument. This should
 be called at the start of every major function.
 
-=head2 debug($msg)
+=item debug($msg)
 
 The C<debug()> function is used for high-granularity
 reporting of state in functions.
 
-=head2 conns($msg)
+=item conns($msg)
 
 The C<conns()> function is used to show data being
 transferred over the connections. This may generate
 considerable output.
+
+=back
 
 =cut
 

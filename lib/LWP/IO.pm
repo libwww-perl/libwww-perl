@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.9 1997/04/05 12:38:04 aas Exp $
+# $Id: IO.pm,v 1.10 1997/12/02 13:22:52 aas Exp $
 
 require LWP::Debug;
 use AutoLoader ();
@@ -22,9 +22,15 @@ LWP::IO - Low level I/O capability
 
 =head1 DESCRIPTION
 
-=head2 LWP::IO::read($fd, $data, $size, $offset, $timeout)
+The following functions are available:
 
-=head2 LWP::IO::write($fd, $data, $timeout)
+=over 4
+
+=item LWP::IO::read($fd, $data, $size, $offset, $timeout)
+
+=item LWP::IO::write($fd, $data, $timeout)
+
+=back
 
 These routines provide low level I/O with timeout capability for the
 LWP library.  These routines will only be installed if they are not

@@ -1,5 +1,5 @@
 #
-# $Id: MemberMixin.pm,v 1.4 1997/04/05 12:38:05 aas Exp $
+# $Id: MemberMixin.pm,v 1.5 1997/12/02 13:22:52 aas Exp $
 
 package LWP::MemberMixin;
 
@@ -17,20 +17,21 @@ LWP::MemberMixin - Member access mixin class
 
 A mixin class to get methods that provide easy access to member
 variables in the %$self.
-
-=head1 BUGS
-
 Ideally there should be better Perl langauge support for this.
 
-=head1 METHODS
+There is only one method provided:
 
-=head2 _elem($elem [, $val])
+=over 4
+
+=item _elem($elem [, $val])
 
 Internal method to get/set the value of member variable
 C<$elem>. If C<$val> is defined it is used as the new value
 for the member variable.  If it is undefined the current
 value is not touched. In both cases the previous value of
 the member variable is returned.
+
+=back
 
 =cut
 

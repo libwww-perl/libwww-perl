@@ -1,4 +1,4 @@
-# $Id: SecureSocket.pm,v 1.1 1997/08/05 14:09:11 aas Exp $
+# $Id: SecureSocket.pm,v 1.2 1997/12/02 13:22:52 aas Exp $
 #
 # Derived by Joshua Kronengold from Socket.pm and SSLeay
 #
@@ -26,22 +26,18 @@ LWP::SecureSocket - SSL TCP/IP socket interface
 
 =head1 DESCRIPTION
 
-This class implements TCP/IP sockets.  It groups socket generation,
-TCP address manipulation and buffered reading. Errors are handled by
-dying (throws exceptions).
+This class implements SSL TCP/IP sockets.  It groups socket
+generation, TCP address manipulation and buffered reading. Errors are
+handled by dying (throws exceptions).
 
-This class should really not be required, something like this should
-be part of the standard Perl5 library.
+The following methods are provided:
 
-Running this module standalone executes a self test which requires
-localhost to serve chargen and echo protocols.
-
-=head1 METHODS
+=over 4
 
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in
@@ -61,7 +57,7 @@ use Net::SSLeay;
 my $tcp_proto = (getprotobyname('tcp'))[2];
 
 
-=head2 $sock = new LWP::SecureSocket()
+=item $sock = new LWP::SecureSocket()
 
 Constructs a new socket object.
 
@@ -100,7 +96,7 @@ sub host { shift->{'host'}; }
 sub port { shift->{'port'}; }
 
 
-=head2 $sock->connect($host, $port)
+=item $sock->connect($host, $port)
 
 Connect the socket to given host and port.
 
@@ -145,7 +141,7 @@ sub connect
 }
 
 
-=head2 $sock->shutdown()
+=item $sock->shutdown()
 
 Shuts down the connection.
 
@@ -161,7 +157,7 @@ sub shutdown
 }
 
 
-=head2 $sock->bind($host, $port)
+=item $sock->bind($host, $port)
 
 Binds a name to the socket.
 
@@ -175,7 +171,7 @@ sub bind
 }
 
 
-=head2 $sock->listen($queuesize)
+=item $sock->listen($queuesize)
 
 Set up listen queue for socket.
 
@@ -187,7 +183,7 @@ sub listen
 }
 
 
-=head2 $sock->accept($timeout)
+=item $sock->accept($timeout)
 
 Accepts a new connection.  Returns a new LWP::SecureSocket object if successful.
 Timeout not implemented yet.  would require modifying new, and not
@@ -211,7 +207,7 @@ sub accept
 }
 
 
-=head2 $sock->getsockname()
+=item $sock->getsockname()
 
 Returns a 2 element array ($host, $port)
 
@@ -224,7 +220,7 @@ sub getsockname
 }
 
 
-=head2 $sock->read_until($delim, $data_ref, $size, $timeout)
+=item $sock->read_until($delim, $data_ref, $size, $timeout)
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
@@ -271,7 +267,7 @@ sub read_until
 }
 
 
-=head2 $sock->read($bufref, [$size, $timeout])
+=item $sock->read($bufref, [$size, $timeout])
 
 Reads data of the socket.  Not more than $size bytes.  Might return
 less if the data is available.  Dies on timeout.
@@ -301,7 +297,7 @@ sub read
 }
 
 
-=head2 $sock->pushback($data)
+=item $sock->pushback($data)
 
 Put data back into the socket.  Data will returned next time you
 read().  Can be used if you find out that you have read too much.
@@ -316,7 +312,7 @@ sub pushback
 }
 
 
-=head2 $sock->write($data, [$timeout])
+=item $sock->write($data, [$timeout])
 
 Write data to socket.  The $data argument might be a scalar or code.
 
@@ -362,7 +358,7 @@ sub write
 
 
 
-=head2 _getaddress($h, $p)
+=item $sock->_getaddress($h, $p)
 
 Given a host and a port, it will return the address (sockaddr_in)
 suitable as the C<name> argument for connect() or bind(). Might return
@@ -403,11 +399,11 @@ package main;
 
 eval join('',<DATA>) || die $@ unless caller();
 
-=head1 SELF TEST
+=back
 
-This self test is only executed when this file is run standalone. It
-tests its functions against some standard TCP services implemented by
-inetd. If you do not have them around the tests will fail.
+=head1 AUTHOR
+
+Derived by Joshua Kronengold from Socket.pm and SSLeay
 
 =cut
 

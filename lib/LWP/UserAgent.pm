@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.50 1997/12/01 19:11:47 aas Exp $
+# $Id: UserAgent.pm,v 1.51 1997/12/02 13:22:53 aas Exp $
 
 package LWP::UserAgent;
 
@@ -93,12 +93,11 @@ The library catches errors (such as internal errors and timeouts) and
 present them as HTTP error responses. Alternatively one can switch off
 this behaviour, and let the application handle dies.
 
-=head1 SEE ALSO
-
-See L<LWP> for a complete overview of libwww-perl5.  See L<request> and
-L<mirror> for examples of usage.
-
 =head1 METHODS
+
+The following methods are available:
+
+=over 4
 
 =cut
 
@@ -124,7 +123,7 @@ use AutoLoader ();
 *AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
 
 
-=head2 $ua = new LWP::UserAgent;
+=item $ua = new LWP::UserAgent;
 
 Constructor for the UserAgent.  Returns a reference to a
 LWP::UserAgent object.
@@ -158,7 +157,7 @@ sub new
 }
 
 
-=head2 $ua->simple_request($request, [$arg [, $size]])
+=item $ua->simple_request($request, [$arg [, $size]])
 
 This method dispatches a single WWW request on behalf of a user, and
 returns the response received.  The C<$request> should be a reference
@@ -265,7 +264,7 @@ sub simple_request
 }
 
 
-=head2 $ua->request($request, $arg [, $size])
+=item $ua->request($request, $arg [, $size])
 
 Process a request, including redirects and security.  This method may
 actually send several different simple reqeusts.
@@ -365,7 +364,7 @@ sub request
 }
 
 
-=head2 $ua->redirect_ok
+=item $ua->redirect_ok
 
 This method is called by request() before it tries to do any
 redirects.  It should return a true value if the redirect is allowed
@@ -391,7 +390,7 @@ sub redirect_ok
 }
 
 
-=head2 $ua->credentials($netloc, $realm, $uname, $pass)
+=item $ua->credentials($netloc, $realm, $uname, $pass)
 
 Set the user name and password to be used for a realm.  It is often more
 useful to specialize the get_basic_credentials() method instead.
@@ -405,7 +404,7 @@ sub credentials
 }
 
 
-=head2 $ua->get_basic_credentials($realm, $uri, [$proxy])
+=item $ua->get_basic_credentials($realm, $uri, [$proxy])
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication or Digest Authentication.
@@ -434,7 +433,7 @@ sub get_basic_credentials
 }
 
 
-=head2 $ua->agent([$product_id])
+=item $ua->agent([$product_id])
 
 Get/set the product token that is used to identify the user agent on
 the network.  The agent value is sent as the "User-Agent" header in
@@ -448,7 +447,7 @@ Examples are:
   $ua->agent('Checkbot/0.4 ' . $ua->agent);
   $ua->agent('Mozilla/5.0');
 
-=head2 $ua->from([$email_address])
+=item $ua->from([$email_address])
 
 Get/set the Internet e-mail address for the human user who controls
 the requesting user agent.  The address should be machine-usable, as
@@ -457,36 +456,36 @@ the requests.  There is no default.  Example:
 
   $ua->from('aas@sn.no');
 
-=head2 $ua->timeout([$secs])
+=item $ua->timeout([$secs])
 
 Get/set the timeout value in seconds. The default timeout() value is
 180 seconds, i.e. 3 minutes.
 
-=head2 $ua->cookie_jar([$cookies])
+=item $ua->cookie_jar([$cookies])
 
 Get/set the I<HTTP::Cookies> object to use.  The default is to have no
 cookie_jar, i.e. never automatically add "Cookie" headers to the
 requests.
 
-=head2 $ua->use_alarm([$boolean])
+=item $ua->use_alarm([$boolean])
 
 Get/set a value indicating wether to use alarm() when implementing
 timeouts.  The default is TRUE, if your system supports it.  You can
 disable it if it interfers with other uses of alarm in your application.
 
-=head2 $ua->use_eval([$boolean])
+=item $ua->use_eval([$boolean])
 
 Get/set a value indicating wether to handle internal errors internally
 by trapping with eval.  The default is TRUE, i.e. the $ua->request()
 will never die.
 
-=head2 $ua->parse_head([$boolean])
+=item $ua->parse_head([$boolean])
 
 Get/set a value indicating wether we should initialize response
 headers from the E<lt>head> section of HTML documents. The default is
 TRUE.  Do not turn this off, unless you know what you are doing.
 
-=head2 $ua->max_size([$bytes])
+=item $ua->max_size([$bytes])
 
 Get/set the size limit for response content.  The default is undef,
 which means that there is not limit.  If the returned response content
@@ -519,7 +518,7 @@ sub _need_proxy;
 __END__
 
 
-=head2 $ua->clone;
+=item $ua->clone;
 
 Returns a copy of the LWP::UserAgent object
 
@@ -538,7 +537,7 @@ sub clone
 }
 
 
-=head2 $ua->is_protocol_supported($scheme)
+=item $ua->is_protocol_supported($scheme)
 
 You can use this method to query if the library currently support the
 specified C<scheme>.  The C<scheme> might be a string (like 'http' or
@@ -561,7 +560,7 @@ sub is_protocol_supported
 }
 
 
-=head2 $ua->mirror($url, $file)
+=item $ua->mirror($url, $file)
 
 Get and store a document identified by a URL, using If-Modified-Since,
 and checking of the Content-Length.  Returns a reference to the
@@ -615,7 +614,7 @@ sub mirror
     return $response;
 }
 
-=head2 $ua->proxy(...)
+=item $ua->proxy(...)
 
 Set/retrieve proxy URL for a scheme:
 
@@ -649,7 +648,7 @@ sub proxy
     return undef;
 }
 
-=head2 $ua->env_proxy()
+=item $ua->env_proxy()
 
 Load proxy settings from *_proxy environment variables.  You might
 specify proxies like this (sh-syntax):
@@ -679,7 +678,7 @@ sub env_proxy {
     }
 }
 
-=head2 $ua->no_proxy($domain,...)
+=item $ua->no_proxy($domain,...)
 
 Do not proxy requests to the given domains.  Calling no_proxy without
 any domains clears the list of domains. Eg:
@@ -738,3 +737,19 @@ sub _need_proxy
 }
 
 1;
+
+=back
+
+=head1 SEE ALSO
+
+See L<LWP> for a complete overview of libwww-perl5.  See F<lwp-request> and
+F<lwp-mirror> for examples of usage.
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

@@ -1,4 +1,4 @@
-# $Id: DB_File.pm,v 1.1 1996/07/19 15:50:22 aas Exp $
+# $Id: DB_File.pm,v 1.2 1997/12/02 13:27:43 aas Exp $
 
 package WWW::RobotRules::DB_File;
 
@@ -30,18 +30,18 @@ WWW::RobotRules::DB_File - Parse robots.txt files using a diskcache
 This is a subclass of L<WWW::RobotRules> that uses the DB_File package to
 implement diskcaching of robots.txt.
 
-=head1 SE ALSO
-
-L<WWW::RobotRules>
-
 =head1 METHODS
 
 This is a subclass of L<WWW::RobotRules>, so it implements the same methods
 
-=head2 $rules new WWW::RobotRules::DB_File 'my-robot/1.0', /path/cachefile
+=over 4
+
+=item $rules new WWW::RobotRules::DB_File 'my-robot/1.0', /path/cachefile
 
 This is the constructor. The only diffrence from the original constructor 
 from L<WWW::RobotRules> is that you here has to specify a cachfile as well.
+
+=back
 
 =cut
 
@@ -149,6 +149,10 @@ sub hosts {
 }
 
 1;
+
+=head1 SEE ALSO
+
+L<WWW::RobotRules>
 
 =head1 AUTHOR
 

@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.22 1997/01/27 14:18:43 aas Exp $
+# $Id: Socket.pm,v 1.23 1997/12/02 13:22:53 aas Exp $
 
 package LWP::Socket;
 
@@ -18,22 +18,24 @@ LWP::Socket - TCP/IP socket interface
 
 =head1 DESCRIPTION
 
+B<Beware:> New code should not use this module.  The IO::Socket::INET
+module provide the standard Perl interface to OO Internet sockets.
+
 This class implements TCP/IP sockets.  It groups socket generation,
 TCP address manipulation and buffered reading. Errors are handled by
 dying (throws exceptions).
 
-This class should really not be required, something like this should
-be part of the standard Perl5 library.
-
 Running this module standalone executes a self test which requires
 localhost to serve chargen and echo protocols.
 
-=head1 METHODS
+The following methods are available:
+
+=over 4
 
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in
@@ -50,7 +52,7 @@ use LWP::IO ();
 my $tcp_proto = (getprotobyname('tcp'))[2];
 
 
-=head2 $sock = new LWP::Socket()
+=item $sock = new LWP::Socket()
 
 Constructs a new socket object.
 
@@ -89,7 +91,7 @@ sub host { shift->{'host'}; }
 sub port { shift->{'port'}; }
 
 
-=head2 $sock->connect($host, $port)
+=item $sock->connect($host, $port)
 
 Connect the socket to given host and port.
 
@@ -118,7 +120,7 @@ sub connect
 }
 
 
-=head2 $sock->shutdown()
+=item $sock->shutdown()
 
 Shuts down the connection.
 
@@ -134,7 +136,7 @@ sub shutdown
 }
 
 
-=head2 $sock->bind($host, $port)
+=item $sock->bind($host, $port)
 
 Binds a name to the socket.
 
@@ -148,7 +150,7 @@ sub bind
 }
 
 
-=head2 $sock->listen($queuesize)
+=item $sock->listen($queuesize)
 
 Set up listen queue for socket.
 
@@ -160,7 +162,7 @@ sub listen
 }
 
 
-=head2 $sock->accept($timeout)
+=item $sock->accept($timeout)
 
 Accepts a new connection.  Returns a new LWP::Socket object if successful.
 Timeout not implemented yet.
@@ -182,7 +184,7 @@ sub accept
 }
 
 
-=head2 $sock->getsockname()
+=item $sock->getsockname()
 
 Returns a 2 element array ($host, $port)
 
@@ -195,7 +197,7 @@ sub getsockname
 }
 
 
-=head2 $sock->read_until($delim, $data_ref, $size, $timeout)
+=item $sock->read_until($delim, $data_ref, $size, $timeout)
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
@@ -238,7 +240,7 @@ sub read_until
 }
 
 
-=head2 $sock->read($bufref, [$size, $timeout])
+=item $sock->read($bufref, [$size, $timeout])
 
 Reads data of the socket.  Not more than $size bytes.  Might return
 less if the data is available.  Dies on timeout.
@@ -262,7 +264,7 @@ sub read
 }
 
 
-=head2 $sock->pushback($data)
+=item $sock->pushback($data)
 
 Put data back into the socket.  Data will returned next time you
 read().  Can be used if you find out that you have read too much.
@@ -277,7 +279,7 @@ sub pushback
 }
 
 
-=head2 $sock->write($data, [$timeout])
+=item $sock->write($data, [$timeout])
 
 Write data to socket.  The $data argument might be a scalar or code.
 
@@ -319,7 +321,7 @@ sub write
 
 
 
-=head2 _getaddress($h, $p)
+=item $sock->_getaddress($h, $p)
 
 Given a host and a port, it will return the address (sockaddr_in)
 suitable as the C<name> argument for connect() or bind(). Might return
@@ -359,6 +361,8 @@ sub _getaddress
 package main;
 
 eval join('',<DATA>) || die $@ unless caller();
+
+=back
 
 =head1 SELF TEST
 

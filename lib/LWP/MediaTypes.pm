@@ -1,13 +1,11 @@
 #
-# $Id: MediaTypes.pm,v 1.18 1997/05/25 08:55:42 aas Exp $
+# $Id: MediaTypes.pm,v 1.19 1997/12/02 13:22:52 aas Exp $
 
 package LWP::MediaTypes;
 
 =head1 NAME
 
-guess_media_type - guess media type for a file or a URL.
-
-media_suffix - returns file extentions for a media type
+LWP::MediaTypes - guess media type for a file or a URL.
 
 =head1 SYNOPSIS
 
@@ -20,8 +18,11 @@ This module provides functions for handling of media (also known as
 MIME) types and encodings.  The mapping from file extentions to media
 types is defined by the F<media.types> file.  If the F<~/.media.types>
 file exist it is used as a replacement.
-
 For backwards compatability we will also look for F<~/.mime.types>.
+
+The following functions are available (and exported by default):
+
+=over 4
 
 =cut
 
@@ -89,9 +90,7 @@ for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
 
 ####################################################################
 
-=head1 FUNCTIONS
-
-=head2 guess_media_type($filename_or_url, [$header_to_modify])
+=item guess_media_type($filename_or_url, [$header_to_modify])
 
 This function tries to guess media type and encoding for given file.
 In scalar context it returns only the content-type.  In array context
@@ -174,7 +173,7 @@ sub guess_media_type
 }
 
 
-=head2 media_suffix($type,...)
+=item media_suffix($type,...)
 
 This function will return all suffixes that can be used to denote the
 specified media type(s).  Wildcard types can be used.  In scalar
@@ -208,3 +207,14 @@ sub media_suffix {
 }
 
 1;
+
+=back 
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

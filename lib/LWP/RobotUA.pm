@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.10 1997/11/06 19:46:34 aas Exp $
+# $Id: RobotUA.pm,v 1.11 1997/12/02 13:22:52 aas Exp $
 
 package LWP::RobotUA;
 
@@ -52,6 +52,8 @@ response (if false).
 
 In addition these methods are provided:
 
+=over 4
+
 =cut
 
 
@@ -65,7 +67,7 @@ In addition these methods are provided:
 #
 
 
-=head2 $ua = LWP::RobotUA->new($agent_name, $from, [$rules])
+=item $ua = LWP::RobotUA->new($agent_name, $from, [$rules])
 
 Your robot's name and the mail address of the human responsible for
 the robot (i.e. you) is required by the constructor.
@@ -101,12 +103,12 @@ sub new
 }
 
 
-=head2 $ua->delay([$minutes])
+=item $ua->delay([$minutes])
 
 Set the minimum delay between requests to the same server.  The
 default is 1 minute.
 
-=head2 $ua->use_sleep([$boolean])
+=item $ua->use_sleep([$boolean])
 
 Get/set a value indicating wether the UA should sleep() if request
 arrive to fast (before $ua->delay minutes has passed).  The default is
@@ -131,7 +133,7 @@ sub agent
 }
 
 
-=head2 $ua->rules([$rules])
+=item $ua->rules([$rules])
 
 Set/get which I<WWW::RobotRules> object to use. 
 
@@ -145,7 +147,7 @@ sub rules {
 }
 
 
-=head2 $ua->no_visits($netloc)
+=item $ua->no_visits($netloc)
 
 Returns the number of documents fetched from this server host. Yes I
 know, this method should probably have been named num_visits() or
@@ -162,7 +164,7 @@ sub no_visits
 *host_count = \&no_visits;  # backwards compatibility with LWP-5.02
 
 
-=head2 $ua->host_wait($netloc)
+=item $ua->host_wait($netloc)
 
 Returns the number of seconds (from now) you must wait before you can
 make a new request to this host.
@@ -250,7 +252,7 @@ sub simple_request
 }
 
 
-=head2 $ua->as_string
+=item $ua->as_string
 
 Returns a text that describe the state of the UA.
 Mainly useful for debugging.
@@ -270,12 +272,17 @@ sub as_string
 
 1;
 
+=back
+
 =head1 SEE ALSO
 
 L<LWP::UserAgent>, L<WWW::RobotRules>
 
-=head1 AUTHOR
+=head1 COPYRIGHT
 
-Gisle Aas E<lt>aas@sn.no>
+Copyright 1996-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut

@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.7 1997/04/10 08:22:34 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.8 1997/12/02 13:27:43 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -36,10 +36,6 @@ The constructor (the new() method) takes an extra argument specifying
 the name of the DBM file to use.  If the DBM file already exists, then
 you can specify undef as agent name as the name can be obtained from
 the DBM database.
-
-=head1 SE ALSO
-
-L<WWW::RobotRules>, L<LWP::RobotUA>
 
 =cut
 
@@ -160,6 +156,10 @@ sub dump
 }
 
 1;
+
+=head1 SEE ALSO
+
+L<WWW::RobotRules>, L<LWP::RobotUA>
 
 =head1 AUTHORS
 

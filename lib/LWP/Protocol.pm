@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.28 1997/05/08 07:00:13 aas Exp $
+# $Id: Protocol.pm,v 1.29 1997/12/02 13:22:52 aas Exp $
 
 package LWP::Protocol;
 
@@ -28,12 +28,9 @@ method which is used to service a request. The overridden method can
 make use of the collect() function to collect together chunks of data
 as it is received.
 
-=head1 SEE ALSO
+The following methods and functions are provided:
 
-Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files
-for examples of usage.
-
-=head1 METHODS AND FUNCTIONS
+=over 4
 
 =cut
 
@@ -50,7 +47,7 @@ require HTML::HeadParser;
 my %ImplementedBy = (); # scheme => classname
 
 
-=head2 $prot = new HTTP::Protocol;
+=item $prot = new HTTP::Protocol;
 
 The LWP::Protocol constructor is inherited by subclasses. As this is a
 virtual base class this method should B<not> be called directly.
@@ -70,7 +67,7 @@ sub new
 }
 
 
-=head2 $prot = LWP::Protocol::create($url)
+=item $prot = LWP::Protocol::create($url)
 
 Create an object of the class implementing the protocol to handle the
 given scheme. This is a function, not a method. It is more an object
@@ -90,7 +87,7 @@ sub create
 }
 
 
-=head2 $class = LWP::Protocol::implementor($scheme, [$class])
+=item $class = LWP::Protocol::implementor($scheme, [$class])
 
 Get and/or set implementor class for a scheme.  Returns '' if the
 specified scheme is not supported.
@@ -132,7 +129,7 @@ sub implementor
 }
 
 
-=head2 $prot->request(...)
+=item $prot->request(...)
 
  $response = $protocol->request($request, $proxy, undef);
  $response = $protocol->request($request, $proxy, '/tmp/sss');
@@ -151,17 +148,17 @@ sub request
 }
 
 
-=head2 $prot->timeout($seconds)
+=item $prot->timeout($seconds)
 
 Get and set the timeout value in seconds
 
 
-=head2 $prot->use_alarm($yesno)
+=item $prot->use_alarm($yesno)
 
 Indicates if the library is allowed to use the core alarm()
 function to implement timeouts.
 
-=head2 $prot->parse_head($yesno)
+=item $prot->parse_head($yesno)
 
 Should we initialize response headers from the <head> section of HTML
 documents.
@@ -174,7 +171,7 @@ sub parse_head { shift->_elem('parse_head', @_); }
 sub max_size   { shift->_elem('max_size',   @_); }
 
 
-=head2 $prot->collect($arg, $response, $collector)
+=item $prot->collect($arg, $response, $collector)
 
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.  If $arg
@@ -281,7 +278,7 @@ sub collect
 }
 
 
-=head2 $prot->collect_once($arg, $response, $content)
+=item $prot->collect_once($arg, $response, $content)
 
 Can be called when the whole response content is available as
 $content.  This will invoke collect() with a collector callback that
@@ -302,3 +299,17 @@ sub collect_once
 }
 
 1;
+
+=head1 SEE ALSO
+
+Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files
+for examples of usage.
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

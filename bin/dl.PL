@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: dl.PL,v 1.1 1996/11/10 22:17:47 aas Exp $
+# $Id: dl.PL,v 1.2 1996/11/11 17:49:14 aas Exp $
 
 =head1 NAME
 
@@ -43,6 +43,7 @@ Gisle Aas <gisle@aas.no>
 =cut
 
 use LWP::UserAgent;
+use LWP::MediaTypes;
 use URI::URL;
 use strict;
 
@@ -62,6 +63,7 @@ my $length;    # total number of bytes to download
 my $flength;   # formatted length
 my $size = 0;  # number of bytes received
 my $start_t;   # start time of download
+my $last_dur;  # time of last callback
 
 my $shown = 0; # has we called the show() function yet
 
@@ -74,23 +76,32 @@ my $res = $ua->request($req,
 	unless($file) {
 	    my $res = $_[1];
 	    unless ($argfile) {
-		# XXX: This does not work because the request attribute
-		# is not intialized when we get this callback.  Must fix
-		# this within the library
-		#my $url = $res->request->url;
+		my $req = $res->request;  # now always there
+		my $rurl = $req ? $req->url : $url;
 		
-		my $base = ($url->path_components)[-1];
-		$base = "index.html" unless length $base;
+		my $base = ($rurl->path_components)[-1];
+		$base = "index" unless length $base;
 
 		# should be smarter about deciding a good file name.
 		#   - get the file extention correct
 		#   - content-disposal
 		#   - ???
 		$file = $base;
+		my @exts;
+	        while ($file =~ s/\.(\w+)$//) {
+		    push(@exts, $1);
+		}
+		my $suffix = media_suffix($res->content_type);
+		$file .= ".$suffix" if $suffix;
+
+		print "SUF $suffix @exts\n";
+
 		if (-f $file && -t) {
 		    print "Overwrite $file? [y] ";
 		    my $ans = <STDIN>;
 		    exit if !defined($ans) || !($ans =~ /^y?\n/);
+		} else {
+		    print "Saving to '$file'...\n";
 		}
 	    } else {
 		$file = $argfile;
@@ -99,38 +110,42 @@ my $res = $ua->request($req,
 	    $length = $res->content_length;
 	    $flength = fbytes($length) if defined $length;
 	    $start_t = time;
+	    $last_dur = 0;
 	}
 	$size += length($_[0]);
 	print FILE $_[0];
 	if (defined $length) {
-	    my $perc = $size / $length;
 	    my $dur  = time - $start_t;
-	    my $speed;
-	    $speed = fbytes($size/$dur) . "/sec" if $dur;
-	    my $secs_left = fduration($dur/$perc - $dur);
-	    $perc = int($perc*100);
-	    my $show = "$perc% of $flength";
-	    $show .= " ($speed, $secs_left left)" if $speed;
-	    show($show);
+	    if ($dur != $last_dur) {  # don't update too often
+		$last_dur = $dur;
+		my $perc = $size / $length;
+		my $speed;
+		$speed = fbytes($size/$dur) . "/sec" if $dur;
+		my $secs_left = fduration($dur/$perc - $dur);
+		$perc = int($perc*100);
+		my $show = "$perc% of $flength";
+		$show .= " ($speed, $secs_left left)" if $speed;
+		show($show);
+	    }
 	} else {
 	    show( fbytes($size) . " received");
 	}
-	select(undef,undef,undef, rand(3)); # slow down
+	select(undef,undef,undef, 0.1); # slow down
   }, 128);
 
-show("");  # clear text
-print "\r";
-print fbytes($size);
-print " of ", fbytes($length) if defined($length);
-print " received";
-my $dur = time - $start_t;
-if ($dur) {
-    my $speed = fbytes($size/$dur) . "/sec";
-    print " in ", fduration($dur), " ($speed)";
-}
-print "\n";
 
 if ($res->is_success) {
+    show("");  # clear text
+    print "\r";
+    print fbytes($size);
+    print " of ", fbytes($length) if defined($length) && $length != $size;
+    print " received";
+    my $dur = time - $start_t;
+    if ($dur) {
+	my $speed = fbytes($size/$dur) . "/sec";
+	print " in ", fduration($dur), " ($speed)";
+    }
+    print "\n";
     my $died = $res->header("X-Died");
     if ($died) {
 	if (-t) {
@@ -143,6 +158,7 @@ if ($res->is_success) {
     }
 } else {
     print "$0: Can't download: ", $res->code, " ", $res->message, "\n";
+    exit 1;
 }
 
 
@@ -171,6 +187,7 @@ sub fduration
     } elsif ($mins >= 2) {
 	return "$mins minutes";
     } else {
+	$secs += $mins * 60;
 	return "$secs seconds";
     }
 }
@@ -184,6 +201,6 @@ sub show
 
 sub usage
 {
-    die "Usage: $0 <url>\n";
+    die "Usage: $0 <url> [<lpath>]\n";
 }
 !NO!SUBS!

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.6 1995/08/17 13:44:22 aas Exp $
+# $Id: Makefile.PL,v 1.7 1995/08/17 22:16:32 aas Exp $
 
 use ExtUtils::MakeMaker;
 
@@ -85,7 +85,7 @@ sub MY::test {
 TEST_VERBOSE=0
 
 test:
-	(cd t; $(FULLPERL) -I$(INST_LIB) TEST $(TEST_VERBOSE))
+	$(FULLPERL) -I$(INST_LIB) t/TEST $(TEST_VERBOSE)
 
 };
 }

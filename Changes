@@ -1,3 +1,19 @@
+2001-04-28   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_93
+
+    Makefile.PL now asks some questions
+
+    Added live tests for the new HTTP/1.1 support
+
+    LWP::MemberMixin: make it possible to set a value to the 'undef' value.
+
+    Net::HTTP:
+        - transparent support for 'deflate' and 'gzip' transfer encodings
+          (need to have the Compress::Zlib module installed for this to work).
+
+
+
 2001-04-25   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_92

@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.104 2001/04/25 17:18:16 gisle Exp $
+# $Id: LWP.pm,v 1.105 2001/04/29 06:15:40 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.5392";
+$VERSION = "5.5393";
 sub Version { $VERSION; }
 
 require 5.004;

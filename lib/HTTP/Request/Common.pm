@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.6 1997/12/01 13:17:11 aas Exp $
+# $Id: Common.pm,v 1.7 1998/04/06 20:47:28 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -87,12 +87,16 @@ sub _simple_req
 sub form_data   # RFC1867
 {
     my($data, $boundary) = @_;
+    my @data = ref($data) eq "HASH" ? %$data : @$data;  # copy
     my @parts;
     my($k,$v);
-    while (($k,$v) = splice(@$data, 0, 2)) {
-	if (ref $v) {
-	    my $file = shift(@$v);
-	    my $usename = shift(@$v);
+    while (($k,$v) = splice(@data, 0, 2)) {
+	if (!ref($v)) {
+	    $k =~ s/([\\\"])/\\$1/g;  # escape quotes and backslashes
+	    push(@parts,
+		 qq(Content-Disposition: form-data; name="$k"$CRLF$CRLF$v));
+	} else {
+	    my($file, $usename, @headers) = @$v;
 	    unless (defined $usename) {
 		$usename = $file;
 		$usename =~ s,.*/,, if defined($usename);
@@ -100,7 +104,7 @@ sub form_data   # RFC1867
 	    my $disp = qq(form-data; name="$k");
 	    $disp .= qq(; filename="$usename") if $usename;
 	    my $content = "";
-	    my $h = HTTP::Headers->new(@$v);
+	    my $h = HTTP::Headers->new(@headers);
 	    my $ct = $h->header("Content-Type");
 	    if ($file) {
 		local(*F);
@@ -111,13 +115,12 @@ sub form_data   # RFC1867
 		close(F);
 		unless ($ct) {
 		    require LWP::MediaTypes;
-		    $ct = LWP::MediaTypes::guess_media_type($file);
-		    $h->header("Content-Type" => $ct); # XXX: content-encoding
+		    $ct = LWP::MediaTypes::guess_media_type($file, $h);
 		}
 	    }
 	    if ($h->header("Content-Disposition")) {
+		$disp = $h->header("Content-Disposition");
 		$h->remove_header("Content-Disposition");
-		$disp = $h->remove_header("Content-Disposition");
 	    }
 	    if ($h->header("Content")) {
 		$content = $h->header("Content");
@@ -126,18 +129,16 @@ sub form_data   # RFC1867
 	    push(@parts, "Content-Disposition: $disp$CRLF" .
                          $h->as_string($CRLF) .
                          "$CRLF$content");
-	} else {
-	    push(@parts, qq(Content-Disposition: form-data; name="$k"$CRLF$CRLF$v));
 	}
     }
     return "" unless @parts;
     $boundary = boundary() unless $boundary;
 
-    my $bno = 1;
+    my $bno = 0;
   CHECK_BOUNDARY:
     {
 	for (@parts) {
-	    if (index($_, $boundary) >= 0) {
+	    if (index($_, "--$boundary") >= 0) {
 		# must have a better boundary
 		#warn "Need something better that '$boundary' as boundary\n";
 		$boundary = boundary(++$bno);
@@ -156,7 +157,7 @@ sub form_data   # RFC1867
 
 sub boundary
 {
-    my $size = shift || 1;
+    my $size = shift || return "000";
     require MIME::Base64;
     my $b = MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
     $b =~ s/[\W]/X/g;  # ensure alnum only

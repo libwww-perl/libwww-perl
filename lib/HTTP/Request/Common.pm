@@ -1,20 +1,18 @@
-# $Id: Common.pm,v 1.7 1998/04/06 20:47:28 aas Exp $
+# $Id: Common.pm,v 1.8 1998/04/06 21:32:26 aas Exp $
 #
 package HTTP::Request::Common;
 
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
+use vars qw(@EXPORT $VERSION);
 
 require Exporter;
-@ISA=qw(Exporter);
-
+*import = \&Exporter::import;
 @EXPORT=qw(GET HEAD PUT POST);
-@EXPORT_OK=qw(cat);
 
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -61,7 +59,8 @@ sub POST
 
     $req->header('Content-Type' => $ct);  # might be redundant
     if (defined($content)) {
-	$req->header('Content-Length' => length($content));
+	$req->header('Content-Length' =>
+		     length($content)) unless ref($content);
 	$req->content($content);
     }
     $req;
@@ -182,13 +181,13 @@ HTTP::Request::Common - Construct common HTTP::Request objects
 =head1 DESCRIPTION
 
 This module provide functions that return newly created HTTP::Request
-objects.  These functions are usually more convenient than the
+objects.  These functions are usually more convenient to use than the
 standard HTTP::Request constructor for these common requests.  The
 following functions are provided.
 
 =over 4
 
-=item GET $url, [Header => Value,...]
+=item GET $url, Header => Value,...
 
 The GET() function returns a HTTP::Request object initialized with the
 GET method and the specified URL.  Without additional arguments it
@@ -249,15 +248,16 @@ This will create a HTTP::Request object that looks like this:
 
 The POST method also supports the C<multipart/form-data> content used
 for I<Form-based File Upload> as specified in RFC 1867.  You trigger
-this content format by specifying a content type of C<'form-data'>.
-If one of the values in the $form_ref is an array reference, then it
-is treated as a file part specification with the following values:
+this content format by specifying a content type of C<'form-data'> as
+one of the request headers.  If one of the values in the $form_ref is
+an array reference, then it is treated as a file part specification
+with the following interpretation:
 
   [ $file, $filename, Header => Value... ]
 
 The first value in the array ($file) is the name of a file to open.
 This file will be read an its content placed in the request.  The
-routine will croak if the file can't be opened.  Use an undef as $file
+routine will croak if the file can't be opened.  Use an C<undef> as $file
 value if you want to specify the content directly.  The $filename is
 the filename to report in the request.  If this value is undefined,
 then the basename of the $file will be used.  You can specify an empty
@@ -317,7 +317,7 @@ L<HTTP::Request>, L<LWP::UserAgent>
 
 =head1 COPYRIGHT
 
-Copyright 1997, Gisle Aas
+Copyright 1997-1998, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

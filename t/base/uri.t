@@ -314,8 +314,8 @@ sub parts_test {
     $a = join(":", $url->keywords);
     die "\$url->keywords did not work (returned '$a')" unless $a eq 'dog:bones:#+=';
     # calling query_form is an error
-    eval { $url->query_form; };
-    die "\$url->query_form should croak when query is keywords."
+    eval { my $foo = $url->query_form; };
+    die "\$url->query_form should croak since query contains keywords not a form."
       unless $@;
 
     $url->query_form(a => 'foo', b => 'bar');
@@ -335,8 +335,8 @@ sub parts_test {
       unless $a[1] eq '' && $a[3] eq 'foo' && $a[5] eq '&=+';
 
     # calling keywords is an error
-    eval { $url->keywords; };
-    die "\$url->keywords should croak when query is a form."
+    eval { my $foo = $url->keywords; };
+    die "\$url->keywords should croak when query is a form"
       unless $@;
     # Try this odd one
     $url->equery('&=&=b&a=&a&a=b=c&&a=b');

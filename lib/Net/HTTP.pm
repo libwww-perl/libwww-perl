@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.3 2001/04/06 00:30:31 gisle Exp $
+# $Id: HTTP.pm,v 1.4 2001/04/07 02:14:31 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -91,6 +91,8 @@ sub write_request {
 	Carp::croak("Bad method or uri") if /\s/ || !length;
     }
 
+    push(@{${*$self}{'http_request_method'}}, $method);
+
     my $ver = ${*$self}{'http_version'};
     $self->autoflush(0);
 
@@ -113,7 +115,7 @@ sub write_request {
     while (@headers) {
 	my($k, $v) = splice(@headers, 0, 2);
 	my $lc_k = lc($k);
-	if ($lc_k eq "connection") {
+	if ($lc_k eq "connection" || $lc_k eq "te") {
 	    next;  # always ignore these
 	}
 	elsif (exists $given{$lc_k}) {
@@ -142,6 +144,7 @@ sub read_line {
     my $self = shift;
     local $/ = "\012";
     my $line = readline($self);
+    return undef unless defined $line;
     #Data::Dump::dump("XXX", $line);
     $line =~ s/\015?\012\z//;
     return $line;
@@ -150,9 +153,11 @@ sub read_line {
 sub read_response_headers {
     my $self = shift;
     my $status = read_line($self);
+    die "EOF instead of reponse status line" unless defined $status;
     my($peer_ver, $code, $message) = split(' ', $status, 3);
-    die unless $peer_ver =~ s,^HTTP/,,;
-    ${*$self}{'peer_http_version'} = $peer_ver;
+    die "Bad response status line: $status" unless $peer_ver =~ s,^HTTP/,,;
+    ${*$self}{'http_peer_version'} = $peer_ver;
+    ${*$self}{'http_status'} = $code;
     my @headers;
     while (my $line = read_line($self)) {
 	if ($line =~ /^(\S+)\s*:\s*(.*)/s) {
@@ -165,10 +170,86 @@ sub read_response_headers {
 	    die "Bad header\n";
 	}
     }
+
+    # pick out headers that read_entity_body might need
+    my @te;
+    my $content_length;
+    for (my $i = 0; $i < @headers; $i += 2) {
+	my $h = lc($headers[$i]);
+	if ($h eq 'transfer-encoding') {
+	    push(@te, $headers[$i+1]);
+	}
+	elsif ($h eq 'content-length') {
+	    $content_length = $headers[$i+1];
+	}
+    }
+    ${*$self}{'http_te'} = join("", @te);
+    ${*$self}{'http_content_length'} = $content_length;
+
     ($peer_ver, $code, $message, @headers);
 }
 
-sub read_chunked_content {
+
+sub feed_sink {
+    my($sink, $data) = @_;
+    if (ref($sink) eq "CODE") {
+	&$sink($data);
+    }
+    else {
+	# could deal with array and scalars here
+	die;
+    }
+    return;
+}
+
+sub read_entity_body {
+    my($self, $sink) = @_;
+
+    # Some responses are always empty
+    my $method = shift(@{${*$self}{'http_request_method'}});
+    my $status = ${*$self}{'http_status'};
+    if ($method eq "HEAD" || $status =~ /^(?:1|[23]04)/) {
+	# these responses are always empty
+	feed_sink($sink, "") if $sink;
+	return "";
+    }
+
+    # Transfer encoding
+    my $te = ${*$self}{'http_te'};
+    if ($te) {
+	return _read_chunked_content($self, $sink) if $te eq "chunked";
+	die "Don't know about transfer encoding '$te'";
+    }
+
+    # Content Length
+    my $content_length = ${*$self}{'http_content_length'};
+    if (defined $content_length) {
+	my $buf;
+	read($self, $buf, $content_length) == $content_length || die;
+	return feed_sink($sink, $buf) if $sink;
+	return $buf;
+    }
+    
+    # XXX Multi-Part types are self delimiting, but RFC 2616 says we
+    # only has to deal with 'multipart/byteranges'
+    
+    # Read until EOF
+    my $buf = "";
+    while (1) {
+	my $n = read($self, $buf, 1024*16, length($buf));
+	if (!$n) {
+	    warn "$!" unless defined $n;
+	    last;
+	}
+	if ($sink) {
+	    feed_sink($sink, $buf);
+	    $buf = "";
+	}
+    }
+    return $buf;
+}
+
+sub _read_chunked_content {
     my($self, $sink) = @_;
     my @buf;
     while (my $n = read_line($self)) {
@@ -179,13 +260,7 @@ sub read_chunked_content {
 	read($self, $buf, $n) == $n || die;
 	read_line($self) eq "" || die;
 	if ($sink) {
-	    if (ref($sink) eq "CODE") {
-		&$sink($buf);
-	    }
-	    else {
-		# could deal with array and scalars here
-		die;
-	    }
+	    feed_sink($sink, $buf);
 	}
 	else {
 	    push(@buf, $buf);
@@ -193,7 +268,7 @@ sub read_chunked_content {
     }
     # XXX There can be trailer headers here
     read_line($self) eq "" || die;
-    wantarray ? @buf : join("", @buf);
+    return join("", @buf);
 }
 
 1;

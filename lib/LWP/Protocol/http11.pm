@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.8 2001/04/19 05:39:43 gisle Exp $
+# $Id: http11.pm,v 1.9 2001/04/19 18:14:06 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -251,7 +251,8 @@ sub request
 	}
     }
 
-    my($code, $mess, @h) = $socket->read_response_headers;
+    my($code, $mess);
+    ($code, $mess, @h) = $socket->read_response_headers;
     if ($code eq "100") {
 	# do it once more
 	($code, $mess, @h) = $socket->read_response_headers;
@@ -290,7 +291,7 @@ sub request
 
     # keep-alive support
     my %connection = map { (lc($_) => 1) }
-	             split(/\s*,\s*/, $response->header("Connection"));
+	             split(/\s*,\s*/, ($response->header("Connection") || ""));
     if (($peer_http_version eq "1.1" && !$connection{close}) ||
 	$connection{"keep-alive"})
     {

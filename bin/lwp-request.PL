@@ -1,22 +1,23 @@
 use Config;
-open REQ, ">bin/request" or die "open for writing bin/get: $!";
+unlink("bin/request");
+open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
-print REQ <<'END'; chmod(0555, "bin/mirror");
+print REQ <<'END'; chmod(0555, "bin/request");
 
-# $Id: lwp-request.PL,v 1.10 1995/07/24 06:45:52 aas Exp $
+# $Id: lwp-request.PL,v 1.11 1995/07/24 12:29:36 aas Exp $
 #
-# Simple user agent using LWP library.  It's interface is based on the
-# libwww-perl-0.40 program with the same name.
+# Simple user agent using LWP library.  Its interface is based on the
+# libwww-perl-0.40 'get'-program.
 
 =head1 NAME
 
-get - Simple WWW user agent
+request - Simple WWW user agent
 
 =head1 SYNOPSIS
 
- get [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
-     [-i <if-modified-since>] [-c <content-type>] 
-     [-p <proxy-url>] <url>...
+ request [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
+         [-i <if-modified-since>] [-c <content-type>] 
+         [-p <proxy-url>] <url>...
 
 =head1 DESCRIPTION
 
@@ -29,7 +30,6 @@ URLs that failed.
 The options are:
 
 =over 3
-
 
 =item -m <method>
 
@@ -64,13 +64,17 @@ L<LWP::Date> for recogniced formats.
 =item -c <content-type>
 
 Set the Content-Type for the request.  This option is only allowed for
-requests that take a content, i.e. POST, PUT and CHECKIN.  The default
-Content-Type for POST is C<application/x-www-form-urlencoded>.  The
-default Content-type for the others are C<text/plain>.
+requests that take a content, i.e. POST, PUT and CHECKIN.  You can
+force methods to take content by using the C<-f> option together with
+C<-c>.  The default Content-Type for POST is
+C<application/x-www-form-urlencoded>.  The default Content-type for
+the others are C<text/plain>.
 
 =item -p <proxy-url>
 
-Set the proxy to be used for the request(s).
+Set the proxy to be used for the request(s).  The program also loads
+proxy settings from the environment.  You can disable this with the
+C<-P> option.
 
 =back
 
@@ -127,7 +131,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -158,6 +162,8 @@ require LWP::Debug;
 );
 
 
+$method = uc($0 eq "request" ? "GET" : $0);
+
 # Parse command line
 use Getopt::Std;
 
@@ -179,8 +185,9 @@ $opt_v = undef;  # print version
 
 $opt_x = undef;  # extra debugging info
 $opt_p = undef;  # proxy URL
+$opt_P = undef;  # don't load proxy setting from environment
 
-unless (getopts("xhvuUsedp:b:t:i:c:m:f")) {
+unless (getopts("xhvuUsedPp:b:t:i:c:m:f")) {
     usage();
 }
 
@@ -203,7 +210,11 @@ LWP::Debug::level('+') if $opt_x;
 # Create the user agent object
 $ua = new LWP::UserAgent;
 
-$method = uc($opt_m || $0 || "GET");
+# Load proxy settings from *_proxy environment variables.
+$ua->envProxy unless $opt_P;
+
+$method = $opt_m if defined $opt_m;
+
 if ($opt_f) {
     if ($opt_c) {
         $allowed_methods{$method} = "C";
@@ -324,13 +335,14 @@ sub usage
 {
     die <<"EOT";
 Usage: $0 [-options] <url>...
-    -m <method>   use method for the request
+    -m <method>   use method for the request (default is '$method')
     -f            make request even if $0 believes method is illegal
     -b <base>     Use the specified URL as base
     -t <timeout>  Set timeout value
     -i <time>     Set the If-Modified-Since header on the request
     -c <conttype> use this content-type for POST, PUT, CHECKIN
     -p <proxyurl> use this as a proxy
+    -P            don't load proxy settings from environment
 
     -u            Display method and URL before any response
     -U            Display request headers after method and URL

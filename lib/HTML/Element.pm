@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.34 1996/07/22 15:00:51 aas Exp $
+# $Id: Element.pm,v 1.35 1996/09/30 14:29:28 aas Exp $
 
 =head1 NAME
 
@@ -42,7 +42,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -169,8 +169,17 @@ sub starttag
 	    exists($boolean_attr{$name}) && $boolean_attr{$name} eq $_) {
 	    $tag .= " \U$_";
 	} else {
-	    HTML::Entities::encode_entities($val, '&">');
-	    $val = qq{"$val"} unless $val =~ /^\d+$/;
+	    if ($val !~ /^\d+$/) {
+		# count number of " compared to number of '
+		if (($val =~ tr/\"/\"/) > ($val =~ tr/\'/\'/)) {
+		    # use single quotes around the attribute value
+		    HTML::Entities::encode_entities($val, "&'>");
+		    $val = qq('$val');
+		} else {
+		    HTML::Entities::encode_entities($val, '&">');
+		    $val = qq{"$val"};
+		}
+	    }
 	    $tag .= qq{ \U$_\E=$val};
 	}
     }

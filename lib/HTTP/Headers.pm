@@ -1,25 +1,25 @@
 #
-# $Id: Headers.pm,v 1.10 1995/08/07 09:17:51 aas Exp $
+# $Id: Headers.pm,v 1.11 1995/08/09 09:44:20 aas Exp $
 
-package LWP::MIMEheader;
+package HTTP::Headers;
 
 =head1 NAME
 
-LWP::MIMEheader - Class encapsulating HTTP Message headers
+HTTP::Headers - Class encapsulating HTTP Message headers
 
 =head1 SYNOPSIS
 
- require LWP::MIMEheader;
- $request = new LWP::MIMEheader;
+ require HTTP::Headers;
+ $request = new HTTP::Headers;
 
 =head1 DESCRIPTION
 
-C<LWP::MIMEheader> is a class encapsulating HTTP style message
+C<HTTP::Headers> is a class encapsulating HTTP style message
 headers: attribute value pairs which may be repeated, and are printed
 in a particular order.
 
 Instances of this class are usually created as member variables of the
-C<LWP::Request> and C<LWP::Response> classes, internally to the
+C<HTTP::Request> and C<HTTP::Response> classes, internally to the
 library.
 
 =head1 METHODS
@@ -66,10 +66,10 @@ undef($i);
 
 =head2 new()
 
-Constructs a new C<LWP::MIMEheader> object.  You might pass some
+Constructs a new C<HTTP::Headers> object.  You might pass some
 initial headers as parameters to the constructor.  E.g.:
 
- $h = new LWP::MIMEheader
+ $h = new HTTP::Headers
      'Content-Type' => 'text/html',
      'MIME-Version' => '1.0',
      'Date'         => 'Thu, 03 Feb 1994 00:00:00 GMT';
@@ -97,7 +97,7 @@ Returns a copy of the object.
 sub clone
 {
     my $self = shift;
-    my $clone = new LWP::MIMEheader;
+    my $clone = new HTTP::Headers;
     $self->scan(sub { $clone->pushHeader(@_);} );
     $clone;
 }

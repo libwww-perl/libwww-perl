@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-mirror.PL,v 1.14 1996/03/05 15:27:56 aas Exp $
+# $Id: lwp-mirror.PL,v 1.15 1996/03/10 07:38:46 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -57,7 +57,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -96,7 +96,7 @@ $rc = mirror($url, $file);
 if ($rc == 304) {
     print STDERR "$0: $file is up to date\n"
 } elsif (!is_success($rc)) {
-    print STDERR "$0: $rc ", message($rc), "   ($url)\n";
+    print STDERR "$0: $rc ", status_message($rc), "   ($url)\n";
     exit 1;
 }
 exit;

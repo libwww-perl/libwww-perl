@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.26 1997/11/25 16:11:27 aas Exp $
+# $Id: Simple.pm,v 1.27 1998/03/20 05:46:55 aas Exp $
 
 =head1 NAME
 
@@ -159,8 +159,8 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
-$FULL_LWP++ if grep {$_ eq "http_proxy"} keys %ENV;
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
 sub import

@@ -52,6 +52,7 @@ lib/HTTP/Request/Common.pm      Generate common requests
 lib/HTTP/Response.pm		Class encapsulating HTTP Responses
 lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
+lib/LWP/Authen/Basic.pm		Basic authentication scheme
 lib/LWP/Debug.pm		Debugging support
 lib/LWP/IO.pm			Low level IO routines
 lib/LWP/MediaTypes.pm		Library for guessing media types

@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.17 1997/12/15 20:22:02 aas Exp $
+# $Id: gopher.pm,v 1.17.2.1 1998/09/11 12:21:51 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -175,11 +175,11 @@ sub gopher2url
 
     if ($gophertype eq '8' || $gophertype eq 'T') {
 	# telnet session
-	$url = URI::URL->new($gophertype eq '8' ? 'telnet:' : 'tn3270:');
+	$url = $HTTP::URI_CLASS->new($gophertype eq '8' ? 'telnet:':'tn3270:');
 	$url->user($path) if defined $path;
     } else {
 	$path = URI::Escape::uri_escape($path);
-	$url = URI::URL->new("gopher:/$gophertype$path");
+	$url = $HTTP::URI_CLASS->new("gopher:/$gophertype$path");
     }
     $url->host($host);
     $url->port($port);

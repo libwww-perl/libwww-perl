@@ -2,8 +2,7 @@
         W3C Document Type Definition for the HyperText Markup Language
         This version is code named Wilbur, and also as "HTML 3.2".
 
-        Draft: Tuesday 23-Apr-96
-	$Id: HTML32.dtd,v 1.1 1996/05/19 11:32:36 aas Exp $
+        Draft: Tuesday 15-May-96
 
         Author: Dave Raggett <dsr@w3.org>
 
@@ -114,7 +113,6 @@
 <!ATTLIST FONT
     size    CDATA   #IMPLIED    -- [+]nn e.g. size="+1", size=4 --
     color   CDATA   #IMPLIED    -- #RRGGBB in hex, e.g. red: color="#FF0000" --
-    face    CDATA   #IMPLIED    -- comma list of prefered font names --
     >
 
 <!ELEMENT BR    - O EMPTY   -- forced line break -->

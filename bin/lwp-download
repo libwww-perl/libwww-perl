@@ -1,21 +1,6 @@
-use Config;
-use File::Basename qw(basename dirname);
-chdir(dirname($0));
-($file = basename($0)) =~ s/\.PL$//;
-$file =~ s/\.pl$//
-	if ($Config{'osname'} eq 'VMS' or
-	    $Config{'osname'} eq 'OS2');  # "case-forgiving"
-open OUT,">$file" or die "Can't create $file: $!";
-chmod(0755, $file);
-print "Extracting $file (with variable substitutions)\n";
+#!/usr/bin/perl -w
 
-print OUT <<"!GROK!THIS!";
-$Config{'startperl'} -w
-
-!GROK!THIS!
-
-print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.10 1999/03/19 14:06:30 gisle Exp $
+# $Id: lwp-download,v 2.0 2002/01/03 01:42:31 gisle Exp $
 
 =head1 NAME
 
@@ -75,7 +60,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 1.10 $;
+my $version = q$Revision: 2.0 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -255,4 +240,3 @@ sub usage
 {
     die "Usage: $progname [-a] <url> [<lpath>]\n";
 }
-!NO!SUBS!

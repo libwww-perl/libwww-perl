@@ -1,18 +1,6 @@
-use Config;
-use File::Basename qw(basename dirname);
-chdir(dirname($0));
-($file = basename($0)) =~ s/\.PL$//i;
-open OUT,">$file" or die "Can't create $file: $!";
-chmod(0755, $file);
-print "Extracting $file (with variable substitutions)\n";
+#!/usr/bin/perl -w
 
-print OUT <<"!GROK!THIS!";
-$Config{'startperl'} -w
-
-!GROK!THIS!
-
-print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.40 2001/08/02 21:15:51 gisle Exp $
+# $Id: lwp-request,v 2.0 2002/01/03 01:42:31 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -190,7 +178,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -533,4 +521,3 @@ Usage: $progname [-options] <url>...
     -x            Extra debugging output
 EOT
 }
-!NO!SUBS!

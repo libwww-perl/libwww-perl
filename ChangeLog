@@ -1,3 +1,22 @@
+Thu Sep 14 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Speedups and bug fixes in the HTML parser.  The parser now
+    understands some more depreciated tags (like <xmp> and <listing>).
+
+ o  HTML::Elements are now stingified using perl overloading.
+    The interface to the traverse() callback has changed.
+
+ o  Implemented HTML formatters for plain text and Postscript.
+
+ o  Added lib/Font stuff to support the Postscript formatter.
+
+ o  Inspired by Tim Bunce, I implemented the HTML::AsSubs module.
+    Don't know if it is really useful.
+
+ o  The local/get test does not use /etc/passwd any more.
+
+
+
 Thu Sep  7 1995   Gisle Aas <aas@oslonett.no>
 
  o  Changed package name to libwww-perl-5xx

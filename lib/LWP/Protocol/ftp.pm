@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.14 1996/06/06 13:21:53 aas Exp $
+# $Id: ftp.pm,v 1.15 1996/07/08 13:58:17 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -20,7 +20,7 @@ require LWP::Protocol;
 use strict;
 eval {
     require Net::FTP;
-    Net::FTP->require_version('1.10');
+    Net::FTP->require_version(2.00);
 };
 my $init_failed = $@;
 
@@ -144,7 +144,7 @@ sub request
 		    return \$content;
 		} );
 	    }
-	    if ($data->close != 2) {
+	    unless ($data->close) {
 		# Something did not work too well
 		if ($method ne 'HEAD') {
 		    $response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
@@ -161,8 +161,8 @@ sub request
 	    }
 
 	    # It should now be safe to try to list the directory
-	    LWP::Debug::debug("lsl");
-	    my @lsl = $ftp->lsl;
+	    LWP::Debug::debug("dir");
+	    my @lsl = $ftp->dir;
 
 	    # Try to figure out if the user want us to convert the
 	    # directory listing to HTML.

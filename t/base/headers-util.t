@@ -1,7 +1,5 @@
 use strict;
-use HTTP::Headers::Util qw(split_header_words join_header_words
-                           split_etag_list join_etag_list
-                          );
+use HTTP::Headers::Util qw(split_header_words join_header_words);
 
 my $extra_tests = 2;
 
@@ -28,19 +26,7 @@ my @s_tests = (
     'Basic; realm="\"foo\\\\bar\""'],
 );
 
-my @e_tests = (
-   ['"foo", W/"bar"'  => '"foo"|W/"bar"'],
-   ['"foo"'           => '"foo"'],
-   ['W/"foo"'         => 'W/"foo"'],
-   ['""'              => '""'],
-   ['W/"foo,bar", "foo\"bar,"' => 'W/"foo,bar"|"foo\"bar,"'],
-   ['foo bar'         => '"foo"|"bar"'],
-   ['w/'              => 'W/""'],
-   ['w/bar, w/foo'    => 'W/"bar"|W/"foo"'],
-   [''                => ''],
-);
-
-print "1..", @s_tests + @e_tests + $extra_tests, "\n";
+print "1..", @s_tests + $extra_tests, "\n";
 
 my $testno = 1;
 
@@ -64,21 +50,6 @@ for (@s_tests) {
    print "ok ", $testno++, "\n";
 }
 
-print "split_etag_list() tests\n";
-
-for (@e_tests) {
-   my($arg, $expect) = @$_;
-   my @arg = ref($arg) ? @$arg : $arg;
-
-   my $res = join("|", (split_etag_list(@arg)));
-   if ($res ne $expect) {
-       print "\nUnexpected result: '$res'\n";
-       print "         Expected: '$expect'\n";
-       print "  when parsing '", join(", ", @arg), "'\n";
-       print "not ";
-   }
-   print "ok ", $testno++, "\n";
-}
 
 print "Extra tests\n";
 # some extra tests

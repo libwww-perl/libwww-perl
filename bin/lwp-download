@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.4 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: lwp-download,v 2.5 2003/10/26 14:39:18 gisle Exp $
 
 =head1 NAME
 
-lwp-download - fetch large files from the net
+lwp-download - Fetch large files from the web
 
 =head1 SYNOPSIS
 
@@ -62,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.4 $;
+my $version = q$Revision: 2.5 $;
 
 my $ua = new LWP::UserAgent;
 

@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-lwp-rget - Retrieve WWW documents recursively
+lwp-rget - Retrieve web documents recursively
 
 =head1 SYNOPSIS
 
@@ -150,7 +150,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;

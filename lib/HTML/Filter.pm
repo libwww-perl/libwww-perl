@@ -3,7 +3,7 @@ package HTML::Filter;
 require HTML::Parser;
 @ISA=qw(HTML::Parser);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 sub declaration { $_[0]->output("<!$_[1]>")     }
 sub comment     { $_[0]->output("<!--$_[1]-->") }
@@ -11,7 +11,7 @@ sub start       { $_[0]->output($_[4])          }
 sub end         { $_[0]->output($_[2])          }
 sub text        { $_[0]->output($_[1])          }
 
-sub output  { print $_[1]; }
+sub output      { print $_[1] }
 
 1;
 
@@ -40,7 +40,9 @@ or $p->parse_file() methods.
 
 =head1 EXAMPLES
 
-This filter will remove all comments from an HTML file.
+The first example is a filter that will remove all comments from an
+HTML file.  This is achieved by simply overriding the comment method
+to do nothing.
 
   package CommentStripper;
   require HTML::Filter;
@@ -85,6 +87,13 @@ something like this:
   @ISA=qw(HTML::Filter);
   sub output { push(@{$_[0]->{fhtml}}, $_[1]) }
   sub filtered_html { join("", @{$_[0]->{fhtml}}) }
+
+=head1 BUGS
+
+Comments in declarations are removed from the declarations and then
+inserted as separate comments after the declaration.  If you turn on
+strict_comment(), then comments with embedded "--" are split into
+multiple comments.
 
 =head1 SEE ALSO
 

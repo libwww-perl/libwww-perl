@@ -1,32 +1,67 @@
-$Id: TODO,v 1.9 1995/09/14 13:16:23 aas Exp $
+$Id: TODO,v 1.10 1995/09/16 08:23:44 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
-MDA security
+Implement MDA security
 
-LWP::RobotUA
+Implement LWP::RobotUA
 
-Make multiple simultaneous requests work.
+Make multiple simultaneous requests work.  Make the callback request
+interface event driven.
 
-Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
+Provide initial credentials so that we don't always have to get a
+RC_UNAUTHORIZED response first.
 
-Make information callback from protocol modules so that the UI can
-inform the user of what is going on.
+Allow information callback from protocol modules so that the UI can
+inform the user of what is going on.  A good start is to pass the $ua
+reference on to the protocol->request().
+
+The ftp module should format directory listings as HTML.
+
+The ftp module probably does not work when talking to non-Unix ftp
+servers.  We should CWD to the directory first.
+
+The ftp module could imitate basic authorisation when login fails.
+
+Support ACCT in ftp.
+
+Cache previous ftp connections.
 
 Make file://non-localhost invoke the ftp.pm module.
-
-Make it work on systems where the directory separator is not "/", for
-instance with MacPerl.
 
 Use Mail::Send to implement LWP::Protocol::mailto.
 
 Formatters should support tables.  The postscript formatter should
-manage to inline images.
+inline images.
 
-More useful programs
+The HTML::Parse module should make meta information (<HEAD>) easier
+to access.
+
+The HTML::Element->asHTML() method should not introduce whitespace
+where it was not present before.
+
+HTTP::Date: remove the reason for BUGS section in the documentation.
+
+The request script should optionally consult Mail::Cap for handling of
+media types.
+
+The request script should use the callback interface so that it prints
+data as it is received.
+
+The mirror script should be able to work recursively.
+
+Make it work on systems where the directory separator is not "/", for
+instance with MacPerl.  Fix URI::URL handling of "/" inside path
+components.
+
+More autoloading.
 
 More tests
+
+Include more useful programs
+
+Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 
 Fix bugs, it here are any...

@@ -29,7 +29,7 @@ $res->www_authenticate(Basic => {realm => foo2});
 print $res->as_string;
 
 $res->www_authenticate(Basic => [realm => foo3, foo=>33],
-Digest => {nonce=>"bar", foo=>foo});
+Digest => {nonce=>"bar", foo=>'foo'});
 print $res->as_string;
 
 $_ = $res->as_string;

@@ -6,7 +6,7 @@ use Carp ();
 
 use vars qw($VERSION);
 
-$VERSION='1.00';
+$VERSION='1.01';
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -944,7 +944,7 @@ L<LWP>, L<HTML::Parser>
 
 =head1 COPYRIGHT
 
-Copyright 1998-2002 Gisle Aas.
+Copyright 1998-2003 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

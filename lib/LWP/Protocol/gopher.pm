@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.6 1995/08/07 11:22:40 aas Exp $
+# $Id: gopher.pm,v 1.7 1995/08/09 11:31:34 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -12,10 +12,10 @@
 package LWP::Protocol::gopher;
 
 require LWP::Protocol;
-require LWP::Request;
-require LWP::Response;
-require LWP::StatusCode;
 require LWP::Socket;
+require HTTP::Request;
+require HTTP::Response;
+require HTTP::Status;
 
 use Carp;
 
@@ -56,14 +56,14 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'You can not proxy through the gopher';
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'You can not proxy through the gopher';
     }
 
     my $url = $request->url;
     if ($url->scheme ne 'gopher') {
         my $scheme = $url->scheme;
-        return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
                        "LWP::Protocol::gopher::request called for '$scheme'";
     }
 
@@ -71,20 +71,20 @@ sub request
     $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD') {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'Library does not allow method ' .
-                                 "$method for 'gopher:' URLs";
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'Library does not allow method ' .
+                                  "$method for 'gopher:' URLs";
     }
 
     my $gophertype = $url->gtype;
     unless (exists $gopher2mimetype{$gophertype}) {
-        return new LWP::Response &LWP::StatusCode::RC_NOT_IMPLEMENTED,
-                                 'Library does not support gophertype ' .
-                                 $gophertype;
+        return new HTTP::Response &HTTP::Status::RC_NOT_IMPLEMENTED,
+                                  'Library does not support gophertype ' .
+                                  $gophertype;
     }
 
-    my $response = new LWP::Response &LWP::StatusCode::RC_OK,
-                                     'Document follows';
+    my $response = new HTTP::Response &HTTP::Status::RC_OK,
+                                      'Document follows';
     $response->header('MIME-Version', '1.0');
     $response->header('Content-type', $gopher2mimetype{$gophertype}
                                       || 'text/plain');

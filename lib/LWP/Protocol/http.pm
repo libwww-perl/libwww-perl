@@ -1,14 +1,14 @@
 #
-# $Id: http.pm,v 1.9 1995/08/07 11:22:41 aas Exp $
+# $Id: http.pm,v 1.10 1995/08/09 11:31:34 aas Exp $
 
 package LWP::Protocol::http;
 
-require LWP::Protocol;
-require LWP::Request;
-require LWP::Response;
 require LWP::Debug;
-require LWP::StatusCode;
+require LWP::Protocol;
 require LWP::Socket;
+require HTTP::Request;
+require HTTP::Response;
+require HTTP::Status;
 
 use Carp;
 use FileHandle;
@@ -51,9 +51,9 @@ sub request
 
     my $method = $request->method;
     unless (defined $allowedMethods{$method}) {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'Library does not allow method ' .
-                                 "$method for 'http:' URLs";
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'Library does not allow method ' .
+                                  "$method for 'http:' URLs";
     }
 
     my $url = $request->url;
@@ -116,7 +116,7 @@ sub request
         # XXX need to check protocol version
         LWP::Debug::debug('HTTP/1.0 server');
 
-        $response = new LWP::Response($2, $3);
+        $response = new HTTP::Response($2, $3);
         
         LWP::Debug::debug('reading response header');
         my $header = '';
@@ -155,7 +155,7 @@ sub request
         # HTTP/0.9 or worse. Assume OK
         LWP::Debug::debug('HTTP/0.9 server');
 
-        $response = new LWP::Response &LWP::StatusCode::RC_OK,
+        $response = new HTTP::Response &HTTP::Status::RC_OK,
                                       'HTTP 0.9 server';
         $response->addContent(\$line);
     }

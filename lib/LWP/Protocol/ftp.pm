@@ -1,17 +1,18 @@
 #
-# $Id: ftp.pm,v 1.3 1995/07/24 21:20:05 aas Exp $
+# $Id: ftp.pm,v 1.4 1995/08/09 11:31:33 aas Exp $
 
-# Implementation of the ftp protocol (RFC 959)
+# Implementation of the ftp protocol (RFC 959).  This file does not
+# work yet, so you may want to delete it.
 #
 #
 
 package LWP::Protocol::ftp;
 
 require LWP::Protocol;
-require LWP::Request;
-require LWP::Response;
-require LWP::StatusCode;
 require LWP::Socket;
+require HTTP::Request;
+require HTTP::Response;
+require HTTP::Status;
 
 use Carp;
 
@@ -32,14 +33,14 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'You can not proxy through the ftp';
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'You can not proxy through the ftp';
     }
 
     my $url = $request->url;
     if ($url->scheme ne 'ftp') {
         my $scheme = $url->scheme;
-        return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
                        "LWP::Protocol::ftp::request called for '$scheme'";
     }
 
@@ -47,13 +48,13 @@ sub request
     $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'PUT') {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'Library does not allow method ' .
-                                 "$method for 'ftp:' URLs";
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'Library does not allow method ' .
+                                  "$method for 'ftp:' URLs";
     }
 
-    my $response = new LWP::Response &LWP::StatusCode::RC_OK,
-                                     'Document follows';
+    my $response = new HTTP::Response &HTTP::Status::RC_OK,
+                                      'Document follows';
 
     my $host     = $url->host;
     my $port     = $url->port;
@@ -211,7 +212,7 @@ EOT
 	expect($cmd_sock, '2');
     };
     if ($@) {
-	return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST, $@;
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST, $@;
     }
 
     $response;

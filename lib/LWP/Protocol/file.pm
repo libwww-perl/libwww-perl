@@ -1,14 +1,14 @@
 #
-# $Id: file.pm,v 1.7 1995/07/17 10:04:04 aas Exp $
+# $Id: file.pm,v 1.8 1995/08/09 11:31:32 aas Exp $
 
 package LWP::Protocol::file;
 
 require LWP::Protocol;
-require LWP::Request;
-require LWP::Response;
-require LWP::MIMEtypes;
-require LWP::StatusCode;
-require LWP::Date;
+require LWP::MediaTypes;
+require HTTP::Request;
+require HTTP::Response;
+require HTTP::Status;
+require HTTP::Date;
 
 use Carp;
 
@@ -29,17 +29,17 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'You can not proxy through the filesystem';
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'You can not proxy through the filesystem';
     }
 
     # check method
     $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD') {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
-                                 'Library does not allow method ' .
-                                 "$method for 'file:' URLs";
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+                                  'Library does not allow method ' .
+                                  "$method for 'file:' URLs";
     }
 
     # check url
@@ -47,14 +47,14 @@ sub request
 
     my $scheme = $url->scheme;
     if ($scheme ne 'file') {
-        return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                                 "LWP::file::request called for '$scheme'";
+        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                                  "LWP::file::request called for '$scheme'";
     }
 
     my $host = $url->host;
     if ($host and $host !~ /^localhost$/i) {
-        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST_CLIENT,
-                                 'Only file://localhost/ allowed';
+        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST_CLIENT,
+                                  'Only file://localhost/ allowed';
     }
 
     # URL OK, look at file
@@ -62,12 +62,12 @@ sub request
 
     # test file exists and is readable
     unless (-e $path) {
-        return new LWP::Response &LWP::StatusCode::RC_NOT_FOUND,
-                                 "File `$path' does not exist";
+        return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
+                                  "File `$path' does not exist";
     }
     unless (-r _) {
-        return new LWP::Response &LWP::StatusCode::RC_FORBIDDEN,
-                                 'User does not have read permission';
+        return new HTTP::Response &HTTP::Status::RC_FORBIDDEN,
+                                  'User does not have read permission';
     }
 
     # looks like file exists
@@ -80,24 +80,24 @@ sub request
     # check if-modified-since
     my $ims = $request->header('If-Modified-Since');
     if (defined $ims) {
-        my $time = LWP::Date::str2time($ims);
+        my $time = HTTP::Date::str2time($ims);
         if (defined $time and $time >= $mtime) {
-            return new LWP::Response &LWP::StatusCode::RC_NOT_MODIFIED,
-                                     "$method $path";
+            return new HTTP::Response &HTTP::Status::RC_NOT_MODIFIED,
+                                      "$method $path";
         }
     }
 
     # Ok, should be an OK response by now...
-    $response = new LWP::Response &LWP::StatusCode::RC_OK;
+    $response = new HTTP::Response &HTTP::Status::RC_OK;
     
     # fill in response headers
-    $response->header('Last-Modified', LWP::Date::time2str($mtime));
+    $response->header('Last-Modified', HTTP::Date::time2str($mtime));
 
     if (-d _) {         # If the path is a directory, process it
         # generate the HTML for directory
         opendir(D, $path) or
-           return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                                    "Cannot read directory '$path': $!";
+           return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                                     "Cannot read directory '$path': $!";
         my(@files) = sort readdir(D);
         closedir(D);
  
@@ -127,14 +127,14 @@ sub request
         });
         
     } else {            # path is a regular file
-        my $type = LWP::MIMEtypes::guessType($path);
+        my $type = LWP::MediaTypes::guessMediaType($path);
         $response->header('Content-Type',   $type) if $type;
         $response->header('Content-Length', $size);
 
         # read the file
         open(F, $path) or return new 
-           LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                    "Cannot read file '$path': $!");
+           HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                          "Cannot read file '$path': $!");
         $response =  $self->collect($arg, $response, sub {
             my $content = "";
             my $bytes = sysread(F, $content, $size);

@@ -1,12 +1,12 @@
-package HTTP::Date;  # $Date: 1999/05/01 22:21:59 $
+package HTTP::Date;  # $Date: 1999/05/03 10:32:37 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(time2str str2time);
-@EXPORT_OK = qw(parse_timestr time2iso time2isoz);
+@EXPORT_OK = qw(parse_date time2iso time2isoz);
 
 use strict;
 
@@ -32,7 +32,7 @@ sub time2str (;$)
 
 sub str2time ($;$)
 {
-    my @d = &parse_timestr;
+    my @d = &parse_date;
     return unless @d;
     $d[0] -= 1900;  # year
     $d[1]--;        # month
@@ -68,9 +68,10 @@ sub str2time ($;$)
 }
 
 
-sub parse_timestr ($)
+sub parse_date ($)
 {
     local($_) = shift;
+
     return unless defined;
 
     s/^\s+//;  # kill leading space
@@ -93,7 +94,7 @@ sub parse_timestr ($)
 	    (?::(\d\d))?       # optional seconds
 	 )?                    # optional clock
 	    \s*
-	 ([-+]?\d{2,4}|(?![AP]M)[A-Z]+)? # timezone
+	 ([-+]?\d{2,4}|(?![AP]M\b)[A-Z]+)? # timezone
 	    \s*$
 	/x
 	  and last PARSEDATE;
@@ -192,7 +193,6 @@ sub parse_timestr ($)
 	my $cur_yr = (localtime)[5] + 1900;
 	my $m = $cur_yr % 100;
 	my $tmp = $yr;
-
 	$yr += $cur_yr - $m;
 	$m -= $tmp;
 	$yr += ($m > 0) ? 100 : -100
@@ -276,6 +276,10 @@ RFC 1123, represented in Universal Time (GMT).  An example of this
 format is:
 
    Thu, 03 Feb 1994 17:09:00 GMT
+
+=item parse_date($str)
+
+
 
 =item str2time($str [, $zone])
 

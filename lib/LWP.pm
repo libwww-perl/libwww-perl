@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.8 1995/07/16 07:04:21 aas Exp $
+# $Id: LWP.pm,v 1.9 1995/07/16 07:40:30 aas Exp $
 
 package LWP;
 
-$VERSION = "0.01";  # Automatically updated by 'update_version'
+$VERSION = "0.01";  # Automatically updated by 'update-version'
 
 sub Version { $VERSION; }
 

@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);
@@ -297,7 +297,7 @@ Johnny Lee <typo_pl@hotmail.com>
 
 =head1 COPYRIGHT
 
-Copyright 2002 Johnny Less
+Copyright 2002 Johnny Lee
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

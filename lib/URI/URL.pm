@@ -1,11 +1,11 @@
 #
-# $Id: URL.pm,v 4.0 1996/02/05 17:51:37 aas Exp $
+# $Id: URL.pm,v 4.1 1996/02/06 17:48:13 aas Exp $
 #
 package URI::URL;
 require 5.002;
 
 # Make the version number available
-$VERSION = "4.00";
+$VERSION = "4.01";
 sub Version { $VERSION; }
 
 #####################################################################
@@ -550,7 +550,7 @@ sub _init_implementor                   # private method
 
     no strict qw(refs);
     # Setup overloading - experimental
-    %{"${class}::OVERLOAD"} = %URI::URL::_generic::OVERLOAD
+    %{"${class}::OVERLOAD"} = %URI::URL::OVERLOAD
         unless defined %{"${class}::OVERLOAD"};
     $Implementors{$class} = 1;
     1;  # success, one day we may also want to indicate failure
@@ -609,6 +609,15 @@ sub scheme {
 	$self->{'scheme'} = undef;
     }
     $old;
+}
+
+sub abs {
+}
+
+%OVERLOAD = ( '""' => 'as_string', 'fallback' => 1 );
+
+sub as_string {
+    "";  # This method should always be overridden in a subclass
 }
 
 # These are just supported for some kind of backwards portability.

@@ -11,17 +11,21 @@ unless (-d "base") {
     # print "@INC\n";
 }
 
-# Uncomment this if you want tests to run without "make" to move files.
-# use lib "../lib"; # pick up files directly from the ../lib directory
-
-use Test::Harness qw(&runtests $verbose);
-$verbose = shift if $ARGV[0] =~ /^\d+$/;
+use Test::Harness;
+$Test::Harness::verbose = shift
+  if $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
 
 if (@ARGV) {
-   @tests = @ARGV;
+    for (@ARGV) {
+	if (-d $_) {
+	    push(@tests, <$_/*.t>);
+	} else {
+	    push(@tests, $_);
+	}
+    }
 } else {
-   @tests = (<base/*.t>, <local/*.t>);
-   push(@tests, <net/*.t>) if -f "net/config.pl";
+    @tests = (<base/*.t>, <local/*.t>);
+    push(@tests, <net/*.t>) if -f "net/config.pl";
 }
 
 runtests @tests;

@@ -1,3 +1,31 @@
+2001-03-29   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.52
+
+    HTTP::Header: new method $h->init_header() that will only
+    set the header if it is not already set.  Some shuffling
+    around in the code.
+
+    LWP::UserAgent will not override 'User-Agent', 'From'
+    or 'Range' headers if they are explicitly set in the
+    request passed in.
+
+    HTML::Form tries to optimize parsing be restricting the
+    tags that are reported by HTML::Parser.  Will need
+    HTML::Parser v3.19_93 or better for this to actually
+    have any effect.
+
+    LWP::Protocol::ftp now deals with path parameters again.
+    It means that you can append ";type=a" to ftp-URI and
+    it will download the document in ASCII mode.
+
+    If the server output multiple Location headers on a redirect,
+    ignore all but the first one.
+
+    Extract cookies failed on request URIs with empty paths.
+    This was only triggered if you used URI objects directly in
+    scripts.
+
     This change was actually part of 5.51:  Fix qop="auth"
     handling for Digest authentication.
     Patch by Dave Dunkin <dave_dunkin@hotmail.com>.

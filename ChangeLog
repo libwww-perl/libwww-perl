@@ -1,3 +1,20 @@
+1999-03-19   Gisle Aas <gisle@aas.no>
+
+ o  Release 5.42
+	
+ o  MacOS patches from Paul J. Schinder <schinder@leprss.gsfc.nasa.gov>
+
+ o  PREREQ_PM patch from Andreas Koenig <andreas.koenig@anima.de>
+ 
+ o  LWP::Simple::head fix by Richard Chen <richard@lexitech.com>
+ 
+ o  "LWP fails with PerlEXE"-patch from Gurusamy Sarathy
+
+ o  Allow "." in HTTP header names.  Patch by Marc Langheinrich
+    <marc@ccm.cl.nec.co.jp>
+
+
+
 Mon Nov 19 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.41

@@ -8,19 +8,19 @@ VERSION				Program that determines the current version
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
 lib/Font/AFM.pm			Parse Adobe Font Metric files
-lib/Font/Courier.pm		Generated from the corresponding AFM file
-lib/Font/CourierBold.pm		Generated from the corresponding AFM file
-lib/Font/CourierBoldOblique.pm	Generated from the corresponding AFM file
-lib/Font/CourierOblique.pm	Generated from the corresponding AFM file
-lib/Font/Helvetica.pm		Generated from the corresponding AFM file
-lib/Font/HelveticaBold.pm	Generated from the corresponding AFM file
-lib/Font/HelveticaBoldOblique.pm	Same :-)
-lib/Font/HelveticaOblique.pm	Generated from the corresponding AFM file
-lib/Font/TimesBold.pm		Generated from the corresponding AFM file
-lib/Font/TimesBoldItalic.pm	Generated from the corresponding AFM file
-lib/Font/TimesItalic.pm		Generated from the corresponding AFM file
-lib/Font/TimesRoman.pm		Generated from the corresponding AFM file
-lib/Font/makefont.pl		Writes font metric modules
+lib/Font/Metrics/Courier.pm	Generated from the AFM file by make_metrics.pl
+lib/Font/Metrics/CourierBold.pm	
+lib/Font/Metrics/CourierBoldOblique.pm	
+lib/Font/Metrics/CourierOblique.pm	
+lib/Font/Metrics/Helvetica.pm		
+lib/Font/Metrics/HelveticaBold.pm	
+lib/Font/Metrics/HelveticaBoldOblique.pm
+lib/Font/Metrics/HelveticaOblique.pm	
+lib/Font/Metrics/TimesBold.pm		
+lib/Font/Metrics/TimesBoldItalic.pm	
+lib/Font/Metrics/TimesItalic.pm		
+lib/Font/Metrics/TimesRoman.pm		
+lib/Font/make_metrics.pl	Writes font metric modules
 lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element
 lib/HTML/Entities.pm		Entities encoding/decoding routines

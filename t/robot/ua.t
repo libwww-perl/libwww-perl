@@ -1,5 +1,7 @@
 $| = 1; # autoflush
 
+require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon
+
 # First we make ourself a daemon in another process
 
 unless (open(DAEMON, "-|")) {

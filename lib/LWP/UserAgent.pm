@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.14 2003/10/16 07:15:19 gisle Exp $
+# $Id: UserAgent.pm,v 2.15 2003/10/23 13:02:49 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -16,9 +16,14 @@ LWP::UserAgent - A WWW UserAgent class
                              );
 
  $response = $ua->get('http://search.cpan.org/');
- die "Error while getting ", $response->request->uri,
-   " -- ", $response->status_line, "\nAborting"
-  unless $response->is_success;
+
+ if ($response->is_success) {
+     print $response->content;  # or whatever
+ }
+ else {
+     die "Error while getting ", $response->request->uri,
+         " -- ", $response->status_line, "\nAborting";
+ }
 
  # or:
 
@@ -34,7 +39,7 @@ LWP::UserAgent - A WWW UserAgent class
  # or:
 
  $request = HTTP::Request->new('GET', 'http://search.cpan.org/');
-  # and then one of these:
+ # and then one of these:
  $response = $ua->request($request); # or
  $response = $ua->request($request, '/tmp/sco.html'); # or
  $response = $ua->request($request, \&callback, 4096);
@@ -117,7 +122,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.15 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1283,6 +1288,9 @@ sub _new_response {
 
 See L<LWP> for a complete overview of libwww-perl5.  See F<lwp-request> and
 F<lwp-mirror> for examples of usage.
+
+See L<WWW::Mechanize> and L<WWW::Search> for examples of more
+specialized user agents based on C<LWP::UserAgent>.
 
 =head1 COPYRIGHT
 

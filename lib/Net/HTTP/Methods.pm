@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.11 2002/12/23 18:16:33 gisle Exp $
+# $Id: Methods.pm,v 1.12 2002/12/26 09:13:55 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -296,23 +296,27 @@ sub read_response_headers {
     my $laxed = $opt{laxed};
 
     my($status, $eol) = my_readline($self);
-    die "EOF instead of response status line" unless defined $status;
+    unless (defined $status) {
+	die "EOF instead of response status line" unless $laxed;
+	# assume HTTP/0.9
+	${*$self}{'http_peer_http_version'} = "0.9";
+	${*$self}{'http_status'} = "200";
+	return 200 unless wantarray;
+	return (200, "EOF");
+    }
 
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
-    if (!$peer_ver || $peer_ver !~ s,^HTTP/,,) {
+    if (!$peer_ver || $peer_ver !~ s,^HTTP/,, || $code !~ /^[1-5]\d\d$/) {
 	die "Bad response status line: '$status'" unless $laxed;
 	# assume HTTP/0.9
 	${*$self}{'http_peer_http_version'} = "0.9";
 	${*$self}{'http_status'} = "200";
 	substr(${*$self}{'http_buf'}, 0, 0) = $status . $eol;
+	return 200 unless wantarray;
 	return (200, "Assumed OK");
     };
 
     ${*$self}{'http_peer_http_version'} = $peer_ver;
-
-    unless ($code =~ /^[1-9]\d\d$/) {
-	die "Bad response code: '$status'";
-    }
     ${*$self}{'http_status'} = $code;
 
     my $junk_out;

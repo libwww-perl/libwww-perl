@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.42 2002/12/26 08:47:42 gisle Exp $
+# $Id: HTTP.pm,v 1.43 2002/12/26 09:13:53 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -172,23 +172,21 @@ Returns true if successful.
 
 =item ($code, $mess, %headers) = $s->read_response_headers( %opts )
 
-Read response headers from server.  The $code is the 3 digit HTTP
-status code (see L<HTTP::Status>) and $mess is the textual message
-that came with it.  Headers are then returned as key/value pairs.
-Since key letter casing is not normalized and the same key can occur
-multiple times, assigning these values directly to a hash might be
-risky.
+Read response headers from server and return it.  The $code is the 3
+digit HTTP status code (see L<HTTP::Status>) and $mess is the textual
+message that came with it.  Headers are then returned as key/value
+pairs.  Since key letter casing is not normalized and the same key can
+even occur multiple times, assigning these values directly to a hash
+is not wise.  Only the $code is returned if this method is called in
+scalar context.
 
 As a side effect this method updates the 'peer_http_version'
 attribute.
 
-The method will raise and exception (die) if the server does not speak
-proper HTTP.
-
 Options might be passed in as key/value pairs.  There are currently
 only two options supported; C<laxed> and C<junk_out>.
 
-The C<laxed> option will make C<read_response_headers> more forgiving
+The C<laxed> option will make read_response_headers() more forgiving
 towards servers that have not learned how to speak HTTP properly.  The
 C<laxed> option is a boolean flag, and is enabled by passing in a TRUE
 value.  The C<junk_out> option can be used to capture bad header lines
@@ -201,6 +199,13 @@ data they send back with a header block.  For these servers
 peer_http_version is set to "0.9" and this method returns (200,
 "Assumed OK").
 
+The method will raise an exception (die) if the server does not speak
+proper HTTP or if the C<max_line_length> or C<max_header_length>
+limits are reached.  If the C<laxed> option is turned on and
+C<max_line_length> and C<max_header_length> checks are turned off,
+then no exception will be raised and this method will always
+return a response code.
+
 =item $n = $s->read_entity_body($buf, $size);
 
 Reads chunks of the entity body content.  Basically the same interface
@@ -208,12 +213,12 @@ as for read() and sysread(), but the buffer offset argument is not
 supported yet.  This method should only be called after a successful
 read_response_headers() call.
 
-The return value will be C<undef> on errors, 0 on EOF, -1 if no data
-could be returned this time, and otherwise the number of bytes added
+The return value will be C<undef> on read errors, 0 on EOF, -1 if no data
+could be returned this time, otherwise the number of bytes assgined
 to $buf.  The $buf set to "" when the return value is -1.
 
-This method might raise exceptions (die) if the server does not speak
-proper HTTP.
+This method will raise exceptions (die) if the server does not speak
+proper HTTP.  This can only happen when reading chunked data.
 
 =item %headers = $s->get_trailers
 

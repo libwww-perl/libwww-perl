@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.3 1995/07/11 13:21:01 aas Exp $
+# $Id: Protocol.pm,v 1.4 1995/07/11 22:40:01 aas Exp $
 
 package LWP::Protocol;
 
@@ -115,7 +115,7 @@ sub implementor {
     # check we actually have one for the scheme:
     unless (defined @{"${ic}::ISA"}) {
         if ($autoload) {        # autoload is back, optional
-            my $package = "LWP/${scheme}.pm";
+            my $package = "LWP/Protocol/${scheme}.pm";
             eval {require "$package"};
             if ($@) {
                 die "Cannot load package for '$scheme': $@\n";

@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.4 1995/07/11 22:40:01 aas Exp $
+# $Id: Protocol.pm,v 1.5 1995/07/13 14:58:45 aas Exp $
 
 package LWP::Protocol;
 
@@ -24,7 +24,8 @@ chunks of data received.
 
 =head1 SEE ALSO
 
-Inspect the LWP/file.pm and LWP/http.pm files for examples of usage.
+Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files
+for examples of usage.
 
 =cut
 
@@ -46,10 +47,10 @@ my %ImplementedBy = (); # scheme => classname
 
 =head1 METHODS AND FUNCTIONS
 
-=head2 LWP::Protocol Constructor
+=head2 new
 
-Inherited by subclasses. As this is a virtual base class this method
-should B<not> be called like:
+The LWP::Protocol constructor is inherited by subclasses. As this is a
+virtual base class this method should B<not> be called like:
 
  $prot = new LWP::Protocol()
 
@@ -66,9 +67,7 @@ sub new {
 }
 
 
-=head1 LWP::Protocol::create
-
- $prot = LWP::Protocol::create($url);
+=head2 LWP::Protocol::create($url)
 
 Create an object of the class implementing the protocol to handle the
 given scheme. This is a function, not a method. It is more an object
@@ -91,7 +90,6 @@ sub create
 
 =head2 LWP::Protocol::implementor
 
- LWP::Protocol::implementor;
  LWP::Protocol::implementor($scheme);
  LWP::Protocol::implementor($scheme, $class);
 
@@ -114,25 +112,26 @@ sub implementor {
     no strict qw(refs);
     # check we actually have one for the scheme:
     unless (defined @{"${ic}::ISA"}) {
-        if ($autoload) {        # autoload is back, optional
+        if ($autoload) {
             my $package = "LWP/Protocol/${scheme}.pm";
             eval {require "$package"};
             if ($@) {
-                die "Cannot load package for '$scheme': $@\n";
+		if ($@ =~ /^Can't locate/) { # emacs get confused by '
+		    $ic = '';
+		} else {
+		    die "$@\n";
+		}
             }
-        }
-        else {
+        } else {
             $ic = '';
         }
     }
-    if ($ic) {
-        $ImplementedBy{$scheme} = $ic;
-    }
+    $ImplementedBy{$scheme} = $ic if $ic;
     $ic;
 }
 
 
-=head2 request()
+=head2 request(...)
 
  $response = $protocol->request($request);
  $response = $protocol->request($request, '/tmp/sss');
@@ -161,11 +160,11 @@ function to implement timeouts.
 
 =cut
 
-sub timeout  { my $self = shift; $self->_elem('timeout',  @_); }
-sub useAlarm { my $self = shift; $self->_elem('useAlarm', @_); }
+sub timeout  { shift->_elem('timeout',  @_); }
+sub useAlarm { shift->_elem('useAlarm', @_); }
 
 
-=head2 collect($arg, $response, $collector
+=head2 collect($arg, $response, $collector)
 
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.

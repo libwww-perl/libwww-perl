@@ -4,7 +4,7 @@ open MIR, ">bin/mirror" or die "open for writing bin/mirror: $!";
 print MIR "#!$Config{'scriptdir'}/perl -w\n";
 print MIR <<'END'; chmod(0755, "bin/mirror");
 
-# $Id: lwp-mirror.PL,v 1.8 1995/07/25 08:28:13 aas Exp $
+# $Id: lwp-mirror.PL,v 1.9 1995/08/09 11:09:54 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -49,7 +49,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -88,7 +88,7 @@ if (defined $opt_t) {
 $rc = mirror($url, $file);
 
 if ($rc == 304) {
-    print STDERR "$0: $file was up to date\n"
+    print STDERR "$0: $file is up to date\n"
 } elsif (!isSuccess($rc)) {
     print STDERR "$0: $rc ", message($rc), "   ($url)\n";
     exit 1;

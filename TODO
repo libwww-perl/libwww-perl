@@ -1,7 +1,9 @@
-                                            $Date: 1996/05/26 10:43:02 $
+                                            $Date: 1996/07/17 08:53:32 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
+
+  o  $url->eq($url) method
 
   o  Add more HTTP/1.1 features as they stabilize
        Transfer-Encoding: chunked

@@ -30,7 +30,8 @@ if ($D eq 'daemon') {
     exit;
 }
 else {
-    open(DAEMON, "perl local/http.t daemon |") or die "Can't exec daemon: $!";
+    use Config;
+    open(DAEMON, "$Config{'perlpath'} local/http.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..18\n";

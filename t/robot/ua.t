@@ -32,7 +32,8 @@ if ($D eq 'daemon') {
     exit;
 }
 else {
-    open(DAEMON , "perl robot/ua.t daemon |") or die "Can't exec daemon: $!";
+    use Config;
+    open(DAEMON , "$Config{'perlpath'} robot/ua.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..7\n";

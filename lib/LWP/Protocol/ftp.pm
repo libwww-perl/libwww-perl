@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.15 1996/07/08 13:58:17 aas Exp $
+# $Id: ftp.pm,v 1.16 1996/07/17 08:52:00 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -177,7 +177,7 @@ sub request
 	    my $content = '';
 
 	    if (!defined($prefer)) {
-		return new HTTP::Response &HTTP::Status::RC_NONE_ACCEPTABLE,
+		return new HTTP::Response &HTTP::Status::RC_NOT_ACCEPTABLE,
 				   "Neither HTML nor directory listing wanted";
 	    } elsif ($prefer eq 'html') {
 		$response->header('Content-Type' => 'text/html');

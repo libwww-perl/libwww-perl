@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.10 1996/02/26 19:04:29 aas Exp $
+# $Id: Message.pm,v 1.11 1996/02/27 20:05:50 aas Exp $
 
 package HTTP::Message;
 
@@ -22,7 +22,7 @@ C<HTTP::Response>.
 require HTTP::Headers;
 require Carp;
 
-=head2 new()
+=head2 $mess = new HTTP::Message
 
 Object constructor.  It should normally only be called internally by
 this library.  External code should construct C<HTTP::Request> or
@@ -47,7 +47,7 @@ sub new
 }
 
 
-=head2 clone()
+=head2 $mess->clone()
 
 Returns a copy of the object.
 
@@ -60,9 +60,9 @@ sub clone
     $clone;
 }
 
-=head2 content([$content])
+=head2 $mess->content([$content])
 
-=head2 add_content($data)
+=head2 $mess->add_content($data)
 
 These methods manages the content of the message.  The C<content()>
 method sets the content if an argument is given.  If no argument is
@@ -73,9 +73,9 @@ The add_content() methods appends data to the content.
 
 =cut
 
-sub content   { shift->_elem('_content',  @_); }
+sub $mess->content   { shift->_elem('_content',  @_); }
 
-sub add_content
+sub $mess->add_content
 {
     my $self = shift;
     if (ref($_[0])) {
@@ -90,13 +90,13 @@ sub as_string
     "";  # To be overridden in subclasses
 }
 
-=head2 header($field [, $val]))
+=head2 $mess->header($field [, $val]))
 
-=head2 push_header($field, $val)
+=head2 $mess->push_header($field, $val)
 
-=head2 remove_header($field)
+=head2 $mess->remove_header($field)
 
-=head2 headers_as_string([$endl])
+=head2 $mess->headers_as_string([$endl])
 
 These methods provide easy access to the fields for the request
 header.  Refer to L<HTTP::Headers> for details.

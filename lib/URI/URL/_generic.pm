@@ -238,7 +238,7 @@ sub epath {
      my $self = shift;
      my $old = $self->_elem('path', @_);
      return '/' if !defined($old) || !length($old);
-     return '/$old' if $old !~ m|^/| && defined $self->{'netloc'};
+     return "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
      $old;
 }
 
@@ -262,7 +262,7 @@ sub path {
 
     return '/' if !defined($old) || !length($old);
     Carp::croak("Path components contain '/' (you must call epath)")
-	if $old =~ /%2[fF]/;
+	if $old =~ /%2[fF]/ and !@_;
     $old = "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
     return uri_unescape($old);
 }

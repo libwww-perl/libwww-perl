@@ -7,26 +7,27 @@ TODO				The To-Do list for the library
 VERSION				Program that determines the current version
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
-lib/HTML/AsSubs.pm              Cool interface for constructing HTML
+lib/Font/AFM.pm			Parse Adobe Font Metric files
+lib/Font/Courier.pm		Generated from the corresponding AFM file
+lib/Font/CourierBold.pm		Generated from the corresponding AFM file
+lib/Font/CourierBoldOblique.pm	Generated from the corresponding AFM file
+lib/Font/CourierOblique.pm	Generated from the corresponding AFM file
+lib/Font/Helvetica.pm		Generated from the corresponding AFM file
+lib/Font/HelveticaBold.pm	Generated from the corresponding AFM file
+lib/Font/HelveticaBoldOblique.pm Generated from the corresponding AFM file
+lib/Font/HelveticaOblique.pm	Generated from the corresponding AFM file
+lib/Font/TimesBold.pm		Generated from the corresponding AFM file
+lib/Font/TimesBoldItalic.pm	Generated from the corresponding AFM file
+lib/Font/TimesItalic.pm		Generated from the corresponding AFM file
+lib/Font/TimesRoman.pm		Generated from the corresponding AFM file
+lib/Font/makefont.pl            Writes font metric modules
+lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element
 lib/HTML/Entities.pm		Entities encoding/decoding routines
-lib/HTML/FormatPS.pm            Postscript formatter
-lib/HTML/FormatText.pm          Text only formatter
-lib/HTML/Formatter.pm           Generic formatter base class
+lib/HTML/FormatPS.pm		Postscript formatter
+lib/HTML/FormatText.pm		Text only formatter
+lib/HTML/Formatter.pm		Generic formatter base class
 lib/HTML/Parse.pm		Parse text to build HTML syntax tree
-lib/HTML/makefont.pl            Writes font metric modules
-lib/HTML/Font/Courier.pm        Auto generated font metric modules
-lib/HTML/Font/Courier_Bold.pm
-lib/HTML/Font/Courier_BoldOblique.pm
-lib/HTML/Font/Courier_Oblique.pm
-lib/HTML/Font/Helvetica.pm
-lib/HTML/Font/Helvetica_Bold.pm
-lib/HTML/Font/Helvetica_BoldOblique.pm
-lib/HTML/Font/Helvetica_Oblique.pm
-lib/HTML/Font/Times_Bold.pm
-lib/HTML/Font/Times_BoldItalic.pm
-lib/HTML/Font/Times_Italic.pm
-lib/HTML/Font/Times_Roman.pm
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
 lib/HTTP/Message.pm		Class encapsulating HTTP messages

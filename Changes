@@ -1,3 +1,35 @@
+2002-02-09   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.64
+
+    Simplified the Makefile.PL:
+       - the scripts are not longer *.PL files
+
+       - don't try to make symlinks for GET, HEAD, POST
+         as that has not worked for a long time
+
+       - the GET, HEAD, POST aliases for lwp-request should
+         now work on Windows.
+    
+    HTTP::Cookies:
+       - added 'clear_temporary_cookies' method;
+         patch by Mike Schilli <schilli1@pacbell.net>.
+
+       - trailing space in old cookie parameters not ignored;
+         patch by Ivan Panchenko
+
+       - protect against $SIG{__DIE__} handlers;
+	 patch by Adam Newby <adam@NewsNow.co.uk>.
+
+    LWP::Authen::Digest:
+       - abort digest auth session if we fail repeatedly with
+         the same username/password.
+
+    MacOS portability patches to the test suite by
+    Chris Nandor <pudge@pobox.com>.
+
+
+
 2001-12-14   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.63

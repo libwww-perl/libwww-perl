@@ -1,3 +1,20 @@
+Wed Dec 17 1997   Gisle Aas <aas@sn.no>
+
+ o  Developer release 5.18_04
+
+ o  Makefile.PL fix based on report from Pon Hwa Lin <koala@fragment.com>
+
+ o  lwp-request will now print the response code message with -s and -S
+    options.
+
+ o  Hide IO::Socket::INET noise when running under -w
+
+ o  Don't set 'Content-Length: 0' in HTTP requests.
+
+ o  LWP::Protocol::http now calls LWP::Debug::conns again
+
+
+
 Tue Dec 16 1997   Gisle Aas <aas@sn.no>
 
  o  Developer release 5.18_03

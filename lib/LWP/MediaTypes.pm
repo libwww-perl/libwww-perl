@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.11 1996/03/12 13:17:40 aas Exp $
+# $Id: MediaTypes.pm,v 1.12 1996/04/03 11:41:12 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -26,6 +26,8 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 
+require LWP::Debug;
+
 my %suffixType = (              # note: initialized from mime.types
     'txt'   => 'text/plain',
     'html'  => 'text/html',
@@ -43,23 +45,22 @@ my %suffixEncoding = (
 
 
 # Try to locate "media.types" file, and initialize %suffixType from it
-for $typefile ("$ENV{HOME}/.media.types",
+for $typefile ((map {"$_/LWP/media.types"} @INC),
+               "$ENV{HOME}/.media.types",
 	       "$ENV{HOME}/.mime.types",
-	       map {"$_/LWP/media.types"} @INC) {
-    if (open(TYPE, "$typefile")) {
-	%suffixType = ();  # forget default types
-	while (<TYPE>) {
-	    next if /^\s*#/; # comment line
-	    next if /^\s*$/; # blank line
-	    s/#.*//;         # remove end-of-line comments
-	    my($type, @exts) = split(' ', $_);
-	    for $ext (@exts) {
-		$suffixType{$ext} = $type;
-	    }
+	       ) {
+    open(TYPE, $typefile) || next;
+    LWP::Debug::debug("Reading media types from $typefile");
+    while (<TYPE>) {
+	next if /^\s*#/; # comment line
+	next if /^\s*$/; # blank line
+	s/#.*//;         # remove end-of-line comments
+	my($type, @exts) = split(' ', $_);
+	for $ext (@exts) {
+	    $suffixType{$ext} = $type;
 	}
-	close(TYPE);
-	last;
     }
+    close(TYPE);
 }
 
 

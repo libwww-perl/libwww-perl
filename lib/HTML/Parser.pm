@@ -1,6 +1,6 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.4 1996/10/07 10:11:28 aas Exp $
+# $Id: Parser.pm,v 2.5 1996/10/30 09:27:37 aas Exp $
 
 =head1 NAME
 
@@ -116,7 +116,7 @@ use strict;
 
 use HTML::Entities ();
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.5 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -256,7 +256,11 @@ sub parse
 		my @attrseq;
 
 		# Then we would like to find some attributes
-		while ($$buf =~ s|^(([a-zA-Z][a-zA-Z0-9\.\-]*)\s*)||) {
+                #
+                # Arrgh!! Since stupid Netscape violates RCF1866 by
+                # using "_" in attribute names (like "ADD_DATE") of
+                # their bookmarks.html, we allow this too.
+		while ($$buf =~ s|^(([a-zA-Z][a-zA-Z0-9\.\-_]*)\s*)||) {
 		    $eaten .= $1;
 		    my $attr = lc $2;
 		    my $val;

@@ -28,7 +28,7 @@ package main;
 # chdir in the newlocal tests.
 chomp($pwd = `pwd`);
 for (@INC) {
-    next if m|^/|;
+    next if m|^/| or $^O eq 'os2' and m|^\w:/|;
     print "Turn lib path $_ into $pwd/$_\n";
     $_ = "$pwd/$_";
 
@@ -616,14 +616,15 @@ sub escape_test {
 
 sub newlocal_test {
     print "newlocal_test:\n";
+    my $pwd = -e '/bin/pwd' ? '/bin/pwd' : 'pwd' ;
 
-    my $savedir =`/bin/pwd`;  # we don't use Cwd.pm because we want to check
+    my $savedir = `$pwd`;     # we don't use Cwd.pm because we want to check
 			      # that it get require'd corretly by URL.pm
     chomp $savedir;
 
     # cwd
     chdir('/tmp') or die $!;
-    my $dir = `/bin/pwd`;
+    my $dir = `$pwd`;
     chomp $dir;
     $url = newlocal URI::URL;
     $url->_expect('as_string', "file:$dir/");
@@ -641,14 +642,14 @@ sub newlocal_test {
 
     # relative file
     chdir('/tmp') or die $!;
-    $dir = `/bin/pwd`;
+    $dir = `$pwd`;
     chomp $dir;
     $url = newlocal URI::URL 'foo';
     $url->_expect('as_string', "file:$dir/foo");
 
     # relative dir
     chdir('/tmp') or die $!;
-    $dir = `/bin/pwd`;
+    $dir = `$pwd`;
     chomp $dir;
     $url = newlocal URI::URL 'bar/';
     $url->_expect('as_string', "file:$dir/bar/");

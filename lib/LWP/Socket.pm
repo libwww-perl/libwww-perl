@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.9 1995/09/03 07:40:44 aas Exp $
+# $Id: Socket.pm,v 1.10 1995/09/04 15:24:20 aas Exp $
 
 package LWP::Socket;
 
@@ -34,13 +34,14 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
 use Carp;
 
 require LWP::Debug;
+require LWP::IO unless defined &LWP::IO::read;
 
 my $tcp_proto = (getprotobyname('tcp'))[2];
 
@@ -137,8 +138,6 @@ does not mean that we will return the data when size bytes are read.
 
 Note that $delim is discarded from the data returned.
 
-Returns 0 if timeout occured, 1 otherwise.
-
 =cut
 
 sub readUntil
@@ -158,7 +157,7 @@ sub readUntil
         vec($rin, fileno($socket), 1) = 1;
         my $nfound = select($rin, undef, undef, $timeout);
         if ($nfound == 0) {
-            return 0;  # timeout
+            die "Timeout";
         } elsif ($nfound < 0) {
             die "Select failed: $!";
         } else {
@@ -205,28 +204,25 @@ sub read
 
     if (defined @Tk::ISA) {
 	# we are running under Tk
+	my $done = 0;
 	Tk->fileevent($socket, 'readable',
-		      sub { sysread($socket, $$data_ref, $size); }
+		      sub { sysread($socket, $$data_ref, $size); $done=1; }
 		     );
-	my $timer = Tk->after($timeout*1000, sub {$$data_ref = ''} );
+	my $timer = Tk->after($timeout*1000, sub {$done = 2;} );
 
-	# Tk->tkwait('variable' => $data_ref);
-	#
-	# This does not work because tkwait needs a real widget as self.
-	# I believe this to be a bug in Tk-b8.  As a workaround assume
-	# that a widget exists with the name $main::main.
-	$main::main->tkwait('variable' => $data_ref);
+	Tk::DoOneEvent(0) until ($done);
 
-	Tk->after('cancel', $timer);
+	Tk->after(cancel => $timer);
 	Tk->fileevent($socket, 'readable', ''); # no more callbacks
-	return 1;
+	die "Timeout" if $done == 2;
+	return;
     }
 
     my $rin = '';
     vec($rin, fileno($socket), 1) = 1;
     my $nfound = select($rin, undef, undef, $timeout);
     if ($nfound == 0) {
-	return 0;  # timeout
+	die "Timeout";
     } elsif ($nfound < 0) {
 	die "Select failed: $!";
     } else {
@@ -279,8 +275,8 @@ sub write
 	    vec($win, fileno($socket), 1) = 1;
 	    my $nfound = select(undef, $win, undef, $timeout);
 	    if ($nfound == 0) {
-		# timeout
-		return $bytes_written;
+		die "Timeout";
+		#return $bytes_written;
 	    } elsif ($nfound < 0) {
 		die "Select failed: $!";
 	    } else {
@@ -298,10 +294,10 @@ sub write
 	while (1) {
 	    my $data = &$callback;
 	    last unless defined $data;
-	    $data = \$data unless ref($data);  # make it a reference
-	    my $len = length $$data;
-	    last unless length $len;
-	    my $n = $socket->write($$data, $timeout);
+	    my $dataRef = ref($data) : $data ? \$data;
+	    my $len = length $$dataRef;
+	    last unless $len;
+	    my $n = $socket->write($$dataRef, $timeout);
 	    $bytes_written += $n;
 	    last if $n != $len;
 	}

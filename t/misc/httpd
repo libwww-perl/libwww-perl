@@ -1,0 +1,26 @@
+#!/local/perl/bin/perl -w
+
+use HTTP::Daemon ();
+
+my $s = new HTTP::Daemon;
+die "Can't create daemon: $!" unless $s;
+
+print $s->url, "\n";
+
+my $c = $s->accept;
+die "Can't accept" unless $c;
+
+$c->timeout(60);
+my $req = $c->get_request;
+
+die "No request" unless $req;
+
+my $abs = $req->url->abs;
+
+print $req->as_string;
+
+$c->send_response(200);
+$c->print("Gisle Aas\n");
+
+
+

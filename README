@@ -93,13 +93,13 @@ SUPPORT
 
 Questions about how to use this library should be directed to the
 comp.lang.perl.modules USENET Newsgroup.  Bug reports and suggestions
-for improvements can be sent to the <libwww-perl@ics.uci.edu> mailing
+for improvements can be sent to the <libwww@perl.org> mailing
 list.  This mailing list is also the place for general discussions and
 development of the libwww-perl package.
 
 You can join the mailing list by sending a message to
-<libwww-perl-request@ics.uci.edu> with "Subscribe" as subject.
-            ^^^^^^^^
+<libwww-request@perl.org> with "subscribe" as subject.
+       ^^^^^^^^
 
 AVAILABILITY
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.5 1995/07/25 08:40:31 aas Exp $
+# $Id: Makefile.PL,v 1.6 1995/08/17 13:44:22 aas Exp $
 
 use ExtUtils::MakeMaker;
 
@@ -85,7 +85,7 @@ sub MY::test {
 TEST_VERBOSE=0
 
 test:
-	$(FULLPERL) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) -e 'use Test::Harness qw(&runtests $$verbose); $$verbose=$(TEST_VERBOSE); runtests @ARGV;' t/*.t
+	(cd t; $(FULLPERL) -I$(INST_LIB) TEST $(TEST_VERBOSE))
 
 };
 }

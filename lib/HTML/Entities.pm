@@ -1,12 +1,10 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.10 1997/09/05 09:02:04 aas Exp $
+# $Id: Entities.pm,v 1.11 1997/12/02 11:23:46 aas Exp $
 
 =head1 NAME
 
-decode - Expand HTML entities in a string
-
-encode - Encode chars in a string using HTML entities
+HTML::Entities - Encode or decode strings with HTML entities
 
 =head1 SYNOPSIS
 
@@ -18,16 +16,31 @@ encode - Encode chars in a string using HTML entities
 
 =head1 DESCRIPTION
 
-The decode_entities() routine replaces valid HTML entities found
-in the string with the corresponding ISO-8859/1 character.
+This module deals with encoding and decoding of strings with HTML
+character entites.  The module provide the following functions:
 
-The encode_entities() routine replaces the characters specified by the
-second argument with their entity representation.  The default set of
-characters to expand are control chars, high-bit chars and the '<',
-'&', '>' and '"' character.
+=over 4
 
-Both routines modify the string passed in as the first argument and
-return it.
+=item decode_entities($string)
+
+This routine replaces HTML entities found in the $string with the
+corresponding ISO-8859/1 character.  Unrecognized entities are left
+alone.
+
+=item endode_entities($string, [$unsafe_chars])
+
+This routine replaces unsafe characters in $string with their entity
+representation.  A second argument can be given to specify which
+characters to concider as unsafe.  The default set of characters to
+expand are control chars, high-bit chars and the '<', '&', '>' and '"'
+character.
+
+=back
+
+Both routines modify the string passed in as the first argument if
+called in void context.  In scalar and array context the encoded or
+decoded string is returned (and the argument string is left
+unchanged).
 
 If you prefer not to import these routines into your namespace you can
 call them as:
@@ -56,7 +69,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 

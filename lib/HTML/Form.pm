@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.36 2003/10/15 12:49:32 gisle Exp $
+# $Id: Form.pm,v 1.37 2003/10/16 07:25:10 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -102,7 +102,7 @@ sub parse
 	    $base_uri = $html->base;
 	}
 	else {
-	    Carp::croak("HTML::Form::parse: No $base_uri provided");
+	    Carp::croak("HTML::Form::parse: No \$base_uri provided");
 	}
     }
 

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.38 2001/04/21 03:56:03 gisle Exp $
+# $Id: Protocol.pm,v 1.39 2001/10/26 19:00:21 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,13 +38,12 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
 use HTTP::Status ();
 use HTTP::Response;
-require HTML::HeadParser;
 
 my %ImplementedBy = (); # scheme => classname
 
@@ -193,6 +192,7 @@ sub collect
 
     my $parser;
     if ($parse_head && $response->content_type eq 'text/html') {
+	require HTML::HeadParser;
 	$parser = HTML::HeadParser->new($response->{'_headers'});
     }
     my $content_size = 0;

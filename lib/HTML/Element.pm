@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.20 1995/12/03 14:00:04 aas Exp $
+# $Id: Element.pm,v 1.21 1995/12/05 15:52:11 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -217,7 +217,9 @@ sub isInside
 
 =item ->pos()
 
-Returns (and optionally sets) the current position.
+Returns (and optionally sets) the current position.  The position is a
+reference to a HTML::Element object that is part of the tree that has
+the current object as root.
 
 =cut
 

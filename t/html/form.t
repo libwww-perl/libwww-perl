@@ -116,12 +116,10 @@ EOT
 #print $f->dump;
 #print $f->click->as_string;
 
-# XXX the parameter-less boundary in this case is clearly a bug.
-
 ok($f->click->as_string, <<'EOT');
 POST http://localhost/
 Content-Length: 0
-Content-Type: multipart/form-data; boundary
+Content-Type: multipart/form-data; boundary=none
 
 EOT
 

@@ -1,4 +1,4 @@
-print "1..20\n";
+print "1..22\n";
 
 use HTTP::Request::Common;
 
@@ -205,3 +205,21 @@ Content-Length: 0
 Content-Type: application/x-www-form-urlencoded
 
 EOT
+
+$r = POST 'http://www.example.com', Content_Type => 'form-data', Content => [];
+print "not " unless $r->as_string eq <<EOT; print "ok 21\n";
+POST http://www.example.com
+Content-Length: 0
+Content-Type: multipart/form-data; boundary=none
+
+EOT
+
+$r = POST 'http://www.example.com', Content_Type => 'form-data';
+#print $r->as_string;
+print "not " unless $r->as_string eq <<EOT; print "ok 22\n";
+POST http://www.example.com
+Content-Length: 0
+Content-Type: multipart/form-data
+
+EOT
+

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.25 2004/11/12 15:14:42 gisle Exp $
+# $Id: Common.pm,v 1.26 2004/11/15 14:52:37 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -178,7 +178,7 @@ sub form_data   # RFC1867
 	    }
 	}
     }
-    return "" unless @parts;
+    return ("", "none") unless @parts;
 
     my $content;
     if ($fhparts) {

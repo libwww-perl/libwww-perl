@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.82 2001/04/19 05:34:03 gisle Exp $
+# $Id: UserAgent.pm,v 1.83 2001/04/20 16:50:34 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.82 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.83 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -435,11 +435,15 @@ the requests.  There is no default.  Example:
 Get/set the timeout value in seconds. The default timeout() value is
 180 seconds, i.e. 3 minutes.
 
-=item $ua->cookie_jar([$cookies])
+=item $ua->cookie_jar([$cookies_obj])
 
 Get/set the I<HTTP::Cookies> object to use.  The default is to have no
 cookie_jar, i.e. never automatically add "Cookie" headers to the
 requests.
+
+=item $ua->conn_cache([$cache_obj])
+
+Get/set the I<LWP::ConnCache> object to use.
 
 =item $ua->parse_head([$boolean])
 
@@ -460,6 +464,7 @@ sub timeout    { shift->_elem('timeout',   @_); }
 sub agent      { shift->_elem('agent',     @_); }
 sub from       { shift->_elem('from',      @_); }
 sub cookie_jar { shift->_elem('cookie_jar',@_); }
+sub conn_cache { shift->_elem('conn_cache',@_); }
 sub parse_head { shift->_elem('parse_head',@_); }
 sub max_size   { shift->_elem('max_size',  @_); }
 

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.17 1998/11/19 21:45:01 aas Exp $
+# $Id: file.pm,v 1.18 1999/03/19 21:00:39 gisle Exp $
 
 package LWP::Protocol::file;
 
@@ -97,7 +97,11 @@ sub request
 
 	# Make directory listing
 	for (@files) {
-	    $_ .= "/" if -d "$path/$_";
+	    if($^O eq "MacOS") {
+		$_ .= "/" if -d "$path:$_";
+	    } else {
+		$_ .= "/" if -d "$path/$_";
+	    }
 	    my $furl = URI::Escape::uri_escape($_);
 	    my $desc = HTML::Entities::encode($_);
 	    $_ = qq{<LI><A HREF="$furl">$desc</A>};

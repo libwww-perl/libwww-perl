@@ -1,10 +1,10 @@
-# $Id: RobotUA.pm,v 1.13 1998/01/06 09:59:08 aas Exp $
+# $Id: RobotUA.pm,v 1.13.2.1 1998/10/12 12:01:44 aas Exp $
 
 package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13.2.1 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -196,7 +196,6 @@ sub simple_request
 	# fetch "robots.txt"
 	my $robot_url = $request->url->clone;
 	$robot_url->path("robots.txt");
-	$robot_url->params(undef);
 	$robot_url->query(undef);
 	LWP::Debug::debug("Requesting $robot_url");
 
@@ -225,7 +224,7 @@ sub simple_request
 	  &HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt';
     }
 
-    my $netloc = $request->url->netloc;
+    my $netloc = $request->url->host_port;
     my $wait = $self->host_wait($netloc);
 
     if ($wait) {

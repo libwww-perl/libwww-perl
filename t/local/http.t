@@ -16,7 +16,7 @@ if ($D eq 'daemon') {
     while ($c = $d->accept) {
 	$r = $c->get_request;
 	if ($r) {
-	    my $p = ($r->url->path_components)[1];
+	    my $p = ($r->url->path_segments)[1];
 	    my $func = lc("httpd_" . $r->method . "_$p");
 	    if (defined &$func) {
 		&$func($c, $r);
@@ -40,9 +40,13 @@ print "1..18\n";
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
 
-require URI::URL;
-URI::URL->import;
-my $base = new URI::URL $1;
+require URI;
+my $base = URI->new($1);
+sub url {
+   my $u = URI->new(@_);
+   $u = $u->abs($_[1]) if @_ > 1;
+   $u->as_string;
+}
 
 print "Will access HTTP server at $base\n";
 
@@ -223,7 +227,6 @@ sub httpd_get_basic
    package MyUA; @ISA=qw(LWP::UserAgent);
    sub get_basic_credentials {
       my($self, $realm, $uri, $proxy) = @_;
-      my $x =  $uri->rel($base);
       if ($realm eq "libwww-perl" && $uri->rel($base) eq "basic") {
 	  return ("ok 12", "xyzzy");
       } else {
@@ -244,13 +247,13 @@ print "not " unless $res->code == 401;
 print "ok 13\n";
 
 # Let's try to set credentials for this realm
-$ua->credentials($req->url->netloc, "libwww-perl", "ok 12", "xyzzy");
+$ua->credentials($req->url->host_port, "libwww-perl", "ok 12", "xyzzy");
 $res = $ua->request($req);
 print "not " unless $res->is_success;
 print "ok 14\n";
 
 # Then illegal credentials
-$ua->credentials($req->url->netloc, "libwww-perl", "user", "passwd");
+$ua->credentials($req->url->host_port, "libwww-perl", "user", "passwd");
 $res = $ua->request($req);
 print "not " unless $res->code == 401;
 print "ok 15\n";

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.34 2004/04/06 10:44:31 gisle Exp $
+# $Id: Message.pm,v 1.35 2004/04/06 20:02:55 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -39,6 +39,15 @@ sub clone
     my $clone = HTTP::Message->new($self->headers,
 				   $self->content);
     $clone;
+}
+
+
+sub clear {
+    my $self = shift;
+    $self->{_headers}->clear;
+    $self->{_content} = "";
+    delete $self->{_parts};
+    return;
 }
 
 
@@ -191,6 +200,10 @@ message.  This will be the same as
     $mess->headers->as_string
 
 but it will make your program a whole character shorter :-)
+
+=item $mess->clear
+
+Will clear the headers and set the content to the empty string.
 
 =item $mess->protocol
 

@@ -1,4 +1,4 @@
-print "1..16\n";
+print "1..18\n";
 
 require HTTP::Request;
 require HTTP::Response;
@@ -112,3 +112,18 @@ $req = HTTP::Request->new(GET => URI->new("http://localhost"));
 print "not " unless $req->uri eq "http://localhost";
 print "ok 16\n";
 
+$req = HTTP::Request->new(GET => "http://www.example.com",
+	                  [ Foo => 1, bar => 2 ], "FooBar\n");
+print "not " unless $req->as_string eq <<EOT;  print "ok 17\n";
+GET http://www.example.com
+Bar: 2
+Foo: 1
+
+FooBar
+EOT
+
+$req->clear;
+print "not " unless $req->as_string eq <<EOT;  print "ok 18\n";
+GET http://www.example.com
+
+EOT

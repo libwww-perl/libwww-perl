@@ -40,7 +40,6 @@ $ua->agent("foo/0.1");
 
 print "not " unless $ua->get("http://www.example.com", x => "y")->content eq <<EOT; print "ok 9\n";
 GET http://www.example.com
-Via: loopback/1.0 loopback:
 User-Agent: foo/0.1
 Foo: bar
 Multi: 1

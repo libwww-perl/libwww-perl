@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.1 1996/03/21 14:33:18 aas Exp $
+# $Id: nntp.pm,v 1.2 1996/03/22 09:20:38 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -85,20 +85,36 @@ sub request
     $mess =~ s/^\S+\s+//;
     $response->header('Server', $mess);
 
-    # Goto group if the URL specified a group
-    if (!$is_art) {
-	if ($nntp->cmd("GROUP $groupart") != 2) {
+    # First we handle posting of articles
+    if ($method eq 'POST') {
+	$request->header("Newsgroups", $groupart)
+	    unless $request->header("Newsgroups");
+	if ($nntp->cmd("POST") != 3) {
+	    return HTTP::Response->new(&HTTP::Status::RC_FORBIDDEN,
+				       $nntp->message);
+	}
+	$nntp->write($request->headers_as_string("\015\012") . "\015\012");
+	my $content = $request->content;
+	$content =~ s/^\./../gm;  # must escape "." at the beginning of lies
+	$nntp->write($content);
+	$nntp->write("\015\012.\015\012"); 	# Terminate message
+	if ($nntp->response != 2) {
 	    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 				       $nntp->message);
 	}
-	if ($method eq 'POST') {
-	    return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
-				       "POST to newsgroup not implemented yet");
-	} else {
-	    return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
-				       "GET newsgroup not implemented yet");
-	    
+	$response->code(&HTTP::Status::RC_ACCEPTED);
+	$response->message($nntp->message);
+	return $response;
+    }
+
+    # The method must be "GET" or "HEAD" by now
+    if (!$is_art) {
+	if ($nntp->cmd("GROUP $groupart") != 2) {
+	    return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,
+				       $nntp->message);
 	}
+	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
+				   "GET newsgroup not implemented yet");
     }
 
     # Send command to server to retrieve an article (or just the headers)
@@ -129,9 +145,14 @@ sub request
     }
     $response->push_header($key, $val) if $key;
 
+    # Ensure that there is a Content-Type header
+    $response->header("Content-Type", "text/plain")
+        unless $response->header("Content-Type");
+
     # Collect the body
     if (defined $body) {
 	$body =~ s/\r//g;
+        $body =~ s/^\.\././gm;
 	# Let's collect once
 	my $first = 1;
 	$response = $self->collect($arg, $response, sub {

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.15 1995/09/04 20:22:28 aas Exp $
+# $Id: http.pm,v 1.16 1995/09/04 20:43:19 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -116,8 +116,6 @@ sub request
     my $line;
     my $delim = "\015?\012";
     my $result = $socket->readUntil($delim, \$line, undef, $timeout);
-
-    LWP::Debug::conns("Received response: $line");
 
     my $response;
     

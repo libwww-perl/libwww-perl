@@ -1,3 +1,31 @@
+Fri Apr 10 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.31
+
+ o  Makefile.PL now checks that HTML::HeadParser is present.
+
+ o  Updated HTTP::Cookies according to draft-ietf-http-state-man-mec-08.txt
+    It now supports the .local domain and value less 'port' attribute in
+    the Set-Cookie2 header.
+
+ o  HTTP::Headers update:
+       - $h->content_type now always return a defined value
+       - $h->header($field) will now concatenate multi-valued header
+         fields with "," as separator in scalar context.
+
+ o  HTTP::Request::Common update:
+       - used to destroy the content of the  hash/array arguments
+         passed to its constructor functions.
+       - allow a hash reference to specify form-data content.
+       - you can override Content-Disposition for form-data now.
+       - set content-encoding for files if applicable
+       - default boundary string is now always "--000"
+
+ o  LWP::UserAgent will not follow more than 13 redirects
+    automatically.
+
+
+
 Wed Apr  1 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.30

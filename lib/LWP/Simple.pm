@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.17 1996/05/08 16:29:26 aas Exp $
+# $Id: Simple.pm,v 1.18 1996/05/13 10:20:16 aas Exp $
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ function.  If you need this you should use the full OO interface.
 Get document headers. Returns the following values if successful:
 ($content_type, $document_length, $modified_time, $expires, $server)
 
-Returns 'undef' if it fails.
+Returns an empty list if it fails.
 
 =item getprint($url)
 
@@ -164,10 +164,11 @@ sub head ($)
 {
     my($url) = @_;
 
-    my $request = new HTTP::Request 'HEAD', $url;
+    my $request = new HTTP::Request HEAD => $url;
     my $response = $ua->request($request);
 
     if ($response->is_success) {
+	return $response unless wantarray;
 	return ($response->header('Content-Type'),
 		$response->header('Content-Length'),
 		str2time($response->header('Last-Modified')),
@@ -175,7 +176,7 @@ sub head ($)
 		$response->header('Server'),
 	       );
     } else {
-	return undef;
+	return wantarray ? () : '';
     }
 }
 

@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.58 2004/04/10 21:47:00 gisle Exp $
+# $Id: Headers.pm,v 1.59 2004/04/10 21:55:14 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.58 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.59 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -648,7 +648,7 @@ thing on the wire.
 When setting the referrer, this method removes the fragment from the
 given URI if it is present, as mandated by RFC2616.  Note that
 the removal does I<not> happen automatically if using the header(),
-push_header() or init_header() method(s) to set the referrer.
+push_header() or init_header() methods to set the referrer.
 
 =item $h->www_authenticate
 

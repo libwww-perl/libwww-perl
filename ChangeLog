@@ -1,3 +1,45 @@
+2000-04-09   Gisle Aas <gisle@aas.no>
+
+    Release 5.48
+
+    Makefile.PL: Make sure we have HTML::TokeParser
+
+    README.SSL update by Marko Asplund <aspa@hip.fi>
+
+    Added cookie example to lwpcook.pod
+
+    HTTP::Date::str2time returns undef on failure instead
+    of an empty list as suggested by Markus B Krüger <markusk@pvv.org>
+
+    $request->uri($uri) will now always store a copy of the $uri.
+
+    HTTP::Status: Added status codes from RFC 2616 and RFC 2518 (WebDAV)
+
+    LWP::RobotUA don't parse robots.txt unless content type and content
+    sample looks right.
+
+    LWP::UserAgent: Deal with multiple WWW-Authenticate headers.
+    Patch by Hugo <hv@crypt.compulink.co.uk>
+
+    $ua->proxy can now return the old proxy settings without
+    destroying the old one.
+    Based on patch by Benjamin Low <ben@snrc.uow.edu.au>
+
+    LWP::Protocol::http update
+
+        - don't terminate header parsing on bad headers
+        - extra_sock_opts
+        - preparations for keep alive support
+        - method CONNECT
+
+   WWW::RobotRules deal with various absolute URIs in the
+   disallow lines.
+
+   Clean test on VMS.
+   Patch by Charles Lane <lane@ DUPHY4.Physics.Drexel.Edu>.
+
+
+
 1999-11-16   Gisle Aas <gisle@aas.no>
 
  o  Release 5.47

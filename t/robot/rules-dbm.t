@@ -112,7 +112,7 @@ while (($key,$val) = each(%cat)) {
 print "******\n";
 
 
-unlink "$file.pag", "$file.dir";
+unlink "$file", "$file.pag", "$file.dir";
 
 # Try open a an emty database without specifying a name
 eval { 
@@ -122,4 +122,4 @@ print $@;
 print "not " unless $@;  # should fail
 print "ok 13\n";
 
-unlink "$file.pag", "$file.dir";
+unlink "$file", "$file.pag", "$file.dir";

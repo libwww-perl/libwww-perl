@@ -50,6 +50,18 @@ sub password
     $old;
 }
 
+sub crack
+{
+    my $self = shift;
+    my @c = $self->SUPER::crack;
+    if ($c[3] && !$c[1]) {
+	# hostname defined, but user is undefined
+	$c[1] = $self->user;
+	$c[2] = $self->password;
+    }
+    @c;
+}
+
 *query  = \&URI::URL::bad_method;
 *equery = \&URI::URL::bad_method;
 

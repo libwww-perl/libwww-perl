@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.17 1995/12/29 14:15:04 aas Exp $
+# $Id: http.pm,v 1.18 1996/02/05 18:03:41 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -99,6 +99,13 @@ sub request
 	} else {
 	    croak "Illegal content in request ($content)";
 	}
+    }
+
+    # HTTP/1.1 will probably say that we should send the 'Host' header.
+    # Since Netscape 2.0 has already started to use this header we might
+    # do so as well.
+    unless (defined $request->header('Host')) {
+       $request->header('Host', $url->host);
     }
 
     $socket->write($request_line . $request->headerAsString($endl) . $endl);

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.5 1997/10/13 19:43:57 aas Exp $
+# $Id: Common.pm,v 1.6 1997/12/01 13:17:11 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -54,7 +54,7 @@ sub POST
 	    # the application/x-www-form-urlencoded content.
 	    require URI::URL;
 	    my $url = URI::URL->new('http:');
-	    $url->query_form(@$content);
+	    $url->query_form(ref($content) eq "HASH" ? %$content : @$content);
 	    $content = $url->equery;
 	}
     }
@@ -224,27 +224,27 @@ Like GET() but the method in the request is PUT.
 =item POST $url, [$form_ref], [Header => Value,...]
 
 This works mostly like GET() with POST as method, but this function
-also takes a second optional array reference parameter ($form_ref).
-This argument can be used to pass key/value pairs for the form
-content.  By default we will initialize a request using the
+also takes a second optional array or hash reference parameter
+($form_ref).  This argument can be used to pass key/value pairs for
+the form content.  By default we will initialize a request using the
 C<application/x-www-form-urlencoded> content type.  This means that
 you can emulate a HTML E<lt>form> POSTing like this:
 
   POST 'http://www.perl.org/survey.cgi',
-       [ name  => 'Gisle',
-         email => 'gisle@aas.no',
-         gender => 'm',
+       [ name   => 'Gisle Aas',
+         email  => 'gisle@aas.no',
+         gender => 'M',
          born   => '1964',
-         trust  => '3%',
-	];
+         perc   => '3%',
+       ];
 
 This will create a HTTP::Request object that looks like this:
 
   POST http://www.perl.org/survey.cgi
-  Content-Length: 61
+  Content-Length: 66
   Content-Type: application/x-www-form-urlencoded
 
-  name=Gisle&email=gisle%40aas.no&gender=m&born=1964&trust=3%25
+  name=Gisle%20Aas&email=gisle%40aas.no&gender=M&born=1964&perc=3%25
 
 The POST method also supports the C<multipart/form-data> content used
 for I<Form-based File Upload> as specified in RFC 1867.  You trigger
@@ -269,7 +269,7 @@ achieved by this:
        Content_Type => 'form-data',
        Content      => [ name  => 'Gisle Aas',
                          email => 'gisle@aas.no',
-                         gender => 'm',
+                         gender => 'M',
                          born   => '1964',
                          init   => ["$ENV{HOME}/.profile"],
                        ]
@@ -293,7 +293,7 @@ different):
   --6G+f
   Content-Disposition: form-data; name="gender"
   
-  m
+  M
   --6G+f
   Content-Disposition: form-data; name="born"
   

@@ -1,7 +1,6 @@
 package URI::URL;
 
-# Make the version number available
-$VERSION = "4.02";
+$VERSION = "4.03";   # $Date: 1996/03/15 08:09:48 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -92,8 +91,8 @@ sub new
         $init = "" unless defined $init;
 	# RFC 1738 appendix suggest that we just ignore extra whitespace
         $init =~ s/\s+//g;
-	# Also get rid of any <URL:> wrapper
-	$init =~ s/^<URL:(.*)>$/$1/;
+	# Also get rid of any <URL: > wrapper
+	$init =~ s/^<(?:URL:)?(.*)>$/$1/;
 
         # We need a scheme to determine which class to use
         my($scheme) = $init =~ m/^([.+\-\w]+):/;

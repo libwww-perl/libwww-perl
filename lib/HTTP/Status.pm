@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.9 1995/08/09 09:43:48 aas Exp $
+# $Id: Status.pm,v 1.10 1995/08/09 11:29:32 aas Exp $
 
 package HTTP::Status;
 
@@ -70,7 +70,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(isSuccess isError isRedirect statusMessage);
 
-# Note also addition of mnemonics to @EXPORT_OK below
+# Note also addition of mnemonics to @EXPORT below
 
 my %StatusCode = (
     200 => 'OK',
@@ -109,7 +109,7 @@ while (($code, $message) = each %StatusCode) {
     $message =~ tr/a-z \-/A-Z__/;
     $mnemonicCode .= "sub RC_$message { $code }\t";
     # make them exportable
-    $mnemonicCode .= "push(\@EXPORT_OK, 'RC_$message');\n";
+    $mnemonicCode .= "push(\@EXPORT, 'RC_$message');\n";
 }
 # warn $mnemonicCode; # for development
 eval $mnemonicCode; # only one eval for speed

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.22 1996/09/16 12:52:10 aas Exp $
+# $Id: Response.pm,v 1.23 1996/09/16 13:11:43 aas Exp $
 
 package HTTP::Response;
 
@@ -286,7 +286,15 @@ sub freshness_lifetime
     # First look for the Cache-Control: max-age=n header
     my @cc = $self->header('Cache-Control');
     if (@cc) {
-	# Not implemeted yet
+	my $cc;
+	for $cc (@cc) {
+	    my $cc_dir;
+	    for $cc_dir (split(/\s*,\s*/, $cc)) {
+		if ($cc_dir =~ /max-age\s*=\s*(\d+)/i) {
+		    return $1;
+		}
+	    }
+	}
     }
 
     # Next possibility is to look at the "Expires" header

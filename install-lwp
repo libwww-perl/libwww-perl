@@ -1,6 +1,6 @@
 #!/local/bin/perl
 
-# $Id: install-lwp,v 1.3 1995/07/11 13:27:40 aas Exp $
+# $Id: install-lwp,v 1.4 1995/07/14 00:34:47 aas Exp $
 #
 # This script might be used to install LWP
 #
@@ -17,9 +17,12 @@ eval {
 if ($@) {
     die "You need to install the URI::URL module before you install LWP.\n";
 } else {
-    print "Good, you have installed URI::URL version $URI::URL::Version.\n";
-    if ($URI::URL::Version < 2.11) {
-	die "Please upgrade URI::URL, LWP needs at least version 2.11\n";
+    $version = $URI::URL::Version || $URI::URL::VERSION;
+    print "You have installed URI::URL version $version.\n";
+    if ($URI::URL::VERSION < 3.00) {
+	die "Please upgrade URI::URL, LWP needs at least version 3.00.\n";
+    } else {
+	# print "That's just what I need!\n";
     }
 }
 
@@ -33,8 +36,9 @@ use Config;
 );
 
 for $dir (@loc) {
-    next unless -d $_;
-    print "Install LWP in $dir? ";
+    next unless length $dir;
+    next unless -d $dir;
+    print "Install LWP in $dir? [n] ";
     chomp($ans = <STDIN>);
     if ($ans =~ /^y(es)?$/i) {
 	install($dir);
@@ -56,6 +60,14 @@ unless ($installed) {
 	install($dir);
     }
 }
+
+print <<"EOT" if $installed;
+
+You may also want to install the scripts found in the 'bin' directory.
+Edit the first line of the scripts to reflect the location of perl and
+copy them to /usr/local/bin.
+
+EOT
 exit;
 
 

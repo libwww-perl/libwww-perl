@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.31 1998/01/06 09:55:27 aas Exp $
+# $Id: Response.pm,v 1.31.2.1 1998/09/11 11:51:22 aas Exp $
 
 package HTTP::Response;
 
@@ -45,10 +45,9 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31.2.1 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Status ();
-use URI::URL ();
 use strict;
 
 
@@ -129,7 +128,7 @@ sub status_line
 =item $r->base
 
 Returns the base URL for this response.  The return value will be a
-reference to a URI::URL object.
+reference to a URI object.
 
 The base URL is obtained from one the following sources (in priority
 order):
@@ -172,7 +171,7 @@ sub base
                $self->header('Content-Location') ||  # HTTP/1.1
                $self->header('Base')             ||  # backwards compatability HTTP/1.0
                $self->request->url;
-    $base = URI::URL->new($base) unless ref $base;
+    $base = $HTTP::URI_CLASS->new($base) unless ref $base;
     $base;
 }
 

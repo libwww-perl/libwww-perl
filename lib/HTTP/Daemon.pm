@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.19 1998/09/02 10:07:18 aas Exp $
+# $Id: Daemon.pm,v 1.19.2.1 1998/09/11 11:51:10 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19.2.1 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -163,7 +163,6 @@ use HTTP::Request  ();
 use HTTP::Response ();
 use HTTP::Status;
 use HTTP::Date qw(time2str);
-use URI::URL qw(url);
 use LWP::MediaTypes qw(guess_media_type);
 use Carp ();
 
@@ -253,7 +252,7 @@ sub get_request
 	return;
     }
     my $proto = $3 || "HTTP/0.9";
-    my $r = HTTP::Request->new($1, url($2, $self->daemon->url));
+    my $r = HTTP::Request->new($1, $HTTP::URI_CLASS->new($2, $self->daemon->url));
     $r->protocol($proto);
     ${*$self}{'httpd_client_proto'} = $proto = _http_version($proto);
 
@@ -653,8 +652,9 @@ sub send_redirect
     $status ||= RC_MOVED_PERMANENTLY;
     Carp::croak("Status '$status' is not redirect") unless is_redirect($status);
     $self->send_basic_header($status);
-    $loc = url($loc, $self->daemon->url) unless ref($loc);
-    $loc = $loc->abs;
+    my $base = $self->daemon->url;
+    $loc = $HTTP::URI_CLASS->new($loc, $base) unless ref($loc);
+    $loc = $loc->abs($base);
     print $self "Location: $loc$CRLF";
     if ($content) {
 	my $ct = $content =~ /^\s*</ ? "text/html" : "text/plain";

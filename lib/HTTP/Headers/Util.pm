@@ -3,12 +3,13 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
 
-@EXPORT_OK=qw(split_header_words join_header_words);
+@EXPORT_OK=qw(split_etag_list join_etag_list
+              split_header_words join_header_words);
 
 =head1 NAME
 
@@ -29,6 +30,7 @@ The following functions are provided:
 
 =over 4
 
+
 =item split_header_words( @header_values )
 
 This function will parse the header values given as argument into a
@@ -42,7 +44,8 @@ then they are treated as if they were a single value separated by
 comma ",".
 
 This means that this function is useful to parse header fields that
-follow this syntax (BNF as from the HTTP/1.1 specification).
+follow this syntax (BNF as from the HTTP/1.1 specification, but we relax
+the requirement for tokens).
 
   headers           = #header
   header            = (token | parameter) *( [";"] (token | parameter))
@@ -160,6 +163,42 @@ sub join_header_words
 	push(@res, join("; ", @attr)) if @attr;
     }
     join(", ", @res);
+}
+
+=item split_etag_list( @header_values )
+
+=cut
+
+sub split_etag_list
+{
+    my(@val) = @_;
+    my @res;
+    for (@val) {
+        while (length) {
+            my $weak = "";
+	    $weak = "W/" if s,^\s*[wW]/,,;
+            my $etag = "";
+	    if (s/^\s*(\"[^\"\\]*(?:\\.[^\"\\]*)*\")//) {
+		push(@res, "$weak$1");
+            } elsif (s/^\s*,//) {
+                push(@res, qq(W/"")) if $weak;
+            } elsif (s/^\s*([^,\s]+)//) {
+                $etag = $1;
+		$etag =~ s/([\"\\])/\\$1/g;
+	        push(@res, qq($weak"$etag"));
+            } elsif (s/^\s+// || !length) {
+                push(@res, qq(W/"")) if $weak;
+            } else {
+	 	die "This should not happen: '$_'";
+            }
+        }
+   }
+   @res;
+}
+
+sub join_etag_list
+{
+   join(", ", @_);
 }
 
 1;

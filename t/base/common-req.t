@@ -92,6 +92,7 @@ print "ok 10\n";
 $boundary = $1;
 
 $c = $r->content;
+$c =~ s/\r//g;
 @c = split(/--$boundary/, $c);
 print "$c[5]\n";
 
@@ -112,7 +113,7 @@ $r = POST 'http://www.perl.org/survey.cgi',
       Content_type => 'multipart/form-data';
 print $r->as_string;
 
-print "not " unless $r->content =~ /^--\S+\nContent-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
 	            $r->content =~ /^Content-Type: text\/html/m and
 	            $r->content =~ /^<h1>Hello, world/m;
 print "ok 14\n";

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.16 1996/02/26 19:16:43 aas Exp $
+# $Id: Protocol.pm,v 1.17 1996/03/21 14:34:37 aas Exp $
 
 package LWP::Protocol;
 
@@ -105,10 +105,12 @@ sub implementor
 
     # scheme not yet known, look for a 'use'd implementation
     $ic = "LWP::Protocol::$scheme";  # default location
+    $ic = "LWP::Protocol::nntp" if $scheme eq 'news'; #XXX ugly hack
     no strict qw(refs);
     # check we actually have one for the scheme:
     unless (defined @{"${ic}::ISA"}) {
-	my $package = "LWP/Protocol/${scheme}.pm";
+	my $package = "$ic.pm";
+	$package =~ s|::|/|g;
 	eval { require "$package" };
 	if ($@) {
 	    if ($@ =~ /^Can't locate/) { #' #emacs get confused by '

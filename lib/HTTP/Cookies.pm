@@ -8,7 +8,7 @@ use HTTP::Date qw(str2time time2str);
 require LWP::Debug;
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -26,8 +26,9 @@ HTTP::Cookies - Cookie storage and management
 
 Cookies are a general mechanism which server side connections can use
 to both store and retrieve information on the client side of the
-connection.  For more information about cookies referer to 
-<URL:http://www.netscape.com/newsref/std/cookie_spec.html>.
+connection.  For more information about cookies referer to
+<URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
+<URL:http://www.cookiecentral.com/>.
 
 Instances of the class I<HTTP::Cookies> are able to store a collection
 of Set-Cookie2?:-headers and is able to use this information to
@@ -42,9 +43,9 @@ The following methods are provided:
 
 =cut
 
-# A HTTP::Cookies object is a hash with the keys beeing the domain
-# names of the cookies.  Some special hash entries have keys that
-# begin with "::".  These are used for other kinds of attributes.
+# A HTTP::Cookies object is a hash.  The main attribute is the
+# COOKIES 3 level hash:  $self->{COOKIES}{$domain}{$path}{$key}.
+
 
 =item $cookie_jar = HTTP::Cookies->new;
 
@@ -94,11 +95,15 @@ sub add_cookie_header
         LWP::Debug::debug("Checking $domain for cookies");
 	my $cookies = $self->{COOKIES}{$domain};
 	next unless $cookies;
+
+	# Want to add cookies corresponding to the most specific paths
+	# first (i.e. longest path first)
 	my $path;
-	for $path (keys %$cookies) {
+	for $path (sort {length($b) <=> length($a) } keys %$cookies) {
             LWP::Debug::debug("- checking cookie path=$path");
+	    # XXX: URL encoding of path (the specification is unclear)
 	    if (index($request_path, $path) != 0) {
-	        LWP::Debug::debug(" path $path:$request_path does not fit");
+	        LWP::Debug::debug("  path $path:$request_path does not fit");
 		next;
 	    }
 
@@ -118,7 +123,7 @@ sub add_cookie_header
 		    #XXX: must also handle empty port ""
 		    my $found;
 		    my $p;
-		    for $p (split(/\s*,\s*/, $port)) {
+		    for $p (split(/,/, $port)) {
 			$found++, last if $p eq $request_port;
 		    }
 		    unless ($found) {
@@ -150,7 +155,11 @@ sub add_cookie_header
 		if ($version >= 1) {
 		    push(@cval, qq(\$Path="$path"))     if $path_spec;
 		    push(@cval, qq(\$Domain="$domain")) if $domain =~ /^\./;
-		    push(@cval, qq(\$Port="$port"))     if defined $port;
+		    if (defined $port) {
+			my $p = '$Port';
+			$p .= qq(="$port") if length $port;
+			push(@cval, $p);
+		    }
 		}
 
 	    }
@@ -203,7 +212,6 @@ sub extract_cookies
 	my $set;
 	for $set (@old) {
 	    my @cur;
-	    my %hash;
 	    my $param;
 	    my $expires;
 	    for $param (split(/\s*;\s*/, $set)) {
@@ -231,22 +239,26 @@ sub extract_cookies
 	my $key = shift @$set;
 	my $val = shift @$set;
 
+        LWP::Debug::debug("Set cookie $key => $val");
+
 	my %hash;
 	while (@$set) {
 	    my $k = shift @$set;
 	    my $v = shift @$set;
 	    $v = 1 unless defined $v;
 	    my $lc = lc($k);
+	    # don't loose case distinction for unknown fields
 	    $k = $lc if $lc =~ /^(?:discard|domain|max-age|
                                     path|port|secure|version)$/x;
-	    # next if exists $hash{$k};
+	    next if exists $hash{$k};  # only first value is signigicant
 	    $hash{$k} = $v;
 	};
 
-	my $version = delete $hash{version};
-	my $discard = delete $hash{discard};
-	my $secure  = delete $hash{secure};
-	my $maxage  = delete $hash{'max-age'};
+	my %orig_hash = %hash;
+	my $version   = delete $hash{version};
+	my $discard   = delete $hash{discard};
+	my $secure    = delete $hash{secure};
+	my $maxage    = delete $hash{'max-age'};
 
 	# Check domain
 	my $domain  = delete $hash{domain};
@@ -256,13 +268,16 @@ sub extract_cookies
 		next SET_COOKIE;
 	    }
 	    $domain = ".$domain" unless $domain =~ /^\./;
+	    if ($domain =~ /\.\d+$/) {
+	        LWP::Debug::debug("IP-address $domain illeagal as domain");
+		next SET_COOKIE;
+	    }
 	    my $len = length($domain);
 	    unless (substr($req_host, -$len) eq $domain) {
 	        LWP::Debug::debug("Domain $domain does not match host $req_host");
 		next SET_COOKIE;
 	    }
 	    my $hostpre = substr($req_host, 0, length($req_host) - $len);
-	    print "PRE=$hostpre";
 	    if ($hostpre =~ /\./) {
 	        LWP::Debug::debug("Host prefix contain a dot: $hostpre => $domain");
 		next SET_COOKIE;
@@ -275,23 +290,30 @@ sub extract_cookies
 	my $path_spec;
 	if (defined $path) {
 	    $path_spec++;
-	    unless (substr($req_path, 0, length($path)) eq $path) {
+	    if (!$netscape_cookies &&
+                substr($req_path, 0, length($path)) ne $path) {
 	        LWP::Debug::debug("Path $path is not a prefix of $req_path");
 		next SET_COOKIE;
 	    }
+	} else {
+	    $path = $req_path;
+	    $path =~ s,/[^/]*$,,;
+	    $path = "/" unless length($path);
 	}
 
-	my $port = delete $hash{port};
-	if (defined $port) {
+	my $port;
+	if (exists $hash{port}) {
+	    $port = delete $hash{port};
+	    $port = "" unless defined $port;
 	    $port =~ s/\s+//g;
 	    if (length $port) {
 		my $found;
 		for my $p (split(/,/, $port)) {
 		    unless ($p =~ /^\d+$/) {
-		        LWP::Debug::debug("Bad port $port (not numeric)");
+		      LWP::Debug::debug("Bad port $port (not numeric)");
 			next SET_COOKIE;
 		    }
-		    $found++ if $port eq $req_port;
+		    $found++ if $p eq $req_port;
 		}
 		unless ($found) {
 		    LWP::Debug::debug("Request port ($req_port) not found in $port");
@@ -299,9 +321,8 @@ sub extract_cookies
 		}
 	    }
 	}
-
 	$self->set_cookie($version,$key,$val,$path,$domain,$port,$path_spec,$secure,$maxage,$discard, \%hash)
-	    if $self->set_cookie_ok($key,$val,$domain,$port,$path);
+	    if $self->set_cookie_ok(\%orig_hash);
     }
 
     $response;
@@ -336,7 +357,7 @@ sub set_cookie
 
     # ensure legal port
     if (defined $port) {
-	return $self unless $port =~ /^\d*(?:\s*,\s*\d+)*$/;
+	return $self unless $port eq "" || $port =~ /^\d+(?:,\d+)*$/;
     }
 
     my $expires;
@@ -398,7 +419,18 @@ Invoking this method will empty the $cookie_jar.
 sub clear
 {
     my $self = shift;
-    $self->{COOKIES} = {};
+    if (@_ == 0) {
+	$self->{COOKIES} = {};
+    } elsif (@_ == 1) {
+	delete $self->{COOKIES}{$_[0]};
+    } elsif (@_ == 2) {
+	delete $self->{COOKIES}{$_[0]}{$_[1]};
+    } elsif (@_ == 3) {
+	delete $self->{COOKIES}{$_[0]}{$_[1]}{$_[2]};
+    } else {
+	require Carp;
+        Carp::carp('Usage: $c->clear([domain [,path [,key]]])');
+    }
     $self;
 }
 
@@ -539,8 +571,8 @@ sub split_header_words
     my @val = $self->_header($field);
     return unless @val;
     my @res;
-    my @cur;
     for (@val) {
+	my @cur;
 	while (length) {
 	    if (s/^\s*(=*[^\s=;,]+)//) {
 		push(@cur, $1);
@@ -564,10 +596,7 @@ sub split_header_words
 		warn "This should not happen: $_\n";
 	    }
 	}
-	if (@cur) {
-	    push(@res, [@cur]);
-	    @cur = ();
-	}
+	push(@res, \@cur) if @cur;
     }
     @res;
 }

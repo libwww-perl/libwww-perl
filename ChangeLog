@@ -1,3 +1,22 @@
+Thu May  7 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.33
+
+ o  LWP::Simple::get() did try to handle too many of the 3xx
+    codes as redirect when it bypasses full LWP.
+
+ o  LWP::UserAgent->mirror will now use utime(2) to set the
+    file modification time corresponding to the Last-Modified
+    header.
+
+ o  LWP::Protocol::http will not modify the HTTP::Request that
+    it is processing.  This avoids sticky Host header for
+    redirects.
+
+ o  URI::Heuristic and lwp-download documentation update.
+
+
+
 Wed Apr 15 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.32

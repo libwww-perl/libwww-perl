@@ -29,6 +29,7 @@ sub format
 	}
      );
     $formatter->end();
+    join('', @{$formatter->{output}});
 }
 
 sub begin
@@ -49,6 +50,8 @@ sub begin
     $formatter->{makers} = [];           # last element is current marker
     $formatter->{vspace} = undef;        # vertical space
     $formatter->{eat_leading_space} = 0;
+
+    $formatter->{output} = [];
 }
 
 sub end
@@ -461,6 +464,11 @@ sub vspace
     my($formatter, $new) = @_;
     return if defined $formatter->{vspace} and $formatter->{vspace} > $new;
     $formatter->{vspace} = $new;
+}
+
+sub collect
+{
+    push(@{shift->{output}}, @_);
 }
 
 sub out

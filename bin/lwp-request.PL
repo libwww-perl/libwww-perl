@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.28 1997/10/13 11:56:00 aas Exp $
+# $Id: lwp-request.PL,v 1.29 1997/10/17 07:41:25 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -188,12 +188,14 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
 require LWP::Debug;
 require URI::URL;
+
+use URI::Heuristic qw(uf_url);
 
 use HTTP::Status qw(status_message);
 use HTTP::Date qw(time2str str2time);
@@ -389,14 +391,9 @@ while ($url = shift) {
     eval {
 	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
 	    $url = URI::URL->new($url, $opt_b);
-        } elsif ($url =~ /^(www|web)\./) {
-	    $url = URI::URL->new("http://$url");
-        } elsif ($url =~ /^(ftp|gopher|news)\./) {
-	    $url = URI::URL->new("$1://$url");
 	} else {
-	    # No scheme specified for the URL (treat it as a file)
-	    $url = URI::URL->newlocal($url);
-	}
+	    $url = uf_url($url);
+        }
     };
     if ($@) {
 	$@ =~ s/at\s+\S+\s+line\s\d+//;

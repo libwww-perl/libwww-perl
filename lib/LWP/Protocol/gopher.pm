@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.12 1996/03/05 10:48:42 aas Exp $
+# $Id: gopher.pm,v 1.13 1996/03/05 15:26:28 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -148,8 +148,7 @@ sub request
 	    # let's collect once
 	    my $first = 1;
 	    $response = $self->collect($user_arg, $response, sub {
-		if ($first) {
-		    $first = 0;
+		if ($first--) {
 		    return \$content;
 		}
 		return \ "";

@@ -9,7 +9,6 @@ bin/lwp-request.PL		Writes bin/lwp-request script
 bin/lwp-rget.PL			Writes bin/lwp-rget script
 lwpcook.pod			Libwww-perl examples
 lib/Bundle/LWP.pm               Defines prereq modules
-lib/File/CounterFile.pm		Persistent counter class
 lib/File/Listing.pm		Parse directory listings
 lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element

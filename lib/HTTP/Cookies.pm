@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -667,7 +667,7 @@ sub _normalize_path  # so that plain string compare can be used
     $_[0] =~ s/%([0-9a-fA-F][0-9a-fA-F])/
 	         $x = uc($1);
                  $x eq "2F" || $x eq "25" ? "%$x" :
-                                            pack("c", hex($x));
+                                            pack("C", hex($x));
               /eg;
     $_[0] =~ s/([\0-\x20\x7f-\xff])/sprintf("%%%02X",ord($1))/eg;
 }

@@ -15,3 +15,5 @@
 \b(RCS|CVS)/[^/]+$
 .cvsignore$
 ^t/misc/
+^html/
+^doc/

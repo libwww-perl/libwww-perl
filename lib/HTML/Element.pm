@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.8 1995/09/11 14:23:57 aas Exp $
+# $Id: Element.pm,v 1.9 1995/09/12 08:05:09 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -341,7 +341,7 @@ sub traverse
 		&$callback($_, 1, $depth+1) unless $ignoretext;
 	    }
 	}
-	&$callback($self, 0, $depth);
+	&$callback($self, 0, $depth) unless $noEndTag{$self->{_tag}};
     }
     $self;
 }

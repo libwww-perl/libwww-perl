@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.6 1996/09/18 12:21:52 aas Exp $
+# $Id: RobotUA.pm,v 1.7 1996/09/19 12:08:45 aas Exp $
 
 package LWP::RobotUA;
 
@@ -32,20 +32,16 @@ LWP::RobotUA - A class for Web Robots
 
 This class implements a user agent that is suitable for robot
 applications.  Robots should be nice to the servers they visit.  They
-should consult the /robots.txt file to ensure that they are welcomed
+should consult the F<robots.txt> file to ensure that they are welcomed
 and they should not send too frequent requests.
 
 But, before you consider writing a robot take a look at
 <URL:http://info.webcrawler.com/mak/projects/robots/robots.html>.
 
-When you use a LWP::RobotUA as your user agent, then you do not really
-have to think about these things yourself.  Just send requests as you
-do when you are using a normal LWP::UserAgent and this special agent
-will make sure you are nice.
-
-=head1 SEE ALSO
-
-L<LWP::UserAgent>
+When you use a I<LWP::RobotUA> as your user agent, then you do not
+really have to think about these things yourself.  Just send requests
+as you do when you are using a normal I<LWP::UserAgent> and this
+special agent will make sure you are nice.
 
 =head1 METHODS
 
@@ -68,15 +64,14 @@ In addition these methods are provided:
 # $self->{'rules'}     A WWW::RobotRules object
 #
 
+
 =head2 $ua = LWP::RobotUA->new($agent_name, $from, [$rules])
 
-A name and the mail address of the human running the the robot is
-required by the constructor.  Optional it allows you to specify a
-diffrent L<WWW::RobotRules> object if you do not want to use 
-the default. The name can be changed later though the agent() method.
-The mail address can be changed with the from() method. The RobotRules
-object can be changed with the rules() method.
+Your robot's name and the mail address of the human responsible for
+the robot (i.e. you) is required by the constructor.
 
+Optionally it allows you to specify the I<WWW::RobotRules> object to
+use.
 
 =cut
 
@@ -94,7 +89,8 @@ sub new
     $self->{'agent'} = $name;
     $self->{'from'}  = $from;
 
-    if (defined $rules) {
+    if ($rules) {
+	$rules->agent($name);
 	$self->{'rules'} = $rules;
     } else {
 	$self->{'rules'} = new WWW::RobotRules $name;
@@ -102,6 +98,7 @@ sub new
 
     $self;
 }
+
 
 =head2 $ua->delay([$minutes])
 
@@ -111,6 +108,7 @@ default is 1 minute.
 =cut
 
 sub delay { shift->_elem('delay', @_); }
+
 
 sub agent
 {
@@ -123,25 +121,34 @@ sub agent
     $old;
 }
 
+
 =head2 $ua->rules([$rules])
 
-Set/get which L<WWW::RobotRules> object to use. 
+Set/get which I<WWW::RobotRules> object to use. 
 
 =cut
 
-sub rules { shift->_elem('rules', @_); }
+sub rules {
+    my $self = shift;
+    $self->_elem('rules', @_);
+    $self->{'rules'}->agent($self->{'agent'}) if @_;
+}
 
-=head2 $ua->host_count($netloc)
+
+=head2 $ua->no_vists($netloc)
 
 Returns the number of documents fetched from this server host.
 
 =cut
 
-sub host_count
+sub no_vists
 {
     my($self, $netloc) = @_;
     $self->{'rules'}->no_vists($netloc);
 }
+
+*host_count = \&no_vists;  # backwards compatibility with LWP-5.02
+
 
 =head2 $ua->host_wait($netloc)
 
@@ -162,6 +169,7 @@ sub host_wait
     }
     return 0;
 }
+
 
 sub simple_request
 {
@@ -229,6 +237,7 @@ sub simple_request
     $res;
 }
 
+
 =head2 $ua->as_string
 
 Returns a text that describe the state of the UA.
@@ -249,8 +258,12 @@ sub as_string
 
 1;
 
+=head1 SEE ALSO
+
+L<LWP::UserAgent>, L<WWW::RobotRules>
+
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas E<lt>aas@sn.no>
 
 =cut

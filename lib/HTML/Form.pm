@@ -185,7 +185,7 @@ BEGIN {
 	*{$m} = sub {
 	    my $self = shift;
 	    my $old = $self->{$m};
-	    $self->{$m} = shift if $@;
+	    $self->{$m} = shift if @_;
 	    $old;
 	};
     }

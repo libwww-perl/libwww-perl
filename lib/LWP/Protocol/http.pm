@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.59 2001/11/15 07:22:40 gisle Exp $
+# $Id: http.pm,v 1.60 2001/11/15 08:26:33 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -42,6 +42,11 @@ my $CRLF = "\015\012";
     sub ping {
 	my $self = shift;
 	!$self->can_read(0);
+    }
+
+    sub increment_response_count {
+	my $self = shift;
+	return ++${*$self}{'myhttp_response_count'};
     }
 }
 
@@ -349,7 +354,7 @@ sub request
     if (my @te = $response->remove_header('Transfer-Encoding')) {
 	$response->push_header('Client-Transfer-Encoding', \@te);
     }
-    $response->push_header('Client-Request-Num', ++${*$socket}{'myhttp_req_count'});
+    $response->push_header('Client-Response-Num', $socket->increment_response_count);
 
     my $complete;
     $response = $self->collect($arg, $response, sub {

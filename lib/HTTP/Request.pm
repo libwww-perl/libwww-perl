@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.14 1996/03/21 09:24:43 aas Exp $
+# $Id: Request.pm,v 1.15 1996/04/07 20:35:58 aas Exp $
 
 package HTTP::Request;
 
@@ -29,9 +29,9 @@ of an C<LWP::UserAgent> object:
 =head1 METHODS
 
 C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods are C<header>,
-C<push_header>, C<remove_header> C<headers_as_string> and C<content>.  See
-L<HTTP::Message> for details.
+inherits its methods.  The inherited methods are header(),
+push_header(), remove_header(), headers_as_string() and content().
+See L<HTTP::Message> for details.
 
 =cut
 
@@ -39,7 +39,7 @@ require HTTP::Message;
 @ISA = qw(HTTP::Message);
 require URI::URL;
 
-=head2 new HTTP::Request $method, $url, [$header, [$content]]
+=head2 $r = new HTTP::Request $method, $url, [$header, [$content]]
 
 Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be

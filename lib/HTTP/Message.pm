@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.12 1996/03/05 10:45:33 aas Exp $
+# $Id: Message.pm,v 1.13 1996/04/07 20:35:33 aas Exp $
 
 package HTTP::Message;
 
@@ -64,7 +64,7 @@ sub clone
 
 =head2 $mess->add_content($data)
 
-These methods manages the content of the message.  The C<content()>
+These methods manages the content of the message.  The content()
 method sets the content if an argument is given.  If no argument is
 given the content is not touched.  In either case the previous content
 is returned.
@@ -99,7 +99,12 @@ sub as_string
 =head2 $mess->headers_as_string([$endl])
 
 These methods provide easy access to the fields for the request
-header.  Refer to L<HTTP::Headers> for details.
+header.
+
+All unknown C<HTTP::Message> methods are delegated to the
+C<HTTP::Headers> object that is part of every message.  This allows
+convenient access to these methods.
+Refer to L<HTTP::Headers> for details.
 
 =cut
 

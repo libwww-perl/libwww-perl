@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.14 1996/03/18 17:49:30 aas Exp $
+# $Id: Simple.pm,v 1.15 1996/04/07 20:39:35 aas Exp $
 
 =head1 NAME
 
@@ -22,9 +22,9 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 
 This interface is intended for those who want a simplified view of the
 libwww-perl library.  This interface should also be suitable for
-one-liners.  If you need more control or miss access to the header
-fields in the requests sent and responses received you should use the
-full OO interface provided by the LWP::UserAgent module.
+one-liners.  If you need more control or access to the header fields
+in the requests sent and responses received you should use the full OO
+interface provided by the LWP::UserAgent module.
 
 This following functions are provided (and exported) by this module:
 

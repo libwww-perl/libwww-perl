@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.22 1996/05/26 10:41:39 aas Exp $
+# $Id: Protocol.pm,v 1.23 1996/07/23 19:53:57 aas Exp $
 
 package LWP::Protocol;
 
@@ -58,6 +58,7 @@ sub new
     my $self = bless {
 	'timeout' => 0,
 	'use_alarm' => 1,
+	'parse_head' => 1,
     }, $class;
     $self;
 }
@@ -152,10 +153,16 @@ Get and set the timeout value in seconds
 Indicates if the library is allowed to use the core alarm()
 function to implement timeouts.
 
+=head2 $prot->parse_head($yesno)
+
+Should we initialize response headers from the <head> section of HTML
+documents.
+
 =cut
 
 sub timeout  { shift->_elem('timeout',  @_); }
 sub use_alarm { shift->_elem('use_alarm', @_); }
+sub parse_head { shift->_elem('parse_head', @_); }
 
 
 =head2 $prot->collect($arg, $response, $collector)
@@ -185,10 +192,11 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
-    my($use_alarm, $timeout) = @{$self}{'use_alarm', 'timeout'};
+    my($use_alarm, $parse_head, $timeout) =
+      @{$self}{qw(use_alarm parse_head timeout)};
 
     my $parser;
-    if ($response->content_type eq 'text/html') {
+    if ($parse_head && $response->content_type eq 'text/html') {
 	$parser = HTML::HeadParser->new($response->{'_headers'});
     }
     

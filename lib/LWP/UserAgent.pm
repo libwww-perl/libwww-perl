@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.35 1996/05/08 16:30:04 aas Exp $
+# $Id: UserAgent.pm,v 1.36 1996/07/23 19:53:59 aas Exp $
 
 package LWP::UserAgent;
 
@@ -143,9 +143,10 @@ sub new
 		'from'        => undef,
 		'timeout'     => 3*60,
 		'proxy'       => undef,
-		'use_eval'     => 1,
-		'use_alarm'    => 1,
-		'no_proxy'     => [],
+		'use_eval'    => 1,
+		'use_alarm'   => 1,
+                'parse_head'  => 1,
+		'no_proxy'    => [],
 	}, $class;
     }
 }
@@ -202,16 +203,17 @@ sub simple_request
     }
 
     # Extract fields that will be used below
-    my ($agent, $from, $timeout, $use_alarm, $use_eval) =
-      @{$self}{'agent', 'from', 'timeout', 'use_alarm', 'use_eval'};
+    my ($agent, $from, $timeout, $use_alarm, $use_eval, $parse_head) =
+      @{$self}{qw(agent from timeout use_alarm use_eval parse_head)};
 
     # Set User-Agent and From headers if they are defined
     $request->header('User-Agent' => $agent) if $agent;
     $request->header('From' => $from) if $from;
 
-    # Inform the protocol if we need to use alarm()
+    # Inform the protocol if we need to use alarm() and parse_head()
     $protocol->use_alarm($use_alarm);
-
+    $protocol->parse_head($parse_head);
+    
     # If we use alarm() we need to register a signal handler
     # and start the timeout
     if ($use_alarm) {
@@ -530,14 +532,20 @@ Get/set a value indicating wether to handle internal errors internally
 by trapping with eval.  The default is TRUE, i.e. the $ua->request()
 will never die.
 
+=head2 $ua->parse_head([$boolean])
+
+Get/set a value indicating wether we should initialize response
+headers from the E<lt>head> section of HTML documents. The default is
+TRUE.  Do not turn this off, unless you know what you are doing.
+
 =cut
 
-sub timeout   { shift->_elem('timeout',   @_); }
-sub agent     { shift->_elem('agent',     @_); }
-sub from      { shift->_elem('from',      @_); }
-sub use_alarm { shift->_elem('use_alarm', @_); }
-sub use_eval  { shift->_elem('use_eval',  @_); }
-
+sub timeout    { shift->_elem('timeout',   @_); }
+sub agent      { shift->_elem('agent',     @_); }
+sub from       { shift->_elem('from',      @_); }
+sub use_alarm  { shift->_elem('use_alarm', @_); }
+sub use_eval   { shift->_elem('use_eval',  @_); }
+sub parse_head { shift->_elem('parse_head',@_); }
 
 
 # Declarations of AutoLoaded methods

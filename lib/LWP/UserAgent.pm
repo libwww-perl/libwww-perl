@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.21 1995/09/04 20:45:13 aas Exp $
+# $Id: UserAgent.pm,v 1.22 1995/09/04 20:53:51 aas Exp $
 
 package LWP::UserAgent;
 
@@ -260,7 +260,7 @@ sub simpleRequest
                                           $LWP::Debug::timeoutMessage;
         }
         else {
-	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+$//;  # remove file/line number
+	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+//;  # remove file/line number
             $response = new HTTP::Response
                         &HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@;
         }

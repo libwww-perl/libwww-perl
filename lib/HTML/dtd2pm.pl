@@ -8,7 +8,7 @@
 #
 # Author: Gisle Aas
 #
-# $Id: dtd2pm.pl,v 1.1 1996/05/19 11:34:08 aas Exp $
+# $Id: dtd2pm.pl,v 1.2 1996/05/26 10:33:38 aas Exp $
 #
 # Disclaimer: I am not an SGML expert and don't really understand how
 # to read those damn DTDs.
@@ -140,16 +140,18 @@ print "$intro\n\n";
 my @all_tags = sort keys %element;
 my @empty = ();
 my @optional_end_tag = ();
+my @optional_start_tag = ();
 for (@all_tags) {
    push(@empty, $_) if $element{$_}[2] eq 'empty';
    push(@optional_end_tag, $_) if $element{$_}[2] ne 'empty' and
                                   $element{$_}[1] ne '-';
+   push(@optional_start_tag, $_) if $element{$_}[0] ne '-';
 }
 
 print "\@all_tags = qw(@all_tags);\n";
 print "\@empty = qw(@empty);\n";
 print "\@optional_end_tag = qw(@optional_end_tag);\n";
-
+print "\@optional_start_tag = qw(@optional_start_tag);\n";
 print <<'EOT';
 
 
@@ -170,6 +172,8 @@ EOT
 
 print "\n%elem = (\n";
 
+@boolean_attr = ();
+
 for (@all_tags) {
    my $e = $_;
    $e = "'$e'" if $e eq 'tr' || $e eq 'link' || $e eq 'sub';  # these are perl keywords
@@ -181,6 +185,7 @@ for (@all_tags) {
        for $a (sort keys %{$attr{$_}}) {
 	   my @a = @{$attr{$_}{$a}};
 	   print "\t\t\t$a => [", join(",", map {qq("$_")} @a), "],\n";
+	   push(@boolean_attr, "$_\t=> '$a'") if $a eq $attr{$_}{$a}[0];
        }
        print "\t\t  },\n";
    }
@@ -189,6 +194,11 @@ for (@all_tags) {
 
 print ");\n";
 
+print "\n\n\%boolean_attr = (\n";
+for (@boolean_attr) {
+    print " $_,\n";
+}
+print ");\n";
 
 print "\n1;\n";
 
@@ -213,7 +223,7 @@ sub parse_attrs  # Parse the <!ATTLIST elem ...> content
 	} else {
 	    die "Missing values";
 	}
-        $val = lc($val) unless $val eq 'CDATA';
+        $val = lc($val) unless $val =~ /^[A-Z]+$/;
         $val =~ s/^"(.*)"$/$1/;
 	
         $a =~ s/^\s+//;

@@ -109,6 +109,7 @@ print "ok 9\n";
 # Check with FALSE $HTML::Headers::TRANSLATE_UNDERSCORE
 
 local($HTTP::Headers::TRANSLATE_UNDERSCORE);
+$HTTP::Headers::TRANSLATE_UNDERSCORE = undef;  # avoid -w warning
 
 $h = HTTP::Headers->new;
 

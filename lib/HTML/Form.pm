@@ -45,7 +45,7 @@ HTML::Form - Class that represents an HTML form element
 =head1 DESCRIPTION
 
 Objects of the C<HTML::Form> class represents a single HTML
-C<E<lt>formE<gt> ... E<lt>/formE<gt>> instance.  A form consist of a
+C<E<lt>formE<gt> ... E<lt>/formE<gt>> instance.  A form consists of a
 sequence of inputs that usually have names, and which can take on
 various values.  The state of a form can be tweaked and it can then be
 asked to provide HTTP::Request objects that can be passed to LWP.
@@ -308,9 +308,9 @@ sub fixup
 =item $form->value( $name, $new_value )
 
 The value() method can be used to get/set the value of some input.  If
-no input have the indicated name, then this method will croak.
+no input has the indicated name, then this method will croak.
 
-If multiple inputs has the same name, only the first one will be
+If multiple inputs have the same name, only the first one will be
 affected.
 
 The call:
@@ -411,14 +411,14 @@ C<submit> or C<image>).  The result of clicking is an C<HTTP::Request>
 object that can then be passed to C<LWP::UserAgent> if you want to
 obtain the server response.
 
-If a $name is specified we will click on the first clickable input
+If a $name is specified, we will click on the first clickable input
 with the given name, and the method will croak if no clickable input
 with the given name is found.  If $name is I<not> specified, then it
 is ok if the form contains no clickable inputs.  In this case the
 click() method returns the same request as the make_request() method
 would do.
 
-If there is multiple clickable inputs with the same name, then there
+If there are multiple clickable inputs with the same name, then there
 is no way to get the click() method of the C<HTML::Form> to click on
 any but the first.  If you need this you would have to locate the
 input with find_input() and invoke the click() method on the given
@@ -427,8 +427,8 @@ input yourself.
 A click coordinate pair can also be provided, but this only makes a
 difference if you clicked on an image.  The default coordinate is
 (1,1).  The upper-left corner of the image is (0,0), but some badly
-coded CGI scripts are known to not recognize this so (1,1) was
-selectes as a safer default.
+coded CGI scripts are known to not recognize this.  Therefore (1,1) was
+selected as a safer default.
 
 =cut
 
@@ -452,8 +452,8 @@ sub click
 =item @kw = $form->form
 
 Returns the current setting as a sequence of key/value pairs.  Note
-that keys might be repeated which means that some values might be lost
-if the return values are assigned to a hash.
+that keys might be repeated, which means that some values might be
+lost if the return values are assigned to a hash.
 
 In scalar context this method returns the number of key/value pairs
 generated.
@@ -580,7 +580,7 @@ sub value
 =item $input->possible_values
 
 Returns a list of all values that and input can take.  For inputs that
-does not have discrete values this returns an empty list.
+do not have discrete values, this returns an empty list.
 
 =cut
 
@@ -787,9 +787,9 @@ package HTML::Form::SubmitInput;
 
 =item $input->click($form, $x, $y)
 
-Some input types (currently "sumbit" buttons and "images") can be
+Some input types (currently "submit" buttons and "images") can be
 clicked to submit the form.  The click() method returns the
-corrsponding C<HTTP::Request> object.
+corresponding C<HTTP::Request> object.
 
 =cut
 
@@ -870,7 +870,7 @@ sub filename {
 
 This get/sets the file content provided to the server during file
 upload.  This method can be used if you do not want the content to be
-uploaded to be provided from an actual file.
+read from an actual file.
 
 =cut
 

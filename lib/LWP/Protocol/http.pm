@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.52 2001/04/05 15:08:33 gisle Exp $
+# $Id: http.pm,v 1.53 2001/04/16 10:41:59 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -177,7 +177,7 @@ sub request
 	$n = $socket->syswrite($$cont_ref, length($$cont_ref));
 	die $! unless defined($n);
 	die "short write" unless $n == length($$cont_ref);
-	LWP::Debug::conns($buf);
+	LWP::Debug::conns($$cont_ref);
     }
 
     # read response line from server

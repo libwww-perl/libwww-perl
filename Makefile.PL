@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.65 2002/05/31 20:48:37 gisle Exp $
+# $Id: Makefile.PL,v 1.66 2002/05/31 20:51:03 gisle Exp $
 
 require 5.005;
 use strict;
@@ -126,7 +126,7 @@ EOT
 		close(PROG);
 	    }
 	    if (prompt("Do you want to install the $alias alias?", $default) =~ /^y/) {
-		push(@tmp, $_);
+		push(@tmp, $alias);
 	    }
 	}
 	@request_aliases = @tmp;

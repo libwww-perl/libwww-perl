@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.23 2003/10/26 15:38:08 gisle Exp $
+# $Id: UserAgent.pm,v 2.24 2003/11/21 11:48:13 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.24 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -286,32 +286,43 @@ sub request
 	$code == &HTTP::Status::RC_SEE_OTHER or
 	$code == &HTTP::Status::RC_TEMPORARY_REDIRECT)
     {
-
-	# Make a copy of the request and initialize it with the new URI
 	my $referral = $request->clone;
 
+	# These headers should never be forwarded
+	$referral->remove_header('Host', 'Cookie');
+	
+	if ($code == &HTTP::Status::RC_SEE_OTHER ||
+	    $code == &HTTP::Status::RC_FOUND) 
+        {
+	    my $method = uc($referral->method);
+	    unless ($method eq "GET" || $method eq "HEAD") {
+		$referral->method("GET");
+
+		# Clean content and all content related headers
+		$referral->content("");
+		my %content_headers;
+		$referral->headers->scan(sub {
+		    my $h = shift;
+		    $content_headers{lc($h)}++ if $h =~ /^Content-/i;
+		});
+		$referral->remove_header(keys %content_headers);
+	    }
+	}
+
 	# And then we update the URL based on the Location:-header.
-	my($referral_uri) = $response->header('Location');
+	my $referral_uri = $response->header('Location');
 	{
 	    # Some servers erroneously return a relative URL for redirects,
 	    # so make it absolute if it not already is.
 	    local $URI::ABS_ALLOW_RELATIVE_SCHEME = 1;
 	    my $base = $response->base;
+	    $referral_uri = "" unless defined $referral_uri;
 	    $referral_uri = $HTTP::URI_CLASS->new($referral_uri, $base)
 		            ->abs($base);
 	}
-
-	$referral->method("GET")
-	    if ($code == &HTTP::Status::RC_SEE_OTHER ||
-		$code == &HTTP::Status::RC_FOUND) &&
-		    $referral->method ne "HEAD";
-
 	$referral->url($referral_uri);
-	$referral->remove_header('Host', 'Cookie');
 
-	return $response unless $self->redirect_ok($referral);
-
-	# Check for loop in the redirects
+	# Check for loop in the redirects, we only count
 	my $count = 0;
 	my $r = $response;
 	while ($r) {
@@ -323,6 +334,7 @@ sub request
 	    $r = $r->previous;
 	}
 
+	return $response unless $self->redirect_ok($request, $response);
 	return $self->request($referral, $arg, $size, $response);
 
     }
@@ -512,12 +524,12 @@ sub redirect_ok
     # Note that this routine used to be just:
     #  return 0 if $_[1]->method eq "POST";  return 1;
 
-    my($self, $request) = @_;
-    my $method = $request->method;
+    my($self, $new_request, $response) = @_;
+    my $method = $response->request->method;
     return 0 unless grep $_ eq $method,
       @{ $self->requests_redirectable || [] };
     
-    if($request->url->scheme eq 'file') {
+    if ($new_request->url->scheme eq 'file') {
       LWP::Debug::trace("Can't redirect to a file:// URL!");
       return 0;
     }
@@ -1253,11 +1265,12 @@ it will be the one actually processed.
 The headers affected by the base implementation are; "User-Agent",
 "From", "Range" and "Cookie".
 
-=item $ua->redirect_ok( $request )
+=item $ua->redirect_ok( $prospective_request, $response )
 
 This method is called by request() before it tries to follow a
-redirection to the request in $request.  This should return a TRUE
-value if this redirection is permissible.
+redirection to the request in $response.  This should return a TRUE
+value if this redirection is permissible.  The $prospective_request
+will be the request to be sent if this method returns TRUE.
 
 The base implementation will return FALSE unless the method
 is in the object's C<requests_redirectable> list,

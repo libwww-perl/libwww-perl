@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.52 2004/11/30 12:00:22 gisle Exp $
+# $Id: Message.pm,v 1.53 2004/11/30 17:23:18 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -529,7 +529,8 @@ add_content() will refuse to do anything.
 
 Returns the content with any C<Content-Encoding> undone and strings
 mapped to perl's Unicode strings.  If the C<Content-Encoding> or
-C<charset> of the message is unknown this method will croak.
+C<charset> of the message is unknown this method will fail by
+returning C<undef>.
 
 The following options can be specified.
 

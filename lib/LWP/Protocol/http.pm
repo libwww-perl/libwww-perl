@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.34 1997/12/15 20:30:41 aas Exp $
+# $Id: http.pm,v 1.35 1997/12/16 14:28:29 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -102,7 +102,7 @@ sub request
     my $buf = $request_line . $request->headers_as_string($CRLF) . $CRLF;
     {
 	die "write timeout" if $timeout && !$sel->can_write($timeout);
-	my $n = syswrite($socket, $buf, length($buf));
+	my $n = $socket->syswrite($buf, length($buf));
 	die $! unless defined($n);
 	die "short write" unless $n == length($buf);
     }
@@ -110,13 +110,13 @@ sub request
 	if (ref($contRef) eq 'CODE') {
 	    while ( ($buf = &$contRef()), defined($buf) && length($buf)) {
 		die "write timeout" if $timeout && !$sel->can_write($timeout);
-		my $n = syswrite($socket, $buf, length($buf));
+		my $n = $socket->syswrite($buf, length($buf));
 		die $! unless defined($n);
 		die "short write" unless $n == length($buf);
 	    }
 	} else {
 	    die "write timeout" if $timeout && !$sel->can_write($timeout);
-	    my $n = syswrite($socket, $$contRef, length($$contRef));
+	    my $n = $socket->syswrite($$contRef, length($$contRef));
 	    die $! unless defined($n);
 	    die "short write" unless $n == length($$contRef);
 	}
@@ -133,7 +133,7 @@ sub request
     while (1) {
 	{
 	    die "read timeout" if $timeout && !$sel->can_read($timeout);
-	    my $n = sysread($socket, $buf, $size, length($buf));
+	    my $n = $socket->sysread($buf, $size, length($buf));
 	    die $! unless defined($n);
 	    die "unexpected EOF before status line seen" unless $n;
 	}
@@ -151,7 +151,7 @@ sub request
 		# must read more if we can...
 		LWP::Debug::debug("need more header data");
 		die "read timeout" if $timeout && !$sel->can_read($timeout);
-		my $n = sysread($socket, $buf, $size, length($buf));
+		my $n = $socket->sysread($buf, $size, length($buf));
 		die $! unless defined($n);
 		die "unexpected EOF before all headers seen" unless $n;
 	    }
@@ -214,12 +214,13 @@ sub request
 	    return \$buf;
 	}
 	die "read timeout" if $timeout && !$sel->can_read($timeout);
-	my $n = sysread($socket, $buf, $size);
+	my $n = $socket->sysread($buf, $size);
 	die $! unless defined($n);
 	return \$buf;
 	} );
 
     $socket->close;
+
     $response;
 }
 

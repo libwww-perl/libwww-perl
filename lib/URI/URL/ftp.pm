@@ -15,7 +15,7 @@ sub _parse {
 sub user
 {
     my($self, @val) = @_;
-    my $old = $self->URI::URL::_generic::user(@val);
+    my $old = $self->SUPER::user(@val);
     defined $old ? $old : "anonymous";
 }
 
@@ -27,20 +27,25 @@ BEGIN {
 sub password
 {
     my($self, @val) = @_;
-    my $old = $self->URI::URL::_generic::password(@val);
+    my $old = $self->SUPER::password(@val);
     unless (defined $old) {
-	# anonymous ftp login password
-	unless (defined $fqdn) {
-	    require Sys::Hostname;
-	    $fqdn = Sys::Hostname::hostname();
-	}
-	unless (defined $whoami) {
-	    $whoami = $ENV{USER} || $ENV{LOGNAME};
-	    unless ($whoami) {
-		chomp($whoami = `whoami`);
+	my $user = $self->user;
+	if ($user eq 'anonymous' || $user eq 'ftp') {
+	    # anonymous ftp login password
+	    unless (defined $fqdn) {
+		require Sys::Hostname;
+		$fqdn = Sys::Hostname::hostname();
 	    }
+	    unless (defined $whoami) {
+		$whoami = $ENV{USER} || $ENV{LOGNAME};
+		unless ($whoami) {
+		    chomp($whoami = `whoami`);
+		}
+	    }
+	    $old = "$whoami\@$fqdn";
+	} else {
+	    $old = "";
 	}
-	$old = "$whoami\@$fqdn";
     }
     $old;
 }

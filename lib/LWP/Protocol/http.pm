@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.26 1997/01/27 14:17:23 aas Exp $
+# $Id: http.pm,v 1.27 1997/01/29 13:05:47 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -123,7 +123,7 @@ sub request
     # found in the response.
     while ($socket->read(\$buf, undef, $timeout)) {
 	$res .= $buf;
-	if ($res =~ s/^(HTTP\/\d+\.\d+)\s+(\d+)\s+(.*)\012//) {
+	if ($res =~ s/^(HTTP\/\d+\.\d+)\s+(\d+)\s+([^\012]*)\012//) {
 	    # HTTP/1.0 response or better
 	    my($ver,$code,$msg) = ($1, $2, $3);
 	    $msg =~ s/\015$//;

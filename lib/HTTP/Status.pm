@@ -1,8 +1,9 @@
 #
-# $Id: Status.pm,v 1.21 1997/12/10 13:12:17 aas Exp $
+# $Id: Status.pm,v 1.22 1998/01/06 09:56:49 aas Exp $
 
 package HTTP::Status;
 
+use strict;
 require 5.002;   # becase we use prototypes
 
 =head1 NAME
@@ -80,11 +81,13 @@ names:
 
 #####################################################################
 
+use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 # Note also addition of mnemonics to @EXPORT below
 

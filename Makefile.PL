@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.60 2001/11/15 09:05:59 gisle Exp $
+# $Id: Makefile.PL,v 1.61 2001/11/27 17:41:20 gisle Exp $
 
 require 5.005;
 use strict;
@@ -60,6 +60,22 @@ EOT
         if (prompt("Do you want to enable these tests?", "y") =~ /^y/i) {
 	    open(ENABLED, ">t/live/ENABLED") || die "Can't enable: $!";
 	    close(ENABLED);
+
+	    # Figure out if the compress lib works an signal that with
+	    # a file for the test suite to find.  We don't want the
+	    # test script to do this 'require' itself because we want
+	    # to test that the module loads it on demand as it should.
+	    eval {
+		require Compress::Zlib;
+		Compress::Zlib->VERSION(1.10);
+		open(ZLIB_OK, ">t/live/ZLIB_OK") || die "Can't create ZLIB_OK: $!";
+		print ZLIB_OK "$Compress::Zlib::VERSION\n";
+		close(ZLIB_OK);
+	    };
+	    if ($@) {
+		warn $@;
+		unlink("t/live/ZLIB_OK");
+	    }
 	}
 	else {
 	    unlink("t/live/ENABLED");

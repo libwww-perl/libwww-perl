@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.19 1997/01/23 21:38:59 aas Exp $
+# $Id: ftp.pm,v 1.20 1997/12/12 15:49:31 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -36,29 +36,29 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-				  'You can not proxy through the ftp';
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   'You can not proxy through the ftp');
     }
 
     my $url = $request->url;
     if ($url->scheme ne 'ftp') {
 	my $scheme = $url->scheme;
-	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-		       "LWP::Protocol::ftp::request called for '$scheme'";
+	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+		       "LWP::Protocol::ftp::request called for '$scheme'");
     }
 
     # check method
     my $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'PUT') {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-				  'Library does not allow method ' .
-				  "$method for 'ftp:' URLs";
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   'Library does not allow method ' .
+				   "$method for 'ftp:' URLs");
     }
 
     if ($init_failed) {
-	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-		       $init_failed;
+	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				   $init_failed);
     }
 
     my $host     = $url->host;
@@ -79,11 +79,18 @@ sub request
     # We allow the account to be specified in the "Account" header
     my $acct     = $request->header('Account');
 
+    # try to make a connection
+    my $ftp = Net::FTP->new($host, Port => $port);
+    unless ($ftp) {
+       $@ =~ s/^Net::FTP: //;
+       return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
+    }
+
     # Create an initial response object
-    my $response = new HTTP::Response &HTTP::Status::RC_OK, "Document follows";
+    my $response = HTTP::Response->new(&HTTP::Status::RC_OK,
+				       "Document follows");
     $response->request($request);
 
-    my $ftp = new Net::FTP $host, Port => $port;
     my $mess = $ftp->message;  # welcome message
     LWP::Debug::debug($mess);
     $mess =~ s|\n.*||s; # only first line left
@@ -97,7 +104,8 @@ sub request
     LWP::Debug::debug("Logging in as $user (password $password)...");
     unless ($ftp->login($user, $password, $acct)) {
 	# Unauthorized.  Let's fake a RC_UNAUTHORIZED response
-	my $res =  new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $ftp->message;
+	my $res =  HTTP::Response->new(&HTTP::Status::RC_UNAUTHORIZED,
+				       scalar($ftp->message));
 	$res->header("WWW-Authenticate", qq(Basic Realm="FTP login"));
 	return $res;
     }
@@ -120,8 +128,8 @@ sub request
     for (@path) {
 	LWP::Debug::debug("CWD $_");
 	unless ($ftp->cwd($_)) {
-	    return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
-		       "Can't chdir to $_";
+	    return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,
+				       "Can't chdir to $_");
 	}
     }
 
@@ -160,8 +168,8 @@ sub request
 	    # 550 not a plain file, try to list instead
 	    if (length($remote_file) && !$ftp->cwd($remote_file)) {
 		LWP::Debug::debug("chdir before listing failed");
-		return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
-		       "File '$remote_file' not found";
+		return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,
+					   "File '$remote_file' not found");
 	    }
 
 	    # It should now be safe to try to list the directory
@@ -181,8 +189,8 @@ sub request
 	    my $content = '';
 
 	    if (!defined($prefer)) {
-		return new HTTP::Response &HTTP::Status::RC_NOT_ACCEPTABLE,
-				   "Neither HTML nor directory listing wanted";
+		return HTTP::Response->new(&HTTP::Status::RC_NOT_ACCEPTABLE,
+			       "Neither HTML nor directory listing wanted");
 	    } elsif ($prefer eq 'html') {
 		$response->header('Content-Type' => 'text/html');
 		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
@@ -209,8 +217,8 @@ sub request
 		$response = $self->collect_once($arg, $response, $content);
 	    }
 	} else {
-	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-			  "FTP return code " . $ftp->code;
+	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+			  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
 	    return $res;
@@ -218,8 +226,8 @@ sub request
     } elsif ($method eq 'PUT') {
 	# method must be PUT
 	unless (length($remote_file)) {
-	    return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-				      "Must have a file name to PUT to";
+	    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				       "Must have a file name to PUT to");
 	}
 	my $data;
 	if ($data = $ftp->stor($remote_file)) {
@@ -253,15 +261,15 @@ sub request
 	    $response->content("$bytes bytes stored as $remote_file on $host\n")
 
 	} else {
-	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-			  "FTP return code " . $ftp->code;
+	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+					  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
 	    return $res;
 	}
     } else {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-	       "Illegal method $method"
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   "Illegal method $method");
     }
 
     $response;

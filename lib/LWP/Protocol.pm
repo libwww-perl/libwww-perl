@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.31 1998/01/06 09:58:38 aas Exp $
+# $Id: Protocol.pm,v 1.32 1999/03/19 21:02:17 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,7 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -117,7 +117,7 @@ sub implementor
 	# try to autoload it
 	eval "require $ic";
 	if ($@) {
-	    if ($@ =~ /^Can't locate/) { #' #emacs get confused by '
+	    if ($@ =~ /Can't locate/) { #' #emacs get confused by '
 		$ic = '';
 	    } else {
 		die "$@\n";

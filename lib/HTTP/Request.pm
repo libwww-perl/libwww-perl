@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.24 1998/11/19 21:45:00 aas Exp $
+# $Id: Request.pm,v 1.25 1999/03/19 21:02:16 gisle Exp $
 
 package HTTP::Request;
 
@@ -39,7 +39,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -104,7 +104,7 @@ sub uri
 	    unless ($HTTP::URI_CLASS eq "URI") {
 		# Argh!! Hate this... old LWP legacy!
 		eval { $uri = $uri->abs; };
-		die $@ if $@ && $@ !~ /^Missing base argument/;
+		die $@ if $@ && $@ !~ /Missing base argument/;
 	    }
 	} else {
 	    $uri = $HTTP::URI_CLASS->new($uri);

@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.7 1996/09/19 12:08:45 aas Exp $
+# $Id: RobotUA.pm,v 1.8 1996/09/19 12:11:20 aas Exp $
 
 package LWP::RobotUA;
 
@@ -130,8 +130,9 @@ Set/get which I<WWW::RobotRules> object to use.
 
 sub rules {
     my $self = shift;
-    $self->_elem('rules', @_);
+    my $old = $self->_elem('rules', @_);
     $self->{'rules'}->agent($self->{'agent'}) if @_;
+    $old;
 }
 
 

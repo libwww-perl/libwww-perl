@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.17 1996/10/17 11:42:43 aas Exp $
+# $Id: Message.pm,v 1.18 1996/10/29 10:06:35 aas Exp $
 
 package HTTP::Message;
 
@@ -161,11 +161,9 @@ sub headers_as_string  { shift->{'_headers'}->as_string(@_);     }
 sub AUTOLOAD
 {
     my $self = shift;
-    #print STDERR "DELEGATE $AUTOLOAD\n";
-    return if $AUTOLOAD =~ /::DESTROY$/;
-    $AUTOLOAD =~ s/^(\w+::)+//;  # Remove the package name.
-    # Pass the message to the delegate.
-    $self->{'_headers'}->$AUTOLOAD(@_);
+    my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
+    return if $method eq "DESTROY";
+    $self->{'_headers'}->$method(@_);
 }
 
 # Private method to access members in %$self

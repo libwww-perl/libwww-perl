@@ -1,5 +1,5 @@
 #
-# $Id: http10.pm,v 1.1 2001/10/26 17:27:19 gisle Exp $
+# $Id: http10.pm,v 1.2 2003/10/14 17:43:47 gisle Exp $
 
 package LWP::Protocol::http10;
 
@@ -67,17 +67,17 @@ sub _fixup_header
     # HTTP/1.1 will require us to send the 'Host' header, so we might
     # as well start now.
     my $hhost = $url->authority;
-    $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
-    $h->header('Host' => $hhost) unless defined $h->header('Host');
-
-    # add authorization header if we need them.  HTTP URLs do
-    # not really support specification of user and password, but
-    # we allow it.
-    if (defined($1) && not $h->header('Authorization')) {
-	require URI::Escape;
-	$h->authorization_basic(map URI::Escape::uri_unescape($_),
-				split(":", $1, 2));
+    if ($hhost =~ s/^([^\@]*)\@//) {  # get rid of potential "user:pass@"
+	# add authorization header if we need them.  HTTP URLs do
+	# not really support specification of user and password, but
+	# we allow it.
+	if (defined($1) && not $h->header('Authorization')) {
+	    require URI::Escape;
+	    $h->authorization_basic(map URI::Escape::uri_unescape($_),
+				    split(":", $1, 2));
+	}
     }
+    $h->init_header('Host' => $hhost);
 
     if ($proxy) {
 	# Check the proxy URI's userinfo() for proxy credentials

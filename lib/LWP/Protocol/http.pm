@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.64 2002/09/20 14:53:30 gisle Exp $
+# $Id: http.pm,v 1.65 2003/10/14 17:43:47 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -83,17 +83,17 @@ sub _fixup_header
 
     # Extract 'Host' header
     my $hhost = $url->authority;
-    $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
-    $h->init_header('Host' => $hhost);
-
-    # add authorization header if we need them.  HTTP URLs do
-    # not really support specification of user and password, but
-    # we allow it.
-    if (defined($1) && not $h->header('Authorization')) {
-	require URI::Escape;
-	$h->authorization_basic(map URI::Escape::uri_unescape($_),
-				split(":", $1, 2));
+    if ($hhost =~ s/^([^\@]*)\@//) {  # get rid of potential "user:pass@"
+	# add authorization header if we need them.  HTTP URLs do
+	# not really support specification of user and password, but
+	# we allow it.
+	if (defined($1) && not $h->header('Authorization')) {
+	    require URI::Escape;
+	    $h->authorization_basic(map URI::Escape::uri_unescape($_),
+				    split(":", $1, 2));
+	}
     }
+    $h->init_header('Host' => $hhost);
 
     if ($proxy) {
 	# Check the proxy URI's userinfo() for proxy credentials

@@ -15,6 +15,12 @@
     HTTP::Daemon's send_file() method did not work when given
     a file name.  Patch by Dave W. Smith <dws@postcognitive.com>.
 
+    LWP::Protocol::http assumed $1 would be meaningful without
+    testing the outcome of the match.  This sometimes produced
+    an extra garbage Authentication header.
+    Based on the patch by <bai@dreamarts.co.jp> in
+    <http://rt.cpan.org/Ticket/Display.html?id=1994>
+
 
 
 2003-10-13   Gisle Aas <gisle@ActiveState.com>

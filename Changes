@@ -16,23 +16,23 @@
     User-Agent string, not the other way around.
     Patch by Ville Skyttä <ville.skytta@iki.fi>.
 
-    HTML::Headers: New method 'header_field_names' that
+    HTTP::Headers: New method 'header_field_names' that
     return a list names as suggested by its name.
 
-    HTML::Headers: $h->remove_content_headers will now
+    HTTP::Headers: $h->remove_content_headers will now
     also remove the headers "Allow", "Expires" and
     "Last-Modified".  These are also part of the set
     that RFC 2616 denote as Entity Header Fields.
 
-    HTML::Headers: $h->content_type is now more careful
+    HTTP::Headers: $h->content_type is now more careful
     in removing embedded space in the returned value.
     It also now returns all the parameters as the second
     return value as documented.
 
-    HTML::Headers: $h->header() now croaks.  It used to
+    HTTP::Headers: $h->header() now croaks.  It used to
     silently do nothing.
 
-    HTML::Headers: Documentation tweaks.  Documented a
+    HTTP::Headers: Documentation tweaks.  Documented a
     few bugs discovered during testing.
 
     Typo fixes to the documentation all over the place
@@ -46,6 +46,8 @@
 
     Release 5.78
 
+    Removed stray Data::Dump reference from test suite.
+    
     Added the parse(), clear(), parts() and add_part() methods to
     HTTP::Message.  The HTTP::MessageParts module of 5.77 is no more.
 
@@ -1287,7 +1289,7 @@ Wed Apr  1 1998   Gisle Aas <aas@sn.no>
        * Font-AFM     (Font::AFM, Font::Metrics::*)
        * File-CounterFile
 
- o  Simplified internal structure of HTML::Headers.  Hopefully,
+ o  Simplified internal structure of HTTP::Headers.  Hopefully,
     nobody will notice.
 
  o  New modules HTTP::Headers::Auth,  HTTP::Headers::ETag that adds

@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.13 1995/08/07 16:02:47 aas Exp $
+# $Id: UserAgent.pm,v 1.14 1995/08/09 12:00:02 aas Exp $
 
 package LWP::UserAgent;
 
@@ -10,10 +10,10 @@ LWP::UserAgent - A WWW UserAgent class
 
 =head1 SYNOPSIS
 
- use LWP::UserAgent;
+ require LWP::UserAgent;
  $ua = new LWP::UserAgent;
 
- $request = new LWP::Request('file://localhost/etc/motd');
+ $request = new HTTP::Request('file://localhost/etc/motd');
 
  $response = $ua->request($request); # or
  $response = $ua->request($request, '/tmp/sss'); # or
@@ -24,32 +24,40 @@ LWP::UserAgent - A WWW UserAgent class
 =head1 DESCRIPTION
 
 C<LWP::UserAgent> is a class implementing a simple World-Wide Web user
-agent in Perl. It brings together the Request/Response classes and the
-Protocol classes that form the rest of the LWP library. For simple
-uses this class can be used directly to dispatch WWW requests,
-alternatively it can be subclassed for application-specific behaviour.
+agent in Perl. It brings together the HTTP::Request, HTTP::Response
+and the LWP::Protocol classes that form the rest of the libwww-perl
+library. For simple uses this class can be used directly to dispatch
+WWW requests, alternatively it can be subclassed for
+application-specific behaviour.
 
 In normal usage the application creates a UserAgent object, and
 configures it with values for timeouts proxies, name, etc. The next
-step is to create an instance of C<LWP::Request> for the request that
-needs to be performed. This request is then passed to the UserAgent 
+step is to create an instance of C<HTTP::Request> for the request that
+needs to be performed. This request is then passed to the UserAgent
 C<request()> method, which dispatches it using the relevant protocol,
-and returns a C<LWP::Reponse> object.
+and returns a C<HTTP::Response> object.
+
+The basic approach of the library is to use HTTP style communication
+for all protocol schemes, i.e. you will receive an C<HTTP::Response>
+object also for gopher or ftp requests.  In order to achieve even more
+similarities with HTTP style communications, gopher menus and file
+directories will be converted to HTML documents.
 
 The C<request> method can process the content of the response in one
-of three ways: into a scalar, into a file, or into repeated calls of a
-subroutine. The scalar variant simply returns the content in a scalar
-in the response object, and is suitable for small HTML replies that
-might need further parsing.  The filename variant requires a scalar
-containing a filename, and is suitable for large WWW objects which
-need to be written directly to disc, without requiring large amounts
-of memory. In this case the response object contains the name of the
-file, but not the content. The subroutine variant requires a callback
-routine and optional chuck size, and can be used to construct
-"pipe-lined" processing, where processing of received chuncks can
-begin before the complete data has arrived.  The callback is called with
-3 arguments:  a reference to the data, a reference to the response
-object and a reference to the protocol object.
+of three ways: in core, into a file, or into repeated calls of a
+subroutine. The in core variant simply returns the content in a scalar
+attribute called C<content()> of the response object, and is suitable
+for small HTML replies that might need further parsing.  The filename
+variant requires a scalar containing a filename, and is suitable for
+large WWW objects which need to be written directly to disc, without
+requiring large amounts of memory. In this case the response object
+contains the name of the file, but not the content. The subroutine
+variant requires a callback routine and optional chuck size, and can
+be used to construct "pipe-lined" processing, where processing of
+received chuncks can begin before the complete data has arrived.  The
+callback is called with 3 arguments: a reference to the data, a
+reference to the response object and a reference to the protocol
+object.
 
 Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
@@ -67,7 +75,7 @@ this behaviour, and let the application handle dies.
 
 =head1 SEE ALSO
 
-See L<LWP> for a complete overview of libwww-perl5.  See L<get> and
+See L<LWP> for a complete overview of libwww-perl5.  See L<request> and
 L<mirror> for examples of usage.
 
 =head1 METHODS
@@ -83,14 +91,14 @@ require LWP::MemberMixin;
 
 require URI::URL;
 
-require LWP::Request;
-require LWP::Response;
-require LWP::Protocol;
+require HTTP::Date;
+require HTTP::Request;
+require HTTP::Response;
+
 require LWP::Debug;
-require LWP::Date;
+require LWP::Protocol;
 
 use LWP::Base64 qw(Base64encode);
-
 use Carp;
 
 #####################################################################
@@ -104,7 +112,7 @@ use Carp;
 Constructor for the UserAgent.
 
  $ua = new LWP::UserAgent;
- $ub = new LWP::UserAgent($ua);
+ $ub = new LWP::UserAgent($ua);  # clone existing UserAgent
 
 =cut
 
@@ -168,9 +176,9 @@ sub isProtocolSupported
 
 =head2 simpleRequest($request, $arg [, $size])
 
-This method dispatches WWW requests on behalf of a user, and returns
-the response received. See the description above for the use of the
-method arguments.
+This method dispatches a single WWW request on behalf of a user, and
+returns the response received. See the description above for the use
+of the method arguments.
 
 =cut
 
@@ -231,15 +239,15 @@ sub simpleRequest
     
     if ($@) {
         if ($@ =~ /timeout/i) {
-            $response = new LWP::Response
-                                 &LWP::StatusCode::RC_REQUEST_TIMEOUT,
+            $response = new HTTP::Response
+                                 &HTTP::Status::RC_REQUEST_TIMEOUT,
                                  'User-agent timeout while ' .
                                           $LWP::Debug::timeoutMessage;
         }
         else {
             # Died on coding error
-            $response = new LWP::Response
-                        &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR, $@;
+            $response = new HTTP::Response
+                        &HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@;
         }
     }
     $response->request($request);  # record request for reference
@@ -249,11 +257,8 @@ sub simpleRequest
 
 =head2 request($request, $arg [, $size])
 
-Process a request, including redirects and security.
-This method may actually send several different 
-simple reqeusts.
-
-This sub is getting a bit large...
+Process a request, including redirects and security.  This method may
+actually send several different simple reqeusts.
 
 =cut
 
@@ -269,10 +274,10 @@ sub request
     my $code = $response->code;
     $response->previous($previous) if defined $previous;
 
-    LWP::Debug::debug('Simple result: ' . LWP::StatusCode::message($code));
+    LWP::Debug::debug('Simple result: ' . HTTP::Status::statusMessage($code));
 
-    if ($code == &LWP::StatusCode::RC_MOVED_PERMANENTLY or
-        $code == &LWP::StatusCode::RC_MOVED_TEMPORARILY) {
+    if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
+        $code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
 
         my $referral_uri =
 	  new URI::URL $response->header('URI') || 
@@ -293,7 +298,7 @@ sub request
 
         return $self->request($referral, $arg, $size, $response);
 
-    } elsif ($code == &LWP::StatusCode::RC_UNAUTHORIZED) {
+    } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED) {
 
         my $challenge = $response->header('WWW-Authenticate');
         die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
@@ -337,10 +342,10 @@ sub request
             die "Unknown challenge '$challenge'";
         }
 
-    } elsif ($code == &LWP::StatusCode::RC_PAYMENT_REQUIRED or
-             $code == &LWP::StatusCode::RC_PROXY_AUTHENTICATION_REQUIRED) {
+    } elsif ($code == &HTTP::Status::RC_PAYMENT_REQUIRED or
+             $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
 
-        die 'Resolution of' . LWP::StatusCode::message($code) .
+        die 'Resolution of' . HTTP::Status::statusMessage($code) .
             'not yet implemented';
     }
     $response;
@@ -359,11 +364,13 @@ sub credentials
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication.
 
-Should return username and password in a list.
+Should return username and password in a list.  Return undef to abort
+the authentication resolution atempts.
 
 This implementation simply checks a set of pre-stored member
 variables. Subclasses can override this method to e.g. ask the user
-for a username/password.
+for a username/password.  An example of this can be found in
+C<request> program distributed with this library.
 
 =cut
 
@@ -399,13 +406,13 @@ sub mirror
     my($self, $url, $file) = @_;
 
     LWP::Debug::trace('()');
-    my $request = new LWP::Request('GET', $url);
+    my $request = new HTTP::Request('GET', $url);
 
     if (-e $file) {
         my($mtime) = (stat($file))[9];
         if($mtime) {
             $request->header('If-Modified-Since',
-                             LWP::Date::time2str($mtime));
+                             HTTP::Date::time2str($mtime));
         }
     }
     my $tmpfile = "$file-$$";
@@ -519,9 +526,9 @@ sub envProxy {
 
 =head2 noProxy($domain)
 
- $ua->noProxy('localhost', ...);
+ $ua->noProxy('localhost', 'no', ...);
 
-Don't proxy requests to the given domains.
+Do not proxy requests to the given domains.
 Calling noProxy without domains clears the
 list of domains.
 

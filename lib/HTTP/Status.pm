@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.11 1996/02/05 17:59:07 aas Exp $
+# $Id: Status.pm,v 1.12 1996/02/26 19:03:15 aas Exp $
 
 package HTTP::Status;
 
@@ -14,12 +14,12 @@ HTTP::Status - HTTP Status code processing
  use HTTP::Status;
 
  if ($rc != RC_OK) { 
-     print statusMessage($rc), "\n";
+     print status_message($rc), "\n";
  }
 
- if (isSuccess($rc)) { ... }
- if (isError($rc)) { ... }
- if (isRedirect($rc)) { ... }
+ if (is_success($rc)) { ... }
+ if (is_error($rc)) { ... }
+ if (is_redirect($rc)) { ... }
 
 =head1 DESCRIPTION
 
@@ -56,10 +56,10 @@ The following functions can be used as mnemonic status codes:
    RC_SERVICE_UNAVAILABLE
    RC_GATEWAY_TIMEOUT
 
-The C<statusMessage()> function will translate status codes to human
+The C<status_message()> function will translate status codes to human
 readable strings.
 
-The C<isSuccess()>, C<isError()>, and C<isRedirect()> functions will
+The C<is_success()>, C<is_error()>, and C<is_redirect()> functions will
 return a true value if the passed status code indicates success, and
 error, or a redirect respectively.
 
@@ -70,7 +70,7 @@ error, or a redirect respectively.
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(isSuccess isError isRedirect statusMessage);
+@EXPORT = qw(is_success is_error is_redirect status_message);
 
 # Note also addition of mnemonics to @EXPORT below
 
@@ -119,36 +119,36 @@ die if $@;
 undef $mnemonicCode;
 
 
-=head2 statusMessage($code)
+=head2 status_message($code)
 
 Return user friendly error message for status code C<$code>
 
 =cut
 
-sub statusMessage
+sub status_message
 {
     return undef unless exists $StatusCode{$_[0]};
     $StatusCode{$_[0]};
 }
 
 
-=head2 isSuccess($code)
+=head2 is_success($code)
 
 Return a true value if C<$code> is a Success status code
 
-=head2 isRedirect($code)
+=head2 is_redirect($code)
 
 Return a true value if C<$code> is a Redirect status code
 
-=head2 isError($code)
+=head2 is_error($code)
 
 Return a true value if C<$code> is an Error status code
 
 =cut
 
-sub isSuccess  { $_[0] >= 200 && $_[0] < 300; }
-sub isRedirect { $_[0] >= 300 && $_[0] < 400; }
-sub isError    { $_[0] >= 400 && $_[0] < 600; }
+sub is_success  { $_[0] >= 200 && $_[0] < 300; }
+sub is_redirect { $_[0] >= 300 && $_[0] < 400; }
+sub is_error    { $_[0] >= 400 && $_[0] < 600; }
 
 
 1;

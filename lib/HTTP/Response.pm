@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.12 1996/01/08 20:03:22 aas Exp $
+# $Id: Response.pm,v 1.13 1996/02/26 19:06:48 aas Exp $
 
 package HTTP::Response;
 
@@ -24,17 +24,17 @@ of an C<LWP::UserAgent> object:
 
  ...
  $response = $ua->request($request)
- if ($response->isSuccess) {
+ if ($response->is_success) {
      print $response->content;
  } else {
-     print $response->errorAsHTML;    
+     print $response->error_as_HTML;    
  }
 
 =head1 METHODS
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are C<header>,
-C<pushHeader>, C<removeHeader> C<headerAsString> and C<content>.  See
+C<push_header>, C<remove_header> C<headers_as_string> and C<content>.  See
 L<HTTP::Message> for details.
 
 =cut
@@ -102,23 +102,23 @@ sub previous  { shift->_elem('_previous',@_); }
 sub request   { shift->_elem('_request', @_); }
 
 
-=head2 asString()
+=head2 as_string()
 
 Method returning a textual representation of the request.  Mainly
 useful for debugging purposes. It takes no arguments.
 
 =cut
 
-sub asString
+sub as_string
 {
     require HTTP::Status;
     my $self = shift;
     my @result = ("--- $self ---");
     my $code = $self->code;
-    push(@result, "RC: $code (" . HTTP::Status::statusMessage($code) . ")" );
+    push(@result, "RC: $code (" . HTTP::Status::status_message($code) . ")" );
     push(@result, 'Message: ' . $self->message);
     push(@result, '');
-    push(@result, $self->headerAsString);
+    push(@result, $self->headers_as_string);
     my $content = $self->content;
     if ($content) {
         push(@result, $self->content);
@@ -127,30 +127,30 @@ sub asString
     join("\n", @result, "");
 }
 
-=head2 isSuccess
+=head2 is_success
 
-=head2 isRedirect
+=head2 is_redirect
 
-=head2 isError
+=head2 is_error
 
 These methods indicate if the response was sucessful, a redirection,
 or an error.
 
 =cut
 
-sub isRedirect { HTTP::Status::isRedirect(shift->code); }
-sub isSuccess  { HTTP::Status::isSuccess(shift->code);  }
-sub isError    { HTTP::Status::isError(shift->code);    }
+sub is_redirect { HTTP::Status::is_redirect(shift->code); }
+sub is_success  { HTTP::Status::is_success(shift->code);  }
+sub is_error    { HTTP::Status::is_error(shift->code);    }
 
 
-=head2 errorAsHTML()
+=head2 error_as_HTML()
 
 Return string with a complete HTML document indicating
 what error occurred
 
 =cut
 
-sub errorAsHTML
+sub error_as_HTML
 {
     my $self = shift;
     my $msg = $self->{'_msg'} || 'Unknown';

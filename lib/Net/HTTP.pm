@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.16 2001/04/13 06:53:52 gisle Exp $
+# $Id: HTTP.pm,v 1.17 2001/04/14 06:03:11 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -185,6 +185,26 @@ sub my_readline {
     }
 }
 
+
+sub _rbuf {
+    my $self = shift;
+    if (@_) {
+	for (${*$self}{'http_buf'}) {
+	    my $old;
+	    $old = $_ if defined wantarray;
+	    $_ = shift;
+	    return $old;
+	}
+    }
+    else {
+	return ${*$self}{'http_buf'};
+    }
+}
+
+sub _rbuf_length {
+    my $self = shift;
+    return length ${*$self}{'http_buf'};
+}
 
 
 sub read_header_lines {
@@ -412,6 +432,17 @@ as for read() and sysread(), but buffer offset is not supported yet.
 
 After read_entity_body() has returned 0 to indicate end of the entity
 body, you might call this method to pick up any trailers.
+
+=item $s->_rbuf
+
+Get/set the read buffer content.  The read_response_headers() and
+read_entity_body() methods use an internal buffer which they will look
+for data before they actually sysread more from the socket itself.  If
+they read to much, the remainind data will be left in the buffer.
+
+=item $s->_rbuf_length
+
+Returns the number of bytes in the read buffer.
 
 =back
 

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.17 1996/03/05 11:01:57 aas Exp $
+$Id: TODO,v 1.18 1996/03/12 13:42:53 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -11,8 +11,6 @@ HTTP/1.1 features:
    Content-Range
 
 HTTP::Headers convenience access functions
-
-Implement MDA security
 
 Make multiple simultaneous requests work.  Make the callback request
 interface event driven.

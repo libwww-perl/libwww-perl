@@ -31,7 +31,8 @@ sub epath {
 sub _parse_gopherpath {
     my $self = shift;
     my $p = uri_unescape($self->{'path'});
-    if (defined($p) && $p =~ s!^/?(.)!!) {
+
+    if (defined($p) && $p ne '/' && $p =~ s!^/?(.)!!) {
         $self->{'gtype'} = $1;
     } else {
         $self->{'gtype'} = "1";

@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.19 2003/10/24 12:12:01 gisle Exp $
+# $Id: UserAgent.pm,v 2.20 2003/10/26 14:02:49 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.20 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -780,41 +780,19 @@ LWP::UserAgent - Web user agent class
 =head1 SYNOPSIS
 
  require LWP::UserAgent;
- my $ua = LWP::UserAgent->new(env_proxy => 1,
-                              keep_alive => 1,
-                              timeout => 30,
-                             );
-
- $response = $ua->get('http://search.cpan.org/');
-
+ 
+ my $ua = LWP::UserAgent->new;
+ $ua->timeout(10);
+ $ua->env_proxy;
+ 
+ my $response = $ua->get('http://search.cpan.org/');
+ 
  if ($response->is_success) {
      print $response->content;  # or whatever
  }
  else {
-     die "Error while getting ", $response->request->uri,
-         " -- ", $response->status_line, "\nAborting";
+     die $response->status_line;
  }
-
- # or:
-
- $response = $ua->get('http://search.cpan.org/',
-                      ':content_file' => '/tmp/sco.html'
-                     );
- # or:
-
- $response = $ua->get('http://search.cpan.org/',
-                      ':content_cb'     => \&callback,
-                      ':read_size_hint' => 4096,
-                     );
- # or:
-
- $request = HTTP::Request->new('GET', 'http://search.cpan.org/');
- # and then one of these:
- $response = $ua->request($request); # or
- $response = $ua->request($request, '/tmp/sco.html'); # or
- $response = $ua->request($request, \&callback, 4096);
-
- sub callback { my($data, $response, $protocol) = @_; ... }
 
 =head1 DESCRIPTION
 
@@ -825,17 +803,18 @@ In normal use the application creates an C<LWP::UserAgent> object, and
 then configures it with values for timeouts, proxies, name, etc. It
 then creates an instance of C<HTTP::Request> for the request that
 needs to be performed. This request is then passed to one of the
-request() method the UserAgent, which dispatches it using the relevant
+request method the UserAgent, which dispatches it using the relevant
 protocol, and returns a C<HTTP::Response> object.  There are
 convenience methods for sending the most common request types: get(),
-head() and post().
+head() and post().  When using these methods then the creation of the
+request object is hidden as shown in the synopsis above.
 
 The basic approach of the library is to use HTTP style communication
 for all protocol schemes.  This means that you will construct
 C<HTTP::Request> objects and receive C<HTTP::Response> objects even
-for I<gopher> and I<ftp> requests.  In order to achieve even more
-similarity to HTTP style communications, gopher menus and file
-directories are converted to HTML documents.
+for non-HTTP resources like I<gopher> and I<ftp>.  In order to achieve
+even more similarity to HTTP style communications, gopher menus and
+file directories are converted to HTML documents.
 
 =head1 CONSTRUCTOR METHODS
 
@@ -858,8 +837,8 @@ The following options correspond to attribute methods described below:
    max_size                undef
    max_redirect            7
    parse_head              1
-   protocols_allowed       []
-   protocols_forbidden     []
+   protocols_allowed       undef
+   protocols_forbidden     undef
    requests_redirectable   ['GET', 'HEAD']
    timeout                 180
 
@@ -878,6 +857,10 @@ Returns a copy of the LWP::UserAgent object.
 =back
 
 =head1 ATTRIBUTES
+
+The settings of the configuration attributes modify the behaviour of the
+C<LWP::UserAgent> when it dispatches requests.  Most of these can also
+be initialized by options passed to the constructor method.
 
 The following attributes methods are provided.  The attribute value is
 left unchanged if no argument is given.  The return value from each
@@ -916,9 +899,9 @@ of this library.
 
 =item $ua->from( $email_address )
 
-Get/set the Internet e-mail address for the human user who controls
+Get/set the e-mail address for the human user who controls
 the requesting user agent.  The address should be machine-usable, as
-defined in RFC 822.  The from value is send as the "From" header in
+defined in RFC 822.  The C<from> value is send as the "From" header in
 the requests.  Example:
 
   $ua->from('gaas@cpan.org');
@@ -955,7 +938,13 @@ is really just a shortcut for:
 
 =item $ua->conn_cache( $cache_obj )
 
-Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache> for details.
+Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache>
+for details.
+
+=item $ua->credentials( $netloc, $realm, $uname, $pass )
+
+Set the user name and password to be used for a realm.  It is often more
+useful to specialize the get_basic_credentials() method instead.
 
 =item $ua->max_size
 
@@ -964,22 +953,23 @@ Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache> for details.
 Get/set the size limit for response content.  The default is C<undef>,
 which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
-"Client-Aborted" header will be added to the response.
+"Client-Aborted" header will be added to the response.  The content
+might end up longer than C<max_size> as we abort once appending a
+chunk of data makes the length exceed the limit.  The "Content-Length"
+header, if present, will indicate the length of the full content and
+will normally not be the same as C<< length($res->content) >>.
 
 =item $ua->max_redirect
 
 =item $ua->max_redirect( $n )
 
 This reads or sets the object's limit of how many times it will obey
-redirection responses in a given C<< $ua->get(...) / $ua->put(...) /
-$ua->head(...) / $ua->request(...) >> / etc. cycle.
+redirection responses in a given request cycle.
 
 By default, the value is 7. This means that if you call C<<
 $ua->get($url) >> and the response is a redirect elsewhere which is in
 turn a redirect, and so on seven times, then LWP gives up after that
-seventh request.  Otherwise (like if the seventh or earlier isn't a
-redirect), then the response from C<< $ua->get($url) >> redirects
-are followed.
+seventh request.
 
 =item $ua->parse_head
 
@@ -993,50 +983,37 @@ TRUE.  Do not turn this off, unless you know what you are doing.
 
 =item $ua->protocols_allowed( \@protocols )
 
-This reads (or sets) this user agent's list of protocols that
-C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will exclusively
-allow.  The protocol names are case insensitive.
+This reads (or sets) this user agent's list of protocols that the
+request methods will exclusively allow.  The protocol names are case
+insensitive.
 
 For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
 means that this user agent will I<allow only> those protocols,
 and attempts to use this user agent to access URLs with any other
 schemes (like "ftp://...") will result in a 500 error.
 
-To delete the list, call:
-C<$ua-E<gt>protocols_allowed(undef)>
+To delete the list, call: C<$ua-E<gt>protocols_allowed(undef)>
 
-By default, an object has neither a protocols_allowed list, nor
-a protocols_forbidden list.
+By default, an object has neither a C<protocols_allowed> list, nor a
+C<protocols_forbidden> list.
 
-Note that having a protocols_allowed
-list causes any protocols_forbidden list to be ignored.
+Note that having a C<protocols_allowed> list causes any
+C<protocols_forbidden> list to be ignored.
 
 =item $ua->protocols_forbidden
 
 =item $ua->protocols_forbidden( \@protocols )
 
-This reads (or sets) this user agent's list of protocols that
-C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will I<not> allow.
-The protocol names are case insensitive.
+This reads (or sets) this user agent's list of protocols that the
+request method will I<not> allow. The protocol names are case
+insensitive.
 
 For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
 means that this user agent will I<not> allow those protocols, and
 attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
 
-To delete the list, call:
-C<$ua-E<gt>protocols_forbidden(undef)>
-
-=item $ua->is_protocol_supported( $scheme )
-
-You can use this method to test whether this user agent object supports the
-specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI object reference.)
-
-Whether a scheme is supported, is determined by $ua's protocols_allowed or
-protocols_forbidden lists (if any), and by the capabilities
-of LWP.  I.e., this will return TRUE only if LWP supports this protocol
-I<and> it's permitted for this particular object.
+To delete the list, call: C<$ua-E<gt>protocols_forbidden(undef)>
 
 =item $ua->requests_redirectable
 
@@ -1056,9 +1033,17 @@ change to include 'POST', consider:
 Get/set the timeout value in seconds. The default timeout() value is
 180 seconds, i.e. 3 minutes.
 
+The requests is aborted if no activity on the connection to the server
+is observed for C<timeout> seconds.  This means that the time it takes
+for the complete transaction and the request() method to actually
+return might be longer.
+
 =back
 
 =head2 Proxy attributes
+
+The following methods set up when requests should be passed via a
+proxy server.
 
 =over
 
@@ -1108,205 +1093,204 @@ C<CGI_HTTP_PROXY> environment variable can be used instead.
 
 =head1 REQUEST METHODS
 
-The send_request(), simple_request() and request() methods can process
-the content of the response in one of three ways: in core, into a
-file, or into repeated calls to a subroutine.  You choose which one by
-the kind of value passed as the second argument.
-
-The in core variant simply stores the content in the content
-attribute of the response object and is suitable for small HTML
-replies that might need further parsing.  This variant is used if the
-second argument is missing (or is C<undef>).
-
-The filename variant requires a string containing a filename as the
-second argument to the request method and is suitable for large
-content bodies which need to be written directly to the file without
-requiring large amounts of memory. In this case the response object
-returned from the request method will have an empty content attribute.
-If the request fails, then the content might not be empty, and the
-file will be untouched.
-
-The subroutine variant requires a reference to callback routine as the
-second argument to the request method and it can also take an optional
-chuck size as the third argument.  This variant can be used to
-construct "pipe-lined" processing, where processing of received
-chunks can begin before the complete data has arrived.  The callback
-function is called with 3 arguments: the data received this time, a
-reference to the response object and a reference to the protocol
-object.  The response object returned from the request method will
-have empty content.  If the request fails, then the the callback
-routine is not called, and the content might not be empty.
-
-The request can be aborted by calling die() in the callback
-routine.  The die message will be available as the "X-Died" special
-response header field.
-
-The library also allows you to use a subroutine reference as
-content in the request object.  This subroutine should return the
-content (possibly in pieces) when called.  It should return an empty
-string when there is no more content.
+The methods described in this section are used to dispatch requests
+via the user agent.  The following request methods are provided:
 
 =over
 
-=item $ua->send_request( $request )
+=item $ua->get( $url )
 
-=item $ua->send_request( $request, $arg )
+=item $ua->get( $url , $field_name => $value, ... )
 
-=item $ua->send_request( $request, $arg , $size )
+This method will dispatch a C<GET> request on the given $url.  Further
+arguments can be given to initialize the headers of the request. These
+are given as separate name/value pairs.  The return value is a
+response object.  See L<HTTP::Response> for a description of the
+interface it provides.
 
-This method dispatches a single WWW request on behalf of a user, and
-returns the response received.  The request is sent off unmodified,
-without passing it through C<prepare_request()>.
+Fields names that start with ":" are special.  These will not
+intialize headers of the request but will determine how the response
+content is treated.  The following special field names are recognized:
 
-The C<$request> should be a reference to a C<HTTP::Request> object
-with values defined for at least the method() and uri() attributes.
+    :content_file   => $filename
+    :content_cb     => \&callback
+    :read_size_hint => $bytes
+    
+If a $filename is provided with the C<:content_file> option, then the
+response content will be saved here instead of in the response
+object.  If a callback is provided with the C<:content_cb> option then
+this function will be called for each chunk of the response content as
+it is received from the server.  If neither of these options are
+given, then the response content will accumulate in the response
+object itself.  This might not be suitable for very large response
+bodies.  Only one of C<:content_file> or C<:content_cb> can be
+specified.  The content of unsuccessful responses will always
+accumulate in the response object itself, regardless of the
+C<:content_file> or C<:content_cb> options passed in.
 
-If C<$arg> is a scalar it is taken as a filename where the content of
-the response is stored.
+The C<:read_size_hint> option is passed to the protocol module which
+will try to read data from the server in chunks of this size.  A
+smaller value for the C<:read_size_hint> will result in a higher
+number of callback invocations.
 
-If C<$arg> is a reference to a subroutine, then this routine is called
-as chunks of the content is received.  An optional C<$size> argument
-is taken as a hint for an appropriate chunk size.
+The callback function is called with 3 arguments: a chunk of data, a
+reference to the response object, and a reference to the protocol
+object.  The callback can abort the request by invoking die().  The
+exception message will show up as the "X-Died" header field in the
+response returned by the get() function.
 
-If C<$arg> is omitted, then the content is stored in the response
-object itself.
+=item $ua->head( $url )
 
-=item $ua->prepare_request( $request )
+=item $ua->head( $url , $field_name => $value, ... )
 
-This method modifies given C<HTTP::Request> object by setting up
-various headers based on the attributes of the $ua.  The headers
-affected are; C<User-Agent>, C<From>, C<Range> and C<Cookie>.
+This method will dispatch a C<HEAD> request on the given $url.
+Otherwise it works like the get() method described above.
 
-The return value is the $request object passed in.
+=item $ua->post( $url, \%form )
 
-=item $ua->simple_request( $request )
+=item $ua->post( $url, \@form )
 
-=item $ua->simple_request( $request, $arg )
+=item $ua->post( $url, \%form, $field_name => $value, ... )
 
-=item $ua->simple_request( $request, $arg, $size )
+This method will dispatch a C<POST> request on the given $url, with
+%form or @form providing the key/value pairs for the fill-in form
+content. Additional headers and content options are the same as for
+the get() method.
 
-This method dispatches a single WWW request on behalf of a user, and
-returns the response received.  It differs from C<send_request()> by
-automatically calling the C<prepare_request()> method before the
-request is sent.
+This method will use the POST() function from C<HTTP::Request::Common>
+to build the request.  See L<HTTP::Request::Common> for a details on
+how to pass form content and other advanced features.
 
-The arguments are the same as for C<send_request()>.
+=item $ua->mirror( $url, $filename )
+
+This method will get the document identified by $url and store it in
+file called $filename.  If the file already exists, then the request
+will contain an "If-Modified-Since" header matching the modification
+time of the file.  If the document on the server has not changed since
+this time, then nothing happens.  If the document has been updated, it
+will be downloaded again.  The modification time of the file will be
+forced to match that of the server.
+
+The return value is the the response object.
 
 =item $ua->request( $request )
 
-=item $ua->request( $request, $arg )
+=item $ua->request( $request, $content_file )
 
-=item $ua->request( $request, $arg, $size )
+=item $ua->request( $request, $content_cb )
 
-Process a request, including redirects and security.  This method may
-actually send several different simple requests.
+=item $ua->request( $request, $content_cb, $read_size_hint )
 
-The arguments are the same as for C<send_request()> and
-C<simple_request()>.
+This method will dispatch the given $request object.  Normally this
+will be an instance of the C<HTTP::Request> class, but any object with
+a similar interface will do.  The return value is a response object.
+See L<HTTP::Request> and L<HTTP::Response> for a description of the
+interface provided by these classes.
 
-=item $ua->get($url, Header => Value,...);
+The request() method will process redirects and authentication
+responses transparently.  This means that it may actually send several
+simple requests via the simple_request() method described below.
 
-This is a shortcut for C<$ua-E<gt>request(HTTP::Request::Common::GET(
-$url, Header =E<gt> Value,... ))>.  See
-L<HTTP::Request::Common|HTTP::Request::Common>.
+The request methods described above; get(), head(), post() and
+mirror(), will all dispatch the request they build via this method.
+They are convenience methods that simply hides the creation of the
+request object for you.
 
-To specify a file that you want the content of the request to be
-saved to (instead of being saved in C<< $response->content >>),
-specify a header C<< ':content_file' => I<PATHSPEC> >>.
-This corresponds to C<< $ua->request( HTTP::Request::Commont::GET(...),
-'/path/to/that/file' ) >> (or whatever relative or absolute file
-pathspec you specify).
+The $content_file, $content_cb and $read_size_hint all correspond to
+options described with the get() method above.
 
-To instead specify that the content, as it is received, should be sent
-to a routine, specify a header C<< ':content_cb' => I<SUBREF> >>. To
-suggest a size for the chunks of data sent to that callback, you can
-optionally specify a header C<< ':read_size_hint' => I<BYTECOUNT> >>.
-This corresponds to C<< $ua->request(
-HTTP::Request::Commont::GET(...), \&callback, 4096 ) >> (or whatever
-subref and optional bytecount you specify).
+You are allowed to use a CODE reference as C<content> in the request
+object passed in.  The C<content> function should return the content
+when called.  The content can be returned in chunks.  The content
+function will be invoked repeatadly until it return an empty string to
+signal that there is no more content.
 
-These three optional headers that start with ":" are never
-made into real request headers, but are extracted and used as options
-to the eventual call to C<< $ua->request(REQ, options...) >> and
-thereby to C<< $ua->send_request(REQ, options...) >>.
+=item $ua->simple_request( $request )
 
-=item $ua->post($url, \%formref, Header => Value,...);
+=item $ua->simple_request( $request, $content_file )
 
-This is a shortcut for C<$ua-E<gt>request( HTTP::Request::Common::POST(
-$url, \%formref, Header =E<gt> Value,... ))>.  Note that the form
-reference is optional, and can be either a hashref (C<\%formdata> or C<{
-'key1' => 'val2', 'key2' => 'val2', ...
-}>) or an arrayref (C<\@formdata> or
-C<['key1' => 'val2', 'key2' => 'val2', ...]>).  See
-L<HTTP::Request::Common|HTTP::Request::Common>.
+=item $ua->simple_request( $request, $content_cb )
 
-You can also use the C<':content_file' / ':content_cb' /
-':read_size_hint'> headers just as with C<< $ua->get >>.
+=item $ua->simple_request( $request, $content_cb, $read_size_hint )
 
-=item $ua->head($url, Header => Value,...);
+This method dispatches a single request and returns the response
+received.  Arguments are the same as for request() described above.
 
-This is a shortcut for C<$ua-E<gt>request( HTTP::Request::Common::HEAD(
-$url, Header =E<gt> Value,... ))>.  See
-L<HTTP::Request::Common|HTTP::Request::Common>.
+The difference from request() is that simple_request() will not try to
+handle redirects or authentication responses.  The request() method
+will in fact invoke this method for each simple request it sends.
 
-You can also use the C<':content_file' / ':content_cb' /
-':read_size_hint'> headers just as with C<< $ua->get >>.
+=item $ua->is_protocol_supported( $scheme )
 
-=item $ua->mirror($url, $file)
+You can use this method to test whether this user agent object supports the
+specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
+'ftp') or it might be an URI object reference.)
 
-Get and store a document identified by a URL, using If-Modified-Since,
-and checking of the Content-Length.  Returns a reference to the
-response object.
+Whether a scheme is supported, is determined by the user agent's
+C<protocols_allowed> or C<protocols_forbidden> lists (if any), and by
+the capabilities of LWP.  I.e., this will return TRUE only if LWP
+supports this protocol I<and> it's permitted for this particular
+object.
 
 =back
 
 =head2 Callback methods
 
+The following methods will be invoked as requests are processed. These
+methods are documented here becase subclasses of C<LWP::UserAgent>
+might want to override their behaviour.
+
 =over
 
-=item $ua->redirect_ok( $prospective_request )
+=item $ua->prepare_request( $request )
+
+This method is invoked by simple_request().  Its task is to modify the
+given $request object by setting up various headers based on the
+attributes of the user agent. The return value should normally be the
+$request object passed in.  If a different request object is returned
+it will be the one actually processed.
+
+The headers affected by the base implementation are; "User-Agent",
+"From", "Range" and "Cookie".
+
+=item $ua->redirect_ok( $request )
 
 This method is called by request() before it tries to follow a
-redirection to the request in $prospective_request.  This
-should return a true value if this redirection is
-permissible.
+redirection to the request in $request.  This should return a TRUE
+value if this redirection is permissible.
 
-The default implementation will return FALSE unless the method
+The base implementation will return FALSE unless the method
 is in the object's C<requests_redirectable> list,
 FALSE if the proposed redirection is to a "file://..."
 URL, and TRUE otherwise.
 
-Subclasses might want to override this.
+=item $ua->get_basic_credentials( $realm, $uri, $isproxy )
 
-(This method's behavior in previous versions was simply to return
-TRUE for anything except POST requests).
+This is called by request() to retrieve credentials for documents
+protected by Basic or Digest Authentication.  The arguments passed in
+is the $realm provided by the server, the $uri requested and a boolean
+flag to indicate if this is authentication against a proxy server.
 
-=item $ua->get_basic_credentials( $realm, $uri )
+The method should return a username and password.  It should return an
+empty list to abort the authentication resolution attempt.  Subclasses
+can override this method to prompt the user for the information. An
+example of this can be found in C<lwp-request> program distributed
+with this library.
 
-=item $ua->get_basic_credentials( $realm, $uri, $proxy )
-
-This is called by request() to retrieve credentials for a Realm
-protected by Basic Authentication or Digest Authentication.
-
-Should return username and password in a list.  Return undef to abort
-the authentication resolution attempts.
-
-This implementation simply checks a set of pre-stored member
-variables. Subclasses can override this method to e.g. ask the user
-for a username/password.  An example of this can be found in
-C<lwp-request> program distributed with this library.
-
-=item $ua->credentials( $netloc, $realm, $uname, $pass )
-
-Set the user name and password to be used for a realm.  It is often more
-useful to specialize the get_basic_credentials() method instead.
+The base implementation simply checks a set of pre-stored member
+variables, set up with the credentials() method.
 
 =back
 
 =head1 SEE ALSO
 
-See L<LWP> for a complete overview of libwww-perl5.  See F<lwp-request> and
-F<lwp-mirror> for examples of usage.
+See L<LWP> for a complete overview of libwww-perl5.  See L<lwpcook>
+and the scripts F<lwp-request> and F<lwp-download> for examples of
+usage.
+
+See L<HTTP::Request> and L<HTTP::Response> for a description of the
+message objects dispatched and received.  See L<HTTP::Request::Common>
+for another way to build request objects.
 
 See L<WWW::Mechanize> and L<WWW::Search> for examples of more
 specialized user agents based on C<LWP::UserAgent>.

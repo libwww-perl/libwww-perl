@@ -1,17 +1,17 @@
 #
-# $Id: Message.pm,v 1.4 1995/07/16 07:22:06 aas Exp $
+# $Id: Message.pm,v 1.5 1995/08/09 09:45:07 aas Exp $
 
-package LWP::Message;
+package HTTP::Message;
 
 =head1 NAME
 
-LWP::Message - Class encapsulating HTTP messages
+HTTP::Message - Class encapsulating HTTP messages
 
 =head1 DESCRIPTION
 
-A C<LWP::Message> object contains some headers and a content (body).
-The class is used as a pure virtual base class for C<LWP::Request> and
-C<LWP::Response>.
+A C<HTTP::Message> object contains some headers and a content (body).
+The class is used as a pure virtual base class for C<HTTP::Request> and
+C<HTTP::Response>.
 
 =head1 METHODS
 
@@ -21,7 +21,7 @@ C<LWP::Response>.
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-require LWP::MIMEheader;
+require HTTP::Headers;
 use Carp;
 
 =head2 new()
@@ -35,10 +35,10 @@ sub new
 {
     my($class, $header, $content) = @_;
     if (defined $header) {
-        croak "Bad header argument" unless ref($header) eq "LWP::MIMEheader";
+        croak "Bad header argument" unless ref($header) eq "HTTP::Headers";
         $header = $header->clone;
     } else {
-        $header = new LWP::MIMEheader;
+        $header = new HTTP::Headers;
     }
     bless {
         '_header'  => $header,
@@ -56,7 +56,7 @@ Returns a copy of the object.
 sub clone
 {
     my $self  = shift;
-    my $clone = new LWP::Message $self->{'_header'}, $self->{'_content'};
+    my $clone = new HTTP::Message $self->{'_header'}, $self->{'_content'};
     $clone;
 }
 
@@ -89,7 +89,7 @@ sub addContent
 =head2 headerAsString([$endl])
 
 These methods provide easy access to the fields for the request
-header.  Refer to L<LWP::MIMEheader> for details.
+header.  Refer to L<HTTP::Headers> for details.
 
 =cut
 

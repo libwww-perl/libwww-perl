@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.11 1997/12/02 13:22:52 aas Exp $
+# $Id: RobotUA.pm,v 1.12 1997/12/15 19:54:56 aas Exp $
 
 package LWP::RobotUA;
 
@@ -46,11 +46,7 @@ special agent will make sure you are nice.
 =head1 METHODS
 
 The LWP::RobotUA is a sub-class of LWP::UserAgent and implements the
-same methods.  The use_alarm() method also desides whether we will
-wait if a request is tried too early (if true), or will return an error
-response (if false).
-
-In addition these methods are provided:
+same methods. In addition the following methods are provided:
 
 =over 4
 

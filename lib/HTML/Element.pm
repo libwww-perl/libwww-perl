@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.23 1996/03/04 11:23:05 aas Exp $
+# $Id: Element.pm,v 1.24 1996/03/05 11:13:46 aas Exp $
 
 =head1 NAME
 
@@ -31,21 +31,13 @@ for a HTML document.
 
 The following methods are available:
 
-=over 4
-
 =cut
 
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
-
-%OVERLOAD =
-(
-   '""'     => 'as_HTML',
-   fallback => 1
-);
 
 # Elements that does not have corresponding end tags
 for (qw(base link meta isindex nextid
@@ -76,7 +68,7 @@ for (qw(p form h1 h2 h3 h4 h5 h6
 
 
 
-=item new HTML::Element 'tag', 'attrname' => 'value',...
+=head2 $h = new HTML::Element 'tag', 'attrname' => 'value',...
 
 The object constructor.  Takes an tag name as argument. Optionally
 allows you to specify initial attributes at object creation time.
@@ -103,7 +95,7 @@ sub new
 
 
 
-=item ->tag()
+=head2 $h->tag()
 
 Returns (optionally sets) the tag name for the element.
 
@@ -121,7 +113,7 @@ sub tag
 
 
 
-=item ->starttag()
+=head2 $h->starttag()
 
 Returns the complete start tag for the element.  Including <> and attributes.
 
@@ -147,7 +139,7 @@ sub starttag
 
 
 
-=item ->endtag()
+=head2 $h->endtag()
 
 Returns the complete end tag.
 
@@ -160,7 +152,7 @@ sub endtag
 
 
 
-=item ->parent([$newparent])
+=head2 $h->parent([$newparent])
 
 Returns (optionally sets) the parent for this element.
 
@@ -178,7 +170,7 @@ sub parent
 
 
 
-=item ->implicit([$bool])
+=head2 $h->implicit([$bool])
 
 Returns (optionally sets) the implicit attribute.  This attribute is
 used to indicate that the element was not originally present in the
@@ -193,7 +185,7 @@ sub implicit
 
 
 
-=item ->is_inside('tag',...)
+=head2 $h->is_inside('tag',...)
 
 Returns true if this tag is contained inside one of the specified tags.
 
@@ -215,7 +207,7 @@ sub is_inside
 
 
 
-=item ->pos()
+=head2 $h->pos()
 
 Returns (and optionally sets) the current position.  The position is a
 reference to a HTML::Element object that is part of the tree that has
@@ -236,7 +228,7 @@ sub pos
 
 
 
-=item ->attr('attr', [$value])
+=head2 $h->attr('attr', [$value])
 
 Returns (and optionally sets) the value of some attribute.
 
@@ -255,7 +247,7 @@ sub attr
 
 
 
-=item ->content()
+=head2 $h->content()
 
 Returns the content of this element.  The content is represented as a
 array of text segments and references to other HTML::Element objects.
@@ -269,7 +261,7 @@ sub content
 
 
 
-=item ->is_empty()
+=head2 $h->is_empty()
 
 Returns true if there is no content.
 
@@ -283,7 +275,7 @@ sub is_empty
 
 
 
-=item ->insert_element($element, $implicit)
+=head2 $h->insert_element($element, $implicit)
 
 Inserts a new element at current position and sets the pos.
 
@@ -312,7 +304,7 @@ sub insert_element
 }
 
 
-=item ->push_content($element)
+=head2 $h->push_content($element)
 
 Adds to the content of the element.  The content should be a text
 segment (scalar) or a reference to a HTML::Element object.
@@ -339,7 +331,7 @@ sub push_content
 
 
 
-=item ->delete_content()
+=head2 $h->delete_content()
 
 Clears the content.
 
@@ -357,7 +349,7 @@ sub delete_content
 
 
 
-=item ->delete()
+=head2 $h->delete()
 
 Frees memory assosiated with the element an all children.  This is
 needed because perl's reference counting does not work since we use
@@ -376,7 +368,7 @@ sub delete
 
 
 
-=item ->traverse(\&callback, [$ignoretext])
+=head2 $h->traverse(\&callback, [$ignoretext])
 
 Traverse the element and all its children.  For each node visited, the
 callback routine is called with the node, a startflag and the depth as
@@ -409,7 +401,7 @@ sub traverse
 
 
 
-=item ->extract_links([@wantedTypes])
+=head2 $h->extract_links([@wantedTypes])
 
 Returns links found by traversing the element and all its children.
 The return value is a reference to an array.  Each element of the
@@ -451,7 +443,7 @@ sub extract_links
 
 
 
-=item ->dump()
+=head2 $h->dump()
 
 Prints the element and all its children to STDOUT.  Mainly useful for
 debugging.
@@ -476,7 +468,7 @@ sub dump
 
 
 
-=item ->as_HTML()
+=head2 $h->as_HTML()
 
 Returns a string (the HTML document) that represents the element and
 its children.
@@ -570,7 +562,6 @@ sub format
 
 __END__
 
-=back
 
 =head1 COPYRIGHT
 
@@ -581,6 +572,6 @@ modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@sn.no>
 
 =cut

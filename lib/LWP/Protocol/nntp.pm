@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.4 1996/05/08 16:26:01 aas Exp $
+# $Id: nntp.pm,v 1.5 1996/07/08 13:37:01 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -65,7 +65,7 @@ sub request
     # Create a socket and connect to the NNTP server.  We use our own
     # specialization of the LWP::Socket class.  This new class is defined
     # below.
-    my $nntp = new LWP::Prototocol::nntp::Socket;  # What an ugly name
+    my $nntp = new LWP::Protocol::nntp::Socket;  # What an ugly name
     $nntp->connect($NNTP_SERVER, $NNTP_PORT);
 
     # Check the initial welcome message from the NNTP server
@@ -176,7 +176,7 @@ sub request
 #    $sock->message                # Return response message.
 #
 
-package LWP::Prototocol::nntp::Socket;
+package LWP::Protocol::nntp::Socket;
 use vars qw(@ISA);
 @ISA = qw(LWP::Socket);
 
@@ -202,6 +202,6 @@ sub message { shift->{'nntp_message'}; }
 sub code    { shift->{'nntp_code'};    }
 
 
-package LWP::Prototocol::nntp;
+package LWP::Protocol::nntp;
 
 1;

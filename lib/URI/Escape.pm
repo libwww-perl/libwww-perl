@@ -1,5 +1,5 @@
 #
-# $Id: Escape.pm,v 3.8 1998/01/06 10:04:55 aas Exp $
+# $Id: Escape.pm,v 3.9 1998/01/12 10:52:32 aas Exp $
 #
 
 package URI::Escape;
@@ -43,7 +43,7 @@ character class (between [ ]).  E.g.:
 
 The default set of characters to be escaped is:
 
-  \x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF
+  \x00-\x20"#%;<>?{}|\\^~`\[\]\x7F-\xFF
 
 =item uri_unescape($string)
 
@@ -76,7 +76,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(uri_escape uri_unescape);
 @EXPORT_OK = qw(%escapes);
-$VERSION = sprintf("%d.%02d", q$Revision: 3.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 3.9 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -101,7 +101,7 @@ sub uri_escape
 	&{$subst{$patn}}($text);
     } else {
 	# Default unsafe characters. (RFC1738 section 2.2)
-	$text =~ s/([\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g; #"
+	$text =~ s/([\x00-\x20\"#%;<>?{}|\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g;
     }
     $text;
 }

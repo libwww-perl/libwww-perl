@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.23 1996/09/16 13:11:43 aas Exp $
+# $Id: Response.pm,v 1.24 1996/09/18 12:16:14 aas Exp $
 
 package HTTP::Response;
 
@@ -46,6 +46,7 @@ require HTTP::Message;
 
 use HTTP::Status ();
 use URI::URL ();
+use strict;
 
 
 =head2 $r = new HTTP::Response ($rc [, $msg])
@@ -154,6 +155,13 @@ sub base
     $base;
 }
 
+
+=head2 $r->as_string()
+
+Method returning a textual representation of the request.  Mainly
+useful for debugging purposes. It takes no arguments.
+
+=cut
 
 sub as_string
 {
@@ -339,11 +347,17 @@ sub is_fresh
 }
 
 
-=head2 $r->as_string()
+=head2 $r->fresh_until
 
-Method returning a textual representation of the request.  Mainly
-useful for debugging purposes. It takes no arguments.
+Returns the time when this entiy is no longer fresh.
 
 =cut
+
+sub fresh_until
+{
+    my $self = shift;
+    return $self->freshness_lifetime - $self->current_age + time;
+}
+
 
 1;

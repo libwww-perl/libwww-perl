@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.2 1996/09/17 11:42:06 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.3 1996/09/17 14:50:43 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -63,6 +63,7 @@ sub agent {
 	    $self->{'dbm'}{"|ua-name|"} = $newname;
 	}
     }
+    $old;
 }
 
 sub no_vists {

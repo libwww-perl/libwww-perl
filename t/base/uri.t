@@ -389,6 +389,52 @@ sub parts_test {
     $url->_expect('as_string' => 'wais://host/foo/wt/wpath');
     $url->wtype('bar');
     $url->_expect('as_string' => 'wais://host/foo/bar/wpath');
+
+    # Test crack method for various URLs
+    my(@crack, $crack);
+    @crack = URI::URL->new("http://host/path;param?query#frag")->crack;
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "http*UNDEF*UNDEF*host*80*/path*param*query*frag";
+
+    @crack = URI::URL->new("foo/bar", "ftp://aas\@ftp.sn.no/")->crack;
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "ftp*UNDEF*UNDEF*UNDEF*21*foo/bar*UNDEF*UNDEF*UNDEF";
+
+    @crack = URI::URL->new('ftp://u:p@host/q?path')->crack;
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "ftp*u*p*host*21*/q?path*UNDEF*UNDEF*UNDEF";
+
+    @crack = URI::URL->new("ftp://ftp.sn.no/pub")->crack;    # Test anon ftp
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    die "No passwd in anonymous crack" unless $crack[2];
+    $crack[2] = 'passwd';  # easier to test when we know what it is
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "ftp*anonymous*passwd*ftp.sn.no*21*/pub*UNDEF*UNDEF*UNDEF";
+
+    @crack = URI::URL->new('mailto:aas@sn.no')->crack;
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "mailto*aas*UNDEF*sn.no*UNDEF*aas\@sn.no*UNDEF*UNDEF*UNDEF";
+
+    @crack = URI::URL->new('news:comp.lang.perl.misc')->crack;
+    die "Cracked result should be 9 elements" unless @crack == 9;
+    $crack = join("*", map { defined($_) ? $_ : "UNDEF" } @crack);
+    print "Cracked result: $crack\n";
+    die "Bad crack result" unless
+      $crack eq "news*UNDEF*UNDEF*UNDEF*UNDEF*comp.lang.perl.misc*UNDEF*UNDEF*UNDEF";
 }
 
 #

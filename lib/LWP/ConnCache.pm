@@ -1,6 +1,6 @@
 package LWP::ConnCache;
 
-# $Id: ConnCache.pm,v 1.1 2001/04/20 15:17:33 gisle Exp $
+# $Id: ConnCache.pm,v 1.2 2001/04/20 17:58:21 gisle Exp $
 
 use strict;
 use vars qw($VERSION $DEBUG);
@@ -9,9 +9,13 @@ $VERSION = "0.01";
 
 sub new {
     my($class, %cnf) = @_;
-    die "NYI" if %cnf;
+    my $total_capacity = delete $cnf{total_capacity} || 1;
+    if (%cnf && $^W) {
+	require Carp;
+	Carp::carp("Unrecognised options: @{[sort keys %cnf]}")
+    }
     my $self = bless { conns => [] }, $class;
-    $self->capacity(undef, 2);
+    $self->total_capacity($total_capacity);
     $self;
 }
 
@@ -34,13 +38,21 @@ sub withdraw {
     return undef;
 }
 
-sub capacity {  # limit
+sub capacity {
     my $self = shift;
     my $type = shift;
-    $type = "*TOTAL*" unless defined $type;
     my $old = $self->{limit}{$type};
     if (@_) {
 	$self->{limit}{$type} = shift;
+    }
+    $old;
+}
+
+sub total_capacity {
+    my $self = shift;
+    my $old = $self->{limit_total};
+    if (@_) {
+	$self->{limit_total} = shift;
     }
     $old;
 }
@@ -61,7 +73,7 @@ sub enforce_limits {
 	}
     }
 
-    if (defined(my $total = $self->{limit}{'*TOTAL*'})) {
+    if (defined(my $total = $self->{limit_total})) {
 	while (@$conns > $total) {
 	    $self->dropping(shift(@$conns), "Total capacity exceeded");
 	}

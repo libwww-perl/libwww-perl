@@ -1,12 +1,10 @@
-$Id: TODO,v 1.15 1996/02/05 18:14:53 aas Exp $
+$Id: TODO,v 1.16 1996/02/26 19:23:53 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
 Implement MDA security
-
-Implement LWP::RobotUA
 
 Make multiple simultaneous requests work.  Make the callback request
 interface event driven.

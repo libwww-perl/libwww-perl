@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.20 1997/05/20 20:31:41 aas Exp $
+# $Id: Status.pm,v 1.21 1997/12/10 13:12:17 aas Exp $
 
 package HTTP::Status;
 
@@ -67,6 +67,7 @@ names:
    RC_REQUEST_ENTITY_TOO_LARGE		(413)
    RC_REQUEST_URI_TOO_LARGE		(414)
    RC_UNSUPPORTED_MEDIA_TYPE		(415)
+   RC_REQUEST_RANGE_NOT_SATISFIABLE     (416)
 
    RC_INTERNAL_SERVER_ERROR		(500)
    RC_NOT_IMPLEMENTED			(501)
@@ -119,6 +120,7 @@ my %StatusCode = (
     413 => 'Request Entity Too Large',
     414 => 'Request-URI Too Large',
     415 => 'Unsupported Media Type',
+    416 => 'Request Range Not Satisfiable',
     500 => 'Internal Server Error',
     501 => 'Not Implemented',
     502 => 'Bad Gateway',

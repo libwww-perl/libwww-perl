@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.62 2001/11/27 17:47:53 gisle Exp $
+# $Id: Makefile.PL,v 1.63 2002/01/03 01:51:36 gisle Exp $
 
 require 5.005;
 use strict;
@@ -228,51 +228,35 @@ EOT
 
 print "\n";
 
+if (@request_aliases) {
+    require File::Copy;
+    for (@request_aliases) {
+        File::Copy::copy("bin/lwp-request", "bin/$_") || die "Can't copy bin/$_";
+	chmod(0755, "bin/$_");
+	push(@programs_to_install, $_);
+    }
+}
+
 
 # Ok, now it is time to really generate the Makefile
 
 WriteMakefile(
    NAME          => 'libwww-perl',
    VERSION_FROM  => 'lib/LWP.pm',
-   PL_FILES      => { map {("bin/$_.PL" => "bin/$_")} @programs_to_install },
-   EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
+   EXE_FILES     => [ map "bin/$_", @programs_to_install ],
    PREREQ_PM     => { 'URI'              => "1.10",
                       'MIME::Base64'     => "2.1",
                       'Net::FTP'         => "2.58",
                       'HTML::HeadParser' => 0,
                       'Digest::MD5'      => 0,
                      },
-   'clean'       => { FILES => '$(EXE_FILES)' },
+   'clean'       => { FILES => join(" ", map "bin/$_", @request_aliases) },
    'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
 
 
 
 package MY;
-
-sub postamble
-{
-    my @m;
-    if (@request_aliases && grep($_ eq 'lwp-request', @programs_to_install)) {
-	push @m, "all ::\n";
-	if ($^O eq 'MSWin32') {
-	    push @m, "\t\$(FULLPERL) -e \"use Config; chdir q[\$(INST_EXE)]; "
-		    ."foreach (qw(@request_aliases)) { \" \\\n";
-	    push @m, <<'EOT';
-	-e "unlink \"$$_\"; " \
-	-e "system(\"copy lwp-request $$_\") && die; }"
-EOT
-	} else {
-	    push @m, "\t\$(FULLPERL) -e 'use Config; chdir q{\$(INST_EXE)}; "
-		    ."foreach (qw(@request_aliases)) {' \\\n";
-	    push @m, <<'EOT';
-	-e 'unlink "$$_";' \
-	-e 'system("$$Config{\"lns\"} lwp-request $$_") && die; }'
-EOT
-	}
-    }
-    join "", @m;
-}
 
 # What happens when we say 'make test'
 sub test

@@ -4,10 +4,10 @@ Makefile.PL			Makefile generator
 README				Get you started with this package
 README.SSL			When you need SSL support
 TODO				The To-Do list for the library
-bin/lwp-download.PL             Writes bin/lwp-download script
-bin/lwp-mirror.PL		Writes bin/lwp-mirror script
-bin/lwp-request.PL		Writes bin/lwp-request script
-bin/lwp-rget.PL			Writes bin/lwp-rget script
+bin/lwp-download             	Writes bin/lwp-download script
+bin/lwp-mirror			Writes bin/lwp-mirror script
+bin/lwp-request			Writes bin/lwp-request script
+bin/lwp-rget			Writes bin/lwp-rget script
 lwpcook.pod			Libwww-perl examples
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings

@@ -15,6 +15,7 @@ lib/HTTP/Response.pm		Class encapsulating HTTP Responses
 lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
 lib/LWP/Debug.pm		Debugging support
+lib/LWP/IO.pm			Low level IO routines
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
@@ -25,6 +26,7 @@ lib/LWP/Protocol/http.pm	Access with HTTP protocol
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
+lib/LWP/TkIO.pm			LWP::IO replacement for Tk
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/MIME/Base64.pm		Base 64 encoding/decoding routines
@@ -57,7 +59,7 @@ t/base/headers.t		Test HTTP::Headers module
 t/base/mailcap.t		Test Mail::Cap module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
-t/base/quoted-print.t           Test MIME::QuotedPrint module
+t/base/quoted-print.t		Test MIME::QuotedPrint module
 t/base/robot-rules.t		Test WWW::RobotRules module
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
@@ -65,6 +67,7 @@ t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/net/cgi-bin/moved
 t/net/cgi-bin/nph-slowdata
+t/net/cgi-bin/slowread
 t/net/cgi-bin/test
 t/net/cgi-bin/timeout
 t/net/config.pl.dist		Suggested configuration for net tests

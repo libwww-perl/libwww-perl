@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.9 1995/08/09 09:45:25 aas Exp $
+# $Id: Response.pm,v 1.10 1995/08/09 11:25:19 aas Exp $
 
 package HTTP::Response;
 
@@ -113,7 +113,7 @@ sub asString
     my $self = shift;
     my @result = ("--- $self ---");
     my $code = $self->code;
-    push(@result, "RC: $code (" . HTTP::Status::message($code) . ")" );
+    push(@result, "RC: $code (" . HTTP::Status::statusMessage($code) . ")" );
     push(@result, 'Message: ' . $self->message);
     push(@result, '');
     push(@result, $self->headerAsString);

@@ -1,0 +1,76 @@
+#!/local/bin/perl
+
+#
+# This script might be used to install LWP
+#
+
+require 5.001;
+
+#
+# Check that URI::URL is installed
+#
+
+eval {
+    require URI::URL;
+};
+if ($@) {
+    print "You need to install the URI::URL module before you install LWP.\n";
+} else {
+    print "Good, you have installed URI::URL version $URI::URL::Version.\n";
+    if ($URI::URL::Version < 2.11) {
+	print "Please upgrade URI::URL, LWP needs at least version 2.11\n";
+    }
+}
+
+#
+# Find some suitable place to install LWP
+#
+use Config;
+@loc = (
+   $Config{'installsitelib'},
+   $Config{'installprivlib'},
+);
+
+for $dir (@loc) {
+    next unless -d $_;
+    print "Install LWP in $dir? ";
+    chomp($ans = <STDIN>);
+    if ($ans =~ /^y(es)?$/i) {
+	install($dir);
+	last;
+    }
+}
+
+unless ($installed) {
+  MANUAL:
+    {
+	print "Enter directory where you want to install LWP\n";
+	print "> ";
+	chomp($dir = <STDIN>);
+	last unless length $dir;
+	unless (-d $dir) {
+	    print "'$dir' is not a directory!\n";
+	    redo MANUAL;
+	}
+	install($dir);
+    }
+}
+exit;
+
+
+sub run
+{
+    print "Running: @_\n";
+    system @_;
+}
+
+sub install
+{
+    my $dir = shift;
+    if (-e "$dir/LWP") {
+	die "$dir/LWP is in the way!\n" unless -d _;
+	print "Overwriting old '$dir/LWP'...\n";
+    }
+    run "cp -r LWP $dir";  # This is really all that need to be done
+    $installed = 1;
+}

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.5 1995/09/05 23:05:19 aas Exp $
+# $Id: Parse.pm,v 1.6 1995/09/05 23:42:29 aas Exp $
 
 =head1 NAME
 
@@ -94,7 +94,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -277,6 +277,7 @@ sub starttag
 	    }
 	} elsif ($tag eq 'head') {
 	    if ($ptag ne 'html' && $pos->isEmpty()) {
+
 		warn "Skipping nested <head> element\n";
 		return;
 	    }
@@ -335,6 +336,9 @@ sub starttag
 		    $ptag = $html->pos->tag;
 		    $pos = insertTag($html, 'select') unless $ptag eq 'select';
 		}
+	    } elsif ($isTableElement{$tag}) {
+		endtag($html, $tag);
+		$pos = insertTag($html, 'table') if !$pos->isInside('table');
 	    } elsif ($isPhraseMarkup{$tag}) {
 		if ($ptag eq 'body') {
 		    $pos = insertTag($html, 'p');

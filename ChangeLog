@@ -1,3 +1,21 @@
+Tue Jul  7 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.34
+
+ o  LWP::Protocol::ftp now try to use the MDTM command to support
+    the Last-Modified response header as well as
+    If-Modified-Since in requests.  Original and final patch by
+    Charles C. Fu <ccwf@bacchus.com>
+
+ o  $url->path_components will not escape "." any more.
+
+ o  WWW::RobotRules will now work for Mac text files too (lines delimited
+    by CR only).  Patch by Olly Betts <olly@muscat.co.uk>
+
+ o  lwp-rget support <area ..> links too.
+
+
+
 Thu May  7 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.33

@@ -2,8 +2,10 @@
 
     Release 5.66
 
-    Various patches from Sean M. Burke.  Some of them to
-    match to LWP to the "Perl & LWP" book.
+    Various patches from Sean M. Burke.  Most of them to
+    match up LWP with the "Perl & LWP" book.
+
+    LWP::DebugFile module contributed by Sean.
 
     LWP::Authen::Ntml contributed by James Tillman.
 
@@ -11,6 +13,8 @@
 
     The format_chunk() and write_chunk() methods of Net::HTTP
     did not work.  Bug spotted by Yale Huang <yale@sdf-eu.org>.
+
+    The Client-Peer response header is back.
 
 
 

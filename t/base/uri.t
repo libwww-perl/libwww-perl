@@ -36,7 +36,7 @@ for (@INC) {
 
 $| = 1;
 
-print "1..7\n";  # for Test::Harness
+print "1..8\n";  # for Test::Harness
 
 # Do basic tests first.
 # Dies if an error has been detected, prints "ok" otherwise.
@@ -57,6 +57,9 @@ print "ok 4\n";
 
 absolute_test();
 print "ok 5\n";
+
+eq_test();
+print "ok 6\n";
 
 # Let's test makeing our own things
 URI::URL::strict(0);
@@ -97,12 +100,12 @@ $newurl->foo;
 $url = new URI::URL 'yyy', 'x-foo:';
 $url->foo;
 
-print "ok 6\n";
+print "ok 7\n";
 
 # Test the new wash&go constructor
 print "not " if url("../foo.html", "http://www.sn.no/a/b")->abs->as_string
 		ne 'http://www.sn.no/foo.html';
-print "ok 7\n";
+print "ok 8\n";
 
 print "URI::URL version $URI::URL::VERSION ok\n";
 
@@ -825,3 +828,34 @@ EOM
 
     print "absolute test ok\n";
 }
+
+
+sub eq_test
+{
+    my $u1 = new URI::URL 'http://abc.com:80/~smith/home.html';
+    my $u2 = new URI::URL 'http://ABC.com/%7Esmith/home.html';
+    my $u3 = new URI::URL 'http://ABC.com:/%7esmith/home.html';
+
+    # Test all permutations of these tree
+    $u1->eq($u2) or die "1: $u1 ne $u2";
+    $u1->eq($u3) or die "2: $u1 ne $u3";
+    $u2->eq($u1) or die "3: $u2 ne $u1";
+    $u2->eq($u3) or die "4: $u2 ne $u3";
+    $u3->eq($u1) or die "5: $u3 ne $u1";
+    $u3->eq($u2) or die "6: $u3 ne $u2";
+
+    # Test empty path
+    my $u4 = new URI::URL 'http://www.sn.no';
+    $u4->eq("HTTP://WWW.SN.NO:80/") or die "7: $u4";
+    $u4->eq("http://www.sn.no:81") and die "8: $u4";
+
+    # Test mailto
+    my $u5 = new URI::URL 'mailto:AAS@SN.no';
+    $u5->eq('mailto:aas@sn.no') or die "9: $u5";
+
+    # Test reserved char
+    my $u6 = new URI::URL 'ftp://ftp/%2Fetc';
+    $u6->eq("ftp://ftp/%2fetc") or die "10: $u6";
+    $u6->eq("ftp://ftp://etc") and die "11: $u6";
+}
+

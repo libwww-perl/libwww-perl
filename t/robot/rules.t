@@ -15,7 +15,7 @@ require WWW::RobotRules;
 use Carp;
 use strict;
 
-print "1..31\n"; # for Test::Harness
+print "1..32\n"; # for Test::Harness
 
 # We test a number of different /robots.txt files,
 #
@@ -126,13 +126,13 @@ my @tests1 = (
 	   [$content4, "SvartEnke1" =>
 	    27 => "http://foo/" => 0,
 	    28 => "http://foo/this" => 0,
-	    28 => "http://bar/" => 1,
+	    29 => "http://bar/" => 1,
 	   ],
 
 	   [$content4, "SvartEnke2" =>
-	    29 => "http://foo/" => 1,
-	    30 => "http://foo/this" => 1,
-	    31 => "http://bar/" => 1,
+	    30 => "http://foo/" => 1,
+	    31 => "http://foo/this" => 1,
+	    32 => "http://bar/" => 1,
 	   ],
 
 	   # when adding tests, remember to increase

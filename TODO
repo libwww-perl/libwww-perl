@@ -1,28 +1,28 @@
-$Id: TODO,v 1.7 1995/09/04 18:42:35 aas Exp $
+$Id: TODO,v 1.8 1995/09/07 06:50:53 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
-Rename package to libwww-perl5.00 for first non beta release.
-
-Implement more protocol schemes
-    1) LWP::Protocol::ftp (finish what has been started)
-    3) Others...
-
 MDA security
 
 LWP::RobotUA
+
+Make multiple simultaneous requests work.
 
 Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 
 Make information callback from protocol modules so that the UI can
 inform the user of what is going on.
 
+Make file://non-localhost invoke the ftp.pm module.
+
 Make it work on systems where the directory separator is not "/", for
 instance with MacPerl.
 
 Use Mail::Send to implement LWP::Protocol::mailto.
+
+More useful programs
 
 More tests
 

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.48 2004/11/30 10:12:30 gisle Exp $
+# $Id: Message.pm,v 1.49 2004/11/30 10:15:16 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -163,7 +163,7 @@ sub decoded_content
     require HTTP::Headers::Util;
     my($ct, %ct_param);
     if (my @ct = HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
-	($ct, undef, %ct_param) = @{$ct[0]};
+	($ct, undef, %ct_param) = @{$ct[-1]};
 	$ct = lc($ct);
 
 	Carp::croak("Can't decode multipart content")

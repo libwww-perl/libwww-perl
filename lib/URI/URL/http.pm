@@ -16,11 +16,6 @@ sub query_form;
 1;
 __END__
 
-# Note that the following two methods does not return the old
-# value if they are used to set a new value.
-# The risk of croaking is to high :-)  We will eventually rely
-# on undefined wantarray (require perl5.004).
-
 # Handle ...?dog+bones type of query
 sub keywords {
     my $self = shift;
@@ -28,9 +23,9 @@ sub keywords {
     if (@_) {
 	# Try to set query string
 	$self->equery(join('+', map { URI::Escape::uri_escape($_, $URI::URL::reserved) } @_));
-	return undef;
     }
-    return undef unless defined $old;
+    return if !defined($old) || !defined(wantarray);
+
     Carp::croak("Query is not keywords") if $old =~ /=/;
     map { URI::Escape::uri_unescape($_) } split(/\+/, $old);
 }
@@ -56,10 +51,8 @@ sub query_form {
 	    }
 	}
 	$self->equery(join('&', @query));
-	return undef;
     }
-    return undef unless defined $old;
-    return () unless length $old;
+    return if !defined($old) || length($old) == 0 || !defined(wantarray);
     Carp::croak("Query is not a form") unless $old =~ /=/;
     map { s/\+/ /g; URI::Escape::uri_unescape($_) }
 	 map { /=/ ? split(/=/, $_, 2) : ($_ => '')} split(/&/, $old);

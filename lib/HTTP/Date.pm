@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.17 1996/05/19 13:05:56 aas Exp $
+# $Id: Date.pm,v 1.18 1996/05/26 10:37:05 aas Exp $
 #
 package HTTP::Date;
 
@@ -79,7 +79,7 @@ matching date I<before> current time.
 =head1 BUGS
 
 Non-numerical time zones (like MET, PST) are all treated like GMT.
-Do not use them.
+Do not use them.  HTTP does not use them.
 
 The str2time() function has been told how to parse far too many
 formats.  This makes the module name misleading :-)
@@ -87,7 +87,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;

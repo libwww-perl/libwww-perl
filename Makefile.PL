@@ -1,9 +1,9 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.18 1996/02/07 15:42:23 aas Exp $
+# $Id: Makefile.PL,v 1.19 1996/02/26 19:24:31 aas Exp $
 
 #--- Configuration section ---
 
-@programs_to_install = qw(lwp-request);      # qw(lwp-request lwp-mirror);
+@programs_to_install = qw(lwp-request lwp-mirror);
 @request_aliases     = qw(GET HEAD POST);
 
 #--- End Configuration - You should not have to change anything below this line
@@ -23,7 +23,7 @@ unless (getopts("l")) {
 $PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
                          [split ":", $ENV{PATH}], 0);
 $NAME = 'libwww-perl';
-$VERSION = '5b7';
+$VERSION = '5b8';
 
 # Write findings to a file so that other .PL files can read them.
 open(OUT, ">myConfig.out") or die "Can't open myConfig.out: $!";
@@ -56,11 +56,7 @@ WriteMakefile(
 	              SUFFIX       => 'gz', 
                       DIST_DEFAULT => 'all tardist'
                     },
-    'installpm'  => {
-	              SPLITLIB     => '',
-	            },
 );
-exit;
 
 # Some code to install programs the way we want
 sub MY::postamble {

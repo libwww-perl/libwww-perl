@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.14 1996/02/27 19:33:52 aas Exp $
+# $Id: Response.pm,v 1.15 1996/03/14 15:50:36 aas Exp $
 
 package HTTP::Response;
 
@@ -157,11 +157,6 @@ sub error_as_HTML
 {
     my $self = shift;
     my $msg = $self->{'_msg'} || 'Unknown';
-    my $content = $self->content || '';
-    if (defined $content and length $content) {
-        return $content;
-    }
-    else {
     my $title = 'An Error Occurred';
     my $code = $self->code;
     return <<EOM;
@@ -177,7 +172,6 @@ $code - $msg
 </BODY>
 </HTML>
 EOM
-    }
 }
 
 1;

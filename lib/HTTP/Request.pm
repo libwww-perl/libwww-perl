@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.30 2001/11/15 06:42:40 gisle Exp $
+# $Id: Request.pm,v 1.31 2003/10/16 10:54:16 gisle Exp $
 
 package HTTP::Request;
 
@@ -38,7 +38,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -76,9 +76,13 @@ sub clone
 }
 
 
-=item $r->method([$val])
+=item $r->method
 
-=item $r->uri([$val])
+=item $r->method( $val )
+
+=item $r->uri
+
+=item $r->uri( $val )
 
 These methods provide public access to the attributes containing
 respectively the method of the request and the URI object of the
@@ -127,7 +131,7 @@ sub uri
 
 *url = \&uri;  # this is the same for now
 
-=item $r->as_string()
+=item $r->as_string
 
 Method returning a textual representation of the request.
 Mainly useful for debugging purposes. It takes no arguments.

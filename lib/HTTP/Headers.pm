@@ -1,6 +1,6 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.44 2002/06/29 00:41:29 gisle Exp $
+# $Id: Headers.pm,v 1.45 2003/10/16 10:54:16 gisle Exp $
 
 =head1 NAME
 
@@ -35,7 +35,7 @@ use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -104,7 +104,9 @@ sub new
 }
 
 
-=item $h->header($field [=> $value],...)
+=item $h->header( $field )
+
+=item $h->header( $field => $value, ... )
 
 Get or set the value of one or more header fields.  The header field name
 ($field) is not case sensitive.  To make the life easier for perl
@@ -155,7 +157,7 @@ sub header
 }
 
 
-=item $h->push_header($field, $value)
+=item $h->push_header( $field => $value )
 
 Add a new field value for the specified header field.  Previous values
 for the same field are retained.
@@ -177,7 +179,7 @@ sub push_header
     shift->_header(@_, 'PUSH');
 }
 
-=item $h->init_header($field, $value)
+=item $h->init_header( $field => $value )
 
 Set the specified header to the given value, but only if no previous
 value for that field is set.
@@ -197,7 +199,7 @@ sub init_header
 }
 
 
-=item $h->remove_header($field,...)
+=item $h->remove_header( $field, ... )
 
 This function removes the headers fields with the specified names.
 
@@ -268,7 +270,7 @@ sub _header_cmp
 }
 
 
-=item $h->scan(\&doit)
+=item $h->scan( \&process_header_field )
 
 Apply a subroutine to each header field in turn.  The callback routine
 is called with two parameters; the name of the field and a single
@@ -301,7 +303,9 @@ sub scan
 }
 
 
-=item $h->as_string([$endl])
+=item $h->as_string
+
+=item $h->as_string( $endl )
 
 Return the header fields as a formatted MIME header.  Since it
 internally uses the C<scan> method to build the string, the result

@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.26 1999/11/22 10:43:24 gisle Exp $
+# $Id: Status.pm,v 1.27 2003/10/16 10:54:16 gisle Exp $
 
 package HTTP::Status;
 
@@ -95,7 +95,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 
 # Note also addition of mnemonics to @EXPORT below
 
@@ -173,7 +173,7 @@ exported by default.
 
 =over 4
 
-=item status_message($code)
+=item status_message( $code )
 
 The status_message() function will translate status codes to human
 readable strings. The string is the same as found in the constant
@@ -186,28 +186,28 @@ sub status_message ($)
     $StatusCode{$_[0]};
 }
 
-=item is_info($code)
+=item is_info( $code )
 
 Return TRUE if C<$code> is an I<Informational> status code.  This
 class of status code indicates a provisional response which can't have
 any content.
 
-=item is_success($code)
+=item is_success( $code )
 
 Return TRUE if C<$code> is a I<Successful> status code.
 
-=item is_redirect($code)
+=item is_redirect( $code )
 
 Return TRUE if C<$code> is a I<Redirection> status code. This class of
 status code indicates that further action needs to be taken by the
 user agent in order to fulfill the request.
 
-=item is_error($code)
+=item is_error( $code )
 
 Return TRUE if C<$code> is an I<Error> status code.  The function
 return TRUE for both client error or a server error status codes.
 
-=item is_client_error($code)
+=item is_client_error( $code )
 
 Return TRUE if C<$code> is an I<Client Error> status code. This class
 of status code is intended for cases in which the client seems to have
@@ -215,7 +215,7 @@ erred.
 
 This function is B<not> exported by default.
 
-=item is_server_error($code)
+=item is_server_error( $code )
 
 Return TRUE if C<$code> is an I<Server Error> status code. This class
 of status codes is intended for cases in which the server is aware

@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -72,7 +72,7 @@ The following methods are provided:
 # COOKIES 3 level hash:  $self->{COOKIES}{$domain}{$path}{$key}.
 
 
-=item $cookie_jar = HTTP::Cookies->new;
+=item $cookie_jar = HTTP::Cookies->new
 
 The constructor takes hash style parameters.  The following
 parameters are recognized:
@@ -107,7 +107,7 @@ sub new
 }
 
 
-=item $cookie_jar->add_cookie_header($request);
+=item $cookie_jar->add_cookie_header( $request )
 
 The add_cookie_header() method will set the appropriate Cookie:-header
 for the I<HTTP::Request> object given as argument.  The $request must
@@ -255,7 +255,7 @@ sub add_cookie_header
 }
 
 
-=item $cookie_jar->extract_cookies($response);
+=item $cookie_jar->extract_cookies( $response )
 
 The extract_cookies() method will look for Set-Cookie: and
 Set-Cookie2: headers in the I<HTTP::Response> object passed as
@@ -438,7 +438,7 @@ sub extract_cookies
 
 sub set_cookie_ok { 1 };
 
-=item $cookie_jar->set_cookie($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $maxage, $discard, \%rest)
+=item $cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port, $path_spec, $secure, $maxage, $discard, \%rest )
 
 The set_cookie() method updates the state of the $cookie_jar.  The
 $key, $val, $domain, $port and $path arguments are strings.  The
@@ -486,9 +486,9 @@ sub set_cookie
     $self;
 }
 
-=item $cookie_jar->save();
+=item $cookie_jar->save
 
-=item $cookie_jar->save( $file );
+=item $cookie_jar->save( $file )
 
 This method file saves the state of the $cookie_jar to a file.
 The state can then be restored later using the load() method.  If a
@@ -515,9 +515,9 @@ sub save
     1;
 }
 
-=item $cookie_jar->load();
+=item $cookie_jar->load
 
-=item $cookie_jar->load( $file );
+=item $cookie_jar->load( $file )
 
 This method reads the cookies from the file and adds them to the
 $cookie_jar.  The file must be in the format written by the save()
@@ -569,7 +569,7 @@ sub load
     1;
 }
 
-=item $cookie_jar->revert;
+=item $cookie_jar->revert
 
 This method empties the $cookie_jar and re-loads the $cookie_jar
 from the last save file.
@@ -583,13 +583,13 @@ sub revert
     $self;
 }
 
-=item $cookie_jar->clear();
+=item $cookie_jar->clear
 
-=item $cookie_jar->clear( $domain );
+=item $cookie_jar->clear( $domain )
 
-=item $cookie_jar->clear( $domain, $path );
+=item $cookie_jar->clear( $domain, $path )
 
-=item $cookie_jar->clear( $domain, $path, $key );
+=item $cookie_jar->clear( $domain, $path, $key )
 
 Invoking this method without arguments will empty the whole
 $cookie_jar.  If given a single argument only cookies belonging to
@@ -618,7 +618,7 @@ sub clear
     $self;
 }
 
-=item $cookie_jar->clear_temporary_cookies( );
+=item $cookie_jar->clear_temporary_cookies
 
 Discard all temporary cookies. Scans for all cookies in the jar
 with either no expire field or a true C<discard> flag. To be
@@ -646,7 +646,7 @@ sub DESTROY
 }
 
 
-=item $cookie_jar->scan( \&callback );
+=item $cookie_jar->scan( \&callback )
 
 The argument is a subroutine that will be invoked for each cookie
 stored in the $cookie_jar.  The subroutine will be invoked with
@@ -684,9 +684,9 @@ sub scan
     }
 }
 
-=item $cookie_jar->as_string()
+=item $cookie_jar->as_string
 
-=item $cookie_jar->as_string( $skip_discardables );
+=item $cookie_jar->as_string( $skip_discardables )
 
 The as_string() method will return the state of the $cookie_jar
 represented as a sequence of "Set-Cookie3" header lines separated by

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.37 2003/10/15 13:43:01 gisle Exp $
+# $Id: Response.pm,v 1.38 2003/10/16 10:54:16 gisle Exp $
 
 package HTTP::Response;
 
@@ -45,13 +45,19 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Status ();
 use strict;
 
 
-=item $r = HTTP::Response->new($rc, [$msg, [$header, [$content]]])
+=item $r = HTTP::Response->new( $rc )
+
+=item $r = HTTP::Response->new( $rc, $msg )
+
+=item $r = HTTP::Response->new( $rc, $msg, $header )
+
+=item $r = HTTP::Response->new( $rc, $msg, $header, $content )
 
 Constructs a new C<HTTP::Response> object describing a response with
 response code C<$rc> and optional message C<$msg>.  The message is a
@@ -81,13 +87,21 @@ sub clone
     $clone;
 }
 
-=item $r->code([$code])
+=item $r->code
 
-=item $r->message([$message])
+=item $r->code( $code )
 
-=item $r->request([$request])
+=item $r->message
 
-=item $r->previous([$previousResponse])
+=item $r->message( $message )
+
+=item $r->request
+
+=item $r->request( $request )
+
+=item $r->previous
+
+=item $r->previous( $response )
 
 These methods provide public access to the object attributes.  The
 first two contain respectively the response code and the message
@@ -226,7 +240,7 @@ sub is_redirect { HTTP::Status::is_redirect (shift->{'_rc'}); }
 sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 
-=item $r->error_as_HTML()
+=item $r->error_as_HTML
 
 Returns a string containing a complete HTML document indicating what
 error occurred.  This method should only be called when $r->is_error

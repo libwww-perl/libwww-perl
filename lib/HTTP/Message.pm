@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.25 2001/11/15 06:42:23 gisle Exp $
+# $Id: Message.pm,v 1.26 2003/10/16 10:54:16 gisle Exp $
 
 package HTTP::Message;
 
@@ -32,7 +32,7 @@ require HTTP::Headers;
 require Carp;
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 $HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
 eval "require $HTTP::URI_CLASS"; die $@ if $@;
@@ -75,7 +75,9 @@ sub clone
     $clone;
 }
 
-=item $mess->protocol([$proto])
+=item $mess->protocol
+
+=item $mess->protocol( $proto )
 
 Sets the HTTP protocol used for the message.  The protocol() is a string
 like C<HTTP/1.0> or C<HTTP/1.1>.
@@ -84,13 +86,15 @@ like C<HTTP/1.0> or C<HTTP/1.1>.
 
 sub protocol { shift->_elem('_protocol',  @_); }
 
-=item $mess->content([$content])
+=item $mess->content
+
+=item $mess->content( $content )
 
 The content() method sets the content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
 previous content is returned.
 
-=item $mess->add_content($data)
+=item $mess->add_content( $data )
 
 The add_content() methods appends more data to the end of the current
 content buffer.
@@ -135,7 +139,9 @@ sub as_string
 
 Return the embedded HTTP::Headers object.
 
-=item $mess->headers_as_string([$endl])
+=item $mess->headers_as_string
+
+=item $mess->headers_as_string( $endl )
 
 Call the as_string() method for the headers in the
 message.  This will be the same as:

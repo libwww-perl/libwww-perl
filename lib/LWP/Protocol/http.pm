@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.13 1995/09/04 17:43:54 aas Exp $
+# $Id: http.pm,v 1.14 1995/09/04 20:09:22 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -99,7 +99,7 @@ sub request
     }
 
     $socket->write($request_line . $request->headerAsString($endl) . $endl);
-    $socket->write($$contRef, $timeout) if defined $content;
+    $socket->write($contRef, $timeout) if defined $content;
 
     # read response line from server
     LWP::Debug::debugl('reading response');

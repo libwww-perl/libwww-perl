@@ -80,25 +80,38 @@ print $html;
 $BAD = 0;
 # This test tries to parse the when we split it in two.
 for $pos (1 .. length($HTML) - 1) {
-   $first = substr($HTML, 0, $pos);
-   $last  = substr($HTML, $pos);
-   die "This is bad" unless $HTML eq ($first . $last);
-   $h = parse_html($first);
-   $h = parse_html($last, $h);
-   $new_html = $h->as_HTML;
-   if ($new_html ne $html) {
-      print "\n\nSomething is different when splitting at position $pos:\n";
-      $before = 10;
-      $before = $pos if $pos < $before;
-      print "«", substr($HTML, $pos - $before, $before);
-      print "»\n«";
-      print substr($HTML, $pos, 10);
-      print "»\n";
-      print "\n$html$new_html\n";
-      $BAD = 1;
-   }
-   $h->delete;
-   #print STDERR "$pos\n";
+    $first = substr($HTML, 0, $pos);
+    $last  = substr($HTML, $pos);
+    die "This is bad" unless $HTML eq ($first . $last);
+    eval {
+	$h = parse_html($first);
+	$h = parse_html($last, $h);
+    };
+    if ($@) {
+	print "Died when splitting at position $pos:\n";
+	$before = 10;
+	$before = $pos if $pos < $before;
+	print "«", substr($HTML, $pos - $before, $before);
+	print "»\n«";
+	print substr($HTML, $pos, 10);
+	print "»\n";
+	$BAD = 1;
+	next;
+    }
+    $new_html = $h->as_HTML;
+    if ($new_html ne $html) {
+	print "\n\nSomething is different when splitting at position $pos:\n";
+	$before = 10;
+	$before = $pos if $pos < $before;
+	print "«", substr($HTML, $pos - $before, $before);
+	print "»\n«";
+	print substr($HTML, $pos, 10);
+	print "»\n";
+	print "\n$html$new_html\n";
+	$BAD = 1;
+    }
+    $h->delete;
+    #print STDERR "$pos\n";
 }
 
 # Also try what happens when we feed the document one-char at a time

@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.20 1997/02/25 14:21:34 aas Exp $
+# $Id: FormatPS.pm,v 1.21 1997/08/16 10:34:31 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -279,8 +279,8 @@ sub width
     my $w = 0;
     my $wx = $self->{wx};
     my $sz = $self->{pointsize};
-    while ($_[0] =~ /(.)/g) {
-	$w += $wx->[ord $1] * $sz;
+    for (unpack("C*", $_[0])) {
+	$w += $wx->[$_] * $sz;
     }
     $w;
 }

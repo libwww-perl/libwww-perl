@@ -1,6 +1,4 @@
-#!/usr/local/bin/perl -w
-#
-# $Id: Date.pm,v 1.9 1995/08/27 22:09:44 aas Exp $
+# $Id: Date.pm,v 1.10 1995/08/27 22:31:39 aas Exp $
 #
 package HTTP::Date;
 
@@ -12,93 +10,26 @@ time2str, str2time - date conversion routines
 
  use HTTP::Date;
 
- $stringGMT = time2str(time);   # Format as GMT time
- $mtime = str2time($stringGMT); # convert ascii date to machine time
- 
+ $stringGMT = time2str(time);   # Format as GMT ascii time
+ $time = str2time($stringGMT);  # convert ascii date to machine time
+
 =head1 DESCRIPTION
 
-The C<time2str()> function converts a machine time to a string,
-and the C<str2time()> function converts a string to machine time.
-C<str2time()> returns undef if the format is unrecognised.
+The time2str() function converts a machine time (seconds since epoch)
+to a string, and the str2time() function converts a string to machine
+time. 
 
-C<time2str()> returns the format defined by the HTTP/1.0 specification
-to be the fixed length subset of the format defined by RFC 1123
-(an update to RFC 822), represented in Universal Time (GMT):
+The time2str() function returns a string in the format defined by the
+HTTP/1.0 specification.  This is a fixed length subset of the format
+defined by RFC 1123, represented in Universal Time (GMT), e.g:
 
  Thu, 03 Feb 1994 00:00:00 GMT
 
-=head1 SEE ALSO
-
-See L<LWP> for a complete overview of libwww-perl5.
-
-=head1 BUGS
-
-C<str2time()> is far too lax; might get run-time warnings about
-string/number mismatches when we get non-standard date strings. It
-should use complete regular expressions for each format.
-
-C<str2time()> could be taught to recognise elements in general
-places, e.g. "1995 Wednesday, 7 July".
-
-This whole module could probably be replaced by a standard Perl
-module.
-
-=cut
-
-####################################################################
-
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
-sub Version { $VERSION; }
-
-require 5.001;
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT = qw(time2str str2time);
-
-require Time::Local;
-
-@DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
-@MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-# Build %MoY
-my $i = 0;
-foreach(@MoY) { $MoY{$_} = $i++; }
-undef($i);
-
-
-####################################################################
-
-=head1 FUNCTIONS
-
-=head2 time2str($time)
-
-Returns a fixed-length RFC 1123 date string in GMT 
-for a given time such as returned by time().
-
-=cut
-sub time2str
-{
-    my $time = shift || time;
-
-    my ($sec, $min, $hour, $mday, $mon, $year,
-        $wday, $yday, $isdst) = gmtime($time);
-
-    $year += 1900;
-    
-    $wday = substr($DoW[$wday],0,3);
-    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
-            $wday, $mday, $MoY[$mon], $year, $hour, $min, $sec);
-}
-
-
-=head2 str2time($date)
-
-Translate a date string to machine time (seconds since Epoch).
-
-C<$date> can be any one of the following formats:
+The str2time() function can parse the following formats:
 
  "Wed, 09 Feb 1994 22:23:32 GMT"       -- proposed HTTP format
- "Thu Feb  3 17:03:55 GMT 1994"        -- ctime format
- 'Thu Feb  3 00:00:00 1994',           -- same as ctime, except no TZ
+ "Thu Feb  3 17:03:55 GMT 1994"        -- ctime() format
+ 'Thu Feb  3 00:00:00 1994',           -- ANSI C asctime() format
  "Tuesday, 08-Feb-94 14:15:29 GMT"     -- old rfc850 HTTP format
  "Tuesday, 08-Feb-1994 14:15:29 GMT"   -- broken rfc850 HTTP format
 
@@ -112,9 +43,48 @@ C<$date> can be any one of the following formats:
  "09 Feb 1994"   -- proposed new HTTP format  (no weekday, no time)
  "03/Feb/1994"   -- common logfile format     (no time, no offset)
 
-Can only deal with > 1970 and < 2038. Returns undef on error.
+The str2time() function returns undef if the format is unrecognised,
+or the year is not between 1970 and 2038.
+
+=head1 BUGS
+
+C<str2time()> is far too lax; might get run-time warnings about
+string/number mismatches when we get non-standard date strings. It
+should use complete regular expressions for each format.
+
+C<str2time()> could be taught to recognise elements in general
+places, e.g. "1995 Wednesday, 7 July".
 
 =cut
+
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
+
+require 5.001;
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw(time2str str2time);
+
+require Time::Local;
+
+@DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
+@MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+# Build %MoY hash
+my $i = 0;
+foreach(@MoY) { $MoY{$_} = $i++; }
+undef($i);
+
+
+sub time2str
+{
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime(shift || time);
+    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
+	    substr($DoW[$wday],0,3),
+	    $mday, $MoY[$mon], $year+1900,
+	    $hour, $min, $sec);
+}
+
 
 sub str2time
 {

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.23 2002/08/18 03:32:07 gisle Exp $
+# $Id: RobotRules.pm,v 1.24 2003/10/15 13:43:02 gisle Exp $
 
 package WWW::RobotRules;
 
@@ -51,7 +51,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -60,8 +60,8 @@ use URI ();
 
 =item $rules = WWW::RobotRules->new($robot_name)
 
-This is the constructor for WWW::RobotRules objects.  The first 
-argument given to new() is the name of the robot. 
+This is the constructor for WWW::RobotRules objects.  The first
+argument given to new() is the name of the robot.
 
 =cut
 

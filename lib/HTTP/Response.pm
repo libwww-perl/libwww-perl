@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.36 2001/11/15 06:42:40 gisle Exp $
+# $Id: Response.pm,v 1.37 2003/10/15 13:43:01 gisle Exp $
 
 package HTTP::Response;
 
@@ -45,7 +45,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Status ();
 use strict;
@@ -382,7 +382,7 @@ sub fresh_until
 
 1;
 
-=back 
+=back
 
 =head1 COPYRIGHT
 

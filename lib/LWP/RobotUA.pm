@@ -1,10 +1,10 @@
-# $Id: RobotUA.pm,v 1.19 2002/08/18 03:34:20 gisle Exp $
+# $Id: RobotUA.pm,v 1.20 2003/10/15 13:43:01 gisle Exp $
 
 package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -144,7 +144,7 @@ sub agent
 
 =item $ua->rules([$rules])
 
-Set/get which I<WWW::RobotRules> object to use. 
+Set/get which I<WWW::RobotRules> object to use.
 
 =cut
 

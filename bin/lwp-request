@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.3 2003/10/14 11:09:12 gisle Exp $
+# $Id: lwp-request,v 2.4 2003/10/15 13:43:01 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -149,7 +149,7 @@ Extra debugging output.
 
 =item -a
 
-Set text(ascii) mode for content input and output.  If this option is not 
+Set text(ascii) mode for content input and output.  If this option is not
 used, content input and output is done in binary mode.
 
 =back
@@ -178,7 +178,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.20 2003/10/15 11:03:16 gisle Exp $
+# $Id: Common.pm,v 1.21 2003/10/15 13:43:01 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -422,7 +422,7 @@ the content attribute.  This subroutine will read the content of any
 files on demand and return it in suitable chunks.  This allow you to
 upload arbitrary big files without using lots of memory.  You can even
 upload infinite files like F</dev/audio> if you wish; however, if
-the file is not a plain file, there will be no Content-Length header 
+the file is not a plain file, there will be no Content-Length header
 defined for the request.  Not all servers (or server
 applications) like this.  Also, if the file(s) change in size between
 the time the Content-Length is calculated and the time that the last

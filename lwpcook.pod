@@ -62,7 +62,7 @@ handle the response returned.
 
 The lwp-request program (alias GET) that is distributed with the
 library can also be used to fetch documents from WWW servers.
-  
+
 
 
 =head1 HEAD
@@ -276,7 +276,7 @@ argument is a code reference):
 
   my $expected_length;
   my $bytes_received = 0;
-  my $res = 
+  my $res =
      $ua->request(HTTP::Request->new(GET => $URL),
                sub {
                    my($chunk, $res) = @_;

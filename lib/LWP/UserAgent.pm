@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.11 2003/10/15 13:31:27 gisle Exp $
+# $Id: UserAgent.pm,v 2.12 2003/10/15 13:43:02 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.12 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -795,7 +795,7 @@ sub is_protocol_supported
 
 =item $ua->requests_redirectable( \@requests );  # to set
 
-This reads or sets the object's list of request names that 
+This reads or sets the object's list of request names that
 C<$ua-E<gt>redirect_ok(...)> will allow redirection for.  By
 default, this is C<['GET', 'HEAD']>, as per RFC 2068.  To
 change to include 'POST', consider:

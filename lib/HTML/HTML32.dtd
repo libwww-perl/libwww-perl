@@ -2,7 +2,7 @@
         W3C Document Type Definition for the HyperText Markup Language
         This version is code named Wilbur, and also as "HTML 3.2".
 
-        Draft: Tuesday 15-May-96
+        Draft: Tuesday 21-May-96
 
         Author: Dave Raggett <dsr@w3.org>
 
@@ -56,7 +56,9 @@
            See RFC1808 (June 95) and RFC1738 (Dec 94).
         -->
 
-<!-- 3.5 Parameter Entities -->
+<!-- Parameter Entities -->
+
+<!ENTITY % head.misc "SCRIPT|STYLE|META|LINK" -- repeatable head elements -->
 
 <!ENTITY % heading "H1|H2|H3|H4|H5|H6">
 
@@ -395,12 +397,14 @@ Here is an example:
 
     The style is applied to the sequence number which by default
     is reset to 1 for the first list item in an ordered list.
+
+    This can't be expressed directly in SGML due to case folding.
 -->
 
-<!ENTITY % OLStyle "CDATA" -- "1|a|A|i|I" but SGML folds case -->
+<!ENTITY % OLStyle "CDATA" -- constrained to: [1|a|A|i|I] -->
 
 <!ATTLIST OL -- ordered lists --
-        type     (%OLStyle)  #IMPLIED   -- numbering style --
+        type      %OLStyle   #IMPLIED   -- numbering style --
         start     NUMBER     #IMPLIED   -- starting sequence number --
         compact  (compact)   #IMPLIED   -- reduced interitem spacing --
         >
@@ -427,11 +431,14 @@ Here is an example:
 <!-- <MENU>             Menu list                       -->
 <!-- <MENU COMPACT>     Compact list style              -->
 
-<!ENTITY % LIStyle "%ULStyle|%OLStyle">
+<!-- The type attribute can be used to change the bullet style
+     in unordered lists and the numbering style in ordered lists -->
+
+<!ENTITY % LIStyle "CDATA" -- constrained to: "(%ULStyle|%OLStyle)" -->
 
 <!ELEMENT LI - O %flow -- list item -->
 <!ATTLIST LI
-        type   (%LIStyle)    #IMPLIED   -- list item style --
+        type    %LIStyle     #IMPLIED   -- list item style --
         value    NUMBER      #IMPLIED   -- reset sequence number --
         >
 
@@ -531,12 +538,13 @@ Here is an example:
 
 <!--================ Document Head ========================================-->
 
-<!ENTITY % head.content "TITLE & ISINDEX? & BASE? & STYLE? &
-                            SCRIPT* & META* & LINK*">
+<!-- %head.misc defined earlier on as "SCRIPT|STYLE|META|LINK" -->
 
-<!ELEMENT HEAD O O  (%head.content)>
+<!ENTITY % head.content "TITLE & ISINDEX? & BASE?">
 
-<!ELEMENT TITLE - -  (#PCDATA)*
+<!ELEMENT HEAD O O  (%head.content) +(%head.misc)>
+
+<!ELEMENT TITLE - -  (#PCDATA)* -(%head.misc)
           -- The TITLE element is not considered part of the flow of text.
              It should be displayed, for example as the page header or
              window title.
@@ -547,12 +555,12 @@ Here is an example:
         prompt CDATA #IMPLIED -- prompt message -->
 
 <!--
-    The BASE element gives the base URL for dereferencing relative
+    The BASE element gives an absolute URL for dereferencing relative
     URLs, e.g.
 
-         <BASE href="http://foo.com/images">
+         <BASE href="http://foo.com/index.html">
          ...
-         <IMG SRC="bar.gif">
+         <IMG SRC="images/bar.gif">
 
     The image is deferenced to
 
@@ -569,15 +577,17 @@ Here is an example:
         href %URL  #REQUIRED
         >
 
-<!ELEMENT META - O EMPTY    -- Generic Metainformation -->
+<!ELEMENT META - O EMPTY -- Generic Metainformation -->
 <!ATTLIST META
         http-equiv  NAME    #IMPLIED  -- HTTP response header name  --
         name        NAME    #IMPLIED  -- metainformation name       --
         content     CDATA   #REQUIRED -- associated information     --
         >
 
-<!ELEMENT STYLE - O (#PCDATA)*    -- placeholder for style info -->
-<!ELEMENT SCRIPT - - (#PCDATA)*   -- placeholder for script statements -->
+<!-- SCRIPT/STYLE are place holders for transition to next version of HTML -->
+
+<!ELEMENT STYLE  - - (#PCDATA)*  -(%head.misc) -- style info -->
+<!ELEMENT SCRIPT - - (#PCDATA)*  -(%head.misc) -- script statements -->
 
 <!--================ Document Structure ===================================-->
 

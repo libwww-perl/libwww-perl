@@ -40,14 +40,15 @@ use vars qw(%LINK_ELEMENT);
  body   => 'background',
  base   => 'href',
  a      => 'href',
- img    => [qw(src lowsrc usemap)],   # lowsrc is a Netscape invention
+ img    => [qw(src lowsrc usemap)],   # 'lowsrc' is a Netscape invention
  form   => 'action',
  input  => 'src',
 'link'  => 'href',          # need quoting since link is a perl builtin
  frame  => 'src',
  applet => 'codebase',
  area   => 'href',
- embed  => 'src',   # used in Netscape 3.0 for Shockwave and things like that
+ frame  => 'src',   # Netscape 2.0 extention
+ embed  => 'src',   # used in Netscape 2.0 for Shockwave and things like that
 );
 
 =head2 $p = HTML::LinkExtor->new($callback, $base)

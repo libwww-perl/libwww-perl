@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.25 1996/03/25 10:03:07 aas Exp $
+# $Id: LWP.pm,v 1.26 1996/04/02 11:37:53 aas Exp $
 
 package LWP;
 
-$VERSION = "0.11";
+$VERSION = "4.98";
 
 sub Version { $VERSION; }
 
@@ -76,7 +76,8 @@ A parser for robots.txt files and a framework for constructing robots.
 
 =item *
 
-An experimental HTML parser and formatter (PS and plain text).
+An experimental HTML parser and formatter (for PostScript and plain
+text).
 
 =item *
 
@@ -128,7 +129,7 @@ model is used for any kind of service we want to access.
 
 If we want to fetch a document from a remote file server, then we send
 it a request that contains a name for that document and the response
-will contain the document itself.  If we access are search engine,
+will contain the document itself.  If we access a search engine,
 then the content of the request will contain the query parameters and
 the response will contain the query result.  If we want to send a mail
 message to somebody then we send a request object which contains our
@@ -389,7 +390,7 @@ this can be requested via the standard HTTP content negotiation
 mechanisms (add an "Accept: text/html" header in the request).
 
 The normal file retrievals, the "Content-Type" is guessed based on the
-file name suffix. See <LWP::MediaTypes>
+file name suffix. See L<LWP::MediaTypes>
 
 The "If-Modified-Since" header is not honored yet.
 
@@ -525,15 +526,15 @@ distributions for them.  Regard them as bonus.
 =head1 MORE DOCUMENTATION
 
 All modules contain detailed information on the interfaces they
-provide.  The L<lwpcook> contains the libwww-perl cookbook that
+provide.  The L<lwpcook> is the libwww-perl cookbook that
 contain examples of typical usage of the library.  You might want to
 take a look at how the scripts C<lwp-request> and C<lwp-mirror> are
 implemented.
 
 =head1 BUGS
 
-The library can not handle multiple simultaneous requests.
-Check what's left in the TODO file.
+The library can not handle multiple simultaneous requests.  The HTML::
+modules are still experimental.  Check what's left in the TODO file.
 
 =head1 ACKNOWLEDGEMENTS
 

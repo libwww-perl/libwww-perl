@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.14 1996/02/27 19:36:34 aas Exp $
+# $Id: Status.pm,v 1.15 1996/03/18 17:45:10 aas Exp $
 
 package HTTP::Status;
 
@@ -23,10 +23,11 @@ HTTP::Status - HTTP Status code processing
 
 =head1 DESCRIPTION
 
-HTTP::Status is a library of routines for manipulating
-HTTP Status Codes for libwww-perl.
+HTTP::Status is a library of routines for defining and classification
+of HTTP status codes for libwww-perl.  Status codes are used to encode
+the overall outcome of a HTTP response message.
 
-The following functions can be used as mnemonic status codes:
+The following functions can be used as mnemonic status code names:
 
    RC_CONTINUE
    RC_SWITCHING_PROTOCOLS
@@ -66,7 +67,7 @@ The status_message() function will translate status codes to human
 readable strings.
 
 The is_info(), is_success(), is_error(), and is_redirect() functions
-will return a true value if the passed status code indicates success,
+will return a TRUE value if the passed status code indicates success,
 and error, or a redirect respectively.
 
 =cut
@@ -128,7 +129,6 @@ while (($code, $message) = each %StatusCode) {
 # warn $mnemonicCode; # for development
 eval $mnemonicCode; # only one eval for speed
 die if $@;
-undef $mnemonicCode;
 
 
 =head2 status_message($code)
@@ -137,7 +137,7 @@ Return user friendly error message for status code C<$code>
 
 =cut
 
-sub status_message
+sub status_message ($)
 {
     return undef unless exists $StatusCode{$_[0]};
     $StatusCode{$_[0]};
@@ -161,12 +161,11 @@ Return TRUE if C<$code> is an Error status code
 
 =cut
 
-sub is_info         { $_[0] >= 100 && $_[0] < 200; }
-sub is_success      { $_[0] >= 200 && $_[0] < 300; }
-sub is_redirect     { $_[0] >= 300 && $_[0] < 400; }
-sub is_error        { $_[0] >= 400 && $_[0] < 600; }
-sub is_client_error { $_[0] >= 400 && $_[0] < 500; }
-sub is_server_error { $_[0] >= 500 && $_[0] < 600; }
-
+sub is_info         ($) { $_[0] >= 100 && $_[0] < 200; }
+sub is_success      ($) { $_[0] >= 200 && $_[0] < 300; }
+sub is_redirect     ($) { $_[0] >= 300 && $_[0] < 400; }
+sub is_error        ($) { $_[0] >= 400 && $_[0] < 600; }
+sub is_client_error ($) { $_[0] >= 400 && $_[0] < 500; }
+sub is_server_error ($) { $_[0] >= 500 && $_[0] < 600; }
 
 1;

@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.8 1995/07/15 08:01:17 aas Exp $
+# $Id: UserAgent.pm,v 1.9 1995/07/16 07:26:32 aas Exp $
 
 package LWP::UserAgent;
 
@@ -153,8 +153,7 @@ sub isProtocolSupported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-        croak "ref is not an URI::URL object"
-            unless ref($scheme) =~ "^URI::URL";
+        # assume we got a reference to an URI::URL object
         $scheme = $scheme->abs->scheme;
     } else {
         croak "Illeal scheme '$scheme' passed to isProtocolSupported"

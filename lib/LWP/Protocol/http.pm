@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.14 1995/09/04 20:09:22 aas Exp $
+# $Id: http.pm,v 1.15 1995/09/04 20:22:28 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -85,6 +85,9 @@ sub request
     # otherwise the server won't know a messagebody is coming.
 
     my $content = $request->content;
+
+    # All this mess because we want to support content as both scalar,
+    # ref to scalar and ref to code.
     my $contRef;
     if (defined $content){
 	$contRef = ref($content) ? $content : \$content;
@@ -94,12 +97,18 @@ sub request
 	    croak('No Content-Length header for request with content')
 	      unless $request->header('Content-Length');
 	} else {
-	    croak "Illegal content in request ($content) ";
+	    croak "Illegal content in request ($content)";
 	}
     }
 
     $socket->write($request_line . $request->headerAsString($endl) . $endl);
-    $socket->write($contRef, $timeout) if defined $content;
+    if (defined $content) { 
+	if (ref($contRef) eq 'CODE') {
+	    $socket->write($contRef, $timeout);
+	} else {
+	    $socket->write($$contRef, $timeout);
+	}
+      }
 
     # read response line from server
     LWP::Debug::debugl('reading response');

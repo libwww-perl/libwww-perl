@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.4 1995/07/11 22:39:14 aas Exp $
+# $Id: http.pm,v 1.5 1995/07/14 00:18:16 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -40,7 +40,8 @@ $httpversion = 'HTTP/1.0';      # for requests
 
 # constructor inherited fro LWP::Protocol
 
-sub request {
+sub request
+{
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
     LWP::Debug::trace("LWP::http::request(" . 
@@ -100,7 +101,7 @@ sub request {
     if (defined $content){
         $request->header('Content-Length', length($content));
     }
-    my $senddata = $request_line . $request->headerAsMIME . "\r\n";
+    my $senddata = $request_line . $request->headerAsString("\r\n") . "\r\n";
     if (defined $content) {
         $senddata .= $content;
     }

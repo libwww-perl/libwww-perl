@@ -10,7 +10,7 @@ my $res = $ua->get(
     Connection => "close",
 );
 
-print $res->as_string;
+print $res->as_string, "\n";
 
 print "not " unless $res->code == 300;
 print "ok 1\n";

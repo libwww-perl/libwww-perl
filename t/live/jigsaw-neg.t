@@ -9,7 +9,7 @@ my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/neg");
 $req->header(Connection => "close");
 my $res = $ua->request($req);
 
-print $res->as_string;
+print $res->as_string, "\n";
 
 print "not " unless $res->code == 300;
 print "ok 1\n";

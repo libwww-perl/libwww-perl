@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.144 2004/11/30 13:00:51 gisle Exp $
+# $Id: LWP.pm,v 1.145 2004/12/01 10:20:09 gisle Exp $
 
 package LWP;
 
@@ -619,8 +619,8 @@ KONISHI Katsuhiro, Lee T Lindley, Liam Quinn, Marc Hedlund, Marc
 Langheinrich, Mark D. Anderson, Marko Asplund, Mark Stosberg, Markus B
 Krüger, Markus Laker, Martijn Koster, Martin Thurn, Matthew Eldridge,
 Matt Sergeant, Michael A. Chase, Michael Quaranta, Michael Thompson,
-Mike Schilli, Nathan Torkington, Nicolai Langfeldt, Norton Allen, Olly
-Betts, Paul J. Schinder, peterm, Philip GuentherDaniel Buenzli, Pon
+Mike Schilli, Moshe Kaminsky, Nathan Torkington, Nicolai Langfeldt, Norton Allen,
+Olly Betts, Paul J. Schinder, peterm, Philip GuentherDaniel Buenzli, Pon
 Hwa Lin, Radu Greab, Randal L. Schwartz, Richard Chen, Robin Barker,
 Roy Fielding, Sander van Zoest, Sean M. Burke, shildreth, Slaven
 Rezic, Steve A Fink, Steve Hay, Steven Butler, Steve_Kilbane, Takanori

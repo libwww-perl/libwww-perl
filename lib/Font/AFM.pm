@@ -1,10 +1,199 @@
-package AFM;
+package Font::AFM;
 
-# This package is a simple parser for Adobe Font Metrics files.
+# This perl module is a simple parser for Adobe Font Metrics files.
 #
-# $Id: AFM.pm,v 1.4 1995/05/14 14:35:57 aas Exp $
+# $Id: AFM.pm,v 1.5 1995/05/14 18:45:11 aas Exp $
 #
 # Author: Gisle Aas <aas@oslonett.no>
+
+=head1 NAME
+
+Font::AFM - Interface to Adobe Font Metrics files
+
+=head1 SYNOPSIS
+
+ use Font::AFM;
+ $h = new Font::AFM "Helvetica";
+ $copyright = $h->Notice;
+ $w = $h->Wx->{"aring"};
+ $w = $h->stringwidth("Gisle", 10);
+ $h->dump;  # for debugging
+
+=head1 DESCRIPTION
+
+This module implements the Font::AFM class. Objects of this class are
+initialised from an AFM-file and allows you to obtain information
+about the fonts and the metrics of the various glyphs in the font.
+
+All measurements in AFM files are given in terms of units equal to
+1/1000 of the scale factor of the font being used. To compute actual
+sizes in a document, these amounts should be multiplied by (scale
+factor of font)/1000.
+
+The following methods are available:
+
+=over 3
+
+=item new
+
+Object constructor. Takes the name of the font as argument. It will
+croak if the font can not be found.
+
+=item latin1_wx_table
+
+Returns an 256 elements array, where each element contains the width
+of the corresponding character.
+
+=item stringwidth
+
+Returns the width of the string passed as argument. A second argument
+can be used to scale the width according to the font size.
+
+=item FontName
+
+The name of the font as presented to the PostScript language
+c<findfont> operator, for instance "Times-Roman".
+
+=item FullName
+
+Unique, human-readable name for an individual font, for instance
+"Times Roman".
+
+=item FamilyName
+
+Human-readable name for a group of fonts that are stylistic variants
+of a single design. All fonts that are member of such a group should
+have exactly the same c<FamilyName>. Example of a family name is
+"Times".
+
+=item Weight
+
+Human-readable name for the weight, or "boldness", attribute of a font.
+Exampes are c<Roman>, c<Bold>, c<Light>.
+
+=item ItalicAngle
+
+Angle in degrees counterclockwise from the vertical of the dominant
+vertical strokes of the font.
+
+=item IsFixedPitch
+
+If the value is c<true>, it indicated that the font is a fixed-pitch
+(monospaced) font.
+
+=item FontBBox
+
+A string of four numbers giving the lower-left x, lower-left y,
+upper-right x, and upper-right y of the font bounding box. The font
+bounding box is the smallest rectangle enclosing the shape that would
+result if all the characters of the font were placed with their
+origins coincident, and the painted.
+
+=item UnderlinePosition
+
+Recommended distance from the baseline for positioning underline
+stokes. This number is the y coordinate of the center of the stroke.
+
+=item UnderlineThickness
+
+Recommended stroke width for underlining.
+
+=item Version
+
+Version number of the font.
+
+=item Notice
+
+Trademark or copyright notice, if applicable.
+
+=item Comment
+
+Comments found in the AFM file.
+
+=item EncodingScheme
+
+The name of the standard encoding scheme for the font. Most Adobe
+fonts use the c<AdobeStandardEncoding>. Special fonts might state
+c<FontSpecific>.
+
+=item CapHeight
+
+Usually the y-value of the top of the capital H.
+
+=item XHeight
+
+Typically the y-value of the top of the lowercase x.
+
+=item Ascender
+
+Typically the y-value of the top of the lowercase d.
+
+=item Descender
+
+Typically the y-value of the bottom of the lowercase p.
+
+=item Wx
+
+Returns an hash table that maps from glyph names to the width of that glyph.
+
+=item BBox
+
+Returns an hash table that maps from glyph names to bounding box information.
+The bounding box consist of 4 numbers: llx, lly, urx, ury.
+
+=item dump
+
+Dumps the content of the Font::AFM object to STDOUT.  Useful for debugging.
+
+=back
+
+
+=head1 ENVIRONMENT
+
+=over 10
+
+=item METRICS
+
+Contains the PATH to seach for AFM-files.
+
+=back
+
+
+=head1 AUTHORS / ACKNOWLEDGMENTS
+
+This module is written by Gisle Aas <aas@oslonett.no>.
+
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+IN NO EVENT SHALL THE AUTHORS BE LIABLE TO ANY PARTY FOR DIRECT,
+INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION (INCLUDING, BUT NOT
+LIMITED TO, LOST PROFITS) EVEN IF THE AUTHORS HAVE BEEN ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE. 
+
+
+=head1 AVAILABILITY
+
+The latest version of this module is likely to be available from:
+
+   http://www.oslonett.no/home/aas/perl/
+
+The AFM specification can be found at:
+
+   ftp://ftp.adobe.com/pub/adobe/DeveloperSupport/TechNotes/PSfiles/5004.AFM_Spec.ps
+
+=head1 BUGS
+
+Kerning data and composite character data is not yet parsed.
+Lingature data is not parsed.
+
+=cut
+
+#-------perl resumes here--------------------------------------------
 
 use Carp;
 
@@ -45,10 +234,10 @@ foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 );
 
 
-# Creates a new AFM object.  Pass it the name of the font as parameter.
+# Creates a new Font::AFM object.  Pass it the name of the font as parameter.
 # Synopisis:
 #
-#    $h = new AFM "Helvetica";
+#    $h = new Font::AFM "Helvetica";
 #
 
 sub new
@@ -71,10 +260,12 @@ sub new
        next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
        next if /^StartComposites/ .. /^EndComposites/; # same for composites
        if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
-	   next unless /^C\s/;
+	   # only lines that start with "C" or "CH" are parsed
+	   next unless /^CH?\s/;  
 	   my($name) = /\bN\s+(\w+)\s*;/;
 	   my($wx)   = /\bWX\s+(\d+)\s*;/;
 	   my($bbox)    = /\bB\s+([^;]+)\s*;/;
+           # Should also parse lingature data (format: L successor lignature)
 	   $this->{'wx'}{$name} = $wx;
 	   $this->{'bbox'}{$name} = $bbox;
 	   next;
@@ -142,9 +333,13 @@ sub Comment;
 sub EncodingScheme;
 sub CapHeight;
 sub XHeight;
+sub Ascender;
 sub Descender;
 sub Wx;
 sub BBox;
+
+# We implement all the access functions within this simple autoload
+# function.
 
 sub AUTOLOAD
 {

@@ -1,0 +1,40 @@
+
+use HTML::TreeBuilder;
+
+$p = HTML::TreeBuilder->new;
+$p->parse_file("xxx.html");
+$p->traverse(\&extract_alinks, 1);
+
+
+sub extract_alinks
+{
+   my($elem, $start, $depth) = @_;
+   return 1 unless ref($elem) && $elem->tag eq "a";
+
+   my $link = $elem->attr('href');
+   my $text = extract_atext($elem);
+   print "$text => $link\n";
+
+   return 0;  # no need to traverse futher down
+}
+
+sub extract_atext
+{
+   my $a = shift;
+   return $a unless ref($a);
+   my $text = "";
+   $a->traverse(
+       sub {
+	   my($elem, $start) = @_;
+           $text .= $elem, return 0 unless ref($elem);
+           if ($elem->tag eq "img") {
+	      $text .= $elem->attr('alt') || "[Image]";
+           }
+           1;
+       });
+   # clean spaces in the string
+   $text =~ s/\s+/ /g;
+   $text =~ s/^\s+//;
+   $text =~ s/\s+$//;
+   $text;
+}

@@ -1,16 +1,17 @@
 #!perl -w
 
-print "1..23\n";
-
 use strict;
+use Test qw(plan ok);
+
+plan tests => 29;
+
 use HTML::Form;
 
 my @warn;
 $SIG{__WARN__} = sub { push(@warn, $_[0]) };
 
 my @f = HTML::Form->parse("", "http://localhost/");
-print "not " if @f;
-print "ok 1\n";
+ok(@f, 0);
 
 @f = HTML::Form->parse(<<'EOT', "http://localhost/");
 <form action="abc" name="foo">
@@ -19,41 +20,29 @@ print "ok 1\n";
 <form></form>
 EOT
 
-print "not " unless @f == 2;
-print "ok 2\n";
+ok(@f, 2);
 
 my $f = shift @f;
-print "not " unless defined($f->value("name")) && $f->value("name") eq "" &&
-                    $f->dump eq "GET http://localhost/abc [foo]\n  name=\n";
-print "ok 3\n";
+ok($f->value("name"), "");
+ok($f->dump, "GET http://localhost/abc [foo]\n  name=\n");
 
 my $req = $f->click;
-print "not " unless $req &&
-	            $req->method eq "GET" &&
-	            $req->uri eq "http://localhost/abc?name=";
-print "ok 4\n";
+ok($req->method, "GET");
+ok($req->uri, "http://localhost/abc?name=");
 
 $f->value(name => "Gisle Aas");
 $req = $f->click;
-print "not " unless $req &&
-	            $req->method eq "GET" &&
-	            $req->uri eq "http://localhost/abc?name=Gisle+Aas";
-print "ok 5\n";
+ok($req->method, "GET");
+ok($req->uri, "http://localhost/abc?name=Gisle+Aas");
 
-print "not " unless $f->attr("name") eq "foo";
-print "ok 6\n";
-
-print "not " if $f->attr("method");
-print "ok 7\n";
+ok($f->attr("name"), "foo");
+ok($f->attr("method"), undef);
 
 $f = shift @f;
-print "not " unless $f->method eq "GET" &&
-	            $f->action eq "http://localhost/" &&
-	            $f->enctype eq "application/x-www-form-urlencoded";
-print "ok 8\n";
-
-print "not " unless $f->dump eq "GET http://localhost/\n";
-print "ok 9\n";
+ok($f->method, "GET");
+ok($f->action, "http://localhost/");
+ok($f->enctype, "application/x-www-form-urlencoded");
+ok($f->dump, "GET http://localhost/\n");
 
 # try some more advanced inputs
 $f = HTML::Form->parse(<<'EOT', "http://localhost/");
@@ -90,7 +79,7 @@ EOT
 #print $f->dump;
 #print $f->click->as_string;
 
-print "not " unless $f->click->as_string eq <<'EOT'; print "ok 10\n";
+ok($f->click->as_string, <<'EOT');
 POST http://localhost/
 Content-Length: 76
 Content-Type: application/x-www-form-urlencoded
@@ -98,8 +87,8 @@ Content-Type: application/x-www-form-urlencoded
 i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&x=&a=%0Aabc%0A+++&s=bar&m=a&m=b
 EOT
 
-print "not " unless @warn == 1 && $warn[0] =~ /^Unknown input type 'xyzzy'/;
-print "ok 11\n";
+ok(@warn, 1);
+ok($warn[0] =~ /^Unknown input type 'xyzzy'/);
 @warn = ();
 
 
@@ -116,7 +105,7 @@ EOT
 
 # XXX the parameter-less boundary in this case is clearly a bug.
 
-print "not " unless $f->click->as_string eq <<'EOT'; print "ok 12\n";
+ok($f->click->as_string, <<'EOT');
 POST http://localhost/
 Content-Length: 0
 Content-Type: multipart/form-data; boundary
@@ -135,7 +124,7 @@ $f->value(f => $filename);
 
 #print $f->click->as_string;
 
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 13\n";
+ok($f->click->as_string, <<"EOT");
 POST http://localhost/
 Content-Length: 159
 Content-Type: multipart/form-data; boundary=xYzZY
@@ -152,8 +141,7 @@ EOT
 
 unlink($filename) || warn "Can't unlink '$filename': $!";
 
-print "not " if @warn;
-print "ok 14\n";
+ok(@warn, 0);
 
 # Try to parse form HTTP::Response directly
 {
@@ -169,7 +157,7 @@ $response->content("<form><input type=text value=42 name=x></form>");
 
 $f = HTML::Form->parse($response);
 
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 15\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=42
 
 EOT
@@ -182,25 +170,25 @@ EOT
 
 $f->find_input("x")->check;
 
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 16\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=on
 
 EOT
 
 $f->value("x", "off");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 17\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com
 
 EOT
 
 $f->value("x", "I like it!");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 18\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=on
 
 EOT
 
 $f->value("x", "I LIKE IT!");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 19\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=on
 
 EOT
@@ -220,19 +208,16 @@ EOT
 
 $f->value("x", "one");
 
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 20\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=1
 
 EOT
 
 $f->value("x", "TWO");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 21\n";
+ok($f->click->as_string, <<"EOT");
 GET http://www.example.com?x=2
 
 EOT
 
-print "not " unless join(":", $f->find_input("x")->value_names) eq "one:two:3";
-print "ok 22\n";
-
-print "not " unless join(":", map $_->name, $f->find_input(undef, "option")) eq "x:y";
-print "ok 23\n";
+ok(join(":", $f->find_input("x")->value_names), "one:two:3");
+ok(join(":", map $_->name, $f->find_input(undef, "option")), "x:y");

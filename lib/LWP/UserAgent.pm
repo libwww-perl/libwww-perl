@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.87 2001/04/20 22:00:03 gisle Exp $
+# $Id: UserAgent.pm,v 1.88 2001/04/21 03:58:14 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.87 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.88 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -105,7 +105,7 @@ use LWP::Protocol ();
 use Carp ();
 
 
-=item $ua = LWP::UserAgent->new;
+=item $ua = LWP::UserAgent->new( %options );
 
 Constructor for the UserAgent.  Returns a reference to a
 LWP::UserAgent object.
@@ -127,7 +127,7 @@ sub new
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
     $parse_head = 1 unless defined $parse_head;
-    my $max_size = delete $cnf{max_size} || 0;
+    my $max_size = delete $cnf{max_size};
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -222,7 +222,11 @@ sub simple_request
     # Set User-Agent and From headers if they are defined
     $request->init_header('User-Agent' => $agent) if $agent;
     $request->init_header('From' => $from) if $from;
-    $request->init_header('Range' => "bytes=0-$max_size") if $max_size;
+    if (defined $max_size) {
+	my $last = $max_size - 1;
+	$last = 0 if $last < 0;  # there is no way to actually request no content
+	$request->init_header('Range' => "bytes=0-$last");
+    }
     $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
     my $response;
@@ -497,8 +501,10 @@ Get/set the timeout value in seconds. The default timeout() value is
 
 Get/set the cookie jar object to use.  The only requirement is that
 the cookie jar object must implement the extract_cookies($request) and
-add_cookie_header($response) methods.  Normally this will be a
-C<HTTP::Cookies> object or some subclass.
+add_cookie_header($response) methods.  These methods will then be
+invoked by the user agent as requests are sent and responses are
+received.  Normally this will be a C<HTTP::Cookies> object or some
+subclass.
 
 The default is to have no cookie_jar, i.e. never automatically add
 "Cookie" headers to the requests.
@@ -510,7 +516,7 @@ automatically loads the C<HTTP::Cookies> module.  It means that:
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
-is really just a shorthand for:
+is really just a shortcut for:
 
   require HTTP::Cookies;
   $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
@@ -527,10 +533,10 @@ TRUE.  Do not turn this off, unless you know what you are doing.
 
 =item $ua->max_size([$bytes])
 
-Get/set the size limit for response content.  The default is 0,
+Get/set the size limit for response content.  The default is C<undef>,
 which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
-"X-Content-Range" header will be added to the response.
+"Client-Aborted" header will be added to the response.
 
 =cut
 

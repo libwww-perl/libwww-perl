@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.27 1999/11/04 20:25:51 gisle Exp $
+# $Id: ftp.pm,v 1.28 2001/03/16 00:14:47 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -116,12 +116,20 @@ sub request
     my $remote_file = pop(@path);
     $remote_file = '' unless defined $remote_file;
 
-#    my $params = $url->params;
-#    if (defined($params) && $params eq 'type=a') {
-#	$ftp->ascii;
-#    } else {
+    my $type;
+    if (ref $remote_file) {
+	my @params;
+	($remote_file, @params) = @$remote_file;
+	for (@params) {
+	    $type = $_ if s/^type=//;
+	}
+    }
+
+    if ($type && $type eq 'a') {
+	$ftp->ascii;
+    } else {
 	$ftp->binary;
-#    }
+    }
 
     for (@path) {
 	LWP::Debug::debug("CWD $_");

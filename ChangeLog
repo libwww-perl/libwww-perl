@@ -1,3 +1,11 @@
+Tue Jul 25 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Release 0.02
+
+ o  Included URI::URL in the release
+
+
+
 Mon Jul 24 1995   Gisle Aas <aas@oslonett.no>
 
  o  Incorporated Makemake.PL and VERSION from Andreas Koenig <koenig@mind.de>

@@ -51,7 +51,7 @@ various values.  The state of a form can be tweaked and it can then be
 asked to provide C<HTTP::Request> objects that can be passed to the
 request() method of C<LWP::UserAgent>.
 
-The following constructor methods are available:
+The following methods are available:
 
 =over 4
 
@@ -161,24 +161,6 @@ sub parse
     wantarray ? @forms : $forms[0];
 }
 
-=item $form = HTML::Form->new( $method, $action_uri )
-
-=item $form = HTML::Form->new( $method, $action_uri, $enctype )
-
-This constructs a new empty HTML::Form object.  The arguments are the
-initial value for which method the form should use to invoke a
-request, which URI to apply the method to, and what encoding type to
-use for the form data.
-
-The $method is assumed to be "GET" if C<undef> is passed.  The
-$enctype defaults to "application/x-www-form-urlencoded" if not
-provided.
-
-You will normally use HTML::Form->parse() to create new HTML::Form
-objects.
-
-=cut
-
 sub new {
     my $class = shift;
     my $self = bless {}, $class;
@@ -206,12 +188,6 @@ sub push_input
     $input->add_to_form($self);
 }
 
-
-=back
-
-The following instance methods are available on C<HTML::Form> objects:
-
-=over 4
 
 =item $method = $form->method
 

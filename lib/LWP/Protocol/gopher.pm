@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.16 1996/05/08 16:25:59 aas Exp $
+# $Id: gopher.pm,v 1.17 1997/12/15 20:22:02 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -11,18 +11,19 @@
 
 package LWP::Protocol::gopher;
 
-require LWP::Protocol;
-require LWP::Socket;
-require HTTP::Request;
+use strict;
+use vars qw(@ISA);
+
 require HTTP::Response;
 require HTTP::Status;
+require IO::Socket;
+require IO::Select;
 
-use Carp;
-
+require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
 
 
-%gopher2mimetype = (
+my %gopher2mimetype = (
     '0' => 'text/plain',                # 0 file
     '1' => 'text/html',                 # 1 menu
 					# 2 CSO phone-book server
@@ -38,7 +39,7 @@ use Carp;
     'I' => 'image/*',                   # some kind of image
 );
 
-%gopher2encoding = (
+my %gopher2encoding = (
     '6' => 'x_uuencode',                # 6 UNIX uuencoded file.
 );
 
@@ -51,38 +52,30 @@ sub request
     $size = 4096 unless $size;
 
     # check proxy
-    if (defined $proxy)
-    {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-				  'You can not proxy through the gopher';
+    if (defined $proxy) {
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   'You can not proxy through the gopher');
     }
 
     my $url = $request->url;
-    if ($url->scheme ne 'gopher') {
-	my $scheme = $url->scheme;
-	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-		       "LWP::Protocol::gopher::request called for '$scheme'";
-    }
+    die "bad scheme" if $url->scheme ne 'gopher';
 
-    # check method
-    $method = $request->method;
 
+    my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD') {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-				  'Library does not allow method ' .
-				  "$method for 'gopher:' URLs";
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   'Library does not allow method ' .
+				   "$method for 'gopher:' URLs");
     }
 
     my $gophertype = $url->gtype;
     unless (exists $gopher2mimetype{$gophertype}) {
-	return new HTTP::Response &HTTP::Status::RC_NOT_IMPLEMENTED,
-				  'Library does not support gophertype ' .
-				  $gophertype;
+	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
+				   'Library does not support gophertype ' .
+				   $gophertype);
     }
 
-    my $response = new HTTP::Response &HTTP::Status::RC_OK,
-				      'Document follows';
-    $response->header('MIME-Version' => '1.0');
+    my $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
     $response->header('Content-type' => $gopher2mimetype{$gophertype}
 					|| 'text/plain');
     $response->header('Content-Encoding' => $gopher2encoding{$gophertype})
@@ -90,7 +83,7 @@ sub request
 
     if ($method eq 'HEAD') {
 	# XXX: don't even try it so we set this header
-	$response->header('X-Warning' => 'Client answer only');
+	$response->header('Client-Warning' => 'Client answer only');
 	return $response;
     }
     
@@ -131,13 +124,18 @@ EOT
     # potential request headers are just ignored
 
     # Ok, lets make the request
-    my $socket = new LWP::Socket;
-    alarm($timeout) if $self->use_alarm and defined $timeout;
+    my $socket = IO::Socket::INET->new(PeerAddr => $host,
+				       PeerPort => $port,
+				       Timeout  => $timeout);
+    die "Can't connect to $host:$port" unless $socket;
+    my $sel = IO::Select->new($socket);
 
-    $socket->connect($host, $port);
-    LWP::Debug::debug('connected');
-
-    $socket->write($requestLine, $timeout);
+    {
+	die "write timeout" if $timeout && !$sel->can_write($timeout);
+	my $n = syswrite($socket, $requestLine, length($requestLine));
+	die $! unless defined($n);
+	die "short write" if $n != length($requestLine);
+    }
 
     my $user_arg = $arg;
 
@@ -147,12 +145,12 @@ EOT
     $arg = undef if $gophertype eq '1' || $gophertype eq '7';
 
     # collect response
+    my $buf = '';
     $response = $self->collect($arg, $response, sub {
-	LWP::Debug::debug('collecting');
-	my $content = '';
-	my $result = $socket->read(\$content, $size, $timeout);
-	LWP::Debug::debug("collected: $content");
-	return \$content;
+	die "read timeout" if $timeout && !$sel->can_read($timeout);
+        my $n = sysread($socket, $buf, $size);
+	die $! unless defined($n);
+	return \$buf;
       } );
 
     # Convert menu to HTML and return data to user.
@@ -177,11 +175,11 @@ sub gopher2url
 
     if ($gophertype eq '8' || $gophertype eq 'T') {
 	# telnet session
-	$url = new URI::URL ($gophertype eq '8' ? 'telnet:' : 'tn3270:');
+	$url = URI::URL->new($gophertype eq '8' ? 'telnet:' : 'tn3270:');
 	$url->user($path) if defined $path;
     } else {
 	$path = URI::Escape::uri_escape($path);
-	$url = new URI::URL "gopher:/$gophertype$path";
+	$url = URI::URL->new("gopher:/$gophertype$path");
     }
     $url->host($host);
     $url->port($port);

@@ -7,7 +7,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 19;
+plan tests => 20;
 
 require HTTP::Request;
 require HTTP::Response;
@@ -62,6 +62,7 @@ ok($res2->content =~ />\.\.\.</);
 
 # Check the base method:
 $res = HTTP::Response->new(200, "This message");
+ok($res->base, undef);
 $res->request($req);
 $res->content_type("image/gif");
 

@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.50 2004/11/30 12:00:22 gisle Exp $
+# $Id: Response.pm,v 1.51 2004/12/11 14:30:00 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -75,9 +75,20 @@ sub base
     my $base = $self->header('Content-Base')     ||  # used to be HTTP/1.1
                $self->header('Content-Location') ||  # HTTP/1.1
                $self->header('Base');                # HTTP/1.0
-    return $HTTP::URI_CLASS->new_abs($base, $self->request->uri);
-    # So yes, if $base is undef, the return value is effectively
-    # just a copy of $self->request->uri.
+    if ($base && $base =~ /^$URI::scheme_re:/o) {
+	# already absolute
+	return $HTTP::URI_CLASS->new($base);
+    }
+
+    my $req = $self->request;
+    if ($req) {
+        # if $base is undef here, the return value is effectively
+        # just a copy of $self->request->uri.
+        return $HTTP::URI_CLASS->new_abs($base, $req->uri);
+    }
+
+    # can't find an absolute base
+    return undef;
 }
 
 
@@ -365,6 +376,9 @@ URI that was passed to $ua->request() method, because we might have
 received some redirect responses first.
 
 =back
+
+If neither of these sources provide an absolute URI, undef is
+returned.
 
 When the LWP protocol modules produce the HTTP::Response object, then
 any base URI embedded in the document (step 1) will already have

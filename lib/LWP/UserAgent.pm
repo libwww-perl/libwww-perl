@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.18 1995/09/03 09:57:46 aas Exp $
+# $Id: UserAgent.pm,v 1.19 1995/09/04 18:41:15 aas Exp $
 
 package LWP::UserAgent;
 
@@ -254,14 +254,14 @@ sub simpleRequest
     alarm(0) if ($self->useAlarm); # no more timeout
     
     if ($@) {
-        if ($@ =~ /timeout/i) {
+        if ($@ =~ /^timeout/i) {
             $response = new HTTP::Response
                                  &HTTP::Status::RC_REQUEST_TIMEOUT,
                                  'User-agent timeout while ' .
                                           $LWP::Debug::timeoutMessage;
         }
         else {
-            # Died on coding error
+	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+$//;  # remove file/line number
             $response = new HTTP::Response
                         &HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@;
         }

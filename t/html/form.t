@@ -127,6 +127,7 @@ my $filename = sprintf "foo-%08d.txt", $$;
 die if -e $filename;
 
 open(FILE, ">$filename") || die;
+binmode(FILE);
 print FILE "This is some text\n";
 close(FILE) || die;
 

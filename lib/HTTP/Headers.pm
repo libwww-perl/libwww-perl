@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.23 1996/07/17 13:06:52 aas Exp $
+# $Id: Headers.pm,v 1.24 1996/07/22 13:05:56 aas Exp $
 
 package HTTP::Headers;
 
@@ -333,8 +333,10 @@ A decimal number indicating the size in bytes of the message content.
 
 =head2 $h->title
 
-The title of the document.  Will be obtained from the
-E<lt>TITLE>...E<lt>/TITLE> element of HTML documents.
+The title of the document.  In libwww-perl this header will be
+initialized automatically from the E<lt>TITLE>...E<lt>/TITLE> element
+of HTML documents.  I<This header is no longer part of the HTTP
+standard.>
 
 =head2 $h->user_agent
 

@@ -1,3 +1,17 @@
+Wed Sep 11 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5.02
+
+ o  lwp-rget:  Initialize proxy settings from envirionment
+
+ o  HTML::Entities::encode_entities: Don't encode $ and %
+
+ o  HTML::LinkExtor::links: Now works when no links were found.
+
+ o  HTTP::Headers::as_string: Allow \n in header value
+
+
+
 Tue Aug  1 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.01.

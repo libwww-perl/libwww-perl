@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -70,15 +70,15 @@ would want.
 
 This is easier to describe with some examples:
 
-   split_header_words('foo="bar"; port="80,81"; discard, bar=baz')
-   split_header_words('text/html; charset="iso-8859-1");
-   split_header_words('Basic realm="\"foo\\bar\""');
+   split_header_words('foo="bar"; port="80,81"; discard, bar=baz');
+   split_header_words('text/html; charset="iso-8859-1"');
+   split_header_words('Basic realm="\\"foo\\\\bar\\""');
 
 will return
 
    [foo=>'bar', port=>'80,81', discard=> undef], [bar=>'baz' ]
    ['text/html' => undef, charset => 'iso-8859-1']
-   [Basic => undef, realm => '"foo\bar"']
+   [Basic => undef, realm => "\"foo\\bar\""]
 
 =cut
 

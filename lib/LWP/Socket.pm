@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.8 1995/09/03 07:18:27 aas Exp $
+# $Id: Socket.pm,v 1.9 1995/09/03 07:40:44 aas Exp $
 
 package LWP::Socket;
 
@@ -34,7 +34,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -128,23 +128,22 @@ sub shutdown
     delete $self->{'port'};
 }
 
-=head2 readUntil($delim, $bufferref, $size, $timeout)
+=head2 readUntil($delim, $data_ref, $size, $timeout)
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
-defined, data will be read in chunks of $size bytes.  This does not
-mean that we will return the data when size bytes are read.
+defined, data will be read internally in chunks of $size bytes.  This
+does not mean that we will return the data when size bytes are read.
 
 Note that $delim is discarded from the data returned.
 
-Uses select() to allow timeouts.  Uses sysread() and internal
-buffering for safety.
+Returns 0 if timeout occured, 1 otherwise.
 
 =cut
 
 sub readUntil
 {
-    my ($self, $delim, $bufferref, $size, $timeout) = @_;
+    my ($self, $delim, $data_ref, $size, $timeout) = @_;
 
     my $socket = $self->{'socket'};
     $delim = '' unless defined $delim;
@@ -152,10 +151,9 @@ sub readUntil
 
     LWP::Debug::trace('(...)');
 
-    my $totalbuffer = $self->{'buffer'};       # result so far
-    $self->{'buffer'} = '';
+    my $buf = \$self->{'buffer'};
 
-    until (length $delim and $totalbuffer =~ /$delim/) {
+    until (length $delim and $$buf =~ /$delim/) {
         my $rin = '';
         vec($rin, fileno($socket), 1) = 1;
         my $nfound = select($rin, undef, undef, $timeout);
@@ -164,18 +162,18 @@ sub readUntil
         } elsif ($nfound < 0) {
             die "Select failed: $!";
         } else {
-            my $buffer = '';
-            my $read = sysread($socket, $buffer, $size);
-	    last if $read <= 0;
-            $totalbuffer .= $buffer if defined $buffer;
-            LWP::Debug::conns("Read $read bytes: '$buffer'");
+            my $n = sysread($socket, $$buf, $size, length($$buf));
+	    last if $n <= 0;
+            LWP::Debug::conns("Read $n bytes: '" .
+			      substr($$buf, length($$buf) - $n) ."'");
         }
     }
 
     if (length $delim) {
-        ($$bufferref, $self->{'buffer'}) = split(/$delim/, $totalbuffer, 2);
+        ($$data_ref, $self->{'buffer'}) = split(/$delim/, $$buf, 2);
     } else {
-        $$bufferref = $totalbuffer;
+        $data_ref = $buf;
+	$self->{'buffer'} = '';
     }
 
     1;
@@ -191,14 +189,14 @@ otherwise.
 
 sub read
 {
-    my($self, $bufferref, $size, $timeout) = @_;
+    my($self, $data_ref, $size, $timeout) = @_;
     $size ||= $self->{'size'};
 
     LWP::Debug::trace('(...)');
     if (length $self->{'buffer'}) {
 	# return data from buffer until it is empty
 	#print "Returning data from buffer...$self->{'buffer'}\n";
-	$$bufferref = substr($self->{'buffer'}, 0, $size);
+	$$data_ref = substr($self->{'buffer'}, 0, $size);
 	substr($self->{'buffer'}, 0, $size) = '';
 	return 1;
     }
@@ -208,16 +206,16 @@ sub read
     if (defined @Tk::ISA) {
 	# we are running under Tk
 	Tk->fileevent($socket, 'readable',
-		      sub { sysread($socket, $$bufferref, $size); }
+		      sub { sysread($socket, $$data_ref, $size); }
 		     );
-	my $timer = Tk->after($timeout*1000, sub {$$bufferref = ''} );
+	my $timer = Tk->after($timeout*1000, sub {$$data_ref = ''} );
 
-	# Tk->tkwait('variable' => $bufferref);
+	# Tk->tkwait('variable' => $data_ref);
 	#
 	# This does not work because tkwait needs a real widget as self.
 	# I believe this to be a bug in Tk-b8.  As a workaround assume
 	# that a widget exists with the name $main::main.
-	$main::main->tkwait('variable' => $bufferref);
+	$main::main->tkwait('variable' => $data_ref);
 
 	Tk->after('cancel', $timer);
 	Tk->fileevent($socket, 'readable', ''); # no more callbacks
@@ -232,8 +230,8 @@ sub read
     } elsif ($nfound < 0) {
 	die "Select failed: $!";
     } else {
-	my $n = sysread($socket, $$bufferref, $size);
-	LWP::Debug::conns("Read $n bytes: '$$bufferref'");
+	my $n = sysread($socket, $$data_ref, $size);
+	LWP::Debug::conns("Read $n bytes: '$$data_ref'");
 	return 1;
     }
 }

@@ -273,6 +273,10 @@ sub parts_test {
     eval { my $p = $url->query; print "Query is $p\n"; };
     die "Query exception failed" unless $@;
 
+    # but we should still be able to set it 
+    $url->path("howdy");
+    $url->_expect('as_string' => 'http://web/howdy?a=%26#this');
+
     # Test the path_components function
     $url = new URI::URL 'file:%2f/%2f';
     my $p;

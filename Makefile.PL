@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.45 1997/12/17 00:15:23 aas Exp $
+# $Id: Makefile.PL,v 1.46 1998/04/02 05:49:22 aas Exp $
 
 require 5.004;
 use strict;
@@ -26,6 +26,24 @@ unless (getopts("n")) {
 # Check for non-standard modules that are used by this library.
 $| = 1;
 my $missing_modules = 0;
+
+print "Checking for HTML::Parser..";
+eval {
+    require HTML::HeadParser;
+};
+if ($@) {
+    print " failed\n";
+    $missing_modules++;
+    print <<EOT;
+$@
+The HTML::Parser is needed to extract correct <BASE> information from
+HTML so that we can resolv relative links correctly.
+
+EOT
+    sleep(2);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
 
 print "Checking for MIME::Base64..";
 eval {

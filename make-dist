@@ -1,6 +1,6 @@
 #!/local/bin/perl
 
-# $Id: make-dist,v 1.4 1995/07/14 00:33:09 aas Exp $
+# $Id: make-dist,v 1.5 1995/07/16 07:55:06 aas Exp $
 #
 # This script is used to produce a clean distribution copy of the
 # LWP library.
@@ -20,6 +20,9 @@ die "Illegal version number '$version'"
 $name = "lwp-$version";
 $base = "/usr/tmp/$name";
 
+# Updating version number in README file and other places
+run "update-version";
+
 print "Copying...\n";
 run "rm -rf $base";
 run "cp -r $pwd $base";
@@ -28,9 +31,6 @@ print "Removing scratch files...\n";
 run "find $base \\( -name '*~' -o -name '#*' -o -name CVS -o -name RCS \\) -print | xargs rm -rf";
 
 print "Patching relevant files...\n";
-
-# Updating version number in README file
-run "./update-version";
 
 print "Making tar file...\n";
 run "(cd /usr/tmp; tar cf - $name) | gzip >../$name.tar.gz";

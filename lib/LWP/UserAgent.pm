@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.96 2001/09/20 00:14:26 gisle Exp $
+# $Id: UserAgent.pm,v 1.97 2001/10/13 01:38:21 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -103,7 +103,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.96 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.97 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -472,6 +472,7 @@ sub request
 	}
 
 	$referral->url($referral_uri);
+	$referral->remove_header('Host');
 
 	return $response unless $self->redirect_ok($referral);
 

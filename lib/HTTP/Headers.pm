@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.28 1997/12/03 14:14:50 aas Exp $
+# $Id: Headers.pm,v 1.29 1997/12/05 10:22:09 aas Exp $
 
 package HTTP::Headers;
 
@@ -10,7 +10,7 @@ HTTP::Headers - Class encapsulating HTTP Message headers
 =head1 SYNOPSIS
 
  require HTTP::Headers;
- $request = new HTTP::Headers;
+ $h = new HTTP::Headers;
 
 =head1 DESCRIPTION
 

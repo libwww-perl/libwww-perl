@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.30 2001/05/02 05:11:02 gisle Exp $
+# $Id: HTTP.pm,v 1.31 2001/05/05 13:40:34 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -26,7 +26,7 @@ my $zlib_ok;
 	Compress::Zlib->VERSION(1.10);
 	$zlib_ok++;
     };
-    warn $@ if $@ && $^W;
+    #warn $@ if $@ && $^W;
 }
 
 sub configure {

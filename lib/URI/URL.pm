@@ -1,12 +1,7 @@
 #!/usr/local/bin/perl -w
 
-package URI::URL;
-
-require 5.001;  	# file scoped my's require perl 5.001
-
-$rcsid = '$Id: URL.pm,v 2.6 1995/04/27 12:53:51 aas Exp $';
-$rcsid = $rcsid; # shut up -w
-$Version = '$Revision: 2.6 $'; $Version =~ s/.*(\d+\.\d+).*/$1/;
+package URI::URL;  # $Id: URL.pm,v 2.7 1995/04/27 17:05:32 aas Exp $'
+require 5.001;
 
 #####################################################################
 
@@ -16,79 +11,71 @@ URI::URL - Uniform Resource Locators (absolute and relative)
 
 =head1 SYNOPSIS
 
-    use URI::URL;
+ use URI::URL;
 
-    # Constructors
+ # Constructors
+ $url1 = new URI::URL 'http://www.perl.com/%7Euser/gisle.gif';
+ $url2 = new URI::URL 'gisle.gif', 'http://www.com/%7Euser';
+ $url3 = $url2->abs; # get absolute url using base
+ $url4 = $url2->abs('http:/other/path');
 
-    $url1 = new URI::URL 'http://www.com/%7Euser/gisle.gif';
+ $url5 = newlocal URI::URL;                # pwd
+ $url6 = newlocal URI::URL '/tmp';         # dir
+ $url7 = newlocal URI::URL '/etc/motd';    # file
 
-    $url2 = new URI::URL 'gisle.gif', 'http://www.com/%7Euser';
+ $url8 = $url1;            # copy references
+ $url  = $url8->clone;     # copy objects
 
-    $url3 = $url2->abs; # get absolute url using base
+ # Stringify URL
+ $str1 = $url->as_string;  # complete escaped URL string
+ $str2 = $url->full_path;  # escaped path+query+params+frag
+ $str3 = "$url";           # use operator overloading (experimental)
 
-    $url4 = $url2->abs('http:/other/path');
+ # Retrieving Generic-RL components:
+ $scheme   = $url->scheme;
+ $netloc   = $url->netloc;  # see user,password,host,port below
+ $path     = $url->path;
+ $params   = $url->params;
+ $query    = $url->query;
+ $frag     = $url->frag;
 
-    $url5 = newlocal URI::URL;                # pwd
-    $url6 = newlocal URI::URL '/tmp';         # dir
-    $url7 = newlocal URI::URL '/etc/motd';    # file
+ # Retrieving Network location (netloc) components:
+ $user     = $url->user;
+ $password = $url->password;
+ $host     = $url->host;
+ $port     = $url->port;     # returns default if not defined
 
-    $url8 = $url->clone;
+ # Retrieving other attributes:
+ $base     = $url->base;
 
-    # Stringify URL
+ # Setting fields:
+ # All methods above can set field values for example:
+ $url->scheme('http');
+ $url->host('www.w3.org');
+ $url->port($url->default_port);
+ $url->path('/welcome.html');
+ $url->query('protocol info');
+ $url->base($url5);  # use string or object
 
-    $str1 = $url->as_string;  # complete escaped URL string
-    $str2 = $url->full_path;  # escaped path+query+params+frag
+ # Specify unsafe characters to be escaped for this url
+ $url->unsafe('\x00-\x20"\$#%;<>?\x7E-\xFF');
 
-    # Retrieving Generic-RL components:
+ # General method to get/set field values:
+ $value  = $url->elem($name [, $new_value ]);
 
-    $scheme   = $url->scheme;
-    $netloc   = $url->netloc;  # see user,password,host,port below
-    $path     = $url->path;
-    $params   = $url->params;
-    $query    = $url->query;
-    $frag     = $url->frag;
-
-    # Retrieving Network location (netloc) components:
-
-    $user     = $url->user;
-    $password = $url->password;
-    $host     = $url->host;
-    $port     = $url->port;     # returns default if not defined
-
-    # Retrieving other attributes:
-
-    $base     = $url->base;
-
-    # Setting fields:
-    # All methods above can set field values for example:
-    $url->scheme('http');
-    $url->host('www.w3.org');
-    $url->path('/welcome.html');
-    $url->query('protocol info');
-    $url->base($url5);  # use string or object
-
-    # Specify unsafe characters to be escaped for this url
-    $url->unsafe('\x00-\x20"\$#%;<>?\x7E-\xFF');
-
-    # General method to get/set field values:
-
-    $value  = $url->elem($name [, $new_value ]);
-
-    $defport= $url->default_port;  # default port for scheme
+ # Port numbers
+ $defport= $url->default_port;  # default port for scheme
 
 
-    # Escaping functions (See 'HOW AND WHEN TO ESCAPE' below)
+ # Escaping functions (See 'HOW AND WHEN TO ESCAPE' below)
+ $escaped   = uri_escape($component);
+ $component = uri_unescape($escaped);
 
-    $escaped = uri_escape($component);
-    $component = uri_unescape($escaped);
-
-
-    # Other functions and methods
-
-    URI::URL->strict(0);              # disable strict schemes
-    URI::URL->implementor;                  # get generic implementor
-    URI::URL->implementor($scheme);         # get scheme implementor
-    URI::URL->implementor($scheme, $class); # set scheme implementor
+ # Other functions
+ URI::URL::strict(0);                    # disable strict schemes
+ URI::URL::implementor;                  # get generic implementor
+ URI::URL::implementor($scheme);         # get scheme implementor
+ URI::URL::implementor($scheme, $class); # set scheme implementor
 
 
 =head1 DESCRIPTION
@@ -118,51 +105,55 @@ C<abs> method.
 The C<new> method must be able to determine the scheme for the URL.
 If a scheme is not specified in the URL it will use the scheme
 specified by the base URL. If no base URL scheme is defined then the
-C<new> will croak unless URI::URL->strict(0) has been invoked, in
+C<new> will croak unless URI::URL::strict(0) has been invoked, in
 which case 'http' is silently assumed.
 
 Once the scheme has been determined C<new> then uses the C<implementor>
-method to determine which class implements that scheme.
+function to determine which class implements that scheme.
 If no implementor class is defined for the scheme then C<new> will
-croak unless URI::URL->strict(0) has been invoked, in which case the
+croak unless URI::URL::strict(0) has been invoked, in which case the
 internal generic class is assumed.
 
 Internally defined schemes are implemented by C<URI::URL::scheme_name>.
-The URI::URL->implementor method can also be used to set the class
+The URI::URL::implementor function can also be used to set the class
 used to implement a scheme.
 
 
 =head1 HOW AND WHEN TO ESCAPE
 
-An edited extract from a URI specification:
+=over 3
 
-    The printability requirement has been met by specifing a safe
-    set of characters, and a general escaping scheme for encoding
-    "unsafe" characters. This "safe" set is suitable, for example,
-    for use in electronic mail.  This is the canonical form of a URI.
+=item An edited extract from a URI specification:
 
-    There is a conflict between the need to be able to represent many
-    characters including spaces within a URI directly, and the need
-    to be able to use a URI in environments which have limited
-    character sets or in which certain characters are prone to
-    corruption. This conflict has been resolved by use of an
-    hexadecimal escaping method which may be applied to any
-    characters forbidden in a given context. When URLs are moved
-    between contexts, the set of characters escaped may be enlarged
-    or reduced unambiguously.  The canonical form for URIs has all
-    white spaces encoded.
+The printability requirement has been met by specifing a safe set of
+characters, and a general escaping scheme for encoding "unsafe"
+characters. This "safe" set is suitable, for example, for use in
+electronic mail.  This is the canonical form of a URI.
 
-Notes:
+There is a conflict between the need to be able to represent many
+characters including spaces within a URI directly, and the need to be
+able to use a URI in environments which have limited character sets or
+in which certain characters are prone to corruption. This conflict has
+been resolved by use of an hexadecimal escaping method which may be
+applied to any characters forbidden in a given context. When URLs are
+moved between contexts, the set of characters escaped may be enlarged
+or reduced unambiguously.  The canonical form for URIs has all white
+spaces encoded.
 
-    A URL string *must*, by definition, consist of escaped
-    components. Complete URL's are always escaped.
 
-    The components of a URL string must be *individually* escaped.
-    Each component of a URL may have a separate requirements
-    regarding what must be escaped, and those requirements are also
-    dependent on the URL scheme.
+=item Notes:
 
-    Never escape an already escaped component string.
+A URL string I<must>, by definition, consist of escaped
+components. Complete URL's are always escaped.
+
+The components of a URL string must be I<individually> escaped.  Each
+component of a URL may have a separate requirements regarding what
+must be escaped, and those requirements are also dependent on the URL
+scheme.
+
+Never escape an already escaped component string.
+
+=back
 
 This implementation expects an escaped URL string to be passed to
 C<new> and will return an escaped URL string from C<as_string>.
@@ -182,12 +173,12 @@ New URL schemes or alternative implementations for existing schemes
 can be added to your own code. To create a new scheme class use code
 like:
 
-    package MYURL::foo;              
-    @ISA = (URI::URL->implementor);   # inherit from generic scheme
+   package MYURL::foo;              
+   @ISA = (URI::URL::implementor);   # inherit from generic scheme
 
-The 'URI::URL->implementor' method call with no parameters returns
+The 'URI::URL::implementor' function call with no parameters returns
 the name of the class which implements the generic URL scheme
-behaviour (typically URI::URL::_generic). All schemes should be
+behaviour (typically C<URI::URL::_generic>). All schemes should be
 derived from this class.
 
 Your class can then define overriding methods (e.g., C<new()>,
@@ -196,10 +187,10 @@ C<_parse()> as required).
 To register your new class as the implementor for a specific scheme
 use code like:
 
-    URI::URL->implementor('foo', 'MYURL::foo');
+   URI::URL::implementor('foo', 'MYURL::foo');
 
 Any new URL created for scheme 'foo' will be implemented by your
-'MYURL::foo' class. Existing URLs will not be affected.
+C<MYURL::foo> class. Existing URLs will not be affected.
 
 
 =head1 WHAT A URL IS NOT
@@ -257,8 +248,8 @@ better.
 
 The latest version of this module is likely to be available from:
 
-    http://www.ics.uci.edu/WebSoft/libwww-perl/contrib/
-    http://web.nexor.co.uk/public/perl/perl.html
+   http://www.ics.uci.edu/WebSoft/libwww-perl/contrib/
+   http://web.nexor.co.uk/public/perl/perl.html
 
 =head1 INSTALLING
 
@@ -278,7 +269,7 @@ Non-http scheme specific escaping is not correct yet.
 Note that running the module standalone will execute a substantial
 self test.
 
-=head1 Methods and Functions
+=head1 METHODS AND FUNCTIONS
 
 Below you'll find some descriptions of methods and functions.
 
@@ -295,6 +286,10 @@ require Cwd;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(uri_escape uri_unescape);
+
+# Make the version number available
+($Version) = '$Revision: 2.7 $' =~ /(\d+\.\d+)/;
+$Version += 0;  # shut up -w
 
 # Define default unsafe characters.
 # Note that you cannot reliably change this at runtime
@@ -326,10 +321,12 @@ my %ImplementedBy = ( '_generic' => 'URI::URL::_generic' );
 my $Implementors  = ();
 
 # Build a hex<->char map (HexHex->Char and Char->HexHex)
+my %escapes;
 map {
     my($hex, $chr) = (sprintf("%%%02X", $_), chr($_));
-    $escapes{$hex} = $chr; $escapes{lc($hex)} = $chr;
-    $escapes{$chr} = $hex;
+    # $escapes{   $hex } = $chr;  # not used
+    # $escapes{lc($hex)} = $chr;
+    $escapes{$chr}     = $hex;
 } 0..255;
 
 use strict qw(subs refs);
@@ -354,13 +351,15 @@ use strict qw(subs refs);
 
 =head2 new
 
-    $url = new URI::URL $escaped_string [, $optional_base_url]
+   $url = new URI::URL $escaped_string [, $optional_base_url]
 
-Object constructor.
+This is the object constructor.  To trap bad og unknown URL schemes
+use:
 
-To trap bad/unknown url schemes use:
+   $obj = eval { new URI::URL ... };
 
-    $obj = eval { new URI::URL ... };
+or set C<URI::URL::strict(0)> if you don't care about bad or unknown
+schemes.
 
 =cut
 
@@ -368,10 +367,10 @@ sub new
 {
     my($class, $init, $base) = @_;
 
-    my $this;
+    my $self;
     if (ref $init) {
-        $this = $init->clone;
-	$this->base($base) if $base;
+        $self = $init->clone;
+	$self->base($base) if $base;
     } else {
         $init =~ s/^\s+//;  # remove leading space
         $init =~ s/\s.*//;  # remove anything after first word
@@ -389,27 +388,21 @@ sub new
 		if $StrictSchemes;
 	    $scheme = 'http';
 	}
-        my $impclass = URI::URL->implementor($scheme);
+        my $impclass = URI::URL::implementor($scheme);
 	unless ($impclass) {
 	    croak "URI::URL scheme '$scheme' is not supported"
 		if $StrictSchemes;
-	    $impclass = URI::URL->implementor; # use generic
+	    $impclass = URI::URL::implementor(); # use generic
 	}
 
         # hand-off to scheme specific implementation sub-class
-        $this = $impclass->new($init, $base);
+        $self = $impclass->new($init, $base);
     }
-    return $this;
+    return $self;
 }
 
 
-=head2 clone
-
-    $url2 = $url1->clone;
-
-Copy constructor.
-
-=cut
+# Copy constructor
 
 sub clone
 {
@@ -420,7 +413,7 @@ sub clone
 
 =head2 newlocal
 
-    $url = newlocal URI::URL $path;
+   $url = newlocal URI::URL $path;
 
 Return a URL object that denotes a path on the local filesystem
 (current directory by default).  Paths not starting with '/' are
@@ -447,17 +440,18 @@ sub newlocal
 
     $url->print_on(*FILEHANDLE);
 
-Print the contents of the URL object to the specified file handle
-(default STDOUT). Useful for debugging.
+Prints a verbose presentation of the contents of the URL object to the
+specified file handle (default STDOUT).  Mainly useful for debugging.
 
 =cut
 
 sub print_on
 {
+    no strict qw(refs);  # because we use strings as filehandles
     my $self = shift;
     my $fh = shift || 'STDOUT';
     my($k, $v);
-    print $fh "Dump of $self...\n";
+    print $fh "Dump of URL $self...\n";
     foreach $k (sort keys %$self){
         $v = $self->{$k};
         $v = 'UNDEF' unless defined $v;
@@ -465,8 +459,19 @@ sub print_on
     }
 }
 
+sub strict
+{
+    return $StrictSchemes unless @_;
+    my $old = $StrictSchemes;
+    $StrictSchemes = $_[0];
+    $old;
+}
 
-=head2 implementor
+=head2 URI::URL::implementor
+
+   URI::URL::implementor;
+   URI::URL::implementor($scheme);
+   URI::URL::implementor($scheme, $class);
 
 Get and/or set implementor class for a scheme.
 Returns '' if specified scheme is not supported.
@@ -475,7 +480,7 @@ Returns generic URL class if no scheme specified.
 =cut
 
 sub implementor {
-    my($class, $scheme, $impclass) = @_;
+    my($scheme, $impclass) = @_;
     my $ic;
     $scheme = (defined $scheme) ? lc($scheme) : '_generic';
 
@@ -507,7 +512,7 @@ sub _init_implementor			# private method
     # have we already initialised this class?
     return 1 if exists $Implementors{$class};
 
-    no strict 'refs';
+    no strict qw(refs);
     # Setup overloading - experimental
     %{"${class}::OVERLOAD"} = %URI::URL::_generic::OVERLOAD
 	unless defined %{"${class}::OVERLOAD"};
@@ -527,18 +532,18 @@ sub _init_implementor			# private method
 # Use $url->scheme(undef) to set the value to undefined.
 
 # Generic-RL components:
-sub scheme      { shift->elem('scheme', @_);  }
-sub netloc      { shift->elem('netloc', @_);  }
-sub path        { shift->elem('path',   @_);  }
-sub params      { shift->elem('params', @_);  }
-sub query       { shift->elem('query',  @_);  }
-sub frag        { shift->elem('frag',   @_);  }
+sub scheme   { shift->elem('scheme',  @_); }
+sub netloc   { shift->elem('netloc',  @_); }
+sub path     { shift->elem('path',    @_); }
+sub params   { shift->elem('params',  @_); }
+sub query    { shift->elem('query',   @_); }
+sub frag     { shift->elem('frag',    @_); }
 
 # Fields derived from generic netloc:
-sub user        { shift->elem('user',   @_);  }
-sub password    { shift->elem('password',@_); }
-sub host        { shift->elem('host',   @_);  }
-sub port        { shift->elem('port',   @_);  }
+sub user     { shift->elem('user',    @_); }
+sub password { shift->elem('password',@_); }
+sub host     { shift->elem('host',    @_); }
+sub port     { shift->elem('port',    @_); }
 
 # optimisation to speed up elem() below:
 my %netloc_fields = qw(user 1 password 1 host 1 port 1);
@@ -601,12 +606,11 @@ sub escape
 {
     my($self, $text, $patn) = @_;
     if ($patn){
-        $text =~ s/([$patn])/$URI::URL::escapes{$1}/eg;
+        $text =~ s/([$patn])/$escapes{$1}/eg;
         return $text;
     }
     # let perl pre-compile this default for max speed
-    $text =~ s/([$DefaultUnsafe])/
-        $URI::URL::escapes{$1}/oeg;
+    $text =~ s/([$DefaultUnsafe])/$escapes{$1}/oeg;
     $text;
 }
 
@@ -618,6 +622,7 @@ sub escape
 *_esc_path   = \&escape;
 *_esc_params = \&escape;
 *_esc_frag   = \&escape;
+
 sub _esc_query {
     my($self, $text, @unsafe) = @_;
     $text =~ s/ /+/g;	# RFC1630
@@ -702,21 +707,21 @@ sub _parse {
     $self->{'_orig_url'} = $u if $URI::URL::Debug;      
     # draft-ietf-uri-relative-url-06.txt Section 2.4
     # 2.4.1
-    $self->{'frag'}   = $self->unescape($1) if $u =~ s/#(.*)$//;
+    $self->{frag}   = $self->unescape($1) if $u =~ s/#(.*)$//;
     # 2.4.2
-    $self->{'scheme'} = lc($1)   if $u =~ s/^\s*([\w\+\.\-]+)://;
+    $self->{scheme} = lc($1)   if $u =~ s/^\s*([\w\+\.\-]+)://;
     # 2.4.3
-    $self->{'netloc'} = $self->unescape($1) if $u =~ s!^//([^/]*)!!;
+    $self->{netloc} = $self->unescape($1) if $u =~ s!^//([^/]*)!!;
     # 2.4.4
     if ($u =~ s/\?(.*)//){	# '+' -> ' ' for queries (RFC1630)
 	my $query = $1;
 	$query =~ s/\+/ /g;
-	$self->{'query'}  = $self->unescape($query)
+	$self->{query}  = $self->unescape($query)
     }
     # 2.4.5
-    $self->{'params'} = $self->unescape($1) if $u =~ s/;(.*)//;
+    $self->{params} = $self->unescape($1) if $u =~ s/;(.*)//;
     # 2.4.6
-    $self->{'path'}   = $self->unescape($u);
+    $self->{path}   = $self->unescape($u);
     # read netloc components: "<user>:<password>@<host>:<port>"
     $self->_read_netloc;
     1;
@@ -724,28 +729,28 @@ sub _parse {
 
 sub _read_netloc {      # netloc -> user, password, host, post
     my($self) = @_;
-    my $nl = $self->{'netloc'} || ''; # already unescaped
+    my $nl = $self->{netloc} || ''; # already unescaped
     $self->{'_str'} = '';       # void cache
     if ($nl =~ s/^([^:@]*):?(.*?)@//){
-        $self->{'user'}     = $1;
-        $self->{'password'} = $2 if $2 ne '';
+        $self->{user}     = $1;
+        $self->{password} = $2 if $2 ne '';
     }
     if ($nl =~ s/^([^:]*):?(\d*)//){
-        $self->{'host'} = $1;
-        $self->{'port'} = $2 if $2 ne '';
+        $self->{host} = $1;
+        $self->{port} = $2 if $2 ne '';
     }
 }
 
 sub _write_netloc {     # user, password, host, post -> netloc
     my($self) = @_;
     my $tmp;
-    my $nl = $self->{'user'} || '';
-    $nl .= ":$self->{'password'}" if $nl and $self->{'password'};
+    my $nl = $self->{user} || '';
+    $nl .= ":$self->{password}" if $nl and $self->{password};
     $nl .= "\@" if $nl;
-    $nl .= ($tmp = $self->{'host'});
-    $nl .= ":$tmp" if ($tmp && ($tmp=$self->{'port'})
+    $nl .= ($tmp = $self->{host});
+    $nl .= ":$tmp" if ($tmp && ($tmp=$self->{port})
                             && $tmp != $self->default_port);
-    $self->{'netloc'} = $nl;
+    $self->{netloc} = $nl;
 }
 
 
@@ -809,40 +814,43 @@ sub abs
 
     $base = new URI::URL $base unless ref $base; # make obj if needed
 
-    my @u = @{$embed}{qw(scheme host port path params query frag) };
+    my($scheme, $host, $port, $path, $params, $query, $frag) =
+        @{$embed}{qw(scheme host port path params query frag)};
 
     # just use base if we are empty             (2a)
-    # XXX can we ever be empty? I think scheme is always defined.
-    return $base->clone if (scalar(grep($_, @u)) == 0);
-
-    my($scheme, $host, $port, $path, $params, $query, $frag) = @u;
+    {
+        my @u = grep(defined($_) && $_ ne '',
+                     $scheme,$host,$port,$path,$params,$query,$frag);
+        return $base->clone unless @u;
+    }
 
     # if we have a scheme we must already be absolute   (2b)
     return $embed if $scheme;
 
-    $embed->{'scheme'} = $base->{'scheme'};     # (2c)
+    $embed->{'_str'} = '';                      # void cached string
+    $embed->{scheme} = $base->{scheme};         # (2c)
 
-    return $embed if $embed->{'netloc'};        # (3)
-    $embed->{'netloc'} = $base->{'netloc'};     # (3)
+    return $embed if $embed->{netloc};          # (3)
+    $embed->{netloc} = $base->{netloc};         # (3)
     $embed->_read_netloc();
 
-    return $embed if $embed->{'path'} =~ m:^/:; # (4)
+    return $embed if $path =~ m:^/:;            # (4)
     
-    unless ($embed->{'path'}){                  # (5)
-        $embed->{'path'} = $base->{'path'};     # (5)
+    if ($path eq '') {                          # (5)
+        $embed->{path} = $base->{path};         # (5)
 
         return $embed if $embed->params;        # (5a)
-        $embed->{'params'} = $base->{'params'}; # (5a)
+        $embed->{params} = $base->{params};     # (5a)
 
         return $embed if $embed->query;         # (5b)
-        $embed->{'query'} = $base->{'query'};   # (5b)
+        $embed->{query} = $base->{query};       # (5b)
         return $embed;
     }
 
     # (Step 6)  # draft 6 suggests stack based approach
 
-    my $basepath = $base->{'path'};
-    my $relpath  = $embed->{'path'};
+    my $basepath = $base->{path};
+    my $relpath  = $embed->{path};
 
     $basepath =~ s!^/!!;
     $basepath =~ s!/$!/.!;              # prevent empty segment
@@ -856,6 +864,7 @@ sub abs
     my @newpath = ();
     my $isdir = 0;
     my $segment;
+
     foreach $segment (@path) {  # left to right
 #       warn '> ', join('/', @newpath), ": $segment\n";
         if ($segment eq '.') {  # ignore "same" directory
@@ -881,9 +890,8 @@ sub abs
         }
     }
 
-    $embed->{'path'} = join('/', @newpath) . ($isdir ? '/' : '');
-    
-    return $embed;
+    $embed->{path} = join('/', @newpath) . ($isdir ? '/' : '');
+    $embed;
 }
 
 
@@ -893,23 +901,6 @@ sub abs
 #
 sub default_port {
     0;
-}
-
-
-# _expect()
-#
-# Handy low-level object method tester. See test code at end.
-#
-sub _expect {
-    my($self, $method, $expect, @args) = @_;
-    my $result = $self->$method(@args);
-    $expect = 'UNDEF' unless defined $expect;
-    $result = 'UNDEF' unless defined $result;
-    return 1 if $expect eq $result;
-    warn "'$self'->$method(@args) = '$result' " .
-                "(expected '$expect')\n";
-    $self->print_on('STDERR');
-    confess "Test Failed";
 }
 
 
@@ -937,9 +928,9 @@ sub _parse {
     # allow the generic parser to do the bulk of the work
     $self->URI::URL::_generic::_parse($init);
     # then just deal with the effect of rare stray '?'s
-    if (defined $self->{'query'}){
-        $self->{'path'} .= "?$self->{'query'}";
-        delete $self->{'query'};
+    if (defined $self->{query}){
+        $self->{path} .= '?' . $self->{query};
+        delete $self->{query};
     }
     1;
 }
@@ -947,8 +938,7 @@ sub _parse {
 sub _esc_path
 {
     my($self, $text) = @_;
-    $text =~ s/([^-a-zA-Z\d\$_.+!*'(),%?:@&=\/])/
-        $URI::URL::escapes{$1}/oeg;
+    $text =~ s/([^-a-zA-Z\d\$_.+!*'(),%?:@&=\/])/$escapes{$1}/oeg;
     $text;
 }
 
@@ -975,19 +965,19 @@ sub default_port { 43 };
 package URI::URL::gopher;       @ISA = qw(URI::URL::_generic);
 
 sub default_port { 70 };
-sub gtype    { shift->elem('gtype', @_); }
 
 sub _parse {
-    my($self, $url) = @_;
-    $self->{'scheme'} = lc($1) if $url =~ s/^\s*([\w\+\.\-]+)://;
-    $self->{'netloc'} = $self->unescape($1)
-                                if $url =~ s!^//([^/]*)!!;
-    $self->{'gtype'}  = $self->unescape($1) if $url =~ s!^/(.)!!;
-    my @parts = split(/%09/, $url, 3);
-    $self->{'selector'} = $self->unescape(shift @parts);
-    $self->{'search'}   = $self->unescape(shift @parts);
-    $self->{'string'}   = $self->unescape(shift @parts);
+    my($self, $url)   = @_;
+    $self->{scheme}   = lc($1) if $url =~ s/^\s*([\w\+\.\-]+)://;
+    $self->{netloc}   = $self->unescape($1) if $url =~ s!^//([^/]*)!!;
+    $self->{gtype}    = $self->unescape($1) if $url =~ s!^/(.)!!;
+    my @parts         = split(/%09/, $url, 3);
+    $self->{selector} = $self->unescape(shift @parts);
+    $self->{search}   = $self->unescape(shift @parts);
+    $self->{string}   = $self->unescape(shift @parts);
 }
+
+sub gtype    { shift->elem('gtype', @_); }
 
 
 
@@ -1010,9 +1000,9 @@ sub default_port { 119 };
 sub _parse {
     my($self, $init) = @_;
     $self->URI::URL::_generic::_parse($init);
-    my @parts = split(/\//, $self->{'path'});
-    $self->{'group'} = $self->unescape($parts[1]);
-    $self->{'digits'}= $self->unescape($parts[2]);
+    my @parts      = split(/\//, $self->{path});
+    $self->{group} = $self->unescape($parts[1]);
+    $self->{digits}= $self->unescape($parts[2]);
 }
 
 
@@ -1021,9 +1011,9 @@ package URI::URL::news;         @ISA = qw(URI::URL::_generic);
 
 sub _parse {
     my($self, $init) = @_;
-    $self->{'scheme'}  = lc($1) if ($init =~ s/^\s*([\w\+\.\-]+)://);
+    $self->{scheme}  = lc($1) if ($init =~ s/^\s*([\w\+\.\-]+)://);
     my $tmp = $self->unescape($init);
-    $self->{'grouppart'} = $tmp;
+    $self->{grouppart} = $tmp;
     $self->{ ($tmp =~ m/\@/) ? 'article' : 'group' } = $tmp;
 }
 
@@ -1036,10 +1026,10 @@ sub default_port { 210 };
 sub _parse {
     my($self, $init) = @_;
     $self->URI::URL::_generic::_parse($init);
-    my @parts = split(/\//, $self->{'path'});
-    $self->{'database'} = $self->unescape($parts[1]);
-    $self->{'wtype'}    = $self->unescape($parts[2]);
-    $self->{'wpath'}    = $self->unescape($parts[3]);
+    my @parts         = split(/\//, $self->{'path'});
+    $self->{database} = $self->unescape($parts[1]);
+    $self->{wtype}    = $self->unescape($parts[2]);
+    $self->{wpath}    = $self->unescape($parts[3]);
 }
 
 
@@ -1060,8 +1050,8 @@ package URI::URL::mailto;       @ISA = qw(URI::URL::_generic);
 
 sub _parse {
     my($self, $init) = @_;
-    $self->{'scheme'}  = lc($1) if ($init =~ s/^\s*([\w\+\.\-]+)://);
-    $self->{'encoded822addr'} = $self->unescape($init);
+    $self->{scheme}  = lc($1) if ($init =~ s/^\s*([\w\+\.\-]+)://);
+    $self->{encoded822addr} = $self->unescape($init);
 }
 
 
@@ -1076,12 +1066,17 @@ package URI::URL::tn3270;       @ISA = qw(URI::URL::_generic);
 
 # Aliases for old method names. To be deleted in a future version.
 {   package URI::URL::_generic;
-    no strict 'refs';
+    no strict qw(refs);
     *{"dump"} = \&print_on;
     *{"str"}  = \&as_string;
 }
 
 
+
+#####################################################################
+#
+# S E L F   T E S T   S E C T I O N
+#
 #####################################################################
 #
 # If we're not use'd or require'd execute self-test.
@@ -1101,6 +1096,25 @@ eval join('',<DATA>) || die "$@ $DATA" unless caller();
 __END__
 
 
+package URI::URL::_generic;
+
+# _expect()
+#
+# Handy low-level object method tester. See test code at end.
+#
+sub _expect {
+    my($self, $method, $expect, @args) = @_;
+    my $result = $self->$method(@args);
+    $expect = 'UNDEF' unless defined $expect;
+    $result = 'UNDEF' unless defined $result;
+    return 1 if $expect eq $result;
+    warn "'$self'->$method(@args) = '$result' " .
+                "(expected '$expect')\n";
+    $self->print_on('STDERR');
+    confess "Test Failed";
+}
+
+
 package main;
 
 use Carp;
@@ -1110,7 +1124,8 @@ $| = 1;
 # Do basic tests first.
 # Dies if an error has been detected, prints "ok" otherwise.
 
-print "Self tests for version $URI::URL::Version...\n";
+print "Self tests for URI::URL version $URI::URL::Version...\n";
+
 
     &scheme_parse_test;
 
@@ -1122,8 +1137,11 @@ print "Self tests for version $URI::URL::Version...\n";
 
     &absolute_test;
 
-print "$URI::URL::rcsid ok\n";
+    URI::URL::strict(0);
+    $u = new URI::URL "myscheme:something";
+    # print $u->as_string, " works after URI::URL::strict(0)\n";
 
+print "URI::URL version $URI::URL::Version ok\n";
 exit 0;
 
 
@@ -1235,6 +1253,7 @@ sub parts_test {
 
     $url->query(undef);
     $url->_expect('query', undef);
+    $url->print_on;
 }
 
 #
@@ -1467,7 +1486,11 @@ EOM
 
     # add some extra ones for good measure
 
-    push(@absolute_tests, ['x/y//../z', => 'http://a/b/c/x/y/z']);
+    push(@absolute_tests, ['x/y//../z' => 'http://a/b/c/x/y/z'],
+                          ['1'         => 'http://a/b/c/1'    ],
+                          ['0'         => 'http://a/b/c/0'    ],
+                          ['/0'        => 'http://a/0'        ],
+        );
 
     print "  Relative    +  Base  =>  Expected Absolute URL\n";
     print "================================================\n";
@@ -1483,8 +1506,3 @@ EOM
     }
     print "absolute test ok\n";
 }
-
-
-1;
-exit 0;
-

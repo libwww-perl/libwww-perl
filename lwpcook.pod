@@ -1,6 +1,6 @@
 =head1 NAME
 
-cookbook - libwww-perl cookbook
+lwpcook - libwww-perl cookbook
 
 =head1 DESCRIPTION
 
@@ -14,19 +14,30 @@ individual modules for more extensive documentation.
 
 It is very easy to use this library to just fetch documents from the
 net.  The LWP::Simple module provides the get() function that return
-the document specifed by URL argument:
+the document specified by URL argument:
 
   use LWP::Simple;
   $doc = get 'http://www.sn.no/libwww-perl/';
 
-Or as a perl one-liner using the getprint() function:
+or as a perl one-liner using the getprint() function:
 
   perl -MLWP::Simple; -e 'getprint "http://www.sn.no/libwww-perl/"';
 
-The LWP object oriented interface gives you more control over the
-request sent to the server.  Using this interface you have full
-control over headers and how you want to handle the the response
-returned.
+or how about fetching the latest perl by running this:
+
+  perl -MLWP::Simple -e '
+    getstore "ftp://ftp.sunet.se/pub/lang/perl/CPAN/src/latest.tar.gz",
+             "perl.tar.gz"'
+
+You will probably first want to find a CPAN site closer to you by
+running this command:
+
+  perl -MLWP::Simple -e 'getprint "http://www.perl.com/perl/CPAN/CPAN.html"'
+
+Enough of this simple stuff!  The LWP object oriented interface gives
+you more control over the request sent to the server.  Using this
+interface you have full control over headers sent and how you want to
+handle the the response returned.
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
@@ -36,7 +47,7 @@ returned.
   $req = new HTTP::Request 'GET', 'http://www.sn.no/libwww-perl';
   $req->header('Accept' => 'text/html');
 
-  # send requeset
+  # send request
   $res = $ua->request($req);
 
   # check the outcome
@@ -46,8 +57,8 @@ returned.
      print "Error: " . $res->code . " " . $res->message;
   }
 
-The lwp-request (alias GET) script that comes with the library can
-also be used to fetch documents from WWW servers.
+The lwp-request program (alias GET) that is distributed with the
+library can also be used to fetch documents from WWW servers.
   
 
 
@@ -66,9 +77,9 @@ The head() function really returns a list of meta-information about
 the document.  The first three values of the list returned are the
 document type, the size of the document, and the age of the document.
 
-More control over the request and access to any header returned
-require that you use the object oriented interface like described for
-GET above.
+More control over the request or access to all header values returned
+require that you use the object oriented interface described for GET
+above.  Just s/GET/HEAD/g.
 
 
 =head1 POST
@@ -88,7 +99,7 @@ operation is to access a WWW form application:
   print $res->as_string;
 
 If your application have the key/value pairs to be posted in an
-assossiative array, then we can exploit the URI::URL module to create
+associative array, then we can exploit the URI::URL module to create
 the content for the POST request message:
 
   %form = ( search => 'libwww', max => 2 );
@@ -105,23 +116,23 @@ the content for the POST request message:
 
   print $ua->request($req)->as_string;
 
-The lwp-request (alias POST) script that comes with the library can
-also be used to post data.
+The lwp-request program (alias POST) that is distributed with the
+library can also be used to posting data.
   
 
 
 =head1 PROXIES
 
-Some sites use proxies to go through fire wall machines, or or just as
-cache in order to impove performance.  Proxies can also be used for
-accessing resouces through protocols not supported directly by the
-libwww-perl library.
+Some sites use proxies to go through fire wall machines, or just as
+cache in order to improve performance.  Proxies can also be used for
+accessing resources through protocols not supported directly (or
+supported badly :-) by the libwww-perl library.
 
 You should initialize you proxy setting before you start sending
 requests:
 
   use LWP::UserAgent;
-  $ua->env_proxy; # initialize from envirionment variables
+  $ua->env_proxy; # initialize from environment variables
 
   $ua->proxy(ftp  => 'http://proxy.myorg.com');
   $ua->proxy(wais => 'http://proxy.myorg.com');
@@ -130,22 +141,23 @@ requests:
   my $req = new HTTP::Request 'wais://xxx.com/';
   print $ua->request($req)->as_string;
 
-
+The LWP::Simple interface will call env_proxy() for you.
 
 
 =head1 ACCESS TO PROTECTED DOCUMENTS
 
-Documents protected by basic authentication can be easily accessed
+Documents protected by basic authorization can easily be accessed
 like this:
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
   $req = new HTTP::Request 'GET', 'http://www.sn.no/secret/';
-  $req->authentication_basic('aas', 'mypassword');
+  $req->authorization_basic('aas', 'mypassword');
   print $ua->request($req)->as_string;
 
 The other alternative is to provide a subclass of LWP::UserAgent that
-override the get_basic_credentials() method.
+override the get_basic_credentials() method. Study the lwp-request
+program for an example of this.
 
 
 =head1 MIRRORING
@@ -213,12 +225,9 @@ argument is a code reference):
 	                              $bytes_received / $expected_length;
                    }
 	           print STDERR "$bytes bytes received\n";
-               });
 
-Remember that the chunks returned are of unpredicable sizes.  The code
-above might therefore not show the whole line where "WWW" is found,
-and it might even miss the hit if "WWW" happens to be splitted between
-two chunks.  (Should really find a better example :-)
+                   # XXX Should really do something with the chunk
+               });
 
 
 
@@ -249,40 +258,43 @@ or
 
 =head1 EXPAND RELATIVE URLS
 
-  $base = "http://www.sn.no/some/place?query";
+This code reads URLs and print expanded version.
+
+  $BASE = "http://www.sn.no/some/place?query";
   while (<>) {
-     print url($_, $base)->abs->as_string, "\n";
+     print url($_, $BASE)->abs->as_string, "\n";
   }
 
-We can expand URLs in an HTML document by using the parser:
+We can expand URLs in an HTML document by using the parser to build a
+tree that we then traverse:
 
-%linkElements =
-(
- 'a'    => 'href',
- 'img'  => 'src',
- 'form' => 'action',
- 'link' => 'href',
-);
+  %link_elements =
+  (
+   'a'    => 'href',
+   'img'  => 'src',
+   'form' => 'action',
+   'link' => 'href',
+  );
 
-use HTML::Parse;
-use URI::URL;
+  use HTML::Parse;
+  use URI::URL;
 
-$BASE = "http://somewhere/root/";
-$h = parse_htmlfile("xxx.html");
-$h->traverse(\&expand_urls, 1);
+  $BASE = "http://somewhere/root/";
+  $h = parse_htmlfile("xxx.html");
+  $h->traverse(\&expand_urls, 1);
 
-print $h->asHTML;
+  print $h->as_HTML;
 
-sub expand_urls
-{
-   my($e, $start) = @_;
-   return 1 unless $start;
-   my $attr = $linkElements{$e->tag};
-   return 1 unless defined $attr;
-   my $url = $e->attr($attr);
-   return 1 unless defined $url;
-   $e->attr($attr, url($url, $BASE)->abs->as_string);
-}
+  sub expand_urls
+  {
+     my($e, $start) = @_;
+     return 1 unless $start;
+     my $attr = $link_elements{$e->tag};
+     return 1 unless defined $attr;
+     my $url = $e->attr($attr);
+     return 1 unless defined $url;
+     $e->attr($attr, url($url, $BASE)->abs->as_string);
+  }
 
 
 
@@ -292,18 +304,18 @@ If you want to resolve relative links in a page you will have to
 determine which base URL to use.  This shows the things (and the
 sequence) to look for:
 
-  $base = undef;
+  $BASE = undef;
   # 1) The base URL can be contained in the document
   if ($res->content_type eq 'text/html') {
-      # Look for the <base tag>
+      # Look for the <BASE HREF='...'> tag
       ...
   }
-  # 2) There could 
-  $base = $res->header('Base') unless $base;
+  # 2) There could be a Base header
+  $BASE = $res->header('Base') unless $BASE;
   # 3) The URL used in the request
-  $base = $res->request->url unless $base;
+  $BASE = $res->request->url unless $BASE;
 
-(There should perhaps be some lwp function that does all of this so
+(There should of course be some LWP method that does all of this so
 everybody get it right.)
 
 

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.19 1995/11/06 09:50:48 aas Exp $
+# $Id: Element.pm,v 1.20 1995/12/03 14:00:04 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -62,9 +62,17 @@ for (qw(base link meta isindex nextid
  'base' => 'href',
  'a'    => 'href',
  'img'  => 'src',
- 'from' => 'action',
+ 'form' => 'action',
  'link' => 'href',
 );
+
+
+# Elements that act as paragraph 
+for (qw(p form h1 h2 h3 h4 h5 h6
+	blockquote hr title body
+       )){
+    $blockElements{$_} = 1;
+}
 
 
 
@@ -97,13 +105,18 @@ sub new
 
 =item ->tag()
 
-Returns the tag name for the element.
+Returns (optionally sets) the tag name for the element.
 
 =cut
 
 sub tag
 {
-    shift->{_tag};
+    my $self = shift;
+    if (@_) {
+	$self->{_tag} = $_[0];
+    } else {
+	$self->{_tag};
+    }
 }
 
 
@@ -472,18 +485,30 @@ sub asHTML
 {
     my $self = shift;
     my $depth = shift || 0;
+    my $black = shift || 0; # protect string from whitespace
     my $tag = $self->tag;
     my $pre = $self->isInside('pre');
     my $html = '';
-    $html .= "  " x $depth unless $pre;
-    $html .= $self->starttag;
+    if ($pre) {
+	$html .= $self->starttag;
+    } else {
+	if ($black) {
+	    $html .= substr($self->starttag,0,length($self->starttag)-1)
+		. "\n" . ("  " x $depth) . ">" ;
+	} else {
+	    $html .= "  " x $depth;
+	    $html .= $self->starttag;
+	}
+    }
 
     my $pos = 0;
 
     for (@{$self->{_content}}) {
 	if (ref $_) {
-	    $html .= "\n" unless $pre;
-	    $html .= $_->asHTML($depth+1);
+	    unless ($pre || $black) {
+		$html .= "\n";
+	    }
+	    $html .= $_->asHTML($depth+1,$black);
 	} else {
 	    if ($pre) {
 		$html .= "$_";
@@ -491,23 +516,38 @@ sub asHTML
 		if ($pos + length $_ < 60) {
 		    $html .= $_;
 		    $pos += length $_;
-		    next;
-		}
-		my $copy = $_;
-		while ($copy =~ s/^(.{60,}?)\s//) {
-		    $html .= "\n" . ("  " x ($depth+1)) . $1;
-		}
-		$html .= "\n" . ("  " x ($depth+1)) . $copy;
-		$pos = length $copy;
+		} else {
+		    my $copy = $_;
+		    my @m;
+		    while ($copy =~ s/^(.{60,}?)\s//) {
+			push @m,  $1;
+		    }
+		    $html .= join "\n" . "  " x ($depth+1), @m, $copy;
+		    $pos = length $copy;
+  		}
+		if (substr($html,length($html)-1) =~ /\s/) {
+		    $black = 0;
+		    $pos = 0;
+		} else {
+		    $black = 1;
+  		}
 	    }
 	}
     }
     unless ($noEndTag{$tag} || $tag eq 'p' || $tag eq 'li' || $tag eq 'dt') {
-	unless ($pre) {
-	    $html .= "\n";
-	    $html .= "  " x $depth;
+	if ($pre) {
+	    $html .= $self->endtag;
+	} else {
+	    $black = 0 if $blockElements{$tag};
+	    if ($black) {
+		$html .= substr($self->endtag,0,length($self->endtag)-1)
+		    . "\n" . ("  " x $depth) . ">" ;
+	    } else {
+		$html .= "\n";
+		$html .= "  " x $depth;
+		$html .= $self->endtag;
+	    }
 	}
-	$html .= $self->endtag;
     }
     $html .= "\n" if $depth == 0;
     $html;

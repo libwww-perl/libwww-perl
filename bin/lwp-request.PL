@@ -1,10 +1,7 @@
 use Config;
 use File::Basename qw(basename dirname);
 chdir(dirname($0));
-($file = basename($0)) =~ s/\.PL$//;
-$file =~ s/\.pl$//
-	if ($Config{'osname'} eq 'VMS' or
-	    $Config{'osname'} eq 'OS2');  # "case-forgiving"
+($file = basename($0)) =~ s/\.PL$//i;
 open OUT,">$file" or die "Can't create $file: $!";
 chmod(0755, $file);
 print "Extracting $file (with variable substitutions)\n";
@@ -15,7 +12,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.35 1999/03/19 22:06:32 gisle Exp $
+# $Id: lwp-request.PL,v 1.36 1999/03/21 21:46:22 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -87,6 +84,15 @@ the others is C<text/plain>.
 Set the proxy to be used for the requests.  The program also loads
 proxy settings from the environment.  You can disable this with the
 C<-P> option.
+
+=item -H <header>
+
+Send this HTTP header with each request. You can specify several, e.g.:
+
+    lwp-request \
+	-H 'Referer: http://other.url/' \
+	-H 'Host: somehost' \
+	http://this.url/
 
 =item -C <username>:<password>
 
@@ -171,7 +177,7 @@ L<lwp-mirror>, L<LWP>
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-1999 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -186,7 +192,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -233,8 +239,8 @@ use HTTP::Date qw(time2str str2time);
     sub get_basic_credentials
     {
 	my($self, $realm, $uri) = @_;
-	if ($main::opt_C) {
-	    return split(':', $main::opt_C, 2);
+	if ($main::options{'C'}) {
+	    return split(':', $main::options{'C'}, 2);
 	} elsif (-t) {
 	    my $netloc = $uri->host_port;
 	    print "Enter username for $realm at $netloc: ";
@@ -257,64 +263,67 @@ use HTTP::Date qw(time2str str2time);
 $method = uc(lc($progname) eq "lwp-request" ? "GET" : $progname);
 
 # Parse command line
-use Getopt::Std;
+use Getopt::Long;
 
-$opt_a = undef;  # content i/o in text(ascii) mode
-$opt_m = undef;  # set method
-$opt_f = undef;  # make request even if method is not in %allowed_methods
-$opt_b = undef;  # base url
-$opt_t = undef;  # timeout
-$opt_i = undef;  # if-modified-since
-$opt_c = undef;  # content type for POST
-$opt_C = undef;  # credidentials for basic authorization
+my @getopt_args = (
+    'a', # content i/o in text(ascii) mode
+    'm=s', # set method
+    'f', # make request even if method is not in %allowed_methods
+    'b=s', # base url
+    't=s', # timeout
+    'i=s', # if-modified-since
+    'c=s', # content type for POST
+    'C=s', # credentials for basic authorization
+    'H=s@', # extra headers, form "Header: value string"
+    #
+    'u', # display method, URL and headers of request
+    'U', # display request headers also
+    's', # display status code
+    'S', # display whole chain of status codes
+    'e', # display response headers (default for HEAD)
+    'd', # don't display content
+    #
+    'h', # print usage
+    'v', # print version
+    #
+    'x', # extra debugging info
+    'p=s', # proxy URL
+    'P', # don't load proxy setting from environment
+    #
+    'o=s', # output format
+);
 
-$opt_u = undef;  # display method, URL and headers of request
-$opt_U = undef;  # display request headers also
-$opt_s = undef;  # display status code
-$opt_S = undef;  # display whole chain of status codes
-$opt_e = undef;  # display response headers (default for HEAD)
-$opt_d = undef;  # don't display content
-
-$opt_h = undef;  # print usage
-$opt_v = undef;  # print version
-
-$opt_x = undef;  # extra debugging info
-$opt_p = undef;  # proxy URL
-$opt_P = undef;  # don't load proxy setting from environment
-
-$opt_o = undef;  # output format
-
-unless (getopts("axhvuUsSedPp:b:t:i:c:C:m:fo:")) {
+Getopt::Long::config("noignorecase", "bundling");
+unless (GetOptions(\%options, @getopt_args)) {
     usage();
 }
-
-if ($opt_v) {
+if ($options{'v'}) {
     require LWP;
     my $DISTNAME = 'libwww-perl-' . LWP::Version();
     die <<"EOT";
 This is lwp-request version $VERSION ($DISTNAME)
 
-Copyright 1995-1997, Gisle Aas.
+Copyright 1995-1999, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 EOT
 }
 
-usage() if $opt_h || !@ARGV;
+usage() if $options{'h'} || !@ARGV;
 
-LWP::Debug::level('+') if $opt_x;
+LWP::Debug::level('+') if $options{'x'};
 
 # Create the user agent object
 $ua = new RequestAgent;
 
 # Load proxy settings from *_proxy environment variables.
-$ua->env_proxy unless $opt_P;
+$ua->env_proxy unless $options{'P'};
 
-$method = uc($opt_m) if defined $opt_m;
+$method = uc($options{'m'}) if defined $options{'m'};
 
-if ($opt_f) {
-    if ($opt_c) {
+if ($options{'f'}) {
+    if ($options{'c'}) {
         $allowed_methods{$method} = "C";  # force content
     } else {
         $allowed_methods{$method} = "";
@@ -324,13 +333,13 @@ if ($opt_f) {
 }
 
 if ($method eq "HEAD") {
-    $opt_s = 1;
-    $opt_e = 1 unless $opt_d;
-    $opt_d = 1;
+    $options{'s'} = 1;
+    $options{'e'} = 1 unless $options{'d'};
+    $options{'d'} = 1;
 }
 
-if (defined $opt_t) {
-    $opt_t =~ /^(\d+)([smh])?/;
+if (defined $options{'t'}) {
+    $options{'t'} =~ /^(\d+)([smh])?/;
     die "$progname: Illegal timeout value!\n" unless defined $1;
     $timeout = $1;
     $timeout *= 60   if ($2 eq "m");
@@ -338,48 +347,51 @@ if (defined $opt_t) {
     $ua->timeout($timeout);
 }
 
-if (defined $opt_i) {
-    if (-e $opt_i) {
+if (defined $options{'i'}) {
+    if (-e $options{'i'}) {
         $time = (stat _)[9];
     } else {
-        $time = str2time($opt_i);
+        $time = str2time($options{'i'});
         die "$progname: Illegal time syntax for -i option\n"
             unless defined $time;
     }
-    $opt_i = time2str($time);
+    $options{'i'} = time2str($time);
 }
 
 $content = undef;
 if ($allowed_methods{$method} eq "C") {
     # This request needs some content
-    unless (defined $opt_c) {
+    unless (defined $options{'c'}) {
         # set default content type
-        $opt_c = ($method eq "POST") ?
+        $options{'c'} = ($method eq "POST") ?
               "application/x-www-form-urlencoded"
             : "text/plain";
     } else {
         die "$progname: Illegal Content-type format\n"
-            unless $opt_c =~ m,^[\w\-]+/[\w\-]+(?:\s*;.*)?$,
+            unless $options{'c'} =~ m,^[\w\-]+/[\w\-]+(?:\s*;.*)?$,
     }
-    print "Please enter content ($opt_c) to be ${method}ed:\n"
+    print "Please enter content ($options{'c'}) to be ${method}ed:\n"
         if -t;
-    binmode STDIN unless -t or $opt_a;
+    binmode STDIN unless -t or $options{'a'};
     $content = join("", <STDIN>);
 } else {
     die "$progname: Can't set Content-type for $method requests\n"
-        if defined $opt_c;
+        if defined $options{'c'};
 }
 
 # Set up a request.  We will use the same request object for all URLs.
 $request = new HTTP::Request $method;
-$request->header('If-Modified-Since', $opt_i) if defined $opt_i;
+$request->header('If-Modified-Since', $options{'i'}) if defined $options{'i'};
+for my $user_header (@{ $options{'H'} || [] }) {
+    my ($header_name, $header_value) = split /:\s*/, $user_header, 2;
+    $request->header($header_name, $header_value);
+}
 #$request->header('Accept', '*/*');
-if ($opt_c) { # will always be set for request that wants content
-    $request->header('Content-Type', $opt_c);
+if ($options{'c'}) { # will always be set for request that wants content
+    $request->header('Content-Type', $options{'c'});
     $request->header('Content-Length', length $content);  # Not really needed
     $request->content($content);
 }
-
 
 $errors = 0;
 
@@ -387,9 +399,9 @@ $errors = 0;
 while ($url = shift) {
     # Create the URL object, but protect us against bad URLs
     eval {
-	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
-	    $url = URI->new($url, $opt_b);
-	    $url = $url->abs($opt_b) if $opt_b;
+	if ($url =~ /^\w+:/ || $options{'b'}) {  # is there any scheme specification
+	    $url = URI->new($url, $options{'b'});
+	    $url = $url->abs($options{'b'}) if $options{'b'};
 	} else {
 	    $url = uf_uri($url);
         }
@@ -401,54 +413,54 @@ while ($url = shift) {
 	next;
     }
 
-    $ua->proxy($url->scheme, $opt_p) if $opt_p;
+    $ua->proxy($url->scheme, $options{'p'}) if $options{'p'};
 
     # Send the request and get a response back from the server
     $request->url($url);
     $response = $ua->request($request);
 
-    if ($opt_u || $opt_U) {
+    if ($options{'u'} || $options{'U'}) {
         my $url = $response->request->url->as_string;
         print "$method $url\n";
-        print $response->request->headers_as_string, "\n" if $opt_U;
+        print $response->request->headers_as_string, "\n" if $options{'U'};
     }
 
-    if ($opt_S) {
+    if ($options{'S'}) {
 	printResponseChain($response);
-    } elsif ($opt_s) {
+    } elsif ($options{'s'}) {
         print $response->status_line, "\n";
     }
 
-    if ($opt_e) {
+    if ($options{'e'}) {
         # Display headers
         print $response->headers_as_string;
         print "\n";  # separate headers and content
     }
 
     if ($response->is_success) {
-	unless ($opt_d) {
-	    if ($opt_o &&
+	unless ($options{'d'}) {
+	    if ($options{'o'} &&
 		$response->content_type eq 'text/html') {
 		require HTML::Parse;
 		my $html = HTML::Parse::parse_html($response->content);
 		{
-		    $opt_o eq 'ps' && do {
+		    $options{'o'} eq 'ps' && do {
 			require HTML::FormatPS;
 			my $f = new HTML::FormatPS;
 			print $f->format($html);
 			last;
 		    };
-		    $opt_o eq 'text' && do {
+		    $options{'o'} eq 'text' && do {
 			require HTML::FormatText;
 			my $f = new HTML::FormatText;
 			print $f->format($html);
 			last;
 		    };
-		    $opt_o eq 'html' && do {
+		    $options{'o'} eq 'html' && do {
 			print $html->as_HTML;
 			last;
 		    };
-		    $opt_o eq 'links' && do {
+		    $options{'o'} eq 'links' && do {
 			my $base = $response->base;
 			for ( @{ $html->extract_links } ) {
 			    my($link, $elem) = @$_;
@@ -458,20 +470,20 @@ while ($url = shift) {
 			}
 			last;
 		    };
-		    $opt_o eq 'dump' && do {
+		    $options{'o'} eq 'dump' && do {
 			$html->dump;
 			last;
 		    };
 		    # It is bad to not notice this before now :-(
-		    die "Illegal -o option value ($opt_o)\n";
+		    die "Illegal -o option value ($options{'o'})\n";
 		}
 	    } else {
-                binmode STDOUT unless $opt_a;
+                binmode STDOUT unless $options{'a'};
 		print $response->content;
 	    }
 	}
     } else {
-        print STDERR $response->error_as_HTML unless $opt_d;
+        print STDERR $response->error_as_HTML unless $options{'d'};
         $errors++;
     }
 }
@@ -504,6 +516,7 @@ Usage: $progname [-options] <url>...
     -a            Use text mode for content I/O
     -p <proxyurl> use this as a proxy
     -P            don't load proxy settings from environment
+    -H <header>   send this HTTP header (you can specify several)
 
     -u            Display method and URL before any response
     -U            Display request headers (implies -u)

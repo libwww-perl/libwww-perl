@@ -186,8 +186,7 @@ Or as a perl one-liner:
 
   perl -MLWP::Simple -e 'mirror("http://www.perl.com/", "perl.html")';
 
-The document will not be transfered unless it has been updated for
-protocols that can support the "If-Modified-Since" header.
+The document will not be transfered unless it has been updated.
 
 
 

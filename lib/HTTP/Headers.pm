@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.33 1998/03/30 20:11:00 aas Exp $
+# $Id: Headers.pm,v 1.34 1998/03/31 12:32:29 aas Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -92,10 +92,7 @@ attribute-value pairs as parameters to the constructor.  I<E.g.>:
 sub new
 {
     my($class) = shift;
-    my $self = bless {
-	'_header'   => { },
-    }, $class;
-
+    my $self = bless {}, $class;
     $self->header(@_); # set up initial headers
     $self;
 }
@@ -142,9 +139,7 @@ sub _header
     $field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 
     # $push is only used interally sub push_header
-
-    Carp::croak('Need a field name') unless defined $field;
-    Carp::croak('Too many parameters') if @_ > 4;
+    Carp::croak('Need a field name') unless length($field);
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
@@ -153,23 +148,19 @@ sub _header
 	$standard_case{$lc_field} = $field;
     }
 
-    my $this_header = \@{$self->{'_header'}{$lc_field}};
+    my $h = $self->{$lc_field};
+    my @old = ref($h) ? @$h : (defined($h) ? ($h) : ());
 
-    my @old = ();
-    if (!$push && defined $this_header) {
-	@old = @$this_header;  # save it so we can return it
-    }
     if (defined $val) {
-	@$this_header = () unless $push;
+	my @new = $push ? @old : ();
 	if (!ref($val)) {
-	    # scalar: create list with single value
-	    push(@$this_header, $val);
+	    push(@new, $val);
 	} elsif (ref($val) eq 'ARRAY') {
-	    # list: copy list
-	    push(@$this_header, @$val);
+	    push(@new, @$val);
 	} else {
 	    Carp::croak("Unexpected field value $val");
 	}
+	$self->{$lc_field} = @new > 1 ? \@new : $new[0];
     }
     @old;
 }
@@ -203,14 +194,17 @@ recommended "Good Practice" order.
 sub scan
 {
     my($self, $sub) = @_;
-    my $field;
-    foreach $field (sort _header_cmp keys %{$self->{'_header'}} ) {
-	my $list = $self->{'_header'}{$field};
-	if (defined $list) {
+    my $key;
+    foreach $key (sort _header_cmp keys %$self) {
+        next if $key =~ /^_/;
+	my $vals = $self->{$key};
+	if (ref($vals)) {
 	    my $val;
-	    for $val (@$list) {
-		&$sub($standard_case{$field} || $field, $val);
+	    for $val (@$vals) {
+		&$sub($standard_case{$key} || $key, $val);
 	    }
+	} else {
+	    &$sub($standard_case{$key} || $key, $vals);
 	}
     }
 }
@@ -458,7 +452,7 @@ sub remove_header
     my $field;
     foreach $field (@fields) {
 	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
-	delete $self->{'_header'}{lc $field};
+	delete $self->{lc $field};
     }
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.10 1995/08/09 11:25:19 aas Exp $
+# $Id: Response.pm,v 1.11 1995/08/17 13:58:49 aas Exp $
 
 package HTTP::Response;
 
@@ -42,6 +42,8 @@ L<HTTP::Message> for details.
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
+
+require HTTP::Status;
 
 
 =head2 new($rc [, $msg])

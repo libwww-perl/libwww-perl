@@ -44,7 +44,7 @@ unless ($^O eq "MacOS") {
 $notests = @tests + 3;
 print "1..$notests\n";
 
-if (-f "$ENV{HOME}/.mime.types") {
+if ($ENV{HOME} and -f "$ENV{HOME}/.mime.types") {
    warn "
 The MediaTypes test might fail because you have a private ~/.mime.types file
 If you get a failed test, try to move it away while testing.

@@ -1,8 +1,7 @@
-$Id: TODO,v 1.1 1995/07/16 07:19:30 aas Exp $
+$Id: TODO,v 1.2 1995/07/18 11:50:12 aas Exp $
 
 Implement more protocol schemes
     1) LWP::Protocol::ftp
-    2) LWP::Protocol::gopher
     3) Others...
 
 MDA security
@@ -18,3 +17,7 @@ Implement more of LWP::MIMEtypes
 Better LWP::Base64??
 
 Fix bugs, it here are any...
+
+Makefile.PL
+
+Make sure proxying works.

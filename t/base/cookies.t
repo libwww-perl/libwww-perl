@@ -1,4 +1,4 @@
-print "1..35\n";
+print "1..36\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -565,6 +565,38 @@ print "not " unless $c->as_string eq <<'EOT'; print "ok 35\n";
 Set-Cookie3: trip.appServer="1111-0000-x-024"; path="/"; domain=".trip.com"; path_spec; discard; version=0
 Set-Cookie3: JSESSIONID="fkumjm7nt1.JS24"; path="/trs"; domain="www.trip.com"; path_spec; discard; version=1
 EOT
+
+#-------------------------------------------------------------------
+# Test if session cookies are deleted properly with
+# $jar->discard_session_cookies()
+
+$req = HTTP::Request->new('GET', 'http://www.perlmeister.com/scripts');
+$res = HTTP::Response->new(200, "OK");
+$res->request($req);
+   # Set session/perm cookies and mark their values as "session" vs. "perm"
+   # to recognize them later
+$res->push_header("Set-Cookie"  => qq(s1=session;Path=/scripts));
+$res->push_header("Set-Cookie"  => qq(p1=perm; Domain=.perlmeister.com;Path=/;expires=Fri, 02-Feb-$year_plus_one 23:24:20 GMT));
+$res->push_header("Set-Cookie"  => qq(p2=perm;Path=/;expires=Fri, 02-Feb-$year_plus_one 23:24:20 GMT));
+$res->push_header("Set-Cookie"  => qq(s2=session;Path=/scripts;Domain=.perlmeister.com));
+$res->push_header("Set-Cookie2" => qq(s3=session;Version=1;Discard;Path="/"));
+
+$c = HTTP::Cookies->new;  # clear jar
+$c->extract_cookies($res);
+# How many session/permanent cookies do we have?
+my %counter = ("session_after" => 0);
+$c->scan( sub { $counter{"${_[2]}_before"}++ } );
+$c->discard_session_cookies();
+# How many now?
+$c->scan( sub { $counter{"${_[2]}_after"}++ } );
+print "not " if   # a permanent cookie got lost accidently
+                $counter{"perm_after"} != $counter{"perm_before"} or
+                  # a session cookie hasn't been cleared
+                $counter{"session_after"} != 0 or
+                  # we didn't have session cookies in the first place
+                $counter{"session_before"} == 0;
+#print $c->as_string;
+print "ok 36\n";
 
 #-------------------------------------------------------------------
 

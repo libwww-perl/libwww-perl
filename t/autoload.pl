@@ -7,7 +7,7 @@ use lib '..';
 
 require LWP::Debug;
 require LWP::UserAgent;
-# note no LWP::http;
+# note no LWP::Protocol::http;
 
 $url = 'http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/simple_html';
 

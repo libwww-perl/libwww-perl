@@ -5,7 +5,7 @@
 
 use lib '..';
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 require LWP::StatusCode;
 require LWP::Debug;
@@ -20,7 +20,7 @@ my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
 my $response = $ua->mirror($url, $copy);
 
 if ($response->code != &LWP::StatusCode::RC_OK) {
-    die "'$me' failed first time round: \n" . $response->as_string;
+    die "'$me' failed first time round: \n" . $response->asString;
 }
 
 #&LWP::Debug::level('+');
@@ -29,6 +29,6 @@ if ($response->code != &LWP::StatusCode::RC_OK) {
 
 $response = $ua->mirror($url, $copy);
 if ($response->code != &LWP::StatusCode::RC_NOT_MODIFIED) {
-    die "failed second time round\n", $response->as_string;
+    die "failed second time round\n", $response->asString;
 }
 print "$me ok\n";

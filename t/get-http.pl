@@ -5,7 +5,7 @@
 
 use lib '..';
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'get-http';       # test name for reporting
@@ -18,11 +18,11 @@ $url = new URI::URL('http://web.nexor.co.uk/' .
 
 my $form = 'searchtype=Substring';
 
-my $request = new LWP::Request('GET', $url, $form);
+my $request = new LWP::Request('GET', $url, undef, $form);
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->as_string;
+my $str = $response->asString;
 
 if ($response->isSuccess and $str =~ /REQUEST_METHOD = 'GET'/) {
     print "'$me' ok\n";

@@ -6,7 +6,7 @@
 use lib '..';
 
 require LWP::StatusCode;
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'timeout-http';   # test name for reporting
@@ -23,7 +23,7 @@ my $request = new LWP::Request('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->as_string;
+my $str = $response->asString;
 
 if ($response->isError and 
     $response->code == &LWP::StatusCode::RC_REQUEST_TIMEOUT and 

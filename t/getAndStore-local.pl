@@ -6,12 +6,10 @@
 
 use lib '..';
 
-require LWP::file;
-require LWP::UserAgent;
+use LWP::Simple;
+require LWP::Protocol::file;
 
 $me = 'getAndStore file://';    # test name for reporting
-
-my $ua = new LWP::UserAgent;    # create a useragent to test
 
 # To test this we need a file that exists.
 # We could use `pwd` . 'getAndPrint-local.pl :-)'
@@ -20,7 +18,7 @@ my $orig = '/etc/motd';         # local file
 my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
 
 # do the retrieval
-$ua->getAndStore("file://localhost$orig", $copy);
+getstore("file://localhost$orig", $copy);
 
 # read and compare the files
 open(IN, $orig) or die "Cannot open '$orig': $!";

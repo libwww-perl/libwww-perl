@@ -6,12 +6,10 @@
 
 use lib '..';
 
-require LWP::file;
-require LWP::UserAgent;
+use LWP::Simple;
+require LWP::Protocol::file;
 
 $me = 'getAndPrint file://';    # test name for reporting
-
-my $ua = new LWP::UserAgent;    # create a useragent to test
 
 # To test this we need a file that exists.
 # We could use `pwd` . 'getAndPrint-local.pl :-)'
@@ -24,7 +22,7 @@ open (OUT, ">$copy") or die "Cannot open $copy: $!";
 select(OUT);
 
 # do the retrieval
-$ua->getAndPrint("file://localhost$orig");
+getprint("file://localhost$orig");
 
 close(OUT);
 select(STDOUT);

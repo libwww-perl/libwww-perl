@@ -7,9 +7,9 @@ use lib '..';
 
 require LWP::Debug;
 require LWP::UserAgent;
-# note no LWP::http;
+# note no LWP::Protocol::http;
 
-$me = 'autoload';
+$me = 'simple';
 
 $url = 'http://localhost/';
 

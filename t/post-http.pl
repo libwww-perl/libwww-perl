@@ -5,7 +5,7 @@
 
 use lib '..';
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'post-http';      # test name for reporting
@@ -22,7 +22,7 @@ my $request = new LWP::Request('POST', $url, $form);
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->as_string;
+my $str = $response->asString;
 
 if ($response->isSuccess and $str =~ /REQUEST_METHOD = 'POST'/) {
     print "'$me' ok\n";

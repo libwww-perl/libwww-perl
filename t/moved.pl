@@ -6,8 +6,8 @@
 use lib '..';
 
 require LWP::Debug;
-require LWP::file;
-require LWP::http;
+require LWP::Protocol::file;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'moved';

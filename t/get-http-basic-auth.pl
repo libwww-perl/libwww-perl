@@ -11,7 +11,7 @@ package LWP::askUA;
 # This is an example of how to override getBasicCredentials
 # to ask a user
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 @ISA = qw(LWP::UserAgent);
@@ -36,8 +36,7 @@ use LWP::Debug;
 
 #LWP::Debug::level('+trace');
 
-require LWP::http;
-require LWP::UserAgent;
+require LWP::Protocol::http;
 
 $me = 'get-http-basic-auth.pl';       # test name for reporting
 

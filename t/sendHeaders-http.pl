@@ -8,7 +8,7 @@
 
 use lib '..';
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'sendHeaders-http';       # test name for reporting

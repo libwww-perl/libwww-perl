@@ -8,7 +8,7 @@
 
 use lib '..';
 
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 $me = 'receiveHeaders-http';    # test name for reporting
@@ -18,9 +18,9 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 $url = new URI::URL('http://web.nexor.co.uk/');
 
 my $request = new LWP::Request('GET', $url, undef);
-print $request->as_string;
+print $request->asString;
 my $response = $ua->request($request, undef, undef);
-print $response->as_string;
+print $response->asString;
 if ($response->isSuccess) {
     print "'$me' unknown\n";
 }

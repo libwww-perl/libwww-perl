@@ -7,7 +7,7 @@
 use lib '..';
 
 require LWP::Debug;
-require LWP::http;
+require LWP::Protocol::http;
 require LWP::UserAgent;
 
 LWP::Debug::level('+');
@@ -24,7 +24,7 @@ my $request = new LWP::Request('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->as_string;
+my $str = $response->asString;
 
 if ($response->isSuccess and $str =~ /This is the NEXOR public archive/) {
     print "'$me' ok\n";

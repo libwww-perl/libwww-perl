@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.20 2000/04/07 12:51:21 gisle Exp $
+# $Id: RobotRules.pm,v 1.21 2000/04/07 20:17:54 gisle Exp $
 
 package WWW::RobotRules;
 
@@ -46,7 +46,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -73,7 +73,7 @@ sub new {
 }
 
 
-=item $rules->parse($url, $content, $fresh_until)
+=item $rules->parse($robot_txt_url, $content, $fresh_until)
 
 The parse() method takes as arguments the URL that was used to
 retrieve the F</robots.txt> file, and the contents of the file.
@@ -81,9 +81,9 @@ retrieve the F</robots.txt> file, and the contents of the file.
 =cut
 
 sub parse {
-    my($self, $url, $txt, $fresh_until) = @_;
-    $url = URI->new("$url");
-    my $netloc = $url->authority;
+    my($self, $robot_txt_uri, $txt, $fresh_until) = @_;
+    $robot_txt_uri = URI->new("$robot_txt_uri");
+    my $netloc = $robot_txt_uri->authority;
 
     $self->clear_rules($netloc);
     $self->fresh_until($netloc, $fresh_until || (time + 365*24*3600));
@@ -133,8 +133,17 @@ sub parse {
 	    my $disallow = $1;
 	    $disallow =~ s/\s+$//;
 	    if (length $disallow) {
-		$disallow = eval { URI->new_abs($disallow, $url)->path_query };
-		next unless defined $disallow;
+		my $ignore;
+		eval {
+		    my $u = URI->new_abs($disallow, $robot_txt_uri);
+		    $ignore++ if $u->scheme ne $robot_txt_uri->scheme;
+		    $ignore++ if lc($u->host) ne lc($robot_txt_uri->host);
+		    $ignore++ if $u->port ne $robot_txt_uri->port;
+		    $disallow = $u->path_query;
+		    $disallow = "/" unless length $disallow;
+		};
+		next if $@;
+		next if $ignore;
 	    }
 
 	    if ($is_me) {
@@ -167,21 +176,21 @@ sub is_me {
     return index(lc($ua), lc($me)) >= 0;
 }
 
-=item $rules->allowed($url)
+=item $rules->allowed($uri)
 
 Returns TRUE if this robot is allowed to retrieve this URL.
 
 =cut
 
 sub allowed {
-    my($self, $url) = @_;
-    $url = URI->new("$url");
-    my $netloc = $url->authority;
+    my($self, $uri) = @_;
+    $uri = URI->new("$uri");
+    my $netloc = $uri->authority;
 
     my $fresh_until = $self->fresh_until($netloc);
     return -1 if !defined($fresh_until) || $fresh_until < time;
 
-    my $str = $url->path_query;
+    my $str = $uri->path_query;
     my $rule;
     for $rule ($self->rules($netloc)) {
 	return 1 unless length $rule;
@@ -228,7 +237,6 @@ sub visit {
     my($self, $netloc, $time) = @_;
     $time ||= time;
     $self->{'loc'}{$netloc}{'last'} = $time;
-    
     my $count = \$self->{'loc'}{$netloc}{'count'};
     if (!defined $$count) {
 	$$count = 1;
@@ -285,7 +293,6 @@ sub dump
     for (keys %{$self->{'loc'}}) {
 	my @rules = $self->rules($_);
 	print "$_: ", join("; ", @rules), "\n";
-	
     }
 }
 

@@ -1,3 +1,33 @@
+2004-04-09   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.79
+
+    HTML::Form now exposes the 'readonly' and 'disabled'
+    attribute for inputs.
+
+    HTML::Headers: New method 'header_field_names' that
+    return a list names as suggested by its name.
+
+    HTML::Headers: $h->remove_content_headers will now
+    also remove the headers "Allow", "Expres" and
+    "Last-Modified".  These are also part of the set
+    that RFC 2616 denote as Entity Header Fields.
+
+    HTML::Headers: $h->content_type is now more careful
+    to remove embedded space in the returned value.
+    It also now returns all the paramters as the second
+    return value as documented.
+
+    HTML::Headers: $h->header() now croaks.  It used to
+    silently do nothing.
+
+    HTML::Headers: Documentation tweaks.  Documented a
+    few bugs discovered during testing.
+
+    Updated tests.
+
+
+
 2004-04-07   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.78

@@ -1,3 +1,39 @@
+2001-12-14   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.63
+
+    HTTP::Negotiate: Deal with parameter names in a case
+    insensitive way.  Put a little weight on the order of features
+    in the Accept headers.
+
+    LWP::UserAgent: make sure that the 'request' attribute is
+    always set on the returned response.
+
+    LWP::Protocol::http will now allow certain bad headers
+    in the responses it reads.  The bad headers end up in the
+    header 'Client-Junk'.
+
+    Net::HTTP new options to the 'read_response_headers'
+    method.  The option 'laxed' will make it ignore bad header
+    lines.  The option 'junk_out' can be used to pass in an
+    array reference.  Junk header lines are pushed onto it.
+
+    Net::HTTP::Methods: fixed the internal zlib_ok() to also
+    return the correct value the first time.
+
+    LWP::Protocol::http: Ensure that we don't read until
+    select has said it is ok since we have put the socket
+    in non-blocking mode.  Previously this could happen if
+    you set the 'timeout' attribute of the user agent to 0.
+
+    LWP::Authen::Digest now use Digest::MD5 instead of MD5.
+
+    Some adjustments to Makefile.PL to figure out if
+    Compress::Zlib is available and adjust the test suite
+    accordingly.
+
+
+
 2001-11-21   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.62

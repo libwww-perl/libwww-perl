@@ -21,7 +21,7 @@ sub _parse {
 sub _esc_path
 {
     my($self, $text) = @_;
-    $text =~ s/([^-a-zA-Z\d\$_.+!*'(),%?:@&=\/])/$URI::URL::escapes{$1}/oeg; #' fix emacs
+    $text =~ s/([^-a-zA-Z\d\$_.+!*'(),%?:@&=\/])/$URI::Escape::escapes{$1}/oeg; #' fix emacs
     $text;
 }
 

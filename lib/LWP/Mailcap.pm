@@ -1,5 +1,5 @@
 #
-# $Id: Mailcap.pm,v 1.1 1995/08/21 18:46:25 aas Exp $
+# $Id: Mailcap.pm,v 1.2 1995/08/21 19:17:49 aas Exp $
 
 package LWP::Mailcap;
 
@@ -21,8 +21,7 @@ types are:
 
 =cut
 
-$DEBUG = 1;
-$useCache = 1;
+$useCache = 1;  # don't evaluate tests every time
 
 my @path = split(/:/, $ENV{MAILCAPS} ||
   "$ENV{HOME}/.mailcap:/etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap");
@@ -39,7 +38,7 @@ my @path = split(/:/, $ENV{MAILCAPS} ||
 Create and initialize a new LWP::Mailcap object.  If you give it an
 argument it will try to parse the specified file.  Without any
 arguments it will search for the mailcap file using the standard
-mailcap path, or the MAILCAPS environment variable.
+mailcap path, or the MAILCAPS environment variable if it is defined.
 
 =cut
 
@@ -85,7 +84,6 @@ sub new
 		my $test = $field{'test'};
 		unless ($test =~ /%/) {
 		    # No parameters in test, can perform it right away
-		    print "Running: $test\n" if $DEBUG;
 		    system $test;
 		    next if $?;
 		}
@@ -169,7 +167,6 @@ sub _createCommand
 sub _run
 {
     my($self, $cmd) = @_;
-    print "Runing: $cmd\n" if $DEBUG;
     if (defined $cmd) {
 	system $cmd;
 	return 1;
@@ -209,8 +206,8 @@ sub field
 =head2 nametemplate($type)
 
 These methods return the corresponding mailcap field for the type.
-These methods are more convenient to use than the field() method for
-the same fields.
+These methods should be more convenient to use than the field() method
+for the same fields.
 
 =cut
 
@@ -252,7 +249,6 @@ sub getEntry
 		$test =~ s/%\{\s*(.*?)\s*\}/$params{$1}/g;
 	    }
 	    $test =~ s/\t/%/g;
-	    print "Running: $test\n" if $DEBUG;
 	    system $test;
 	    next if $?;
 	}

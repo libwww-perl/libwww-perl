@@ -1,0 +1,21 @@
+SSL SUPPORT
+
+The libwww-perl package has support for using SSL/TLSv1 with its HTTP
+client and server classes. This support makes it possible to access
+https schemed URLs with LWP. Because of the problematic status of
+encryption software in general and certain encryption algorithms in
+particular, in several countries, libwww-perl package doesn't include
+SSL functionality out-of-the-box. Encryption support is obtained
+through the use of Crypt::SSLeay or IO::Socket::SSL, which can both be
+found from CPAN. At present, the easiest and recommended module to use
+is Crypt::SSLeay. Crypt::SSLeay provides "plug-and-play" SSL support
+for LWP while IO::Socket::SSL required patching LWP. In addition to
+bringing SSL support to the LWP package, IO::Socket::SSL can be used
+as an object oriented interface to SSL encrypted network
+sockets. There is yet another SSL interface for perl called
+Net::SSLeay. It has a more complete SSL interface and can be used for
+web client programming among other things but doesn't directly support
+LWP. The underlying SSL support in all of these modules is based on
+OpenSSL <http://www.openssl.org/> (formerly SSLeay). For WWW-server
+side SSL support (e.g. CGI/FCGI scripts) in Apache see
+<http://www.modssl.org/>.

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.48 1998/09/16 11:03:37 aas Exp $
+# $Id: Makefile.PL,v 1.49 1998/11/19 20:27:10 aas Exp $
 
 require 5.004;
 use strict;
@@ -30,6 +30,10 @@ my $missing_modules = 0;
 print "Checking for URI...........";
 eval {
     require URI;
+    my $ver = $URI::VERSION;
+    $ver =~ s/_//;
+    die "URI version 0.90_02 needed, installed module is only $URI::VERSION\n"
+	unless $ver >= 0.9002;
 };
 if ($@) {
     print " failed\n";
@@ -37,7 +41,7 @@ if ($@) {
     print <<EOT;
 $@
 The URI module must be installed.  WWW without URIs would not
-be that great.
+be that great :-)
 
 EOT
     sleep(2);  # Don't hurry too much
@@ -101,19 +105,19 @@ EOT
     print " ok\n";
 }
 
-print "Checking for MD5 ..........";
+print "Checking for Digest::MD5 ..";
 eval {
-    require MD5;
+    require Digest::MD5;
 };
 if ($@) {
     print " failed\n";
     $missing_modules++;
     print <<EOT;
 $@
-The MD5 library is needed if you want to be able use the experimental
-"Digest Access Authentication" scheme.  Since very few servers
-implement this authentication scheme, you should normally not worry
-too much about this.
+The Digest::MD5 library is needed if you want to be able use the
+experimental "Digest Access Authentication" scheme.  Since very few
+servers implement this authentication scheme, you should normally not
+worry too much about this.
 
 EOT
 } else {

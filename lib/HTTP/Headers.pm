@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.54 2004/04/08 21:16:12 gisle Exp $
+# $Id: Headers.pm,v 1.55 2004/04/08 21:26:00 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.54 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.55 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -673,6 +673,9 @@ In the argument list to the constructor or header() method, the same
 field name should not occur multiple times.  The result of doing so,
 it that only the last of these fields will be present in the header
 after the call.  All values ought to be kept.
+
+Passing a value of C<undef> to header() or any of the convenience
+methods, does not delete that field.  It ought to do that.
 
 =head1 COPYRIGHT
 

@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.14 1995/09/15 14:53:44 aas Exp $
+# $Id: Socket.pm,v 1.15 1995/09/15 17:04:51 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -99,10 +99,10 @@ Connect the socket to given host and port.
 sub connect
 {
     my($self, $host, $port) = @_;
-    LWP::Debug::trace("($host, $port)");
-
     croak "no host" unless defined $host && length $host;
     croak "no port" unless defined $port && $port > 0;
+
+    LWP::Debug::trace("($host, $port)");
 
     $self->{'host'} = $host;
     $self->{'port'} = $port;

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.6 1995/07/15 07:55:08 aas Exp $
+# $Id: Headers.pm,v 1.7 1995/07/17 10:01:46 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -68,9 +68,9 @@ Constructs a new C<LWP::MIMEheader> object.  You might pass some
 initial headers as parameters to the constructor.  E.g.:
 
  $h = new LWP::MIMEheader
-     'Content-Type'  => 'text/html',
-     'MIME-Version'  => '1.0',
-     'Date'          => 'Thu, 03 Feb 1994 00:00:00 GMT';
+     'Content-Type' => 'text/html',
+     'MIME-Version' => '1.0',
+     'Date'         => 'Thu, 03 Feb 1994 00:00:00 GMT';
 
 =cut
 
@@ -153,9 +153,9 @@ sub header
 
 =head2 pushHeader($field, $val)
 
-Add a new value to a field of the request header.  Note that case of
-the header field name is not touched.  The field need not already have
-a value. Duplicates are retained.  The argument may be a scalar or a
+Add a new value to a field of the request header.  The header field
+name is not case sensitive.  The field need not already have a
+value. Duplicates are retained.  The argument may be a scalar or a
 reference to a list of scalars.
 
  $header->pushHeader('Accept', 'image/jpeg');

@@ -1,3 +1,45 @@
+Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Applied patch from Marc Hedlund <hedlund@best.com>
+       - Update the @header_order according to the August 3rd draft.
+       - Added Response Header fields: 'Location', 'Public', 'Retry-After',
+         'Server', and 'WWW-Authenticate'.
+       - Moved 'unknown header' handling from &scan to &header. The old
+         implementation was forcing all unknown header-words to begin with
+	 an uppercase (as it should be), but disallowed other uppercase
+	 letters.
+       - updates the status code messages under the August
+         3rd HTTP/1.0 draft.  '203' became 'Non-Authoritative Information',
+	 '303' became 'See Other', and a new code,
+	 '411 Authorization Refused', was added.
+
+ o  Can remove multiple headers with single removeHeader() call in MIMEheader.
+
+ o  Can assign multiple field/value pairs in header() method of MIMEheader.
+
+ o  A field with multiple values is printed as separate values in
+    MIMEheader::as_string().
+
+ o  LWP::Response contain new attributes: previous() and request().  These
+    attributes are updated by the UserAgent.
+
+ o  Appended \n to some die statements in Socket so that line numbers are
+    suppressed in error messages.
+
+ o  Made UserAgent::clone work for reference members
+
+ o  Check for redirect loops and multiple authorization failures by
+    examination of the response chain.
+
+ o  Use "\015\012" instead of "\r\n" in protocol modules.  Some systems
+    define \r and \n differently.
+
+ o  request program can now handle documents that needs autorization by
+    prompting the user for username/password. Added new -S option to print
+    request/response chain.
+
+
+  
 Tue Jul 25 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 0.02

@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -653,6 +653,7 @@ sub _url_path
     my $url = shift;
     my $path = eval { $url->epath };    # URI::URL method
     $path = $url->path if $@;           # URI::_generic method
+    $path = "/" unless length $path;
     $path;
 }
 

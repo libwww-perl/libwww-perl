@@ -1,4 +1,4 @@
-print "1..33\n";
+print "1..34\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -511,14 +511,26 @@ $res->request($req);
 $res->header("Set-Cookie" => "JSESSIONID=ABCDERANDOM123; Path=");
 print $res->as_string;
 $c->extract_cookies($res);
+#print $c->as_string;
 
 $req = HTTP::Request->new(GET => "http://www.ants.com/");
 $c->add_cookie_header($req);
-print $req->as_string;
+#print $req->as_string;
 
 print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
                     $req->header("Cookie2") eq "\$Version=1";
 print "ok 33\n";
+
+
+# missing path in the request URI
+$req = HTTP::Request->new(GET => URI->new("http://www.ants.com:8080"));
+$c->add_cookie_header($req);
+#print $req->as_string;
+
+print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
+                    $req->header("Cookie2") eq "\$Version=1";
+print "ok 34\n";
+
 
 
 #-------------------------------------------------------------------

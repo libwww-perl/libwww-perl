@@ -13,7 +13,6 @@ my %form_tags = map {$_ => 1} qw(input textarea button select option);
 my %type2class = (
  text     => "TextInput",
  password => "TextInput",
- file     => "TextInput",
  hidden   => "TextInput",
  textarea => "TextInput",
 
@@ -26,6 +25,7 @@ my %type2class = (
 
  submit   => "SubmitInput",
  image    => "ImageInput",
+ file     => "FileInput",
 );
 
 =head1 NAME
@@ -153,7 +153,7 @@ sub new {
     my $self = bless {}, $class;
     $self->{method} = uc(shift  || "GET");
     $self->{action} = shift  || Carp::croak("No action defined");
-    $self->{enctype} = shift || "application/x-www-form-urlencoded";
+    $self->{enctype} = lc(shift || "application/x-www-form-urlencoded");
     $self->{inputs} = [@_];
     $self;
 }
@@ -270,7 +270,7 @@ If $name is specified, then the input must have the indicated name.
 
 If $type is specified then the input must have the specified type.
 The following type names are used: "text", "password", "hidden",
-"textarea", "image", "submit", "radio", "checkbox" and "option".
+"textarea", "file", "image", "submit", "radio", "checkbox" and "option".
 
 The $index is the sequence number of the input matched where 1 is the
 first.  If combined with $name and/or $type then it select the I<n>th
@@ -463,7 +463,7 @@ generated.
 sub form
 {
     my $self = shift;
-    map {$_->form_name_value} @{$self->{'inputs'}};
+    map { $_->form_name_value($self) } @{$self->{'inputs'}};
 }
 
 
@@ -529,7 +529,7 @@ sub fixup {}
 =item $input->type
 
 Returns the type of this input.  The type is one of the following
-strings: "text", "password", "hidden", "textarea", "image", "submit",
+strings: "text", "password", "hidden", "textarea", "file", "image", "submit",
 "radio", "checkbox" or "option".
 
 =cut
@@ -649,7 +649,6 @@ package HTML::Form::TextInput;
 
 #input/text
 #input/password
-#input/file
 #input/hidden
 #textarea
 
@@ -822,6 +821,103 @@ sub form_name_value
     return ("$name.x" => $clicked->[0],
 	    "$name.y" => $clicked->[1]
 	   );
+}
+
+#---------------------------------------------------
+package HTML::Form::FileInput;
+@HTML::Form::FileInput::ISA=qw(HTML::Form::TextInput);
+
+=back
+
+If the input is of type C<file>, then it has these additional methods:
+
+=over 4
+
+=item $input->file
+
+This is just an alias for the value() method.  It sets the filename to
+read data from.
+
+=cut
+
+sub file {
+    my $self = shift;
+    $self->value(@_);
+}
+
+=item $filename = $input->filename
+
+=item $input->filename( $new_filename )
+
+This get/sets the filename reported to the server during file upload.
+This attribute defaults to the value reported by the file() method.
+
+=cut
+
+sub filename {
+    my $self = shift;
+    my $old = $self->{filename};
+    $self->{filename} = shift if @_;
+    $old = $self->file unless defined $old;
+    $old;
+}
+
+=item $content = $input->content
+
+=item $input->content( $new_content )
+
+This get/sets the file content provided to the server during file
+upload.  This method can be used if you do not want the content to be
+uploaded to be provided from an actual file.
+
+=cut
+
+sub content {
+    my $self = shift;
+    my $old = $self->{content};
+    $self->{content} = shift if @_;
+    $old;
+}
+
+=item @headers = $input->headers
+
+=item input->headers($key => $value, .... )
+
+This get/set additional header fields describing the file uploaded.
+This can for instance be used to set the C<Content-Type> reported for
+the file.
+
+=cut
+
+sub headers {
+    my $self = shift;
+    my $old = $self->{headers} || [];
+    $self->{headers} = [@_] if @_;
+    @$old;
+}
+
+sub form_name_value {
+    my($self, $form) = @_;
+    return $self->SUPER::form_name_value($form)
+	if $form->method ne "POST" ||
+	   $form->enctype ne "multipart/form-data";
+
+    my $name = $self->name;
+    return unless defined $name;
+
+    my $file = $self->file;
+    my $filename = $self->filename;
+    my @headers = $self->headers;
+    my $content = $self->content;
+    if (defined $content) {
+	$file = undef;
+	unshift(@headers, "Content" => $content);
+    }
+    elsif (!defined($file) || length($file) == 0) {
+	return;
+    }
+
+    return ($name => [$file, $filename, @headers]);
 }
 
 1;

@@ -1,4 +1,4 @@
-print "1..10\n";
+print "1..12\n";
 
 use strict;
 use HTML::Form;
@@ -62,7 +62,7 @@ $f = HTML::Form->parse(<<'EOT', "http://localhost/");
    <input name=s type="submit" value="Doit!">
    <input name=r type="reset">
    <input name=b type="button">
-   <input name=f type="file">
+   <input name=f type="file" value="foo.txt">
    <input name=x type="xyzzy">
 
    <textarea name=a>
@@ -81,12 +81,64 @@ abc
 </form>
 EOT
 
-print $f->dump;
+#print $f->dump;
+#print $f->click->as_string;
 
 print "not " unless $f->click->as_string eq <<'EOT'; print "ok 10\n";
 POST http://localhost/
-Content-Length: 66
+Content-Length: 73
 Content-Type: application/x-www-form-urlencoded
 
-i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=&a=%0Aabc%0A+++&s=bar&m=a&m=b
+i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&a=%0Aabc%0A+++&s=bar&m=a&m=b
 EOT
+
+
+# test file upload
+$f = HTML::Form->parse(<<'EOT', "http://localhost/");
+<form method=post enctype="MULTIPART/FORM-DATA">
+   <input name=f type=file value=>
+   <input type=submit value="Upload it!">
+</form>
+EOT
+
+#print $f->dump;
+#print $f->click->as_string;
+
+# XXX the parameter-less boundary in this case is clearly a bug.
+
+print "not " unless $f->click->as_string eq <<'EOT'; print "ok 11\n";
+POST http://localhost/
+Content-Length: 0
+Content-Type: multipart/form-data; boundary
+
+
+EOT
+
+my $filename = sprintf "foo-%08d.txt", $$;
+die if -e $filename;
+
+open(FILE, ">$filename") || die;
+print FILE "This is some text\n";
+close(FILE) || die;
+
+$f->value(f => $filename);
+
+#print $f->click->as_string;
+
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 12\n";
+POST http://localhost/
+Content-Length: 159
+Content-Type: multipart/form-data; boundary=xYzZY
+
+--xYzZY\r
+Content-Disposition: form-data; name="f"; filename="$filename"\r
+Content-Length: 18\r
+Content-Type: text/plain\r
+\r
+This is some text
+\r
+--xYzZY--\r
+
+EOT
+
+unlink($filename) || warn "Can't unlink '$filename': $!";

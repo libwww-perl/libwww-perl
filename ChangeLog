@@ -1,3 +1,26 @@
+Fri Sep  5 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.12
+
+ o  decode_entities() would sometimes introduce ";" after
+    things that looked like they were entities.
+
+ o  HTML::LinkExtor knows about <applet code="...">
+
+ o  Patch from Gary Shea <shea@gtsdesign.com> that makes the
+    tests work even if perl is not called "perl"
+
+ o  HTTP::Date handles 12:00PM correctly now. Patch from
+    William York <william@mathworks.com>
+
+ o  HTTP::Request::Common don't quote the boundary string for
+    multipart/form-data messages any more.
+
+ o  Font::AFM works for encodings where .notdef is defined to
+    have some size.  Documentation and efficiency update.
+
+
+
 Wed Aug  6 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.11

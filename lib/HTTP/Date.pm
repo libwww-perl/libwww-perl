@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 2000/05/22 13:47:20 $
+package HTTP::Date;  # $Date: 2000/08/17 08:40:29 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -105,6 +105,8 @@ sub parse_date ($)
 	 )?                    # optional clock
 	    \s*
 	 ([-+]?\d{2,4}|(?![APap][Mm]\b)[A-Za-z]+)? # timezone
+	    \s*
+	 (?:\(\w+\))?	       # ASCII representation of timezone in parens.
 	    \s*$
 	/x)
 

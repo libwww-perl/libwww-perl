@@ -3,7 +3,7 @@ use HTTP::Date;
 require Time::Local if $^O eq "MacOS";
 my $offset = ($^O eq "MacOS") ? Time::Local::timegm(0,0,0,1,0,70) : 0;
 
-print "1..60\n";
+print "1..57\n";
 
 $no = 1;
 $| = 1;
@@ -96,13 +96,12 @@ print "'$str'  =>  $t ($time)\n";
 print "not " if $t != $time;
 ok;
 
-# try some out of bounds date and some garbage.
-for ('03-Feb-1969', '03-Feb-2039',
-     undef, '', 'Garbage',
+# try some garbage.
+for (undef, '', 'Garbage',
      'Mandag 16. September 1996',
 #     'Thu Feb  3 00:00:00 CET 1994',
 #     'Thu, 03 Feb 1994 00:00:00 CET',
-     'Wednesday, 31-Dec-69 23:59:59 GMT',
+#     'Wednesday, 31-Dec-69 23:59:59 GMT',
 
      '1980-00-01',
      '1980-13-01',

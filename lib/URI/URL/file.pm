@@ -55,12 +55,13 @@ __END__
 sub newlocal {
     my($class, $path) = @_;
 
-    Carp::croak("Only implemented for Unix file systems")
-      unless $ostype eq "unix";
+    Carp::croak("Only implemented for Unix and OS/2 file systems")
+      unless $ostype eq "unix" or $^O eq 'os2';
     # XXX: Should implement the same thing for other systems
 
     my $url = new URI::URL "file:";
-    unless (defined $path and $path =~ m:^/:) {
+    unless (defined $path and ($path =~ m:^/: or 
+			       $^O eq 'os2' and Cwd::sys_is_absolute $path)) {
 	require Cwd;
 	my $cwd = Cwd::fastcwd();
 	$cwd =~ s:/?$:/:; # force trailing slash on dir

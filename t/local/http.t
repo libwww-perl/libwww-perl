@@ -108,6 +108,7 @@ print "Send file...\n";
 
 my $file = "test-$$.html";
 open(FILE, ">$file") or die "Can't create $file: $!";
+binmode FILE or die "Can't binmode $file: $!";
 print FILE <<EOT;
 <html><title>En prøve</title>
 <h1>Dette er en testfil</h1>

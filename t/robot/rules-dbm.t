@@ -111,6 +111,7 @@ while (($key,$val) = each(%cat)) {
 }
 print "******\n";
 
+untie %cat;			# Otherwise the next line fails on DOSish
 
 unlink "$file", "$file.pag", "$file.dir", "$file.db";
 

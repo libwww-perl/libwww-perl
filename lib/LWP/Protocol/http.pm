@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.3 1995/07/11 13:21:07 aas Exp $
+# $Id: http.pm,v 1.4 1995/07/11 22:39:14 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -24,16 +24,16 @@ $httpversion = 'HTTP/1.0';      # for requests
 # 1 = Allowed without content in request
 # 2 = Allowed and with content in request
 %AllowedMethods = (
-    'GET',        1,   
-    'HEAD',       1,
-    'POST',       2,   
-    'PUT',        2,
-    'DELETE',     1,   
-    'LINK',       1,
-    'UNLINK',     1,
-    'CHECKIN',    2,
-    'CHECKOUT',   1,
-    'SHOWMETHOD', 1,
+    GET        => 1,   
+    HEAD       => 1,
+    POST       => 2,   
+    PUT        => 2,
+    DELETE     => 1,   
+    LINK       => 1,
+    UNLINK     => 1,
+    CHECKIN    => 2,
+    CHECKOUT   => 1,
+    SHOWMETHOD => 1,
 );
 
 #####################################################################

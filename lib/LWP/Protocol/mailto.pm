@@ -1,5 +1,5 @@
 #
-# $Id: mailto.pm,v 1.2 1995/08/09 11:31:35 aas Exp $
+# $Id: mailto.pm,v 1.3 1995/08/09 18:45:09 aas Exp $
 #
 # This module implements the mailto protocol.  It is just a simple 
 # frontend to the Unix sendmail program.  In the long run this module
@@ -65,7 +65,8 @@ sub request
     print SENDMAIL $content if $content;
     close(SENDMAIL);
     
-    my $response = new HTTP::Response &HTTP::Status::RC_OK, 'Mail sent';
+    my $response = new HTTP::Response &HTTP::Status::RC_ACCEPTED,
+                                     'Mail accepted by sendmail';
     $response->header('Content-Type', 'text/plain');
     $response->content("Mail sent to <$addr>\n");
 

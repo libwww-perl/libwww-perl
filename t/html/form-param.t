@@ -36,9 +36,9 @@ ok($form->param('checkbox_1'), 'c1_v1');
 ok(j($form->param('checkbox_1')), 'c1_v1:c1_v2');
 ok($form->param('checkbox_2'), 'c2_v1');
 ok(j($form->param('checkbox_2')), 'c2_v1');
-ok($form->param('multi_select_field'), undef);
+ok(!defined($form->param('multi_select_field')));
 ok(j($form->param('multi_select_field')), '');
-ok($form->param('unknown'), undef);
+ok(!defined($form->param('unknown')));
 ok(j($form->param('unknown')), '');
 ok(!@warn);
 

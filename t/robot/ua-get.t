@@ -42,7 +42,7 @@ else {
     open(DAEMON , "$perl robot/ua.t daemon |") or die "Can't exec daemon: $!";
 }
 
-print "1..7\n";
+print "1..8\n";
 
 
 $greating = <DAEMON>;
@@ -141,3 +141,10 @@ print "ok 6\n";
 print "not " unless $ua->no_visits($base->host_port) == 4;
 print "ok 7\n";
 
+# RobotUA used to have problem with mailto URLs.
+$ENV{SENDMAIL} = "dummy";
+$res = $ua->get("mailto:gisle\@aas.no");
+#print $res->as_string;
+
+print "not " unless $res->code == 400 && $res->message eq "Library does not allow method GET for 'mailto:' URLs";
+print "ok 8\n";

@@ -1,15 +1,15 @@
 #
-# $Id: Status.pm,v 1.7 1995/08/07 11:20:42 aas Exp $
+# $Id: Status.pm,v 1.8 1995/08/09 09:21:07 aas Exp $
 
-package LWP::StatusCode;
+package HTTP::StatusCode;
 
 =head1 NAME
 
-LWP::StatusCode - HTTP Status code processing
+HTTP::StatusCode - HTTP Status code processing
 
 =head1 SYNOPSIS
 
- use LWP::StatusCode;
+ use HTTP::StatusCode;
 
  if ($rc != RC_OK) { 
      print statusMessage($rc), "\n";
@@ -21,8 +21,8 @@ LWP::StatusCode - HTTP Status code processing
 
 =head1 DESCRIPTION
 
-LWP::StatusCode is a library of routines for manipulating
-HTTP Status Codes for L<lwp>.
+HTTP::StatusCode is a library of routines for manipulating
+HTTP Status Codes for L<libwww-perl>.
 
 The following functions can be used as mnemonic status codes:
 

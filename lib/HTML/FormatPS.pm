@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.11 1995/09/14 10:04:21 aas Exp $
+# $Id: FormatPS.pm,v 1.12 1995/09/14 10:45:06 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -366,6 +366,29 @@ sub showline
     $self->collect(sprintf "%.1f %.1f M\n", $x, $self->{ypos});  # moveto
     $line =~ s/\s\)S$/)S/;  # many lines will end with space
     $self->collect($line);
+
+    if ($self->{bullet}) {
+	# Putting this behind the first line of the list item
+	# makes it more likely that we get the right font.  We should
+	# really set the font that we want to use.
+	my $bullet = $self->{bullet};
+	if ($bullet eq '*') {
+	    # There is no character that is really suitable.  Lets make
+	    # filled cirle ourself.
+	    my $radius = $self->{pointsize} / 4;
+	    $self->collect(sprintf "newpath %.1f %.1f %.1f 0 360 arc fill\n",
+		       $self->{bullet_pos} + $radius,
+		       $self->{ypos} + $radius, $radius);
+	} else {
+	    $self->collect(sprintf "%.1f %.1f M\n", # moveto
+			   $self->{bullet_pos},
+			   $self->{ypos});
+	    $self->collect("($bullet)S\n");
+	}
+	$self->{bullet} = '';
+	
+    }
+
     $self->{prev_currentfont} = $self->{currentfont};
     $self->{largest_pointsize} = 0;
     $self->{line} = "";
@@ -460,10 +483,17 @@ sub pre_out
     $self->tt_end;
 }
 
+sub bullet
+{
+    my($self, $bullet) = @_;
+    $self->{bullet} = $bullet;
+    $self->{bullet_pos} = $self->{lm};
+}
 
 sub adjust_lm
 {
     my $self = shift;
+    $self->showline;
     $self->{lm} += $_[0] * $self->{en};
 }
 
@@ -471,6 +501,7 @@ sub adjust_lm
 sub adjust_rm
 {
     my $self = shift;
+    $self->showline;
     $self->{rm} += $_[0] * $self->{en};
 }
 

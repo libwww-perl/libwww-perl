@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.8 1995/09/11 14:26:30 aas Exp $
+# $Id: Parse.pm,v 1.9 1995/09/12 08:05:23 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -322,7 +322,7 @@ sub starttag
 		$ptag = $html->pos->tag;
 		$pos = insertTag($html, 'ul') unless $isList{$ptag};
 	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
-		endtag($html, ['dt'. 'dd'], 'dl');
+		endtag($html, ['dt', 'dd'], 'dl');
 		$ptag = $html->pos->tag;
 		# Fix <dt> or <dd> outside <dl>
 		$pos = insertTag($html, 'dl') unless $ptag eq 'dl';

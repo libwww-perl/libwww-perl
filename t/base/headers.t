@@ -171,7 +171,7 @@ ok($h->header("Date") =~ /^[A-Z][a-z][a-z], \d\d .* GMT$/);
 }
 
 if ($] < 5.006) {
-   Test::skip("Can't call variable method") for 1..13;
+   Test::skip("Can't call variable method", 1) for 1..13;
 }
 else {
 # other date fields

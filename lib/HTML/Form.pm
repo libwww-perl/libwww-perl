@@ -141,7 +141,8 @@ sub parse
 			next if $tag eq "/option";
 			if ($tag eq "option") {
 			    my %a = (%$attr, %{$t->[0]});
-			    $a{value} = $p->get_trimmed_text
+			    $a{value_name} = $p->get_trimmed_text;
+			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
 			    $f->push_input("option", \%a);
 			} else {
@@ -723,6 +724,21 @@ sub other_possible_values
     return;
 }
 
+=item $input->value_names
+
+For some inputs the values can have names that are different from the
+values themselves.  The number of names returned by this method will
+match the number of values reported by $input->possible_values.
+
+When setting values using the value() method it is also possible to
+use the value names in place of the value itself.
+
+=cut
+
+sub value_names {
+    return
+}
+
 =item $input->form_name_value
 
 Returns a (possible empty) list of key/value pairs that should be
@@ -814,21 +830,27 @@ sub new
 {
     my $class = shift;
     my $self = $class->SUPER::new(@_);
+
+    my $value = delete $self->{value};
+    my $value_name = delete $self->{value_name};
+    
     if ($self->type eq "checkbox") {
-	my $value = delete $self->{value};
 	$value = "on" unless defined $value;
 	$self->{menu} = [undef, $value];
+	$self->{value_names} = ["off", $value_name];
 	$self->{current} = (exists $self->{checked}) ? 1 : 0;
 	delete $self->{checked};
     } else {
-	$self->{menu} = [delete $self->{value}];
+	$self->{menu} = [$value];
 	my $checked = exists $self->{checked} || exists $self->{selected};
 	delete $self->{checked};
 	delete $self->{selected};
 	if (exists $self->{multiple}) {
 	    unshift(@{$self->{menu}}, undef);
+	    $self->{value_names} = ["off", $value_name];
 	    $self->{current} = $checked ? 1 : 0;
 	} else {
+	    $self->{value_names} = [$value_name];
 	    $self->{current} = 0 if $checked;
 	}
     }
@@ -848,6 +870,7 @@ sub add_to_form
 
     # merge menues
     push(@{$prev->{menu}}, @{$self->{menu}});
+    push(@{$prev->{value_names}}, @{$self->{value_names}});
     $prev->{current} = @{$prev->{menu}} - 1 if exists $self->{current};
 }
 
@@ -880,7 +903,33 @@ sub value
 	    }
 	    $i++;
 	}
-	Carp::croak("Illegal value '$val'") unless defined $cur;
+	unless (defined $cur) {
+	    if (defined $val) {
+		# try to search among the alternative names as well
+		my $i = 0;
+		my $cur_ignorecase;
+		my $lc_val = lc($val);
+		for (@{$self->{value_names}}) {
+		    if (defined $_) {
+			if ($val eq $_) {
+			    $cur = $i;
+			    last;
+			}
+			if (!defined($cur_ignorecase) && $lc_val eq lc($_)) {
+			    $cur_ignorecase = $i;
+			}
+		    }
+		    $i++;
+		}
+		unless (defined $cur) {
+		    $cur = $cur_ignorecase;
+		    Carp::croak("Illegal value '$val'") unless defined $cur;
+		}
+	    }
+	    else {
+	        Carp::croak("Can't turn this input off");
+	    }
+	}
 	$self->{current} = $cur;
 	$self->{seen}[$cur] = 1;
     }
@@ -923,6 +972,17 @@ sub other_possible_values
     map { $self->{menu}[$_] }
         grep {!$self->{seen}[$_]}
              0 .. (@{$self->{seen}} - 1);
+}
+
+sub value_names {
+    my $self = shift;
+    my @names;
+    for my $i (0 .. @{$self->{menu}} - 1) {
+	my $n = $self->{value_names}[$i];
+	$n = $self->{menu}[$i] unless defined $n;
+	push(@names, $n);
+    }
+    @names;
 }
 
 

@@ -1,6 +1,6 @@
 #!perl -w
 
-print "1..16\n";
+print "1..20\n";
 
 use strict;
 use HTML::Form;
@@ -179,7 +179,7 @@ EOT
 
 $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 <form>
-   <input type=checkbox name=x>
+   <input type=checkbox name=x> I like it!
 </form>
 EOT
 
@@ -190,3 +190,37 @@ GET http://www.example.com?x=on
 
 
 EOT
+
+$f->value("x", "off");
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 17\n";
+GET http://www.example.com
+
+
+EOT
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form>
+<select name=x>
+   <option value=1>one
+   <option value=2>two
+   <option>3
+</select>
+</form>
+EOT
+
+$f->value("x", "one");
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 18\n";
+GET http://www.example.com?x=1
+
+
+EOT
+
+$f->value("x", "TWO");
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 19\n";
+GET http://www.example.com?x=2
+
+
+EOT
+
+print "not " unless join(":", $f->find_input("x")->value_names) eq "one:two:3";
+print "ok 20\n";

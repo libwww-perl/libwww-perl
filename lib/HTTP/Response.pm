@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.15 1996/03/14 15:50:36 aas Exp $
+# $Id: Response.pm,v 1.16 1996/03/18 17:46:46 aas Exp $
 
 package HTTP::Response;
 
@@ -100,6 +100,33 @@ sub code      { shift->_elem('_rc',      @_); }
 sub message   { shift->_elem('_msg',     @_); }
 sub previous  { shift->_elem('_previous',@_); }
 sub request   { shift->_elem('_request', @_); }
+
+=head2 $r->base
+
+Returns the base URL for this response.
+
+=cut
+
+sub base
+{
+    my $self = shift;
+    my $base = undef;
+    if ($self->content_type eq 'text/html') {
+	# Look for the <BASE HREF='...'> tag
+	# XXX: Should really use the HTML::Parse module to get this
+	# right. The <BASE> tag could be commented out, which we are
+	# not able to handle here.
+	$self->{'_content'} =~ /<\s*base\s+href=([^\s>]+)/i;
+	$base = $1;
+	if ($base) {
+	    $base =~ s/^(["'])(.*)\1$/$2/;  #" get rid of any quoting
+            return $base;
+	}
+    }
+    $base = $self->header('Base') unless $base;
+    $base = $self->request->url unless $base;
+    $base;
+}
 
 
 =head2 $r->as_string()

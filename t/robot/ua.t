@@ -51,8 +51,7 @@ print "Will access HTTP server at $base\n";
 require LWP::RobotUA;
 require HTTP::Request;
 $ua = new LWP::RobotUA 'lwp-spider/0.1', 'gisle@aas.no';
-# 0.05 is too slow for Win32, since we won't use_alarm()
-$ua->delay($^O eq 'MSWin32' ? 0.001 : 0.05);  # rather quick robot
+$ua->delay(0.05);  # rather quick robot
 
 #----------------------------------------------------------------
 sub httpd_get_robotstxt
@@ -99,7 +98,7 @@ print "ok 3\n";
 
 # Let the robotua generate "Service unavailable/Retry After response";
 $ua->delay(1);
-$ua->use_alarm(0);
+$ua->use_sleep(0);
 $req = new HTTP::Request GET => url("/foo", $base);
 $res = $ua->request($req);
 #print $res->as_string;

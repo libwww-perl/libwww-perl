@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.9 1996/09/30 11:45:36 aas Exp $
+# $Id: RobotUA.pm,v 1.10 1997/11/06 19:46:34 aas Exp $
 
 package LWP::RobotUA;
 
@@ -88,6 +88,7 @@ sub new
     $self->{'delay'} = 1;   # minutes
     $self->{'agent'} = $name;
     $self->{'from'}  = $from;
+    $self->{'use_sleep'} = 1;
 
     if ($rules) {
 	$rules->agent($name);
@@ -105,10 +106,18 @@ sub new
 Set the minimum delay between requests to the same server.  The
 default is 1 minute.
 
+=head2 $ua->use_sleep([$boolean])
+
+Get/set a value indicating wether the UA should sleep() if request
+arrive to fast (before $ua->delay minutes has passed).  The default is
+TRUE.  If this value is FALSE then an internal SERVICE_UNAVAILABLE
+response will be generated.  It will have an Retry-After header that
+indicate when it is OK to send another request to this server.
+
 =cut
 
-sub delay { shift->_elem('delay', @_); }
-
+sub delay     { shift->_elem('delay',     @_); }
+sub use_sleep { shift->_elem('use_sleep', @_); }
 
 sub agent
 {
@@ -138,7 +147,9 @@ sub rules {
 
 =head2 $ua->no_visits($netloc)
 
-Returns the number of documents fetched from this server host.
+Returns the number of documents fetched from this server host. Yes I
+know, this method should probably have been named num_visits() or
+something like that :-(
 
 =cut
 
@@ -153,8 +164,8 @@ sub no_visits
 
 =head2 $ua->host_wait($netloc)
 
-Returns the number of seconds you must wait before you can make a new
-request to this host.
+Returns the number of seconds (from now) you must wait before you can
+make a new request to this host.
 
 =cut
 
@@ -220,7 +231,7 @@ sub simple_request
 
     if ($wait) {
 	LWP::Debug::debug("Must wait $wait seconds");
-	if ($self->{'use_alarm'}) {
+	if ($self->{'use_sleep'}) {
 	    sleep($wait)
 	} else {
 	    my $res = new HTTP::Response
@@ -252,7 +263,7 @@ sub as_string
     my @s;
     push(@s, "Robot: $self->{'agent'} operated by $self->{'from'}  [$self]");
     push(@s, "    Minimum delay: " . int($self->{'delay'}*60) . "s");
-    push(@s, "    Will sleep if too early") if $self->{'use_alarm'};
+    push(@s, "    Will sleep if too early") if $self->{'use_sleep'};
     push(@s, "    Rules = $self->{'rules'}");
     join("\n", @s, '');
 }

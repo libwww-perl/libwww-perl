@@ -1,10 +1,10 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.63 2002/01/03 01:51:36 gisle Exp $
+# $Id: Makefile.PL,v 1.64 2002/05/29 16:21:34 gisle Exp $
 
 require 5.005;
 use strict;
-use ExtUtils::MakeMaker;
-use Config;
+use ExtUtils::MakeMaker qw(WriteMakefile prompt);
+use Config qw(%Config);
 
 #--- Configuration section ---
 
@@ -111,8 +111,21 @@ $Config{sitebin}.
 
 EOT
 	@tmp = ();
-	for (@request_aliases) {
-	    if (prompt("Do you want to install the $_ alias?", "y") =~ /^y/) {
+	for my $alias (@request_aliases) {
+	    my $default = "y";
+	    # check that we don't overwrite something unrelated with
+	    # the current defaults.
+	    if (open(PROG, "<$Config{sitebin}/$alias")) {
+		$default = "n";
+		while (<PROG>) {
+		    if (/lwp-request/) {
+			$default = "y";
+			last;
+		    }
+		}
+		close(PROG);
+	    }
+	    if (prompt("Do you want to install the $alias alias?", $default) =~ /^y/) {
 		push(@tmp, $_);
 	    }
 	}

@@ -1,135 +1,28 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.6 1997/02/21 09:32:14 aas Exp $
-
-=head1 NAME
-
-HTML::Parser - SGML parser class
-
-=head1 SYNOPSIS
-
- require HTML::Parser;
- $p = HTML::Parser->new;  # should really a be subclass
- $p->parse($chunk1);
- $p->parse($chunk2);
- #...
- $p->eof;                 # signal end of document
-
- # Parse directly from file
- $p->parse_file("foo.html");
- # or
- open(F, "foo.html") || die;
- $p->parse_file(\*F);
-
-=head1 DESCRIPTION
-
-The C<HTML::Parser> will tokenize a HTML document when the $p->parse()
-method is called.  The document to parse can be supplied in arbitrary
-chunks.  Call $p->eof() the end of the document to flush any remaining
-text.  The return value from parse() is a reference to the parser
-object.
-
-The $p->parse_file() method can be called to parse text from a file.
-The argument can be a filename or an already opened file handle. The
-return value from parse_file() is a reference to the parser object.
-
-In order to make the parser do anything interesting, you must make a
-subclass where you override one or more of the following methods as
-appropriate:
-
-=over 4
-
-=item $self->declaration($decl)
-
-This method is called when a I<markup declaration> has been
-recognized.  For typical HTML documents, the only declaration you are
-likely to find is <!DOCTYPE ...>.  The initial "<!" and ending ">" is
-not part of the string passed as argument.  Comments are removed and
-entities have B<not> been expanded yet.
-
-=item $self->start($tag, $attr, $attrseq, $origtext)
-
-This method is called when a complete start tag has been recognized.
-The first argument is the tag name (in lower case) and the second
-argument is a reference to a hash that contain all attributes found
-within the start tag.  The attribute keys are converted to lower case.
-Entities found in the attribute values are already expanded.  The
-third argument is a reference to an array with the lower case
-attribute keys in the original order.  The fourth argument is the
-original HTML text.
-
-
-=item $self->end($tag)
-
-This method is called when an end tag has been recognized.  The
-argument is the lower case tag name.
-
-=item $self->text($text)
-
-This method is called when plain text in the document is recognized.
-The text is passed on unmodified and might contain multiple lines.
-Note that for efficiency reasons entities in the text are B<not>
-expanded.  You should call HTML::Entities::decode($text) before you
-process the text any further.
-
-=item $self->comment($comment)
-
-This method is called as comments are recognized.  The leading and
-trailing "--" sequences have been stripped off the comment text.
-
-=back
-
-The default implementation of these methods does nothing, I<i.e.,> the
-tokens are just ignored.
-
-There is really nothing in the basic parser that is HTML specific, so
-it is likely that the parser can parse many kinds of SGML documents,
-but SGML has many obscure features (not implemented by this module)
-that prevent us from renaming this module as C<SGML::Parse>.
-
-=head1 BUGS
-
-You can instruct the parser to parse comments the way Netscape does it
-by calling the netscape_buggy_comment() method with a TRUE argument.
-This means that comments will always be terminated by the first
-occurence of "-->".
-
-=head1 SEE ALSO
-
-L<HTML::TreeBuilder>, L<HTML::HeadParser>, L<HTML::Entities>
-
-=head1 COPYRIGHT
-
-Copyright 1996 Gisle Aas. All rights reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Gisle Aas <aas@sn.no>
-
-=cut
-
+# $Id: Parser.pm,v 2.7 1997/12/05 17:14:24 aas Exp $
 
 use strict;
-
 use HTML::Entities ();
+
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
 {
     my $class = shift;
-    my $self = bless { '_buf'              => '',
-		       '_netscape_comment' => 0,
+    my $self = bless { '_buf'            => '',
+		       '_strict_comment' => 0,
 		     }, $class;
     $self;
 }
 
-# How does Netscape do it: It parse <xmp> in the depreceated 'literal'
-# mode, i.e. no tags are recognized until a </xmp> is found.
+
+# A note about how Netscape does it:
+#
+# It parse <xmp> in the depreceated 'literal' mode, i.e. no tags are
+# recognized until a </xmp> is found.
 # 
 # <listing> is parsed like <pre>, i.e. tags are recognized.  <listing>
 # are presentend in smaller font than <pre>
@@ -142,14 +35,9 @@ sub new
 # Netscape does not allow space after the initial "<" in the start tag.
 # Like this "<a href='gisle'>"
 #
-# Netscape ignore '<!--' and '-->' within the <SCRIPT> tag.  This is used
-# as a trick to make non-script-aware browsers ignore the scripts.
-
-
-sub eof
-{
-    shift->parse(undef);
-}
+# Netscape ignores '<!--' and '-->' within the <SCRIPT> and <STYLE> tag.
+# This is used as a trick to make non-script-aware browsers ignore
+# the scripts.
 
 
 sub parse
@@ -186,7 +74,7 @@ sub parse
 		$self->text($1);
 	    }
 	# Netscapes buggy comments are easy to handle
-	} elsif ($self->{'_netscape_comment'} && $$buf =~ m|^(<!--)|) {
+	} elsif (!$self->{'_strict_comment'} && $$buf =~ m|^(<!--)|) {
 	    if ($$buf =~ s|^<!--(.*?)-->||s) {
 		$self->comment($1);
 	    } else {
@@ -315,13 +203,12 @@ sub parse
     $self;
 }
 
-sub netscape_buggy_comment
+
+sub eof
 {
-    my $self = shift;
-    my $old = $self->{'_netscape_comment'};
-    $self->{'_netscape_comment'} = shift if @_;
-    return $old;
+    shift->parse(undef);
 }
+
 
 sub parse_file
 {
@@ -340,6 +227,25 @@ sub parse_file
     close($file);
     $self->eof;
 }
+
+
+sub strict_comment
+{
+    my $self = shift;
+    my $old = $self->{'_strict_comment'};
+    $self->{'_strict_comment'} = shift if @_;
+    return $old;
+}
+
+
+sub netscape_buggy_comment  # legacy
+{
+    my $self = shift;
+    my $old = !$self->strict_comment;
+    $self->strict_comment(!shift) if @_;
+    return $old;
+}
+
 
 sub text
 {
@@ -368,3 +274,138 @@ sub end
 }
 
 1;
+
+
+__END__
+
+
+=head1 NAME
+
+HTML::Parser - SGML parser class
+
+=head1 SYNOPSIS
+
+ require HTML::Parser;
+ $p = HTML::Parser->new;  # should really a be subclass
+ $p->parse($chunk1);
+ $p->parse($chunk2);
+ #...
+ $p->eof;                 # signal end of document
+
+ # Parse directly from file
+ $p->parse_file("foo.html");
+ # or
+ open(F, "foo.html") || die;
+ $p->parse_file(\*F);
+
+=head1 DESCRIPTION
+
+The C<HTML::Parser> will tokenize an HTML document when the parse()
+method is called and invoke various callback methods.  The document to
+be parsed can be supplied in arbitrary chunks.
+
+The external interface the an HTML::Parser is:
+
+=over 4
+
+=item $p = HTML::Parser->new
+
+The object constructor takes no arguments.
+
+=item $p->parse( $string );
+
+Parse the $string as an HTML document.  Can be called multiple times.
+The return value is a reference to the parser object.
+
+=item $p->eof
+
+Signals end of document.  Call eof() to flush any remaining buffered
+text.  The return value is a reference to the parser object.
+
+=item $p->parse_file( $file );
+
+This method can be called to parse text from a file.  The argument can
+be a filename or an already opened file handle. The return value from
+parse_file() is a reference to the parser object.
+
+=item $p->strict_comment( [$bool] )
+
+By default we parse comments similar to how the popular browsers (like
+Netscape and MSIE) do it.  This means that comments will always be
+terminated by the first occurence of "-->".  This is not correct
+according to the "official" HTML standards.  The official behaviour
+can be enabled by calling the strict_comment() method with a TRUE
+argument.
+
+The return value from strict_comment() is the old attribute value.
+
+=back
+
+
+
+In order to make the parser do anything interesting, you must make a
+subclass where you override one or more of the following methods as
+appropriate:
+
+=over 4
+
+=item $self->declaration($decl)
+
+This method is called when a I<markup declaration> has been
+recognized.  For typical HTML documents, the only declaration you are
+likely to find is <!DOCTYPE ...>.  The initial "<!" and ending ">" is
+not part of the string passed as argument.  Comments are removed and
+entities will B<not> be expanded.
+
+=item $self->start($tag, $attr, $attrseq, $origtext)
+
+This method is called when a complete start tag has been recognized.
+The first argument is the tag name (in lower case) and the second
+argument is a reference to a hash that contain all attributes found
+within the start tag.  The attribute keys are converted to lower case.
+Entities found in the attribute values are already expanded.  The
+third argument is a reference to an array with the lower case
+attribute keys in the original order.  The fourth argument is the
+original HTML text.
+
+
+=item $self->end($tag)
+
+This method is called when an end tag has been recognized.  The
+argument is the lower case tag name.
+
+=item $self->text($text)
+
+This method is called when plain text in the document is recognized.
+The text is passed on unmodified and might contain multiple lines.
+Note that for efficiency reasons entities in the text are B<not>
+expanded.  You should call HTML::Entities::decode($text) before you
+process the text any further.
+
+=item $self->comment($comment)
+
+This method is called as comments are recognized.  The leading and
+trailing "--" sequences have been stripped off the comment text.
+
+=back
+
+The default implementation of these methods do nothing, i.e., the
+tokens are just ignored.
+
+There is really nothing in the basic parser that is HTML specific, so
+it is likely that the parser can parse other kinds of SGML documents.
+SGML has many obscure features (not implemented by this module) that
+prevent us from renaming this module as C<SGML::Parser>.
+
+=head1 SEE ALSO
+
+L<HTML::TreeBuilder>, L<HTML::HeadParser>, L<HTML::Entities>
+
+=head1 COPYRIGHT
+
+Copyright 1996-1997 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

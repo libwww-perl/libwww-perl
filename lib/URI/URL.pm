@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.14";   # $Date: 1998/03/12 12:49:38 $
+$VERSION = "4.15";   # $Date: 1998/07/17 12:27:03 $
 sub Version { $VERSION; }
 
 require 5.004;
@@ -612,7 +612,7 @@ value.
 
 =over 3
 
-=item $url->abs([$base, [$allow_scheme_in_relative_urls]])
+=item $url->abs([$base])
 
 The abs() method attempts to return a new absolute URI::URL object
 for a given URL.  In order to convert a relative URL into an absolute
@@ -622,16 +622,29 @@ URI::URL is created or using the base() method on the object later.
 Alternatively you can specify a one-off base as a parameter to the
 abs() method.
 
+The rel() method will do the opposite transformation.
+
 Some older parsers used to allow the scheme name to be present in the
 relative URL if it was the same as the base URL scheme.  RFC1808 says
 that this should be avoided, but you can enable this old behaviour by
-passing a TRUE value as the second argument to the abs() method.  The
-difference is demonstrated by the following examples:
+setting the $URI::URL::ABS_ALLOW_RELATIVE_SCHEME variable to a TRUE
+value.  The difference is demonstrated by the following examples:
 
   url("http:foo")->abs("http://host/a/b")     ==>  "http:foo"
-  url("http:foo")->abs("http://host/a/b", 1)  ==>  "http:/host/a/foo"
 
-The rel() method will do the opposite transformation.
+  local $URI::URL::ABS_ALLOW_RELATIVE_SCHEME = 1;
+  url("http:foo")->abs("http://host/a/b")     ==>  "http:/host/a/foo"
+
+You can also have the abs() method ignore if there is too many ".."
+segments in the relative URL by setting
+$URI::URL::ABS_REMOTE_LEADING_DOTS to a TRUE value.  The difference is
+demonstrated by the following examples:
+
+  url("../../../foo")->abs("http://host/a/b")   ==> "http://host/../../foo"
+
+  local $URI::URL::ABS_REMOTE_LEADING_DOTS = 1;
+  url("../../../foo")->abs("http://host/a/b")   ==> "http://host/foo"
+
 
 =item $url->as_string
 

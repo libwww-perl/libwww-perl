@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.51 2004/12/11 14:30:00 gisle Exp $
+# $Id: Response.pm,v 1.52 2004/12/11 15:10:43 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -34,7 +34,13 @@ sub parse
     }
 
     my $self = $class->SUPER::parse($str);
-    my($protocol, $code, $message) = split(' ', $status_line, 3);
+    my($protocol, $code, $message);
+    if ($status_line =~ /^\d{3} /) {
+       # Looks like a response created by HTTP::Response->new
+       ($code, $message) = split(' ', $status_line, 2);
+    } else {
+       ($protocol, $code, $message) = split(' ', $status_line, 3);
+    }
     $self->protocol($protocol) if $protocol;
     $self->code($code) if defined($code);
     $self->message($message) if defined($message);

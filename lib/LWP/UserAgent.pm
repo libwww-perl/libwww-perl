@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.32 1996/03/21 14:35:36 aas Exp $
+# $Id: UserAgent.pm,v 1.33 1996/04/09 08:47:13 aas Exp $
 
 package LWP::UserAgent;
 
@@ -22,18 +22,18 @@ LWP::UserAgent - A WWW UserAgent class
 
 =head1 DESCRIPTION
 
-C<LWP::UserAgent> is a class implementing a simple World-Wide Web user
-agent in Perl. It brings together the HTTP::Request, HTTP::Response
-and the LWP::Protocol classes that form the rest of the libwww-perl
-library. For simple uses this class can be used directly to dispatch
-WWW requests, alternatively it can be subclassed for
-application-specific behaviour.
+The C<LWP::UserAgent> is a class implementing a simple World-Wide Web
+user agent in Perl. It brings together the HTTP::Request,
+HTTP::Response and the LWP::Protocol classes that form the rest of the
+core of libwww-perl library. For simple uses this class can be used
+directly to dispatch WWW requests, alternatively it can be subclassed
+for application-specific behaviour.
 
-In normal usage the application creates a UserAgent object, and
+In normal usage the application creates a UserAgent object, and then
 configures it with values for timeouts proxies, name, etc. The next
 step is to create an instance of C<HTTP::Request> for the request that
 needs to be performed. This request is then passed to the UserAgent
-C<request()> method, which dispatches it using the relevant protocol,
+request() method, which dispatches it using the relevant protocol,
 and returns a C<HTTP::Response> object.
 
 The basic approach of the library is to use HTTP style communication
@@ -42,28 +42,41 @@ object also for gopher or ftp requests.  In order to achieve even more
 similarities with HTTP style communications, gopher menus and file
 directories will be converted to HTML documents.
 
-The C<request> method can process the content of the response in one
-of three ways: in core, into a file, or into repeated calls of a
-subroutine. The in core variant simply returns the content in a scalar
-attribute called C<content()> of the response object, and is suitable
-for small HTML replies that might need further parsing.  The filename
-variant requires a scalar containing a filename, and is suitable for
-large WWW objects which need to be written directly to disc, without
-requiring large amounts of memory. In this case the response object
-contains the name of the file, but not the content. The subroutine
-variant requires a callback routine and optional chuck size, and can
-be used to construct "pipe-lined" processing, where processing of
+The request() method can process the content of the response in one of
+three ways: in core, into a file, or into repeated calls of a
+subroutine.  You choose which one of these by the kind of value passed
+as the second argument to request().
+
+The in core variant simply returns the content in a scalar attribute
+called content() of the response object, and is suitable for small
+HTML replies that might need further parsing.  This variant is used if
+the second argument is missing (or is undef).
+
+The filename variant requires a scalar containing a filename as the
+second argument to request(), and is suitable for large WWW objects
+which need to be written directly to the file, without requiring large
+amounts of memory. In this case the response object returned from
+request() will have empty content().  If the request fails, then the
+content() might not be empty.
+
+The subroutine variant requires a reference to callback routine as the
+second argument to request() and optional chuck size.  This variant
+can be used to construct "pipe-lined" processing, where processing of
 received chuncks can begin before the complete data has arrived.  The
-callback is called with 3 arguments: a the data, a reference to the
-response object and a reference to the protocol object.
+callback function is called with 3 arguments: the data received this
+time, a reference to the response object and a reference to the
+protocol object.  The response object returned from request() will
+have empty content().  If the request fails, then the the callback
+routine will not have been called, and the response->content() might
+not be empty.
 
 The library also accepts that you put a subroutine as content in the
 request object.  This subroutine should return the content (possibly
 in pieces) when called.  It should return an empty string when there
 is no more content.
 
-Two advanced facilities allow the user of this module to finetune
-timeouts and error handling:
+The user of this module can finetune timeouts and error handling by
+calling the alarm() and use_eval() methods.
 
 By default the library uses alarm() to implement timeouts, dying if
 the timeout occurs. If this is not the prefered behaviour or it
@@ -105,7 +118,7 @@ use MIME::Base64 qw(encode_base64);
 use Carp ();
 
 
-=head2 new LWP::UserAgent;
+=head2 $ua = new LWP::UserAgent;
 
 Constructor for the UserAgent.  Returns a reference to a
 LWP::UserAgent object.
@@ -123,6 +136,7 @@ sub new
     } else {
         $self = bless {
                 'agent'       => "libwww-perl/$LWP::VERSION",
+                'from'        => undef,
                 'timeout'     => 3*60,
                 'proxy'       => undef,
                 'use_eval'     => 1,
@@ -148,7 +162,7 @@ as chunks of the content is received.  An optional C<$size> argument
 is taken as a hint for an appropriate chunk size.
 
 If C<$arg> is omitted, then the content is stored in the response
-object.
+object itself.
 
 =cut
 
@@ -184,11 +198,12 @@ sub simple_request
     }
 
     # Extract fields that will be used below
-    my ($agent, $timeout, $use_alarm, $use_eval) =
-      @{$self}{'agent', 'timeout', 'use_alarm', 'use_eval'};
+    my ($agent, $from, $timeout, $use_alarm, $use_eval) =
+      @{$self}{'agent', 'from', 'timeout', 'use_alarm', 'use_eval'};
 
-    # Set User-Agent header if there is one
-    $request->header('User-Agent', $agent) if $agent;
+    # Set User-Agent and From headers if they are defined
+    $request->header('User-Agent' => $agent) if $agent;
+    $request->header('From' => $from) if $from;
 
     # Inform the protocol if we need to use alarm()
     $protocol->use_alarm($use_alarm);
@@ -210,27 +225,24 @@ sub simple_request
             $response = $protocol->request($request, $proxy, 
                                            $arg, $size, $timeout);
         };
+	if ($@) {
+	    if ($@ =~ /^timeout/i) {
+		$response = HTTP::Response->new(&HTTP::Status::RC_REQUEST_TIMEOUT, 'User-agent timeout');
+	    } else {
+		$@ =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;  # remove file/line number
+		$response = HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
+	    }
+        }
     } else {
         # user has to handle any dies, usually timeouts
         $response = $protocol->request($request, $proxy,
                                        $arg, $size, $timeout);
+	# XXX: Should we die unless $response->is_success ???
     }
     alarm(0) if ($use_alarm); # no more timeout
     
-    if ($@) {
-        if ($@ =~ /^timeout/i) {
-            $response = new HTTP::Response
-                                 &HTTP::Status::RC_REQUEST_TIMEOUT,
-                                 'User-agent timeout';
-        }
-        else {
-	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+//;  # remove file/line number
-            $response = new HTTP::Response
-                        &HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@;
-        }
-    }
     $response->request($request);  # record request for reference
-    $response->header("Client-Date", HTTP::Date::time2str(time));
+    $response->header("Client-Date" => HTTP::Date::time2str(time));
     return $response;
 }
 
@@ -316,7 +328,7 @@ sub request
 		    }
 
                     my $referral = $request->clone;
-                    $referral->header('Authorization', $header);
+                    $referral->header('Authorization' => $header);
 
                     return $self->request($referral, $arg, $size, $response);
                 } else {
@@ -380,8 +392,8 @@ sub request
 		    }
 
 		    my $referral = $request->clone;
-		    $referral->header('Extension', "Security/Digest");
-		    $referral->header('Authorization', $header);
+		    $referral->header('Extension' => "Security/Digest");
+		    $referral->header('Authorization' => $header);
 		    return $self->request($referral, $arg, $size, $response);
 		} else {
 		    return $response; # no password found
@@ -411,6 +423,9 @@ This method is called by request() before it tries to do any
 redirects.  It should return a true value if the redirect is allowed
 to be performed. Subclasses might want to override this.
 
+The default implementation will return FALSE for POST request and TRUE
+for all others.
+
 =cut
 
 sub redirect_ok
@@ -431,7 +446,7 @@ sub redirect_ok
 =head2 $ua->credentials($netloc, $realm, $uname, $pass)
 
 Set the user name and password to be used for a realm.  It is often more
-useful to specialize the credentials() method instead.
+useful to specialize the get_basic_credentials() method instead.
 
 =cut
 
@@ -442,7 +457,7 @@ sub credentials
 }
 
 
-=head2 get_basic_credentials($realm, $uri)
+=head2 $ua->get_basic_credentials($realm, $uri)
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication or Digest Authentication.
@@ -453,7 +468,7 @@ the authentication resolution atempts.
 This implementation simply checks a set of pre-stored member
 variables. Subclasses can override this method to e.g. ask the user
 for a username/password.  An example of this can be found in
-C<request> program distributed with this library.
+C<lwp-request> program distributed with this library.
 
 =cut
 
@@ -470,22 +485,52 @@ sub get_basic_credentials
 }
 
 
-=head2 timeout()
+=head2 $ua->agent([$product_id])
 
-=head2 agent()
+Get/set the product token that is used to identify the user agent on
+the network.  The agent value is sent as the "User-Agent" header in
+the requests. The default agent name is "libwww-perl/#.##", where
+"#.##" is substitued with the version numer of this library.
 
-=head2 use_alarm()
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the "/" character.
+Examples are:
 
-=head2 use_eval()
+  $ua->agent('Checkbot/0.4 libwww-perl/5.00');
+  $ua->agent('Mozilla/5.0');
 
-Get/set member variables, respectively the timeout value in seconds,
-the name of the agent, wether to use C<alarm()> or not, and wether to
-use handle internal errors internally by trapping with eval.
+=head2 $ua->from([$email_address])
+
+Get/set the Internet e-mail address for the human user who controls
+the requesting user agent.  The address should be machine-usable, as
+defined in RFC 822.  The from value is send as the "From" header in
+the requests.  There is no default.  Example:
+
+  $ua->from('aas@sn.no');
+
+=head2 $ua->timeout([$secs])
+
+Get/set the timeout value in seconds. The default timeout() value is
+180 seconds, i.e. 3 minutes.
+
+=head2 $ua->use_alarm([$boolean])
+
+Get/set a value indicating wether to use alarm() when implementing
+timeouts.  The default is TRUE, i.e. to use alarm.  Disable this on
+systems that does not implement alarm, or if this interfers with other
+uses of alarm in your application.
+
+=head2 $ua->use_eval([$boolean])
+
+Get/set a value indicating wether to handle internal errors internally
+by trapping with eval.  The default is TRUE, i.e. the $ua->request()
+will never die.
 
 =cut
 
-sub timeout   { shift->_elem('timeout',  @_); }
-sub agent     { shift->_elem('agent',    @_); }
+sub timeout   { shift->_elem('timeout',   @_); }
+sub agent     { shift->_elem('agent',     @_); }
+sub from      { shift->_elem('from',      @_); }
 sub use_alarm { shift->_elem('use_alarm', @_); }
 sub use_eval  { shift->_elem('use_eval',  @_); }
 
@@ -565,7 +610,7 @@ sub mirror
     if (-e $file) {
         my($mtime) = (stat($file))[9];
         if($mtime) {
-            $request->header('If-Modified-Since',
+            $request->header('If-Modified-Since' =>
                              HTTP::Date::time2str($mtime));
         }
     }
@@ -632,7 +677,13 @@ sub proxy
 
 =head2 $ua->env_proxy()
 
-Load proxy settings from *_proxy environment variables.
+Load proxy settings from *_proxy environment variables.  You might
+specify proxies like this (sh-syntax):
+
+  gopher_proxy=http://proxy.my.place/
+  wais_proxy=http://proxy.my.place/
+  export gopher_proxy wais_proxy
+  no_proxy="my.place"; export no_proxy
 
 =cut
 
@@ -653,11 +704,8 @@ sub env_proxy {
 
 =head2 $ua->no_proxy($domain,...)
 
-Do not proxy requests to the given domains.
-Calling no_proxy without domains clears the
-list of domains.
-
-Eg:
+Do not proxy requests to the given domains.  Calling no_proxy without
+domains clears the list of domains. Eg:
 
  $ua->no_proxy('localhost', 'no', ...);
 

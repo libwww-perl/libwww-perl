@@ -5,6 +5,9 @@ require URI::URL;
 $url1 = new URI::URL 'http://www/foo/test.gif?search+x#frag';
 $url2 = new URI::URL 'http:test';
 
+$file = "/etc/passwd";
+-r $file or $file = "./README";
+
 @tests =
 (
  ["/this.dir/file.html" => "text/html",],
@@ -12,7 +15,7 @@ $url2 = new URI::URL 'http:test';
  ["test.txt.gz"         => "text/plain", "gzip"],
  ["gif.foo"             => "application/octet-stream",],
  ["lwp-0.03.tar.Z"      => "application/x-tar", "compress"],
- ["/etc/passwd"         => "text/plain",],
+ [$file		        => "text/plain",],
  ["/random/file"        => "application/octet-stream",],
  ["/dev/null"	        => "text/plain",],
  [$url1	        	=> "image/gif",],

@@ -1,3 +1,40 @@
+2001-04-18   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_90
+
+    Note: This is a developer only release.  Not for production use.
+
+    LWP::Protocol::http11 now does keep-alives by default.  Still need
+    to figure out what interface to provide at the $ua level.
+
+    LWP::Protocol::http11 deals with CODE content in request.
+
+    Net::HTTP updated:
+        - added format_request() method
+        - added _rbuf and _rbuf_length methods
+        - read_response_headers does not return protocol version
+	  any more.
+        - peer_http_version method did not work because of typo.
+        - documentation added
+
+    New module Net::HTTP::NB.  This is a Net::HTTP subclass that
+    is better suited for multiplexing as it is able to do no-blocking
+    reads of headers and entity body chunks.
+
+    HTTP::Request: Protect $request->uri against evil $SIG{__DIE__} handlers.
+
+    Some reorganisation in how stuff is passed from $ua to protocol object.
+    The $ua is now passed in so protocol objects might store start in it.
+
+    The $ua->max_size default is now 0.
+
+    The $ua->clone method avoids sharing of proxy settings between
+    the old and the new.
+
+    This file is renamed to 'Changes' (used to be 'ChangeLog').
+
+
+
 2001-04-10   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53

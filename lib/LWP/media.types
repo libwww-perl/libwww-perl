@@ -1,4 +1,4 @@
-# $Id: media.types,v 1.2 1995/08/29 10:11:45 aas Exp $
+# $Id: media.types,v 1.3 1996/02/05 18:06:58 aas Exp $
 #
 # This file defines the mapping from file name extentions to media types.
 # Media types where the subtype does not have the "x-" prefix should be
@@ -19,6 +19,7 @@ text/x-setext			etx
 text/x-pod			pod			# Perl documentation
 
 # Image formats
+image/png			png
 image/gif			gif			# Compuserve
 image/ief			ief
 image/jpeg			jpeg jpg jpe jfif

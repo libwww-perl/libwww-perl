@@ -1,3 +1,26 @@
+Tue Aug  4 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.36
+
+ o  The lwp-download script will call $ua->env_proxy now.
+
+ o  The lwp-request script allows content types (-c option) with
+    optional parameters like multipart/mixed; boundary="--".
+
+ o  LWP::UserAgent will lowercase all authentication parameters before
+    passing it to the authentication module.
+
+ o  LWP::Protocol::ftp test for If-Modified-Since was wrong.
+
+ o  How the $url->abs method works can now be configured with the global
+    variables $URI::URL::ABS_ALLOW_RELATIVE_SCHEME and
+    $URI::URL::ABS_REMOTE_LEADING_DOTS.
+
+ o  The anonymous password guesser for ftp URLs will now call the external
+    `whoami` program any more.  Patch by Charles C. Fu <ccwf@bacchus.com>.
+
+
+
 Fri Jul 10 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.35

@@ -1,14 +1,20 @@
-                                                   $Date: 1996/03/20 09:23:59 $
+                                            $Date: 1996/03/20 09:39:43 $
 
-This list contains items that we plan to implement in libwww-perl5.
+This is a list over things that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
-  o  Add more HTTP/1.1 features:
+  o  Add more HTTP/1.1 features
        Transfer-Encoding: chunked
        Connection: Keep-Alive
        Wait 5 sec before sending content in requests
        Content-Range
+       Multipart mime types
+       Use HTTP/1.1 in the request line when we support it all.
+
+  o  Support PICS??
+
+  o  HTTP-NG :-(
 
   o  Make multiple simultaneous requests work.  Make the callback
      request interface event driven.  This will require a major
@@ -79,10 +85,8 @@ The order of items does not reflect priority.
 
   o  Include more useful programs
 
-  o  Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
-
   o  More documentation
 
   o  More tests
 
-Finally, fix bugs, if there are any...
+  o  Finally, fix bugs, if there are any...

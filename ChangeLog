@@ -2,7 +2,7 @@ Thu May  9 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b13
 
- o  Made URI::URL::strict(0) the default.  I got tiered of all this
+ o  Made URI::URL::strict(0) the default.  I got tired of all this
     eval { } stuff just to recover.  The URI::URL::strict'ness also
     determine if calling some standard method that happens to be
     illegal for some protocol scheme will croak or just be ignored.

@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.6 1995/12/29 14:14:30 aas Exp $
+# $Id: Debug.pm,v 1.7 1995/12/29 15:11:32 aas Exp $
 #
 package LWP::Debug;
 
 =head1 NAME
 
-LWP::Debug - debug routines
+LWP::Debug - debug routines for the libwww-perl library
 
 =head1 SYNOPSIS
 
@@ -29,7 +29,7 @@ LWP::Debug - debug routines
      $msg .= ": $long" if defined $long;
      die $msg;
  }
-    
+
 =head1 DESCRIPTION
 
 LWP::Debug provides tracing facilities. The C<trace>,

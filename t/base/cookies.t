@@ -607,7 +607,7 @@ $req->header("Host", "www.acme.com:80");
 
 $res = HTTP::Response->new(200, "OK");
 $res->request($req);
-$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/ ; secure");
+$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE ; secure ; path=/");
 #print $res->as_string;
 $c->extract_cookies($res);
 

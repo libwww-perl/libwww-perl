@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.3 1995/07/11 11:54:33 aas Exp $
+# $Id: Date.pm,v 1.4 1995/07/13 14:55:49 aas Exp $
 #
 package LWP::Date;
 
@@ -31,7 +31,7 @@ Running this module standalone executes a self-test.
 
 =head1 SEE ALSO
 
-See L<lwp> for a complete overview of libwww-perl5.
+See L<LWP> for a complete overview of libwww-perl5.
 
 =head1 BUGS
 
@@ -50,7 +50,7 @@ module.
 ####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 require 5.001;
 require Exporter;

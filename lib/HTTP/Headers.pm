@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.3 1995/07/11 13:20:57 aas Exp $
+# $Id: Headers.pm,v 1.4 1995/07/13 14:56:31 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -11,7 +11,7 @@ LWP::MIMEheader - Class encapsulating HTTP Message headers
 
  require LWP::MIMEheader;
  $request = new LWP::MIMEheader;
- 
+
 =head1 DESCRIPTION
 
 C<LWP::MIMEheader> is a class encapsulating HTTP style message

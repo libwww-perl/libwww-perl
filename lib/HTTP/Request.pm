@@ -1,20 +1,20 @@
 #
-# $Id: Request.pm,v 1.9 1995/07/16 07:24:01 aas Exp $
+# $Id: Request.pm,v 1.10 1995/08/09 09:45:24 aas Exp $
 
-package LWP::Request;
+package HTTP::Request;
 
 =head1 NAME
 
-LWP::Request - Class encapsulating HTTP Requests
+HTTP::Request - Class encapsulating HTTP Requests
 
 =head1 SYNOPSIS
 
- require LWP::Request;
- $request = new LWP::Request('GET', 'http://www.oslonett.no/');
+ require HTTP::Request;
+ $request = new HTTP::Request('GET', 'http://www.oslonett.no/');
  
 =head1 DESCRIPTION
 
-C<LWP::Request> is a class encapsulating HTTP style requests,
+C<HTTP::Request> is a class encapsulating HTTP style requests,
 consisting of a request line, a MIME header, and optional
 content. Note that the LWP library also uses this HTTP style requests
 for non-HTTP protocols.
@@ -23,37 +23,37 @@ Instances of this class are usually passed to the C<request()> method
 of an C<LWP::UserAgent> object:
 
  $ua = new LWP::UserAgent;
- $request = new LWP::Request('http://www.oslonett.no/');  
+ $request = new HTTP::Request('http://www.oslonett.no/');  
  $response = $ua->request($request);
 
 =head1 METHODS
 
-C<LWP::Request> is a subclass of C<LWP::Message> and therefore
+C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are C<header>,
 C<pushHeader>, C<removeHeader> C<headerAsString> and C<content>.  See
-L<LWP::Message> for details.
+L<HTTP::Message> for details.
 
 =cut
 
-require LWP::Message;
-@ISA = qw(LWP::Message);
+require HTTP::Message;
+@ISA = qw(HTTP::Message);
 require URI::URL;
 
 =head2 new($method, $url, [$header, [$content]])
 
-Constructs a new C<LWP::Request> object describing a request on the
+Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be
 either a string, or a reference to a C<URI::URL> object.  The $header
 argument should be a reference to a MIMEheader.
 
- $request = new LWP::Request('GET', 'http://www.oslonett.no/');
+ $request = new HTTP::Request('GET', 'http://www.oslonett.no/');
 
 =cut
 
 sub new
 {
     my($class, $method, $url, $header, $content) = @_;
-    my $self = bless new LWP::Message $header, $content;
+    my $self = bless new HTTP::Message $header, $content;
     $self->method($method);
     $self->url($url);
     $self;
@@ -63,7 +63,7 @@ sub new
 sub clone
 {
     my $self = shift;
-    my $clone = bless $self->LWP::Message::clone;
+    my $clone = bless $self->HTTP::Message::clone;
     $clone->method($self->method);
     $clone->url($self->url);
     $clone;

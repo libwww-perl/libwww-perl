@@ -1,20 +1,20 @@
 #
-# $Id: Response.pm,v 1.8 1995/08/07 15:58:58 aas Exp $
+# $Id: Response.pm,v 1.9 1995/08/09 09:45:25 aas Exp $
 
-package LWP::Response;
+package HTTP::Response;
 
 
 =head1 NAME
 
-LWP::Response - Class encapsulating HTTP Responses
+HTTP::Response - Class encapsulating HTTP Responses
 
 =head1 SYNOPSIS
 
- require LWP::Response;
+ require HTTP::Response;
 
 =head1 DESCRIPTION
 
-C<LWP::Response> is a class encapsulating HTTP style responses,
+C<HTTP::Response> is a class encapsulating HTTP style responses,
 consisting of a response line, a MIME header, and usually
 content. Note that the LWP library also uses this HTTP style responses
 for non-HTTP protocols.
@@ -32,21 +32,21 @@ of an C<LWP::UserAgent> object:
 
 =head1 METHODS
 
-C<LWP::Response> is a subclass of C<LWP::Message> and therefore
+C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are C<header>,
 C<pushHeader>, C<removeHeader> C<headerAsString> and C<content>.  See
-L<LWP::Message> for details.
+L<HTTP::Message> for details.
 
 =cut
 
 
-require LWP::Message;
-@ISA = qw(LWP::Message);
+require HTTP::Message;
+@ISA = qw(HTTP::Message);
 
 
 =head2 new($rc [, $msg])
 
-Constructs a new C<LWP::Response> object describing a response with
+Constructs a new C<HTTP::Response> object describing a response with
 response code C<$rc> and optional message C<$msg>
 
 =cut
@@ -54,7 +54,7 @@ response code C<$rc> and optional message C<$msg>
 sub new
 {
     my($class, $rc, $msg) = @_;
-    my $self = bless new LWP::Message;
+    my $self = bless new HTTP::Message;
     $self->code($rc);
     $self->message($msg);
     $self;
@@ -64,7 +64,7 @@ sub new
 sub clone
 {
     my $self = shift;
-    my $clone = bless $self->LWP::Message::clone;
+    my $clone = bless $self->HTTP::Message::clone;
     $clone->code($self->code);
     $clone->message($self->message);
     $clone->request($self->request->clone) if $self->request;
@@ -109,11 +109,11 @@ useful for debugging purposes. It takes no arguments.
 
 sub asString
 {
-    require LWP::StatusCode;
+    require HTTP::Status;
     my $self = shift;
     my @result = ("--- $self ---");
     my $code = $self->code;
-    push(@result, "RC: $code (" . LWP::StatusCode::message($code) . ")" );
+    push(@result, "RC: $code (" . HTTP::Status::message($code) . ")" );
     push(@result, 'Message: ' . $self->message);
     push(@result, '');
     push(@result, $self->headerAsString);
@@ -136,9 +136,9 @@ or an error.
 
 =cut
 
-sub isRedirect { LWP::StatusCode::isRedirect(shift->code); }
-sub isSuccess  { LWP::StatusCode::isSuccess(shift->code);  }
-sub isError    { LWP::StatusCode::isError(shift->code);    }
+sub isRedirect { HTTP::Status::isRedirect(shift->code); }
+sub isSuccess  { HTTP::Status::isSuccess(shift->code);  }
+sub isError    { HTTP::Status::isError(shift->code);    }
 
 
 =head2 errorAsHTML()

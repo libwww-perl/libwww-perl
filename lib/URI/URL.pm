@@ -1,6 +1,8 @@
 #!/usr/local/bin/perl -w
-
-package URI::URL;  # $Id: URL.pm,v 2.7 1995/04/27 17:05:32 aas Exp $'
+#
+# $Id: URL.pm,v 2.8 1995/04/28 10:45:22 aas Exp $'
+#
+package URI::URL;
 require 5.001;
 
 #####################################################################
@@ -132,13 +134,13 @@ electronic mail.  This is the canonical form of a URI.
 
 There is a conflict between the need to be able to represent many
 characters including spaces within a URI directly, and the need to be
-able to use a URI in environments which have limited character sets or
-in which certain characters are prone to corruption. This conflict has
-been resolved by use of an hexadecimal escaping method which may be
-applied to any characters forbidden in a given context. When URLs are
-moved between contexts, the set of characters escaped may be enlarged
-or reduced unambiguously.  The canonical form for URIs has all white
-spaces encoded.
+able to use a URI in environments which have limited character sets
+or in which certain characters are prone to corruption. This conflict
+has been resolved by use of an hexadecimal escaping method which may
+be applied to any characters forbidden in a given context. When URLs
+are moved between contexts, the set of characters escaped may be
+enlarged or reduced unambiguously.  The canonical form for URIs has
+all white spaces encoded.
 
 
 =item Notes:
@@ -288,7 +290,7 @@ require Exporter;
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-($Version) = '$Revision: 2.7 $' =~ /(\d+\.\d+)/;
+($Version) = '$Revision: 2.8 $' =~ /(\d+\.\d+)/;
 $Version += 0;  # shut up -w
 
 # Define default unsafe characters.
@@ -313,7 +315,7 @@ my $DefaultUnsafe = '\x00-\x20"#%;<>?\x7F-\xFF';
 
 $Debug = 0;             # set to 1 to print URL's on creation
 my $UseCache = 1;       # see as_string method
-my $StrictSchemes = 1;	# see new()
+my $StrictSchemes = 1;  # see new()
 
 # schemes we have initialised:
 my %ImplementedBy = ( '_generic' => 'URI::URL::_generic' );
@@ -324,8 +326,6 @@ my $Implementors  = ();
 my %escapes;
 map {
     my($hex, $chr) = (sprintf("%%%02X", $_), chr($_));
-    # $escapes{   $hex } = $chr;  # not used
-    # $escapes{lc($hex)} = $chr;
     $escapes{$chr}     = $hex;
 } 0..255;
 
@@ -353,7 +353,7 @@ use strict qw(subs refs);
 
    $url = new URI::URL $escaped_string [, $optional_base_url]
 
-This is the object constructor.  To trap bad og unknown URL schemes
+This is the object constructor.  To trap bad or unknown URL schemes
 use:
 
    $obj = eval { new URI::URL ... };
@@ -370,7 +370,7 @@ sub new
     my $self;
     if (ref $init) {
         $self = $init->clone;
-	$self->base($base) if $base;
+        $self->base($base) if $base;
     } else {
         $init =~ s/^\s+//;  # remove leading space
         $init =~ s/\s.*//;  # remove anything after first word
@@ -383,11 +383,11 @@ sub new
                 $scheme = $1 if $base =~ m/^([.+\-\w]+):/;
             }
         }
-	unless($scheme){
-	    croak "Unable to determine scheme for '$init'"
-		if $StrictSchemes;
-	    $scheme = 'http';
-	}
+        unless($scheme){
+            croak "Unable to determine scheme for '$init'"
+                if $StrictSchemes;
+            $scheme = 'http';
+        }
         my $impclass = URI::URL::implementor($scheme);
 	unless ($impclass) {
 	    croak "URI::URL scheme '$scheme' is not supported"
@@ -440,8 +440,9 @@ sub newlocal
 
     $url->print_on(*FILEHANDLE);
 
-Prints a verbose presentation of the contents of the URL object to the
-specified file handle (default STDOUT).  Mainly useful for debugging.
+Prints a verbose presentation of the contents of the URL object to
+the specified file handle (default STDOUT).  Mainly useful for
+debugging.
 
 =cut
 
@@ -1125,7 +1126,6 @@ $| = 1;
 # Dies if an error has been detected, prints "ok" otherwise.
 
 print "Self tests for URI::URL version $URI::URL::Version...\n";
-
 
     &scheme_parse_test;
 

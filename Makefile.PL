@@ -1,23 +1,23 @@
-# This -*- perl -*- script creates the Makefile for the LWP package
-
 use ExtUtils::MakeMaker;
 
 sub initialize
 {
     ### The URI::URL check will be coverable by PREREQ via MakeMaker
+    my $REQ_URIURL = 3.00;
     eval {require URI::URL;};
     if ($@) {
 	die "You need to install the URI::URL module before you install LWP.\n";
     } else {
-	$version = $URI::URL::Version || $URI::URL::VERSION;
+	my $version = $URI::URL::Version || $URI::URL::VERSION;
+	$URI::URL::Version = undef;  # avoid typo warning
 	print "You have installed URI::URL version $version.\n";
-	if ($URI::URL::VERSION < 3.00) {
-	    die "Please upgrade URI::URL, LWP needs at least version 3.00.\n";
+	if ($URI::URL::VERSION < $REQ_URIURL) {
+	    die "Please upgrade URI::URL, needs at least version $REQ_URIURL\n";
 	} else {
 	    # print "That's just what I need!\n";
 	}
     }
-    my %hash = (
+    %hash = (
 	NAME => 'lwp',  # will be changed to libwww-perl
 	SKIP => [qw(static dynamic)],
 	PL_FILES => {
@@ -25,7 +25,7 @@ sub initialize
 	    'bin/mirror.PL'  => 'bin/mirror',
 	},
 	EXE_FILES => [
-	   'bin/get',
+	   'bin/request',
 	   'bin/mirror',
 	],
 	'clean'   => {FILES => '#* $(EXE_FILES)'},
@@ -63,19 +63,31 @@ sub MY::postamble {
     push @m, "
 config ::
 	@\$(PERL) VERSION > /dev/null
+
 ";
-    push @m, q{
-install ::
-	$(PERL) -e 'use Config; unlink "$(INSTALLBIN)/post";' \
-	    -e 'system("$$Config{\"lns\"} $(INSTALLBIN)/get $(INSTALLBIN)/post") && die;'
+        push @m, q{
+all ::
+	$(PERL) -e 'use Config; foreach (qw(GET HEAD POST)) { ' \
+	-e 'unlink "$(INST_EXE)/$$_";' \
+	-e 'system("$$Config{\"lns\"} request $(INST_EXE)/$$_") && die; }'
 
 };
     join "", @m;
 }
 
 sub MY::test {
-    "
+    q{
+TEST_VERBOSE=0
+
 test:
-	cd t && make tests
-";
+	$(FULLPERL) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) -e 'use Test::Harness qw(&runtests $$verbose); $$verbose=$(TEST_VERBOSE); runtests @ARGV;' t/*.t
+
+};
 }
+
+sub MY::libscan {
+    return '' if m:/(RCS|CVS)/:;
+    return '' if m/~$/;
+    $_;
+}
+

@@ -1,9 +1,9 @@
 #
-# $Id: mailto.pm,v 1.7 1996/04/09 15:44:38 aas Exp $
+# $Id: mailto.pm,v 1.7.2.1 1998/10/12 10:54:49 aas Exp $
 #
 # This module implements the mailto protocol.  It is just a simple
-# frontend to the Unix sendmail program.  In the long run this module
-# will built using the Mail::Send module.
+# frontend to the Unix sendmail program.  This module should probably
+# have been built using the Mail::Send module.
 
 package LWP::Protocol::mailto;
 
@@ -13,10 +13,12 @@ require HTTP::Response;
 require HTTP::Status;
 
 use Carp;
+use strict;
+use vars qw(@ISA $SENDMAIL);
 
 @ISA = qw(LWP::Protocol);
 
-$SENDMAIL = "/usr/lib/sendmail";
+$SENDMAIL ||= "/usr/lib/sendmail";
 
 
 sub request
@@ -31,7 +33,7 @@ sub request
     }
 
     # check method
-    $method = $request->method;
+    my $method = $request->method;
 
     if ($method ne 'POST') {
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
@@ -56,9 +58,19 @@ sub request
 	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				  "Can't run $SENDMAIL: $!";
 
-    my $addr = $url->encoded822addr;
+    $request = $request->clone;  # we modify a copy
+    my @h = $url->headers;  # URL headers override those in the request
+    while (@h) {
+	my $k = shift @h;
+	my $v = shift @h;
+	next unless defined $v;
+	if (lc($k) eq "body") {
+	    $request->content($v);
+	} else {
+	    $request->push_header($k => $v);
+	}
+    }
 
-    $request->header('To', $addr);
     print SENDMAIL $request->headers_as_string;
     print SENDMAIL "\n";
     my $content = $request->content;
@@ -74,12 +86,18 @@ sub request
 	    }
 	}
     }
-    close(SENDMAIL);
+    unless (close(SENDMAIL)) {
+	my $err = $! ? "$!" : "Exit status $?";
+	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				   "$SENDMAIL: $err");
+    }
 
-    my $response = new HTTP::Response &HTTP::Status::RC_ACCEPTED,
-				     'Mail accepted by sendmail';
+    my $response = HTTP::Response->new(&HTTP::Status::RC_ACCEPTED,
+				       "Mail accepted");
     $response->header('Content-Type', 'text/plain');
-    $response->content("Mail sent to <$addr>\n");
+    $response->header('Server' => $SENDMAIL);
+    my $to = $request->header("To");
+    $response->content("Message sent to <$to>\n");
 
     return $response;
 }

@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.48 2004/11/30 11:25:00 gisle Exp $
+# $Id: Form.pm,v 1.49 2004/12/11 14:45:52 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -96,7 +96,7 @@ sub parse
     my $p = HTML::TokeParser->new(ref($html) ? $html->decoded_content(ref => 1) : \$html);
     eval {
 	# optimization
-	$p->report_tags(qw(form input textarea select optgroup option keygen));
+	$p->report_tags(qw(form input textarea select optgroup option keygen label));
     };
 
     unless (defined $base_uri) {
@@ -122,12 +122,37 @@ sub parse
 			     $attr->{'enctype'});
 	    $f->{attr} = $attr;
 	    push(@forms, $f);
+	    my(%labels, $current_label);
 	    while (my $t = $p->get_tag) {
 		my($tag, $attr) = @$t;
 		last if $tag eq "/form";
+
+		# if we are inside a label tag, then keep
+		# appending any text to the current label
+		if(defined $current_label) {
+		    $current_label = join " ",
+		        grep { defined and length }
+		        $current_label,
+		        $p->get_phrase;
+		}
+
 		if ($tag eq "input") {
+		    $attr->{value_name} =
+		        exists $attr->{id} && exists $labels{$attr->{id}} ? $labels{$attr->{id}} :
+			defined $current_label                            ?  $current_label      :
+		        $p->get_phrase;
+		}
+
+		if ($tag eq "label") {
+		    $current_label = $p->get_phrase;
+		    $labels{ $attr->{for} } = $current_label
+		        if exists $attr->{for};
+		}
+		elsif ($tag eq "/label") {
+		    $current_label = undef;
+		}
+		elsif ($tag eq "input") {
 		    my $type = delete $attr->{type} || "text";
-		    $attr->{value_name} = $p->get_phrase;
 		    $f->push_input($type, $attr);
 		}
 		elsif ($tag eq "textarea") {

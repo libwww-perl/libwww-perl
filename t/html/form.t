@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 98;
+plan tests => 103;
 
 use HTML::Form;
 
@@ -447,3 +447,34 @@ EOT
 ok(@f, 2);
 ok($f[0]->find_input("s"));
 ok($f[1]->find_input("t"));
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form  ACTION="http://example.com/">
+  <fieldset>
+    <legend>Radio Buttons with Labels</legend>
+    <label>
+      <input type=radio name=r0 value=0 />zero
+    </label>
+    <label>one
+      <input type=radio name=r1 value=1>
+    </label>
+    <label for="r2">two</label>
+    <input type=radio name=r2 id=r2 value=2>
+    <label>
+      <span>nested</span>
+      <input type=radio name=r3 value=3>
+    </label>
+    <label>
+      before
+      and <input type=radio name=r4 value=4>
+      after
+    </label>
+  </fieldset>
+</form>
+EOT
+
+ok(join(":", $f->find_input("r0")->value_names), "zero");
+ok(join(":", $f->find_input("r1")->value_names), "one");
+ok(join(":", $f->find_input("r2")->value_names), "two");
+ok(join(":", $f->find_input("r3")->value_names), "nested");
+ok(join(":", $f->find_input("r4")->value_names), "before and after");

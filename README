@@ -42,6 +42,7 @@ In order to install and use this package you will need Perl version
 that are distributed separately from perl.  We recommend that you have
 the following packages installed before you install libwww-perl:
 
+  MIME-Base64-#.##
   IO-#.##            (bundled with perl5.004 and better)
   libnet-#.##
   MD5-#.##

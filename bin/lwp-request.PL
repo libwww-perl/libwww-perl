@@ -12,7 +12,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.36 1999/03/21 21:46:22 gisle Exp $
+# $Id: lwp-request.PL,v 1.37 1999/03/21 21:56:18 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -29,7 +29,7 @@ lwp-request, GET, HEAD, POST - Simple WWW user agent
 =head1 DESCRIPTION
 
 This program can be used to send requests to WWW servers and your
-local file system. The request content for POST, PUT and CHECKIN
+local file system. The request content for POST and PUT
 methods is read from stdin.  The content of the response is printed on
 stdout.  Error messages are printed on stderr.  The program returns a
 status value indicating the number of URLs that failed.
@@ -46,14 +46,12 @@ then the method is derived from the name of the program.
 =item -f
 
 Force request through, even if the program believes that the method is
-illegal.  The server will probably reject the request.
+illegal.  The server might reject the request eventually.
 
-=item -b <url>
+=item -b <uri>
 
-This URL will be used as the base URL for the URLs that the method is
-applied to.  The base URL only takes effect for relative URLs.  If you
-do not provide this option and the URLs are relative, then they will
-be treated as files in the local file system.
+This URI will be used as the base URI for resolving all relative URIs
+given as argument.
 
 =item -t <timeout>
 
@@ -73,7 +71,7 @@ L<HTTP::Date> for recogniced formats.
 =item -c <content-type>
 
 Set the Content-Type for the request.  This option is only allowed for
-requests that take a content, i.e. POST, PUT and CHECKIN.  You can
+requests that take a content, i.e. POST and PUT.  You can
 force methods to take content by using the C<-f> option together with
 C<-c>.  The default Content-Type for POST is
 C<application/x-www-form-urlencoded>.  The default Content-type for
@@ -184,7 +182,7 @@ modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut
 
@@ -192,7 +190,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -315,7 +313,7 @@ usage() if $options{'h'} || !@ARGV;
 LWP::Debug::level('+') if $options{'x'};
 
 # Create the user agent object
-$ua = new RequestAgent;
+$ua = RequestAgent->new;
 
 # Load proxy settings from *_proxy environment variables.
 $ua->env_proxy unless $options{'P'};
@@ -380,7 +378,7 @@ if ($allowed_methods{$method} eq "C") {
 }
 
 # Set up a request.  We will use the same request object for all URLs.
-$request = new HTTP::Request $method;
+$request = HTTP::Request->new($method);
 $request->header('If-Modified-Since', $options{'i'}) if defined $options{'i'};
 for my $user_header (@{ $options{'H'} || [] }) {
     my ($header_name, $header_value) = split /:\s*/, $user_header, 2;
@@ -446,13 +444,13 @@ while ($url = shift) {
 		{
 		    $options{'o'} eq 'ps' && do {
 			require HTML::FormatPS;
-			my $f = new HTML::FormatPS;
+			my $f = HTML::FormatPS->new;
 			print $f->format($html);
 			last;
 		    };
 		    $options{'o'} eq 'text' && do {
 			require HTML::FormatText;
-			my $f = new HTML::FormatText;
+			my $f = HTML::FormatText->new;
 			print $f->format($html);
 			last;
 		    };

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.18 1996/04/09 15:44:14 aas Exp $
+# $Id: Parse.pm,v 1.19 1996/05/08 16:33:18 aas Exp $
 
 =head1 NAME
 
@@ -31,11 +31,12 @@ Netscape extentions.
 Entites in all text content and attribute values will be expanded by
 the parser.
 
-You must delete the parse tree explicitly to free the memory
-assosiated with it before the perl interpreter terminates.  The reason
-for this is that the parse tree contains circular references (parents
-have references to their children and children have a reference to
-their parent).
+If you want to free the memory assosiated with the HTML parse tree,
+then you will have to delete it explicitly.  The reason for this is
+that perl currently has no proper garbage collector, but depends on
+reference counts in the objects.  This scheme fails because the parse
+tree contains circular references (parents have references to their
+children and children have a reference to their parent).
 
 The following variables control how parsing takes place:
 
@@ -89,7 +90,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -99,63 +100,36 @@ $IGNORE_TEXT    = 0;
 
 
 # Elements that should only be present in the header
-for (qw(title base link meta isindex nextid)) {
-    $isHeadElement{$_} = 1;
-}
-
+%isHeadElement = map { $_ => 1 } qw(title base link meta isindex nextid);
 
 # Elements that should only be present in the body
-for (qw(h1 h2 h3 h4 h5 h6
-	p pre address blockquote
-	xmp listing
-	a img br hr
-	ol ul dir menu li
-	dl dt dd
-	cite code em kbd samp strong var dfn strike
-	b i u tt small big
-	table tr td th caption
-	form input select option textarea
-       )
-    ) {
-    $isBodyElement{$_} = 1;
-}
-
-# Also known are some Netscape extentions elements
-for (qw(wbr nobr center blink font basefont)) {
-    $isBodyElement{$_} = 1;
-}
-
+%isBodyElement = map { $_ => 1 } qw(h1 h2 h3 h4 h5 h6
+				    p pre address blockquote
+				    xmp listing
+				    a img br hr
+				    ol ul dir menu li
+				    dl dt dd
+				    cite code em kbd samp strong var dfn strike
+				    b i u tt small big
+				    table tr td th caption
+				    form input select option textarea
+				   ),
+                          # Also known are some Netscape extentions elements
+                                 qw(wbr nobr center blink font basefont);
 
 # The following elements must be directly contained in some other
 # element than body.
 
-for (qw(cite code em kbd samp strong var b i u tt
-	a img br hr
-	wbr nobr center blink
-	small big font basefont
-	table
-       )
-    ) {
-    $isPhraseMarkup{$_} = 1;
-}
+%isPharseMarkup = map { $_ => 1 } qw(cite code em kbd samp strong var b i u tt
+				     a img br hr
+				     wbr nobr center blink
+				     small big font basefont
+				     table
+				    );
 
-
-# Lists
-for (qw(ul ol dir menu)) {
-    $isList{$_} = 1;
-}
-
-
-# Table elements
-for (qw(tr td th caption)) {
-    $isTableElement{$_} = 1;
-}
-
-
-# Form elements
-for (qw(input select option textarea)) {
-    $isFormElement{$_} = 1;
-}
+%isList         = map { $_ => 1 } qw(ul ol dir menu);
+%isTableElement = map { $_ => 1 } qw(tr td th caption);
+%isFormElement  = map { $_ => 1 } qw(input select option textarea);
 
 
 
@@ -278,8 +252,8 @@ sub starttag
 	    }
 
 	    # Handle implicit endings and insert based on <tag> and position
-	    if ($tag eq 'p' || $tag =~ /^h[1-6]/) {
-		# Can't have <p> or <h#> inside these
+	    if ($tag eq 'p' || $tag =~ /^h[1-6]/ || $tag eq 'form') {
+		# Can't have <p>, <h#> or <form> inside these
 		endtag($html, [qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
 	    } elsif ($tag =~ /^[oud]l$/) {
 		# Can't have lists inside <h#>

@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.18 1996/07/17 11:39:25 aas Exp $
+# $Id: Status.pm,v 1.19 1996/10/21 22:03:20 aas Exp $
 
 package HTTP::Status;
 
@@ -23,57 +23,62 @@ HTTP::Status - HTTP Status code processing
 
 =head1 DESCRIPTION
 
-HTTP::Status is a library of routines for defining and classification
-of HTTP status codes for libwww-perl.  Status codes are used to encode
-the overall outcome of a HTTP response message.  Codes correspond to
-those defined in E<lt>draft-ietf-http-v11-spec-06>.
+I<HTTP::Status> is a library of routines for defining and
+classification of HTTP status codes for libwww-perl.  Status codes are
+used to encode the overall outcome of a HTTP response message.  Codes
+correspond to those defined in E<lt>draft-ietf-http-v11-spec-06>.
 
 The following functions can be used as mnemonic status code names:
 
-   RC_CONTINUE
-   RC_SWITCHING_PROTOCOLS
-   RC_OK
-   RC_CREATED
-   RC_ACCEPTED
-   RC_NON_AUTHORITATIVE_INFORMATION
-   RC_NO_CONTENT
-   RC_RESET_CONTENT
-   RC_PARTIAL_CONTENT
-   RC_MULTIPLE_CHOICES
-   RC_MOVED_PERMANENTLY
-   RC_MOVED_TEMPORARILY
-   RC_SEE_OTHER
-   RC_NOT_MODIFIED
-   RC_USE_PROXY
-   RC_BAD_REQUEST
-   RC_UNAUTHORIZED
-   RC_PAYMENT_REQUIRED
-   RC_FORBIDDEN
-   RC_NOT_FOUND
-   RC_METHOD_NOT_ALLOWED
-   RC_NOT_ACCEPTABLE
-   RC_PROXY_AUTHENTICATION_REQUIRED
-   RC_REQUEST_TIMEOUT
-   RC_CONFLICT
-   RC_GONE
-   RC_LENGTH_REQUIRED
-   RC_PRECONDITION_FAILED
-   RC_REQUEST_ENTITY_TOO_LARGE
-   RC_REQUEST_URI_TOO_LARGE
-   RC_UNSUPPORTED_MEDIA_TYPE
-   RC_INTERNAL_SERVER_ERROR
-   RC_NOT_IMPLEMENTED
-   RC_BAD_GATEWAY
-   RC_SERVICE_UNAVAILABLE
-   RC_GATEWAY_TIMEOUT
-   RC_HTTP_VERSION_NOT_SUPPORTED
+   RC_CONTINUE				(100)
+   RC_SWITCHING_PROTOCOLS		(101)
+
+   RC_OK				(200)
+   RC_CREATED				(201)
+   RC_ACCEPTED				(202)
+   RC_NON_AUTHORITATIVE_INFORMATION	(203)
+   RC_NO_CONTENT			(204)
+   RC_RESET_CONTENT			(205)
+   RC_PARTIAL_CONTENT			(206)
+
+   RC_MULTIPLE_CHOICES			(300)
+   RC_MOVED_PERMANENTLY			(301)
+   RC_MOVED_TEMPORARILY			(302)
+   RC_SEE_OTHER				(303)
+   RC_NOT_MODIFIED			(304)
+   RC_USE_PROXY				(305)
+
+   RC_BAD_REQUEST			(400)
+   RC_UNAUTHORIZED			(401)
+   RC_PAYMENT_REQUIRED			(402)
+   RC_FORBIDDEN				(403)
+   RC_NOT_FOUND				(404)
+   RC_METHOD_NOT_ALLOWED		(405)
+   RC_NOT_ACCEPTABLE			(406)
+   RC_PROXY_AUTHENTICATION_REQUIRED	(407)
+   RC_REQUEST_TIMEOUT			(408)
+   RC_CONFLICT				(409)
+   RC_GONE				(410)
+   RC_LENGTH_REQUIRED			(411)
+   RC_PRECONDITION_FAILED		(412)
+   RC_REQUEST_ENTITY_TOO_LARGE		(413)
+   RC_REQUEST_URI_TOO_LARGE		(414)
+   RC_UNSUPPORTED_MEDIA_TYPE		(415)
+
+   RC_INTERNAL_SERVER_ERROR		(500)
+   RC_NOT_IMPLEMENTED			(501)
+   RC_BAD_GATEWAY			(502)
+   RC_SERVICE_UNAVAILABLE		(503)
+   RC_GATEWAY_TIMEOUT			(504)
+   RC_HTTP_VERSION_NOT_SUPPORTED	(505)
 
 The status_message() function will translate status codes to human
 readable strings.
 
-The is_info(), is_success(), is_error(), and is_redirect() functions
-will return a TRUE value if the passed status code indicates success,
-and error, or a redirect respectively.
+The is_info(), is_success(), is_redirect(), and is_error() functions
+will return a TRUE value if the status code passed as argument is
+informational, indicates success, and error, or a redirect
+respectively.
 
 =cut
 
@@ -154,19 +159,28 @@ sub status_message ($)
 
 =head2 is_info($code)
 
-Return TRUE if C<$code> is an Informational status code
+Return TRUE if C<$code> is an I<Informational> status code.
 
 =head2 is_success($code)
 
-Return TRUE if C<$code> is a Successful status code
+Return TRUE if C<$code> is a I<Successful> status code.
 
 =head2 is_redirect($code)
 
-Return TRUE if C<$code> is a Redirection status code
+Return TRUE if C<$code> is a I<Redirection> status code.
 
 =head2 is_error($code)
 
-Return TRUE if C<$code> is an Error status code
+Return TRUE if C<$code> is an I<Error> status code.  The C<$code> can be
+both a client error or a server error.
+
+=head2 is_client_error($code)
+
+Return TRUE if C<$code> is an I<Client Error> status code.
+
+=head2 is_server_error($code)
+
+Return TRUE if C<$code> is an I<Server Error> status code.
 
 =cut
 

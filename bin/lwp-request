@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.0 2002/01/03 01:42:31 gisle Exp $
+# $Id: lwp-request,v 2.1 2002/01/03 02:07:02 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -175,10 +175,10 @@ Gisle Aas <gisle@aas.no>
 =cut
 
 $progname = $0;
-$progname =~ s,.*/,,;  # use basename only
-$progname =~ s/\.\w*$//; # strip extension, if any
+$progname =~ s,.*[\\/],,;  # use basename only
+$progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

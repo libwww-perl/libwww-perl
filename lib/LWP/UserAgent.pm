@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.7 1995/07/14 00:14:30 aas Exp $
+# $Id: UserAgent.pm,v 1.8 1995/07/15 08:01:17 aas Exp $
 
 package LWP::UserAgent;
 
@@ -153,13 +153,13 @@ sub isProtocolSupported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-	croak "ref is not an URI::URL object"
-	    unless ref($scheme) =~ "^URI::URL";
-	$scheme = $scheme->abs->scheme;
+        croak "ref is not an URI::URL object"
+            unless ref($scheme) =~ "^URI::URL";
+        $scheme = $scheme->abs->scheme;
     } else {
-	croak "Illeal scheme '$scheme' passed to isProtocolSupported"
-	    if $scheme =~ /\W/;
-	$scheme = lc $scheme;
+        croak "Illeal scheme '$scheme' passed to isProtocolSupported"
+            if $scheme =~ /\W/;
+        $scheme = lc $scheme;
     }
     return LWP::Protocol::implementor($scheme);
 }
@@ -193,7 +193,7 @@ sub simpleRequest
     # Set User-Agent header if there is one
     my $agent = $self->agent;
     $request->header('User-Agent', $agent)
-	if defined $agent and $agent;
+        if defined $agent and $agent;
 
     # If a timeout value has been set we pass it on to the protocol
     my $timeout = $self->timeout;
@@ -296,48 +296,48 @@ sub request
 
     } elsif ($code == &LWP::StatusCode::RC_UNAUTHORIZED) {
 
-	my $challenge = $response->header('WWW-Authenticate');
-	die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
-	    defined $challenge;
+        my $challenge = $response->header('WWW-Authenticate');
+        die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
+            defined $challenge;
 
-	if (($challenge =~ /^(Basic|\S+)\s+Realm="(.*?)"/i) or
+        if (($challenge =~ /^(Basic|\S+)\s+Realm="(.*?)"/i) or
             ($challenge =~ /^(Basic|\S+)\s+Realm=<([^<>]*)>/i)) {
 
-	    my($scheme, $realm) = ($1, $2);
-	    if ($scheme =~ /^Basic$/i) {
+            my($scheme, $realm) = ($1, $2);
+            if ($scheme =~ /^Basic$/i) {
 
-		my($uid, $pwd) = $self->getBasicCredentials($realm);
+                my($uid, $pwd) = $self->getBasicCredentials($realm);
 
-		if (defined $uid and defined $pwd) {
-		    my $uidpwd = "$uid:$pwd";
-		    my $header = $scheme . ' ' . &Base64encode($uidpwd);
+                if (defined $uid and defined $pwd) {
+                    my $uidpwd = "$uid:$pwd";
+                    my $header = $scheme . ' ' . &Base64encode($uidpwd);
 
-		    # Need to check this isn't a repeated fail!
-		    if (defined $seenref) {
-			if (exists $seenref->{"$realm $header"}) {
-			    # here we know this failed before
-			    $response->message('Invalid Credentials');
-			    return $response;
-			}
-		    } else {
-			$seenref = \%;
-		    }
-		    $seenref->{"$realm $header"} = 1;
+                    # Need to check this isn't a repeated fail!
+                    if (defined $seenref) {
+                        if (exists $seenref->{"$realm $header"}) {
+                            # here we know this failed before
+                            $response->message('Invalid Credentials');
+                            return $response;
+                        }
+                    } else {
+                        $seenref = \%;
+                    }
+                    $seenref->{"$realm $header"} = 1;
 
-		    my $referral = $request->clone;
-		    $referral->header('Authorization', $header);
+                    my $referral = $request->clone;
+                    $referral->header('Authorization', $header);
 
-		    return $self->request($referral, $arg, $size, 
-					  $depth+1, $seenref);
-		} else {
-		    return $response; # no password found
-		}
-	    } else {
-		die "Authentication scheme '$scheme' not supported\n";
-	    }
+                    return $self->request($referral, $arg, $size, 
+                                          $depth+1, $seenref);
+                } else {
+                    return $response; # no password found
+                }
+            } else {
+                die "Authentication scheme '$scheme' not supported\n";
+            }
         } else {
             die "Unknown challenge '$challenge'";
-	}
+        }
 
     } elsif ($code == &LWP::StatusCode::RC_PAYMENT_REQUIRED or
              $code == &LWP::StatusCode::RC_PROXY_AUTHENTICATION_REQUIRED) {
@@ -374,7 +374,7 @@ sub getBasicCredentials
     my($self, $realm) = @_;
 
     if (exists $self->{'basic_authentication'}{$realm}) {
-	return @{ $self->{'basic_authentication'}{$realm} };
+        return @{ $self->{'basic_authentication'}{$realm} };
     }
 
     return (undef, undef);
@@ -404,35 +404,35 @@ sub mirror
     my $request = new LWP::Request('GET', $url);
 
     if (-e $file) {
-	my($mtime) = (stat($file))[9];
-	if($mtime) {
-	    $request->header('If-Modified-Since',
-			     LWP::Date::time2str($mtime));
-	}
+        my($mtime) = (stat($file))[9];
+        if($mtime) {
+            $request->header('If-Modified-Since',
+                             LWP::Date::time2str($mtime));
+        }
     }
     my $tmpfile = "$file-$$";
 
     my $response = $self->request($request, $tmpfile);
     if ($response->isSuccess) {
-	
-	my $file_length = (stat($tmpfile))[7];
-	my($content_length) = $response->header('Content-length');
+        
+        my $file_length = (stat($tmpfile))[7];
+        my($content_length) = $response->header('Content-length');
     
-	if (defined $content_length and $file_length < $content_length) {
-	    unlink($tmpfile);
-	    die "Transfer truncated: " .
-		"only $file_length out of $content_length bytes received\n";
-	} elsif (defined $content_length and $file_length > $content_length) {
-	    unlink($tmpfile);
-	    die "Content-length mismatch: " .
-		"expected $content_length bytes, got $file_length\n";
-	} else {
-	    # OK
-	    rename($tmpfile, $file) or
-		die "Cannot rename '$tmpfile' to '$file': $!\n";
-	}
+        if (defined $content_length and $file_length < $content_length) {
+            unlink($tmpfile);
+            die "Transfer truncated: " .
+                "only $file_length out of $content_length bytes received\n";
+        } elsif (defined $content_length and $file_length > $content_length) {
+            unlink($tmpfile);
+            die "Content-length mismatch: " .
+                "expected $content_length bytes, got $file_length\n";
+        } else {
+            # OK
+            rename($tmpfile, $file) or
+                die "Cannot rename '$tmpfile' to '$file': $!\n";
+        }
     } else {
-	unlink($tmpfile);
+        unlink($tmpfile);
     }
     return $response;
 }

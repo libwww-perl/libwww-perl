@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.6 1995/07/14 00:31:03 aas Exp $
+# $Id: Response.pm,v 1.7 1995/07/15 07:58:45 aas Exp $
 
 package LWP::Response;
 
@@ -68,7 +68,6 @@ sub clone
     $clone->code($self->code);
     $clone->message($self->message);
     $clone;
-    
 }
 
 =head2 code([$code])
@@ -103,7 +102,7 @@ sub asString
     push(@result, $self->headerAsString);
     my $content = $self->content;
     if ($content) {
-	push(@result, $self->content);
+        push(@result, $self->content);
     }
     push(@result, ("-" x 35));
     join("\n", @result, "");
@@ -138,7 +137,7 @@ sub errorAsHTML
     my $msg = $self->{'_msg'} || 'Unknown';
     my $content = $self->content || '';
     if (defined $content and length $content) {
-	return $content;
+        return $content;
     }
     else {
     my $title = 'An Error Occurred';

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.5 1995/07/14 00:16:54 aas Exp $
+# $Id: file.pm,v 1.6 1995/07/15 08:02:33 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -28,7 +28,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size) = @_;
 
-    LWP::Debug::trace("LWP::file::request(" . 
+    LWP::Debug::trace('LWP::file::request(' . 
                       (defined $request ? $request : '<undef>') . ', ' .
                       (defined $arg ? $arg : '<undef>') . ', ' .
                       (defined $size ? $size : '<undef>') .')');
@@ -39,7 +39,7 @@ sub request
     if (defined $proxy)
     {
         return new LWP::Response(&LWP::StatusCode::RC_BAD_REQUEST,
-                                 "You can not proxy through the filesystem");
+                                 'You can not proxy through the filesystem');
     }
 
     # check method
@@ -95,8 +95,8 @@ sub request
         my $time = LWP::Date::str2time($ims);
         if (defined $time and $time >= $mtime) {
             return new LWP::Response(
-		   &LWP::StatusCode::RC_NOT_MODIFIED, "$method $path");
-	}
+                   &LWP::StatusCode::RC_NOT_MODIFIED, "$method $path");
+        }
     }
     $response = new LWP::Response(&LWP::StatusCode::RC_OK);
     
@@ -113,17 +113,17 @@ sub request
         my(@files) = sort readdir(D);
         closedir(D);
  
-	# Make directory listing
-	for (@files) {
-	    $_ .= "/" if -d "$path/$_";
-	    $_ = qq{<LI> <a href="$_">$_</a>};
-	}
-	my $html = join("\n",
-			"<HTML><HEADER>",
-			"<TITLE>Directory $path</TITLE>",
-			"</HEADER>\n<BODY>",
-			"<UL>", @files, "</UL>",
-			"</BODY></HTML>\n");
+        # Make directory listing
+        for (@files) {
+            $_ .= "/" if -d "$path/$_";
+            $_ = qq{<LI> <a href="$_">$_</a>};
+        }
+        my $html = join("\n",
+                        "<HTML>\n<HEAD>",
+                        "<TITLE>Directory $path</TITLE>",
+                        "</HEAD>\n<BODY>",
+                        "<UL>", @files, "</UL>",
+                        "</BODY>\n</HTML>\n");
 
         $response->header('Content-Type',   'text/html');
         $response->header('Content-Length', length $html);

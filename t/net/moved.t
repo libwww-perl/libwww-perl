@@ -3,12 +3,11 @@
 
 print "1..1\n";
 
+require "net/config.pl";
 require LWP::Debug;
-require LWP::Protocol::file;
-require LWP::Protocol::http;
 require LWP::UserAgent;
 
-$url = 'http://localhost/cgi-bin/lwp/moved';
+$url = "http://$net::httpserver$net::cgidir/moved";
 
 #LWP::Debug::level('+trace');
 
@@ -21,14 +20,19 @@ $ua->useAlarm(1);               # don't use alarms
 
 my $request = new HTTP::Request('GET', $url);
 
+print $request->asString;
+
 my $response = $ua->request($request, undef, undef);
 
 print $response->asString, "\n";
 
 if ($response->isSuccess) {
     print "ok 1\n";
-}
-else {
+} else {
     print "not ok 1\n";
 }
 
+
+# avoid -w warning
+$dummy = $net::httpserver;
+$dummy = $net::cgidir;

@@ -6,15 +6,20 @@
 
 print "1..1\n";
 
+require "net/config.pl";
+unless (defined $net::ftp_proxy) {
+    print "not ok 1\n";
+    exit 0;
+}
+
 require LWP::Debug;
-require LWP::Protocol::http;
 require LWP::UserAgent;
 
 #LWP::Debug::level('+');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
-$ua->proxy('ftp', 'http://web.nexor.co.uk/');
+$ua->proxy('ftp', $net::ftp_proxy);
 
 my $url = new URI::URL('ftp://lancaster.nexor.co.uk/welcome.msg');
 

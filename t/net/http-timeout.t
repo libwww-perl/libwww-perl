@@ -4,17 +4,23 @@
 
 print "1..1\n";
 
+require "net/config.pl";
 require HTTP::Status;
 require LWP::Protocol::http;
 require LWP::UserAgent;
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
-$ua->timeout(5);
+$ua->timeout(4);
 
-$url = new URI::URL('http://localhost/cgi-bin/lwp/timeout');
+$netloc = $net::httpserver;
+$script = $net::cgidir . "/timeout";
+
+$url = new URI::URL("http://$netloc$script");
 
 my $request = new HTTP::Request('GET', $url);
+
+print $request->asString;
 
 my $response = $ua->request($request, undef);
 
@@ -30,3 +36,7 @@ if ($response->isError and
 else {
     print "nok ok 1\n";
 }
+
+# avoid -w warning
+$dummy = $net::httpserver;
+$dummy = $net::cgidir;

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.30 1997/12/10 13:08:30 aas Exp $
+# $Id: Headers.pm,v 1.31 1998/01/06 09:54:14 aas Exp $
 
 package HTTP::Headers;
 
@@ -28,8 +28,11 @@ The following methods are available:
 
 =cut
 
+use strict;
+use vars qw($VERSION);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
-require Carp;
+use Carp ();
 
 # Could not use the AutoLoader becase several of the method names are
 # not unique in the first 8 characters.

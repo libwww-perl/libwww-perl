@@ -73,7 +73,7 @@ Gisle Aas <aas@sn.no>
 use HTML::Entities ();
 
 use strict;
-use vars qw(@ISA
+use vars qw(@ISA $VERSION
             %isHeadElement %isBodyElement %isPhraseMarkup
             %isList %isTableElement %isFormElement
            );
@@ -81,6 +81,7 @@ use vars qw(@ISA
 require HTML::Element;
 require HTML::Parser;
 @ISA = qw(HTML::Element HTML::Parser);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 # Elements that should only be present in the header
 %isHeadElement = map { $_ => 1 } qw(title base link meta isindex script);

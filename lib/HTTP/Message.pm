@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.21 1997/12/03 21:04:45 aas Exp $
+# $Id: Message.pm,v 1.22 1998/01/06 09:54:51 aas Exp $
 
 package HTTP::Message;
 
@@ -31,7 +31,8 @@ The following methods are available:
 require HTTP::Headers;
 require Carp;
 use strict;
-use vars qw($AUTOLOAD);
+use vars qw($VERSION $AUTOLOAD);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 =item $mess = new HTTP::Message;
 

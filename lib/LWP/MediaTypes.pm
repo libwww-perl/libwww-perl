@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.19 1997/12/02 13:22:52 aas Exp $
+# $Id: MediaTypes.pm,v 1.20 1998/01/06 09:58:05 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -31,6 +31,7 @@ The following functions are available (and exported by default):
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;

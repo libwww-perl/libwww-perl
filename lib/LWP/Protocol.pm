@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.30 1997/12/15 20:29:10 aas Exp $
+# $Id: Protocol.pm,v 1.31 1998/01/06 09:58:38 aas Exp $
 
 package LWP::Protocol;
 
@@ -38,6 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();

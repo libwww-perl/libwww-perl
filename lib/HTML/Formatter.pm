@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.18 1997/11/26 15:39:14 aas Exp $
+# $Id: Formatter.pm,v 1.19 1998/01/06 09:51:02 aas Exp $
 
 =head1 NAME
 
@@ -43,6 +43,9 @@ require HTML::Element;
 use strict;
 use Carp;
 use UNIVERSAL qw(can);
+
+use vars qw($VERSION);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 sub new
 {

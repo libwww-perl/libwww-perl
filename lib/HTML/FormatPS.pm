@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.23 1997/10/12 20:28:38 aas Exp $
+# $Id: FormatPS.pm,v 1.24 1998/01/06 09:49:15 aas Exp $
 
 =head1 NAME
 
@@ -107,11 +107,13 @@ Gisle Aas <aas@oslonett.no>
 =cut
 
 use Carp;
+use strict;
+use vars qw(@ISA $VERSION);
 
 require HTML::Formatter;
 @ISA = qw(HTML::Formatter);
 
-use strict;
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 use vars qw(%PaperSizes %FontFamilies @FontSizes %param $DEBUG);
 

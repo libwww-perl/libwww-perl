@@ -28,6 +28,7 @@ $p->parse() or $p->parse_file() methods.
 
 require HTML::Parser;
 @ISA = qw(HTML::Parser);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 use URI::URL qw(url);
 

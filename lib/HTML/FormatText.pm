@@ -1,6 +1,6 @@
 package HTML::FormatText;
 
-# $Id: FormatText.pm,v 1.14 1997/10/12 20:27:57 aas Exp $
+# $Id: FormatText.pm,v 1.15 1998/01/06 09:50:05 aas Exp $
 
 =head1 NAME
 
@@ -51,10 +51,14 @@ Gisle Aas <aas@oslonett.no>
 
 =cut
 
+use strict;
+use vars qw(@ISA $VERSION);
+
 require HTML::Formatter;
 @ISA = qw(HTML::Formatter);
 
-use strict;
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+
 
 sub default_values
 {

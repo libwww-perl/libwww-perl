@@ -1,6 +1,6 @@
 require HTTP::Headers;
 
-print "1..8\n";
+print "1..9\n";
 
 $h = new HTTP::Headers
 	mime_version  => "1.0",
@@ -84,3 +84,23 @@ if ($str eq $expected) {
     print "Headers are '$str',\nexpected    '$expected'\n";
     print "not ok 8\n";
 }
+
+# Check headers with embedded newlines:
+
+$h = new HTTP::Headers
+	a => "foo\n\n",
+	b => "foo\nbar",
+	c => "foo\n\nbar\n\n",
+	d => "foo\n\tbar";
+$str = $h->as_string("<<\n");
+print "-----\n$str------\n";
+
+print "not " unless $str =~ /^A:\s*foo<<\n
+                              B:\s*foo<<\n
+	                        \s+bar<<\n
+                              C:\s*foo<<\n
+                                \s+bar<<\n
+	                      D:\s*foo<<\n
+                                \t bar<<\n
+                             $/x;
+print "ok 9\n";

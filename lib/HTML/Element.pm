@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.37 1997/12/02 12:48:09 aas Exp $
+# $Id: Element.pm,v 1.38 1998/03/04 14:55:27 aas Exp $
 
 =head1 NAME
 
@@ -44,7 +44,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -78,7 +78,7 @@ sub Version { $VERSION; }
  dl     => 'compact',
  hr     => 'noshade',
  img    => 'ismap',
- input  => 'checked',
+ input  => { checked => 1, readonly => 1, disabled => 1 },
  menu   => 'compact',
  ol     => 'compact',
  option => 'selected',
@@ -168,7 +168,9 @@ sub starttag
 	next if /^_/;
 	my $val = $self->{$_};
 	if ($_ eq $val &&
-	    exists($boolean_attr{$name}) && $boolean_attr{$name} eq $_) {
+	    exists($boolean_attr{$name}) &&
+	    (ref($boolean_attr{$name}) ? $boolean_attr{$name}{$_} : 
+ 					 $boolean_attr{$name} eq $_)) {
 	    $tag .= " \U$_";
 	} else {
 	    if ($val !~ /^\d+$/) {

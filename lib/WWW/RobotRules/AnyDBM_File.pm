@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.1 1996/09/17 11:07:39 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.2 1996/09/17 11:42:06 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -46,22 +46,23 @@ sub new
   my $self = bless { }, $class;
   $self->{'filename'} = $file;
   tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_CREAT|O_RDWR, 0640;
+  $self->agent($ua);
 
-  $ua =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
-  my $old_ua = $self->{'dbm'}{"|ua-name|"};
-  if ($old_ua && $old_ua eq $ua) {
-      $self->{'ua'} = $ua;
-  } else {
-      $self->agent($ua); # will call $ua->clear datbase
-      $self->{'dbm'}{"|ua-name|"} = $ua;
-  }
   $self;
 }
 
-sub clear {
-    my $self = shift;
-    my $file = $self->{'filename'};
-    tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_TRUNC|O_RDWR, 0640;
+sub agent {
+    my($self, $newname) = @_;
+    my $old = $self->{'dbm'}{"|ua-name|"};
+    if (defined $newname) {
+	$newname =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
+	unless ($old && $old eq $newname) {
+	# Old info is now stale.
+	    my $file = $self->{'filename'};
+	    tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_TRUNC|O_RDWR, 0640;
+	    $self->{'dbm'}{"|ua-name|"} = $newname;
+	}
+    }
 }
 
 sub no_vists {

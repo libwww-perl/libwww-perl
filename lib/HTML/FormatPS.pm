@@ -43,6 +43,12 @@ sub findfont
     }
     $self->{currentfont} = $fontsize;
     $self->{pointsize} = $size;
+    my $fontmod = "HTML::Font::$font";
+    $fontmod =~ s/-/_/g;
+    my $fontfile = $fontmod . ".pm";
+    $fontfile =~ s,::,/,g;
+    require $fontfile;
+    $self->{wx} = \@{ "${fontmod}::wx" };
 
     return "/$font findfont $size scalefont setfont";  #ok for now
 
@@ -58,7 +64,6 @@ sub begin
 {
     my $self = shift;
     $self->HTML::Format::begin;
-    $self->{family} = "Times";
 
     # Margins is points
     $self->{lm} = 100;
@@ -66,12 +71,12 @@ sub begin
     $self->{bm} = 150;
     $self->{tm} = 700;
 
-    $self->{en} = 7;    # width of an avarage char 'n' in the normal font
-
-    # Font size
+    # Font setup
+    $self->{family} = "Times";
     $self->{fsize} = 3;
     $self->{fno} = 0;
     $self->{fonts} = {};
+    $self->{en} = 0.55 * $FontSizes[$self->{fsize}];  # average char width
 
     # Initial position
     $self->{xpos} = $self->{lm};  # top of the current line
@@ -200,8 +205,10 @@ sub width
 {
     my $self = shift;
     my $w = 0;
+    my $wx = $self->{wx};
+    my $sz = $self->{pointsize};
     while ($_[0] =~ /(.)/g) {
-	$w += $wx[ord $1];
+	$w += $wx->[ord $1] * $sz;
     }
     $w;
 }

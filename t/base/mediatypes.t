@@ -57,3 +57,17 @@ for (@tests) {
 
 @imgSuffix = media_suffix('image/*');
 print "Image suffixes: @imgSuffix\n";
+
+print "\n";
+require HTTP::Response;
+$r = new HTTP::Response 200, "Document follows";
+$r->title("file.tar.gz.uu");
+guess_media_type($r->title, $r);
+print $r->as_string;
+
+print "not " unless $r->content_type eq "application/x-tar";
+print "ok $testno\n"; $testno++;
+
+@enc = $r->header("Content-Encoding");
+print "not " unless "@enc" eq "gzip x-uuencode";
+print "ok $testno\n"; $testno++;

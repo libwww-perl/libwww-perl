@@ -1,3 +1,20 @@
+
+ o  HTML::Parser: Allow '_' in attribute names.  This makes it possible
+    to parse Netscape's bookmarks.html file.
+
+ o  HTTP::Daemon: Fixed chunked transfer encoding and multipart content
+    in get_request()
+
+ o  Don't clobber regex variables when HTTP::Message delegates methods
+    to the header.
+
+ o  Base64::decode_base64 now checks that the length input string to
+    decode is a multiple of 4.
+
+ o  t/robot/rules-dbm.t clean up better and will use AnyDBM for dumping
+
+
+
 Tue Oct 22 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.04

@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.33 1998/08/04 09:18:11 aas Exp $
+# $Id: lwp-request.PL,v 1.33.2.1 1998/10/12 12:32:42 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -186,14 +186,14 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33.2.1 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
 require LWP::Debug;
-require URI::URL;
 
-use URI::Heuristic qw(uf_url);
+use URI;
+use URI::Heuristic qw(uf_uri);
 
 use HTTP::Status qw(status_message);
 use HTTP::Date qw(time2str str2time);
@@ -388,9 +388,10 @@ while ($url = shift) {
     # Create the URL object, but protect us against bad URLs
     eval {
 	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
-	    $url = URI::URL->new($url, $opt_b);
+	    $url = URI->new($url, $opt_b);
+	    $url = $url->abs($opt_b) if $opt_b;
 	} else {
-	    $url = uf_url($url);
+	    $url = uf_uri($url);
         }
     };
     if ($@) {
@@ -452,8 +453,8 @@ while ($url = shift) {
 			for ( @{ $html->extract_links } ) {
 			    my($link, $elem) = @$_;
 			    my $tag = uc $elem->tag;
-			    $link = new URI::URL $link, $base;
-			    print "$tag\t", $link->abs->as_string, "\n";
+			    $link = URI->new($link)->abs($base)->as_string;
+			    print "$tag\t$link\n";
 			}
 			last;
 		    };

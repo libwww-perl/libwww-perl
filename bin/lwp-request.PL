@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.13 1995/08/07 15:55:31 aas Exp $
+# $Id: lwp-request.PL,v 1.14 1995/08/09 11:19:05 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -62,7 +62,7 @@ default timeout is '3m', i.e. 3 minutes.
 Set the If-Modified-Since header in the request. If I<time> it the
 name of a file, use the modification timestamp for this file. If
 I<time> is not a file, it is parsed as a literal date. Take a look at
-L<LWP::Date> for recogniced formats.
+L<HTTP::Date> for recogniced formats.
 
 =item -c <content-type>
 
@@ -139,14 +139,17 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
-require LWP::Date;
+require LWP::Debug;
+
+use HTTP::Date;
+use HTTP::Status qw(statusMessage);
+
 require URI::URL;
 
-require LWP::Debug;
 
 
 # This table lists the methods that are allowed.  It should really be
@@ -286,11 +289,11 @@ if (defined $opt_i) {
     if (-e $opt_i) {
         $time = (stat _)[9];
     } else {
-        $time = LWP::Date::str2time($opt_i);
+        $time = str2time($opt_i);
         die "$0: Illegal time syntax for -i option\n"
             unless defined $time;
     }
-    $opt_i = LWP::Date::time2str($time);
+    $opt_i = time2str($time);
 }
 
 if (defined $opt_b) {
@@ -318,7 +321,7 @@ if ($allowed_methods{$method} eq "C") {
 }
 
 # Set up a request.  We use the same request for all URLs.
-$request = new LWP::Request $method;
+$request = new HTTP::Request $method;
 $request->header('If-Modified-Since', $opt_i) if defined $opt_i;
 $request->header('Accept', '*/*');
 if ($opt_c) { # will always be set for request that wants content
@@ -351,7 +354,7 @@ while ($url = shift) {
     } elsif ($opt_s) {
         # Display status code
         my $code = $response->code;
-        print $code, " ", LWP::StatusCode::message($code), "\n";
+        print $code, " ", statusMessage($code), "\n";
         
     }
 
@@ -380,7 +383,7 @@ sub printResponseChain
     my $method = $response->request->method;
     my $url = $response->request->url->as_string;
     my $code = $response->code;
-    print "$method $url --> ",$code," ",LWP::StatusCode::message($code),"\n";
+    print "$method $url --> $code ", statusMessage($code), "\n";
 }
 
 

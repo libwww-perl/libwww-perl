@@ -826,14 +826,39 @@ EOM
 	)
     {
 	my($url, $base, $expected_abs) = @$_;
-	$rel = new URI::URL $url, $base;
+	my $rel = new URI::URL $url, $base;
 	my $abs = $rel->abs($base, 1);
 	printf("  %-12s+  $base  =>  %s\n", $rel, $abs);
-
 	$abs->_expect('as_string', $expected_abs);
     }
-
     print "absolute test ok\n";
+
+    # Test relative function
+    for (
+	 ["http://abc/a",   "http://abc",        "a"],
+	 ["http://abc/a",   "http://abc/b",      "a"],
+	 ["http://abc/a?q", "http://abc/b",      "a?q"],
+	 ["http://abc/a;p", "http://abc/b",      "a;p"],
+	 ["http://abc/a",   "http://abc/a/b/c/", "../../../a"],
+
+	 ["file:/etc/motd", "file:/",            "etc/motd"],
+	 ["file:/etc/motd", "file:/etc/passwd",  "motd"],
+	 ["file:/etc/motd", "file:/etc/rc2.d/",  "../motd"],
+	 ["file:/etc/motd", "file:/usr/lib/doc", "../../etc/motd"],
+
+	 ["mailto:aas",     "http://abc",        "mailto:aas"],
+
+	 # Nicolai Langfeldt's original example
+	 ["http://www.math.uio.no/doc/mail/top.html",
+	  "http://www.math.uio.no/doc/linux/", "../mail/top.html"],
+        )
+    {
+	my($abs, $base, $expect) = @$_;
+	printf "url('$abs', '$base')->rel eq '$expect'\n";
+	my $rel = URI::URL->new($abs, $base)->rel;
+	$rel->_expect('as_string', $expect);
+    }
+    print "relative test ok\n";
 }
 
 

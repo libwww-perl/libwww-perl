@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -751,7 +751,7 @@ sub load
     while (<FILE>) {
 	next if /^\s*\#/;
 	next if /^\s*$/;
-	chomp;
+	tr/\n\r//d;
 	my($domain,$bool1,$path,$secure, $expires,$key,$val) = split(/\t/, $_);
 	$secure = ($secure eq "TRUE");
 	$self->set_cookie(undef,$key,$val,$path,$domain,undef,

@@ -82,7 +82,7 @@ sub _parse {
 sub as_string
 {
     my $self = shift;
-    return $self->{'_str'} if $self->{'_str'} && $UseCache;
+    return $self->{'_str'} if $self->{'_str'};
 
     my($scheme, $netloc, $frag) = @{$self}{qw(scheme netloc frag)};
 

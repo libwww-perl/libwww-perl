@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -268,8 +268,11 @@ sub extract_cookies
 		#print "$k => $v\n";
 		my $lc = lc($k);
 		if ($lc eq "expires") {
-		    push(@cur, "Max-Age" => str2time($v) - $now);
-		    $expires++;
+		    my $etime = str2time($v);
+		    if ($etime) {
+			push(@cur, "Max-Age" => str2time($v) - $now);
+			$expires++;
+		    }
 		} else {
 		    push(@cur, $k => $v);
 		}

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.27 1997/11/18 17:27:55 aas Exp $
+# $Id: Response.pm,v 1.28 1997/12/02 13:02:11 aas Exp $
 
 package HTTP::Response;
 
@@ -30,13 +30,15 @@ C<request()> method of an C<LWP::UserAgent> object:
      print $response->error_as_HTML;
  }
 
-=head1 METHODS
-
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are header(),
 push_header(), remove_header(), headers_as_string(), and content().
 The header convenience methods are also available.  See
 L<HTTP::Message> for details.
+
+The following additional methods are available:
+
+=over 4
 
 =cut
 
@@ -49,7 +51,7 @@ use URI::URL ();
 use strict;
 
 
-=head2 $r = new HTTP::Response ($rc, [$msg, [$header, [$content]]])
+=item $r = new HTTP::Response ($rc, [$msg, [$header, [$content]]])
 
 Constructs a new C<HTTP::Response> object describing a response with
 response code C<$rc> and optional message C<$msg>.
@@ -77,13 +79,13 @@ sub clone
     $clone;
 }
 
-=head2 $r->code([$code])
+=item $r->code([$code])
 
-=head2 $r->message([$message])
+=item $r->message([$message])
 
-=head2 $r->request([$request])
+=item $r->request([$request])
 
-=head2 $r->previous([$previousResponse])
+=item $r->previous([$previousResponse])
 
 These methods provide public access to the member variables.  The
 first two containing respectively the response code and the message
@@ -113,7 +115,7 @@ sub status_line
     return "$code $mess";
 }
 
-=head2 $r->base
+=item $r->base
 
 Returns the base URL for this response.  The return value will be a
 reference to a URI::URL object.
@@ -164,7 +166,7 @@ sub base
 }
 
 
-=head2 $r->as_string()
+=item $r->as_string()
 
 Method returning a textual representation of the request.  Mainly
 useful for debugging purposes. It takes no arguments.
@@ -189,13 +191,13 @@ sub as_string
     join("\n", @result, "");
 }
 
-=head2 $r->is_info
+=item $r->is_info
 
-=head2 $r->is_success
+=item $r->is_success
 
-=head2 $r->is_redirect
+=item $r->is_redirect
 
-=head2 $r->is_error
+=item $r->is_error
 
 These methods indicate if the response was informational, sucessful, a
 redirection, or an error.
@@ -208,7 +210,7 @@ sub is_redirect { HTTP::Status::is_redirect (shift->{'_rc'}); }
 sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 
-=head2 $r->error_as_HTML()
+=item $r->error_as_HTML()
 
 Return a string containing a complete HTML document indicating what
 error occurred.  This method should only be called when $r->is_error
@@ -238,7 +240,7 @@ EOM
 }
 
 
-=head2 $r->current_age
+=item $r->current_age
 
 This function will calculate the "current age" of the response as
 specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.3.  The
@@ -281,7 +283,7 @@ sub current_age
 }
 
 
-=head2 $r->freshness_lifetime
+=item $r->freshness_lifetime
 
 This function will calculate the "freshness lifetime" of the response
 as specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.4.  The
@@ -339,7 +341,7 @@ sub freshness_lifetime
 }
 
 
-=head2 $r->is_fresh
+=item $r->is_fresh
 
 Returns TRUE if the response is fresh, based on the values of
 freshness_lifetime() and current_age().  If the response is not longer
@@ -355,7 +357,7 @@ sub is_fresh
 }
 
 
-=head2 $r->fresh_until
+=item $r->fresh_until
 
 Returns the time when this entiy is no longer fresh.
 
@@ -367,5 +369,15 @@ sub fresh_until
     return $self->freshness_lifetime - $self->current_age + time;
 }
 
-
 1;
+
+=back 
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

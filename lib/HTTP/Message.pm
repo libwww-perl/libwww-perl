@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.19 1997/04/05 12:38:02 aas Exp $
+# $Id: Message.pm,v 1.20 1997/12/02 13:02:10 aas Exp $
 
 package HTTP::Message;
 
@@ -20,7 +20,9 @@ The class is abstract, i.e. it only used as a base class for
 C<HTTP::Request> and C<HTTP::Response> and should never instantiated
 as itself.
 
-=head1 METHODS
+The following methods are available:
+
+=over 4
 
 =cut
 
@@ -31,7 +33,7 @@ require Carp;
 use strict;
 use vars qw($AUTOLOAD);
 
-=head2 $mess = new HTTP::Message;
+=item $mess = new HTTP::Message;
 
 This is the object constructor.  It should only be called internally
 by this library.  External code should construct C<HTTP::Request> or
@@ -56,7 +58,7 @@ sub new
 }
 
 
-=head2 $mess->clone()
+=item $mess->clone()
 
 Returns a copy of the object.
 
@@ -69,7 +71,7 @@ sub clone
     $clone;
 }
 
-=head2 $mess->protocol([$proto])
+=item $mess->protocol([$proto])
 
 Sets the HTTP protocol used for the message.  The protocol() is a string
 like "HTTP/1.0" or "HTTP/1.1".
@@ -78,13 +80,13 @@ like "HTTP/1.0" or "HTTP/1.1".
 
 sub protocol { shift->_elem('_protocol',  @_); }
 
-=head2 $mess->content([$content])
+=item $mess->content([$content])
 
 The content() method sets the content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
 previous content is returned.
 
-=head2 $mess->add_content($data)
+=item $mess->add_content($data)
 
 The add_content() methods appends more data to the end of the previous
 content.
@@ -103,7 +105,7 @@ sub add_content
     }
 }
 
-=head2 $mess->content_ref
+=item $mess->content_ref
 
 The content_ref() method will return a reference to content string.
 It can be more efficient to access the content this way if the content
@@ -125,7 +127,7 @@ sub as_string
     "";  # To be overridden in subclasses
 }
 
-=head1 HEADER METHODS
+=back
 
 All unknown C<HTTP::Message> methods are delegated to the
 C<HTTP::Headers> object that is part of every message.  This allows
@@ -153,11 +155,14 @@ details of these methods:
   $mess->authorization;
   $mess->authorization_basic;
 
+=over 4
 
-=head2 $mess->headers_as_string([$endl])
+=item $mess->headers_as_string([$endl])
 
 Call the HTTP::Headers->as_string() method for the headers in the
 message.
+
+=back
 
 =cut
 
@@ -182,3 +187,12 @@ sub _elem
 }
 
 1;
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.26 1996/09/16 12:49:47 aas Exp $
+# $Id: Headers.pm,v 1.27 1997/12/02 13:02:10 aas Exp $
 
 package HTTP::Headers;
 
@@ -22,7 +22,9 @@ Instances of this class are usually created as member variables of the
 C<HTTP::Request> and C<HTTP::Response> classes, internal to the
 library.
 
-=head1 METHODS
+The following methods are available:
+
+=over 4
 
 =cut
 
@@ -73,7 +75,7 @@ for (@header_order) {
 
 
 
-=head2 $h = new HTTP::Headers
+=item $h = new HTTP::Headers
 
 Constructs a new C<HTTP::Headers> object.  You might pass some initial
 attribute-value pairs as parameters to the constructor.  I<E.g.>:
@@ -97,7 +99,7 @@ sub new
 }
 
 
-=head2 $h->header($field [=> $val],...)
+=item $h->header($field [=> $val],...)
 
 Get or set the value of a header.  The header field name is not case
 sensitive.  To make the life easier for perl users who wants to avoid
@@ -184,7 +186,7 @@ sub _header_cmp
 }
 
 
-=head2 $h->scan(\&doit)
+=item $h->scan(\&doit)
 
 Apply a subroutine to each header in turn.  The callback routine is
 called with two parameters; the name of the field and a single value.
@@ -211,7 +213,7 @@ sub scan
 }
 
 
-=head2 $h->as_string([$endl])
+=item $h->as_string([$endl])
 
 Return the header fields as a formatted MIME header.  Since it
 internally uses the C<scan()> method to build the string, the result
@@ -253,7 +255,7 @@ sub as_string
 # autoloaded section of the code, so we keep the documentation before
 # the __DATA__ token.
 
-=head2 $h->push_header($field, $val)
+=item $h->push_header($field, $val)
 
 Add a new field value of the specified header.  The header field name
 is not case sensitive.  The field need not already have a
@@ -262,13 +264,15 @@ may be a scalar or a reference to a list of scalars.
 
  $header->push_header(Accept => 'image/jpeg');
 
-=head2 $h->remove_header($field,...)
+=item $h->remove_header($field,...)
 
 This function removes the headers with the specified names.
 
-=head2 $h->clone
+=item $h->clone
 
 Returns a copy of this HTTP::Headers object.
+
+=back
 
 =head1 CONVENIENCE METHODS
 
@@ -281,26 +285,28 @@ Methods that deal with dates/times always convert their value to system
 time (seconds since Jan 1, 1970) and they also expect this kind of
 value when the header value is set.
 
-=head2 $h->date
+=over 4
+
+=item $h->date
 
 This header represents the date and time at which the message was
 originated. I<E.g.>:
 
   $h->date(time);  # set current date
 
-=head2 $h->expires
+=item $h->expires
 
 This header gives the date and time after which the entity should be
 considered stale.
 
-=head2 $h->if_modified_since
+=item $h->if_modified_since
 
 This header is used to make a request conditional.  If the requested
 resource has not been modified since the time specified in this field,
 then the server will return a C<"304 Not Modified"> response instead of
 the document itself.
 
-=head2 $h->last_modified
+=item $h->last_modified
 
 This header indicates the date and time at which the resource was last
 modified. I<E.g.>:
@@ -310,7 +316,7 @@ modified. I<E.g.>:
 	...
   }
 
-=head2 $h->content_type
+=item $h->content_type
 
 The Content-Type header field indicates the media type of the message
 content. I<E.g.>:
@@ -327,36 +333,36 @@ an array context.  This makes it safe to do the following:
      ...
   }
 
-=head2 $h->content_encoding
+=item $h->content_encoding
 
 The Content-Encoding header field is used as a modifier to the
 media type.  When present, its value indicates what additional
 encoding mechanism has been applied to the resource.
 
-=head2 $h->content_length
+=item $h->content_length
 
 A decimal number indicating the size in bytes of the message content.
 
-=head2 $h->title
+=item $h->title
 
 The title of the document.  In libwww-perl this header will be
 initialized automatically from the E<lt>TITLE>...E<lt>/TITLE> element
 of HTML documents.  I<This header is no longer part of the HTTP
 standard.>
 
-=head2 $h->user_agent
+=item $h->user_agent
 
 This header field is used in request messages and contains information
 about the user agent originating the request.  I<E.g.>:
 
   $h->user_agent('Mozilla/1.2');
 
-=head2 $h->server
+=item $h->server
 
 The server header field contains information about the software being
 used by the originating server program handling the request.
 
-=head2 $h->from
+=item $h->from
 
 This header should contain an Internet e-mail address for the human
 user who controls the requesting user agent.  The address should be
@@ -364,23 +370,23 @@ machine-usable, as defined by RFC822.  E.g.:
 
   $h->from('Gisle Aas <aas@sn.no>');
 
-=head2 $h->referer
+=item $h->referer
 
 Used to specify the address (URI) of the document from which the
 requested resouce address was obtained.
 
-=head2 $h->www_authenticate
+=item $h->www_authenticate
 
 This header must be included as part of a "401 Unauthorized" response.
 The field value consist of a challenge that indicates the
 authentication scheme and parameters applicable to the requested URI.
 
-=head2 $h->authorization
+=item $h->authorization
 
 A user agent that wishes to authenticate itself with a server, may do
 so by including this header.
 
-=head2 $h->authorization_basic
+=item $h->authorization_basic
 
 This method is used to get or set an authorization header that use the
 "Basic Authentication Scheme".  In array context it will return two
@@ -390,6 +396,15 @@ return I<"uname:password"> as a single string value.
 When used to set the header value, it expects two arguments.  I<E.g.>:
 
   $h->authorization_basic($uname, $password);
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
 

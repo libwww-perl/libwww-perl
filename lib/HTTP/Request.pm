@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.19 1997/11/18 17:27:55 aas Exp $
+# $Id: Request.pm,v 1.20 1997/12/02 13:02:11 aas Exp $
 
 package HTTP::Request;
 
@@ -26,12 +26,14 @@ of an C<LWP::UserAgent> object:
  $request = new HTTP::Request GET => 'http://www.oslonett.no/';
  $response = $ua->request($request);
 
-=head1 METHODS
-
 C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are header(),
 push_header(), remove_header(), headers_as_string() and content().
 See L<HTTP::Message> for details.
+
+The following additional methods are available:
+
+=over 4
 
 =cut
 
@@ -41,7 +43,7 @@ require HTTP::Message;
 use URI::URL ();
 use strict;
 
-=head2 $r = new HTTP::Request $method, $url, [$header, [$content]]
+=item $r = new HTTP::Request $method, $url, [$header, [$content]]
 
 Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be
@@ -72,9 +74,9 @@ sub clone
 }
 
 
-=head2 $r->method([$val])
+=item $r->method([$val])
 
-=head2 $r->url([$val])
+=item $r->url([$val])
 
 These methods provide public access to the member variables containing
 respectively the method of the request and the URL object of the
@@ -111,7 +113,7 @@ sub url
 
 *uri = \&url;  # this is the same for now
 
-=head2 $r->as_string()
+=item $r->as_string()
 
 Method returning a textual representation of the request.
 Mainly useful for debugging purposes. It takes no arguments.
@@ -135,3 +137,14 @@ sub as_string
 }
 
 1;
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

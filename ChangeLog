@@ -272,7 +272,7 @@ Thu Mar 12 1998   Gisle Aas <aas@sn.no>
     suppress tr/_/-/ of header keys.
 
  o  LWP::Protocol::http will not initialize the Host header if it is
-    already set. Patch by Ed Jordan.
+    already set.
 
  o  LWP::Protocol::http did not handle responses with no header lines
     correctly.  Patch by Daniel Buenzli <buenzli@rzu.unizh.ch>

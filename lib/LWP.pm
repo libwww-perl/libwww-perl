@@ -1,9 +1,11 @@
 #
-# $Id: LWP.pm,v 1.7 1995/07/14 02:04:39 aas Exp $
+# $Id: LWP.pm,v 1.8 1995/07/16 07:04:21 aas Exp $
 
 package LWP;
 
 $VERSION = "0.01";  # Automatically updated by 'update_version'
+
+sub Version { $VERSION; }
 
 require 5.001;
 require LWP::UserAgent;  # this should load everything you need
@@ -25,7 +27,7 @@ interface to these services.  The interface is easy to extend and
 customize for your needs.
 
 You should first read the documentation for LWP::UserAgent.  Then you
-might want to look at how the scripts C<get> and C<mirror> is
+might want to look at how the scripts C<get> and C<mirror> are
 implemented.  More examples are found in the F<test> directory.
 
 =head2 Overview of classes and packages

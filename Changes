@@ -16,8 +16,8 @@
     Release 5.72
 
     Requests for some non-HTTP URLs would fail if the cookie_jar
-    was enabled.  The HTTP::Cookies::add_cookie_header now ignored
-    not-HTTP requests.
+    was enabled.  The HTTP::Cookies::add_cookie_header now ignore
+    non-HTTP requests.
 
     The new local/http test failed on Windows because of a missing
     binmode().

@@ -1,10 +1,10 @@
-                                            $Date: 1996/03/20 09:39:43 $
+                                            $Date: 1996/04/09 08:50:20 $
 
 This is a list over things that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
-  o  Add more HTTP/1.1 features
+  o  Add more HTTP/1.1 features as they stabilize
        Transfer-Encoding: chunked
        Connection: Keep-Alive
        Wait 5 sec before sending content in requests
@@ -31,9 +31,7 @@ The order of items does not reflect priority.
      inform the user of what is going on.  A good start is to pass the $ua
      reference on to the protocol->request().
 
-  o  Ensure that $ua->request() never dies when use_eval() is true.
-
-  o  Cache previous ftp connections.
+  o  Cache previous ftp connections.  "Keep-Alive"?
 
   o  Support MOVE, DELETE method for ftp.
 
@@ -61,10 +59,10 @@ The order of items does not reflect priority.
      access.  The interface should allow us to stop parsing as soon as the
      <HEAD> section is done.
 
-  o  Parse HTML 3.0 markup.
+  o  Parse full HTML 3.0 markup.
 
   o  The HTML::Element->asHTML() method breaks lines inside tags.  It does
-     not always look very nice.
+     not always look very nice.  The method should also entitify its output.
 
   o  Formatters should support tables.  The postscript formatter should
      inline images.

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.28 1997/05/08 07:01:05 aas Exp $
+# $Id: http.pm,v 1.29 1997/05/08 18:31:51 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -30,7 +30,7 @@ sub request
 
     # check method
     my $method = $request->method;
-    unless ($method =~ /^[A-Z]+$/) {
+    unless ($method =~ /^[A-Za-z0-9_!#\$%&'*+\-.^`|~]+]$/) {     # HTTP token
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
 				  'Library does not allow method ' .
 				  "$method for 'http:' URLs";

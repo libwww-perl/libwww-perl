@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.29 2001/04/22 05:32:43 gisle Exp $
+# $Id: ftp.pm,v 1.30 2001/08/06 23:47:42 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -297,8 +297,8 @@ sub request
 		$response->header('Content-Type' => 'text/html');
 		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
 		my $base = $request->url->clone;
-		my $path = $base->epath;
-		$base->epath("$path/") unless $path =~ m|/$|;
+		my $path = $base->path;
+		$base->path("$path/") unless $path =~ m|/$|;
 		$content .= qq(<BASE HREF="$base">\n</HEAD>\n);
 		$content .= "<BODY>\n<UL>\n";
 		for (File::Listing::parse_dir(\@lsl, 'GMT')) {

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.11 1995/09/13 07:40:10 aas Exp $
+# $Id: Parse.pm,v 1.12 1995/09/18 14:21:14 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -419,9 +419,9 @@ sub text
 	} elsif ($ptag eq 'head') {
 	    endtag($html, 'head');
 	    $html->insertElement('body', 1);
-	    $pos = $html->insertElement($html, 'p', 1);
+	    $pos = $html->insertElement('p', 1);
 	} elsif ($ptag eq 'html') {
-	    $html->insertElement($html, 'body', 1);
+	    $html->insertElement('body', 1);
 	    $pos = $html->insertElement('p', 1);
 	} elsif ($ptag eq 'body' ||
 	       # $ptag eq 'li'   ||

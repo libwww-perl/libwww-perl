@@ -78,6 +78,7 @@ t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/base/ua.t			Basic LWP::UserAgent tests
 t/html/form.t			Test HTML::Form module
+t/html/form-param.t		More HTML::Form tests.
 t/live/activestate.t
 t/live/apache-listing.t		Test File::Listing::apache package
 t/live/jigsaw-auth-b.t
@@ -111,3 +112,4 @@ t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.31 1997/12/17 09:54:30 aas Exp $
+# $Id: lwp-request.PL,v 1.32 1998/01/04 19:04:59 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -107,7 +107,7 @@ Print request method and absolute URL as requests are made.
 
 =item -U
 
-Print requeset headers in addition to request method and absolute URL.
+Print request headers in addition to request method and absolute URL.
 
 =item -s
 
@@ -186,7 +186,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

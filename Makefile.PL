@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.47 1998/09/11 10:11:34 aas Exp $
+# $Id: Makefile.PL,v 1.48 1998/09/16 11:03:37 aas Exp $
 
 require 5.004;
 use strict;
@@ -20,7 +20,7 @@ use vars qw($opt_n);
 unless (getopts("n")) {
     die "Usage: $0 [-n]\n";
 }
-@programs_to_install = () if $opt_n;
+@programs_to_install = () if $opt_n || grep /^LIB=/, @ARGV;
 
 
 # Check for non-standard modules that are used by this library.

@@ -30,7 +30,7 @@
     LWP::UserAgent now implements a 'max_redirect' attribute with a
     default value of 7.  This should also fix the problem where
     redirects to the same URL to get a cookie set did not work.
-    Based on a patch by Sean M. Burke C<sburke@cpan.org>.
+    Based on a patch by Sean M. Burke <sburke@cpan.org>.
 
     NTML authentication should continue to fail if the Authen::NTLM
     module can't be loaded.  LWP used to think the scheme was
@@ -40,6 +40,8 @@
     lwp-download will not try to rename *.tbz and *.tar.bz2 to
     match the reported content type.  Patch contributed by
     Robin Barker <Robin.Barker@npl.co.uk>.
+
+    HTTP::Cookies::Netscape documentation fix by Sean M. Burke.
 
 
 

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.15 1996/02/27 19:37:01 aas Exp $
+# $Id: Headers.pm,v 1.16 1996/03/18 17:46:14 aas Exp $
 
 package HTTP::Headers;
 
@@ -205,7 +205,7 @@ sub scan
 Return the header fields as a formatted MIME header.  Since it uses
 C<scan()> to build the string, the result will use case as suggested
 by HTTP Spec, and it will follow recommended "Good Practice" of
-ordering the header fieds.  Long header are I<not> folded.
+ordering the header fieds.  Long header values are I<not> folded.
 
 The optional parameter specifies the line ending sequence to use.  The
 default is C<"\n">.
@@ -331,13 +331,8 @@ machine-usable, as defined by RFC822.  E.g.:
 
 =head2 $h->referer
 
-Used to specify the address (URI) of the documetn from which the
+Used to specify the address (URI) of the document from which the
 requested resouce address was obtained.
-
-=head2 $h->uri
-
-This header field may contain one or more URIs by which the resource
-origin of the entity can be identified.
 
 =head2 $h->www_authenticate
 
@@ -407,9 +402,10 @@ sub expires           { shift->_date_header('Expires',           @_); }
 sub if_modified_since { shift->_date_header('If-Modified-Since', @_); }
 sub last_modified     { shift->_date_header('Last-Modified',     @_); }
 
-# The retry_after field is dual format, and can also be just a
-# number of seconds, so we don't provide an easy way to access it until
-# both these interfaces can be addressed.
+# The retry_after field is dual format (can also be a expressed as
+# number of seconds from now), so we don't provide an easy way to
+# access it until we have know how both these interfaces can be
+# addressed.
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
 sub content_type      { (shift->_header('Content-Type',     @_))[0] }
@@ -421,7 +417,6 @@ sub server            { (shift->_header('Server',           @_))[0] }
 
 sub from              { (shift->_header('From',             @_))[0] }
 sub referer           { (shift->_header('Referer',          @_))[0] }
-sub uri               { (shift->_header('URI',              @_))[0] }
 
 sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
 sub authorization     { (shift->_header('Authorization',    @_))[0] }

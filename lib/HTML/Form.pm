@@ -6,7 +6,7 @@ use Carp ();
 
 use vars qw($VERSION);
 
-$VERSION='1.01';  # $Date: 2003/10/14 18:48:59 $
+$VERSION='1.01';  # $Date: 2003/10/14 22:07:41 $
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -726,7 +726,7 @@ sub value
 
 =item $input->possible_values
 
-Returns a list of all values that and input can take.  For inputs that
+Returns a list of all values that an input can take.  For inputs that
 do not have discrete values, this returns an empty list.
 
 =cut

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.15 1997/12/02 13:31:36 aas Exp $
+# $Id: RobotRules.pm,v 1.16 1998/06/09 12:14:43 aas Exp $
 
 package WWW::RobotRules;
 
@@ -46,7 +46,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -96,8 +96,12 @@ sub parse {
     my @me_disallowed = ();	# rules disallowed for me
     my @anon_disallowed = ();	# rules disallowed for *
 
-    for(split(/\n/, $txt)) {
-	s/\015$//g;
+    # blank lines are significant, so turn CRLF into LF to avoid generating
+    # false ones
+    $txt =~ s/\015\012/\012/g;
+
+    # split at \012 (LF) or \015 (CR) (Mac text files have just CR for EOL)
+    for(split(/[\012\015]/, $txt)) {
 
 	# Lines containing only a comment are discarded completely, and
         # therefore do not indicate a record boundary.

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.74 2004/11/30 11:40:37 gisle Exp $
+# $Id: Makefile.PL,v 1.75 2004/11/30 11:51:58 gisle Exp $
 
 require 5.005;
 use strict;
@@ -273,7 +273,7 @@ WriteMakefile(
                       'Net::FTP'         => "2.58",
                       'HTML::Parser'     => "3.33",
                       'Digest::MD5'      => 0,
-                      'Compress::Zlib'   => "1.10',
+                      'Compress::Zlib'   => "1.10",
                      },
    'clean'       => { FILES => join(" ", map "bin/$_", @request_aliases) },
    'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

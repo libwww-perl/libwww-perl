@@ -1,6 +1,45 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.2 1995/09/05 13:04:01 aas Exp $
+# $Id: Element.pm,v 1.3 1995/09/05 14:33:35 aas Exp $
+
+=head1 NAME
+
+HTML::Element - Ditto
+
+=head1 SYNOPSIS
+
+ require HTML::Element;
+ $a = new HTML::Element 'a', href => 'http://www.oslonett.no/';
+ $a->pushContent("Oslonett AS");
+
+ $tag = $a->tag;
+ $tag = $a->starttag;
+ $tag = $a->endtag;
+ $ref = $a->attr('href');
+
+ $links = $a->extractLinks();
+
+ print $a->asHTML;
+
+=head1 DESCRIPTION
+
+Objects of the HTML::Element class can be used to represent elements
+of HTML.  Objects have attributes and content.  The content is a
+sequence of text segments and other HTML::Element objects.
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
 
 use Carp;
 
@@ -12,6 +51,17 @@ for (qw(base link meta isindex nextid
     ) {
     $noEndTag{$_} = 1;
 }
+
+# Link elements an the name of the link attribute
+%linkElements =
+(
+ 'base' => 'href',
+ 'a'    => 'href',
+ 'img'  => 'src',
+ 'from' => 'action',
+ 'link' => 'href',
+);
+
 
 sub new
 {
@@ -114,12 +164,64 @@ sub pushContent
     my $self = shift;
     $self->{'_content'} = [] unless exists $self->{'_content'};
     push(@{$self->{'_content'}}, @_);
+    $self;
 }
 
 sub deleteContent
 {
     my $self = shift;
+    for (@{$self->{'_content'}}) {
+	$_->delete if ref $_;
+    }
     delete $self->{'_content'};
+    $self;
+}
+
+sub delete
+{
+    $_[0]->deleteContent;
+    delete $_[0]->{_parent};
+    delete $_[0]->{_pos};
+    $_[0] = undef;
+}
+
+sub traverse
+{
+    my($self, $callback, $ignoretext, $depth) = @_;
+    $depth |= 0;
+
+    &$callback($self, $depth);
+    for (@{$self->{'_content'}}) {
+	if (ref $_) {
+	    $_->traverse($callback, $ignoretext, $depth+1);
+	} else {
+	    &$callback($_, $depth+1) unless $ignoretext;
+	}
+    }
+    $self;
+}
+
+sub extractLinks
+{
+    my $self = shift;
+    my %wantType; @wantType{map { lc $_ } @_} = (1) x @_;
+    my $wantType = scalar(@_);
+    my @links;
+    $self->traverse(
+	sub {
+	    my $self = shift;
+	    my $tag = $self->tag;
+	    return unless !$wantType || $wantType{$tag};
+	    my $attr = $linkElements{$tag};
+	    return unless defined $attr;
+	    $attr = $self->attr($attr);
+	    return unless defined $attr;
+	    if (@types) {
+		
+	    }
+	    push(@links, [$attr, $self]);
+	}, 1);
+    \@links;
 }
 
 sub dump
@@ -181,4 +283,6 @@ sub asHTML
     $html .= "\n" if $depth == 0;
     $html;
 }
+
+
 1;

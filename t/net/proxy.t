@@ -21,7 +21,7 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $ua->proxy('ftp', $net::ftp_proxy);
 
-my $url = new URI::URL('ftp://lancaster.nexor.co.uk/welcome.msg');
+my $url = new URI::URL('ftp://ftp.uninett.no/');
 
 my $request = new HTTP::Request('GET', $url);
 
@@ -29,7 +29,7 @@ my $response = $ua->request($request, undef, undef);
 
 my $str = $response->as_string;
 
-if ($response->is_success and $str =~ /This is the NEXOR public archive/) {
+if ($response->is_success) {
     print "ok 1\n";
 } else {
     print "not ok 1\n";

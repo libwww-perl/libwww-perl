@@ -22,8 +22,8 @@ require HTML::Format;
 		  Times-BoldItalic)],
 );
 
-      # size   0  1  2  3   4   5   6   7
-@FontSizes = ( 5, 6, 8,10, 12, 14, 18, 24);
+      # size   0   1   2   3   4   5   6   7
+@FontSizes = ( 5,  6,  8, 10, 12, 14, 18, 24);
 
 sub BOLD   { 0x01; }
 sub ITALIC { 0x02; }
@@ -37,15 +37,18 @@ sub findfont
     my $family = $self->{teletype} ? 'Courier' : $self->{family};
     my $font = $FontFamilies{$family}[$index];
     my $size = $FontSizes[$self->{fsize}];
-    $font = "$font-$size";
-    if ($self->{currentfont} eq $font) {
+    my $fontsize = "$font-$size";
+    if ($self->{currentfont} eq $fontsize) {
 	return "";
     }
-    $self->{currentfont} = $font;
+    $self->{currentfont} = $fontsize;
     $self->{pointsize} = $size;
-    $font = $self->{fonts}{$font} || do {
+
+    return "/$font findfont $size scalefont setfont";  #ok for now
+
+    $font = $self->{fonts}{$fontsize} || do {
 	my $fontID = "F" . ++$self->{fno};
-	$self->{fonts}{$font} = $fontID;
+	$self->{fonts}{$fontsize} = $fontID;
 	$fontID;
     };
     "$font setfont";
@@ -55,13 +58,13 @@ sub begin
 {
     my $self = shift;
     $self->HTML::Format::begin;
-    $self->{family} = "Helvetica";
+    $self->{family} = "Times";
 
     # Margins is points
-    $self->{lm} = 10;
+    $self->{lm} = 100;
     $self->{rm} = 520;
-    $self->{bm} = 40;
-    $self->{tm} = 800;
+    $self->{bm} = 150;
+    $self->{tm} = 700;
 
     $self->{en} = 7;    # width of an avarage char 'n' in the normal font
 
@@ -69,10 +72,50 @@ sub begin
     $self->{fsize} = 3;
     $self->{fno} = 0;
     $self->{fonts} = {};
+
+    # Initial position
+    $self->{xpos} = $self->{lm};  # top of the current line
+    $self->{ypos} = $self->{tm};
+
+    $self->{pageno} = 1;
+
+    print "%!PS-Adobe-3.0\n";
+    print "%%BeginProlog\n";
+    print "/S/show load def\n";
+    print "/M/moveto load def\n";
+    print <<'EOT';
+%%IncludeResource: encoding ISOLatin1Encoding
+%%BeginResource: procset newencode 1.0 0
+/NE { %def
+   findfont begin
+      currentdict dup length dict begin
+         { %forall
+            1 index/FID ne {def} {pop pop} ifelse
+         } forall
+         /FontName exch def
+         /Encoding exch def
+         currentdict dup
+      end
+   end
+   /FontName get exch definefont pop
+} bind def
+%%EndResource
+EOT
+    print "%%EndProlog\n";
 }
 
 sub end
 {
+    my $self = shift;
+    $self->show;
+    print "\n";
+    my($full,$short);
+    while (($full, $short) = each %{$self->{fonts}}) {
+	$full =~ s/-(\d+)$//;
+	my $size = $1;
+	print "% /$short/$full findfont $size scalefont def\n";
+    }
+    print "showpage\n";
 }
 
 sub header_start
@@ -99,17 +142,70 @@ sub pre_out
     my($self, $text) = @_;
     $self->tt_start;
     my $font = $self->findfont();
-    print "$font>>>$text\n";
+    print "%% PRE NYI: $font\n";
     $self->tt_end;
 }
 
 sub out
 {
     my($self, $text) = @_;
-    return if $text =~ /^\s*$/;
+
+    if (defined $self->{vspace}) {
+	if ($self->{out}) {
+	    $self->{ypos} -= ($self->{vspace}+1)*10;
+	}
+	$self->{xpos} = $self->{lm};
+	$self->show;
+	$self->moveto;
+	$self->{vspace} = undef;
+    }
+
     my $font = $self->findfont();
-    print "$font($text)show\n";
+    if (length $font) {
+	$self->show;
+	print "$font\n";
+    }
+    my $w = $self->width($text);
+    my $xpos = $self->{xpos};
+    my $rm   = $self->{rm};
+    if ($xpos + $w > $rm) {
+	$self->show;
+	$self->{ypos} -= 10;
+	$self->{xpos} = $self->{lm};
+	$self->moveto;
+    } else {
+	$self->{line} .= $text;
+	$self->{xpos} += $w;
+    }
+    $self->{out}++;
 }
+
+sub moveto
+{
+    my $self = shift;
+    printf "%.1f %.1f M\n", $self->{xpos}, $self->{ypos};
+}
+
+sub show
+{
+    my $self = shift;
+    my $line = $self->{line};
+    return unless length $line;
+    $line =~ s/([\(\)])/\\$1/g;
+    print "($line)S\n";
+    $self->{line} = "";
+}
+
+sub width
+{
+    my $self = shift;
+    my $w = 0;
+    while ($_[0] =~ /(.)/g) {
+	$w += $wx[ord $1];
+    }
+    $w;
+}
+
 
 sub adjust_lm
 {

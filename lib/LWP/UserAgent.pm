@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.12 1995/07/23 20:47:11 aas Exp $
+# $Id: UserAgent.pm,v 1.13 1995/08/07 16:02:47 aas Exp $
 
 package LWP::UserAgent;
 
@@ -125,7 +125,6 @@ sub new
                 'proxy'       => undef,
                 'useEval'     => 1,
                 'useAlarm'    => 1,
-                'maxRedirect' => 5,
                 'noProxy'     => [],
         }, $class;
     }
@@ -135,9 +134,12 @@ sub new
 sub clone
 {
     my $self = shift;
+    my $copy = bless { %$self }, ref $self;  # copy most fields
 
-    # this works because no values of %$self are references.
-    bless { %$self }, ref $self;
+    # elements that are references must be handled in a special way
+    $copy->{'noProxy'} = [ @{$self->{'noProxy'}} ];  # copy array
+
+    $copy;
 }
 
 
@@ -240,7 +242,7 @@ sub simpleRequest
                         &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR, $@;
         }
     }
-
+    $response->request($request);  # record request for reference
     return $response;
 }
 
@@ -257,41 +259,39 @@ This sub is getting a bit large...
 
 sub request
 {
-    my($self, $request, $arg, $size, $depth, $seenref) = @_;
+    my($self, $request, $arg, $size, $previous) = @_;
+
+    # XXX all dies below should be replaced with a response
 
     LWP::Debug::trace('()');
 
-    if (defined $depth) {
-        die "Maximum number of redirects exceeded" if
-            $depth > $self->{'maxRedirect'};
-    } else {
-        $depth = 0;
-    }
-
     my $response = $self->simpleRequest($request, $arg, $size);
-    
     my $code = $response->code;
+    $response->previous($previous) if defined $previous;
 
     LWP::Debug::debug('Simple result: ' . LWP::StatusCode::message($code));
 
     if ($code == &LWP::StatusCode::RC_MOVED_PERMANENTLY or
         $code == &LWP::StatusCode::RC_MOVED_TEMPORARILY) {
 
-        my $referral_uri = '';
-        $referral_uri = $response->header('URI');
-        $referral_uri = $response->header('Location') unless
-            $referral_uri;
-        $referral_uri = new URI::URL($referral_uri);
+        my $referral_uri =
+	  new URI::URL $response->header('URI') || 
+                       $response->header('Location');
 
         my $referral = $request->clone;
         $referral->url($referral_uri);
 
-        # XXX It'd be nice to add complete loop detection
-        # so we could bail our before maxRedirect. In practice
-        # I'd be surprised to see loops often, so we'll leave
-        # it for now in the interest of simplicity
+	# Check for loop in redirects
+	my $r = $response;
+	while ($r) {
+	    if ($r->request->url->as_string eq $referral_uri->as_string) {
+		# loop detected
+		die "Loop detected";
+	    }
+	    $r = $r->previous;
+	}
 
-        return $self->request($referral, $arg, $size, $depth+1);
+        return $self->request($referral, $arg, $size, $response);
 
     } elsif ($code == &LWP::StatusCode::RC_UNAUTHORIZED) {
 
@@ -299,8 +299,8 @@ sub request
         die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
             defined $challenge;
 
-        if (($challenge =~ /^(Basic|\S+)\s+Realm="(.*?)"/i) or
-            ($challenge =~ /^(Basic|\S+)\s+Realm=<([^<>]*)>/i)) {
+        if (($challenge =~ /^(\S+)\s+Realm\s*=\s*"(.*?)"/i) or
+            ($challenge =~ /^(\S+)\s+Realm\s*=\s*<([^<>]*)>/i)) {
 
             my($scheme, $realm) = ($1, $2);
             if ($scheme =~ /^Basic$/i) {
@@ -312,22 +312,21 @@ sub request
                     my $header = $scheme . ' ' . &Base64encode($uidpwd);
 
                     # Need to check this isn't a repeated fail!
-                    if (defined $seenref) {
-                        if (exists $seenref->{"$realm $header"}) {
-                            # here we know this failed before
-                            $response->message('Invalid Credentials');
-                            return $response;
-                        }
-                    } else {
-                        $seenref = \%;
-                    }
-                    $seenref->{"$realm $header"} = 1;
+		    my $r = $response;
+		    while ($r) {
+			my $auth = $r->request->header('Authorization');
+			if ($auth && $auth eq $header) {
+			    # here we know this failed before
+			    $response->message('Invalid Credentials');
+			    return $response;
+			}
+			$r = $r->previous;
+		    }
 
                     my $referral = $request->clone;
                     $referral->header('Authorization', $header);
 
-                    return $self->request($referral, $arg, $size, 
-                                          $depth+1, $seenref);
+                    return $self->request($referral, $arg, $size, $response);
                 } else {
                     return $response; # no password found
                 }
@@ -344,7 +343,7 @@ sub request
         die 'Resolution of' . LWP::StatusCode::message($code) .
             'not yet implemented';
     }
-    return $response;
+    $response;
 }
 
 

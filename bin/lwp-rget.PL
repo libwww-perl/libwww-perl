@@ -13,10 +13,10 @@ print OUT <<"!GROK!THIS!";
 $Config{'startperl'} -w
     eval 'exec perl -S \$0 "\$@"'
 	if 0;
-
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
+
 =head1 NAME
 
 lwp-rget - Retrieve WWW documents recursively
@@ -64,7 +64,12 @@ Limit the links to follow. Only URLs that start the prefix string are
 followed.
 
 The default prefix is set as the "directory" of the initial URL to
-follow.  For instance 'http://www.sn.no/sn'
+follow.  For instance if we start lwp-rget with the URL
+C<http://www.sn.no/foo/bar.html>, then prefix will be set to
+C<http://www.sn.no/foo/>.
+
+Use C<--prefix=''> if you don't want the fetching to be limited by any
+prefix.
 
 =item --sleep=I<n>
 
@@ -75,6 +80,10 @@ you to go slowly, not loading the server you visiting too much.
 
 Make more noise while running.
 
+=item --quiet
+
+Don't make any noise.
+
 =item --version
 
 Print program version number and quit.
@@ -84,6 +93,11 @@ Print program version number and quit.
 Print the usage message and quit.
 
 =back
+
+Before the program exits the name of the file, where the initial URL
+is stored, is printed on stdout.  All used filenames are also printed
+on stderr as they are loaded.  This printing can be suppressed with
+the I<--quiet> option.
 
 =head1 SEE ALSO
 
@@ -102,10 +116,10 @@ use URI::URL;
 use LWP::MediaTypes qw(media_suffix);
 
 use vars qw($VERSION);
-use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
+use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -119,6 +133,7 @@ GetOptions('version'  => \&print_version,
 	   'depth=i'  => \$MAX_DEPTH,
 	   'limit=i'  => \$MAX_DOCS,
 	   'verbose!' => \$VERBOSE,
+           'quiet!'   => \$QUIET,
 	   'sleep=i'  => \$SLEEP,
 	   'prefix:s' => \$PREFIX,
 	  ) || usage();
@@ -169,7 +184,7 @@ my $no_docs = 0;
 my %seen = ();     # mapping from URL => local_file
 
 my $filename = fetch($start_url);
-print "$filename\n";
+print "$filename\n" unless $QUIET;
 
 sub fetch
 {
@@ -229,7 +244,7 @@ sub fetch
 	my $doc = $res->content;
 	my $ct = $res->content_type;
 	my $name = find_name($res->request->url, $ct);
-	print STDERR "$name\n";
+	print STDERR "$name\n" unless $QUIET;
 	$seen{$plain_url->as_string} = $name;
 
 	# If the file is HTML, then we look for internal links
@@ -310,6 +325,7 @@ Allowed options are:
   --limit=N         A limit on the number documents to get (default is 100)
   --version         Print version number and quit
   --verbose         More output
+  --quiet           No output
   --sleep=SECS      Sleep between gets, ie. go slowly
   --prefix=PREFIX   Limit URLs to follow to those which begin with PREFIX
 

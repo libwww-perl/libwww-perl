@@ -2,7 +2,7 @@
         W3C Document Type Definition for the HyperText Markup Language
         This version is code named Wilbur, and also as "HTML 3.2".
 
-        Draft: Tuesday 21-May-96
+        Draft: Friday 31-May-96
 
         Author: Dave Raggett <dsr@w3.org>
 
@@ -89,7 +89,7 @@
 
 <!--=================== Text Markup =======================================-->
 
-<!ENTITY % font "TT | I | B | STRIKE | BIG | SMALL | SUB | SUP">
+<!ENTITY % font "TT | I | B  | U | STRIKE | BIG | SMALL | SUB | SUP">
 
 <!ENTITY % phrase "EM | STRONG | DFN | CODE | SAMP | KBD | VAR | CITE">
 
@@ -491,7 +491,8 @@ Here is an example:
 
 <!--======================= Tables ========================================-->
 
-<!-- Widely deployed subset of the full table standard, see RFC XXXX -->
+<!-- Widely deployed subset of the full table standard, see RFC 1942
+     e.g. at http://www.ics.uci.edu/pub/ietf/html/rfc1942.txt -->
 
 <!-- horizontal placement of table relative to window -->
 <!ENTITY % Where "(left|center|right)">
@@ -514,6 +515,7 @@ Here is an example:
         align     %Where;   #IMPLIED  -- table position relative to window --
         width     %Length   #IMPLIED  -- table width relative to window --
         border    %Pixels   #IMPLIED  -- controls frame width around table --
+        dummy     (border)  #IMPLIED  -- fixes SGML error for border w/o value --
         cellspacing %Pixels #IMPLIED  -- spacing between cells --
         cellpadding %Pixels #IMPLIED  -- spacing within cells --
         >

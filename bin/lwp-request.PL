@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.14 1995/08/09 11:19:05 aas Exp $
+# $Id: lwp-request.PL,v 1.15 1995/08/09 18:43:54 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -139,7 +139,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -259,7 +259,7 @@ $ua = new RequestAgent;
 # Load proxy settings from *_proxy environment variables.
 $ua->envProxy unless $opt_P;
 
-$method = $opt_m if defined $opt_m;
+$method = uc($opt_m) if defined $opt_m;
 
 if ($opt_f) {
     if ($opt_c) {

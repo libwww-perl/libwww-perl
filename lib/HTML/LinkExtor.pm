@@ -47,6 +47,7 @@ use vars qw(%LINK_ELEMENT);
  frame  => 'src',
  applet => 'codebase',
  area   => 'href',
+ embed  => 'src',   # used in Netscape 3.0 for Shockwave and things like that
 );
 
 =head2 $p = HTML::LinkExtor->new($callback, $base)

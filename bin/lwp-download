@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.1 2002/01/03 02:09:24 gisle Exp $
+# $Id: lwp-download,v 2.2 2003/10/15 18:34:33 gisle Exp $
 
 =head1 NAME
 
@@ -60,7 +60,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.1 $;
+my $version = q$Revision: 2.2 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -109,8 +109,8 @@ my $res = $ua->request($req,
 		      my $suffix = media_suffix($res->content_type);
 		      $file .= ".$suffix" if $suffix;
 		  } elsif ($rurl->scheme eq 'ftp' ||
-			   $file =~ /\.tgz$/      ||
-			   $file =~ /\.tar(\.(Z|gz))?$/
+			   $file =~ /\.t[bg]z$/   ||
+			   $file =~ /\.tar(\.(Z|gz|bz2?))?$/
 			  ) {
 		      # leave the filename as it was
 		  } else {

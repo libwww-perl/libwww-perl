@@ -37,6 +37,10 @@
     available as soon as the module stash showed up.  Not it looks
     for the authenticate method to be defined.  Patch by Jan Dubois.
 
+    lwp-download will not try to rename *.tbz and *.tar.bz2 to
+    match the reported content type.  Patch contributed by
+    Robin Barker <Robin.Barker@npl.co.uk>.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

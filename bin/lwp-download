@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.7 2004/11/12 13:10:23 gisle Exp $
+# $Id: lwp-download,v 2.8 2004/11/12 13:27:46 gisle Exp $
 
 =head1 NAME
 
@@ -62,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.7 $;
+my $version = q$Revision: 2.8 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -150,7 +150,7 @@ my $res = $ua->request($req,
 	  else {
 	      $file = $argfile;
 	  }
-	  open(FILE, ">$file") || die "Can't open $file: $!";
+	  open(FILE, ">$file") || die "Can't open $file: $!\n";
           binmode FILE unless $opt{a};
 	  $length = $res->content_length;
 	  $flength = fbytes($length) if defined $length;
@@ -158,7 +158,7 @@ my $res = $ua->request($req,
 	  $last_dur = 0;
       }
 
-      print FILE $_[0] or die "Can't write to $file: $!";
+      print FILE $_[0] or die "Can't write to $file: $!\n";
       $size += length($_[0]);
 
       if (defined $length) {
@@ -182,7 +182,7 @@ my $res = $ua->request($req,
 );
 
 if (fileno(FILE)) {
-    close(FILE) || die "Can't write to $file: $!";
+    close(FILE) || die "Can't write to $file: $!\n";
 
     show("");  # clear text
     print "\r";
@@ -201,6 +201,9 @@ if (fileno(FILE)) {
     }
 
     if ($res->header("X-Died") || !$res->is_success) {
+	if (my $died = $res->header("X-Died")) {
+	    print "$died\n";
+	}
 	if (-t) {
 	    print "Transfer aborted.  Delete $file? [n] ";
 	    my $ans = <STDIN>;

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.50 2004/11/30 11:25:07 gisle Exp $
+# $Id: Message.pm,v 1.51 2004/11/30 11:37:26 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -530,11 +530,18 @@ The following options can be specified.
 
 =item C<charset>
 
-This override the charset parameter for text content.
+This override the charset parameter for text content.  The value
+C<none> can used to suppress decoding of the charset.
 
 =item C<default_charset>
 
 This override the default charset of "ISO-8859-1".
+
+=item C<ref>
+
+If TRUE then a reference to decoded content is returned.  This might
+be more efficient in cases where the decoded content is identical to
+the raw content as no data copying is required in this case.
 
 =back
 

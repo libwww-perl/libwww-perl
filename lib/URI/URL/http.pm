@@ -9,6 +9,13 @@ sub illegal { Carp::croak("Illegal method for http URLs"); }
 *user     = \&illegal;
 *password = \&illegal;
 
+
+# @ISA = qw(AutoLoader)      # This comment is needed by AutoSplit.
+sub keywords;
+sub query_form;
+1;
+__END__
+
 # Note that the following two methods does not return the old
 # value if they are used to set a new value.
 # The risk of croaking is to high :-)

@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..3\n";
+print "1..6\n";
 
 use strict;
 #use Data::Dump ();
@@ -13,6 +13,7 @@ use strict;
 
     my %servers = (
       a => { "/" => "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 6\r\n\r\nHello\n",
+	     "/bad1" => "HTTP/1.0 200 OK\nServer: foo\nHTTP/1.0 200 OK\nContent-type: text/foo\n\nabc\n",
 	   },
     );
 
@@ -125,3 +126,21 @@ print "not " unless $res->{code} eq "200" &&
                     $res->{content} eq "TRACE /foo HTTP/1.1\r\nKeep-Alive: 300\r\nConnection: Keep-Alive\r\nHost: a:80\r\n\r\n";
 print "ok 3\n";
 
+# try to turn off keep alive
+$h->keep_alive(0);
+$res = $h->request(TRACE => "/foo");
+print "not " unless $res->{code} eq "200" &&
+                    $res->{content} eq "TRACE /foo HTTP/1.1\r\nConnection: close\r\nHost: a:80\r\n\r\n";
+print "ok 4\n";
+
+# try a bad one
+$res = $h->request(GET => "/bad1", [], {laxed => 1});
+print "not " unless $res->{code} eq "200" && $res->{message} eq "OK" &&
+                    "@{$res->{headers}}" eq "Server foo Content-type text/foo" &&
+                    $res->{content} eq "abc\n";
+print "ok 5\n";
+
+$res = $h->request(GET => "/bad1");
+print "not " unless $res->{error} =~ /Bad header/ && !$res->{code};
+print "ok 6\n";
+$h = undef;  # it is in a bad state now

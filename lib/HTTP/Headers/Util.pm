@@ -3,13 +3,12 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
 
-@EXPORT_OK=qw(split_etag_list join_etag_list
-              split_header_words join_header_words);
+@EXPORT_OK=qw(split_header_words join_header_words);
 
 =head1 NAME
 
@@ -163,59 +162,6 @@ sub join_header_words
 	push(@res, join("; ", @attr)) if @attr;
     }
     join(", ", @res);
-}
-
-=item split_etag_list( @header_values )
-
-Split a list of entity tag values.  The return value is a list
-consisting of one element per entity tag.  Suitable for parsing
-headers like C<If-Match>, C<If-None-Match>.  You might even want to
-use it on C<ETag> and C<If-Range> entity tag values, because it will
-normalize them to the common form.
-
-  entity-tag	  = [ weak ] opaque-tag
-  weak		  = "W/"
-  opaque-tag	  = quoted-string
-
-
-=cut
-
-sub split_etag_list
-{
-    my(@val) = @_;
-    my @res;
-    for (@val) {
-        while (length) {
-            my $weak = "";
-	    $weak = "W/" if s,^\s*[wW]/,,;
-            my $etag = "";
-	    if (s/^\s*(\"[^\"\\]*(?:\\.[^\"\\]*)*\")//) {
-		push(@res, "$weak$1");
-            } elsif (s/^\s*,//) {
-                push(@res, qq(W/"")) if $weak;
-            } elsif (s/^\s*([^,\s]+)//) {
-                $etag = $1;
-		$etag =~ s/([\"\\])/\\$1/g;
-	        push(@res, qq($weak"$etag"));
-            } elsif (s/^\s+// || !length) {
-                push(@res, qq(W/"")) if $weak;
-            } else {
-	 	die "This should not happen: '$_'";
-            }
-        }
-   }
-   @res;
-}
-
-=item join_etag_list(@list)
-
-Reverses the operation by split_etag_list().
-
-=cut
-
-sub join_etag_list
-{
-   join(", ", @_);
 }
 
 1;

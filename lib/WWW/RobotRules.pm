@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.13 1996/10/21 22:02:38 aas Exp $
+# $Id: RobotRules.pm,v 1.14 1997/01/26 14:35:12 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -96,9 +96,14 @@ sub parse {
 
     for(split(/\n/, $txt)) {
 	s/\015$//g;
-	s/\s*\#.*//;
 
-	if (/^\s*$/) {		# blank line
+	# Lines containing only a comment are discarded completely, and
+        # therefore do not indicate a record boundary.
+	next if /^\s*\#/;
+
+	s/\s*\#.*//;        # remove comments at end-of-line
+
+	if (/^\s*$/) {	    # blank line
 	    last if $is_me; # That was our record. No need to read the rest.
 	    $is_anon = 0;
 	}

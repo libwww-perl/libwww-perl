@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.16 1996/02/05 18:12:04 aas Exp $
+# $Id: Makefile.PL,v 1.17 1996/02/05 18:52:43 aas Exp $
 
 #--- Configuration section ---
 
@@ -23,7 +23,7 @@ unless (getopts("l")) {
 $PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
                          [split ":", $ENV{PATH}], 0);
 $NAME = 'libwww-perl';
-$VERSION = '5b7save';
+$VERSION = '5b7';
 
 # Write findings to a file so that other .PL files can read them.
 open(OUT, ">myConfig.out") or die "Can't open myConfig.out: $!";
@@ -42,7 +42,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
    NAME          => $NAME,
    VERSION       => $VERSION,
-   #VERSION_FROM  => 'lib/LWP.pm',
+   #VERSION_FROM  => 'lib/LWP.pm', # Can be enabled when the real thing is out
    SKIP          => [qw(static dynamic)],
    PL_FILES      => {
                       'bin/request.PL' => 'bin/request',

@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.6 1997/10/16 12:07:52 aas Exp $
+# $Id: Heuristic.pm,v 4.7 1998/01/06 10:05:56 aas Exp $
 
 =head1 NAME
 
@@ -78,11 +78,12 @@ modify it under the same terms as Perl itself.
 
 use strict;
 
-use vars qw(@EXPORT_OK $MY_COUNTRY %LOCAL_GUESSING $DEBUG);
+use vars qw(@EXPORT_OK $VERSION $MY_COUNTRY %LOCAL_GUESSING $DEBUG);
 
 require Exporter;
 *import = \&Exporter::import;
 @EXPORT_OK = qw(uf_url uf_urlstr);
+$VERSION = sprintf("%d.%02d", q$Revision: 4.7 $ =~ /(\d+)\.(\d+)/);
 
 eval {
     require Net::Domain;

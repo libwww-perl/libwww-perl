@@ -1,9 +1,10 @@
-# $Id: DB_File.pm,v 1.2 1997/12/02 13:27:43 aas Exp $
+# $Id: DB_File.pm,v 1.3 1998/01/06 10:07:17 aas Exp $
 
 package WWW::RobotRules::DB_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 use DB_File;

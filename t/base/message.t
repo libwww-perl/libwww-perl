@@ -1,4 +1,4 @@
-print "1..16\n";
+print "1..17\n";
 
 require HTTP::Request;
 require HTTP::Response;
@@ -106,3 +106,13 @@ $res->content_type("text/html");
 $res->base eq "file:/" || print "not ";
 print "ok 16\n";
 
+$res->content("<head><title>Foo</title><h1>Foo</h1>
+Some text
+");
+
+# This was an error in the B11 release.  If $1 was set before calling
+# base(), then we would return it's value.
+"2" =~ /(\d)/;   # set $1 to "2"
+
+$res->base eq "http://www.sn.no/" || print "not ";
+print "ok 17\n";

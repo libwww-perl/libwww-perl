@@ -1,12 +1,12 @@
 #
-# $Id: LWP.pm,v 1.35 1996/06/24 16:46:07 aas Exp $
+# $Id: LWP.pm,v 1.36 1996/09/11 12:57:40 aas Exp $
 
 package LWP;
 
 require Exporter;
 @ISA=qw(Exporter);  # for version number checking
 
-$VERSION = "5.01";
+$VERSION = "5.02";
 
 sub Version { $VERSION; }
 

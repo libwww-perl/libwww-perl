@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.22 1995/09/04 20:53:51 aas Exp $
+# $Id: UserAgent.pm,v 1.23 1996/02/05 18:06:38 aas Exp $
 
 package LWP::UserAgent;
 
@@ -99,6 +99,7 @@ require HTTP::Date;
 require HTTP::Request;
 require HTTP::Response;
 
+require LWP;
 require LWP::Debug;
 require LWP::Protocol;
 
@@ -132,7 +133,7 @@ sub new
         $self = $init->clone;
     } else {
         $self = bless {
-                'agent'       => undef,
+                'agent'       => "libwww-perl/$LWP::VERSION",
                 'timeout'     => 3*60,
                 'proxy'       => undef,
                 'useEval'     => 1,

@@ -1,0 +1,50 @@
+#!/local/bin/perl
+
+# This script is used to produce a clean distribution copy of the
+# lwp library.
+
+require 5.001;
+sub run;
+
+chomp($pwd = `pwd`);
+
+die "You must be in the lwp directory"
+   unless $pwd =~ m,/lwp(-\d+\.\d+([a-z]\d*)?)?$,;
+
+chomp($version = `cat VERSION`);
+die "Illegal version number '$version'"
+   unless $version =~ /^\d+\.\d+([a-z]\d*)?$/;
+
+$name = "lwp-$version";
+$base = "/usr/tmp/$name";
+
+print "Copying...\n";
+run "rm -rf $base";
+run "cp -r $pwd $base";
+
+print "Removing scratch files...\n";
+run "find $base \\( -name '*~' -o -name '#*' -o -name CVS -o -name RCS \\) -print | xargs rm -rf";
+
+print "Patching relevant files...\n";
+
+# Updating version number in README file
+run "perl -pi -e 's/(version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $version/ig' $base/README";
+
+# Updating version number in LWP/LWP.pm file
+run qq(perl -pi -e 's/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1 "$version"/' $base/lib/LWP/LWP.pm);
+
+print "Making tar file...\n";
+run "(cd /usr/tmp; tar cf - $name) | gzip >../$name.tar.gz";
+
+print "Cleaning up...\n";
+run "rm -rf $base";
+
+# report
+run "echo; ls -l ../$name.tar.gz";
+exit;
+
+sub run
+{
+    print ">>> @_\n";
+    system @_;
+}

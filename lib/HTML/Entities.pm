@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.8 1996/09/06 07:18:46 aas Exp $
+# $Id: Entities.pm,v 1.9 1997/07/09 09:38:18 aas Exp $
 
 =head1 NAME
 
@@ -42,25 +42,21 @@ corresponding entities.
 
 =head1 COPYRIGHT
 
-Copyright 1995, 1996 Gisle Aas. All rights reserved.
+Copyright 1995-1997 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-=head1 AUTHOR
-
-Gisle Aas <aas@sn.no>
-
 =cut
 
-
+require 5.004;
 require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -188,15 +184,30 @@ for (0 .. 255) {
 
 sub decode_entities
 {
-    for (@_) {
-	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
-	s/(&(\w+);?)/$entity2char{$2} || $1/eg;
+    my $array;
+    if (defined wantarray) {
+	$array = [@_]; # copy
+    } else {
+	$array = \@_;  # modify in-place
     }
-    $_[0];
+    my $c;
+    for (@$array) {
+	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
+	s/(&\#[xX]([0-9a-fA-F]+);?)/$c = hex($2); $c < 256 ? chr($c) : $1/eg;
+	s/(&(\w+);?)/$entity2char{$2} || "$1;"/eg;
+    }
+    wantarray ? @$array : $array->[0];
 }
 
 sub encode_entities
 {
+    my $ref;
+    if (defined wantarray) {
+	my $x = $_[0];
+	$ref = \$x;     # copy
+    } else {
+	$ref = \$_[0];  # modify in-place
+    }
     if (defined $_[1]) {
 	unless (exists $subst{$_[1]}) {
 	    # Because we can't compile regex we fake it with a cached sub
@@ -204,12 +215,12 @@ sub encode_entities
 	      eval "sub {\$_[0] =~ s/([$_[1]])/\$char2entity{\$1}/g; }";
 	    die $@ if $@;
 	}
-	&{$subst{$_[1]}}($_[0]);
+	&{$subst{$_[1]}}($$ref);
     } else {
 	# Encode control chars, high bit chars and '<', '&', '>', '"'
-	$_[0] =~ s/([^\n\t !\#\$%\'-;=?-~])/$char2entity{$1}/g;
+	$$ref =~ s/([^\n\t !\#\$%\'-;=?-~])/$char2entity{$1}/g;
     }
-    $_[0];
+    $$ref;
 }
 
 # Set up aliases

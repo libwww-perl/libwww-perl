@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.4 1996/10/17 11:43:38 aas Exp $
+# $Id: Daemon.pm,v 1.5 1996/10/18 09:50:58 aas Exp $
 #
 
 use strict;
@@ -12,28 +12,35 @@ HTTP::Daemon - a simple http server class
 =head1 SYNOPSIS
 
   use HTTP::Daemon;
+  use HTTP::Status;
+
   $d = new HTTP::Daemon;
-  print $d->url, "\n";
-  $c = $d->accept;
-  $r = $c->get_request;
-  print $c "HTTP/1.0 200 OK
-  Content-Type: text/plain
-  
-  Howdy
-  ";
+  print "Please contact me at: <URL:", $d->url, ">\n";
+  while ($c = $d->accept) {
+      $r = $c->get_request;
+      if ($r) {
+	  if ($r->method eq 'GET' and $r->url->path eq "/xyzzy") {
+              # this is *not* recommened practice
+	      $c->send_file_response("/etc/passwd");
+	  } else {
+	      $c->send_error(RC_FORBIDDEN)
+	  }
+      }
+      $c = undef;  # close connection
+  }
 
 =head1 DESCRIPTION
 
-Instances of the I<HTTP::Daemon> class are simple http servers that
-listens on a socket for incomming requests. The I<HTTP::Daemon> is
-also also a sub-class of I<IO::Socket::INET>, so you can do socket
-operations directly on it.
+Instances of the I<HTTP::Daemon> class are http servers that listens
+on a socket for incoming requests. The I<HTTP::Daemon> is a sub-class
+of I<IO::Socket::INET>, so you can do socket operations directly on
+it.
 
-The $h->accept call will return when a connection from a client is
-available. The returned value will be a reference to a
+The accept() method will return when a connection from a client is
+available. The returned value will be a reference to a object of the
 I<HTTP::Daemon::ClientConn> class which is another I<IO::Socket::INET>
-subclass. Calling $c->get_request() will return a I<HTTP::Request>
-object reference.
+subclass. Calling the get_request() method on this object will return
+an I<HTTP::Request> object reference.
 
 =head1 METHODS
 
@@ -42,90 +49,30 @@ to the I<IO::Socket::INET> base class.
 
 =over 4
 
-=item $d = new HTTP::Deamon
-
-The object constructor takes the same parameters as a new
-I<IO::Socket>, but it can also be called without specifying any
-object. The deamon will then set up a listen queue of 5 connections
-and find some random free port.
-
-=item $d->url
-
-Returns a URL string that can be used to access the server.
-
-=item $c = $d->accept
-
-Same as I<IO::Socket::accept> but will return an
-I<HTTP::Deamon::ClientConn> reference.
-
-=back
-
-The I<HTTP::Deamon::ClientConn> is also a I<IO::Socket::INET>
-subclass. The following methods differ.
-
-=over 4
-
-=item $c->get_request
-
-Will read data from the client and turn it into a I<HTTP::Request>
-object which is returned. Will return undef if reading of the request
-failed.
-
-=item $c->daemon
-
-Return a reference to the corresponding I<HTTP::Daemon> object.
-
-=item $c->send_response( [$res] )
-
-Takes a I<HTTP::Response> object as parameter and send it back to the
-client as the response.
-
-=item $c->send_redirect( $loc, [$code, [$message]] )
-
-Sends a redirect response back to the client.  The location ($loc) can
-be an abolute or a relative URL. The $code must be one the redirect
-status codes.
-
-=item $c->send_file_response($filename)
-
-Send back a response with the specified $filename as content.
-
-=item $c->send_file($fd);
-
-Copies the file back to the client.  The file can be a string (which
-will be interpreted as a filename) or a reference to a glob.
-
-=item $c->send_status_line( [$code, [$mess, [$proto]]] )
-
-Sends the status line back to the client.
-
-=item $c->send_basic_header( [$code, [$mess, [$proto]]] )
-
-Sends the status line and the "Date:" and "Server:" headers back to
-the client.
-
-=back
-
-=head1 SEE ALSO
-
-L<IO::Socket>
-
-=head1 COPYRIGHT
-
-Copyright 1996, Gisle Aas
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
 =cut
+
 
 use vars qw($VERSION @ISA);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
 
+=item $d = new HTTP::Daemon
+
+The object constructor takes the same parameters as the
+I<IO::Socket::INET> constructor.  It can also be called without
+specifying any parameters. The daemon will then set up a listen queue
+of 5 connections and allocate some random port number.  A server
+that want to bind to some specific address on the standard HTTP port
+will be constructed like this:
+
+  $d = new HTTP::Daemon
+        LocalAddr => 'www.someplace.com',
+        LocalPort => 80;
+
+=cut
 
 sub new
 {
@@ -145,6 +92,14 @@ sub new
 }
 
 
+=item $c = $d->accept
+
+Same as I<IO::Socket::accept> but will return an
+I<HTTP::Daemon::ClientConn> reference.  It will return undef if you
+have specified a timeout and no connection is made within that time.
+
+=cut
+
 sub accept
 {
     my $self = shift;
@@ -154,6 +109,12 @@ sub accept
     $sock;
 }
 
+
+=item $d->url
+
+Returns a URL string that can be used to access the server root.
+
+=cut
 
 sub url
 {
@@ -183,8 +144,24 @@ use URI::URL qw(url);
 use LWP::MediaTypes qw(guess_media_type);
 use Carp ();
 
-my $NL = "\015\012";   # "\r\n" is not portable
+my $CRLF = "\015\012";   # "\r\n" is not portable
 
+=back
+
+The I<HTTP::Daemon::ClientConn> is also a I<IO::Socket::INET>
+subclass. Instances of this class are returned by the accept() method
+of the I<HTTP::Daemon>.  The following additional methods are
+provided:
+
+=over 4
+
+=item $c->get_request
+
+Will read data from the client and turn it into a I<HTTP::Request>
+object which is then returned. Will return undef if reading of the
+request failed.
+
+=cut
 
 sub get_request
 {
@@ -243,31 +220,51 @@ sub get_request
 }
 
 
+=item $c->send_status_line( [$code, [$mess, [$proto]]] )
+
+Sends the status line back to the client.
+
+=cut
+
 sub send_status_line
 {
     my($self, $status, $message, $proto) = @_;
     $status  ||= RC_OK;
     $message ||= status_message($status);
     $proto   ||= "HTTP/1.0";
-    print $self "$proto $status $message$NL";
+    print $self "$proto $status $message$CRLF";
 }
 
 
 sub send_crlf
 {
     my $self = shift;
-    print $self $NL;
+    print $self $CRLF;
 }
 
+
+=item $c->send_basic_header( [$code, [$mess, [$proto]]] )
+
+Sends the status line and the "Date:" and "Server:" headers back to
+the client.
+
+=cut
 
 sub send_basic_header
 {
     my $self = shift;
     $self->send_status_line(@_);
-    print $self "Date: ", time2str(time), "$NL";
-    print $self "Server: libwww-perl-daemon/$HTTP::Daemon::VERSION\015\12";
+    print $self "Date: ", time2str(time), $CRLF;
+    print $self "Server: libwww-perl-daemon/$HTTP::Daemon::VERSION$CRLF";
 }
 
+
+=item $c->send_response( [$res] )
+
+Takes a I<HTTP::Response> object as parameter and send it back to the
+client as the response.
+
+=cut
 
 sub send_response
 {
@@ -278,29 +275,45 @@ sub send_response
 	$res = HTTP::Response->new($res, @_);
     }
     $self->send_basic_header($res->code, $res->message, $res->protocol);
-    print $self $res->headers_as_string("$NL");
-    print $self $NL;  # separates headers and content
+    print $self $res->headers_as_string($CRLF);
+    print $self $CRLF;  # separates headers and content
     print $self $res->content;
 }
 
+
+=item $c->send_redirect( $loc, [$code, [$entity_body]] )
+
+Sends a redirect response back to the client.  The location ($loc) can
+be an absolute or a relative URL. The $code must be one the redirect
+status codes, and it defaults to "301 Moved Permanently"
+
+=cut
 
 sub send_redirect
 {
     my($self, $loc, $status, $content) = @_;
     $status ||= RC_MOVED_PERMANENTLY;
     Carp::croak("Status '$status' is not redirect") unless is_redirect($status);
-
+    $self->send_basic_header($status);
     $loc = url($loc, $self->daemon->url) unless ref($loc);
     $loc = $loc->abs;
-    print $self "Location: $loc$NL";
+    print $self "Location: $loc$CRLF";
     if ($content) {
 	my $ct = $content =~ /^\s*</ ? "text/html" : "text/plain";
-	print $self "Content-Type: $ct$NL";
+	print $self "Content-Type: $ct$CRLF";
     }
-    print $self $NL;
+    print $self $CRLF;
     print $self $content if $content;
 }
 
+
+=item $c->send_error( [$code, [$error_message]] )
+
+Send an error response back to the client.  If the $code is missing a
+"Bad Request" error is reported.  The $error_message is a string that
+is incorporated in the body of the HTML entity body.
+
+=cut
 
 sub send_error
 {
@@ -310,8 +323,8 @@ sub send_error
     my $mess = status_message($status);
     $error  ||= "";
     $self->send_basic_header($status);
-    print $self "Content-Type: text/html$NL";
-    print $self "$NL";
+    print $self "Content-Type: text/html$CRLF";
+    print $self $CRLF;
     print $self <<EOT;
 <title>$status $mess</title>
 <h1>$status $mess</title>
@@ -320,6 +333,13 @@ EOT
     $status;
 }
 
+
+=item $c->send_file_response($filename)
+
+Send back a response with the specified $filename as content.  If the
+file happen to be a directory we will generate a HTML index for it.
+
+=cut
 
 sub send_file_response
 {
@@ -334,11 +354,11 @@ sub send_file_response
 	my($ct,$ce) = guess_media_type($file);
 	my($size,$mtime) = (stat _)[7,9];
 	$self->send_basic_header;
-	print $self "Content-Type: $ct$NL";
-	print $self "Content-Encoding: $ce$NL" if $ce;
-	print $self "Content-Length: $size$NL";
-	print $self "Last-Modified: ", time2str($mtime), "$NL";
-	print $self "$NL";
+	print $self "Content-Type: $ct$CRLF";
+	print $self "Content-Encoding: $ce$CRLF" if $ce;
+	print $self "Content-Length: $size$CRLF";
+	print $self "Last-Modified: ", time2str($mtime), "$CRLF";
+	print $self $CRLF;
 	$self->send_file(\*F);
 	return RC_OK;
     } else {
@@ -354,6 +374,13 @@ sub send_dir
     $self->send_error(RC_NOT_IMPLEMENTED);
 }
 
+
+=item $c->send_file($fd);
+
+Copies the file back to the client.  The file can be a string (which
+will be interpreted as a filename) or a reference to a glob.
+
+=cut
 
 sub send_file
 {
@@ -378,10 +405,31 @@ sub send_file
 }
 
 
+=item $c->daemon
+
+Return a reference to the corresponding I<HTTP::Daemon> object.
+
+=cut
+
 sub daemon
 {
     my $self = shift;
     ${*$self}{'httpd_daemon'};
 }
+
+=back
+
+=head1 SEE ALSO
+
+L<IO::Socket>, L<Apache>
+
+=head1 COPYRIGHT
+
+Copyright 1996, Gisle Aas
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
 
 1;

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.6 1995/09/05 23:42:29 aas Exp $
+# $Id: Parse.pm,v 1.7 1995/09/11 10:22:55 aas Exp $
 
 =head1 NAME
 
@@ -94,7 +94,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -212,7 +212,7 @@ sub parse_htmlfile
     my $file = shift;
     open(F, $file) or return new HTML::Element 'html', 'comment' => $!;
     my $html = undef;
-    my $chunk;
+    my $chunk = '';
     while(read(F, $chunk, 1024)) {
 	$html = parse_html($chunk, $html);
     }

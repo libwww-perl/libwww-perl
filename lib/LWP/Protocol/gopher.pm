@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.9 1995/09/04 20:54:17 aas Exp $
+# $Id: gopher.pm,v 1.10 1995/12/05 13:55:54 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -203,7 +203,7 @@ EOT
         $tmp .= qq{<A HREF="$url">$pretty</A><BR>\n};
     }
     $tmp .= "</BODY>\n</HTML>\n";
-    $tmp
+    $tmp;
 }
                 
 1;

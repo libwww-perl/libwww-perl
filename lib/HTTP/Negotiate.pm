@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.13 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Negotiate.pm,v 1.14 2003/10/26 14:27:08 gisle Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -309,11 +309,11 @@ __END__
 
 =head1 NAME
 
-choose - choose a variant of a document to serve (HTTP content negotiation)
+HTTP::Negotiate - choose a variant to serve
 
 =head1 SYNOPSIS
 
- use HTTP::Negotiate;
+ use HTTP::Negotiate qw(choose);
 
  #  ID       QS     Content-Type   Encoding Char-Set        Lang   Size
  $variants =

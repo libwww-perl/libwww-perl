@@ -6,9 +6,9 @@
     connection will stay open if keep-alives are enabled.
 
     LWP::Protocol::http11 various fixes:
-        - chunked
+        - chunked request content did not work
         - monitor connection while sending request content
-        - deal with Exect: 100-continue
+        - deal with Expect: 100-continue
 
     LWP::RobotUA: Protect host_port call.  Not all URIs have this method.
 

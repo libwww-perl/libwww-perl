@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.56 1998/01/06 10:02:05 aas Exp $
+# $Id: UserAgent.pm,v 1.57 1998/01/06 10:20:38 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.56 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -314,6 +314,7 @@ sub request
 	my $class = "LWP::Authen::\u$scheme";
 	$class =~ s/-/_/g;
 	
+	no strict 'refs';
 	unless (defined %{"$class\::"}) {
 	    # try to load it
 	    eval "require $class";

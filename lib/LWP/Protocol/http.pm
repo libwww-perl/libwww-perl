@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.24 1996/07/23 19:53:16 aas Exp $
+# $Id: http.pm,v 1.25 1996/11/11 17:46:39 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -154,6 +154,7 @@ sub request
 	# we just guess that it is '\n'.  This will not always be correct.
 	$socket->pushback("$line\n");
     }
+    $response->request($request);
 
     # need to read content
     alarm($timeout) if $self->use_alarm and $timeout;

@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.16 1996/07/17 08:52:00 aas Exp $
+# $Id: ftp.pm,v 1.17 1996/11/11 17:46:37 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -81,6 +81,7 @@ sub request
 
     # Create an initial response object
     my $response = new HTTP::Response &HTTP::Status::RC_OK, "Document follows";
+    $response->request($request);
 
     my $ftp = new Net::FTP $host, Port => $port;
     my $mess = $ftp->message;  # welcome message

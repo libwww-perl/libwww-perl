@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.29 2004/04/06 11:37:32 gisle Exp $
+# $Id: RobotRules.pm,v 1.30 2004/04/09 15:09:14 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -13,7 +13,7 @@ use URI ();
 sub new {
     my($class, $ua) = @_;
 
-    # This ugly hack is needed to ensure backwards compatability.
+    # This ugly hack is needed to ensure backwards compatibility.
     # The "WWW::RobotRules" class is now really abstract.
     $class = "WWW::RobotRules::InCore" if $class eq "WWW::RobotRules";
 
@@ -121,7 +121,7 @@ sub is_me {
     # See whether my short-name is a substring of the
     #  "User-Agent: ..." line that we were passed:
     
-    if(index(lc($ua_line), lc($me)) >= 0) {
+    if(index(lc($me), lc($ua_line)) >= 0) {
       LWP::Debug::debug("\"$ua_line\" applies to \"$me\"")
        if defined &LWP::Debug::debug;
       return 1;

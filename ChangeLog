@@ -1,3 +1,31 @@
+Tue Jan 20 1998   Gisle Aas <aas@sn.no>
+
+ o  Developer release 5.18_05
+
+ o  HTTPS support based on my Crypt-SSLeay module.  The Net-SSLeay module
+    is not supported any more.
+
+ o  lwp-request documentation typo spotted Martijn Koster.
+
+ o  Removed superfluous \\ in the URI::Escape regex. This was also
+    spotted by Martijn.
+
+ o  File::Listing now handles timezones correctly.
+
+ o  Added $VERSION to modules that was missing it.
+
+ o  Added 'use strict' to several modules that was missing it.
+
+ o  LWP::Protocol::http now adds the Client-Peer header to responses and
+    has hooks for more callbacks.
+
+ o  LWP::Protocol::https adds Client-SSL-Cipher, Client-SSL-Cert-Subject
+    and Client-SSL-Cert-Issuer headers to the response.  The requests can
+    also be made conditional based on the peer certificate using the
+    If-SSL-Cert-Subject header in requests.
+
+
+
 Wed Dec 17 1997   Gisle Aas <aas@sn.no>
 
  o  Developer release 5.18_04

@@ -1,10 +1,13 @@
-2001-09-17   Gisle Aas <gisle@ActiveState.com>
+2001-09-19   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_97
 
     LWP::Protocol::http11: fix socket leak.  Because we managed
     to set up a circular reference within the sockets objects they
     stayed around forever.
+
+    LWP::UserAgent: Split up simple_request into prepare_request
+    and send_request. Patch contributed by Keiichiro Nagano <knagano@sodan.org>
 
     LWP::Protocol::http: Pass all header data to LWP::Debug::conns.
     Based on patch by Martijn.

@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.5 1995/07/25 08:12:44 aas Exp $
+# $Id: gopher.pm,v 1.6 1995/08/07 11:22:40 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -111,7 +111,7 @@ sub request
         }
         
     }
-    $requestLine .= "\r\n";
+    $requestLine .= "\015\012";
 
     # potential request headers are just ignored
 
@@ -185,7 +185,7 @@ sub gopher2url
 sub menu2html {
     my($menu) = @_;
 
-    $menu =~ s/\r//g;
+    $menu =~ s/\015//g;  # remove carriage return
     my $tmp = <<"EOT";
 <HTML>
 <HEAD>

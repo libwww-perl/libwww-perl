@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.8 1995/07/18 11:51:48 aas Exp $
+# $Id: http.pm,v 1.9 1995/08/07 11:22:41 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -17,7 +17,9 @@ use FileHandle;
 
 my $httpprotocol = 'http';         # for getservbyname
 my $httpversion  = 'HTTP/1.0';     # for requests
-my $endl         = "\r\n";         # how lines should be terminated
+my $endl         = "\015\012";     # how lines should be terminated;
+                                   # "\r\n" is not correct on all systems, for
+                                   # instance MacPerl defines it to "\012\015"
 
 # "" = No content in request, "C" = Needs content in request
 %allowedMethods = (
@@ -78,7 +80,7 @@ sub request
     $socket->open($host, $port);
     LWP::Debug::debug('connected');
 
-    my $request_line = "$method $fullpath $httpversion\r\n";
+    my $request_line = "$method $fullpath $httpversion$endl";
     LWP::Debug::debug("request line: $request_line");
 
     # If we're sending content we *have* to specify
@@ -101,7 +103,7 @@ sub request
     LWP::Debug::debugl('reading response');
 
     my $line;
-    my $delim = "\r?\n";
+    my $delim = "\015?\012";
     my $result = $socket->readUntil($delim, \$line, $size, $timeout);
 
     LWP::Debug::conns("Received response: $line");
@@ -118,10 +120,10 @@ sub request
         
         LWP::Debug::debug('reading response header');
         my $header = '';
-        my $delim = "\r?\n\r?\n";
+        my $delim = "\015?\012\015?\012";
         my $result = $socket->readUntil($delim, \$header, $size, $timeout);
 
-        @headerlines = split(/\r?\n/, $header);
+        @headerlines = split(/\015?\012/, $header);
 
         # now entire header is read, parse it
         LWP::Debug::debug('parsing response header');

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.11 2004/12/11 12:49:45 gisle Exp $
+# $Id: lwp-download,v 2.12 2004/12/11 13:20:07 gisle Exp $
 
 =head1 NAME
 
@@ -63,7 +63,7 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.11 $;
+my $version = q$Revision: 2.12 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -105,6 +105,7 @@ my $res = $ua->request($req,
 		  $file = $1;
 		  $file =~ s/;$//;
 		  $file =~ s/^([\"\'])(.*)\1$/$2/;
+		  $file =~ s,.*[\\/],,;  # basename
 	      }
 
 	      # if this fails we try to make something from the URL
@@ -132,6 +133,14 @@ my $res = $ua->request($req,
 			  $file .= ".$suffix" if $suffix;
 		      }
 		  }
+	      }
+
+	      # validate that we don't have a harmful filename now.  The server
+	      # might try to trick us into doing something bad.
+	      if (!length($file) ||
+                  $file =~ s/([^a-zA-Z0-9\.\-\+\~])/sprintf "\\x%02x", ord($1)/ge)
+              {
+		  die "Will not save <$url> as \"$file\".\nPlease override file name on the command line.\n";
 	      }
 
 	      if (defined $directory) {
@@ -239,8 +248,8 @@ if (fileno(FILE)) {
 
 # Did not manage to create any file
 print "\n" if $shown;
-if ($res->header("X-Died")) {
-    print "$progname: Aborted\n";
+if (my $xdied = $res->header("X-Died")) {
+    print "$progname: Aborted\n$xdied\n";
 }
 else {
     print "$progname: ", $res->status_line, "\n";

@@ -1,70 +1,88 @@
-$Id: TODO,v 1.18 1996/03/12 13:42:53 aas Exp $
+                                                   $Date: 1996/03/20 09:23:59 $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
 
-HTTP/1.1 features:
-   Transfer-Encoding: chunked
-   Connection: Keep-Alive
-   Wait 5 sec before sending content in request
-   Content-Range
+  o  Add more HTTP/1.1 features:
+       Transfer-Encoding: chunked
+       Connection: Keep-Alive
+       Wait 5 sec before sending content in requests
+       Content-Range
 
-HTTP::Headers convenience access functions
+  o  Make multiple simultaneous requests work.  Make the callback
+     request interface event driven.  This will require a major
+     restructuring of the protocol modules.  They will all have to be
+     rewritten as state machines and all control passed to a
+     event-loop with file callbacks.  Don't expect to see this real
+     soon.
 
-Make multiple simultaneous requests work.  Make the callback request
-interface event driven.
+  o  Provide initial credentials so that we don't always have to get a
+     RC_UNAUTHORIZED response first.  Both for Basic and Digest
+     authentication.
 
-Provide initial credentials so that we don't always have to get a
-RC_UNAUTHORIZED response first.
+  o  Allow information callback from protocol modules so that the UI can
+     inform the user of what is going on.  A good start is to pass the $ua
+     reference on to the protocol->request().
 
-Allow information callback from protocol modules so that the UI can
-inform the user of what is going on.  A good start is to pass the $ua
-reference on to the protocol->request().
+  o  Ensure that $ua->request() never dies when use_eval() is true.
 
-The ftp module should format directory listings as HTML.
+  o  Cache previous ftp connections.
 
-Cache previous ftp connections.
+  o  Support MOVE, DELETE method for ftp.
 
-Support MOVE, DELETE method for ftp.
+  o  Support If-Modified-Since for ftp.
 
-Make file://non-localhost invoke the ftp.pm module.
+  o  Make file://non-localhost invoke the ftp.pm module.
 
-Use Mail::Send to implement LWP::Protocol::mailto.
+  o  Use Mail::Send to implement LWP::Protocol::mailto.  Today we just
+     invoke sendmail directly, which is not very portable.
 
-Investigate the Net::SSL module and implement support for https.
+  o  Investigate the Net::SSL module and implement support for https.
 
-Formatters should support tables.  The postscript formatter should
-inline images.
+  o  Make the HTML parser more correct: for instance <tag attr="val>ue">
+     and things like that.
 
-Make HTML parser warnings optional.
+  o  Make the HTML parser much faster.  Perhaps we need to reimplement it
+     as C code.
 
-The HTML::Parse module should make meta information (<HEAD>) easier
-to access.  Parse HTML 3.0 markup.
+  o  Make traverse kind of callbacks during parsing (this should allow
+     us to do formatting as data arrives).
 
-The HTML::Element->asHTML() method should not introduce whitespace
-where it was not present before.
+  o  Make HTML parser warnings optional.
 
-The request -o processing should check for Content-Encoding as well as
-Content-Type.
+  o  The HTML::Parse module should make meta information (<HEAD>) easier to
+     access.  The interface should allow us to stop parsing as soon as the
+     <HEAD> section is done.
 
-The request script should optionally consult Mail::Cap for handling of
-media types.
+  o  Parse HTML 3.0 markup.
 
-The request script should use the callback interface so that it prints
-data as it is received.
+  o  The HTML::Element->asHTML() method breaks lines inside tags.  It does
+     not always look very nice.
 
-The mirror script should be able to work recursively.
+  o  Formatters should support tables.  The postscript formatter should
+     inline images.
 
-Make handcoded autoloading work on systems where the directory
-separator is not "/".
+  o  The lwp-request -o processing should check for Content-Encoding as
+     well as Content-Type.
 
-More autoloading.
+  o  The request script should optionally consult Mail::Cap for handling of
+     media types.
 
-Include more useful programs
+  o  The request script should use the callback interface so that it prints
+     data as it is received.
 
-Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
+  o  The mirror script should be able to work recursively.
 
-More tests
+  o  Make handcoded autoloading work on systems where the directory
+     separator is not "/".
 
-Fix bugs, it here are any...
+  o  Include more useful programs
+
+  o  Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
+
+  o  More documentation
+
+  o  More tests
+
+Finally, fix bugs, if there are any...

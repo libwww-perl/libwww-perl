@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.14 2001/04/13 06:40:39 gisle Exp $
+# $Id: HTTP.pm,v 1.15 2001/04/13 06:49:30 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -77,8 +77,8 @@ sub http_version {
 
 sub peer_http_version {
     my $self = shift;
-    my $old = ${*$self}{'peer_http_version'};
-    ${*$self}{'peer_http_version'} = shift if @_;
+    my $old = ${*$self}{'http_peer_version'};
+    ${*$self}{'http_peer_version'} = shift if @_;
     $old;
 }
 
@@ -97,7 +97,7 @@ sub format_request {
 
     push(@{${*$self}{'http_request_method'}}, $method);
     my $ver = ${*$self}{'http_version'};
-    my $peer_ver = ${*$self}{'peer_http_version'} || "1.0";
+    my $peer_ver = ${*$self}{'http_peer_version'} || "1.0";
 
     my @h;
     my @connection;

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.21 1995/12/05 15:52:11 aas Exp $
+# $Id: Element.pm,v 1.22 1996/02/26 18:37:53 aas Exp $
 
 =head1 NAME
 
@@ -10,16 +10,16 @@ HTML::Element - Class for objects that represent HTML elements
 
  require HTML::Element;
  $a = new HTML::Element 'a', href => 'http://www.oslonett.no/';
- $a->pushContent("Oslonett AS");
+ $a->push_content("Oslonett AS");
 
  $tag = $a->tag;
  $tag = $a->starttag;
  $tag = $a->endtag;
  $ref = $a->attr('href');
 
- $links = $a->extractLinks();
+ $links = $a->extract_links();
 
- print $a->asHTML;
+ print $a->as_HTML;
 
 =head1 DESCRIPTION
 
@@ -38,12 +38,12 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
 (
-   '""'     => 'asHTML',
+   '""'     => 'as_HTML',
    fallback => 0
 );
 
@@ -193,13 +193,13 @@ sub implicit
 
 
 
-=item ->isInside('tag',...)
+=item ->is_inside('tag',...)
 
 Returns true if this tag is contained inside one of the specified tags.
 
 =cut
 
-sub isInside
+sub is_inside
 {
     my $self = shift;
     my $p = $self;
@@ -269,13 +269,13 @@ sub content
 
 
 
-=item ->isEmpty()
+=item ->is_empty()
 
 Returns true if there is no content.
 
 =cut
 
-sub isEmpty
+sub is_empty
 {
     my $self = shift;
     !exists($self->{'_content'}) || !@{$self->{'_content'}};
@@ -283,13 +283,13 @@ sub isEmpty
 
 
 
-=item ->insertElement($element, $implicit)
+=item ->insert_element($element, $implicit)
 
 Inserts a new element at current position and sets the pos.
 
 =cut
 
-sub insertElement
+sub insert_element
 {
     my($self, $tag, $implicit) = @_;
     my $e;
@@ -303,7 +303,7 @@ sub insertElement
     my $pos = $self->{_pos};
     $pos = $self unless defined $pos;
     $e->{_parent} = $pos;
-    $pos->pushContent($e);
+    $pos->push_content($e);
     unless ($noEndTag{$tag}) {
 	$self->{_pos} = $e;
 	$pos = $e;
@@ -312,14 +312,14 @@ sub insertElement
 }
 
 
-=item ->pushContent($element)
+=item ->push_content($element)
 
 Adds to the content of the element.  The content should be a text
 segment (scalar) or a reference to a HTML::Element object.
 
 =cut
 
-sub pushContent
+sub push_content
 {
     my $self = shift;
     $self->{'_content'} = [] unless exists $self->{'_content'};
@@ -339,13 +339,13 @@ sub pushContent
 
 
 
-=item ->deleteContent()
+=item ->delete_content()
 
 Clears the content.
 
 =cut
 
-sub deleteContent
+sub delete_content
 {
     my $self = shift;
     for (@{$self->{'_content'}}) {
@@ -368,7 +368,7 @@ circular references.
 
 sub delete
 {
-    $_[0]->deleteContent;
+    $_[0]->delete_content;
     delete $_[0]->{_parent};
     delete $_[0]->{_pos};
     $_[0] = undef;
@@ -409,7 +409,7 @@ sub traverse
 
 
 
-=item ->extractLinks([@wantedTypes])
+=item ->extract_links([@wantedTypes])
 
 Returns links found by traversing the element and all its children.
 The return value is a reference to an array.  Each element of the
@@ -420,14 +420,14 @@ You might specify that you just want to extract some types of links.
 For instance if you only want to extract <a href="..."> and <img
 src="..."> links you might code it like this:
 
-  for (@{ $e->extractLinks(qw(a img)) }) {
+  for (@{ $e->extract_links(qw(a img)) }) {
       ($link, $linkelem) = @$_;
       ...
   }
 
 =cut
 
-sub extractLinks
+sub extract_links
 {
     my $self = shift;
     my %wantType; @wantType{map { lc $_ } @_} = (1) x @_;
@@ -476,20 +476,20 @@ sub dump
 
 
 
-=item ->asHTML()
+=item ->as_HTML()
 
 Returns a string (the HTML document) that represents the element and
 its children.
 
 =cut
 
-sub asHTML
+sub as_HTML
 {
     my $self = shift;
     my $depth = shift || 0;
     my $black = shift || 0; # protect string from whitespace
     my $tag = $self->tag;
-    my $pre = $self->isInside('pre');
+    my $pre = $self->is_inside('pre');
     my $html = '';
     if ($pre) {
 	$html .= $self->starttag;
@@ -510,7 +510,7 @@ sub asHTML
 	    unless ($pre || $black) {
 		$html .= "\n";
 	    }
-	    $html .= $_->asHTML($depth+1,$black);
+	    $html .= $_->as_HTML($depth+1,$black);
 	} else {
 	    if ($pre) {
 		$html .= "$_";

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.13 1995/09/26 10:50:58 aas Exp $
+# $Id: Parse.pm,v 1.14 1996/02/26 18:37:54 aas Exp $
 
 =head1 NAME
 
@@ -16,7 +16,7 @@ parse_htmlfile - Parse HTML text from file
  $h = parse_html("<p>Some more <i>italic</i> text", $h);
  $h->delete;
 
- print parse_htmlfile("index.html")->asHTML;  # tidy up markup in a file
+ print parse_htmlfile("index.html")->as_HTML;  # tidy up markup in a file
 
 =head1 DESCRIPTION
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -267,12 +267,12 @@ sub starttag
         } elsif ($isBodyElement{$tag}) {
 
 	    # Ensure that we are within <body>
-	    if ($pos->isInside('head')) {
+	    if ($pos->is_inside('head')) {
 		endtag($html, 'head');
-		$pos = $html->insertElement('body', 1);
+		$pos = $html->insert_element('body', 1);
 		$ptag = $pos->tag;
-	    } elsif (!$pos->isInside('body')) {
-		$pos = $html->insertElement('body', 1);
+	    } elsif (!$pos->is_inside('body')) {
+		$pos = $html->insert_element('body', 1);
 		$ptag = $pos->tag;
 	    }
 
@@ -284,45 +284,45 @@ sub starttag
 		# Can't have lists inside <h#>
 		if ($ptag =~ /^h[1-6]/) {
 		    endtag($html, $ptag);
-		    $pos = $html->insertElement('p', 1);
+		    $pos = $html->insert_element('p', 1);
 		    $ptag = 'p';
 		}
 	    } elsif ($tag eq 'li') {
 		# Fix <li> outside list
 		endtag($html, 'li', keys %isList);
 		$ptag = $html->pos->tag;
-		$pos = $html->insertElement('ul', 1) unless $isList{$ptag};
+		$pos = $html->insert_element('ul', 1) unless $isList{$ptag};
 	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
 		endtag($html, ['dt', 'dd'], 'dl');
 		$ptag = $html->pos->tag;
 		# Fix <dt> or <dd> outside <dl>
-		$pos = $html->insertElement('dl', 1) unless $ptag eq 'dl';
+		$pos = $html->insert_element('dl', 1) unless $ptag eq 'dl';
 	    } elsif ($isFormElement{$tag}) {
-		return unless $pos->isInside('form');
+		return unless $pos->is_inside('form');
 		if ($tag eq 'option') {
 		    # return unless $ptag eq 'select';
 		    endtag($html, 'option');
 		    $ptag = $html->pos->tag;
-		    $pos = $html->insertElement('select', 1)
+		    $pos = $html->insert_element('select', 1)
 		      unless $ptag eq 'select';
 		}
 	    } elsif ($isTableElement{$tag}) {
 		endtag($html, $tag, 'table');
-		$pos = $html->insertElement('table', 1)
-		  if !$pos->isInside('table');
+		$pos = $html->insert_element('table', 1)
+		  if !$pos->is_inside('table');
 	    } elsif ($isPhraseMarkup{$tag}) {
 		if ($ptag eq 'body') {
-		    $pos = $html->insertElement('p', 1);
+		    $pos = $html->insert_element('p', 1);
 		}
 	    }
 	} elsif ($isHeadElement{$tag}) {
-	    if ($pos->isInside('body')) {
+	    if ($pos->is_inside('body')) {
 		warn "Header element <$tag> in body\n";
-	    } elsif (!$pos->isInside('head')) {
-		$pos = $html->insertElement('head', 1);
+	    } elsif (!$pos->is_inside('head')) {
+		$pos = $html->insert_element('head', 1);
 	    }
 	} elsif ($tag eq 'html') {
-	    if ($ptag eq 'html' && $pos->isEmpty()) {
+	    if ($ptag eq 'html' && $pos->is_empty()) {
 		# migrate attributes to origial HTML element
 		for (keys %attr) {
 		    $html->attr($_, $attr{$_});
@@ -333,12 +333,12 @@ sub starttag
 		return;
 	    }
 	} elsif ($tag eq 'head') {
-	    if ($ptag ne 'html' && $pos->isEmpty()) {
+	    if ($ptag ne 'html' && $pos->is_empty()) {
 		warn "Skipping nested <head> element\n";
 		return;
 	    }
 	} elsif ($tag eq 'body') {
-	    if ($pos->isInside('head')) {
+	    if ($pos->is_inside('head')) {
 		endtag($html, 'head');
 	    } elsif ($ptag ne 'html') {
 		warn "Skipping nested <body> element\n";
@@ -351,7 +351,7 @@ sub starttag
 		return;
 	    }
 	}
-	$html->insertElement($e);
+	$html->insert_element($e);
     }
 }
 
@@ -403,9 +403,9 @@ sub text
     my @text = @_;
     HTML::Entities::decode(@text) unless $IGNORE_TEXT;
 
-    if ($pos->isInside(qw(pre xmp listing))) {
+    if ($pos->is_inside(qw(pre xmp listing))) {
 	return if $IGNORE_TEXT;
-	$pos->pushContent(@text);
+	$pos->push_content(@text);
     } else {
 	my $empty = 1;
 	for (@text) {
@@ -418,22 +418,22 @@ sub text
 	    # don't change anything
 	} elsif ($ptag eq 'head') {
 	    endtag($html, 'head');
-	    $html->insertElement('body', 1);
-	    $pos = $html->insertElement('p', 1);
+	    $html->insert_element('body', 1);
+	    $pos = $html->insert_element('p', 1);
 	} elsif ($ptag eq 'html') {
-	    $html->insertElement('body', 1);
-	    $pos = $html->insertElement('p', 1);
+	    $html->insert_element('body', 1);
+	    $pos = $html->insert_element('p', 1);
 	} elsif ($ptag eq 'body' ||
 	       # $ptag eq 'li'   ||
 	       # $ptag eq 'dd'   ||
 		 $ptag eq 'form') {
-	    $pos = $html->insertElement('p', 1);
+	    $pos = $html->insert_element('p', 1);
 	}
 	return if $IGNORE_TEXT;
 	for (@text) {
 	    next if /^\s*$/;  # empty text
 	    s/\s+/ /g;  # canoncial space
-	    $pos->pushContent($_);
+	    $pos->push_content($_);
 	}
     }
 }

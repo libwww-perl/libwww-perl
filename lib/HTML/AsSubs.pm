@@ -89,7 +89,7 @@ sub _elem
     }
     my $elem = new HTML::Element $tag, @attributes;
     for (@_) {
-	$elem->pushContent($_);
+	$elem->push_content($_);
     }
     $elem;
 }

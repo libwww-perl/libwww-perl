@@ -1,3 +1,21 @@
+1999-09-20   Gisle Aas <gisle@aas.no>
+
+ o  Release 5.45
+
+ o  The LWP SSL support better explained.  Documentation in README.SSL
+    and lwpcook.pod contributed by Marko Asplund <aspa@hip.fi>.
+
+ o  LWP::Protocol::https: Try loading IO::Socket::SSL if Net::SSL is
+    not available.
+
+ o  lwp-mirror -t option did not work.
+
+ o  defined(@ISA) eliminated. Patch by Nathan Torkington <gnat@frii.com>
+
+ o  LWP::Protocol::ftp: Protect against empty path_segments
+
+
+
 1999-06-25   Gisle Aas <gisle@aas.no>
 
  o  Release 5.44

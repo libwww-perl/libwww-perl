@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 2001/01/04 20:27:15 $
+package HTTP::Date;  # $Date: 2002/03/08 03:36:50 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -52,7 +52,8 @@ sub str2time ($;$)
     my $tz = pop(@d);
     unless (defined $tz) {
 	unless (defined($tz = shift)) {
-	    return eval { my $t = Time::Local::timelocal(reverse @d);
+	    return eval { my $frac = $d[-1]; $frac -= ($d[-1] = int($frac));
+			  my $t = Time::Local::timelocal(reverse @d) + $frac;
 			  $t < 0 ? undef : $t;
 		        };
 	}
@@ -73,7 +74,8 @@ sub str2time ($;$)
 	return undef unless defined $offset;
     }
 
-    return eval { my $t = Time::Local::timegm(reverse @d);
+    return eval { my $frac = $d[-1]; $frac -= ($d[-1] = int($frac));
+		  my $t = Time::Local::timegm(reverse @d) + $frac;
 		  $t < 0 ? undef : $t - $offset;
 		};
 }

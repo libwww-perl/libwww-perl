@@ -1,3 +1,19 @@
+2002-05-31   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.65
+
+    Make HTTP::Date compatible with perl 5.8.
+
+    Try to avoid to default to overwriting /usr/bin/head 
+    on MacOS X when the perl install prefix is /usr/bin.
+
+    HTTP::Cookies fix for parsing of Netscape cookies file
+    on MS Windows. Patch by by Sean M. Burke <sburke@cpan.org>.
+
+    HTTP::Negotiate doc patch from Edward Avis <epa98@doc.ic.ac.uk>.
+
+
+
 2002-02-09   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.64

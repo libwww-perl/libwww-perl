@@ -121,7 +121,7 @@ my $t;
 for $t (@tests1) {
     my ($content, $ua) = splice(@$t, 0, 2);
 
-    my $robotsrules = new RobotRules($ua);
+    my $robotsrules = new WWW::RobotRules($ua);
     $robotsrules->parse('http://foo/robots.txt', $content);
 
     my ($num, $path, $expected);

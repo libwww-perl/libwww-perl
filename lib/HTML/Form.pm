@@ -484,6 +484,8 @@ sub dump
     my $dump = "$method $uri";
     $dump .= " ($enctype)"
 	if $enctype ne "application/x-www-form-urlencoded";
+    $dump .= " [$self->{attr}{name}]"
+    	if exists $self->{attr}{name};
     $dump .= "\n";
     for ($self->inputs) {
 	$dump .= "  " . $_->dump . "\n";

@@ -23,7 +23,8 @@ print "not " unless @f == 2;
 print "ok 2\n";
 
 my $f = shift @f;
-print "not " unless defined($f->value("name")) && $f->value("name") eq "";
+print "not " unless defined($f->value("name")) && $f->value("name") eq "" &&
+                    $f->dump eq "GET http://localhost/abc [foo]\n  name=\n";
 print "ok 3\n";
 
 my $req = $f->click;

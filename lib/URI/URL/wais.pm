@@ -4,20 +4,48 @@ require URI::URL::_generic;
 
 use URI::Escape;
 
+# RFC 1738 says:
+#
+#   A WAIS URL takes one of the following forms:
+#
+#     wais://<host>:<port>/<database>
+#     wais://<host>:<port>/<database>?<search>
+#     wais://<host>:<port>/<database>/<wtype>/<wpath>
+#
+#   where <host> and <port> are as described in Section 3.1. If :<port>
+#   is omitted, the port defaults to 210.  The first form designates a
+#   WAIS database that is available for searching. The second form
+#   designates a particular search.  <database> is the name of the WAIS
+#   database being queried.
+
+
 sub default_port { 210 }
 
 sub _parse {
     my($self, $init) = @_;
-    $self->URI::URL::_generic::_parse($init);
-    my @parts = $self->path_components;
-    $self->{'database'} = uri_unescape($parts[0]) if defined $parts[0];
-    $self->{'wtype'}    = uri_unescape($parts[1]) if defined $parts[1];
-    $self->{'wpath'}    = uri_unescape($parts[2]) if defined $parts[2];
+    $self->URI::URL::_generic::_parse($init, qw(netloc path query frag));
 }
 
-# Setting these should really update path
-sub database { shift->_elem('database', @_); }
-sub wtype    { shift->_elem('wtype',    @_); }
-sub wpath    { shift->_elem('wpath',    @_); }
+# Set the path component with the specified number
+sub _path_comp
+{
+    my $self = shift;
+    my $no   = shift;
+    my @p = $self->path_components;
+    shift(@p) if @p && $p[0] eq '';
+    my $old = $p[$no];
+    if (@_) {
+	$p[$no] = $_[0];
+	$self->path_components(@p);
+    }
+    $old;
+}
 
+sub database { shift->_path_comp(0, @_); }
+sub wtype    { shift->_path_comp(1, @_); }
+sub wpath    { shift->_path_comp(2, @_); }
+
+require Carp;
+sub params { Carp::croak("Illegal attribute for wais URLs"); }
+*eparams   = \&params;
 1;

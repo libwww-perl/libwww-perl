@@ -9,7 +9,13 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+
+my $EPOCH_OFFSET = 0;  # difference from Unix epoch
+if ($^O eq "MacOS") {
+    require Time::Local;
+    $EPOCH_OFFSET = Time::Local::timelocal(0,0,0,1,0,70);
+}
 
 =head1 NAME
 
@@ -692,7 +698,7 @@ sub load
 	close(FILE);
 	return;
     }
-    my $now = time();
+    my $now = time() - $EPOCH_OFFSET;
     while (<FILE>) {
 	next if /^\s*\#/;
 	next if /^\s*$/;
@@ -720,12 +726,12 @@ sub save
 
 EOT
 
-    my $now = time;
+    my $now = time - $EPOCH_OFFSET;
     $self->scan(sub {
 	my($version,$key,$val,$path,$domain,$port,
 	   $path_spec,$secure,$expires,$discard,$rest) = @_;
 	return if $discard && !$self->{ignore_discard};
-	$expires ||= 0;
+	$expires = $expires ? $expires - $EPOCH_OFFSET : 0;
 	return if $now > $expires;
 	$secure = $secure ? "TRUE" : "FALSE";
 	my $bool = $domain =~ /^\./ ? "TRUE" : "FALSE";
@@ -741,7 +747,7 @@ __END__
 
 =head1 COPYRIGHT
 
-Copyright 1997, Gisle Aas
+Copyright 1997-1999 Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -1,9 +1,9 @@
 package File::Listing;
 
-# $Id: Listing.pm,v 1.14 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Listing.pm,v 1.15 2003/10/26 14:24:22 gisle Exp $
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -353,11 +353,11 @@ __END__
 
 =head1 NAME
 
-parse_dir - parse directory listing
+File::Listing - parse directory listing
 
 =head1 SYNOPSIS
 
- use File::Listing;
+ use File::Listing qw(parse_dir);
  for (parse_dir(`ls -l`)) {
      ($name, $type, $size, $mtime, $mode) = @$_;
      next if $type ne 'f'; # plain file
@@ -370,11 +370,11 @@ parse_dir - parse directory listing
 
 =head1 DESCRIPTION
 
-The parse_dir() routine can be used to parse directory
-listings. Currently it only understand Unix C<'ls -l'> and C<'ls -lR'>
-format.  It should eventually be able to most things you might get
-back from a ftp server file listing (LIST command), i.e. VMS listings,
-NT listings, DOS listings,...
+This module exports a single function called parse_dir(), which can be
+used to parse directory listings. Currently it only understand Unix
+C<'ls -l'> and C<'ls -lR'> format.  It should eventually be able to
+most things you might get back from a ftp server file listing (LIST
+command), i.e. VMS listings, NT listings, DOS listings,...
 
 The first parameter to parse_dir() is the directory listing to parse.
 It can be a scalar, a reference to an array of directory lines or a

@@ -656,12 +656,15 @@ package HTML::Form::TextInput;
 sub value
 {
     my $self = shift;
+    my $old = $self->{value};
+    $old = "" unless defined $old;
     if (@_) {
 	if (exists($self->{readonly}) || $self->{type} eq "hidden") {
 	    Carp::carp("Input '$self->{name}' is readonly") if $^W;
 	}
+	$self->{value} = shift;
     }
-    $self->SUPER::value(@_);
+    $old;
 }
 
 #---------------------------------------------------

@@ -1,3 +1,65 @@
+Mon Feb  5 1996   Gisle Aas <aas@sn.no>
+
+ o  Perl5.002 is required now
+
+ o  Rewrite of the URI::URL module (version 4.00)
+      - escaping/unsafe stuff redone (and removed)
+      - URI::URL::_generic moved out of URL.pm
+      - netloc, path, params, query is now stored internally in escaped form
+      - new methods for URI::URL::_generic are:
+           epath
+           eparams
+           equery
+	   path_components
+           absolute_path
+      - new methods for URI::URL::http are:
+           keywords
+           query_form
+      - new methods for URI::URL::file are:
+           newlocal
+           local_path
+           unix_path
+           dos_path
+           mac_path
+           vms_path
+
+ o  URI::Escape now semi-compile regular expressions (by evaling an
+    anonymous sub).  Same techinque is also used in HTML::Entities.
+
+ o  HTTP::Date parser rewritten using regular expressions.
+
+ o  HTTP::Headers->as_string() now croaks if any field values
+    contain newline.
+
+ o  HTTP::Status constants use empty prototype.
+
+ o  Font metrics moved to a new subdirectory (lib/Font/Metrics)
+
+ o  Don't use the VERSION script any more (even if it was very clever)
+
+ o  HTML::Entities will now export the names decode_entities() and
+    encode_entities().
+
+ o  Andreas Koenig's black patch to HTML::Element.
+
+ o  The HTML::Formatter now knows about <menu> and <dir> tags
+
+ o  The construct "defined ref($arg)" did not work on perl5.002
+    becase ref now always return something defined.
+
+ o  LWP::UserAgent sends by default an 'User-Agent' header.
+
+ o  LWP::Simple sends 'User-Agent' header to servers.
+
+ o  Updated the LWP::Socket module to use the new Socket.pm interface.
+
+ o  LWP::Protocol::http sends the new HTTP/1.1 'Host' header.
+
+ o  MIME::Base64 routines can be called as MIME::Base64::encode() and
+    MIME::Base64::decode().  Same kind of thing for QuotedPrint.
+
+
+
 Mon Nov  6 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 5b6

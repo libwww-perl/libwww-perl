@@ -1,15 +1,24 @@
-Tue Sep 17 1996   Gisle Aas <aas@sn.no>
+Tue Sep 30 1996   Gisle Aas <aas@sn.no>
 
  o  Hakan Ardo's persistent robot rules is now part of the standard
-    distribution.
+    distribution.  This is still experimental and might change in the
+    future.  It includes the new WWW::RobotRules::AnyDBM_File class
+    and updates to LWP::RobotUA.
 
  o  New HTTP::Response methods: current_age(), freshness_lifetime(),
-    is_fresh()
+    is_fresh(), fresh_until().
 
+ o  HTTP::Message:  New method ($mess->content_ref) which will return
+    a reference to the current content.
 
+ o  URI::URL:  New method ($url->rel) which does the opposite of abs().
+    Example: url("http://host/a/b/c", "http://host/c/d/e")->rel would
+    return url("../../a/b/c", "http://host/c/d/e").  This was
+    suggested by Nicolai Langfeldt <janl@ifi.uio.no>
 
-Fri Sep 13 1996   Gisle Aas <aas@sn.no>
-	
+ o  URI::URL:  $url->query_form can now take array references as value
+    specification.  For instance: $url->query_form(foo => ['bar', 'baz']
+
  o  Avoid '"my" variable $var masks earlier declaration in same scope'
     warnings in perl5.003_05.
 

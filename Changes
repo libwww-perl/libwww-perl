@@ -4,7 +4,8 @@
     
     Revised handling of redirects.
        - clear our content and content headers if we
-         rewrite request as GET
+         rewrite request as GET based on patch by
+         Steven Butler <stevenb@kjross.com.au>.
        - pass $response to redirect_ok()
 
     Support cpan:-URLs.  Try 'lwp-download cpan:src/latest.tar.gz' :)

@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.7 1995/07/15 07:57:03 aas Exp $
+# $Id: Protocol.pm,v 1.8 1995/07/17 10:08:39 aas Exp $
 
 package LWP::Protocol;
 
@@ -147,7 +147,7 @@ object. This method needs to be overridden in subclasses.
 sub request
 {
     my($self, $request, $arg) = @_;
-    croak('LWP::Protocol::request() needs to be overridden in subclasses');
+    croak 'LWP::Protocol::request() needs to be overridden in subclasses';
 }
 
 
@@ -191,9 +191,9 @@ sub collect
     elsif (!defined ref($arg)) {
         # filename
         open(OUT, ">$arg") or
-            return new LWP::Response(
-                          LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                          "Cannot write to '$arg': $!");
+            return new LWP::Response
+                          &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+                          "Cannot write to '$arg': $!";
 
         while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
@@ -215,9 +215,8 @@ sub collect
         }
     }
     else {
-        return LWP::Response( 
-                  LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                  "Unexpected collect argument  '$arg'");
+        return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+                                 "Unexpected collect argument  '$arg'";
     }
     $response;
 }

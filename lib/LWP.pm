@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.46 1997/01/29 13:04:41 aas Exp $
+# $Id: LWP.pm,v 1.47 1997/02/11 14:48:53 aas Exp $
 
 package LWP;
 
@@ -8,7 +8,7 @@ require Exporter;
                     # don't export anything.  This will noe be neccessary
                     # when perl5.004 is out.
 
-$VERSION = "5.07";
+$VERSION = "5.08";
 
 sub Version { $VERSION; }
 

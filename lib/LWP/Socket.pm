@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.15 1995/09/15 17:04:51 aas Exp $
+# $Id: Socket.pm,v 1.16 1995/10/19 18:11:36 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -329,11 +329,11 @@ sub _getaddress
     my(@addr);
     if (!defined $host) {
 	# INADDR_ANY
-	$addr[0] = [0,0,0,0];
+	$addr[0] = Socket::sockaddr_in(PF_INET, $port, 0, 0, 0, 0);
     }
     elsif ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
         # numeric IP address
-        $addr[0] = [$1, $2, $3, $4];
+        $addr[0] = Socket::sockaddr_in(PF_INET, $port, $1, $2, $3, $4);
     } else {
         # hostname
         LWP::Debug::debugl("resolving host '$host'...");

@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.22 1996/11/25 08:18:32 aas Exp $
+# $Id: Date.pm,v 1.23 1997/01/30 15:41:01 aas Exp $
 #
 package HTTP::Date;
 
@@ -84,18 +84,29 @@ Non-numerical time zones (like MET, PST) are all treated like GMT.
 Do not use them.  HTTP does not use them.
 
 The str2time() function has been told how to parse far too many
-formats.  This makes the module name misleading :-)
+formats.  This makes the module name misleading. To be sure it is
+really misleading you can also import the time2iso() and time2isoz()
+functions.  They work like time2str() but produce ISO-8601 formated
+strings (YYYY-MM-DD hh:mm:ss).
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997, Gisle Aas
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(time2str str2time);
+@EXPORT_OK = qw(time2iso time2isoz);
 
 use Time::Local ();
 
@@ -126,7 +137,6 @@ sub time2str (;$)
 	   $mday, $MoY[$mon], $year+1900,
 	   $hour, $min, $sec);
 }
-
 
 
 
@@ -284,6 +294,30 @@ sub str2time ($;$)
        $offset *= -1 if $1 ne '-';
    }
    Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset;
+}
+
+
+
+# And then some bloat because I happen to like the ISO 8601 time
+# format.
+
+sub time2iso (;$)
+{
+   my $time = shift;
+   $time = time unless defined $time;
+   my($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
+   sprintf("%04d-%02d-%02d %02d:%02d:%02d",
+	   $year+1900, $mon+1, $mday, $hour, $min, $sec);
+}
+
+
+sub time2isoz (;$)
+{
+    my $time = shift;
+    $time = time unless defined $time;
+    my($sec,$min,$hour,$mday,$mon,$year) = gmtime($time);
+    sprintf("%04d-%02d-%02d %02d:%02d:%02dZ",
+            $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.20 1996/11/14 14:44:19 aas Exp $
+# $Id: Date.pm,v 1.21 1996/11/19 11:29:12 aas Exp $
 #
 package HTTP::Date;
 
@@ -89,7 +89,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -102,7 +102,8 @@ use Time::Local ();
 use strict;
 use vars qw(@DoW @MoY %MoY);
 
-@DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
+#@DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
+@DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 # Build %MoY hash
 my $i = 0;
@@ -121,7 +122,7 @@ sub time2str (;$)
    $time = time unless defined $time;
    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($time);
    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
-	   substr($DoW[$wday],0,3),
+	   $DoW[$wday],
 	   $mday, $MoY[$mon], $year+1900,
 	   $hour, $min, $sec);
 }

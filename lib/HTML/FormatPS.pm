@@ -1,16 +1,17 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.10 1995/09/14 08:56:12 aas Exp $
+# $Id: FormatPS.pm,v 1.11 1995/09/14 10:04:21 aas Exp $
+
+$DEFAULT_PAGESIZE = "A4";
 
 use Carp;
 
 require HTML::Formatter;
 @ISA = qw(HTML::Formatter);
 
+# A few routines that convert lengths into points
 sub mm { $_[0] * 72 / 25.4; }
 sub in { $_[0] * 72; }
-
-$DEFAULT_PAGESIZE = "A4";
 
 %PaperSizes =
 (
@@ -67,7 +68,9 @@ sub ITALIC { 0x02; }
  pageno           => 'printpageno',
  fontfamily       => 'family',
  fontscale        => 'fontscale',
+ leading          => 'leading',
 );
+
 
 sub new
 {
@@ -80,6 +83,7 @@ sub new
 	mW => mm(20),
 	printpageno => 1,
 	fontscale   => 1,
+	leading     => 0.1,
     }, $class;
     $self->papersize($DEFAULT_PAGESIZE);
 
@@ -105,6 +109,7 @@ sub new
     }
     $self;
 }
+
 
 sub papersize
 {
@@ -159,6 +164,20 @@ sub findfont
     "$font SF";
 }
 
+
+sub width
+{
+    my $self = shift;
+    my $w = 0;
+    my $wx = $self->{wx};
+    my $sz = $self->{pointsize};
+    while ($_[0] =~ /(.)/g) {
+	$w += $wx->[ord $1] * $sz;
+    }
+    $w;
+}
+
+
 sub begin
 {
     my $self = shift;
@@ -184,9 +203,13 @@ sub begin
 
     $self->{line} = "";
     $self->{showstring} = "";
-
+    $self->{currentfont} = "";
+    $self->{prev_currentfont} = "";
+    $self->{largest_pointsize} = 0;
+    
     $self->newpage;
 }
+
 
 sub end
 {
@@ -257,10 +280,12 @@ EOT
     print "\n%%Trailer\n%%EOF\n";
 }
 
+
 sub collect
 {
     push(@{shift->{output}}, @_);
 }
+
 
 sub header_start
 {
@@ -274,6 +299,7 @@ sub header_start
     1;
 }
 
+
 sub header_end
 {
     my($self, $level, $node) = @_;
@@ -282,6 +308,139 @@ sub header_end
     pop(@{$self->{font_size}});
     1;
 }
+
+
+sub skip_vspace
+{
+    my $self = shift;
+    if (defined $self->{vspace}) {
+	$self->showline;
+	if ($self->{out}) {
+	    $self->{ypos} -= $self->{vspace} * 10 * $self->{fontscale};
+	    if ($self->{ypos} < $self->{bm}) {
+		$self->newpage;
+	    }
+	}
+	$self->{xpos} = $self->{lm};
+	$self->{vspace} = undef;
+    }
+}
+
+
+sub show
+{
+    my $self = shift;
+    my $str = $self->{showstring};
+    return unless length $str;
+    $str =~ s/([\(\)])/\\$1/g;    # must escape parentesis
+    $self->{line} .= "($str)S\n";
+    $self->{showstring} = "";
+}
+
+
+sub showline
+{
+    my $self = shift;
+    $self->show;
+    my $line = $self->{line};
+    return unless length $line;
+    $self->{ypos} -= $self->{largest_pointsize} || $self->{pointsize};
+    if ($self->{ypos} < $self->{bm}) {
+	$self->newpage;
+	$self->{ypos} -= $self->{pointsize};
+	# must set current font again
+	my $font = $self->{prev_currentfont};
+	if ($font) {
+	    $self->collect("$self->{fonts}{$font} SF\n");
+	}
+    }
+    my $lm = $self->{lm};
+    my $x = $lm;
+    if ($self->{center}) {
+	# Unfortunately, the center attribute is gone when we get here,
+	# so this code is never activated
+	my $linewidth = $self->{xpos} - $lm;
+	$x += ($self->{rm} - $lm - $linewidth) / 2;
+    }
+
+    $self->collect(sprintf "%.1f %.1f M\n", $x, $self->{ypos});  # moveto
+    $line =~ s/\s\)S$/)S/;  # many lines will end with space
+    $self->collect($line);
+    $self->{prev_currentfont} = $self->{currentfont};
+    $self->{largest_pointsize} = 0;
+    $self->{line} = "";
+    $self->{xpos} = $lm;
+    # Additional linespacing
+    $self->{ypos} -= $self->{leading} * $self->{pointsize};
+}
+
+
+sub endpage
+{
+    my $self = shift;
+    # End previous page
+    $self->collect("showpage\n");
+    $self->{pageno}++;
+}
+
+
+sub newpage
+{
+    my $self = shift;
+    if ($self->{'out'}) {
+	$self->endpage;
+    }
+    $self->{'out'} = 0;
+    my $pageno = $self->{pageno};
+    $self->collect("\n%%Page: $pageno $pageno\n");
+
+    # Print area marker (just for debugging)
+    if ($DEBUG) {
+	my($llx, $lly, $urx, $ury) = map { sprintf "%.1f", $_}
+	                             @{$self}{qw(lm bm rm tm)};
+	$self->collect("gsave 0.1 setlinewidth\n");
+	$self->collect("clippath 0.9 setgray fill 1 setgray\n");
+	$self->collect("$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n");
+	$self->collect("grestore\n");
+    }
+
+    # Print page number
+    if ($self->{printpageno}) {
+	my $x = $self->{paperwidth};
+	if ($x) { $x -= 30; } else { $x = 30 };
+	$self->collect("/Helvetica findfont 10 scalefont setfont ");
+	$self->collect(sprintf "%.1f 30.0 M($pageno)S\n", $x);
+    }
+    $self->collect("\n");
+
+    $self->{xpos} = $self->{lm};
+    $self->{ypos} = $self->{tm};
+}
+
+
+sub out
+{
+    my($self, $text) = @_;
+
+    $self->skip_vspace;
+
+    my $font = $self->findfont();
+    if (length $font) {
+	$self->show;
+	$self->{line} .= "$font\n";
+    }
+    my $w = $self->width($text);
+    if ($self->{xpos} + $w > $self->{rm}) {
+	$self->showline;
+	return if $text =~ /^\s*$/;
+    };
+    $self->{xpos} += $w;
+    $self->{showstring} .= $text;
+    $self->{largest_pointsize} = $self->{pointsize}
+      if $self->{largest_pointsize} < $self->{pointsize};
+    $self->{'out'}++;
+}
+
 
 sub pre_out
 {
@@ -301,140 +460,13 @@ sub pre_out
     $self->tt_end;
 }
 
-sub skip_vspace
-{
-    my $self = shift;
-    if (defined $self->{vspace}) {
-	$self->showline;
-	if ($self->{out}) {
-	    $self->{ypos} -= $self->{vspace} * 10 * $self->{fontscale};
-	    if ($self->{ypos} < $self->{bm}) {
-		$self->newpage;
-	    }
-	}
-	$self->{xpos} = $self->{lm};
-	$self->{vspace} = undef;
-    }
-}
-
-sub showline
-{
-    my $self = shift;
-    $self->show;
-    my $line = $self->{line};
-    return unless length $line;
-    $self->{ypos} -= $self->{pointsize};   # should really use largest on line
-    if ($self->{ypos} < $self->{bm}) {
-	$self->newpage;
-	$self->{ypos} -= $self->{pointsize};
-	# XXX: should stick intialial font specification into line.
-    }
-    my $lm = $self->{lm};
-    my $x = $lm;
-    if ($self->{center}) {
-	# Unfortunately, the center attribute is gone when we get here
-	my $linewidth = $self->{xpos} - $lm;
-	$x += ($self->{rm} - $lm - $linewidth) / 2;
-    }
-
-    $self->collect(sprintf "%.1f %.1f M\n", $x, $self->{ypos});  # moveto
-    $self->collect($line);
-    $self->{line} = "";
-    $self->{xpos} = $lm;
-
-    # additional spacing between lines
-    #$self->{ypos} -= 0.1 * $self->{pointsize};
-}
-
-
-sub out
-{
-    my($self, $text) = @_;
-
-    $self->skip_vspace;
-
-    my $font = $self->findfont();
-    if (length $font) {
-	$self->show;
-	$self->{line} .= "$font\n";
-    }
-    my $w = $self->width($text);
-    if ($self->{xpos} + $w > $self->{rm}) {
-	$self->showline;
-	next if $text =~ /^\s*$/;
-    };
-    $self->{xpos} += $w;
-    $self->{showstring} .= $text;
-    $self->{out}++;
-}
-
-sub endpage
-{
-    my $self = shift;
-    # End previous page
-    $self->collect("showpage\n");
-    $self->{pageno}++;
-}
-
-sub newpage
-{
-    my $self = shift;
-    if ($self->{out}) {
-	$self->endpage;
-    }
-    $self->{out} = 0;
-    my $pageno = $self->{pageno};
-    $self->collect("\n%%Page: $pageno $pageno\n");
-
-    # Print area marker (just for debugging)
-    my($llx, $lly, $urx, $ury) = map { sprintf "%.1f", $_}
-                                 @{$self}{qw(lm bm rm tm)};
-    $self->collect("gsave 0.1 setlinewidth\n");
-    $self->collect("clippath 0.9 setgray fill 1 setgray\n");
-    $self->collect("$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n");
-    $self->collect("grestore\n");
-
-    # Print page number
-    if ($self->{printpageno}) {
-	my $x = $self->{paperwidth};
-	if ($x) { $x -= 20; } else { $x = 10 };
-	$self->collect("/Helvetica findfont 10 scalefont setfont ");
-	$self->collect(sprintf "%.1f 10.0 M($pageno)S\n", $x);
-    }
-    $self->collect("\n");
-
-    $self->{xpos} = $llx;
-    $self->{ypos} = $ury;
-}
-
-sub show
-{
-    my $self = shift;
-    my $str = $self->{showstring};
-    return unless length $str;
-    $str =~ s/([\(\)])/\\$1/g;    # must escape parentesis
-    $self->{line} .= "($str)S\n";
-    $self->{showstring} = "";
-}
-
-sub width
-{
-    my $self = shift;
-    my $w = 0;
-    my $wx = $self->{wx};
-    my $sz = $self->{pointsize};
-    while ($_[0] =~ /(.)/g) {
-	$w += $wx->[ord $1] * $sz;
-    }
-    $w;
-}
-
 
 sub adjust_lm
 {
     my $self = shift;
     $self->{lm} += $_[0] * $self->{en};
 }
+
 
 sub adjust_rm
 {

@@ -319,14 +319,17 @@ sub escape_test {
 
 sub newlocal_test {
     print "newlocal_test:\n";
-
-    my $dir =`/bin/pwd`;        # check Cwd gets require'd
-    chomp $dir;
-
+ 
+    my $savedir =`/bin/pwd`;  # we don't use Cwd.pm because we want to check
+                              # that it get require'd corretly by URL.pm
+    chomp $savedir;
+    
     # cwd
     chdir('/tmp') or die $!;
+    my $dir = `/bin/pwd`;
+    chomp $dir;
     $url = newlocal URI::URL;
-    $url->_expect('as_string', 'file:/tmp/');
+    $url->_expect('as_string', "file:$dir/");
 
     # absolute dir
     chdir('/') or die $!;
@@ -339,20 +342,24 @@ sub newlocal_test {
 
     # relative file
     chdir('/tmp') or die $!;
+    $dir = `/bin/pwd`;
+    chomp $dir;
     $url = newlocal URI::URL 'foo';
-    $url->_expect('as_string', 'file:/tmp/foo');
+    $url->_expect('as_string', "file:$dir/foo");
 
     # relative dir
     chdir('/tmp') or die $!;
+    $dir = `/bin/pwd`;
+    chomp $dir;
     $url = newlocal URI::URL 'bar/';
-    $url->_expect('as_string', 'file:/tmp/bar/');
+    $url->_expect('as_string', "file:$dir/bar/");
 
     # 0
     chdir('/') or die $!;
     $url = newlocal URI::URL '0';
     $url->_expect('as_string', 'file:/0');
 
-    chdir($dir) or die $!;
+    chdir($savedir) or die $!;
 }
 
 

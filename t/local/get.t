@@ -2,6 +2,12 @@
 # Test retrieving a file with a 'file://' URL,
 #
 
+if ($^O eq "MacOS") {
+    print "1..0\n";
+    exit;
+}
+
+
 # First locate some suitable tmp-dir.  We need an absolute path.
 $TMPDIR = undef;
 for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {

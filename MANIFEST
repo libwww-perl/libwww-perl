@@ -30,6 +30,7 @@ lib/LWP/Authen/Basic.pm		Basic authentication scheme
 lib/LWP/Authen/Digest.pm	Digest authentication scheme
 lib/LWP/ConnCache.pm		Connection cache
 lib/LWP/Debug.pm		Debugging support
+lib/LWP/DebugFile.pm		Send debug output to a file
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols

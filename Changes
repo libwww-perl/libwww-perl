@@ -10,6 +10,9 @@
     Patch by Ville Skyttä <ville.skytta@iki.fi>.
     https://rt.cpan.org/Ticket/Display.html?id=5828
 
+    LWP did not handle URLs like http://www.example.com?foo=bar
+    properly.
+
     LWP::RobotUA construct now accept key/value arguments in the
     same way as LWP::UserAgent.
     Based on patch by Andy Lester <andy@petdance.com>.

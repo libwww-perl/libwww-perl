@@ -1,3 +1,21 @@
+Mon Oct 12 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.40_01
+
+ o  Unbundled URI::URL modules.  You now have to install the
+    URI.pm module in order to get libwww-perl working.
+
+ o  Made library URI.pm compatible.  Made all URI object instantiations
+    based on $HTTP::URI_CLASS variable.
+
+ o  New lwp-rget option: --referer.
+    Patch by INOUE Yoshinari <inoue@kusm.kyoto-u.ac.jp>.
+
+ o  One more binmode() to HTTP::Daemon as suggested by
+    Markus Laker <mlaker@contax.co.uk>.
+
+
+
 Tue Aug  4 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.36

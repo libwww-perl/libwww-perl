@@ -43,11 +43,11 @@ interface you have full control over headers sent and how you want to
 handle the response returned.
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
   $ua->agent("$0/0.1 " . $ua->agent);
   # $ua->agent("Mozilla/8.0") # pretend we are very capable browser
 
-  $req = new HTTP::Request 'GET' => 'http://www.sn.no/libwww-perl';
+  $req = HTTP::Request->new(GET => 'http://www.linpro.no/lwp');
   $req->header('Accept' => 'text/html');
 
   # send request
@@ -92,9 +92,9 @@ must use the object oriented interface for this. The most common POST
 operation is to access a WWW form application:
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
 
-  my $req = new HTTP::Request 'POST','http://www.perl.com/cgi-bin/BugGlimpse';
+  my $req = HTTP::Request->new(POST => 'http://www.perl.com/cgi-bin/BugGlimpse');
   $req->content_type('application/x-www-form-urlencoded');
   $req->content('match=www&errors=0');
 
@@ -107,7 +107,7 @@ suitable default for the content_type:
 
   use HTTP::Request::Common qw(POST);
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
 
   my $req = POST 'http://www.perl.com/cgi-bin/BugGlimpse',
                 [ search => 'www', errors => 0 ];
@@ -130,7 +130,7 @@ You should initialize your proxy setting before you start sending
 requests:
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
   $ua->env_proxy; # initialize from environment variables
   # or
   $ua->proxy(ftp  => 'http://proxy.myorg.com');
@@ -150,10 +150,10 @@ required header, with something like this:
 
  use LWP::UserAgent;
 
- $ua = new LWP::UserAgent;
+ $ua = LWP::UserAgent->new;
  $ua->proxy(['http', 'ftp'] => 'http://proxy.myorg.com');
 
- $req = new HTTP::Request 'GET',"http://www.perl.com";
+ $req = HTTP::Request->new('GET',"http://www.perl.com");
  $req->proxy_authorization_basic("proxy_user", "proxy_password");
 
  $res = $ua->request($req);
@@ -169,14 +169,35 @@ Documents protected by basic authorization can easily be accessed
 like this:
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
-  $req = new HTTP::Request GET => 'http://www.sn.no/secret/';
+  $ua = LWP::UserAgent->new;
+  $req = HTTP::Request->new(GET => 'http://www.linpro.no/secret/');
   $req->authorization_basic('aas', 'mypassword');
   print $ua->request($req)->as_string;
 
 The other alternative is to provide a subclass of I<LWP::UserAgent> that
 overrides the get_basic_credentials() method. Study the I<lwp-request>
 program for an example of this.
+
+
+=head1 COOKIES
+
+Some sites like to play games with cookies.  By default LWP ignore
+cookies provided by the servers it visit.  You can make it start
+collecting them by setting up a cookie jar.
+
+  use LWP::UserAgent;
+  use HTTP::Cookies;
+
+  $ua = LWP::UserAgent->new;
+  $ua->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt",
+				     autosave => 1));
+
+  # and then send requests just as you used to do
+  $res = $ua->request(HTTP::Request->new(GET => "http://www.yahoo.no"));
+  print $res->status_line, "\n";
+
+As you visit sites that send you cookies to keep, then the file
+F<lwpcookies.txt"> will grow.
 
 =head1 HTTPS
 
@@ -234,25 +255,30 @@ the document content to a file (second $ua->request() argument is a file
 name):
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
 
-  my $req = new HTTP::Request 'GET',
-                'http://www.sn.no/~aas/perl/www/libwww-perl-5.00.tar.gz';
+  my $req = HTTP::Request->new(GET =>
+                'http://www.linpro.no/lwp/libwww-perl-5.46.tar.gz');
   $res = $ua->request($req, "libwww-perl.tar.gz");
   if ($res->is_success) {
      print "ok\n";
   }
+  else {
+     print $res->status_line, "\n";
+  }
+
 
 Or you can process the document as it arrives (second $ua->request()
 argument is a code reference):
 
   use LWP::UserAgent;
-  $ua = new LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
   $URL = 'ftp://ftp.unit.no/pub/rfc/rfc-index.txt';
 
   my $expected_length;
   my $bytes_received = 0;
-  $ua->request(HTTP::Request->new('GET', $URL),
+  my $res = 
+     $ua->request(HTTP::Request->new(GET => $URL),
                sub {
                    my($chunk, $res) = @_;
                    $bytes_received += length($chunk);
@@ -268,12 +294,13 @@ argument is a code reference):
                    # XXX Should really do something with the chunk itself
 	           # print $chunk;
                });
+   print $res->status_line, "\n";
 
 
 
 =head1 COPYRIGHT
 
-Copyright 1996-1999, Gisle Aas
+Copyright 1996-2000, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.13 2004/12/11 13:28:47 gisle Exp $
+# $Id: lwp-download,v 2.14 2004/12/11 13:51:49 gisle Exp $
 
 =head1 NAME
 
@@ -8,14 +8,25 @@ lwp-download - Fetch large files from the web
 
 =head1 SYNOPSIS
 
- lwp-download [-a] <url> [<local file>]
+B<lwp-download> [B<-a>] <I<url>> [<I<local path>>]
 
 =head1 DESCRIPTION
 
-The I<lwp-download> program will down load the document specified by the URL
-given as the first command line argument to a local file.  The local
-filename used to save the document is guessed from the URL unless
-specified as the second command line argument.
+The B<lwp-download> program will save the file at I<url> to a local
+file.
+
+If I<local path> is not specified, then the current directory is
+assumed.
+
+If I<local path> is a directory, then the basename of the file to save
+is picked up from the Content-Disposition header or the URL of the
+response.  If the file already exists, then B<lwp-download> will
+prompt before it overwrites and will fail if its standard input is not
+a terminal.  This form of invocation will also fail is no acceptable
+filename can be derived from the sources mentioned above.
+
+If I<local path> is not a directory, then it is simply used as the
+path to save into.
 
 The I<lwp-download> program is implemented using the I<libwww-perl>
 library.  It is better suited to down load big files than the
@@ -23,8 +34,8 @@ I<lwp-request> program because it does not store the file in memory.
 Another benefit is that it will keep you updated about its progress
 and that you don't have much options to worry about.
 
-Use the C<-a> option to save the file in text (ascii) mode.  Might make a
-difference on dosish systems.
+Use the C<-a> option to save the file in text (ascii) mode.  Might
+make a difference on dosish systems.
 
 =head1 EXAMPLE
 
@@ -63,7 +74,7 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.13 $;
+my $version = q$Revision: 2.14 $;
 
 my $ua = new LWP::UserAgent;
 

@@ -32,6 +32,7 @@ lib/LWP/Debug.pm		Debugging support
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
+lib/LWP/Protocol/GHTTP.pm       Alternative HTTP protocol handler
 lib/LWP/Protocol/data.pm        Access to data URLs
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol

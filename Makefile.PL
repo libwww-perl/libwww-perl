@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.32 1996/05/26 10:43:38 aas Exp $
+# $Id: Makefile.PL,v 1.33 1996/05/26 11:01:13 aas Exp $
 
 #--- Configuration section ---
 
@@ -120,5 +120,5 @@ sub MY::libscan {
     return '' if $path =~ m/.(pl|dtd|sgml)$/;
     return '' if $path =~ m:\bCVS/:;
     return '' if $path =~ m/~$/;
-    $_;
+    $path;
 }

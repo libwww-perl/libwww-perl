@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.1 2001/12/11 21:11:29 gisle Exp $
+# $Id: UserAgent.pm,v 2.2 2002/07/01 19:43:36 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -103,7 +103,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -570,23 +570,81 @@ L<HTTP::Request::Common|HTTP::Request::Common>.
 =cut
 
 sub get {
-  require HTTP::Request::Common;
-  return shift->request( HTTP::Request::Common::GET( @_ ) );
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::GET( @parameters ), @suff );
 }
 
 sub post {
-  require HTTP::Request::Common;
-  return shift->request( HTTP::Request::Common::POST( @_ ) );
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,2);
+    return $self->request( HTTP::Request::Common::POST( @parameters ), @suff );
 }
 
 sub head {
-  require HTTP::Request::Common;
-  return shift->request( HTTP::Request::Common::HEAD( @_ ) );
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::HEAD( @parameters ), @suff );
 }
 
-sub put {
-  require HTTP::Request::Common;
-  return shift->request( HTTP::Request::Common::PUT( @_ ) );
+#sub put {
+#  require HTTP::Request::Common;
+#  my($self, @parameters) = @_;
+#  my @suff = $self->_process_colonic_headers(\@parameters,1);
+#  return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+#}
+
+
+sub _process_colonic_headers {
+    # Process :content_cb / :content_file / :read_size_hint headers.
+    my($self, $args, $start_index) = @_;
+
+    my($arg, $size);
+    for(my $i = $start_index; $i < @$args; $i += 2) {
+	next unless defined $args->[$i];
+
+	#printf "Considering %s => %s\n", $args->[$i], $args->[$i + 1];
+
+	if($args->[$i] eq ':content_cb') {
+	    # Some sanity-checking...
+	    $arg = $args->[$i + 1];
+	    Carp::croak("A :content_cb value can't be undef") unless defined $arg;
+	    Carp::croak("A :content_cb value must be a coderef")
+		unless ref $arg and UNIVERSAL::isa($arg, 'CODE');
+	    
+	}
+	elsif ($args->[$i] eq ':content_file') {
+	    $arg = $args->[$i + 1];
+
+	    # Some sanity-checking...
+	    Carp::croak("A :content_file value can't be undef")
+		unless defined $arg;
+	    Carp::croak("A :content_file value can't be a reference")
+		if ref $arg;
+	    Carp::croak("A :content_file value can't be \"\"")
+		unless length $arg;
+
+	}
+	elsif ($args->[$i] eq ':read_size_hint') {
+	    $size = $args->[$i + 1];
+	    # Bother checking it?
+
+	}
+	else {
+	    next;
+	}
+	splice @$args, $i, 2;
+	$i -= 2;
+    }
+
+    # And return a suitable suffix-list for request(REQ,...)
+
+    return             unless defined $arg;
+    return $arg, $size if     defined $size;
+    return $arg;
 }
 
 

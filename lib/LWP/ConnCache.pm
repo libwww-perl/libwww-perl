@@ -1,6 +1,6 @@
 package LWP::ConnCache;
 
-# $Id: ConnCache.pm,v 1.2 2001/04/20 17:58:21 gisle Exp $
+# $Id: ConnCache.pm,v 1.3 2001/04/20 18:03:19 gisle Exp $
 
 use strict;
 use vars qw($VERSION $DEBUG);
@@ -63,6 +63,7 @@ sub enforce_limits {
 
     my @types = $type ? ($type) : ($self->get_types);
     for $type (@types) {
+	next unless $self->{limit};
 	my $limit = $self->{limit}{$type};
 	next unless defined $limit;
 	for my $i (reverse 0 .. @$conns - 1) {

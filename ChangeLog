@@ -1,3 +1,17 @@
+Mon Jan 26 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.19
+
+ o  HTML::Parser does not call $self->text() callback for empty text
+    any more.
+
+ o  LWP::Protocol::https was noisy when connections failed and the
+    script was running with '-w' (noise inherited from IO::Socket::INET)
+
+ o  $ua->use_alarm(BOOL) now gives a warning if running with -w
+
+
+
 Tue Jan 20 1998   Gisle Aas <aas@sn.no>
 
  o  Developer release 5.18_05

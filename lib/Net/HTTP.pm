@@ -1,11 +1,11 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.39 2001/12/03 22:04:54 gisle Exp $
+# $Id: HTTP.pm,v 1.40 2002/12/23 18:16:29 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "0.04";
+$VERSION = "1.00";
 eval { require IO::Socket::INET } || require IO::Socket;
 require Net::HTTP::Methods;
 
@@ -28,11 +28,6 @@ __END__
 =head1 NAME
 
 Net::HTTP - Low-level HTTP client connection
-
-=head1 NOTE
-
-This module is experimental.  Details of its interface is likely to
-change in the future.
 
 =head1 SYNOPSIS
 

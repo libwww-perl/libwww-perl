@@ -1,13 +1,13 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.10 2002/12/20 08:32:59 gisle Exp $
+# $Id: Methods.pm,v 1.11 2002/12/23 18:16:33 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "0.02";
+$VERSION = "1.00";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 

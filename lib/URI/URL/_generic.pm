@@ -452,8 +452,8 @@ sub rel {
     }
     
     my($bscheme, $bnetloc, $bpath) = @{$base}{qw(scheme netloc path)};
+    for ($netloc, $bnetloc, $bpath) { $_ = '' unless defined }
     $bpath = "/" unless length $bpath;  # a slash is default
-    for ($netloc, $bnetloc) { $_ = '' unless defined }  # these can be empty
     unless ($scheme eq $bscheme && $netloc eq $bnetloc) {
 	# different location, can't make it relative
 	return $rel;

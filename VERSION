@@ -22,7 +22,7 @@ Andreas Koenig <koenig@mind.de>
 
 =cut
 
-$VERSION=0.03;
+$VERSION=0.04;
 
 use lib "lib";
 
@@ -76,8 +76,10 @@ sub rewrite
 }
 
 __END__
-HTTP::Date 1.07
+HTTP::Date 1.10
 LWP 0.03
-LWP::Base64 1.06
-LWP::Socket 1.06
+LWP::Socket 1.07
+MIME::Base64 1.03
+MIME::QuotedPrint 1.04
+Mail::Cap 1.03
 URI::URL 3.03

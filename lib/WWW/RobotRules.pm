@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.27 2004/04/06 11:06:27 gisle Exp $
+# $Id: RobotRules.pm,v 1.28 2004/04/06 11:10:49 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -187,7 +187,7 @@ sub agent {
 
 	delete $self->{'loc'};   # all old info is now stale
 	$name = $1 if $name =~ m/(\S+)/; # get first word
-	$name =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
+	$name =~ s!/.*!!;  # get rid of version
 	$self->{'ua'}=$name;
     }
     $old;

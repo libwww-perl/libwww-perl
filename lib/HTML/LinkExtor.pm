@@ -120,7 +120,7 @@ sub links
 sub parse_file
 {
     my $self = shift;
-    delete $self->{links};
+    delete $self->{'links'};
     $self->SUPER::parse_file(@_);
 }
 

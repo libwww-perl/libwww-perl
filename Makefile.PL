@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.21 1996/03/05 11:03:00 aas Exp $
+# $Id: Makefile.PL,v 1.22 1996/03/12 13:59:09 aas Exp $
 
 #--- Configuration section ---
 
@@ -23,7 +23,7 @@ unless (getopts("n")) {
 $PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
                          [split ":", $ENV{PATH}], 0);
 $NAME = 'libwww-perl';
-$VERSION = '5b9';
+$VERSION = '5b10';
 
 # Write findings to a file so that other .PL files can read them.
 open(OUT, ">myConfig.out") or die "Can't open myConfig.out: $!";

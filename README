@@ -13,7 +13,7 @@ There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
 Library of Common Code (nowadays known as 'w3c-libwww').
 
-The Perl4 version is still maintained by Roy Fielding, and was the
+The Perl4 version is still(?) maintained by Roy Fielding, and was the
 basis for tools such as MOMSpider. The perl4 version of libwww-perl
 and much more information about its libraries can be found at:
 http://www.ics.uci.edu/pub/websoft/libwww-perl/
@@ -24,33 +24,24 @@ updated for the latest HTTP and URL specification, and offers some
 extended functionality.
 
 
-AVAILABILITY
-
-The latest version of libwww-perl should always be available from:
-
-     http://www.sn.no/libwww-perl/
-
-The library is also available from the Comprehensive Perl Archive
-Network (CPAN).  Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
-site near you.
-
-
 PREREQUISITES
 
 In order to install and use this package you will need Perl version
-5.004 or better.  Some modules within this package depend on packages
-that are distributed separately from perl.  We recommend that you have
-the following packages installed before you install libwww-perl:
+5.004 or better.  Some modules within this package depend on other
+packages that are distributed separately from Perl.  We recommend that
+you have the following packages installed before you install
+libwww-perl:
 
-  MIME-Base64-#.##
-  libnet-#.##
-  MD5-#.##
+  MIME-Base64
+  HTML-Parser
+  libnet
+  MD5
 
 These packages should be available on CPAN (described above).
 
 If you want to access sites using the https protocol, then you need to
-install the Crypt-SSLeay modules first.  The Net::SSLeay module is not
-supported any more.
+install the Crypt-SSLeay modules first.  (The Net::SSLeay module is not
+supported any more.)
 
 
 INSTALLATION
@@ -106,6 +97,17 @@ development of the libwww-perl package.
 You can join the mailing list by sending a message to
 <libwww-perl-request@ics.uci.edu> with "Subscribe" as subject.
             ^^^^^^^^
+
+AVAILABILITY
+
+The latest version of libwww-perl should always be available from:
+
+     http://www.linpro.no/lwp/
+
+The library is also available from the Comprehensive Perl Archive
+Network (CPAN).  Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
+site near you.
+
 
 COPYRIGHT
 

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.18 1995/09/15 17:04:16 aas Exp $
+# $Id: Element.pm,v 1.19 1995/11/06 09:50:48 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -463,7 +463,7 @@ sub dump
 
 =item ->asHTML()
 
-Retuns a string (the HTML document) that represents the element and
+Returns a string (the HTML document) that represents the element and
 its children.
 
 =cut
@@ -502,7 +502,7 @@ sub asHTML
 	    }
 	}
     }
-    unless ($noEndTag{$tag} || $tag eq 'p') {
+    unless ($noEndTag{$tag} || $tag eq 'p' || $tag eq 'li' || $tag eq 'dt') {
 	unless ($pre) {
 	    $html .= "\n";
 	    $html .= "  " x $depth;

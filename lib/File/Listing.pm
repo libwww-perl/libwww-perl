@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.6 1996/05/08 16:19:19 aas Exp $
+# $Id: Listing.pm,v 1.7 1996/10/16 15:52:41 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -122,6 +122,8 @@ sub parse
 	   $tz = 3600 * $2;
 	   $tz +=  60 * $3 if $3;
 	   $tz *= -1 if $1 ne '-';
+       } elsif ($tz eq 'GMT') {
+	   $tz = 0;
        } else {
 	   Carp::croak("Illegal timezone argument (format is +0100)");
        }

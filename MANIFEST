@@ -85,6 +85,7 @@ t/base/date.t			Test HTTP::Date module
 t/base/entities.t		Test HTML::Entities module
 t/base/headers.t		Test HTTP::Headers module
 t/base/html-parse.t		Test HTML::Parse module
+t/base/listing.t                Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/negotiate.t              Test HTTP::Negotiation module

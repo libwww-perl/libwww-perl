@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.10 1995/08/09 11:34:34 aas Exp $
+# $Id: Protocol.pm,v 1.11 1995/09/03 07:16:36 aas Exp $
 
 package LWP::Protocol;
 
@@ -118,7 +118,7 @@ sub implementor
             my $package = "LWP/Protocol/${scheme}.pm";
             eval {require "$package"};
             if ($@) {
-                if ($@ =~ /^Can't locate/) { # emacs get confused by '
+                if ($@ =~ /^Can't locate/) { #' #emacs get confused by '
                     $ic = '';
                 } else {
                     die "$@\n";
@@ -172,6 +172,10 @@ sub useAlarm { shift->_elem('useAlarm', @_); }
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.
 
+Note: We will only use the callback if $response->isSuccess().  This
+avoids sendig content data for redirects and authentization responses
+to the callback which would be confusing.
+
 =cut
 
 sub collect
@@ -210,7 +214,11 @@ sub collect
             alarm(0) if $self->useAlarm;
             LWP::Debug::debug("read " . length $$content . " bytes");
             LWP::Debug::conns("read: $$content");
-            &$arg($content, $response, $self);
+	    if ($response->isSuccess) {
+		&$arg($content, $response, $self);
+	    } else {
+		$response->addContent($content);
+	    }
             alarm($self->timeout) if $self->useAlarm;
         }
     }

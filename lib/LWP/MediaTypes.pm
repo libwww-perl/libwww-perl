@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.20 1998/01/06 09:58:05 aas Exp $
+# $Id: MediaTypes.pm,v 1.21 1998/07/09 04:31:00 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -31,7 +31,8 @@ The following functions are available (and exported by default):
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+@EXPORT_OK = qw(add_type add_encoding);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -62,32 +63,86 @@ my %suffixEncoding = (
     'z'   => 'x-pack'
 );
 
-local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
+=item add_type($type, @exts)
 
-my @priv_files = ();
-push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
-  if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
+Associate a list of file extensions with the given media type.
 
-# Try to locate "media.types" file, and initialize %suffixType from it
-my $typefile;
-for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
-    local(*TYPE);
-    open(TYPE, $typefile) || next;
-    LWP::Debug::debug("Reading media types from $typefile");
-    while (<TYPE>) {
-	next if /^\s*#/; # comment line
-	next if /^\s*$/; # blank line
-	s/#.*//;         # remove end-of-line comments
-	my($type, @exts) = split(' ', $_);
-	$suffixExt{$type} = $exts[0] if @exts;
-	my $ext;
-	for $ext (@exts) {
-	    $suffixType{$ext} = $type;
-	}
+Example:
+
+    add_type("x-world/x-vrml" => qw(wrl vrml));
+
+=cut
+
+sub add_type 
+{
+    my($type, @exts) = @_;
+    $suffixExt{$type} = $exts[0] if @exts;
+    for my $ext (@exts) {
+	$suffixType{$ext} = $type;
     }
-    close(TYPE);
 }
 
+=item add_encoding($type, @ext)
+
+Associate a list of file extensions with and encoding type.
+
+ Example:
+
+ add_encoding("x-gzip" => "gz");
+
+=cut
+
+sub add_encoding
+{
+    my $type = shift;
+    for my $ext (@_) {
+	$ext =~ s/^\.//;
+	$suffixEncoding{$ext} = $type;
+    }
+}
+
+=item read_media_types(@files)
+
+Parse a media types file from disk.
+
+Example:
+
+    read_media_types("conf/mime.types");
+
+=cut
+
+sub read_media_types 
+{
+    my(@files) = @_;
+
+    local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
+
+    my @priv_files = ();
+    push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
+	if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
+
+    # Try to locate "media.types" file, and initialize %suffixType from it
+    my $typefile;
+    unless (@files) {
+	@files = map {"$_/LWP/media.types"} @INC;
+	push @files, @priv_files;
+    }
+    for $typefile (@files) {
+	local(*TYPE);
+	open(TYPE, $typefile) || next;
+      LWP::Debug::debug("Reading media types from $typefile");
+	while (<TYPE>) {
+	    next if /^\s*#/; # comment line
+	    next if /^\s*$/; # blank line
+	    s/#.*//;         # remove end-of-line comments
+	    my($type, @exts) = split(' ', $_);
+	    add_type($type, @exts);
+	}
+	close(TYPE);
+    }
+}
+
+read_media_types();
 
 ####################################################################
 
@@ -113,6 +168,15 @@ this header.
 
 =cut
 
+sub file_exts 
+{
+    my($file) = @_;
+    $file =~ s,.*/,,;   # only basename left
+    my @parts = reverse split(/\./, $file);
+    pop(@parts);        # never concider first part
+    @parts;
+}
+
 sub guess_media_type
 {
     my($file, $header) = @_;
@@ -126,13 +190,10 @@ sub guess_media_type
     } else {
 	$fullname = $file;  # enable peek at actual file
     }
-    $file =~ s,.*/,,;   # only basename left
-    my @parts = reverse split(/\./, $file);
-    pop(@parts);        # never concider first part
 
     my @encoding = ();
     my $ct = undef;
-    for (@parts) {
+    for (file_exts($file)) {
 	# first check this dot part as encoding spec
 	if (exists $suffixEncoding{$_}) {
 	    unshift(@encoding, $suffixEncoding{$_});

@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.39 2004/04/09 14:17:32 gisle Exp $
+# $Id: Form.pm,v 1.40 2004/06/03 09:18:20 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -136,15 +136,26 @@ sub parse
 		    $f->push_input("textarea", $attr);
 		}
 		elsif ($tag eq "select") {
-		    $attr->{select_value} = $attr->{value}
-		        if exists $attr->{value};
+		    # rename attributes reserved to come for the option tag
+		    for ("value", "value_name") {
+			$attr->{"select_$_"} = delete $attr->{$_}
+			    if exists $attr->{$_};
+		    }
 		    while ($t = $p->get_tag) {
 			my $tag = shift @$t;
 			last if $tag eq "/select";
 			next if $tag =~ m,/?optgroup,;
 			next if $tag eq "/option";
 			if ($tag eq "option") {
-			    my %a = (%$attr, %{$t->[0]});
+			    my %a = %{$t->[0]};
+			    # rename keys so they don't clash with %attr
+			    for (keys %a) {
+				next if $_ eq "value";
+				$a{"option_$_"} = delete $a{$_};
+			    }
+			    while (my($k,$v) = each %$attr) {
+				$a{$k} = $v;
+			    }
 			    $a{value_name} = $p->get_trimmed_text;
 			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
@@ -192,6 +203,7 @@ sub push_input
     my @extra;
     push(@extra, readonly => 1) if $type eq "hidden";
 
+    delete $attr->{type}; # don't confuse the type argument
     my $input = $class->new(type => $type, %$attr, @extra);
     $input->add_to_form($self);
 }
@@ -913,9 +925,9 @@ sub new
     }
     else {
 	$self->{menu} = [$value];
-	my $checked = exists $self->{checked} || exists $self->{selected};
+	my $checked = exists $self->{checked} || exists $self->{option_selected};
 	delete $self->{checked};
-	delete $self->{selected};
+	delete $self->{option_selected};
 	if (exists $self->{multiple}) {
 	    unshift(@{$self->{menu}}, undef);
 	    $self->{value_names} = ["off", $value_name];

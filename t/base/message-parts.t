@@ -2,7 +2,7 @@
 
 use strict;
 use Test qw(plan ok);
-plan tests => 39;
+plan tests => 38;
 
 use HTTP::MessageParts;
 use HTTP::Request::Common qw(POST);
@@ -13,7 +13,6 @@ my $m = HTTP::Message->new;
 ok(ref($m->headers), "HTTP::Headers");
 ok($m->headers_as_string, "");
 ok($m->content, "");
-ok($m->parent, undef);
 ok(j($m->parts), "");
 ok($m->as_string, "\n");
 

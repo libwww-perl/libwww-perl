@@ -150,7 +150,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -573,7 +573,7 @@ sub save
 
 sub usage
 {
-    die <<"";
+    print <<""; exit 1;
 Usage: $progname [options] <URL>
 Allowed options are:
   --auth=USER:PASS  Set authentication credentials for web site

@@ -1,6 +1,6 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.5 1996/10/30 09:27:37 aas Exp $
+# $Id: Parser.pm,v 2.6 1997/02/21 09:32:14 aas Exp $
 
 =head1 NAME
 
@@ -116,7 +116,7 @@ use strict;
 
 use HTML::Entities ();
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.6 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -227,15 +227,14 @@ sub parse
 	# Then, look for a end tag
 	} elsif ($$buf =~ s|^</||) {
 	    # end tag
-	    if ($$buf =~ s|^\s*([a-z][a-z0-9\.\-]*)\s*>||i) {
+	    if ($$buf =~ s|^([a-zA-Z][a-zA-Z0-9\.\-]*)\s*>||) {
 		$self->end(lc($1));
-	    } elsif ($$buf =~ m|^\s*[a-z]*[a-z0-9\.\-]*\s*$|i) {
+	    } elsif ($$buf =~ m|^[a-zA-Z]*[a-zA-Z0-9\.\-]*\s*$|) {
 		$$buf = "</" . $$buf;  # need more data to be sure
 		return $self;
 	    } else {
 		# it is plain text after all
-		$self->text($$buf);
-		$$buf = "";
+		$self->text("</");
 	    }
 	# Then, finally we look for a start tag
 	} elsif ($$buf =~ s|^<||) {

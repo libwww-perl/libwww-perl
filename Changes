@@ -43,6 +43,8 @@
 
     HTTP::Cookies::Netscape documentation fix by Sean M. Burke.
 
+    HTTP::Cookies::Microsoft documentation fix by Johnny Lee.
+
     The code that tries to avoid installing 'HEAD' on top of
     'head' on systems like Mac OS was further improved to look
     in $Config{installscript} instead of $Config{sitebin}.

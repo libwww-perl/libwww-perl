@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.23 1998/11/19 21:45:00 aas Exp $
+# $Id: MediaTypes.pm,v 1.24 1999/03/19 21:01:29 gisle Exp $
 
 package LWP::MediaTypes;
 
@@ -32,7 +32,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -188,10 +188,9 @@ sub media_suffix {
 
 sub file_exts 
 {
-    my($file) = @_;
-    $file =~ s,.*/,,;   # only basename left
-    my @parts = reverse split(/\./, $file);
-    pop(@parts);        # never concider first part
+    require File::Basename;
+    my @parts = reverse split(/\./, File::Basename::basename($_[0]));
+    pop(@parts);        # never consider first part
     @parts;
 }
 
@@ -260,13 +259,22 @@ sub read_media_types
     local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
 
     my @priv_files = ();
-    push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
-	if defined $ENV{HOME};  # Some doesn't have a home (for instance Win32)
+    if($^O eq "MacOS") {
+	push(@priv_files, "$ENV{HOME}:media.types", "$ENV{HOME}:mime.types")
+	    if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
+    } else {
+	push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
+	    if defined $ENV{HOME};  # Some doesn't have a home (for instance Win32)
+    }
 
     # Try to locate "media.types" file, and initialize %suffixType from it
     my $typefile;
     unless (@files) {
-	@files = map {"$_/LWP/media.types"} @INC;
+	if($^O eq "MacOS") {
+	    @files = map {$_."LWP:media.types"} @INC;
+	} else {
+	    @files = map {"$_/LWP/media.types"} @INC;
+	}
 	push @files, @priv_files;
     }
     for $typefile (@files) {
@@ -290,7 +298,7 @@ sub read_media_types
 
 =head1 COPYRIGHT
 
-Copyright 1995-1998 Gisle Aas.
+Copyright 1995-1999 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

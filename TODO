@@ -1,4 +1,4 @@
-                                            $Date: 1996/05/08 16:17:06 $
+                                            $Date: 1996/05/09 10:04:58 $
 
 This is a list over things that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -49,16 +49,11 @@ The order of items does not reflect priority.
 
   o  $h->as_HTML has trouble with this: <input name="name">
 
-  o  If comments are divided then between chunks to be parsed, then it
-     might not be recognised.  "<!-- This is a comment -"   "-> more text"
-
   o  Make the HTML parser much faster.  Perhaps we need to reimplement it
      as C code.
 
   o  Make traverse kind of callbacks during parsing (this should allow
      us to do formatting as data arrives).
-
-  o  Make HTML parser warnings optional.
 
   o  The HTML::Parse module should make meta information (<HEAD>) easier to
      access.  The interface should allow us to stop parsing as soon as the
@@ -66,9 +61,7 @@ The order of items does not reflect priority.
 
   o  Parse full HTML 3.0 markup.
 
-  o  The HTML::Element->asHTML() method breaks lines inside tags.  It does
-     not always look very nice.  Try to use the formatter way, instead of
-     a recursive procedure.
+  o  Make the $html->as_HTML() output look nicely formatted.
 
   o  Formatters should support tables.  The postscript formatter should
      inline images.

@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.8 1996/11/14 13:08:58 aas Exp $
+# $Id: Listing.pm,v 1.9 1997/12/17 19:25:50 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -144,19 +144,6 @@ sub parse
    } else {
       # A normal scalar listing
       $dir = [ split(/\n/, $dir) ];
-   }
-
-   # Let's convert the tz to an offset in seconds
-   if (defined $tz) {
-       if ($tz =~ /^([-+])?(\d{1,2})(\d{2})?$/) {
-	   $tz = 3600 * $2;
-	   $tz +=  60 * $3 if $3;
-	   $tz *= -1 if $1 ne '-';
-       } elsif ($tz eq 'GMT') {
-	   $tz = 0;
-       } else {
-	   Carp::croak("Illegal timezone argument (format is +0100)");
-       }
    }
 
    $pkg->init();

@@ -1,4 +1,4 @@
-print "1..38\n";
+print "1..41\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -626,6 +626,24 @@ print "ok 38\n";
 #print $req->as_string;
 #print $c->as_string;
 
+
+$req = HTTP::Request->new(GET => "ftp://ftp.activestate.com/");
+$c->add_cookie_header($req);
+
+print "not " if $req->header("Cookie");
+print "ok 39\n";
+
+$req = HTTP::Request->new(GET => "file:/etc/motd");
+$c->add_cookie_header($req);
+
+print "not " if $req->header("Cookie");
+print "ok 40\n";
+
+$req = HTTP::Request->new(GET => "mailto:gisle\@aas.no");
+$c->add_cookie_header($req);
+
+print "not " if $req->header("Cookie");
+print "ok 41\n";
 
 
 #-------------------------------------------------------------------

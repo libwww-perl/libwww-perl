@@ -65,6 +65,7 @@ require HTTP::Request;
 $ua = new LWP::UserAgent;
 $ua->agent("Mozilla/0.01 " . $ua->agent);
 $ua->from('gisle@aas.no');
+$ua->cookie_jar({});
 
 #----------------------------------------------------------------
 print "#------------Testing: Bad request...\n";

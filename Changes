@@ -1,4 +1,14 @@
-2003-10-17   Gisle Aas <gisle@ActiveState.com>
+2003-10-15   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.72
+
+    Requests for some non-HTTP URLs would fail if the cookie_jar
+    was enabled.  The HTTP::Cookies::add_cookie_header now ignored
+    not-HTTP requests.
+
+
+
+2003-10-14   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.71
 

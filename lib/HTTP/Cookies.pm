@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -120,9 +120,15 @@ sub add_cookie_header
     my $self = shift;
     my $request = shift || return;
     my $url = $request->url;
+    my $scheme = $url->scheme;
+    unless ($scheme =~ /^https?\z/) {
+	LWP::Debug::debug("Will not add cookies to non-HTTP requests");
+	return;
+    }
+
     my $domain = _host($request, $url);
     $domain = "$domain.local" unless $domain =~ /\./;
-    my $secure_request = ($url->scheme eq "https");
+    my $secure_request = ($scheme eq "https");
     my $req_path = _url_path($url);
     my $req_port = $url->port;
     my $now = time();

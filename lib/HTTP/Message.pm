@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.6 1995/08/09 11:25:42 aas Exp $
+# $Id: Message.pm,v 1.7 1995/08/27 22:32:26 aas Exp $
 
 package HTTP::Message;
 
@@ -20,12 +20,13 @@ C<HTTP::Response>.
 #####################################################################
 
 require HTTP::Headers;
-use Carp;
+require Carp;
 
 =head2 new()
 
 Object constructor.  It should normally only be called internally by
-this library.
+this library.  External code should construct C<HTTP::Request> or
+C<HTTP::Response> objects.
 
 =cut
 
@@ -33,7 +34,7 @@ sub new
 {
     my($class, $header, $content) = @_;
     if (defined $header) {
-        croak "Bad header argument" unless ref($header) eq "HTTP::Headers";
+        Carp::croak("Bad header argument") unless ref $header;
         $header = $header->clone;
     } else {
         $header = new HTTP::Headers;

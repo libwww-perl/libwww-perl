@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.11 1995/08/09 09:44:20 aas Exp $
+# $Id: Headers.pm,v 1.12 1995/08/27 22:32:25 aas Exp $
 
 package HTTP::Headers;
 
@@ -27,7 +27,7 @@ library.
 =cut
 
 
-use Carp;
+require Carp;
 
 
 # "Good Practice" order of HTTP message headers:
@@ -137,8 +137,8 @@ sub _header
 
     # $push is only used interally sub pushHeader
 
-    croak('Need a field name') unless defined $field;
-    croak('Too many parameters') if @_ > 4;
+    Carp::croak('Need a field name') unless defined $field;
+    Carp::croak('Too many parameters') if @_ > 4;
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
@@ -161,7 +161,7 @@ sub _header
             # list: copy list            
             push(@$thisHeader, @$val);
         } else {
-            croak("Unexpected field value $val");
+            Carp::croak("Unexpected field value $val");
         }
     }
     @old;
@@ -181,7 +181,7 @@ reference to a list of scalars.
 
 sub pushHeader
 {
-    croak 'Usage: $h->pushHeader($field, $val)' if @_ != 3;
+    Carp::croak('Usage: $h->pushHeader($field, $val)') if @_ != 3;
     shift->_header(@_, 'PUSH');
 }
 

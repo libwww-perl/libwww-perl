@@ -1,3 +1,24 @@
+Wed Aug  9 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Reorganisation as discussed on <libwww-perl@ics.uci.edu>
+       LWP::Date       --> HTTP::Date
+       LWP::MIMEheader --> HTTP::Headers
+       LWP::StatusCode --> HTTP::Status
+       LWP::Message    --> HTTP::Message
+       LWP::Request    --> HTTP::Request
+       LWP::Response   --> HTTP::Response
+       LWP::MIMEtypes  --> LWP::MediaTypes
+
+ o  HTTP::Date parses ctime format with missing timezone as suggested
+    by Roy Fielding <fielding@beach.w3.org>
+
+ o  HTTP::Status and LWP::MediaTypes exports their functions by default.
+
+ o  Splitted up the URI::URL module.  Schemes are implemented by separate
+    files that are autoloaded when used.  Self test moved to "t/uri.t".
+
+
+       
 Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
 
  o  Applied patch from Marc Hedlund <hedlund@best.com>

@@ -7,25 +7,25 @@ TODO				The To-Do list for the library
 VERSION				Program that determines the current version
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
+lib/HTTP/Date.pm		Date conversion routines
+lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
+lib/HTTP/Message.pm		Class encapsulating HTTP messages
+lib/HTTP/Request.pm		Class encapsulating HTTP Requests
+lib/HTTP/Response.pm		Class encapsulating HTTP Responses
+lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
 lib/LWP/Base64.pm		Base 64 encoding/decoding routines
-lib/LWP/Date.pm			Date conversion routines
 lib/LWP/Debug.pm		Debugging support
-lib/LWP/MIMEheader.pm		Class encapsulating HTTP Message headers
-lib/LWP/MIMEtypes.pm		Library for MIME types
+lib/LWP/MediaTypes.pm		Library for MIME types
 lib/LWP/MemberMixin.pm		Helps you access %$self
-lib/LWP/Message.pm		Class encapsulating HTTP messages
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP protocol
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
-lib/LWP/Request.pm		Class encapsulating HTTP Requests
-lib/LWP/Response.pm		Class encapsulating HTTP Responses
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
-lib/LWP/StatusCode.pm		HTTP Status code processing
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/file.pm		Implements file URLs
@@ -60,3 +60,4 @@ t/proxy.t
 t/receiveHeaders-http.pl
 t/sendHeaders-http.pl
 t/uri.t				Test URI::URL module
+upgrade_from_v02		Script that does most of the upgrade job

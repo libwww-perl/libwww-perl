@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.98 2001/03/29 21:32:11 gisle Exp $
+# $Id: LWP.pm,v 1.99 2001/04/03 19:23:48 gisle Exp $
 
 package LWP;
 
@@ -492,7 +492,7 @@ The "To" header is initialized from the mail address in the URL.
 
 Example:
 
-  $req = HTTP::Request->new(POST => 'mailto:libwww@perl.ord');
+  $req = HTTP::Request->new(POST => 'mailto:libwww@perl.org');
   $req->header(Subject => "subscribe");
   $req->content("Please subscribe me to the libwww-perl mailing list!\n");
 

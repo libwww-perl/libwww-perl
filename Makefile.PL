@@ -1,5 +1,5 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.4 1995/07/25 08:29:40 aas Exp $
+# $Id: Makefile.PL,v 1.5 1995/07/25 08:40:31 aas Exp $
 
 use ExtUtils::MakeMaker;
 
@@ -33,7 +33,7 @@ sub initialize
 	   'bin/request',
 	   'bin/mirror',
 	],
-	'clean'   => {FILES => '#* $(EXE_FILES)'},
+	'clean'   => {FILES => '$(EXE_FILES)'},
 	'linkext' => {LINKTYPE => '' },
 	'dist' => {
             COMPRESS     => 'gzip -9f',

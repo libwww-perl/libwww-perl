@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.56 2001/04/29 06:14:51 gisle Exp $
+# $Id: Makefile.PL,v 1.57 2001/10/26 18:04:13 gisle Exp $
 
 require 5.004;
 use strict;
@@ -41,7 +41,7 @@ my $some_time_ago = sprintf "%04d-%02d-%02d",
                             sub { ($_[5]+1900, $_[4]+1, $_[3])}->(localtime(time - 45 * 24*60*60));
 if ($some_time_ago lt $release_date) {
     # Check if we have internet connection
-    require IO::Socket::INET;
+    require IO::Socket;
     my $s = IO::Socket::INET->new(PeerAddr => "www.google.com:80",
 				  Timeout  => 10,
 				 );

@@ -1,14 +1,14 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.35 2001/08/28 04:08:33 gisle Exp $
+# $Id: HTTP.pm,v 1.36 2001/10/26 18:06:26 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "0.02";
-require IO::Socket::INET;
+$VERSION = "0.03";
+eval { require IO::Socket::INET } || require IO::Socket;
 @ISA=qw(IO::Socket::INET);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable

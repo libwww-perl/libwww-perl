@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.22 1998/07/09 05:27:34 aas Exp $
+# $Id: MediaTypes.pm,v 1.22.2.1 1998/09/11 11:05:01 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -32,7 +32,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22.2.1 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -78,7 +78,7 @@ read_media_types();
 This function tries to guess media type and encoding for given file.
 It returns the content-type, which is a string like C<"text/html">.
 In array context it also returns any content-encodings applied (in the
-order used to encode the file).  You can pass a URI::URL object
+order used to encode the file).  You can pass a URI object
 reference, instead of the file name, as the first parameter too.
 
 If the type can not be deduced from looking at the file name only,
@@ -101,9 +101,9 @@ sub guess_media_type
 
     my $fullname;
     if (ref($file)) {
-	# assume URI::URL object
+	# assume URI object
 	$file = $file->path;
-	#XXX should handle non http:, file: or ftp: URLs differently
+	#XXX should handle non http:, file: or ftp: URIs differently
     } else {
 	$fullname = $file;  # enable peek at actual file
     }

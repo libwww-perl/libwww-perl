@@ -62,7 +62,7 @@ sub query_form {
     return () unless length $old;
     Carp::croak("Query is not a form") unless $old =~ /=/;
     map { s/\+/ /g; URI::Escape::uri_unescape($_) }
-	 map { split(/=/, $_, 2)} split(/&/, $old);
+	 map { /=/ ? split(/=/, $_, 2) : ($_ => '')} split(/&/, $old);
 }
 
 1;

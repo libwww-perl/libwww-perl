@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.30 1997/12/03 21:21:00 aas Exp $
+# $Id: lwp-request.PL,v 1.31 1997/12/17 09:54:30 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -186,7 +186,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -415,10 +415,7 @@ while ($url = shift) {
     if ($opt_S) {
 	printResponseChain($response);
     } elsif ($opt_s) {
-        # Display status code
-        my $code = $response->code;
-        print $code, " ", status_message($code), "\n";
-        
+        print $response->status_line, "\n";
     }
 
     if ($opt_e) {
@@ -489,7 +486,7 @@ sub printResponseChain
     my $method = $response->request->method;
     my $url = $response->request->url->as_string;
     my $code = $response->code;
-    print "$method $url --> $code ", status_message($code), "\n";
+    print "$method $url --> ", $response->status_line, "\n";
 }
 
 

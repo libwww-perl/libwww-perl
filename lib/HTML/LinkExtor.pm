@@ -154,12 +154,13 @@ is received using LWP:
      push(@imgs, values %attr);
   }
 
-  # Make the parser.  Unfortunately, we don't know the base yet (it might
-  # be diffent from $url)
+  # Make the parser.  Unfortunately, we don't know the base yet
+  # (it might be diffent from $url)
   $p = HTML::LinkExtor->new(\&callback);
 
   # Request document and parse it as it arrives
-  $res = $ua->request(HTTP::Request->new(GET => $url), sub {$p->parse($_[0])});
+  $res = $ua->request(HTTP::Request->new(GET => $url),
+                      sub {$p->parse($_[0])});
 
   # Expand all image URLs to absolute ones
   my $base = $res->base;

@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.25 1999/03/20 07:37:36 gisle Exp $
+# $Id: MediaTypes.pm,v 1.26 1999/10/12 17:49:07 gisle Exp $
 
 package LWP::MediaTypes;
 
@@ -31,8 +31,8 @@ The following functions are exported by default:
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
-@EXPORT_OK = qw(add_type add_encoding);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+@EXPORT_OK = qw(add_type add_encoding read_media_types);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;

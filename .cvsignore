@@ -1,3 +1,5 @@
 .cvsignore
 Makefile
 blib
+myConfig.out
+

@@ -99,7 +99,7 @@ $f = HTML::Form->parse(<<'EOT', "http://localhost/");
 </form>
 EOT
 
-$f->dump;
+#$f->dump;
 ok($f->click->as_string, <<'EOT');
 GET http://localhost/?x=1&y=1&t=1
 

@@ -1,6 +1,6 @@
 use HTTP::Date;
 
-print "1..46\n";
+print "1..47\n";
 
 $no = 1;
 $| = 1;
@@ -35,8 +35,10 @@ my(@tests) =
  '03 Feb 1994',  # proposed new HTTP format  (no weekday, no time)
  '03/Feb/1994',  # common logfile format     (no time, no offset)
 
- #'Feb  3 00:00',    # Unix 'ls -l' format (can't really test it here)
- 'Feb  3 1994',      # Unix 'ls -l' format
+ #'Feb  3 00:00',     # Unix 'ls -l' format (can't really test it here)
+ 'Feb  3 1994',       # Unix 'ls -l' format
+
+ "02-03-94  12:00AM", # Windows 'dir' format
 
  # ISO 8601 formats
  '1994-02-03 00:00:00 +0000',
@@ -54,7 +56,7 @@ my(@tests) =
  '  03   Feb   1994  0:00  ',
 );
 
-my $time = 760233600;
+my $time = 760233600;  # assume broken POSIX counting of seconds
 for (@tests) {
     if (/GMT/i) {
 	$t = str2time($_);
@@ -63,6 +65,7 @@ for (@tests) {
     }
     $t = "UNDEF" unless defined $t;
     print "'$_'  =>  $t\n";
+    print $@ if $@;
     print "not " if $t eq 'UNDEF' || $t != $time;
     ok;
 }

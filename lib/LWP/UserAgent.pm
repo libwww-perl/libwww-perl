@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.27 1996/03/12 14:09:27 aas Exp $
+# $Id: UserAgent.pm,v 1.28 1996/03/12 15:28:09 aas Exp $
 
 package LWP::UserAgent;
 
@@ -671,13 +671,14 @@ sub _need_proxy
 
     if (@{ $self->{'no_proxy'} }) {
         my $host = $url->host;
+	return undef unless defined $host;
         my $domain;
-        for $domain (@{ $self->{'no_proxy'} }) {
-            if ($host =~ /$domain$/) {
-                LWP::Debug::trace("no_proxy configured");
-                return undef;
-            }
-        }
+	for $domain (@{ $self->{'no_proxy'} }) {
+	    if ($host =~ /$domain$/) {
+		LWP::Debug::trace("no_proxy configured");
+		return undef;
+	    }
+	}
     }
 
     # Currently configured per scheme.

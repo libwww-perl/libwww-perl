@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.40 1996/12/08 15:26:33 aas Exp $
+# $Id: Makefile.PL,v 1.41 1997/05/08 06:58:55 aas Exp $
 
 #--- Configuration section ---
 
@@ -25,7 +25,7 @@ unless (getopts("n")) {
 $| = 1;
 my $missing_modules = 0;
 
-print "Checking for IO::Socket.";
+print "Checking for IO::Socket....";
 eval {
     require IO::Socket;
     IO::Socket->require_version('1.13');
@@ -44,7 +44,25 @@ EOT
     print " ok\n";
 }
 
-print "Checking for Net::FTP...";
+print "Checking for MIME::Base64..";
+eval {
+    require MIME::Base64;
+    #MIME::Base64->require_version('2.00');
+};
+if ($@) {
+    print " failed\n";
+    $missing_modules++;
+    print <<EOT;
+$@
+The Base64 encoding is used in authentication headers in HTTP.
+
+EOT
+    sleep(2);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
+
+print "Checking for Net::FTP......";
 eval {
     require Net::FTP;
     Net::FTP->require_version('2.00');
@@ -65,7 +83,7 @@ EOT
     print " ok\n";
 }
 
-print "Checking for MD5 .......";
+print "Checking for MD5 ..........";
 eval {
     require MD5;
 };

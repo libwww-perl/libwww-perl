@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.20 2001/04/19 05:43:52 gisle Exp $
+# $Id: HTTP.pm,v 1.21 2001/04/19 18:15:03 gisle Exp $
 
 require 5.005;
 
@@ -267,6 +267,8 @@ sub read_entity_body {
 
     if (${*$self}{'http_first_body'}) {
 	${*$self}{'http_first_body'} = 0;
+	delete ${*$self}{'http_chunked'};
+	delete ${*$self}{'http_bytes'};
 	my $method = shift(@{${*$self}{'http_request_method'}});
 	my $status = ${*$self}{'http_status'};
 	if ($method eq "HEAD" || $status =~ /^(?:1|[23]04)/) {
@@ -317,7 +319,10 @@ sub read_entity_body {
 	return $n;
     }
     elsif (defined $bytes) {
-	return 0 unless $bytes;
+	unless ($bytes) {
+	    $$buf_ref = "";
+	    return 0;
+	}
 	my $n = $bytes;
 	$n = $size if $size && $size < $n;
 	$n = my_read($self, $$buf_ref, $n);

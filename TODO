@@ -1,0 +1,20 @@
+$Id: TODO,v 1.1 1995/07/16 07:19:30 aas Exp $
+
+Implement more protocol schemes
+    1) LWP::Protocol::ftp
+    2) LWP::Protocol::gopher
+    3) Others...
+
+MDA security
+
+Robot protcol as implemented in libwww-perl 0.40
+
+Make it possible to integrate with Tk.  LWP::Socket should let Tk select(2).
+
+Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
+
+Implement more of LWP::MIMEtypes
+
+Better LWP::Base64??
+
+Fix bugs, it here are any...

@@ -52,7 +52,6 @@ lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/MIME/Base64.pm		Base 64 encoding/decoding routines
 lib/MIME/QuotedPrint.pm		Quoted-Printable encoding/decoding routines
-lib/Mail/Cap.pm			Parse mailcap files
 lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/_generic.pm         Implements generic hierarchical RL (RFC 1808)

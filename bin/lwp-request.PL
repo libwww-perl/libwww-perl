@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-request.PL,v 1.24 1996/03/18 17:51:44 aas Exp $
+# $Id: lwp-request.PL,v 1.25 1996/04/09 08:53:29 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -176,7 +176,7 @@ Gisle Aas <aas@a.sn.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -303,7 +303,7 @@ $method = uc($opt_m) if defined $opt_m;
 
 if ($opt_f) {
     if ($opt_c) {
-        $allowed_methods{$method} = "C";
+        $allowed_methods{$method} = "C";  # force content
     } else {
         $allowed_methods{$method} = "";
     }
@@ -357,13 +357,13 @@ if ($allowed_methods{$method} eq "C") {
         if defined $opt_c;
 }
 
-# Set up a request.  We use the same request for all URLs.
+# Set up a request.  We will use the same request object for all URLs.
 $request = new HTTP::Request $method;
 $request->header('If-Modified-Since', $opt_i) if defined $opt_i;
 #$request->header('Accept', '*/*');
 if ($opt_c) { # will always be set for request that wants content
     $request->header('Content-Type', $opt_c);
-    $request->header('Content-Length', length $content);
+    $request->header('Content-Length', length $content);  # Not really needed
     $request->content($content);
 }
 
@@ -372,7 +372,7 @@ $errors = 0;
 
 # Ok, now we perform the requests, one URL at a time
 while ($url = shift) {
-    # Create the URL object
+    # Create the URL object, but protect us against bad URLs
     eval {
 	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
 	    $url = new URI::URL $url, $opt_b;
@@ -390,6 +390,7 @@ while ($url = shift) {
 
     $ua->proxy($url->scheme, $opt_p) if $opt_p;
 
+    # Send the request and get a response back from the server
     $request->url($url);
     $response = $ua->request($request);
 
@@ -417,7 +418,7 @@ while ($url = shift) {
     if ($response->is_success) {
 	unless ($opt_d) {
 	    if ($opt_o &&
-		lc($response->header('Content-Type')) eq 'text/html') {
+		$response->content_type eq 'text/html') {
 		require HTML::Parse;
 		my $html = HTML::Parse::parse_html($response->content);
 		{
@@ -451,6 +452,7 @@ while ($url = shift) {
 			$html->dump;
 			last;
 		    };
+		    # It is bad to not notice this before now :-(
 		    die "Illegal -o option value ($opt_o)\n";
 		}
 	    } else {

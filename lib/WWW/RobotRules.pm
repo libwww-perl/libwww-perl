@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.8 1996/09/17 11:07:13 aas Exp $
+# $Id: RobotRules.pm,v 1.9 1996/09/17 11:41:12 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -71,23 +71,6 @@ sub new {
     $self;
 }
 
-=head2 $rules->agent([$name])
-
-Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
-rules and expire times out of the cache.
-
-=cut
-
-sub agent {
-    my ($self, $name) = @_;
-    my $old = $self->{'ua'};
-    if ($name) {
-	$self->clear;
-	$name =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
-	$self->{'ua'}=$name;
-    }
-    $old;
-}
 
 =head2 $rules->parse($url, $content, $fresh_until)
 
@@ -199,6 +182,7 @@ sub allowed {
 }
 
 # The following methods must be provided by the subclass.
+sub agent;
 sub visit;
 sub no_vists;
 sub last_vists;
@@ -206,13 +190,30 @@ sub fresh_until;
 sub push_rules;
 sub clear_rules;
 sub rules;
-sub clear;
 sub dump;
 
 package WWW::RobotRules::InCore;
 
 use vars qw(@ISA);
 @ISA = qw(WWW::RobotRules);
+
+=head2 $rules->agent([$name])
+
+Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
+rules and expire times out of the cache.
+
+=cut
+
+sub agent {
+    my ($self, $name) = @_;
+    my $old = $self->{'ua'};
+    if ($name) {
+	delete $self->{'loc'};   # all old info is now stale
+	$name =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
+	$self->{'ua'}=$name;
+    }
+    $old;
+}
 
 sub visit {
     my($self, $netloc, $time) = @_;
@@ -263,12 +264,6 @@ sub rules {
     } else {
 	return ();
     }
-}
-
-sub clear
-{
-    my $self = shift;
-    delete $self->{'loc'};
 }
 
 sub dump

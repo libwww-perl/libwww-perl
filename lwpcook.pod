@@ -250,16 +250,6 @@ argument is a code reference):
 
 
 
-=head1 HTML FORMATTING
-
-It is easy to convert HTML code to "readable" text.
-
-  use LWP::Simple;
-  use HTML::Parse;
-  print parse_html(get 'http://www.sn.no/libwww-perl/')->format;
-
-
-
 =head1 PARSE URLS
 
 To access individual elements of a URL, try this:
@@ -280,62 +270,9 @@ or even
   my($host,$port) = (url("ftp://ftp.sn.no/test/aas;type=i")->crack)[3,4];
 
 
-=head1 EXPAND RELATIVE URLS
-
-This code reads URLs and print expanded version.
-
-  use URI::URL;
-  $BASE = "http://www.sn.no/some/place?query";
-  while (<>) {
-     print url($_, $BASE)->abs->as_string, "\n";
-  }
-
-We can expand URLs in an HTML document by using the parser to build a
-tree that we then traverse:
-
-  %link_elements =
-  (
-   'a'    => 'href',
-   'img'  => 'src',
-   'form' => 'action',
-   'link' => 'href',
-  );
-
-  use HTML::Parse;
-  use URI::URL;
-
-  $BASE = "http://somewhere/root/";
-  $h = parse_htmlfile("xxx.html");
-  $h->traverse(\&expand_urls, 1);
-
-  print $h->as_HTML;
-
-  sub expand_urls
-  {
-     my($e, $start) = @_;
-     return 1 unless $start;
-     my $attr = $link_elements{$e->tag};
-     return 1 unless defined $attr;
-     my $url = $e->attr($attr);
-     return 1 unless defined $url;
-     $e->attr($attr, url($url, $BASE)->abs->as_string);
-  }
-
-
-
-=head1 BASE URL
-
-If you want to resolve relative links in a page you will have to
-determine which base URL to use.  The HTTP::Response objects now has a
-base() method.
-
-  $BASE = $res->base;
-
-
-
 =head1 COPYRIGHT
 
-Copyright 1996-1997, Gisle Aas
+Copyright 1996-1998, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

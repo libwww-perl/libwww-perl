@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.30 2003/10/24 10:25:16 gisle Exp $
+# $Id: Message.pm,v 1.31 2004/04/05 19:28:52 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -35,18 +35,32 @@ sub new
 sub clone
 {
     my $self  = shift;
-    my $clone = HTTP::Message->new($self->{'_headers'}, $self->{'_content'});
+    my $clone = HTTP::Message->new($self->headers,
+				   $self->content);
     $clone;
 }
 
 
 sub protocol { shift->_elem('_protocol',  @_); }
-sub content  { shift->_elem('_content',  @_); }
+
+sub content  {
+    my $self = shift;
+    if (defined(wantarray) && !exists $self->{_content}) {
+	$self->_content;
+    }
+    my $old = $self->{_content};
+    if (@_) {
+	$self->{_content} = shift;
+	delete $self->{_parts};
+    }
+    $old;
+}
 
 
 sub add_content
 {
     my $self = shift;
+    $self->_content unless exists $self->{_content};
     if (ref($_[0])) {
 	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
     }
@@ -59,13 +73,18 @@ sub add_content
 sub content_ref
 {
     my $self = shift;
+    $self->_content unless exists $self->{_content};
+    delete $self->{_parts};
     \$self->{'_content'};
 }
 
 
 sub as_string
 {
-    "";  # To be overridden in subclasses
+    my $self = shift;
+    return join("", $self->{'_headers'}->as_string ,
+		    "\n",
+		    $self->content);
 }
 
 

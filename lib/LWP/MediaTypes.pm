@@ -1,11 +1,11 @@
 #
-# $Id: MediaTypes.pm,v 1.21 1998/07/09 04:31:00 aas Exp $
+# $Id: MediaTypes.pm,v 1.22 1998/07/09 05:27:34 aas Exp $
 
 package LWP::MediaTypes;
 
 =head1 NAME
 
-LWP::MediaTypes - guess media type for a file or a URL.
+LWP::MediaTypes - guess media type for a file or a URL
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ types is defined by the F<media.types> file.  If the F<~/.media.types>
 file exist it is used as a replacement.
 For backwards compatability we will also look for F<~/.mime.types>.
 
-The following functions are available (and exported by default):
+The following functions are exported by default:
 
 =over 4
 
@@ -32,7 +32,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -63,119 +63,36 @@ my %suffixEncoding = (
     'z'   => 'x-pack'
 );
 
-=item add_type($type, @exts)
-
-Associate a list of file extensions with the given media type.
-
-Example:
-
-    add_type("x-world/x-vrml" => qw(wrl vrml));
-
-=cut
-
-sub add_type 
-{
-    my($type, @exts) = @_;
-    $suffixExt{$type} = $exts[0] if @exts;
-    for my $ext (@exts) {
-	$suffixType{$ext} = $type;
-    }
-}
-
-=item add_encoding($type, @ext)
-
-Associate a list of file extensions with and encoding type.
-
- Example:
-
- add_encoding("x-gzip" => "gz");
-
-=cut
-
-sub add_encoding
-{
-    my $type = shift;
-    for my $ext (@_) {
-	$ext =~ s/^\.//;
-	$suffixEncoding{$ext} = $type;
-    }
-}
-
-=item read_media_types(@files)
-
-Parse a media types file from disk.
-
-Example:
-
-    read_media_types("conf/mime.types");
-
-=cut
-
-sub read_media_types 
-{
-    my(@files) = @_;
-
-    local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
-
-    my @priv_files = ();
-    push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
-	if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
-
-    # Try to locate "media.types" file, and initialize %suffixType from it
-    my $typefile;
-    unless (@files) {
-	@files = map {"$_/LWP/media.types"} @INC;
-	push @files, @priv_files;
-    }
-    for $typefile (@files) {
-	local(*TYPE);
-	open(TYPE, $typefile) || next;
-      LWP::Debug::debug("Reading media types from $typefile");
-	while (<TYPE>) {
-	    next if /^\s*#/; # comment line
-	    next if /^\s*$/; # blank line
-	    s/#.*//;         # remove end-of-line comments
-	    my($type, @exts) = split(' ', $_);
-	    add_type($type, @exts);
-	}
-	close(TYPE);
-    }
+sub _dump {
+    require Data::Dumper;
+    Data::Dumper->new([\%suffixType, \%suffixExt, \%suffixEncoding],
+		      [qw(*suffixType *suffixExt *suffixEncoding)])->Dump;
 }
 
 read_media_types();
 
-####################################################################
+
 
 =item guess_media_type($filename_or_url, [$header_to_modify])
 
 This function tries to guess media type and encoding for given file.
-In scalar context it returns only the content-type.  In array context
-it returns an array consisting of content-type followed by any
-content-encodings applied.
-
-The guess_media_type function also accepts a URI::URL object as argument.
+It returns the content-type, which is a string like C<"text/html">.
+In array context it also returns any content-encodings applied (in the
+order used to encode the file).  You can pass a URI::URL object
+reference, instead of the file name, as the first parameter too.
 
 If the type can not be deduced from looking at the file name only,
-then guess_media_type() will take a look at the actual file using the
-C<-T> perl operator in order to determine if this is a text file
-(text/plain).  If this does not work it will return
+then guess_media_type() will let the C<-T> Perl operator take a look.
+If this works (and C<-T> returns a TRUE value) then we return
+I<text/plain> as the type, otherwise we return
 I<application/octet-stream> as the type.
 
 The optional second argument should be a reference to a HTTP::Headers
-object (or some HTTP::Message object).  When present this function
-will set the value of the 'Content-Type' and 'Content-Encoding' for
-this header.
+object (or any object that implement the $obj->header method in a
+similar way).  When present we will set the values of the
+'Content-Type' and 'Content-Encoding' for this header.
 
 =cut
-
-sub file_exts 
-{
-    my($file) = @_;
-    $file =~ s,.*/,,;   # only basename left
-    my @parts = reverse split(/\./, $file);
-    pop(@parts);        # never concider first part
-    @parts;
-}
 
 sub guess_media_type
 {
@@ -268,13 +185,112 @@ sub media_suffix {
     wantarray ? @suffix : $suffix[0];
 }
 
+
+sub file_exts 
+{
+    my($file) = @_;
+    $file =~ s,.*/,,;   # only basename left
+    my @parts = reverse split(/\./, $file);
+    pop(@parts);        # never concider first part
+    @parts;
+}
+
+
+=back
+
+The following functions are only exported by explict request:
+
+=over 4
+
+=item add_type($type, @exts)
+
+Associate a list of file extensions with the given media type.
+
+Example:
+
+    add_type("x-world/x-vrml" => qw(wrl vrml));
+
+=cut
+
+sub add_type 
+{
+    my($type, @exts) = @_;
+    for my $ext (@exts) {
+	$ext =~ s/^\.//;
+	$suffixType{$ext} = $type;
+    }
+    $suffixExt{$type} = $exts[0] if @exts;
+}
+
+
+=item add_encoding($type, @ext)
+
+Associate a list of file extensions with and encoding type.
+
+Example:
+
+ add_encoding("x-gzip" => "gz");
+
+=cut
+
+sub add_encoding
+{
+    my($type, @exts) = @_;
+    for my $ext (@exts) {
+	$ext =~ s/^\.//;
+	$suffixEncoding{$ext} = $type;
+    }
+}
+
+
+=item read_media_types(@files)
+
+Parse a media types file from disk and add the type mappings found there.
+
+Example:
+
+    read_media_types("conf/mime.types");
+
+=cut
+
+sub read_media_types 
+{
+    my(@files) = @_;
+
+    local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
+
+    my @priv_files = ();
+    push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
+	if defined $ENV{HOME};  # Some doesn't have a home (for instance Win32)
+
+    # Try to locate "media.types" file, and initialize %suffixType from it
+    my $typefile;
+    unless (@files) {
+	@files = map {"$_/LWP/media.types"} @INC;
+	push @files, @priv_files;
+    }
+    for $typefile (@files) {
+	local(*TYPE);
+	open(TYPE, $typefile) || next;
+        LWP::Debug::debug("Reading media types from $typefile");
+	while (<TYPE>) {
+	    next if /^\s*#/; # comment line
+	    next if /^\s*$/; # blank line
+	    s/#.*//;         # remove end-of-line comments
+	    my($type, @exts) = split(' ', $_);
+	    add_type($type, @exts);
+	}
+	close(TYPE);
+    }
+}
+
 1;
 
 =back 
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-1998 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

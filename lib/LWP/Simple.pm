@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.30 1999/03/19 21:01:05 gisle Exp $
+# $Id: Simple.pm,v 1.31 1999/03/19 21:34:49 gisle Exp $
 
 =head1 NAME
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -218,11 +218,11 @@ sub head ($)
 
     if ($response->is_success) {
 	return $response unless wantarray;
-	return ($response->header('Content-Type'),
-		$response->header('Content-Length'),
+	return (scalar $response->header('Content-Type'),
+		scalar $response->header('Content-Length'),
 		HTTP::Date::str2time($response->header('Last-Modified')),
 		HTTP::Date::str2time($response->header('Expires')),
-		$response->header('Server'),
+		scalar $response->header('Server'),
 	       );
     }
     return;

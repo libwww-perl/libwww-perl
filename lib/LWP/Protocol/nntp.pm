@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.7 1997/12/16 19:58:23 aas Exp $
+# $Id: nntp.pm,v 1.7.2.1 1998/10/12 11:29:36 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -48,7 +48,7 @@ sub request
     }
 
     # extract the identifier and check against posting to an article
-    my $groupart = $url->groupart;
+    my $groupart = $url->_group;
     my $is_art = $groupart =~ /@/;
 
     if ($is_art && $method eq 'POST') {

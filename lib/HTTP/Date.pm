@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.28 1997/12/02 10:58:31 aas Exp $
+# $Id: Date.pm,v 1.29 1998/02/12 23:13:47 aas Exp $
 #
 package HTTP::Date;
 
@@ -104,7 +104,7 @@ modify it under the same terms as Perl itself.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -290,7 +290,7 @@ sub str2time ($;$)
 
    # Should we compensate for the timezone?
    $tz = $default_zone unless defined $tz;
-   return Time::Local::timelocal($sec, $min, $hr, $day, $mon, $yr)
+   return eval {Time::Local::timelocal($sec, $min, $hr, $day, $mon, $yr)}
      unless defined $tz;
 
    # We can calculate offset for numerical time zones
@@ -299,7 +299,7 @@ sub str2time ($;$)
        $offset += 60 * $3 if $3;
        $offset *= -1 if $1 && $1 ne '-';
    }
-   Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset;
+   eval{Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset};
 }
 
 

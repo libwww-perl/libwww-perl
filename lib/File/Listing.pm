@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.1 1996/03/05 10:58:48 aas Exp $
+# $Id: Listing.pm,v 1.2 1996/03/05 15:20:49 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -20,8 +20,8 @@ parse_dir - parse directory listing
  }
 
  # directory listing can also be read from a file
- open(DIR, "ls -lR|);
- $dir = parse_dir(\*DIR, '+0000', 'unix');
+ open(LISTING, "zcat ls-lR.gz|");
+ $dir = parse_dir(\*LISTING, '+0000');
 
 =head1 DESCRIPTION
 
@@ -35,8 +35,8 @@ The first parameter to parse_dir() is the directory listing to parse.
 It can be a scalar, a reference to an array of directory lines or a
 glob representing a filehandle to read the directory listing from.
 
-The second parameter is the timezone to use when parsing time stamps
-in the listing. If this value is undefined, then the local timezone is
+The second parameter is the time zone to use when parsing time stamps
+in the listing. If this value is undefined, then the local time zone is
 assumed.
 
 The third parameter is the type of listing to assume.  The values will
@@ -48,7 +48,7 @@ The fourth parameter specify how unparseable lines should be treated.
 Values can be 'ignore', 'warn' or a code reference.  Warn means that
 the perl warn() function will be called.  If a code reference is
 passed, then this routine will be called and the return value from it
-will be incoporated in the listing.  The default is 'ignore'.
+will be incorporated in the listing.  The default is 'ignore'.
 
 Only the first parameter is mandatory.  The parse_dir() prototype is
 ($;$$$).
@@ -79,7 +79,7 @@ use Carp ();
 use HTTP::Date qw(str2time);
 
 
-sub parse_dir ($;$$)
+sub parse_dir ($;$$$)
 {
    my($dir, $tz, $fstype, $error) = shift;
 

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.36 2001/10/26 18:06:26 gisle Exp $
+# $Id: HTTP.pm,v 1.37 2001/11/14 20:13:05 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -34,6 +34,10 @@ sub configure {
     my $peer_http_version = delete $cnf->{PeerHTTPVersion};
     $peer_http_version = "1.0" unless defined $peer_http_version;
     my $send_te = delete $cnf->{SendTE};
+    my $max_line_length = delete $cnf->{MaxLineLength};
+    $max_line_length = 4*1024 unless defined $max_line_length;
+    my $max_header_lines = delete $cnf->{MaxHeaderLines};
+    $max_header_lines = 128 unless defined $max_header_lines;
 
     my $sock = $self->_http_socket_configure($cnf);
     if ($sock) {
@@ -46,6 +50,8 @@ sub configure {
 	$sock->send_te($send_te);
 	$sock->http_version($http_version);
 	$sock->peer_http_version($peer_http_version);
+	$sock->max_line_length($max_line_length);
+	$sock->max_header_lines($max_header_lines);
 
 	${*$self}{'http_buf'} = "";
     }
@@ -57,25 +63,37 @@ sub _http_socket_configure {
     $self->SUPER::configure(@_);
 }
 
+sub _prop {
+    my $self = shift;
+    my $name = "http_" . shift;
+    my $old = ${*$self}{$name};
+    ${*$self}{$name} = shift if @_;
+    return $old;
+}
+
 sub host {
     my $self = shift;
-    my $old = ${*$self}{'http_host'};
-    ${*$self}{'http_host'} = shift if @_;
-    $old;
+    return $self->_prop('host', @_);
 }
 
 sub keep_alive {
     my $self = shift;
-    my $old = ${*$self}{'http_keep_alive'};
-    ${*$self}{'http_keep_alive'} = shift if @_;
-    $old;
+    return $self->_prop('keep_alive', @_);
 }
 
 sub send_te {
     my $self = shift;
-    my $old = ${*$self}{'http_send_te'};
-    ${*$self}{'http_send_te'} = shift if @_;
-    $old;
+    return $self->_prop('send_te', @_);
+}
+
+sub max_line_length {
+    my $self = shift;
+    return $self->_prop('max_line_length', @_);
+}
+
+sub max_header_lines {
+    my $self = shift;
+    return $self->_prop('max_header_lines', @_);
 }
 
 sub http_version {
@@ -95,9 +113,7 @@ sub http_version {
 
 sub peer_http_version {
     my $self = shift;
-    my $old = ${*$self}{'http_peer_version'};
-    ${*$self}{'http_peer_version'} = shift if @_;
-    $old;
+    return $self->_prop('peer_http_version', @_);
 }
 
 
@@ -115,7 +131,7 @@ sub format_request {
 
     push(@{${*$self}{'http_request_method'}}, $method);
     my $ver = ${*$self}{'http_version'};
-    my $peer_ver = ${*$self}{'http_peer_version'} || "1.0";
+    my $peer_ver = ${*$self}{'http_peer_http_version'} || "1.0";
 
     my @h;
     my @connection;
@@ -218,16 +234,25 @@ sub my_read {
 sub my_readline {
     my $self = shift;
     for (${*$self}{'http_buf'}) {
+	my $max_line_length = ${*$self}{'http_max_line_length'};
 	my $pos;
 	while (1) {
+	    # find line ending
 	    $pos = index($_, "\012");
 	    last if $pos >= 0;
+	    die "Line too long (limit is $max_line_length)"
+		if $max_line_length && length($_) > $max_line_length;
+
+	    # need to read more data to find a line ending
 	    my $n = $self->sysread($_, 1024, length);
 	    if (!$n) {
 		return undef unless length;
 		return substr($_, 0, length, "");
 	    }
 	}
+	die "Line too long ($pos; limit is $max_line_length)"
+	    if $max_line_length && $pos > $max_line_length;
+
 	my $line = substr($_, 0, $pos+1, "");
 	$line =~ s/\015?\012\z//;
 	return $line;
@@ -259,6 +284,8 @@ sub _rbuf_length {
 sub read_header_lines {
     my $self = shift;
     my @headers;
+    my $line_count = 0;
+    my $max_header_lines = ${*$self}{'http_max_header_lines'};
     while (my $line = my_readline($self)) {
 	if ($line =~ /^(\S+)\s*:\s*(.*)/s) {
 	    push(@headers, $1, $2);
@@ -268,6 +295,12 @@ sub read_header_lines {
 	}
 	else {
 	    die "Bad header: $line\n";
+	}
+	if ($max_header_lines) {
+	    $line_count++;
+	    if ($line_count >= $max_header_lines) {
+		die "Too many header lines (limit is $max_header_lines)";
+	    }
 	}
     }
     return @headers;
@@ -281,7 +314,7 @@ sub read_response_headers {
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
     die "Bad response status line: '$status'"
 	if !$peer_ver || $peer_ver !~ s,^HTTP/,,;
-    ${*$self}{'http_peer_version'} = $peer_ver;
+    ${*$self}{'http_peer_http_version'} = $peer_ver;
     ${*$self}{'http_status'} = $code;
     my @headers = $self->read_header_lines;
 
@@ -527,6 +560,8 @@ C<IO::Socket::INET> as well as these:
   SendTE:          Initial send_te attribute_value
   HTTPVersion:     Initial http_version attribute value
   PeerHTTPVersion: Initial peer_http_version attribute value
+  MaxLineLength:   Initial max_line_length attribute value
+  MaxHeaderLines:  Initial max_header_lines attribute value
 
 =item $s->host
 
@@ -560,6 +595,16 @@ This value can only be set to "1.0" or "1.1".  The default is "1.1".
 Get/set the protocol version number of our peer.  This value will
 initially be "1.0", but will be updated by a successful
 read_response_headers() method call.
+
+=item $s->max_line_length
+
+Get/set a limit on the length of response line and response header
+lines.  The default is 4096.  A value of 0 means no limit.
+
+=item $s->max_header_length
+
+Get/set a limit on the number of headers lines that a response can
+have.  The default is 128.  A value of 0 means no limit.
 
 =item $s->format_request($method, $uri, %headers, [$content])
 

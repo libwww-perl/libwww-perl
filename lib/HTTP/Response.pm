@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.21 1996/07/17 09:10:05 aas Exp $
+# $Id: Response.pm,v 1.22 1996/09/16 12:52:10 aas Exp $
 
 package HTTP::Response;
 
@@ -155,13 +155,6 @@ sub base
 }
 
 
-=head2 $r->as_string()
-
-Method returning a textual representation of the request.  Mainly
-useful for debugging purposes. It takes no arguments.
-
-=cut
-
 sub as_string
 {
     require HTTP::Status;
@@ -227,5 +220,122 @@ $code - $msg
 </HTML>
 EOM
 }
+
+
+=head2 $r->current_age
+
+This function will calculate the "current age" of the response as
+specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.3.  The
+age of a response is the time since it was sent by the origin server.
+The returned value is a number representing the age in seconds.
+
+=cut
+
+sub current_age
+{
+    my $self = shift;
+    # Implementation of <draft-ietf-http-v11-spec-07> section 13.2.3
+    # (age calculations)
+    my $response_time = $self->client_date;
+    my $date = $self->date;
+
+    my $age = 0;
+    if ($response_time && $date) {
+	$age = $response_time - $date;  # apparent_age
+	$age = 0 if $age < 0;
+    }
+
+    my $age_v = $self->header('Age');
+    if ($age_v && $age_v > $age) {
+	$age = $age_v;   # corrected_received_age
+    }
+
+    my $request = $self->request;
+    if ($request) {
+	my $request_time = $request->date;
+	if ($request_time) {
+	    # Add response_delay to age to get 'corrected_initial_age'
+	    $age += $response_time - $request_time;
+	}
+    }
+    if ($response_time) {
+	$age += time - $response_time;
+    }
+    return $age;
+}
+
+
+=head2 $r->freshness_lifetime
+
+This function will calculate the "freshness lifetime" of the response
+as specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.4.  The
+"freshness lifetime" is the length of time between the generation of a
+response and its expiration time.  The returned value is a number
+representing the freshness lifetime in seconds.
+
+If the response does not contain an "Expires" or a "Cache-Control"
+header, then this function will apply some simple heuristic based on
+'Last-Modified' to determine a suitable lifetime.
+
+=cut
+
+sub freshness_lifetime
+{
+    my $self = shift;
+
+    # First look for the Cache-Control: max-age=n header
+    my @cc = $self->header('Cache-Control');
+    if (@cc) {
+	# Not implemeted yet
+    }
+
+    # Next possibility is to look at the "Expires" header
+    my $date = $self->date || $self->client_date || time;      
+    my $expires = $self->expires;
+    unless ($expires) {
+	# Must apply heuristic expiration
+	my $last_modified = $self->last_modified;
+	if ($last_modified) {
+	    my $h_exp = ($date - $last_modified) * 0.10;  # 10% since last-mod
+	    if ($h_exp < 60) {
+		return 60;  # minimum
+	    } elsif ($h_exp > 24 * 3600) {
+		# Should give a warning if more than 24 hours according to
+		# <draft-ietf-http-v11-spec-07> section 13.2.4, but I don't
+		# know how to do it from this function interface, so I just
+		# make this the maximum value.
+		return 24 * 3600;
+	    }
+	    return $h_exp;
+	} else {
+	    return 3600;  # 1 hour is fallback when all else fails
+	}
+    }
+    return $expires - $date;
+}
+
+
+=head2 $r->is_fresh
+
+Returns TRUE if the response is fresh, based on the values of
+freshness_lifetime() and current_age().  If the response is not longer
+fresh, then it has to be refetched or revalidated by the origin
+server.
+
+=cut
+
+sub is_fresh
+{
+    my $self = shift;
+    $self->freshness_lifetime > $self->current_age;
+}
+
+
+=head2 $r->as_string()
+
+Method returning a textual representation of the request.  Mainly
+useful for debugging purposes. It takes no arguments.
+
+=cut
 
 1;

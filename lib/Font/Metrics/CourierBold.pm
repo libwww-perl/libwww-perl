@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1989 Adobe Systems Incorporated. All rights reserved.
 
-package HTML::Font::CourierBold;
+package Font::CourierBold;
 
 # Character width table (iso-8859-1)
 @wx = (

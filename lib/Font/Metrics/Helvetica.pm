@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1985, 1987, 1989, 1990 Adobe Systems Incorporated.  All rights reserved.Helvetica is a trademark of Linotype AG and/or its subsidiaries.
 
-package HTML::Font::Helvetica;
+package Font::Helvetica;
 
 # Character width table (iso-8859-1)
 @wx = (

@@ -1,3 +1,21 @@
+1999-06-25   Gisle Aas <gisle@aas.no>
+
+ o  Release 5.44
+
+ o  We require URI-1.03, since this fix some query quoting stuff
+    that HTTP::Request::Common rely upon.
+
+ o  'lwp-request -HUser-Agent:foo' can now be used to set this
+    header too.
+
+ o  Localize $/ to ensure standard record separator a few places
+    in HTTP::Cookies
+
+ o  LWP::UserAgent will now set the Range header in requests if
+    the $ua->max_size attribute is set.
+
+
+
 1999-05-09   Gisle Aas <gisle@aas.no>
 
  o  Release 5.43

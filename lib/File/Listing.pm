@@ -1,81 +1,20 @@
-#
-# $Id: Listing.pm,v 1.12 2003/10/10 16:18:25 gisle Exp $
-
 package File::Listing;
 
+# $Id: Listing.pm,v 1.13 2003/10/23 18:56:00 uid39246 Exp $
+
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
-
-=head1 NAME
-
-parse_dir - parse directory listing
-
-=head1 SYNOPSIS
-
- use File::Listing;
- for (parse_dir(`ls -l`)) {
-     ($name, $type, $size, $mtime, $mode) = @$_;
-     next if $type ne 'f'; # plain file
-     #...
- }
-
- # directory listing can also be read from a file
- open(LISTING, "zcat ls-lR.gz|");
- $dir = parse_dir(\*LISTING, '+0000');
-
-=head1 DESCRIPTION
-
-The parse_dir() routine can be used to parse directory
-listings. Currently it only understand Unix C<'ls -l'> and C<'ls -lR'>
-format.  It should eventually be able to most things you might get
-back from a ftp server file listing (LIST command), i.e. VMS listings,
-NT listings, DOS listings,...
-
-The first parameter to parse_dir() is the directory listing to parse.
-It can be a scalar, a reference to an array of directory lines or a
-glob representing a filehandle to read the directory listing from.
-
-The second parameter is the time zone to use when parsing time stamps
-in the listing. If this value is undefined, then the local time zone is
-assumed.
-
-The third parameter is the type of listing to assume.  The values will
-be strings like 'unix', 'vms', 'dos'.  Currently only 'unix' is
-implemented and this is also the default value.  Ideally, the listing
-type should be determined automatically.
-
-The fourth parameter specifies how unparseable lines should be treated.
-Values can be 'ignore', 'warn' or a code reference.  Warn means that
-the perl warn() function will be called.  If a code reference is
-passed, then this routine will be called and the return value from it
-will be incorporated in the listing.  The default is 'ignore'.
-
-Only the first parameter is mandatory.
-
-The return value from parse_dir() is a list of directory entries.  In
-a scalar context the return value is a reference to the list.  The
-directory entries are represented by an array consisting of [
-$filename, $filetype, $filesize, $filetime, $filemode ].  The
-$filetype value is one of the letters 'f', 'd', 'l' or '?'.  The
-$filetime value is the seconds since Jan 1, 1970.  The
-$filemode is a bitmask like the mode returned by stat().
-
-=head1 CREDITS
-
-Based on lsparse.pl (from Lee McLoughlin's ftp mirror package) and
-Net::FTP's parse_dir (Graham Barr).
-
-=cut
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA = qw(Exporter);
-
 @EXPORT = qw(parse_dir);
 
 use strict;
 
 use Carp ();
 use HTTP::Date qw(str2time);
+
+
 
 sub parse_dir ($;$$$)
 {
@@ -91,8 +30,10 @@ sub parse_dir ($;$$$)
    $fstype->parse(@args);
 }
 
+
 sub line { Carp::croak("Not implemented yet"); }
 sub init { } # Dummy sub
+
 
 sub file_mode ($)
 {
@@ -123,6 +64,7 @@ sub file_mode ($)
 
     $mode;
 }
+
 
 sub parse
 {
@@ -163,6 +105,7 @@ sub parse
 }
 
 
+
 package File::Listing::unix;
 
 use HTTP::Date qw(str2time);
@@ -174,10 +117,12 @@ no strict qw(vars);
 @ISA = qw(File::Listing);
 
 
+
 sub init
 {
     $curdir = '';
 }
+
 
 sub line
 {
@@ -247,6 +192,8 @@ sub line
 
 }
 
+
+
 package File::Listing::dosftp;
 
 use HTTP::Date qw(str2time);
@@ -257,10 +204,13 @@ no strict qw(vars);
 
 @ISA = qw(File::Listing);
 
+
+
 sub init
 {
     $curdir = '';
 }
+
 
 sub line
 {
@@ -304,16 +254,23 @@ sub line
 
 }
 
+
+
 package File::Listing::vms;
-@File::Listing::unix::ISA = qw(File::Listing);
+@File::Listing::vms::ISA = qw(File::Listing);
 
 package File::Listing::netware;
-@File::Listing::unix::ISA = qw(File::Listing);
+@File::Listing::netware::ISA = qw(File::Listing);
+
+
 
 package File::Listing::apache;
+
 @ISA = qw(File::Listing);
 
+
 sub init { }
+
 
 sub line {
     shift; # package name
@@ -343,6 +300,7 @@ sub line {
     return ();
 }
 
+
 sub _guess_year {
     my $y = shift;
     if ($y >= 90) {
@@ -352,6 +310,7 @@ sub _guess_year {
     }
     $y;
 }
+
 
 sub _monthabbrev_number {
     my $mon = shift;
@@ -370,4 +329,66 @@ sub _monthabbrev_number {
      }->{$mon};
 }
 
+
 1;
+
+__END__
+
+=head1 NAME
+
+parse_dir - parse directory listing
+
+=head1 SYNOPSIS
+
+ use File::Listing;
+ for (parse_dir(`ls -l`)) {
+     ($name, $type, $size, $mtime, $mode) = @$_;
+     next if $type ne 'f'; # plain file
+     #...
+ }
+
+ # directory listing can also be read from a file
+ open(LISTING, "zcat ls-lR.gz|");
+ $dir = parse_dir(\*LISTING, '+0000');
+
+=head1 DESCRIPTION
+
+The parse_dir() routine can be used to parse directory
+listings. Currently it only understand Unix C<'ls -l'> and C<'ls -lR'>
+format.  It should eventually be able to most things you might get
+back from a ftp server file listing (LIST command), i.e. VMS listings,
+NT listings, DOS listings,...
+
+The first parameter to parse_dir() is the directory listing to parse.
+It can be a scalar, a reference to an array of directory lines or a
+glob representing a filehandle to read the directory listing from.
+
+The second parameter is the time zone to use when parsing time stamps
+in the listing. If this value is undefined, then the local time zone is
+assumed.
+
+The third parameter is the type of listing to assume.  The values will
+be strings like 'unix', 'vms', 'dos'.  Currently only 'unix' is
+implemented and this is also the default value.  Ideally, the listing
+type should be determined automatically.
+
+The fourth parameter specifies how unparseable lines should be treated.
+Values can be 'ignore', 'warn' or a code reference.  Warn means that
+the perl warn() function will be called.  If a code reference is
+passed, then this routine will be called and the return value from it
+will be incorporated in the listing.  The default is 'ignore'.
+
+Only the first parameter is mandatory.
+
+The return value from parse_dir() is a list of directory entries.  In
+a scalar context the return value is a reference to the list.  The
+directory entries are represented by an array consisting of [
+$filename, $filetype, $filesize, $filetime, $filemode ].  The
+$filetype value is one of the letters 'f', 'd', 'l' or '?'.  The
+$filetime value is the seconds since Jan 1, 1970.  The
+$filemode is a bitmask like the mode returned by stat().
+
+=head1 CREDITS
+
+Based on lsparse.pl (from Lee McLoughlin's ftp mirror package) and
+Net::FTP's parse_dir (Graham Barr).

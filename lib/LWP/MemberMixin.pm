@@ -1,7 +1,19 @@
-#
-# $Id: MemberMixin.pm,v 1.6 2001/04/27 21:57:36 gisle Exp $
-
 package LWP::MemberMixin;
+
+# $Id: MemberMixin.pm,v 1.7 2003/10/23 18:56:01 uid39246 Exp $
+
+sub _elem
+{
+    my $self = shift;
+    my $elem = shift;
+    my $old = $self->{$elem};
+    $self->{$elem} = shift if @_;
+    return $old;
+}
+
+1;
+
+__END__
 
 =head1 NAME
 
@@ -32,16 +44,3 @@ value is not touched. In both cases the previous value of
 the member variable is returned.
 
 =back
-
-=cut
-
-sub _elem
-{
-    my $self = shift;
-    my $elem = shift;
-    my $old = $self->{$elem};
-    $self->{$elem} = shift if @_;
-    return $old;
-}
-
-1;

@@ -1,41 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.45 2003/10/16 10:54:16 gisle Exp $
-
-=head1 NAME
-
-HTTP::Headers - Class encapsulating HTTP Message headers
-
-=head1 SYNOPSIS
-
- require HTTP::Headers;
- $h = HTTP::Headers->new;
-
- $h->header('Content-Type' => 'text/plain');  # set
- $ct = $h->header('Content-Type');            # get
- $h->remove_header('Content-Type');           # delete
-
-=head1 DESCRIPTION
-
-The C<HTTP::Headers> class encapsulates HTTP-style message headers.
-The headers consist of attribute-value pairs also called fields, which
-may be repeated, and which are printed in a particular order.
-
-Instances of this class are usually created as member variables of the
-C<HTTP::Request> and C<HTTP::Response> classes, internal to the
-library.
-
-The following methods are available:
-
-=over 4
-
-=cut
+# $Id: Headers.pm,v 1.46 2003/10/23 18:56:01 uid39246 Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -79,22 +50,6 @@ my %standard_case;
 
 
 
-
-=item $h = HTTP::Headers->new
-
-Constructs a new C<HTTP::Headers> object.  You might pass some initial
-attribute-value pairs as parameters to the constructor.  I<E.g.>:
-
- $h = HTTP::Headers->new(
-       Date         => 'Thu, 03 Feb 1994 00:00:00 GMT',
-       Content_Type => 'text/html; version=3.2',
-       Content_Base => 'http://www.perl.org/');
-
-The constructor arguments are passed to the C<header> method which is
-described below.
-
-=cut
-
 sub new
 {
     my($class) = shift;
@@ -103,46 +58,6 @@ sub new
     $self;
 }
 
-
-=item $h->header( $field )
-
-=item $h->header( $field => $value, ... )
-
-Get or set the value of one or more header fields.  The header field name
-($field) is not case sensitive.  To make the life easier for perl
-users who wants to avoid quoting before the => operator, you can use
-'_' as a replacement for '-' in header names (this behaviour can be
-suppressed by setting the $HTTP::Headers::TRANSLATE_UNDERSCORE
-variable to a FALSE value).
-
-The header() method accepts multiple ($field => $value) pairs, which
-means that you can update several fields with a single invocation.
-
-The $value argument may be a plain string or a reference to an array
-of strings for a multi-valued field. If the $value is undefined or not
-given, then that header field will remain unchanged.
-
-The old value (or values) of the last of the header fields is returned.
-If no such field exists C<undef> will be returned.
-
-A multi-valued field will be retuned as separate values in list
-context and will be concatenated with ", " as separator in scalar
-context.  The HTTP spec (RFC 2616) promise that joining multiple
-values in this way will not change the semantic of a header field, but
-in practice there are cases like old-style Netscape cookies (see
-L<HTTP::Cookies>) where "," is used as part of the syntax of a single
-field value.
-
-Examples:
-
- $header->header(MIME_Version => '1.0',
-		 User_Agent   => 'My-Web-Client/0.01');
- $header->header(Accept => "text/html, text/plain, image/*");
- $header->header(Accept => [qw(text/html text/plain image/*)]);
- @accepts = $header->header('Accept');  # get multiple values
- $accepts = $header->header('Accept');  # get values as a single string
-
-=cut
 
 sub header
 {
@@ -157,40 +72,12 @@ sub header
 }
 
 
-=item $h->push_header( $field => $value )
-
-Add a new field value for the specified header field.  Previous values
-for the same field are retained.
-
-As for the header() method, the field name ($field) is not case
-sensitive and '_' can be used as a replacement for '-'.
-
-The $value argument may be a scalar or a reference to a list of
-scalars.
-
- $header->push_header(Accept => 'image/jpeg');
- $header->push_header(Accept => [map "image/$_", qw(gif png tiff)]);
-
-=cut
-
 sub push_header
 {
     Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
     shift->_header(@_, 'PUSH');
 }
 
-=item $h->init_header( $field => $value )
-
-Set the specified header to the given value, but only if no previous
-value for that field is set.
-
-The header field name ($field) is not case sensitive and '_'
-can be used as a replacement for '-'.
-
-The $value argument may be a scalar or a reference to a list of
-scalars.
-
-=cut
 
 sub init_header
 {
@@ -198,21 +85,6 @@ sub init_header
     shift->_header(@_, 'INIT');
 }
 
-
-=item $h->remove_header( $field, ... )
-
-This function removes the headers fields with the specified names.
-
-The header field names ($field) are not case sensitive and '_'
-can be used as a replacement for '-'.
-
-The return value is the values of the fields removed.  In scalar
-context the number of fields removed is returned.
-
-Note that if you pass in multiple field names then it is generally not
-possible to tell which of the returned values belonged to which field.
-
-=cut
 
 sub remove_header
 {
@@ -270,20 +142,6 @@ sub _header_cmp
 }
 
 
-=item $h->scan( \&process_header_field )
-
-Apply a subroutine to each header field in turn.  The callback routine
-is called with two parameters; the name of the field and a single
-value (a string).  If a header field is multi-valued, then the
-routine is called once for each value.  The field name passed to the
-callback routine has case as suggested by HTTP spec, and the headers
-will be visited in the recommended "Good Practice" order.
-
-Any return values of the callback routine are ignored.  The loop can
-be broken by raising an exception (C<die>).
-
-=cut
-
 sub scan
 {
     my($self, $sub) = @_;
@@ -302,22 +160,6 @@ sub scan
     }
 }
 
-
-=item $h->as_string
-
-=item $h->as_string( $endl )
-
-Return the header fields as a formatted MIME header.  Since it
-internally uses the C<scan> method to build the string, the result
-will use case as suggested by HTTP spec, and it will follow
-recommended "Good Practice" of ordering the header fieds.  Long header
-values are not folded.
-
-The optional $endl parameter specifies the line ending sequence to
-use.  The default is "\n".  Embedded "\n" characters in header field
-values will be substitued with this line ending sequence.
-
-=cut
 
 sub as_string
 {
@@ -341,14 +183,6 @@ sub as_string
 }
 
 
-=item $h->clone
-
-Returns a copy of this C<HTTP::Headers> object.
-
-=back
-
-=cut
-
 sub clone
 {
     my $self = shift;
@@ -357,6 +191,236 @@ sub clone
     $clone;
 }
 
+
+sub _date_header
+{
+    require HTTP::Date;
+    my($self, $header, $time) = @_;
+    my($old) = $self->_header($header);
+    if (defined $time) {
+	$self->_header($header, HTTP::Date::time2str($time));
+    }
+    HTTP::Date::str2time($old);
+}
+
+
+sub date                { shift->_date_header('Date',                @_); }
+sub expires             { shift->_date_header('Expires',             @_); }
+sub if_modified_since   { shift->_date_header('If-Modified-Since',   @_); }
+sub if_unmodified_since { shift->_date_header('If-Unmodified-Since', @_); }
+sub last_modified       { shift->_date_header('Last-Modified',       @_); }
+
+# This is used as a private LWP extention.  The Client-Date header is
+# added as a timestamp to a response when it has been received.
+sub client_date         { shift->_date_header('Client-Date',         @_); }
+
+# The retry_after field is dual format (can also be a expressed as
+# number of seconds from now), so we don't provide an easy way to
+# access it until we have know how both these interfaces can be
+# addressed.  One possibility is to return a negative value for
+# relative seconds and a positive value for epoch based time values.
+#sub retry_after       { shift->_date_header('Retry-After',       @_); }
+
+sub content_type      {
+  my $ct = (shift->_header('Content-Type', @_))[0];
+  return '' unless defined($ct) && length($ct);
+  my @ct = split(/\s*;\s*/, lc($ct));
+  wantarray ? @ct : $ct[0];
+}
+
+sub title             { (shift->_header('Title',            @_))[0] }
+sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
+sub content_language  { (shift->_header('Content-Language', @_))[0] }
+sub content_length    { (shift->_header('Content-Length',   @_))[0] }
+
+sub user_agent        { (shift->_header('User-Agent',       @_))[0] }
+sub server            { (shift->_header('Server',           @_))[0] }
+
+sub from              { (shift->_header('From',             @_))[0] }
+sub referer           { (shift->_header('Referer',          @_))[0] }
+*referrer = \&referer;  # on tchrist's request
+sub warning           { (shift->_header('Warning',          @_))[0] }
+
+sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
+sub authorization     { (shift->_header('Authorization',    @_))[0] }
+
+sub proxy_authenticate  { (shift->_header('Proxy-Authenticate',  @_))[0] }
+sub proxy_authorization { (shift->_header('Proxy-Authorization', @_))[0] }
+
+sub authorization_basic       { shift->_basic_auth("Authorization",       @_) }
+sub proxy_authorization_basic { shift->_basic_auth("Proxy-Authorization", @_) }
+
+sub _basic_auth {
+    require MIME::Base64;
+    my($self, $h, $user, $passwd) = @_;
+    my($old) = $self->_header($h);
+    if (defined $user) {
+	Carp::croak("Basic authorization user name can't contain ':'")
+	  if $user =~ /:/;
+	$passwd = '' unless defined $passwd;
+	$self->_header($h => 'Basic ' .
+                             MIME::Base64::encode("$user:$passwd", ''));
+    }
+    if (defined $old && $old =~ s/^\s*Basic\s+//) {
+	my $val = MIME::Base64::decode($old);
+	return $val unless wantarray;
+	return split(/:/, $val, 2);
+    }
+    return;
+}
+
+
+1;
+
+__END__
+
+=head1 NAME
+
+HTTP::Headers - Class encapsulating HTTP Message headers
+
+=head1 SYNOPSIS
+
+ require HTTP::Headers;
+ $h = HTTP::Headers->new;
+
+ $h->header('Content-Type' => 'text/plain');  # set
+ $ct = $h->header('Content-Type');            # get
+ $h->remove_header('Content-Type');           # delete
+
+=head1 DESCRIPTION
+
+The C<HTTP::Headers> class encapsulates HTTP-style message headers.
+The headers consist of attribute-value pairs also called fields, which
+may be repeated, and which are printed in a particular order.
+
+Instances of this class are usually created as member variables of the
+C<HTTP::Request> and C<HTTP::Response> classes, internal to the
+library.
+
+The following methods are available:
+
+=over 4
+
+=item $h = HTTP::Headers->new
+
+Constructs a new C<HTTP::Headers> object.  You might pass some initial
+attribute-value pairs as parameters to the constructor.  I<E.g.>:
+
+ $h = HTTP::Headers->new(
+       Date         => 'Thu, 03 Feb 1994 00:00:00 GMT',
+       Content_Type => 'text/html; version=3.2',
+       Content_Base => 'http://www.perl.org/');
+
+The constructor arguments are passed to the C<header> method which is
+described below.
+
+=item $h->header( $field )
+
+=item $h->header( $field => $value, ... )
+
+Get or set the value of one or more header fields.  The header field name
+($field) is not case sensitive.  To make the life easier for perl
+users who wants to avoid quoting before the => operator, you can use
+'_' as a replacement for '-' in header names (this behaviour can be
+suppressed by setting the $HTTP::Headers::TRANSLATE_UNDERSCORE
+variable to a FALSE value).
+
+The header() method accepts multiple ($field => $value) pairs, which
+means that you can update several fields with a single invocation.
+
+The $value argument may be a plain string or a reference to an array
+of strings for a multi-valued field. If the $value is undefined or not
+given, then that header field will remain unchanged.
+
+The old value (or values) of the last of the header fields is returned.
+If no such field exists C<undef> will be returned.
+
+A multi-valued field will be retuned as separate values in list
+context and will be concatenated with ", " as separator in scalar
+context.  The HTTP spec (RFC 2616) promise that joining multiple
+values in this way will not change the semantic of a header field, but
+in practice there are cases like old-style Netscape cookies (see
+L<HTTP::Cookies>) where "," is used as part of the syntax of a single
+field value.
+
+Examples:
+
+ $header->header(MIME_Version => '1.0',
+		 User_Agent   => 'My-Web-Client/0.01');
+ $header->header(Accept => "text/html, text/plain, image/*");
+ $header->header(Accept => [qw(text/html text/plain image/*)]);
+ @accepts = $header->header('Accept');  # get multiple values
+ $accepts = $header->header('Accept');  # get values as a single string
+
+=item $h->push_header( $field => $value )
+
+Add a new field value for the specified header field.  Previous values
+for the same field are retained.
+
+As for the header() method, the field name ($field) is not case
+sensitive and '_' can be used as a replacement for '-'.
+
+The $value argument may be a scalar or a reference to a list of
+scalars.
+
+ $header->push_header(Accept => 'image/jpeg');
+ $header->push_header(Accept => [map "image/$_", qw(gif png tiff)]);
+
+=item $h->init_header( $field => $value )
+
+Set the specified header to the given value, but only if no previous
+value for that field is set.
+
+The header field name ($field) is not case sensitive and '_'
+can be used as a replacement for '-'.
+
+The $value argument may be a scalar or a reference to a list of
+scalars.
+
+=item $h->remove_header( $field, ... )
+
+This function removes the headers fields with the specified names.
+
+The header field names ($field) are not case sensitive and '_'
+can be used as a replacement for '-'.
+
+The return value is the values of the fields removed.  In scalar
+context the number of fields removed is returned.
+
+Note that if you pass in multiple field names then it is generally not
+possible to tell which of the returned values belonged to which field.
+
+=item $h->scan( \&process_header_field )
+
+Apply a subroutine to each header field in turn.  The callback routine
+is called with two parameters; the name of the field and a single
+value (a string).  If a header field is multi-valued, then the
+routine is called once for each value.  The field name passed to the
+callback routine has case as suggested by HTTP spec, and the headers
+will be visited in the recommended "Good Practice" order.
+
+Any return values of the callback routine are ignored.  The loop can
+be broken by raising an exception (C<die>).
+
+=item $h->as_string
+
+=item $h->as_string( $endl )
+
+Return the header fields as a formatted MIME header.  Since it
+internally uses the C<scan> method to build the string, the result
+will use case as suggested by HTTP spec, and it will follow
+recommended "Good Practice" of ordering the header fieds.  Long header
+values are not folded.
+
+The optional $endl parameter specifies the line ending sequence to
+use.  The default is "\n".  Embedded "\n" characters in header field
+values will be substitued with this line ending sequence.
+
+=item $h->clone
+
+Returns a copy of this C<HTTP::Headers> object.
+
+=back
 
 =head1 CONVENIENCE METHODS
 
@@ -528,84 +592,6 @@ header instead.
 
 =back
 
-=cut
-
-sub _date_header
-{
-    require HTTP::Date;
-    my($self, $header, $time) = @_;
-    my($old) = $self->_header($header);
-    if (defined $time) {
-	$self->_header($header, HTTP::Date::time2str($time));
-    }
-    HTTP::Date::str2time($old);
-}
-
-sub date                { shift->_date_header('Date',                @_); }
-sub expires             { shift->_date_header('Expires',             @_); }
-sub if_modified_since   { shift->_date_header('If-Modified-Since',   @_); }
-sub if_unmodified_since { shift->_date_header('If-Unmodified-Since', @_); }
-sub last_modified       { shift->_date_header('Last-Modified',       @_); }
-
-# This is used as a private LWP extention.  The Client-Date header is
-# added as a timestamp to a response when it has been received.
-sub client_date         { shift->_date_header('Client-Date',         @_); }
-
-# The retry_after field is dual format (can also be a expressed as
-# number of seconds from now), so we don't provide an easy way to
-# access it until we have know how both these interfaces can be
-# addressed.  One possibility is to return a negative value for
-# relative seconds and a positive value for epoch based time values.
-#sub retry_after       { shift->_date_header('Retry-After',       @_); }
-
-sub content_type      {
-  my $ct = (shift->_header('Content-Type', @_))[0];
-  return '' unless defined($ct) && length($ct);
-  my @ct = split(/\s*;\s*/, lc($ct));
-  wantarray ? @ct : $ct[0];
-}
-
-sub title             { (shift->_header('Title',            @_))[0] }
-sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
-sub content_language  { (shift->_header('Content-Language', @_))[0] }
-sub content_length    { (shift->_header('Content-Length',   @_))[0] }
-
-sub user_agent        { (shift->_header('User-Agent',       @_))[0] }
-sub server            { (shift->_header('Server',           @_))[0] }
-
-sub from              { (shift->_header('From',             @_))[0] }
-sub referer           { (shift->_header('Referer',          @_))[0] }
-*referrer = \&referer;  # on tchrist's request
-sub warning           { (shift->_header('Warning',          @_))[0] }
-
-sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
-sub authorization     { (shift->_header('Authorization',    @_))[0] }
-
-sub proxy_authenticate  { (shift->_header('Proxy-Authenticate',  @_))[0] }
-sub proxy_authorization { (shift->_header('Proxy-Authorization', @_))[0] }
-
-sub authorization_basic       { shift->_basic_auth("Authorization",       @_) }
-sub proxy_authorization_basic { shift->_basic_auth("Proxy-Authorization", @_) }
-
-sub _basic_auth {
-    require MIME::Base64;
-    my($self, $h, $user, $passwd) = @_;
-    my($old) = $self->_header($h);
-    if (defined $user) {
-	Carp::croak("Basic authorization user name can't contain ':'")
-	  if $user =~ /:/;
-	$passwd = '' unless defined $passwd;
-	$self->_header($h => 'Basic ' .
-                             MIME::Base64::encode("$user:$passwd", ''));
-    }
-    if (defined $old && $old =~ s/^\s*Basic\s+//) {
-	my $val = MIME::Base64::decode($old);
-	return $val unless wantarray;
-	return split(/:/, $val, 2);
-    }
-    return;
-}
-
 =head1 COPYRIGHT
 
 Copyright 1995-2002 Gisle Aas.
@@ -613,6 +599,3 @@ Copyright 1995-2002 Gisle Aas.
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-=cut
-
-1;

@@ -1,69 +1,14 @@
-# $Id: RobotRules.pm,v 1.24 2003/10/15 13:43:02 gisle Exp $
-
 package WWW::RobotRules;
 
-=head1 NAME
+# $Id: RobotRules.pm,v 1.25 2003/10/23 18:56:02 uid39246 Exp $
 
-WWW::RobotRules - database of robots.txt-derived permissions
-
-=head1 SYNOPSIS
-
- use WWW::RobotRules;
- my $rules = WWW::RobotRules->new('MOMspider/1.0');
-
- use LWP::Simple qw(get);
-
- {
-   my $url = "http://some.place/robots.txt";
-   my $robots_txt = get $url;
-   $rules->parse($url, $robots_txt) if defined $robots_txt;
- }
-
- {
-   my $url = "http://some.other.place/robots.txt";
-   my $robots_txt = get $url;
-   $rules->parse($url, $robots_txt) if defined $robots_txt;
- }
-
- # Now we can check if a URL is valid for those servers
- # whose "robots.txt" files we've gotten and parsed:
- if($rules->allowed($url)) {
-     $c = get $url;
-     ...
- }
-
-=head1 DESCRIPTION
-
-This module parses F</robots.txt> files as specified in
-"A Standard for Robot Exclusion", at
-<http://www.robotstxt.org/wc/norobots.html>
-Webmasters can use the F</robots.txt> file to forbid conforming
-robots from accessing parts of their web site.
-
-The parsed files are kept in a WWW::RobotRules object, and this object
-provides methods to check if access to a given URL is prohibited.  The
-same WWW::RobotRules object can be used for one or more parsed
-F</robots.txt> files on any number of hosts.
-
-The following methods are provided:
-
-=over 4
-
-=cut
-
-$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
 use URI ();
 
 
-=item $rules = WWW::RobotRules->new($robot_name)
-
-This is the constructor for WWW::RobotRules objects.  The first
-argument given to new() is the name of the robot.
-
-=cut
 
 sub new {
     my($class, $ua) = @_;
@@ -77,13 +22,6 @@ sub new {
     $self;
 }
 
-
-=item $rules->parse($robot_txt_url, $content, $fresh_until)
-
-The parse() method takes as arguments the URL that was used to
-retrieve the F</robots.txt> file, and the contents of the file.
-
-=cut
 
 sub parse {
     my($self, $robot_txt_uri, $txt, $fresh_until) = @_;
@@ -170,7 +108,7 @@ sub parse {
     }
 }
 
-# is_me()
+
 #
 # Returns TRUE if the given name matches the
 # name of this robot
@@ -193,11 +131,6 @@ sub is_me {
     }
 }
 
-=item $rules->allowed($uri)
-
-Returns TRUE if this robot is allowed to retrieve this URL.
-
-=cut
 
 sub allowed {
     my($self, $uri) = @_;
@@ -220,6 +153,7 @@ sub allowed {
     return 1;
 }
 
+
 # The following methods must be provided by the subclass.
 sub agent;
 sub visit;
@@ -231,17 +165,14 @@ sub clear_rules;
 sub rules;
 sub dump;
 
+
+
 package WWW::RobotRules::InCore;
 
 use vars qw(@ISA);
 @ISA = qw(WWW::RobotRules);
 
-=item $rules->agent([$name])
 
-Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
-rules and expire times out of the cache.
-
-=cut
 
 sub agent {
     my ($self, $name) = @_;
@@ -260,6 +191,7 @@ sub agent {
     $old;
 }
 
+
 sub visit {
     my($self, $netloc, $time) = @_;
     return unless $netloc;
@@ -273,15 +205,18 @@ sub visit {
     }
 }
 
+
 sub no_visits {
     my ($self, $netloc) = @_;
     $self->{'loc'}{$netloc}{'count'};
 }
 
+
 sub last_visit {
     my ($self, $netloc) = @_;
     $self->{'loc'}{$netloc}{'last'};
 }
+
 
 sub fresh_until {
     my ($self, $netloc, $fresh_until) = @_;
@@ -292,15 +227,18 @@ sub fresh_until {
     $old;
 }
 
+
 sub push_rules {
     my($self, $netloc, @rules) = @_;
     push (@{$self->{'loc'}{$netloc}{'rules'}}, @rules);
 }
 
+
 sub clear_rules {
     my($self, $netloc) = @_;
     delete $self->{'loc'}{$netloc}{'rules'};
 }
+
 
 sub rules {
     my($self, $netloc) = @_;
@@ -310,6 +248,7 @@ sub rules {
 	return ();
     }
 }
+
 
 sub dump
 {
@@ -324,9 +263,80 @@ sub dump
     }
 }
 
+
 1;
 
 __END__
+
+
+# Bender: "Well, I don't have anything else
+#          planned for today.  Let's get drunk!"
+
+=head1 NAME
+
+WWW::RobotRules - database of robots.txt-derived permissions
+
+=head1 SYNOPSIS
+
+ use WWW::RobotRules;
+ my $rules = WWW::RobotRules->new('MOMspider/1.0');
+
+ use LWP::Simple qw(get);
+
+ {
+   my $url = "http://some.place/robots.txt";
+   my $robots_txt = get $url;
+   $rules->parse($url, $robots_txt) if defined $robots_txt;
+ }
+
+ {
+   my $url = "http://some.other.place/robots.txt";
+   my $robots_txt = get $url;
+   $rules->parse($url, $robots_txt) if defined $robots_txt;
+ }
+
+ # Now we can check if a URL is valid for those servers
+ # whose "robots.txt" files we've gotten and parsed:
+ if($rules->allowed($url)) {
+     $c = get $url;
+     ...
+ }
+
+=head1 DESCRIPTION
+
+This module parses F</robots.txt> files as specified in
+"A Standard for Robot Exclusion", at
+<http://www.robotstxt.org/wc/norobots.html>
+Webmasters can use the F</robots.txt> file to forbid conforming
+robots from accessing parts of their web site.
+
+The parsed files are kept in a WWW::RobotRules object, and this object
+provides methods to check if access to a given URL is prohibited.  The
+same WWW::RobotRules object can be used for one or more parsed
+F</robots.txt> files on any number of hosts.
+
+The following methods are provided:
+
+=over 4
+
+=item $rules = WWW::RobotRules->new($robot_name)
+
+This is the constructor for WWW::RobotRules objects.  The first
+argument given to new() is the name of the robot.
+
+=item $rules->parse($robot_txt_url, $content, $fresh_until)
+
+The parse() method takes as arguments the URL that was used to
+retrieve the F</robots.txt> file, and the contents of the file.
+
+=item $rules->allowed($uri)
+
+Returns TRUE if this robot is allowed to retrieve this URL.
+
+=item $rules->agent([$name])
+
+Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
+rules and expire times out of the cache.
 
 =back
 
@@ -393,8 +403,3 @@ This example indicates that no robots should visit this site further:
 =head1 SEE ALSO
 
 L<LWP::RobotUA>, L<WWW::RobotRules::AnyDBM_File>
-
-=cut
-
-# Bender: "Well, I don't have anything else
-#          planned for today.  Let's get drunk!"

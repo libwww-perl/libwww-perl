@@ -1,7 +1,105 @@
-#
-# $Id: Message.pm,v 1.26 2003/10/16 10:54:16 gisle Exp $
-
 package HTTP::Message;
+
+# $Id: Message.pm,v 1.27 2003/10/23 18:56:01 uid39246 Exp $
+
+use strict;
+use vars qw($VERSION $AUTOLOAD);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+
+require HTTP::Headers;
+require Carp;
+
+$HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
+eval "require $HTTP::URI_CLASS"; die $@ if $@;
+
+
+
+sub new
+{
+    my($class, $header, $content) = @_;
+    if (defined $header) {
+	Carp::croak("Bad header argument") unless ref $header;
+	$header = $header->clone;
+    } else {
+	$header = HTTP::Headers->new;
+    }
+    $content = '' unless defined $content;
+    bless {
+	'_headers' => $header,
+	'_content' => $content,
+    }, $class;
+}
+
+
+sub clone
+{
+    my $self  = shift;
+    my $clone = HTTP::Message->new($self->{'_headers'}, $self->{'_content'});
+    $clone;
+}
+
+
+sub protocol { shift->_elem('_protocol',  @_); }
+sub content  { shift->_elem('_content',  @_); }
+
+
+sub add_content
+{
+    my $self = shift;
+    if (ref($_[0])) {
+	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
+    } else {
+	$self->{'_content'} .= $_[0];
+    }
+}
+
+
+sub content_ref
+{
+    my $self = shift;
+    \$self->{'_content'};
+}
+
+
+sub as_string
+{
+    "";  # To be overridden in subclasses
+}
+
+
+sub headers            { shift->{'_headers'};                }
+sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
+
+
+# delegate all other method calls the the _headers object.
+sub AUTOLOAD
+{
+    my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
+    return if $method eq "DESTROY";
+
+    # We create the function here so that it will not need to be
+    # autoloaded the next time.
+    no strict 'refs';
+    *$method = eval "sub { shift->{'_headers'}->$method(\@_) }";
+    goto &$method;
+}
+
+
+# Private method to access members in %$self
+sub _elem
+{
+    my $self = shift;
+    my $elem = shift;
+    my $old = $self->{$elem};
+    $self->{$elem} = $_[0] if @_;
+    return $old;
+}
+
+
+1;
+
+
+__END__
 
 =head1 NAME
 
@@ -24,56 +122,15 @@ The following methods are available:
 
 =over 4
 
-=cut
-
-#####################################################################
-
-require HTTP::Headers;
-require Carp;
-use strict;
-use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
-
-$HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
-eval "require $HTTP::URI_CLASS"; die $@ if $@;
-
 =item $mess = HTTP::Message->new
 
 This is the object constructor.  It should only be called internally
 by this library.  External code should construct C<HTTP::Request> or
 C<HTTP::Response> objects.
 
-=cut
-
-sub new
-{
-    my($class, $header, $content) = @_;
-    if (defined $header) {
-	Carp::croak("Bad header argument") unless ref $header;
-	$header = $header->clone;
-    } else {
-	$header = HTTP::Headers->new;
-    }
-    $content = '' unless defined $content;
-    bless {
-	'_headers' => $header,
-	'_content' => $content,
-    }, $class;
-}
-
-
 =item $mess->clone()
 
 Returns a copy of the object.
-
-=cut
-
-sub clone
-{
-    my $self  = shift;
-    my $clone = HTTP::Message->new($self->{'_headers'}, $self->{'_content'});
-    $clone;
-}
 
 =item $mess->protocol
 
@@ -81,10 +138,6 @@ sub clone
 
 Sets the HTTP protocol used for the message.  The protocol() is a string
 like C<HTTP/1.0> or C<HTTP/1.1>.
-
-=cut
-
-sub protocol { shift->_elem('_protocol',  @_); }
 
 =item $mess->content
 
@@ -99,20 +152,6 @@ previous content is returned.
 The add_content() methods appends more data to the end of the current
 content buffer.
 
-=cut
-
-sub content   { shift->_elem('_content',  @_); }
-
-sub add_content
-{
-    my $self = shift;
-    if (ref($_[0])) {
-	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
-    } else {
-	$self->{'_content'} .= $_[0];
-    }
-}
-
 =item $mess->content_ref
 
 The content_ref() method will return a reference to content buffer string.
@@ -121,19 +160,6 @@ is huge, and it can even be used for direct manipulation of the content,
 for instance:
 
   ${$res->content_ref} =~ s/\bfoo\b/bar/g;
-
-=cut
-
-sub content_ref
-{
-    my $self = shift;
-    \$self->{'_content'};
-}
-
-sub as_string
-{
-    "";  # To be overridden in subclasses
-}
 
 =item $mess->headers;
 
@@ -149,11 +175,6 @@ message.  This will be the same as:
  $mess->headers->as_string
 
 but it will make your program a whole character shorter :-)
-
-=cut
-
-sub headers            { shift->{'_headers'};                }
-sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
 
 =back
 
@@ -188,34 +209,6 @@ details of these methods:
   $mess->authorization_basic;
   $mess->proxy_authorization_basic;
 
-=cut
-
-
-# delegate all other method calls the the _headers object.
-sub AUTOLOAD
-{
-    my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    return if $method eq "DESTROY";
-
-    # We create the function here so that it will not need to be
-    # autoloaded the next time.
-    no strict 'refs';
-    *$method = eval "sub { shift->{'_headers'}->$method(\@_) }";
-    goto &$method;
-}
-
-# Private method to access members in %$self
-sub _elem
-{
-    my $self = shift;
-    my $elem = shift;
-    my $old = $self->{$elem};
-    $self->{$elem} = $_[0] if @_;
-    return $old;
-}
-
-1;
-
 =head1 COPYRIGHT
 
 Copyright 1995-2001 Gisle Aas.
@@ -223,4 +216,3 @@ Copyright 1995-2001 Gisle Aas.
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-=cut

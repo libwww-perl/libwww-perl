@@ -1,11 +1,12 @@
 package LWP::ConnCache;
 
-# $Id: ConnCache.pm,v 1.4 2001/04/20 20:24:42 gisle Exp $
+# $Id: ConnCache.pm,v 1.5 2003/10/23 18:56:01 uid39246 Exp $
 
 use strict;
 use vars qw($VERSION $DEBUG);
 
 $VERSION = "0.01";
+
 
 sub new {
     my($class, %cnf) = @_;
@@ -20,12 +21,14 @@ sub new {
     $self;
 }
 
+
 sub deposit {
     my($self, $type, $key, $conn) = @_;
     push(@{$self->{cc_conns}}, [$conn, $type, $key, time]);
     $self->enforce_limits($type);
     return;
 }
+
 
 sub withdraw {
     my($self, $type, $key) = @_;
@@ -39,6 +42,7 @@ sub withdraw {
     return undef;
 }
 
+
 sub total_capacity {
     my $self = shift;
     my $old = $self->{cc_limit_total};
@@ -48,6 +52,7 @@ sub total_capacity {
     }
     $old;
 }
+
 
 sub capacity {
     my $self = shift;
@@ -59,6 +64,7 @@ sub capacity {
     }
     $old;
 }
+
 
 sub enforce_limits {
     my($self, $type) = @_;
@@ -84,10 +90,12 @@ sub enforce_limits {
     }
 }
 
+
 sub dropping {
     my($self, $c, $reason) = @_;
     print "DROPPING @$c [$reason]\n" if $DEBUG;
 }
+
 
 sub drop {
     my($self, $checker, $reason) = @_;
@@ -126,10 +134,12 @@ sub drop {
     @{$self->{cc_conns}} = @c;
 }
 
+
 sub prune {
     my $self = shift;
     $self->drop(sub { !shift->ping }, "ping");
 }
+
 
 sub get_types {
     my $self = shift;
@@ -137,6 +147,7 @@ sub get_types {
     $t{$_->[1]}++ for @{$self->{cc_conns}};
     return keys %t;
 }
+
 
 sub get_connections {
     my($self, $type) = @_;
@@ -147,11 +158,13 @@ sub get_connections {
     @c;
 }
 
+
 sub _looks_like_number {
     $_[0] =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/;
 }
 
 1;
+
 
 __END__
 
@@ -297,5 +310,3 @@ Copyright 2001 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
-
-=cut

@@ -319,7 +319,7 @@ The call:
 
 is a short-hand for:
 
-    $form->find_value('foo')->value;
+    $form->find_input('foo')->value;
 
 =cut
 

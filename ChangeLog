@@ -26,9 +26,9 @@ Tue Mar 24 1998   Gisle Aas <aas@sn.no>
     RC_TEMPORARY_REDIRECT (307) and RC_EXPECTATION_FAILED (417).
     Slightly more documentation too.
 
- o The split_header_words() function HTTP::Headers::Util could go
-   into infinite loop on some header values.  Implemented split_etag_list()
-   too.  Added more documentation and test script for this module.
+ o  The split_header_words() function HTTP::Headers::Util could go
+    into infinite loop on some header values.  Implemented split_etag_list()
+    too.  Added more documentation and test script for this module.
 
  o  LWP::Simple now switch to full LWP implementation even for systems
     that force all environment keys to be upper case.  Modification

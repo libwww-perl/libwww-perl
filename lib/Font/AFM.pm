@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.6 1995/07/14 10:47:00 aas Exp $
+# $Id: AFM.pm,v 1.7 1995/09/14 13:43:53 aas Exp $
 
 package Font::AFM;
 
@@ -200,7 +200,7 @@ Lingature data is not parsed.
 use Carp;
 
 $VERSION = $VERSION =  # shut up -w
-   sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+   sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 # The metrics_path is used to locate metrics files
 #
@@ -388,41 +388,5 @@ sub dump
 	}
     }
 }
-
-
-####################################################################
-#
-# S E L F   T E S T   S E C T I O N
-#
-#####################################################################
-#
-# If we're not use'd or require'd execute self-test.
-# Handy for regression testing and as a quick reference :)
-#
-# Test is kept behind __END__ so it doesn't take uptime
-# and memory  unless explicitly required. If you're working
-# on the code you might find it easier to comment out the
-# eval and __END__ so that error line numbers make more sense.
-
-package main;
-
-eval join('',<DATA>) || die $@ unless caller();
-
-1;
-
-__END__
-
-
-$font = new Font::AFM "Helvetica";
-
-$sw = $font->stringwidth("Gisle Aas");
-
-if ($sw != 4279) {
-    warn "self test failed";
-    die  "The stringwidth of 'Gisle Aas' should be 4279 (is was $sw)\n";
-}
-
-print "Self test for Font::AFM $Font::AFM::VERSION ok\n";
-
 
 1;

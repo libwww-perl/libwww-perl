@@ -1,3 +1,58 @@
+2004-04-06   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.77
+
+    LWP::Simple did not handle redirects properly when the "Location"
+    header used uncommon letter casing.
+    Patch by Ward Vandewege <ward@pong.be>.
+
+    LWP::UserAgent passed the wrong request to redirect_ok().
+    Patch by Ville Skyttä <ville.skytta@iki.fi>.
+    https://rt.cpan.org/Ticket/Display.html?id=5828
+
+    LWP::RobotUA construct now accept key/value arguments in the
+    same way as LWP::UserAgent.
+    Based on patch by Andy Lester <andy@petdance.com>.
+
+    LWP::RobotUA did not parse robots.txt files that contained
+    "Disallow:" using uncommon letter casing.
+    Patch by Liam Quinn <liam@htmlhelp.com>.
+
+    WWW::RobotRules now allow leading space when parsing robots.txt
+    file as suggested by Craig Macdonald <craig@freeasphost.co.uk>.
+    We now also allow space before the colon.
+
+    WWW::RobotRules did not handle User-Agent names that use version
+    numbers not .  Patch by Liam Quinn <liam@htmlhelp.com>.
+
+    Case insensitive handling of hosts and domain names
+    in HTTP::Cookies.
+    https://rt.cpan.org/Ticket/Display.html?id=4530
+
+    The bundled media.types file now match video/quicktime
+    with the .mov extension, as suggested by Michel Koppelaar
+    <Michel.Koppelaar@kb.nl>.
+
+    Experimental support for composite messages, currently
+    implemented by the HTTP::MessageParts module.  Based on
+    ideas from Joshua Hoblitt <jhoblitt@ifa.hawaii.edu>.
+
+    Fixed libscan in Makefile.PL.
+    Patch by Andy Lester <andy@petdance.com>.
+
+    The HTTP::Message constructor now accept a plain array reference
+    as its $headers argument.
+
+    The return value of the HTTP::Message as_string() method now
+    better conforms to the HTTP wire layout.  No additional "\n"
+    are appended to the as_string value for HTTP::Request and
+    HTTP::Response.  The HTTP::Request as_string now replace missing
+    method or URI with "-" instead of "[NO METHOD]" and "[NO URI]".
+    We don't want values with spaces in them, because it makes it
+    harder to parse.
+
+
+
 2003-11-21   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.76

@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.16 2004/11/15 13:43:17 gisle Exp $
+# $Id: Methods.pm,v 1.17 2004/11/15 14:16:07 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -299,12 +299,7 @@ sub read_response_headers {
 
     my($status, $eol) = my_readline($self);
     unless (defined $status) {
-	die "EOF instead of response status line" unless $laxed;
-	# assume HTTP/0.9
-	${*$self}{'http_peer_http_version'} = "0.9";
-	${*$self}{'http_status'} = "200";
-	return 200 unless wantarray;
-	return (200, "EOF");
+	die "Server closed connection without sending any data back";
     }
 
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);

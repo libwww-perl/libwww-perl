@@ -22,7 +22,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  LWP::Protocol::implementor does not die if it cannot load pacakge.
 
- o  Moved UserAgent convinience methods into LWP::Simple.  Made LWP::Simple
+ o  Moved UserAgent convenience methods into LWP::Simple.  Made LWP::Simple
     export LWP::StatusCode symbols and functions.
 
  o  Implemented $ua->isProtocolSupported($scheme) method.
@@ -32,7 +32,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
  o  Rely on URI::URL 3.00 behaviour for $url->full_path
 
  o  Library version number now in LWP.pm.  You should be able to say
-    "use LWP 1.0;" is you need at least this version.
+    "use LWP 1.0;" if you need at least this version.
 
  o  Various cleanups and arranging layout as I like it.  Use fooBar-style
     (as opposed to foo_bar stype) everywhere.  This means that as_string()

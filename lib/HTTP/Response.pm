@@ -1,10 +1,8 @@
 #
-# $Id: Response.pm,v 1.5 1995/07/13 15:41:34 aas Exp $
+# $Id: Response.pm,v 1.6 1995/07/14 00:31:03 aas Exp $
 
 package LWP::Response;
 
-require LWP::Message;
-@ISA = qw(LWP::Message);
 
 =head1 NAME
 
@@ -32,21 +30,19 @@ of an C<LWP::UserAgent> object:
      print $response->errorAsHTML;    
  }
 
-=head1 METHODS and FUNCTIONS
+=head1 METHODS
+
+C<LWP::Response> is a subclass of C<LWP::Message> and therefore
+inherits its methods.  The inherited methods are C<header>,
+C<pushHeader>, C<removeHeader> C<headerAsString> and C<content>.  See
+L<LWP::Message> for details.
 
 =cut
 
-require LWP::MIMEheader;
-require LWP::Debug;
 
-use Carp;
+require LWP::Message;
+@ISA = qw(LWP::Message);
 
-
-#####################################################################
-#
-# P U B L I C  M E T H O D S  S E C T I O N
-#
-#####################################################################
 
 =head2 new($rc [, $msg])
 
@@ -55,69 +51,62 @@ response code C<$rc> and optional message C<$msg>
 
 =cut
 
-sub new {
+sub new
+{
     my($class, $rc, $msg) = @_;
-    bless {
-        '_rc'      => $rc,
-        '_msg'     => $msg,
-        '_content' => undef,
-        '_header'  => new LWP::MIMEheader,
-    }, $class;
+    my $self = bless new LWP::Message;
+    $self->code($rc);
+    $self->message($msg);
+    $self;
 }
 
 
+sub clone
+{
+    my $self = shift;
+    my $clone = bless $self->LWP::Message::clone;
+    $clone->code($self->code);
+    $clone->message($self->message);
+    $clone;
+    
+}
+
 =head2 code([$code])
 
-=head2 content([$val])
+=head2 message([$message]}
 
 These methods provide public access to the member variables containing
-respectively the response code and the content of the response
+respectively the response code and the message of the response
 
 =cut
 
 sub code      { shift->_elem('_rc',  @_); }
-sub message   { shift->_elem('_msg',  @_); }
-sub content   { shift->_elem('_content',  @_); }
-
-sub addContent
-{
-    my($self, $data) = @_;
-    $self->{'_content'} .= $$data;
-}
-
-=head2 headers()
-
-=head2 header(...)
-
-=head2 pushHeader(...)
-
-These methods provide easy access to the fields for the request header.
-
-=cut
-
-# forward these to the header member variable
-sub headers    { shift->{'_header'}; }
-
-sub header     { shift->{'_header'}->header(@_) };
-sub pushHeader { shift->{'_header'}->pushHeader(@_) };
+sub message   { shift->_elem('_msg', @_); }
 
 
-=head2 as_string()
+=head2 asString()
 
 Method returning a textual representation of the request.  Mainly
 useful for debugging purposes. It takes no arguments.
 
 =cut
 
-sub as_string {
+sub asString
+{
+    require LWP::StatusCode;
     my $self = shift;
-    my $result = "LWP::Response::as_string($self):\n";
-    $result .= 'Response Code: ' . $self->_strElem('_rc') . "\n";
-    $result .= 'Message: '       . $self->_strElem('_msg') . "\n";
-    $result .= $self->headers->as_string;
-    $result .= "Content:\n"      . $self->_strElem('_content') . "\n";
-    $result .= "\n";
-    $result;
+    my @result = ("--- $self ---");
+    my $code = $self->code;
+    push(@result, "RC: $code (" . LWP::StatusCode::message($code) . ")" );
+    push(@result, 'Message: ' . $self->message);
+    push(@result, '');
+    push(@result, $self->headerAsString);
+    my $content = $self->content;
+    if ($content) {
+	push(@result, $self->content);
+    }
+    push(@result, ("-" x 35));
+    join("\n", @result, "");
 }
 
 =head2 isSuccess
@@ -143,11 +132,12 @@ what error occurred
 
 =cut
 
-sub errorAsHTML {
+sub errorAsHTML
+{
     my $self = shift;
     my $msg = $self->{'_msg'} || 'Unknown';
-    my $content = $self->{'_content'} || '';
-    if (defined $content and $content) {
+    my $content = $self->content || '';
+    if (defined $content and length $content) {
 	return $content;
     }
     else {

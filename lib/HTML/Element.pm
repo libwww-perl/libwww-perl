@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.4 1995/09/05 22:10:25 aas Exp $
+# $Id: Element.pm,v 1.5 1995/09/05 23:04:30 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -268,13 +268,13 @@ sub pushContent
 
 
 
-=item ->deleteContent
+=item ->deleteContent()
 
 Clears the content.
 
 =cut
 
-sub deleteContent()
+sub deleteContent
 {
     my $self = shift;
     for (@{$self->{'_content'}}) {

@@ -1,9 +1,11 @@
 #!/local/bin/perl -w
 
-use URI::URL;
-use URI::Escape;
+require URI::URL;
+use URI::Escape;  # imports uri_escape() and uri_unescape()
 
 package URI::URL::_generic;
+
+use Carp;
 
 # _expect()
 #
@@ -23,8 +25,6 @@ sub _expect {
 
 
 package main;
-
-use Carp;
 
 $| = 1;
 

@@ -39,6 +39,8 @@ Tue Mar  5 1996   Gisle Aas <aas@sn.no>
 
  o  LWP::Protocol::http:  Updated to HTTP/1.1 methods
 
+ o  Took out stringify overloading in HTML::Element.
+
 
 
 Mon Feb 26 1996   Gisle Aas <aas@sn.no>

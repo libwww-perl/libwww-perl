@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.16 1996/03/18 17:46:46 aas Exp $
+# $Id: Response.pm,v 1.17 1996/04/07 20:37:02 aas Exp $
 
 package HTTP::Response;
 
@@ -19,8 +19,8 @@ consisting of a response line, a MIME header, and usually
 content. Note that the LWP library also uses this HTTP style responses
 for non-HTTP protocols.
 
-Instances of this class are usually created by the C<request()> method
-of an C<LWP::UserAgent> object:
+Instances of this class are usually created by calling the
+C<request()> method of an C<LWP::UserAgent> object:
 
  ...
  $response = $ua->request($request)
@@ -33,8 +33,8 @@ of an C<LWP::UserAgent> object:
 =head1 METHODS
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods are C<header>,
-C<push_header>, C<remove_header> C<headers_as_string> and C<content>.  See
+inherits its methods.  The inherited methods are header(),
+push_header(), remove_header() headers_as_string() and content().  See
 L<HTTP::Message> for details.
 
 =cut
@@ -43,7 +43,7 @@ L<HTTP::Message> for details.
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
 
-require HTTP::Status;
+use HTTP::Status ();
 
 
 =head2 $r = new HTTP::Response ($rc [, $msg])
@@ -86,9 +86,10 @@ These methods provide public access to the member variables.  The
 first two containing respectively the response code and the message
 of the response.
 
-The request attribute is used to record the request that gave this
-response. You should for instance access the base URL of an document
-like this: C<$response->request->url;>.
+The request attribute is a reference the request that gave this
+response.  It might not be the same request that was passed to the
+$ua->request() method, because there might have been redirects and
+authorization retries.
 
 The previous attribute is used to link together chains of responses.
 You get chains of responses if the first response is redirect or
@@ -103,7 +104,12 @@ sub request   { shift->_elem('_request', @_); }
 
 =head2 $r->base
 
-Returns the base URL for this response.
+Returns the base URL for this response.  The base URL can come from 3
+sources:
+
+  1.  Embedded in the document content, for instance <BASE HREF="...">
+  2.  A "Base:" header in the response
+  3.  The URL used to request this response
 
 =cut
 
@@ -115,10 +121,9 @@ sub base
 	# Look for the <BASE HREF='...'> tag
 	# XXX: Should really use the HTML::Parse module to get this
 	# right. The <BASE> tag could be commented out, which we are
-	# not able to handle here.
-	$self->{'_content'} =~ /<\s*base\s+href=([^\s>]+)/i;
-	$base = $1;
-	if ($base) {
+	# not able to handle with this simple regexp.
+	if ($self->{'_content'} =~ /<\s*base\s+href=([^\s>]+)/i) {
+	    $base = $1;
 	    $base =~ s/^(["'])(.*)\1$/$2/;  #" get rid of any quoting
             return $base;
 	}
@@ -162,15 +167,15 @@ sub as_string
 
 =head2 $r->is_error
 
-These methods indicate if the response was informationl, sucessful, a
+These methods indicate if the response was informational, sucessful, a
 redirection, or an error.
 
 =cut
 
-sub is_info     { HTTP::Status::is_info(shift->code);     }
-sub is_success  { HTTP::Status::is_success(shift->code);  }
-sub is_redirect { HTTP::Status::is_redirect(shift->code); }
-sub is_error    { HTTP::Status::is_error(shift->code);    }
+sub is_info     { HTTP::Status::is_info     (shift->{'_rc'}); }
+sub is_success  { HTTP::Status::is_success  (shift->{'_rc'}); }
+sub is_redirect { HTTP::Status::is_redirect (shift->{'_rc'}); }
+sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 
 =head2 error_as_HTML()

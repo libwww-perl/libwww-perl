@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.54 2000/06/13 19:51:26 gisle Exp $
+# $Id: Makefile.PL,v 1.55 2001/01/12 20:41:51 gisle Exp $
 
 require 5.004;
 use strict;
@@ -30,7 +30,7 @@ my $missing_modules = 0;
 print "Checking for URI...........";
 eval {
     require URI;
-    URI->VERSION(1.07);
+    URI->VERSION(1.10);
 };
 if ($@) {
     print " failed\n";
@@ -138,7 +138,7 @@ WriteMakefile(
    VERSION_FROM  => 'lib/LWP.pm',
    PL_FILES      => { map {("bin/$_.PL" => "bin/$_")} @programs_to_install },
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
-   PREREQ_PM     => { 'URI'              => "1.07",
+   PREREQ_PM     => { 'URI'              => "1.10",
                       'MIME::Base64'     => "2.1",
                       'Net::FTP'         => "2.4",
                       'HTML::HeadParser' => 0,

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.4 1997/09/03 11:18:13 aas Exp $
+# $Id: Common.pm,v 1.5 1997/10/13 19:43:57 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -106,6 +106,7 @@ sub form_data   # RFC1867
 		local(*F);
 		local($/) = undef; # slurp files
 		open(F, $file) or Carp::croak("Can't open file $file: $!");
+		binmode(F);
 		$content = <F>;
 		close(F);
 		unless ($ct) {

@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.3 1996/10/16 16:45:31 aas Exp $
+# $Id: Daemon.pm,v 1.4 1996/10/17 11:43:38 aas Exp $
 #
 
 use strict;
@@ -17,7 +17,7 @@ HTTP::Daemon - a simple http server class
   $c = $d->accept;
   $r = $c->get_request;
   print $c "HTTP/1.0 200 OK
-  Content-Type: text/html
+  Content-Type: text/plain
   
   Howdy
   ";
@@ -78,7 +78,31 @@ Return a reference to the corresponding I<HTTP::Daemon> object.
 =item $c->send_response( [$res] )
 
 Takes a I<HTTP::Response> object as parameter and send it back to the
-client.
+client as the response.
+
+=item $c->send_redirect( $loc, [$code, [$message]] )
+
+Sends a redirect response back to the client.  The location ($loc) can
+be an abolute or a relative URL. The $code must be one the redirect
+status codes.
+
+=item $c->send_file_response($filename)
+
+Send back a response with the specified $filename as content.
+
+=item $c->send_file($fd);
+
+Copies the file back to the client.  The file can be a string (which
+will be interpreted as a filename) or a reference to a glob.
+
+=item $c->send_status_line( [$code, [$mess, [$proto]]] )
+
+Sends the status line back to the client.
+
+=item $c->send_basic_header( [$code, [$mess, [$proto]]] )
+
+Sends the status line and the "Date:" and "Server:" headers back to
+the client.
 
 =back
 
@@ -97,10 +121,11 @@ modify it under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
+
 
 sub new
 {
@@ -119,6 +144,7 @@ sub new
     $self;
 }
 
+
 sub accept
 {
     my $self = shift;
@@ -127,6 +153,7 @@ sub accept
     ${*$sock}{'httpd_daemon'} = $self;
     $sock;
 }
+
 
 sub url
 {
@@ -139,6 +166,9 @@ sub url
     $url;
 }
 
+
+
+
 package HTTP::Daemon::ClientConn;
 
 use vars '@ISA';
@@ -147,8 +177,14 @@ use IO::Socket ();
 
 use HTTP::Request  ();
 use HTTP::Response ();
-use HTTP::Status qw(RC_OK status_message);
-use URI::URL;
+use HTTP::Status;
+use HTTP::Date qw(time2str);
+use URI::URL qw(url);
+use LWP::MediaTypes qw(guess_media_type);
+use Carp ();
+
+my $NL = "\015\012";   # "\r\n" is not portable
+
 
 sub get_request
 {
@@ -167,14 +203,16 @@ sub get_request
 	return undef if $n == 0;  # unexpected EOF
 	#print length($buf), " bytes read\n";
 	$req .= $buf;
-	if ($req =~ /^\w+[^\n]+HTTP\/\d+.\d+\015?\012/) {
+	if ($req =~ /^\w+[^\n]+HTTP\/\d+\.\d+\015?\012/) {
 	    last if $req =~ /(\015?\012){2}/;
 	} elsif ($req =~ /\012/) {
 	    last;  # HTTP/0.9 client
 	}
     }
-    $req =~ s/^(\w+)\s+(\S+)[^\012]*\012//;
+    $req =~ s/^(\w+)\s+(\S+)(?:\s+(HTTP\/\d+\.\d+))?[^\012]*\012//;
+    my $proto = $3 || "HTTP/0.9";
     my $r = HTTP::Request->new($1, url($2, $self->daemon->url));
+    $r->protocol($3);
     while ($req =~ s/^([\w\-]+):\s*([^\012]*)\012//) {
 	my($key,$val) = ($1, $2);
 	$val =~ s/\015$//;
@@ -188,7 +226,7 @@ sub get_request
     }
     my $len = $r->content_length;
     if ($len) {
-	# should read request content from the client
+	# should read request entity body from the client
 	$len -= length($req);
 	while ($len > 0) {
 	    if ($timeout) {
@@ -204,6 +242,33 @@ sub get_request
     $r;
 }
 
+
+sub send_status_line
+{
+    my($self, $status, $message, $proto) = @_;
+    $status  ||= RC_OK;
+    $message ||= status_message($status);
+    $proto   ||= "HTTP/1.0";
+    print $self "$proto $status $message$NL";
+}
+
+
+sub send_crlf
+{
+    my $self = shift;
+    print $self $NL;
+}
+
+
+sub send_basic_header
+{
+    my $self = shift;
+    $self->send_status_line(@_);
+    print $self "Date: ", time2str(time), "$NL";
+    print $self "Server: libwww-perl-daemon/$HTTP::Daemon::VERSION\015\12";
+}
+
+
 sub send_response
 {
     my $self = shift;
@@ -212,16 +277,106 @@ sub send_response
 	$res ||= RC_OK;
 	$res = HTTP::Response->new($res, @_);
     }
-    $res->date(time);
-    $res->header(Server => "libwww-perl-daemon/$HTTP::Daemon::VERSION");
-    unless ($res->message) {
-	$res->message(status_message($res->code));
-    }
-    print $self "HTTP/1.0 ", $res->code, " ", $res->message, "\015\012";
-    print $self $res->headers_as_string("\015\012");
-    print $self "\015\012";
+    $self->send_basic_header($res->code, $res->message, $res->protocol);
+    print $self $res->headers_as_string("$NL");
+    print $self $NL;  # separates headers and content
     print $self $res->content;
 }
+
+
+sub send_redirect
+{
+    my($self, $loc, $status, $content) = @_;
+    $status ||= RC_MOVED_PERMANENTLY;
+    Carp::croak("Status '$status' is not redirect") unless is_redirect($status);
+
+    $loc = url($loc, $self->daemon->url) unless ref($loc);
+    $loc = $loc->abs;
+    print $self "Location: $loc$NL";
+    if ($content) {
+	my $ct = $content =~ /^\s*</ ? "text/html" : "text/plain";
+	print $self "Content-Type: $ct$NL";
+    }
+    print $self $NL;
+    print $self $content if $content;
+}
+
+
+sub send_error
+{
+    my($self, $status, $error) = @_;
+    $status ||= RC_BAD_REQUEST;
+    Carp::croak("Status '$status' is not an error") unless is_error($status);
+    my $mess = status_message($status);
+    $error  ||= "";
+    $self->send_basic_header($status);
+    print $self "Content-Type: text/html$NL";
+    print $self "$NL";
+    print $self <<EOT;
+<title>$status $mess</title>
+<h1>$status $mess</title>
+$error
+EOT
+    $status;
+}
+
+
+sub send_file_response
+{
+    my($self, $file) = @_;
+    if (-d $file) {
+	$self->send_dir($file);
+    } elsif (-f _) {
+	# plain file
+	local(*F);
+	sysopen(F, $file, 0) or 
+	  return $self->send_error(RC_FORBIDDEN);
+	my($ct,$ce) = guess_media_type($file);
+	my($size,$mtime) = (stat _)[7,9];
+	$self->send_basic_header;
+	print $self "Content-Type: $ct$NL";
+	print $self "Content-Encoding: $ce$NL" if $ce;
+	print $self "Content-Length: $size$NL";
+	print $self "Last-Modified: ", time2str($mtime), "$NL";
+	print $self "$NL";
+	$self->send_file(\*F);
+	return RC_OK;
+    } else {
+	$self->send_error(RC_NOT_FOUND);
+    }
+}
+
+
+sub send_dir
+{
+    my($self, $dir) = @_;
+    $self->send_error(RC_NOT_FOUND) unless -d $dir;
+    $self->send_error(RC_NOT_IMPLEMENTED);
+}
+
+
+sub send_file
+{
+    my($self, $file) = @_;
+    my $opened = 0;
+    if (!ref($file)) {
+	local(*F);
+	open(F, $file) || return undef;
+	$file = \*F;
+	$opened++;
+    }
+    my $cnt = 0;
+    my $buf = "";
+    my $n;
+    while ($n = sysread($file, $buf, 8*1024)) {
+	last if $n <= 0;
+	$cnt += $n;
+	print $self $buf;
+    }
+    close($file) if $opened;
+    $cnt;
+}
+
 
 sub daemon
 {

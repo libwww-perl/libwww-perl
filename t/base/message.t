@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 88;
+plan tests => 92;
 
 require HTTP::Message;
 
@@ -321,6 +321,16 @@ $@ = "";
 skip($] < 5.008 ? "No Encode module" : "",
      sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
+ok($m->content, "H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
+
+my $tmp = MIME::Base64::decode($m->content);
+$m->content($tmp);
+$m->header("Content-Encoding", "gzip");
+$@ = "";
+skip($] < 5.008 ? "No Encode module" : "",
+     sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
+ok($@ || "", "");
+ok($m->content, $tmp);
 
 $m->header("Content-Encoding", "foobar");
 ok($m->decoded_content, undef);

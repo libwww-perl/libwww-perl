@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.54 2004/12/03 08:35:41 gisle Exp $
+# $Id: Message.pm,v 1.55 2004/12/06 13:27:20 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.54 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.55 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -161,6 +161,7 @@ sub decoded_content
 {
     my($self, %opt) = @_;
     my $content_ref;
+    my $content_ref_iscopy;
 
     eval {
 
@@ -183,6 +184,12 @@ sub decoded_content
 		next unless $ce || $ce eq "identity";
 		if ($ce eq "gzip" || $ce eq "x-gzip") {
 		    require Compress::Zlib;
+		    unless ($content_ref_iscopy) {
+			# memGunzip is documented to destroy its buffer argument
+			my $copy = $$content_ref;
+			$content_ref = \$copy;
+			$content_ref_iscopy++;
+		    }
 		    $content_ref = \Compress::Zlib::memGunzip($$content_ref);
 		    die "Can't gunzip content" unless defined $$content_ref;
 		}
@@ -190,11 +197,13 @@ sub decoded_content
 		    require Compress::Bzip2;
 		    $content_ref = Compress::Bzip2::decompress($$content_ref);
 		    die "Can't bunzip content" unless defined $$content_ref;
+		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "deflate") {
 		    require Compress::Zlib;
 		    $content_ref = \Compress::Zlib::uncompress($$content_ref);
 		    die "Can't inflate content" unless defined $$content_ref;
+		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "compress" || $ce eq "x-compress") {
 		    die "Can't uncompress content";
@@ -202,10 +211,12 @@ sub decoded_content
 		elsif ($ce eq "base64") {  # not really C-T-E, but should be harmless
 		    require MIME::Base64;
 		    $content_ref = \MIME::Base64::decode($$content_ref);
+		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "quoted-printable") { # not really C-T-E, but should be harmless
 		    require MIME::QuotedPrint;
 		    $content_ref = \MIME::QuotedPrint::decode($$content_ref);
+		    $content_ref_iscopy++;
 		}
 		else {
 		    die "Don't know how to decode Content-Encoding '$ce'";
@@ -218,7 +229,16 @@ sub decoded_content
 	    $charset = lc($charset);
 	    if ($charset ne "none") {
 		require Encode;
-		$content_ref = \Encode::decode($charset, $$content_ref, Encode::FB_CROAK());
+		if (do{my $v = $Encode::VERSION; $v =~ s/_//g; $v} < 2.0901 &&
+		    !$content_ref_iscopy)
+		{
+		    # LEAVE_SRC did not work before Encode-2.0901
+		    my $copy = $$content_ref;
+		    $content_ref = \$copy;
+		    $content_ref_iscopy++;
+		}
+		$content_ref = \Encode::decode($charset, $$content_ref,
+					       Encode::FB_CROAK() | Encode::LEAVE_SRC());
 	    }
 	}
     };

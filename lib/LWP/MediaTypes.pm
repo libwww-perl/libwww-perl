@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.2 1995/07/11 13:20:58 aas Exp $
+# $Id: MediaTypes.pm,v 1.3 1995/07/14 00:15:59 aas Exp $
 
 package LWP::MIMEtypes;
 
@@ -59,7 +59,8 @@ guess MIME types from URLs.
 
 =cut
 
-sub guessType {
+sub guessType
+{
     my($file) = @_;
     my($ext);
     ($ext = $file) =~ s/.*\.(.*)/\L$1/;

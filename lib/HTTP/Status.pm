@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.3 1995/07/11 13:21:05 aas Exp $
+# $Id: Status.pm,v 1.4 1995/07/14 00:14:45 aas Exp $
 
 package LWP::StatusCode;
 
@@ -43,7 +43,7 @@ or a redirect respectively.
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(isSuccess isError isRedirect);
+@EXPORT_OK = qw(isSuccess isError isRedirect message);
 
 # Note also addition of mnemonics to @EXPORT_OK below
 
@@ -96,7 +96,8 @@ Return user friendly error message for status code C<$code>
 
 =cut
 
-sub message {
+sub message
+{
     return undef unless exists $StatusCode{$_[0]};
     $StatusCode{$_[0]};
 }
@@ -104,35 +105,21 @@ sub message {
 
 =head2 isSuccess($code)
 
-Return TRUE if C<$code> is a Success status code
-
-=cut
-
-sub isSuccess {
-    $_[0] >= 200 && $_[0] < 300;
-}
-
+Return a true value if C<$code> is a Success status code
 
 =head2 isRedirect($code)
 
-Return TRUE if C<$code> is a Redirect status code
-
-=cut
-
-sub isRedirect {
-    $_[0] >= 300 && $_[0] < 400;
-}
-
+Return a true value if C<$code> is a Redirect status code
 
 =head2 isError($code)
 
-Return TRUE if C<$code> is an Error status code
+Return a true value if C<$code> is an Error status code
 
 =cut
 
-sub isError {
-    $_[0] >= 400 && $_[0] < 600;
-}
+sub isSuccess  { $_[0] >= 200 && $_[0] < 300; }
+sub isRedirect { $_[0] >= 300 && $_[0] < 400; }
+sub isError    { $_[0] >= 400 && $_[0] < 600; }
 
 
 1;

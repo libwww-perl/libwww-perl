@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.4 1995/07/13 14:54:47 aas Exp $
+# $Id: Base64.pm,v 1.5 1995/07/14 00:13:52 aas Exp $
 
 
 package LWP::Base64;
@@ -62,7 +62,7 @@ require Exporter;
 @EXPORT_OK = qw(Base64encode Base64decode);
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);
@@ -74,7 +74,8 @@ Encode a string using Base64.
 
 =cut
 
-sub Base64encode {
+sub Base64encode
+{
     my $str = shift;
     $str =~ s/(.{1,3})/_Base64encodeAux($1)/ge;    
 #   $str =~ s/(.{76})/$1\n/g; # rfc 1521 dictates maximum of 76 chars
@@ -89,7 +90,8 @@ sub Base64encode {
 # it into four characters by taking 6 bits at a
 # time, and using a dictionary @chars
 #
-sub _Base64encodeAux {
+sub _Base64encodeAux
+{
     my $threes = shift;
     @threes = split('', $threes);
 
@@ -142,14 +144,16 @@ The routine will die on illegal characters.
 
 =cut
 
-sub Base64decode {
+sub Base64decode
+{
     my $str = shift;
     $str =~ s/\s+//g;
     $str =~ s/(.{2,4})/_Base64decodeAux($1)/ge;
     $str;
 }
 
-sub _Base64decodeAux {
+sub _Base64decodeAux
+{
     my $encoded = shift;
     my $result = '';
     my @encoded = split('', $encoded);
@@ -223,8 +227,8 @@ __END__
 &decodeTest;
 print "LWP::Base64 ", $LWP::Base64::VERSION, " ok\n";
 
-sub encodeTest {
-
+sub encodeTest
+{
     print "encode test\n";
 
     my @encode_tests = (
@@ -260,8 +264,8 @@ sub encodeTest {
     }
 }
 
-sub decodeTest {
-
+sub decodeTest
+{
     print "decode test:\n";
 
     my @decode_tests = (

@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.6 1995/07/13 15:01:58 aas Exp $
+# $Id: UserAgent.pm,v 1.7 1995/07/14 00:14:30 aas Exp $
 
 package LWP::UserAgent;
 
@@ -109,7 +109,8 @@ Constructor for the UserAgent.
 
 =cut
 
-sub new {
+sub new
+{
     
     my($class, $init) = @_;
 
@@ -133,9 +134,9 @@ sub new {
 
 sub clone
 {
-    LWP::Debug::trace('()');
-
     my $self = shift;
+
+    # this works because no values of %$self are references.
     bless { %$self }, ref $self;
 }
 
@@ -172,7 +173,8 @@ method arguments.
 
 =cut
 
-sub simpleRequest {
+sub simpleRequest
+{
     my($self, $request, $arg, $size) = @_;
 
     LWP::Debug::trace('()');
@@ -254,7 +256,8 @@ This sub is getting a bit large...
 
 =cut
 
-sub request {
+sub request
+{
     my($self, $request, $arg, $size, $depth, $seenref) = @_;
 
     LWP::Debug::trace('()');
@@ -476,7 +479,8 @@ proxy URL for a single access scheme.
 
 =cut
 
-sub proxy {
+sub proxy
+{
     my($self, $key, $proxy) = @_;
 
     LWP::Debug::trace("$key, $proxy");
@@ -503,7 +507,8 @@ sub proxy {
 
 # Private method which returns the URL of the Proxy configured for this
 # URL, or undefined if none is configured.
-sub _needProxy {
+sub _needProxy
+{
     my($self, $url) = @_;
 
     $url = new URI::URL($url) unless ref $url;

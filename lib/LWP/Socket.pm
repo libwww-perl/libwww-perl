@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.3 1995/07/11 13:21:04 aas Exp $
+# $Id: Socket.pm,v 1.4 1995/07/14 00:15:46 aas Exp $
 
 package LWP::Socket;
 
@@ -34,7 +34,7 @@ localhost to serve chargen and echo protocols.
 #####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 use Socket;
 use Carp;
@@ -53,7 +53,8 @@ Constructs a socket object.
 
 =cut
 
-sub new {
+sub new
+{
     my($class) = @_;
 
     LWP::Debug::trace("($class)");
@@ -75,7 +76,8 @@ sub new {
     return $self;
 }
 
-sub DESTROY {
+sub DESTROY
+{
     my($self) = @_;
     _ungensym($self->{'socket'});
 }
@@ -87,7 +89,8 @@ Connect the socket to given host and port
 
 =cut
 
-sub open {
+sub open
+{
     my($self, $host, $port) = @_;
 
     LWP::Debug::trace("($host, $port)");
@@ -123,7 +126,8 @@ buffering for safety.
 
 =cut
 
-sub readUntil {
+sub readUntil
+{
     my ($self, $delim, $bufferref, $size, $timeout) = @_;
 
     my($beforeref) = \$self->{'buffer'};
@@ -187,7 +191,8 @@ Write data to socket
 
 =cut
 
-sub write {
+sub write
+{
     my($self, $buffer) = @_;
     LWP::Debug::trace('()');
     # XXX I guess should we time these out too?
@@ -203,7 +208,8 @@ Close the connection
 
 =cut
 
-sub close {
+sub close
+{
     my($self) = @_;
     LWP::Debug::trace('()');
 
@@ -226,7 +232,8 @@ or port are omitted the internal values are used.
 # TODO: in array context return all addresses
 # for the host, so we can try them in turn.
 
-sub _getaddress {
+sub _getaddress
+{
     my($self, $h, $p) = @_;
 
     LWP::Debug::trace('(' . (defined $h ? $h : 'undef') .
@@ -258,11 +265,13 @@ sub _getaddress {
 
 $gensym = 'SOCKET000';
 
-sub _gensym {
+sub _gensym
+{
     'LWP::Socket::' . $gensym++;
 }
 
-sub _ungensym {
+sub _ungensym
+{
     local($x) = shift;
     $x =~ s/.*:://;             # lose package name
     delete $LWP::Socket::{$x};  # delete from package symbol table
@@ -290,7 +299,8 @@ __END__
 &echo;
 print "Socket.pm $LWP::Socket::VERSION ok\n";
 
-sub chargen {
+sub chargen
+{
     my $socket = new LWP::Socket;
     $socket->open('localhost', 19); # chargen
     $socket->readUntil('A', \$buffer, 8);
@@ -302,7 +312,8 @@ sub chargen {
     $socket->close;
 }
 
-sub echo {
+sub echo
+{
     $socket = new LWP::Socket;
     $socket->open('localhost', 7); # echo
     $quote = 'I dunno, I dream in Perl sometimes...'; 

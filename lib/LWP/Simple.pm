@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.4 1995/07/13 14:59:57 aas Exp $
+# $Id: Simple.pm,v 1.5 1995/07/14 00:15:33 aas Exp $
 
 =head1 NAME
 
@@ -129,9 +129,9 @@ use LWP::Date qw(str2time);
 use Carp;
 
 
-sub get {
+sub get
+{
     my($url) = @_;
-    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('GET', $url);
     my $response = $ua->request($request);
@@ -141,9 +141,9 @@ sub get {
 }
 
 
-sub head {
+sub head
+{
     my($url) = @_;
-    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('HEAD', $url);
     my $response = $ua->request($request);
@@ -161,9 +161,9 @@ sub head {
 }
 
 
-sub getprint {
+sub getprint
+{
     my($url) = @_;
-    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('GET', $url);
     my $response = $ua->request($request);
@@ -177,11 +177,10 @@ sub getprint {
 }
 
 
-sub getstore {
+sub getstore
+{
     my($url, $file) = @_;
-    croak("getAndStore needs two arguments") unless @_ == 2;
-
-    LWP::Debug::trace('()');
+    croak("getstore needs two arguments") unless @_ == 2;
 
     my $request = new LWP::Request('GET', $url);
     my $response = $ua->request($request, $file);
@@ -189,7 +188,8 @@ sub getstore {
     $response->code;
 }
 
-sub mirror {
+sub mirror
+{
     croak("mirror needs two arguments") unless @_ == 2;
 
     my($url, $file) = @_;

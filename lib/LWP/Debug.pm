@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.4 1995/07/13 14:57:11 aas Exp $
+# $Id: Debug.pm,v 1.5 1995/07/14 00:15:03 aas Exp $
 #
 package LWP::Debug;
 
@@ -117,7 +117,8 @@ of the level with a '+' or '-' prepended.
 
 =cut
 
-sub level {
+sub level
+{
     my (@levels) = @_;
     my $level; 
     for $level (@levels) {
@@ -145,7 +146,8 @@ sub level {
 Retrieve message set by debugl()
 
 =cut
-sub longMsg {
+sub longMsg
+{
     $LWP::Debug::timeoutMessage;
 }
 
@@ -157,7 +159,8 @@ sub longMsg {
 #
 # print message on STDERR if debuging is switched on
 #
-sub _log {
+sub _log
+{
     my($trace, $msg) = @_;
 
     # make sure message have got one trailing newline
@@ -177,7 +180,8 @@ sub _log {
 # This is intended for long operations
 # which are likely to be timed out.
 #
-sub _longMsg {
+sub _longMsg
+{
     my $msg = shift;
 
     $LWP::Debug::timeoutMessage = $msg;

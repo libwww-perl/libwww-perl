@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.4 1995/07/13 14:55:49 aas Exp $
+# $Id: Date.pm,v 1.5 1995/07/14 00:14:03 aas Exp $
 #
 package LWP::Date;
 
@@ -50,7 +50,7 @@ module.
 ####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 require 5.001;
 require Exporter;
@@ -194,7 +194,8 @@ sub str2time
 # Given a three-letter abbreviation for a month,
 # return monthnumber (Jan == 0), or undef on error
 #
-sub _mon2num {
+sub _mon2num
+{
     my $mon = shift;
     my $i = 0;
     for(@MoY) {

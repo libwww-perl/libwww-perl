@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.49 2004/04/06 21:46:56 gisle Exp $
+# $Id: Headers.pm,v 1.50 2004/04/06 22:30:52 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -108,7 +108,17 @@ sub remove_header
 sub remove_content_headers
 {
     my $self = shift;
-    delete @$self{grep /^content-/, keys %$self};
+    unless (defined(wantarray)) {
+	# simplify
+	delete @$self{grep /^content-/, keys %$self};
+	return;
+    }
+
+    my $c = ref($self)->new;
+    for my $f (grep /^content-/, keys %$self) {
+	$c->{$f} = delete $self->{$f};
+    }
+    $c;
 }
 
 
@@ -407,6 +417,9 @@ possible to tell which of the returned values belonged to which field.
 
 This will remove all the headers used to describe the content of a
 message.  These header field names are prefixed with C<Content->.
+
+The return value is a new C<HTTP::Headers> object that contains the
+removed headers only.
 
 =item $h->clear
 

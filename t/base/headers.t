@@ -2,7 +2,7 @@ use strict;
 
 require HTTP::Headers;
 
-print "1..16\n";
+print "1..17\n";
 
 my $h = new HTTP::Headers
 	mime_version  => "1.0",
@@ -164,10 +164,14 @@ Content-Foo: foo
 Xyzzy: plugh!
 EOT
 
-$h->remove_content_headers;
+my $c = $h->remove_content_headers;
 print "not " unless $h->as_string eq <<EOT; print "ok 16\n";
 Location: http:
 Xyzzy: plugh!
 EOT
 
-
+print "not " unless $c->as_string eq <<EOT; print "ok 17\n";
+Content-MD5: dummy
+Content-Type: text/plain
+Content-Foo: foo
+EOT

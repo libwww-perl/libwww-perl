@@ -100,6 +100,7 @@ for ('03-Feb-1969', '03-Feb-2039',
      '1980-01-01 00:00:61',
     )
 {
+    my $bad = 0;
     eval {
 	if (defined str2time $_) {
 	    print "str2time($_) is not undefined\n";
@@ -108,6 +109,7 @@ for ('03-Feb-1969', '03-Feb-2039',
     };
     print defined($_) ? "'$_'\n" : "undef\n";
     print $@ if $@;
+    print "not " if $bad;
     ok;
 }
 print "HTTP::Date $HTTP::Date::VERSION tested ok\n";

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.24 2001/04/21 03:53:53 gisle Exp $
+# $Id: HTTP.pm,v 1.25 2001/04/28 07:09:42 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -293,8 +293,36 @@ sub read_entity_body {
 	    $bytes = 0;
 	}
 	elsif (my $te = ${*$self}{'http_te'}) {
-	    die "Don't know about transfer encoding '$te'"
-		unless $te eq "chunked";
+	    my @te = split(/\s*,\s*/, $te);
+	    die "Chunked must be last Transfer-Encoding '$te'" unless pop(@te) eq "chunked";
+
+	    for (@te) {
+		if ($_ eq "deflate") {
+		    require Compress::Zlib;
+		    my $i = Compress::Zlib::inflateInit();
+		    die "Can't make inflator" unless $i;
+		    $_ = sub { scalar($i->inflate($_[0])) }
+		}
+		elsif ($_ eq "gzip") {
+		    require Compress::Zlib;
+		    my @buf;
+		    $_ = sub {
+			push(@buf, $_[0]);
+			return Compress::Zlib::memGunzip(join("", @buf)) if @_[1];
+			return "";
+		    };
+		}
+		elsif ($_ eq "identity") {
+		    $_ = sub { $_[0] };
+		}
+		else {
+		    die "Can't handle transfer encoding '$te'";
+		}
+	    }
+
+	    @te = reverse(@te);
+
+	    ${*$self}{'http_te2'} = @te ? \@te : "";
 	    $chunked = -1;
 	}
 	elsif (defined(my $content_length = ${*$self}{'http_content_length'})) {
@@ -325,7 +353,21 @@ sub read_entity_body {
 	    if ($chunked == 0) {
 		${*$self}{'http_trailers'} = [$self->read_header_lines];
 		$$buf_ref = "";
-		return 0;
+
+		my $n;
+		if (my $transforms = ${*$self}{'http_te2'}) {
+		    for (@$transforms) {
+			$$buf_ref = &$_($$buf_ref, 1);
+		    }
+		    $n = length($$buf_ref);
+		}
+
+		# in case somebody tries to read more
+		delete ${*$self}{'http_chunked'};
+		${*$self}{'http_bytes'} = 0;
+
+		return $n;
+
 	    }
 	}
 
@@ -333,6 +375,15 @@ sub read_entity_body {
 	$n = $size if $size && $size < $n;
 	$n = my_read($self, $$buf_ref, $n);
 	${*$self}{'http_chunked'} = $chunked - $n;
+
+	if (my $transforms = ${*$self}{'http_te2'}) {
+	    for (@$transforms) {
+		$$buf_ref = &$_($$buf_ref, 0);
+	    }
+	    $n = length($$buf_ref);
+	    $n = "0E0" if $n == 0;
+	}
+
 	return $n;
     }
     elsif (defined $bytes) {

@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.19 2001/05/02 05:14:14 gisle Exp $
+# $Id: http11.pm,v 1.20 2001/08/28 03:03:42 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -27,7 +27,7 @@ my $CRLF = "\015\012";
     use vars qw(@ISA);
     @ISA = qw(Net::HTTP);
 
-    sub xread {
+    sub sysread {
 	my $self = shift;
 	if (my $timeout = ${*$self}{io_socket_timeout}) {
 	    my $io_sel = (${*$self}{myhttp_io_sel} ||= $self->io_sel);

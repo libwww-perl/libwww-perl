@@ -1,6 +1,6 @@
 package Net::HTTP::NB;
 
-# $Id: NB.pm,v 1.4 2001/05/02 04:40:41 gisle Exp $
+# $Id: NB.pm,v 1.5 2001/08/28 03:03:42 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -9,7 +9,7 @@ $VERSION = "0.02";
 require Net::HTTP;
 @ISA=qw(Net::HTTP);
 
-sub xread {
+sub sysread {
     my $self = $_[0];
     if (${*$self}{'httpnb_read_count'}++) {
 	${*$self}{'http_buf'} = ${*$self}{'httpnb_save'};

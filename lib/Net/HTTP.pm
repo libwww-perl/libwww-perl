@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.33 2001/08/02 23:30:44 gisle Exp $
+# $Id: HTTP.pm,v 1.34 2001/08/28 03:03:42 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -193,10 +193,6 @@ sub write_chunk_eof {
     print $self $self->format_chunk_eof(@_);
 }
 
-sub xread {
-    sysread($_[0], $_[1], $_[2], $_[3] || 0);
-}
-
 
 sub my_read {
     die if @_ > 3;
@@ -208,7 +204,7 @@ sub my_read {
 	    return length($_[0]);
 	}
 	else {
-	    return $self->xread($_[0], $len);
+	    return $self->sysread($_[0], $len);
 	}
     }
 }
@@ -221,7 +217,7 @@ sub my_readline {
 	while (1) {
 	    $pos = index($_, "\012");
 	    last if $pos >= 0;
-	    my $n = $self->xread($_, 1024, length);
+	    my $n = $self->sysread($_, 1024, length);
 	    if (!$n) {
 		return undef unless length;
 		return substr($_, 0, length, "");
@@ -652,10 +648,8 @@ Returns the number of bytes in the read buffer.
 =head1 SUBCLASSING
 
 The read_response_headers() and read_entity_body() will invoke the
-method xread() when they need more data.  This method takes the same
-arguments as sysread() and the is in fact implemented as a call to
-sysread().  Subclasses might want to override this method to contol
-how reading takes place.
+sysread() method when they need more data.  Subclasses might want to
+override this method to contol how reading takes place.
 
 The object itself is a glob.  Subclasses should avoid using hash key
 names prefixed with C<http_> and C<io_>.

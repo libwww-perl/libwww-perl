@@ -32,6 +32,11 @@
     redirects to the same URL to get a cookie set did not work.
     Based on a patch by Sean M. Burke C<sburke@cpan.org>.
 
+    NTML authentication should continue to fail if the Authen::NTLM
+    module can't be loaded.  LWP used to think the scheme was
+    available as soon as the module stash showed up.  Not it looks
+    for the authenticate method to be defined.  Patch by Jan Dubois.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.12 2003/10/15 13:43:02 gisle Exp $
+# $Id: UserAgent.pm,v 2.13 2003/10/15 14:00:21 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.13 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -561,6 +561,11 @@ sub request
 		    }
 		    next CHALLENGE;
 		}
+	    }
+	    unless ($class->can("authenticate")) {
+		$response->header("Client-Warning" =>
+				  "Unsupported authentication scheme '$scheme'");
+		next CHALLENGE;
 	    }
 	    return $class->authenticate($self, $proxy, $challenge, $response,
 					$request, $arg, $size);

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.40 2004/04/07 10:44:47 gisle Exp $
+# $Id: Message.pm,v 1.41 2004/04/08 20:20:41 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -480,6 +480,7 @@ details of these methods:
     $mess->init_header( $field => $val )
     $mess->remove_header( $field )
     $mess->remove_content_headers
+    $mess->header_field_names
     $mess->scan( \&doit )
 
     $mess->date

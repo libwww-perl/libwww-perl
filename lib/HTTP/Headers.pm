@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.51 2004/04/08 20:04:25 gisle Exp $
+# $Id: Headers.pm,v 1.52 2004/04/08 20:20:41 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -176,6 +176,14 @@ sub _header
 sub _header_cmp
 {
     ($header_order{$a} || 999) <=> ($header_order{$b} || 999) || $a cmp $b;
+}
+
+
+sub header_field_names {
+    my $self = shift;
+    return map $standard_case{$_}, sort _header_cmp keys %$self
+	if wantarray;
+    return keys %$self;
 }
 
 
@@ -442,6 +450,14 @@ removed headers only.
 =item $h->clear
 
 This will remove all header fields.
+
+=item $h->header_field_names
+
+Returns the list of distinct names for the fields present in the
+header.  The field names have case as suggested by HTTP spec, and the
+names are returned in the recommended "Good Practice" order.
+
+In scalar context return the number of distinct field names.
 
 =item $h->scan( \&process_header_field )
 

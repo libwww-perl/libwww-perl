@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 64;
+plan tests => 68;
 
 my($h, $h2);
 
@@ -125,6 +125,16 @@ EOT
 # separate code path for the void context case, so test it as well
 $h2->remove_content_headers;
 ok($h->as_string, $h2->as_string);
+
+$h = HTTP::Headers->new;
+ok($h->header_field_names, 0);
+ok(j($h->header_field_names), "");
+
+$h = HTTP::Headers->new( etag => 1, foo => [2,3],
+			 content_type => "text/plain");
+ok($h->header_field_names, 3);
+ok(j($h->header_field_names), "ETag|Content-Type|Foo");
+
 
 
 sub j { join("|", @_) }

@@ -95,13 +95,6 @@ able to use the 'perldoc' utility to extract and read documentation
 from the module files directly.
 
 
-THE HTML MODULES ARE STILL ALPHA
-
-The HTML::* modules should still be regarded as being in some kind of
-alpha state.  The interfaces provided by these modules might very well
-change in future releases of this library.  You are warned!
-
-
 SUPPORT
 
 Question about how to use this library should be directed to the

@@ -10,22 +10,6 @@ bin/lwp-rget.PL			Writes bin/lwp-rget script
 lwpcook.pod			Libwww-perl examples
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings
-lib/HTML/AsSubs.pm		Cool interface for constructing HTML
-lib/HTML/Element.pm		Class that represents an HTML element
-lib/HTML/Entities.pm		Entities encoding/decoding routines
-lib/HTML/Filter.pm              Identity filter for HTML text
-lib/HTML/FormatPS.pm		Postscript formatter
-lib/HTML/FormatText.pm		Text only formatter
-lib/HTML/Formatter.pm		Generic formatter base class
-lib/HTML/HeadParser.pm		Specialized parser for HTML <HEAD> content
-lib/HTML/LinkExtor.pm		Extract links from an HTML document
-lib/HTML/Parse.pm               Depreciated TreeBuilder interface
-lib/HTML/Parser.pm		Parse SGML text
-lib/HTML/TreeBuilder.pm		Builds a HTML syntax tree
-lib/HTML/HTML32.dtd		The SGML DTD
-lib/HTML/ISOlat1.sgml           Included by the SGML DTD
-lib/HTML/dtd2pm.pl		Writes a perl module
-lib/HTML/ent.pl                 Convert entities
 lib/HTTP/Cookies.pm             Cookie storage and management
 lib/HTTP/Daemon.pm		A simple httpd
 lib/HTTP/Date.pm		Date conversion routines
@@ -93,13 +77,6 @@ t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/negotiate.t		Test HTTP::Negotiation module
 t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
-t/html/entities.t		Test HTML::Entities module
-t/html/filter.t			Test HTML::Filter module
-t/html/parser.t			Test HTML::Parser module
-t/html/parsefile.t              Test parsing from file
-t/html/headparser.t             Test HTML::HeadParser module
-t/html/linkextractor.t		Test HTML::LinkExtor module
-t/html/split.t                  Test incremental parsing
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/local/http.t			Test http to local server

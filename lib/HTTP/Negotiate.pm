@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.11 2001/11/27 22:41:33 gisle Exp $
+# $Id: Negotiate.pm,v 1.12 2002/03/17 20:24:24 gisle Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -345,12 +345,12 @@ parameter is missing, then the accept specification is initialized
 from the CGI environment variables HTTP_ACCEPT, HTTP_ACCEPT_CHARSET,
 HTTP_ACCEPT_ENCODING and HTTP_ACCEPT_LANGUAGE.
 
-In an array context, choose() returns a list of variant
-identifier/calculated quality pairs.  The values are sorted by
+In an array context, choose() returns a list of [variant
+identifier, calculated quality, size] tuples.  The values are sorted by
 quality, highest quality first.  If the calculated quality is the same
 for two variants, then they are sorted by size (smallest first). I<E.g.>:
 
-  (['var1' => 1], ['var2', 0.3], ['var3' => 0]);
+  (['var1', 1, 2000], ['var2', 0.3, 512], ['var3', 0.3, 1024]);
 
 Note that also zero quality variants are included in the return list
 even if these should never be served to the client.

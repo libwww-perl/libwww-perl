@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.14 1997/01/26 14:35:12 aas Exp $
+# $Id: RobotRules.pm,v 1.15 1997/12/02 13:31:36 aas Exp $
 
 package WWW::RobotRules;
 
@@ -40,11 +40,13 @@ The parsed file is kept in the WWW::RobotRules object, and this object
 provide methods to check if access to a given URL is prohibited.  The
 same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
-=head1 METHODS
+The following methods are provided:
+
+=over 4
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -52,7 +54,7 @@ use URI::URL ();
 use strict;
 
 
-=head2 $rules = new WWW::RobotRules 'MOMspider/1.0'
+=item $rules = new WWW::RobotRules 'MOMspider/1.0'
 
 This is the constructor for WWW::RobotRules objects.  The first 
 argument given to new() is the name of the robot. 
@@ -72,7 +74,7 @@ sub new {
 }
 
 
-=head2 $rules->parse($url, $content, $fresh_until)
+=item $rules->parse($url, $content, $fresh_until)
 
 The parse() method takes as arguments the URL that was used to
 retrieve the F</robots.txt> file, and the contents of the file.
@@ -162,7 +164,7 @@ sub is_me {
     return index(lc($ua), lc($me)) >= 0;
 }
 
-=head2 $rules->allowed($url)
+=item $rules->allowed($url)
 
 Returns TRUE if this robot is allowed to retrieve this URL.
 
@@ -202,7 +204,7 @@ package WWW::RobotRules::InCore;
 use vars qw(@ISA);
 @ISA = qw(WWW::RobotRules);
 
-=head2 $rules->agent([$name])
+=item $rules->agent([$name])
 
 Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
 rules and expire times out of the cache.
@@ -289,6 +291,8 @@ sub dump
 
 __END__
 
+=back
+
 =head1 ROBOTS.TXT
 
 The format and semantics of the "/robots.txt" file are as follows
@@ -323,12 +327,10 @@ starts with this value will not be retrieved
 
 =back
 
-=head2 Examples
+=head1 ROBOTS.TXT EXAMPLES
 
 The following example "/robots.txt" file specifies that no robots
 should visit any URL starting with "/cyberworld/map/" or "/tmp/":
-
-  # robots.txt for http://www.site.com/
 
   User-agent: *
   Disallow: /cyberworld/map/ # This is an infinite virtual URL space
@@ -337,8 +339,6 @@ should visit any URL starting with "/cyberworld/map/" or "/tmp/":
 This example "/robots.txt" file specifies that no robots should visit
 any URL starting with "/cyberworld/map/", except the robot called
 "cybermapper":
-
-  # robots.txt for http://www.site.com/
 
   User-agent: *
   Disallow: /cyberworld/map/ # This is an infinite virtual URL space

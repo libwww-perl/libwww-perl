@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.10 2003/10/15 13:16:10 gisle Exp $
+# $Id: UserAgent.pm,v 2.11 2003/10/15 13:31:27 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.11 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -155,6 +155,7 @@ methods described below:
    use_eval                1
    parse_head              1
    max_size                undef
+   max_redirect            7
    cookie_jar              undef
    conn_cache              undef
    protocols_allowed       undef
@@ -188,6 +189,8 @@ sub new
     my $parse_head = delete $cnf{parse_head};
     $parse_head = 1 unless defined $parse_head;
     my $max_size = delete $cnf{max_size};
+    my $max_redirect = delete $cnf{max_redirect};
+    $max_redirect = 7 unless defined $max_redirect;
     my $env_proxy = delete $cnf{env_proxy};
 
     my $cookie_jar = delete $cnf{cookie_jar};
@@ -219,15 +222,16 @@ sub new
     }
 
     my $self = bless {
-		      from        => $from,
-		      timeout     => $timeout,
-		      use_eval    => $use_eval,
-		      parse_head  => $parse_head,
-		      max_size    => $max_size,
-		      proxy       => undef,
-		      no_proxy    => [],
-                      protocols_allowed => $protocols_allowed,
-                      protocols_forbidden => $protocols_forbidden,
+		      from         => $from,
+		      timeout      => $timeout,
+		      use_eval     => $use_eval,
+		      parse_head   => $parse_head,
+		      max_size     => $max_size,
+		      max_redirect => $max_redirect,
+		      proxy        => undef,
+		      no_proxy     => [],
+                      protocols_allowed     => $protocols_allowed,
+                      protocols_forbidden   => $protocols_forbidden,
                       requests_redirectable => $requests_redirectable,
 		     }, $class;
 
@@ -501,10 +505,9 @@ sub request
 	my $count = 0;
 	my $r = $response;
 	while ($r) {
-	    if (++$count > 13 ||
-                $r->request->url->as_string eq $referral_uri->as_string) {
+	    if (++$count > $self->{max_redirect}) {
 		$response->header("Client-Warning" =>
-				  "Redirect loop detected");
+				  "Redirect loop detected (max_redirect = $self->{max_redirect})");
 		return $response;
 	    }
 	    $r = $r->previous;
@@ -993,12 +996,26 @@ which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
 "Client-Aborted" header will be added to the response.
 
+=item $ua->max_redirect([$n])
+
+This reads or sets the object's limit of how many times it will obey
+redirection responses in a given C<< $ua->get(...) / $ua->put(...) /
+$ua->head(...) / $ua->request(...) >> / etc. cycle.
+
+By default, the value is 7. This means that if you call C<<
+$ua->get($url) >> and the response is a redirect elsewhere which is in
+turn a redirect, and so on seven times, then LWP gives up after that
+seventh request.  Otherwise (like if the seventh or earlier isn't a
+redirect), then the response from C<< $ua->get($url) >> redirects
+are followed.
+
 =cut
 
-sub timeout    { shift->_elem('timeout',   @_); }
-sub from       { shift->_elem('from',      @_); }
-sub parse_head { shift->_elem('parse_head',@_); }
-sub max_size   { shift->_elem('max_size',  @_); }
+sub timeout      { shift->_elem('timeout',      @_); }
+sub from         { shift->_elem('from',         @_); }
+sub parse_head   { shift->_elem('parse_head',   @_); }
+sub max_size     { shift->_elem('max_size',     @_); }
+sub max_redirect { shfit->_elem('max_redirect', @_); }
 
 sub cookie_jar {
     my $self = shift;

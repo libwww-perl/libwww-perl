@@ -27,6 +27,11 @@
     method to be "GET".  This is what most browsers do.  Based on
     a patch contributed by Tom Hughes <thh@cyberscience.com>.
 
+    LWP::UserAgent now implements a 'max_redirect' attribute with a
+    default value of 7.  This should also fix the problem where
+    redirects to the same URL to get a cookie set did not work.
+    Based on a patch by Sean M. Burke C<sburke@cpan.org>.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

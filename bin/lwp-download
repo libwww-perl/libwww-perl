@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.6 2004/04/09 21:31:29 gisle Exp $
+# $Id: lwp-download,v 2.7 2004/11/12 13:10:23 gisle Exp $
 
 =head1 NAME
 
@@ -62,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.6 $;
+my $version = q$Revision: 2.7 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -99,12 +99,12 @@ my $res = $ua->request($req,
 		  $file =~ s/;$//;
 		  $file =~ s/^([\"\'])(.*)\1$/$2/;
 	      }
-		
+
 	      # if this fails we try to make something from the URL
 	      unless ($file) {
 		  my $req = $res->request;  # now always there
 		  my $rurl = $req ? $req->url : $url;
-		  
+
 		  $file = ($rurl->path_segments)[-1];
 		  if (!defined($file) || !length($file)) {
 		      $file = "index";

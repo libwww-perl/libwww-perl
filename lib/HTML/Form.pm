@@ -6,7 +6,7 @@ use Carp ();
 
 use vars qw($VERSION);
 
-$VERSION='1.01';  # $Date: 2003/10/14 11:39:31 $
+$VERSION='1.01';  # $Date: 2003/10/14 18:27:14 $
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -928,11 +928,15 @@ sub value
 		}
 		unless (defined $cur) {
 		    $cur = $cur_ignorecase;
-		    Carp::croak("Illegal value '$val'") unless defined $cur;
+		    unless (defined $cur) {
+			my $n = $self->name;
+		        Carp::croak("Illegal value '$val' for field '$n'");
+		    }
 		}
 	    }
 	    else {
-	        Carp::croak("Can't turn this input off");
+		my $n = $self->name;
+	        Carp::croak("The '$n' field can't be unchecked");
 	    }
 	}
 	$self->{current} = $cur;

@@ -58,6 +58,7 @@ lib/Net/HTTPS.pm                Lower level HTTP on an SSL socket
 lib/WWW/RobotRules.pm		Parse robot.txt files
 lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
 lwpcook.pod			Libwww-perl examples
+lwptut.pod			Libwww-perl tutorial
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/common-req.t		Test HTTP::Request::Common module

@@ -1,4 +1,4 @@
-                                            $Date: 1996/09/17 08:31:04 $
+                                            $Date: 1996/09/26 08:54:38 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
@@ -15,6 +15,8 @@ This is a list over things that we plan to implement in libwww-perl-5
   o  Support Cookie management
 
   o  Support PICS??
+
+  o  Replace LWP::Socket with IO::Socket
 
   o  HTTP-NG in the future...
 

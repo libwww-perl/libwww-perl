@@ -1,11 +1,9 @@
-                                            $Date: 1999/03/20 07:37:35 $
+                                            $Date: 2001/10/26 23:05:23 $
 
 This is a list over things that we plan to implement in libwww-perl-5.
 The order of items does not reflect priority.
 
-  o  HTTP/1.1 support is on its way.  This also includes support of
-     multiple parallel connections.  Take a look at LWPng (aka
-     libwww-perl-6).
+  o  NTML Authentication http://www.innovation.ch/java/ntlm.html
 
   o  Provide initial credentials so that we don't always have to get a
      401 response first.  Both for Basic and Digest authentication.  This

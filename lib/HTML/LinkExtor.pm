@@ -45,7 +45,7 @@ use vars qw(%LINK_ELEMENT);
  input  => 'src',
 'link'  => 'href',          # need quoting since link is a perl builtin
  frame  => 'src',
- applet => 'codebase',
+ applet => [qw(codebase code)],
  area   => 'href',
  frame  => 'src',   # Netscape 2.0 extention
  embed  => 'src',   # used in Netscape 2.0 for Shockwave and things like that

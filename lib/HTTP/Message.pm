@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.43 2004/06/09 11:01:52 gisle Exp $
+# $Id: Message.pm,v 1.44 2004/06/09 11:23:14 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -146,6 +146,7 @@ sub content_ref
 	my $new = shift;
 	Carp::croak("Setting content_ref to a non-ref") unless ref($new);
 	$self->{_content} = $new;
+	delete $self->{_parts};
     }
     return $old;
 }

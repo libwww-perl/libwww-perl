@@ -1,3 +1,43 @@
+2001-10-26   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.60
+
+    Made HTTP/1.1 the default.  The old HTTP/1.0 module has been
+    renamed as LWP::Protocol::http10.  There is an environment
+    variable; PERL_LWP_USE_HTTP_10 that can be set to have LWP
+    still pick up the old handlers.
+
+    Deal with "100 continue" responses even when not requested by
+    and Expect header in the request.  MS IIS seems to eager to send
+    this kind of response.
+
+    For HTTP/1.1 over SSL there was a problem with the underlying
+    SSL libraries if the socket was configured to non-blocking mode.
+    Disable this for https.
+    Based on a patch from Michael Thompson <mickey@berkeley.innomedia.com>
+
+    Support the Range header for ftp:// requests.
+    Patch by David Coppit <david@coppit.org>.
+
+    Rearrange Bundle::LWP on request from Chris Nandor.
+
+    HTTP::Cookies: Allow a domain like .foo.com match host "foo.com".
+    Patch by Alexandre Duret-Lutz <duret_g@lrde.epita.fr>
+
+    For redirects make sure Host header is not copied to the new
+    request.
+
+    The HTML::HeadParser is not loaded until actually needed.
+
+    Net::HTTP should now work with perl5.005 by a simple tweak
+    to 'require IO::Socket::INET'.
+
+    WWW::RobotRules::AnyDBM: Explicitly clear database on open.
+    Some DBM implementations doesn't support the O_TRUNC flag
+    properly.  Patch by Radu Greab <radu@netsoft.ro>.
+
+
+
 2001-09-19   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_97

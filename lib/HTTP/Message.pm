@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.28 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Message.pm,v 1.29 2003/10/24 09:21:00 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -149,6 +149,10 @@ The content() method sets the content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
 previous content is returned.
 
+Note that the content should be a string of bytes.  Strings in perl
+can contain characters outside the range of a byte.  The C<Encode>
+module can be used to turn such strings into a string of bytes.
+
 =item $mess->add_content( $data )
 
 The add_content() methods appends more data to the end of the current
@@ -163,18 +167,20 @@ for instance:
 
   ${$res->content_ref} =~ s/\bfoo\b/bar/g;
 
-=item $mess->headers;
+This example would modify the content buffer in-place.
 
-Return the embedded HTTP::Headers object.
+=item $mess->headers
+
+Returns the embedded HTTP::Headers object.
 
 =item $mess->headers_as_string
 
 =item $mess->headers_as_string( $endl )
 
 Call the as_string() method for the headers in the
-message.  This will be the same as:
+message.  This will be the same as
 
- $mess->headers->as_string
+    $mess->headers->as_string
 
 but it will make your program a whole character shorter :-)
 

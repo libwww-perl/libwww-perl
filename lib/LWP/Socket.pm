@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.11 1995/09/04 17:45:35 aas Exp $
+# $Id: Socket.pm,v 1.12 1995/09/04 18:40:50 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -110,7 +110,7 @@ sub connect
     for (@addr) {
 	connect($self->{'socket'}, $addr[0]) and return;
     }
-    croak "Could not connect to $host:$port: $!\n";
+    croak "Could not connect to $host:$port";
 }
 
 =head2 shutdown()

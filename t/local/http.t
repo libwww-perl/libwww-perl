@@ -16,7 +16,7 @@ if ($D eq 'daemon') {
     my $d = HTTP::Daemon->new(Timeout => 10);
 
     print "Please to meet you at: <URL:", $d->url, ">\n";
-    open(STDOUT, ">/dev/null");
+    open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");
 
     while ($c = $d->accept) {
 	$r = $c->get_request;
@@ -36,7 +36,9 @@ if ($D eq 'daemon') {
 }
 else {
     use Config;
-    open(DAEMON, "$Config{'perlpath'} local/http.t daemon |") or die "Can't exec daemon: $!";
+    my $perl = $Config{'perlpath'};
+    $perl = $^X if $^O eq 'VMS';
+    open(DAEMON, "$perl local/http.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..18\n";

@@ -15,7 +15,7 @@ if ($D eq 'daemon') {
     my $d = new HTTP::Daemon Timeout => 10;
 
     print "Please to meet you at: <URL:", $d->url, ">\n";
-    open(STDOUT, $^O eq 'MSWin32' ? ">nul" : ">/dev/null");
+    open(STDOUT, $^O eq 'MSWin32' ?  ">nul" : $^O eq 'VMS' ? ">NL:"  : ">/dev/null");
 
     while ($c = $d->accept) {
 	$r = $c->get_request;
@@ -37,7 +37,9 @@ if ($D eq 'daemon') {
 }
 else {
     use Config;
-    open(DAEMON , "$Config{'perlpath'} robot/ua.t daemon |") or die "Can't exec daemon: $!";
+    my $perl = $Config{'perlpath'};
+    $perl = $^X if $^O eq 'VMS';
+    open(DAEMON , "$perl robot/ua.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..7\n";

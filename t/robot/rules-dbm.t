@@ -115,7 +115,7 @@ print "******\n";
 
 untie %cat;			# Otherwise the next line fails on DOSish
 
-unlink "$file", "$file.pag", "$file.dir", "$file.db";
+while (unlink("$file", "$file.pag", "$file.dir", "$file.db")) {}
 
 # Try open a an emty database without specifying a name
 eval { 

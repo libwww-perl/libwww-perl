@@ -35,7 +35,7 @@ unless ($^O eq "MacOS") {
  ["lwp-0.03.tar.Z"      => "application/x-tar", "compress"],
  [$file		        => "text/plain",],
  ["/random/file"        => "application/octet-stream",],
- ["/dev/null"	        => "text/plain",],
+ [($^O eq 'VMS'? "nl:" : "/dev/null") => "text/plain",],
  [$url1	        	=> "image/gif",],
  [$url2	        	=> "application/octet-stream",],
  ["x.ppm.Z.UU"		=> "image/x-portable-pixmap","compress","x-uuencode",],

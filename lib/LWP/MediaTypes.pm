@@ -1,12 +1,12 @@
 package LWP::MediaTypes;
 
-# $Id: MediaTypes.pm,v 1.29 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: MediaTypes.pm,v 1.30 2003/10/24 10:33:53 gisle Exp $
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding read_media_types);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -229,7 +229,11 @@ The following functions are exported by default:
 
 =over 4
 
-=item guess_media_type($filename_or_url, [$header_to_modify])
+=item guess_media_type( $filename )
+
+=item guess_media_type( $uri )
+
+=item guess_media_type( $filename_or_uri, $header_to_modify )
 
 This function tries to guess media type and encoding for a file or url.
 It returns the content-type, which is a string like C<"text/html">.
@@ -248,13 +252,11 @@ object or any object that implements the $obj->header method in a
 similar way.  When it is present the values of the
 'Content-Type' and 'Content-Encoding' will be set for this header.
 
-=item media_suffix($type,...)
+=item media_suffix( $type, ... )
 
 This function will return all suffixes that can be used to denote the
 specified media type(s).  Wildcard types can be used.  In a scalar
-context it will return the first suffix found.
-
-Examples:
+context it will return the first suffix found. Examples:
 
   @suffixes = media_suffix('image/*', 'audio/basic');
   $suffix = media_suffix('text/html');
@@ -265,26 +267,23 @@ The following functions are only exported by explict request:
 
 =over 4
 
-=item add_type($type, @exts)
+=item add_type( $type, @exts )
 
 Associate a list of file extensions with the given media type.
-
 Example:
 
     add_type("x-world/x-vrml" => qw(wrl vrml));
 
-=item add_encoding($type, @ext)
+=item add_encoding( $type, @ext )
 
 Associate a list of file extensions with an encoding type.
-
 Example:
 
  add_encoding("x-gzip" => "gz");
 
-=item read_media_types(@files)
+=item read_media_types( @files )
 
 Parse media types files and add the type mappings found there.
-
 Example:
 
     read_media_types("conf/mime.types");

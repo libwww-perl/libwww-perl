@@ -1,6 +1,6 @@
 package LWP::Simple;
 
-# $Id: Simple.pm,v 1.38 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Simple.pm,v 1.39 2004/04/06 11:46:44 gisle Exp $
 
 use strict;
 use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
@@ -16,7 +16,7 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -180,7 +180,7 @@ sub _trivial_http_get
    if ($buf =~ m,^HTTP/\d+\.\d+\s+(\d+)[^\012]*\012,) {
        my $code = $1;
        #print "CODE=$code\n$buf\n";
-       if ($code =~ /^30[1237]/ && $buf =~ /\012Location:\s*(\S+)/) {
+       if ($code =~ /^30[1237]/ && $buf =~ /\012Location:\s*(\S+)/i) {
            # redirect
            my $url = $1;
            return undef if $loop_check{$url}++;

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.21 1997/10/12 22:08:37 aas Exp $
+# $Id: Simple.pm,v 1.22 1997/10/12 22:25:54 aas Exp $
 
 =head1 NAME
 
@@ -14,6 +14,7 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
  if (mirror("http://www.sn.no/", "foo") == RC_NOT_MODIFIED) {
      ...
  }
+
  if (is_success(getprint("http://www.sn.no/"))) {
      ...
  }
@@ -21,32 +22,33 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 =head1 DESCRIPTION
 
 This interface is intended for those who want a simplified view of the
-libwww-perl library.  This interface should also be suitable for
-one-liners.  If you need more control or access to the header fields
-in the requests sent and responses received you should use the full OO
-interface provided by the LWP::UserAgent module.
+libwww-perl library.  It should also be suitable for one-liners.  If
+you need more control or access to the header fields in the requests
+sent and responses received you should use the full object oriented
+interface provided by the C<LWP::UserAgent> module.
 
-This following functions are provided (and exported) by this module:
+The following functions are provided (and exported) by this module:
 
 =over 3
 
 =item get($url)
 
-This function will get the document identified by the given URL.  The
-get() function will return the document if successful or 'undef' if it
-fails.  The $url argument can be either a simple string or a reference
-to a URI::URL object.
+The get() function will fetch the document identified by the given URL
+and return it.  It returns C<undef> if it fails.  The $url argument can
+be either a simple string or a reference to a URI::URL object.
 
 You will not be able to examine the response code or response headers
-(like I<Content-Type>) when you are accessing the web using this
-function.  If you need this you should use the full OO interface.
+(like 'Content-Type') when you are accessing the web using this
+function.  If you need this information you should use the full OO
+interface (see L<LWP::UserAgent>).
 
 =item head($url)
 
-Get document headers. Returns the following values if successful:
+Get document headers. Returns the following 5 values if successful:
 ($content_type, $document_length, $modified_time, $expires, $server)
 
-Returns an empty list if it fails.
+Returns an empty list if it fails.  In scalar context returns TRUE if
+successful.
 
 =item getprint($url)
 
@@ -68,9 +70,9 @@ the HTTP response code.
 
 =back
 
-This module also exports the HTTP::Status constants and
-procedures.  These can be used when you check the response code from
-getprint(), getstore() and mirror().  The constants are:
+This module also exports the HTTP::Status constants and procedures if
+you ask for it.  These can be used when you check the response code
+from getprint(), getstore() and mirror().  The constants are:
 
    RC_CONTINUE
    RC_SWITCHING_PROTOCOLS
@@ -128,12 +130,14 @@ The module will also export the LWP::UserAgent object as C<$ua> if you
 ask for it explicitly.
 
 The user agent created by this module will identify itself as
-"LWP::Simple/0.00" and will initialize its proxy defaults from the
-environment (by calling $ua->env_proxy).
+"LWP::Simple/#.##" (where "#.##" is the libwww-perl version number)
+and will initialize its proxy defaults from the environment (by
+calling $ua->env_proxy).
 
 =head1 SEE ALSO
 
-L<LWP>, L<LWP::UserAgent>, L<HTTP::Status>, L<request>, L<mirror>
+L<LWP>, L<LWP::UserAgent>, L<HTTP::Status>, L<lwp-request>,
+L<lwp-mirror>
 
 =cut
 
@@ -148,7 +152,7 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);
 @EXPORT_OK = qw($ua);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {$_ eq "http_proxy"} keys %ENV;
 
 sub import
@@ -159,7 +163,7 @@ sub import
 	$FULL_LWP++ if $_ eq '$ua';
         if (/^(?:is_|RC_)/ && !defined(&HTTP::Status::RC_OK)) {
 	    require HTTP::Status;
-	    push(@EXPORT, @HTTP::Status::EXPORT);
+	    push(@EXPORT_OK, @HTTP::Status::EXPORT);
 	}
     }
     Exporter::export($pkg, $callpkg, @_);
@@ -315,5 +319,6 @@ sub _trivial_http_get
 
    return $buf;
 }
+
 
 1;

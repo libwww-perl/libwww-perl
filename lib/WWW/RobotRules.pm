@@ -1,14 +1,14 @@
 =head1 NAME
 
-WWW::RobotRules
+WWW::RobotsRules
 
 =head1 SYNOPSIS
 
- $robotrules = new WWW::RobotRules('MOMspider/1.0');
+ $robotsrules = new WWW::RobotRules 'MOMspider/1.0';
 
- $robotrules->parse($url, $content);
+ $robotsrules->parse($url, $content);
     
- if($robotrules->allowed($url)) {
+ if($robotsrules->allowed($url)) {
      ...
  }
 
@@ -31,9 +31,9 @@ Note that the same RobotRules object can parse multiple files.
 package RobotRules;
 
 use URI::URL;
-#use strict;
+use strict;
 
-=head2 new RobotRules('MOMspider/1.0')
+=head2 new RobotRules 'MOMspider/1.0'
 
 The argument given to C<new()> is the name of the robot.
 
@@ -60,7 +60,7 @@ file, and the contents of the file.
 sub parse {
     my($self, $url, $txt) = @_;
 
-    $url = new URI::URL($url) unless ref($url);	# make it URL
+    $url = new URI::URL $url  unless ref($url);	# make it URL
 
     my $hostport = $url->host . ':' . $url->port;
 
@@ -69,6 +69,7 @@ sub parse {
 
     $txt =~ s/\015\012/\n/mg;	# fix weird line endings
 
+    my $ua;
     my $isMe = 0;		# 1 iff this record is for me
     my $isAnon = 0;		# 1 iff this record is for *
     my @meDisallowed = ();	# rules disallowed for me
@@ -107,7 +108,7 @@ sub parse {
 		$full_path = '';
 	    }
 	    else {
-		my $abs = new URI::URL($1, $url);
+		my $abs = new URI::URL $1, $url;
 		$full_path = $abs->full_path();
 	    }
 
@@ -152,7 +153,7 @@ Returns TRUE if this robot is allowed to retrieve this URL.
 sub allowed {
     my($self, $url) = @_;
 
-    $url = new URI::URL($url) unless ref($url);	# make it URL
+    $url = new URI::URL $url unless ref($url);	# make it URL
 
     my $hostport = $url->host . ':' . $url->port;
 
@@ -160,6 +161,7 @@ sub allowed {
 
     my $str = $url->full_path;
 
+    my $rule;
     for $rule (@{ $self->{'rules'}{$hostport}}) {
 	return 1 if ($rule eq '');
 	return 0 if ($str =~ /^$rule/);

@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.5 1995/07/13 14:58:45 aas Exp $
+# $Id: Protocol.pm,v 1.6 1995/07/14 00:23:36 aas Exp $
 
 package LWP::Protocol;
 
@@ -56,7 +56,8 @@ virtual base class this method should B<not> be called like:
 
 =cut
 
-sub new { 
+sub new
+{ 
     my($class) = @_;
 
     my $self = bless {  
@@ -98,7 +99,8 @@ specified scheme is not supported.
 
 =cut
 
-sub implementor {
+sub implementor
+{
     my($scheme, $impclass) = @_;
 
     if ($impclass) {
@@ -142,7 +144,8 @@ object. This method needs to be overridden in subclasses.
 
 =cut
 
-sub request {
+sub request
+{
     my($self, $request, $arg) = @_;
     croak('LWP::Protocol::request() needs to be overridden in subclasses');
 }
@@ -171,7 +174,8 @@ appropriately into a scalar, file, or by calling a callback.
 
 =cut
 
-sub collect {
+sub collect
+{
     my ($self, $arg, $response, $collector) = @_;
     my $content;
     if (! defined $arg) {

@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-mirror.PL,v 1.16 1996/05/19 11:22:34 aas Exp $
+# $Id: lwp-mirror.PL,v 1.17 1997/09/20 11:04:34 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -60,9 +60,11 @@ Gisle Aas <aas@a.sn.no>
 use LWP::Simple;
 use Getopt::Std;
 
-$0 =~ s,.*/,,;  # use basename only
+$progname = $0;
+$progname =~ s,.*/,,;  # use basename only
+$progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -91,7 +93,7 @@ usage() if $opt_h or @ARGV;
 
 if (defined $opt_t) {
     $opt_t =~ /^(\d+)([smh])?/;
-    die "$0: Illegal timeout value!\n" unless defined $1;
+    die "$progname: Illegal timeout value!\n" unless defined $1;
     $timeout = $1;
     $timeout *= 60   if ($2 eq "m");
     $timeout *= 3600 if ($2 eq "h");
@@ -101,9 +103,9 @@ if (defined $opt_t) {
 $rc = mirror($url, $file);
 
 if ($rc == 304) {
-    print STDERR "$0: $file is up to date\n"
+    print STDERR "$progname: $file is up to date\n"
 } elsif (!is_success($rc)) {
-    print STDERR "$0: $rc ", status_message($rc), "   ($url)\n";
+    print STDERR "$progname: $rc ", status_message($rc), "   ($url)\n";
     exit 1;
 }
 exit;
@@ -112,7 +114,7 @@ exit;
 sub usage
 {
     die <<"EOT";
-Usage: $0 [-options] <url> <file>
+Usage: $progname [-options] <url> <file>
     -v           print version number of program
     -t <timeout> Set timeout value
 EOT

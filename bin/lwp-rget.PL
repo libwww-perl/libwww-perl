@@ -118,8 +118,11 @@ use LWP::MediaTypes qw(media_suffix);
 use vars qw($VERSION);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
 
-$0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+my $progname = $0;
+$progname =~ s|.*/||;  # only basename left
+$progname =~ s/\.\w*$//; #strip extension if any
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -157,7 +160,7 @@ usage() if @ARGV;
 
 require LWP::UserAgent;
 my $ua = new LWP::UserAgent;
-$ua->agent("$0/$VERSION " . $ua->agent);
+$ua->agent("$progname/$VERSION " . $ua->agent);
 $ua->env_proxy;
 
 unless (defined $PREFIX) {
@@ -313,6 +316,7 @@ sub save
     my $name = shift;
     #print "save($name,...)\n";
     open(FILE, ">$name") || die "Can't save $name: $!";
+    binmode FILE;
     print FILE $_[0];
     close(FILE);
 }
@@ -320,7 +324,7 @@ sub save
 sub usage
 {
     die <<"";
-Usage: $0 [options] <URL>
+Usage: $progname [options] <URL>
 Allowed options are:
   --depth=N         Maximum depth to traverse (default is $MAX_DEPTH)
   --limit=N         A limit on the number documents to get (default is $MAX_DOCS)

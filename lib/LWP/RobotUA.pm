@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.5 1996/09/17 09:11:55 aas Exp $
+# $Id: RobotUA.pm,v 1.6 1996/09/18 12:21:52 aas Exp $
 
 package LWP::RobotUA;
 
@@ -186,8 +186,7 @@ sub simple_request
 
 	my $robot_req = new HTTP::Request 'GET', $robot_url;
 	my $robot_res = $self->request($robot_req);
-	my $fresh_until = time + $robot_res->freshness_lifetime -
-	                         $robot_res->current_age;
+	my $fresh_until = $robot_res->fresh_until;
 	if ($robot_res->is_success) {
 	    LWP::Debug::debug("Parsing robot rules");
 	    $self->{'rules'}->parse($robot_url, $robot_res->content, 

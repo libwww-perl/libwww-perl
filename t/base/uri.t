@@ -275,15 +275,16 @@ sub parts_test {
 
     # Test the path_components function
     $url = new URI::URL 'file:%2f/%2f';
-    my $p = join('-', $url->path_components);
+    my $p;
+    $p = join('-', $url->path_components);
     die "\$url->path_components returns '$p', expected '/-/'"
       unless $p eq "/-/";
     $url->host("localhost");
-    my $p = join('-', $url->path_components);
+    $p = join('-', $url->path_components);
     die "\$url->path_components returns '$p', expected '-/-/'"
       unless $p eq "-/-/";
     $url->epath("/foo/bar/");
-    my $p = join('-', $url->path_components);
+    $p = join('-', $url->path_components);
     die "\$url->path_components returns '$p', expected '-foo-bar-'"
       unless $p eq "-foo-bar-";
     $url->path_components("", "/etc", "\0", "..", "øse", "");
@@ -774,7 +775,7 @@ EOM
     }
 
     # bug found and fixed in 1.9 by "J.E. Fritz" <FRITZ@gems.vcu.edu>
-    my $base = new URI::URL 'http://host/directory/file';
+    $base = new URI::URL 'http://host/directory/file';
     my $relative = new URI::URL 'file', $base;
     my $result = $relative->abs;
 
@@ -786,9 +787,9 @@ EOM
     # be canonicalised, rather than making a simple
     # substitution of the last component.
     # Better doublecheck someone hasn't "fixed this bug" :-)
-    my $base = new URI::URL 'http://host/dir1/../dir2/file';
-    my $relative = new URI::URL 'file', $base;
-    my $result = $relative->abs;
+    $base = new URI::URL 'http://host/dir1/../dir2/file';
+    $relative = new URI::URL 'file', $base;
+    $result = $relative->abs;
     die 'URL not canonicalised' unless $result eq 'http://host/dir2/file';
 
     print "--------\n";

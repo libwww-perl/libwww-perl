@@ -28,8 +28,22 @@ sub HTTP::Message::_parts {
 	    }
 	}
     }
-    elsif (0 && $ct eq "message/http") {
-        die "NYI";
+    elsif ($ct eq "message/http") {
+	my $str = $self->{_content};
+	my $m;
+	if ($str =~ s,^(HTTP/.*)\n,,) {
+	    my($proto, $code, $msg) = split(' ', $1);
+	    require HTTP::Response;
+	    $m = HTTP::Response->new($code, $msg, _parse_msg($str));
+	    $m->protocol($proto);
+	}
+	elsif ($str =~ s,^(.*)\n,,) {
+	    my($method, $uri, $proto) = split(' ', $1);
+	    require HTTP::Request;
+	    $m = HTTP::Request->new($method, $uri, _parse_msg($str));
+	    $m->protocol($proto) if $proto;
+	}
+	$self->{_parts} = [$m] if $m;
     }
     elsif ($ct =~ m,^message/,) {
 	$self->{_parts} =

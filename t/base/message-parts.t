@@ -2,7 +2,7 @@
 
 use strict;
 use Test qw(plan ok);
-plan tests => 25;
+plan tests => 37;
 
 use HTTP::MessageParts;
 use HTTP::Request::Common qw(POST);
@@ -59,5 +59,40 @@ ok($parts[0]->header("Content-Disposition"), 'form-data; name="foo"');
 ok($parts[0]->content, 1);
 ok($parts[1]->header("Content-Disposition"), 'form-data; name="bar"');
 ok($parts[1]->content, 2);
+
+$m = HTTP::Message->new;
+$m->content_type("message/http");
+$m->content(<<EOT);
+GET / HTTP/1.0
+Host: example.com
+
+How is this?
+EOT
+
+@parts = $m->parts;
+ok(@parts, 1);
+ok($parts[0]->method, "GET");
+ok($parts[0]->uri, "/");
+ok($parts[0]->protocol, "HTTP/1.0");
+ok($parts[0]->header("Host"), "example.com");
+ok($parts[0]->content, "How is this?\n");
+
+$m = HTTP::Message->new;
+$m->content_type("message/http");
+$m->content(<<EOT);
+HTTP/1.1 200 OK
+Content-Type : text/html
+
+<H1>Hello world!</H1>
+EOT
+
+@parts = $m->parts;
+ok(@parts, 1);
+ok($parts[0]->code, 200);
+ok($parts[0]->message, "OK");
+ok($parts[0]->protocol, "HTTP/1.1");
+ok($parts[0]->content_type, "text/html");
+ok($parts[0]->content, "<H1>Hello world!</H1>\n");
+
 
 sub j { join(":", @_) }

@@ -1,9 +1,9 @@
 use Config;
 open REQ, ">bin/request" or die "open for writing bin/get: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
-print REQ <<'END';
+print REQ <<'END'; chmod(0555, "bin/mirror");
 
-# $Id: lwp-request.PL,v 1.9 1995/07/23 23:59:55 aas Exp $
+# $Id: lwp-request.PL,v 1.10 1995/07/24 06:45:52 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -127,7 +127,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

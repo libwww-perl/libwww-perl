@@ -5,7 +5,7 @@ use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION='0.01';
+$VERSION='0.02';
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -15,14 +15,14 @@ my %type2class = (
  file     => "TextInput",
  hidden   => "TextInput",
  textarea => "TextInput",
- 
+
  button   => "IgnoreInput",
  "reset"  => "IgnoreInput",
- 
+
  radio    => "ListInput",
  checkbox => "ListInput",
  option   => "ListInput",
- 
+
  submit   => "SubmitInput",
  image    => "ImageInput",
 );
@@ -589,7 +589,6 @@ sub add_to_form
     return $self->SUPER::add_to_form($form)
 	if $type eq "checkbox" ||
 	   ($type eq "option" && exists $self->{multiple});
-    
 
     my $prev = $form->find_input($self->{name}, $self->{type});
     return $self->SUPER::add_to_form($form) unless $prev;
@@ -696,11 +695,11 @@ __END__
 
 =head1 SEE ALSO
 
-L<webtestpp>, L<LWP>
+L<LWP>, L<HTML::Parser>, L<webtestpp>
 
 =head1 COPYRIGHT
 
-Copyright 1998 Gisle Aas.
+Copyright 1998-1999 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

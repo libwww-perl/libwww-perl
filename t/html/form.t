@@ -1,7 +1,10 @@
-print "1..12\n";
+print "1..14\n";
 
 use strict;
 use HTML::Form;
+
+my @warn;
+$SIG{__WARN__} = sub { push(@warn, $_[0]) };
 
 my @f = HTML::Form->parse("", "http://localhost/");
 print "not " if @f;
@@ -92,6 +95,10 @@ Content-Type: application/x-www-form-urlencoded
 i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&a=%0Aabc%0A+++&s=bar&m=a&m=b
 EOT
 
+print "not " unless @warn == 1 && $warn[0] =~ /^Unknown input type 'xyzzy'/;
+print "ok 11\n";
+@warn = ();
+
 
 # test file upload
 $f = HTML::Form->parse(<<'EOT', "http://localhost/");
@@ -106,7 +113,7 @@ EOT
 
 # XXX the parameter-less boundary in this case is clearly a bug.
 
-print "not " unless $f->click->as_string eq <<'EOT'; print "ok 11\n";
+print "not " unless $f->click->as_string eq <<'EOT'; print "ok 12\n";
 POST http://localhost/
 Content-Length: 0
 Content-Type: multipart/form-data; boundary
@@ -125,7 +132,7 @@ $f->value(f => $filename);
 
 #print $f->click->as_string;
 
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 12\n";
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 13\n";
 POST http://localhost/
 Content-Length: 159
 Content-Type: multipart/form-data; boundary=xYzZY
@@ -142,3 +149,6 @@ This is some text
 EOT
 
 unlink($filename) || warn "Can't unlink '$filename': $!";
+
+print "not " if @warn;
+print "ok 14\n";

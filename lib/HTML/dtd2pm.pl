@@ -8,7 +8,7 @@
 #
 # Author: Gisle Aas
 #
-# $Id: dtd2pm.pl,v 1.2 1996/05/26 10:33:38 aas Exp $
+# $Id: dtd2pm.pl,v 1.3 1996/09/17 12:40:27 aas Exp $
 #
 # Disclaimer: I am not an SGML expert and don't really understand how
 # to read those damn DTDs.
@@ -16,7 +16,7 @@
 $VERBOSE = 0;
 
 undef($/);
-$DTD = "HTML3.2.dtd";
+$DTD = "HTML32.dtd";
 
 open(DTD, $DTD) or die "Can't open $DTD: $!";
 $_ = <DTD>;

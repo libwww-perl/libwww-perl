@@ -7,10 +7,18 @@ print "1..2\n";
 use LWP::Simple;
 require LWP::Protocol::file;
 
-my $orig = '/etc/passwd';          # local file 
-my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
+my $orig = "/usr/tmp/lwp-orig-$$";          # local file 
+my $copy = "/usr/tmp/lwp-copy-$$"; 	    # downloaded copy
 
-# First we make a test using getprint(), so we need to capture stdout
+# First we create the original
+open(OUT, ">$orig") or die "Cannot open $orig: $!";
+for (1..100) {
+    print OUT "This is line $_ of $orig\n";
+}
+close(OUT);
+
+
+# Then we make a test using getprint(), so we need to capture stdout
 open (OUT, ">$copy") or die "Cannot open $copy: $!";
 select(OUT);
 
@@ -34,14 +42,12 @@ unlink($copy);
 
 if ($origtext eq $copytext) {
     print "ok 1\n";
-}
-else {
-    die "not ok 1\n";
+} else {
+    print "not ok 1\n";
 }
 
-#
-# Test getstore()
-#
+
+# Test getstore() function
 
 getstore("file:$orig", $copy);
 
@@ -51,11 +57,11 @@ undef($/);
 $copytext = <IN>;
 close(IN);
 
+unlink($orig);
 unlink($copy);
 
 if ($origtext eq $copytext) {
     print "ok 2\n";
-}
-else {
-    die "not ok 2\n";
+} else {
+    print "not ok 2\n";
 }

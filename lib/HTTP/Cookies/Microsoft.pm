@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);
@@ -121,7 +121,7 @@ sub epoch_time_offset_from_win32_filetime
 sub load_cookie
 {
 	my($self, $file) = @_;
-        my $now = time() - $EPOCH_OFFSET;
+        my $now = time() - $HTTP::Cookies::EPOCH_OFFSET;
 	my $cookie_data;
 
         if (-f $file)
@@ -144,7 +144,7 @@ sub load_cookie
 sub load
 {
 	my($self, $cookie_index) = @_;
-	my $now = time() - $EPOCH_OFFSET;
+	my $now = time() - $HTTP::Cookies::EPOCH_OFFSET;
 	my $cookie_dir = '';
 	my $delay_load = (defined($self->{'delayload'}) && $self->{'delayload'});
 	my $user_name = get_user_name();
@@ -179,7 +179,7 @@ sub load
 		return;
 	}
 
-	if (0 != seek(INDEX, $size, 0)) # move the file ptr to start of the first record
+	if (0 == seek(INDEX, $size, 0)) # move the file ptr to start of the first record
 	{
 		close(INDEX);
 		return;
@@ -214,11 +214,14 @@ sub load
 
 		#$REMOVE Need to check if URL records in Cookies' index.dat will
 		#        ever use more than two 0x80 byte sectors
-		unless (2 == $size)
+		if ($size > 2)
 		{
-			print STDERR "Found URL record of $size 0x80 byte sectors\n";
-			print STDERR "SIG = '$sig' SIZE='", sprintf("%8.8X",$size),"' POS='",sprintf("%8.8X", tell(INDEX)),"'\n";
-			die "URL record takes up $size sectors!!!\n";
+			my $more_data = ($size-2)*0x80;
+
+			if ($more_data != read(INDEX, $data, $more_data, 256))
+			{
+				last;
+			}
 		}
 
 		if ($data =~ /Cookie\:$user_name\@([\x21-\xFF]+).*?($user_name\@[\x21-\xFF]+\.txt)/)

@@ -112,11 +112,12 @@ issues):
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
 
-  my $curl = url("http:");
-  $curl->query_form(%form);
   my $req = new HTTP::Request 'POST', 'http://www.perl.com/cgi-bin/BugGlimpse';
   $req->content_type('application/x-www-form-urlencoded');
-  $req->content($curl->equery);
+
+  my $curl = url("http:");      # create an empty HTTP URL object
+  $curl->query_form(%form);
+  $req->content($curl->equery); # %form content as escaped query string
 
   print $ua->request($req)->as_string;
 
@@ -138,7 +139,7 @@ requests:
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
   $ua->env_proxy; # initialize from environment variables
-
+  # or
   $ua->proxy(ftp  => 'http://proxy.myorg.com');
   $ua->proxy(wais => 'http://proxy.myorg.com');
   $ua->no_proxy(qw(no se fi));
@@ -146,7 +147,9 @@ requests:
   my $req = new HTTP::Request 'wais://xxx.com/';
   print $ua->request($req)->as_string;
 
-The LWP::Simple interface will call env_proxy() for you.
+The LWP::Simple interface will call env_proxy() for you automatically.
+Applications that use the $ua->env_proxy() method will normally not
+use the $ua->proxy() and $ua->no_proxy() methods.
 
 
 =head1 ACCESS TO PROTECTED DOCUMENTS
@@ -156,12 +159,12 @@ like this:
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
-  $req = new HTTP::Request 'GET', 'http://www.sn.no/secret/';
+  $req = new HTTP::Request GET => 'http://www.sn.no/secret/';
   $req->authorization_basic('aas', 'mypassword');
   print $ua->request($req)->as_string;
 
-The other alternative is to provide a subclass of LWP::UserAgent that
-overrides the get_basic_credentials() method. Study the lwp-request
+The other alternative is to provide a subclass of I<LWP::UserAgent> that
+overrides the get_basic_credentials() method. Study the I<lwp-request>
 program for an example of this.
 
 
@@ -195,7 +198,7 @@ The document will not be transfered unless it has been updated.
 
 If the document you want to fetch is too large to be kept in memory,
 then you have two alternatives.  You can instruct the library to write
-the document content to a file (second $ua->request argument is a file
+the document content to a file (second $ua->request() argument is a file
 name):
 
   use LWP::UserAgent;
@@ -208,7 +211,7 @@ name):
      print "ok\n";
   }
 
-Or you can process the document as it arrives (second $ua->request
+Or you can process the document as it arrives (second $ua->request()
 argument is a code reference):
 
   use LWP::UserAgent;
@@ -260,6 +263,10 @@ or
   print "Protocol scheme is ", $u->scheme, "\n";
   print "Host is ", $u->host, " at port ", $u->port, "\n";
 
+or even
+
+  use URI::URL;
+  my($host,$port) = (url("ftp://ftp.sn.no/test/aas;type=i")->crack)[3,4];
 
 
 =head1 EXPAND RELATIVE URLS

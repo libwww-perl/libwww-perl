@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.16.2.1 1998/09/11 12:27:19 aas Exp $
+# $Id: RobotRules.pm,v 1.16.2.2 1998/09/11 12:42:04 aas Exp $
 
 package WWW::RobotRules;
 
@@ -46,7 +46,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16.2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16.2.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -82,7 +82,7 @@ retrieve the F</robots.txt> file, and the contents of the file.
 
 sub parse {
     my($self, $url, $txt, $fresh_until) = @_;
-    $url = URI->new($url) unless ref($url);
+    $url = URI->new("$url");
     my $netloc = $url->authority;
 
     $self->clear_rules($netloc);
@@ -174,7 +174,7 @@ Returns TRUE if this robot is allowed to retrieve this URL.
 
 sub allowed {
     my($self, $url) = @_;
-    $url = URI->new($url) unless ref $url;	# make it URI
+    $url = URI->new("$url");
     my $netloc = $url->authority;
 
     my $fresh_until = $self->fresh_until($netloc);

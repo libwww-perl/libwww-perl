@@ -1,9 +1,11 @@
 use strict;
-use HTTP::Headers::Util qw(split_header_words join_header_words);
+use HTTP::Headers::Util qw(split_header_words join_header_words
+                           split_etag_list join_etag_list
+                          );
 
 my $extra_tests = 2;
 
-my @tests = (
+my @s_tests = (
 
    ["foo"                     => "foo"],
    ["foo=bar"                 => "foo=bar"],
@@ -26,11 +28,24 @@ my @tests = (
     'Basic; realm="\"foo\\\\bar\""'],
 );
 
-print "1..", @tests + $extra_tests, "\n";
+my @e_tests = (
+   ['"foo", W/"bar"'  => '"foo"|W/"bar"'],
+   ['"foo"'           => '"foo"'],
+   ['W/"foo"'         => 'W/"foo"'],
+   ['""'              => '""'],
+   ['W/"foo,bar", "foo\"bar,"' => 'W/"foo,bar"|"foo\"bar,"'],
+   ['foo bar'         => '"foo"|"bar"'],
+   ['w/'              => 'W/""'],
+   ['w/bar, w/foo'    => 'W/"bar"|W/"foo"'],
+   [''                => ''],
+);
+
+print "1..", @s_tests + @e_tests + $extra_tests, "\n";
 
 my $testno = 1;
 
-for (@tests) {
+print "split_header_words() tests\n";
+for (@s_tests) {
    my($arg, $expect) = @$_;
    my @arg = ref($arg) ? @$arg : $arg;
 
@@ -49,7 +64,23 @@ for (@tests) {
    print "ok ", $testno++, "\n";
 }
 
+print "split_etag_list() tests\n";
 
+for (@e_tests) {
+   my($arg, $expect) = @$_;
+   my @arg = ref($arg) ? @$arg : $arg;
+
+   my $res = join("|", (split_etag_list(@arg)));
+   if ($res ne $expect) {
+       print "\nUnexpected result: '$res'\n";
+       print "         Expected: '$expect'\n";
+       print "  when parsing '", join(", ", @arg), "'\n";
+       print "not ";
+   }
+   print "ok ", $testno++, "\n";
+}
+
+print "Extra tests\n";
 # some extra tests
 print "not " unless join_header_words("foo" => undef, "bar" => "baz")
                     eq "foo; bar=baz";

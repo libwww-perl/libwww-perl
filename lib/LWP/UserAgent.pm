@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.46 1997/10/02 16:10:53 aas Exp $
+# $Id: UserAgent.pm,v 1.47 1997/11/26 11:26:17 aas Exp $
 
 package LWP::UserAgent;
 
@@ -329,15 +329,15 @@ sub request
 	    ($challenge =~ /^(\S+)$/)
 	    ) {
 
-	    my($scheme, $realm) = ($1, $2);
-	    if ($scheme =~ /^Basic$/i) {
+	    my($scheme, $realm) = (lc($1), $2);
+	    if ($scheme eq "basic") {
 
 		my($uid, $pwd) = $self->get_basic_credentials($realm,
 							    $request->url);
 
 		if (defined $uid and defined $pwd) {
 		    my $uidpwd = "$uid:$pwd";
-		    my $header = "$scheme " . encode_base64($uidpwd, '');
+		    my $header = "Basic " . encode_base64($uidpwd, '');
 
 		    # Need to check this isn't a repeated fail!
 		    my $r = $response;
@@ -358,14 +358,14 @@ sub request
 		} else {
 		    return $response; # no password found
 		}
-	    } elsif ($scheme =~ /^Digest$/i) {
+	    } elsif ($scheme eq "digest") {
 		# http://hopf.math.nwu.edu/digestauth/draft.rfc
 		require MD5;
 		my $md5 = new MD5;
 		my($uid, $pwd) = $self->get_basic_credentials($realm,
 							      $request->url);
 		my $string = $challenge;
-		$string =~ s/^$scheme\s+//;
+		$string =~ s/^$scheme\s+//i;
 		$string =~ s/"//g;                       #" unconfuse emacs
 		my %mda = map { split(/,?\s+|=/) } $string;
 
@@ -405,7 +405,7 @@ sub request
 			next unless defined $resp{$_};
 			push(@pairs, "$_=" . qq("$resp{$_}"));
 		    }
-		    my $header = "$scheme " . join(", ", @pairs);
+		    my $header = "Digest " . join(", ", @pairs);
 
 		    # Need to check this isn't a repeated fail!
 		    my $r = $response;
@@ -428,6 +428,7 @@ sub request
 		}
 	    } else {
 		my $class = "LWP::Authen::$scheme";
+		$class =~ s/-/_/g; # Some schemes have hyphens in their names
 		eval "use $class ()";
 		if($@) {
 		    warn $@;

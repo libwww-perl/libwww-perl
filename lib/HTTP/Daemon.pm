@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.14 1997/11/14 15:24:49 aas Exp $
+# $Id: Daemon.pm,v 1.15 1997/11/26 10:44:08 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -202,7 +202,7 @@ sub get_request
 	    return undef unless select($fdset,undef,undef,$timeout);
 	}
 	my $n = sysread($self, $buf, 1024, length($buf));
-	return undef if $n == 0;  # unexpected EOF
+	return undef if !$n;  # unexpected EOF
 	if ($buf =~ /^\w+[^\n]+HTTP\/\d+\.\d+\015?\012/) {
 	    last READ_HEADER if $buf =~ /(\015?\012){2}/;
 	} elsif ($buf =~ /\012/) {
@@ -257,7 +257,7 @@ sub get_request
 			return undef unless select($fdset,undef,undef,$timeout);
 		    }
 		    my $n = sysread($self, $body, $missing, length($body));
-		    return undef if $n == 0;
+		    return undef if !$n;
 		    $missing -= $n;
 		}
 		substr($body, -2, 2) = ''; # remove CRLF at end
@@ -268,7 +268,7 @@ sub get_request
 		    return undef unless select($fdset,undef,undef,$timeout);
 		}
 		my $n = sysread($self, $buf, 2048, length($buf));
-		return undef if $n == 0;
+		return undef if !$n;
 	    }
 	}
 	$r->content($body);
@@ -286,7 +286,7 @@ sub get_request
 		    return undef unless select($fdset,undef,undef,$timeout);
 		}
 		my $n = sysread($self, $buf, 2048, length($buf));
-		return undef if $n == 0;
+		return undef if !$n;
 	    } else {
 		$buf =~ s/^([^\012]*)\012//;
 		$_ = $1;
@@ -319,7 +319,7 @@ sub get_request
 		return undef unless select($fdset,undef,undef,$timeout);
 	    }
 	    my $n = sysread($self, $buf, 2048, length($buf));
-	    return undef if $n == 0;
+	    return undef if !$n;
 	}
 	$r->content($buf);
 
@@ -332,7 +332,7 @@ sub get_request
 		return undef unless select($fdset,undef,undef,$timeout);
 	    }
 	    my $n = sysread($self, $buf, $len, length($buf));
-	    return undef if $n == 0;
+	    return undef if !$n;
 	    $len -= $n;
 	}
 	$r->content($buf);
@@ -542,7 +542,7 @@ sub send_file
     my $buf = "";
     my $n;
     while ($n = sysread($file, $buf, 8*1024)) {
-	last if $n <= 0;
+	last if !$n;
 	$cnt += $n;
 	print $self $buf;
     }

@@ -325,7 +325,8 @@ sub crack
 #
 sub abs
 {
-    my($self, $base, $allow_scheme_in_relative_urls) = @_;
+    my($self, $base, $allow_relative_scheme) = @_;
+    $allow_relative_scheme = $URI::URL::ABS_ALLOW_RELATIVE_SCHEME if @_ < 3;
     my $embed = $self->clone;
 
     $base = $self->base unless $base;      # default to default base
@@ -350,9 +351,9 @@ sub abs
     # future parsers.
     #
     # The old behavoir can be enabled by passing a TRUE value to the
-    # $allow_scheme_in_relative_urls parameter.
+    # $allow_relative_scheme parameter.
     return $embed if $scheme &&
-      (!$allow_scheme_in_relative_urls || $scheme ne $base->{'scheme'});
+      (!$allow_relative_scheme || $scheme ne $base->{'scheme'});
 
     $embed->{'_str'} = '';                      # void cached string
     $embed->{'scheme'} = $base->{'scheme'};     # (2c)
@@ -413,6 +414,10 @@ sub abs
 	    $isdir = 0;
 	    push(@newpath, $segment);
 	}
+    }
+
+    if ($URI::URL::ABS_REMOTE_LEADING_DOTS) {
+	shift @newpath while @newpath && $newpath[0] =~ /^\.\.?$/;
     }
 
     $embed->{'path'} = '/' . join('/', @newpath) .

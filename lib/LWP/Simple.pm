@@ -1,5 +1,31 @@
 #
-# $Id: Simple.pm,v 1.2 1995/07/11 13:21:03 aas Exp $
+# $Id: Simple.pm,v 1.3 1995/07/11 22:41:28 aas Exp $
+
+=head1 NAME
+
+get, head, getprint, getstore, mirror - Procedural LWP interface
+
+=head1 SYNOPSIS
+
+ perl -e 'use LWP::Simple; getprint("http://www.oslonett.no");'
+
+ use LWP::Simple;
+ $content = get("http://www.oslonett.no/")
+
+=head1 DESCRIPTION
+
+This interface is intended for those who want a simplified view of the
+LWP library.  This interface should also be suitable for one-liners.
+
+A few convenience methods cover frequent uses: the C<getAndPrint>
+and C<getAndStore> methods print and save the results of a GET
+request.  The message is printed on STDERR unless succesful response.
+Both routines returns a C<LWP::Reponse> object.
+
+The C<get> method returns the content of a ducument. It returns undef
+in case of errors.
+
+=cut
 
 
 package LWP::Simple;
@@ -82,7 +108,7 @@ sub getprint {
     } else {
         print STDERR $response->errorAsHTML;
     }
-    $response;
+    $response->code;
 }
 
 
@@ -103,7 +129,7 @@ sub getstore {
     my $request = new LWP::Request('GET', $url);
     my $response = $ua->request($request, $file);
 
-    $response;
+    $response->code;
 }
 
 
@@ -111,49 +137,17 @@ sub getstore {
 
 Get and store a document identified by a URL,
 using If-modified-since, and checking of the content-length.
-Returns response.
+Returns response code.
 
 =cut
 
 sub mirror {
-    my($url, $file) = @_;
     croak("mirror needs two arguments") unless @_ == 2;
 
-    LWP::Debug::trace('()');
-
-    my $request = new LWP::Request('GET', $url);
-
-    my($ST_SIZE, $ST_MTIME) = (7, 9);
-    if (-e $file) {
-	my($mtime) = (stat($file))[$ST_MTIME];
-	if($mtime) {
-	    $request->header('If-Modified-Since',
-			     &LWP::Date::time2str($mtime));
-	}
-    }
-    my $tmpfile = "$file-$$";
-
-    my $response = $ua->request($request, $tmpfile);
-    if ($response->isSuccess) {
-	
-	my $file_length = (stat($tmpfile))[$ST_MTIME];
-	my($content_length) = $response->header('Content-length');
-    
-	if (defined $content_length and $file_length < $content_length) {
-	    unlink($tmpfile);
-	    die "Transfer truncated: " .
-		"only $file_length out of $content_length bytes received\n";
-	}
-	elsif (defined $content_length and $file_length > $content_length) {
-	    unlink($tmpfile);
-	    die "Content-length mismatch: " .
-		"expected $content_length bytes, got $file_length\n";
-	}
-	else {
-	    # OK
-	    rename($tmpfile, $file) or die
-		"Cannot rename '$tmpfile' to '$file': $!\n";
-	}
-    }
-    return $response;
+    my($url, $file) = @_;
+    my $response = $ua->mirror($url, $file);
+    $response->code;
 }
+
+
+

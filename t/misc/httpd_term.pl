@@ -1,15 +1,13 @@
 #!/local/perl/bin/perl
 
-use lib 'blib/lib';
 use HTTP::Daemon;
+#$HTTP::Daemon::DEBUG++;
 
-
-$d = new HTTP::Daemon;
+my $d = new HTTP::Daemon;
 print "Please contact me at: <URL:", $d->url, ">\n";
 
-while ($c = $d->accept) {
-    $r = $c->get_request;
-    if ($r) {
+while (my $c = $d->accept) {
+    while (my $r = $c->get_request) {
 	print $r->as_string;
 	$c->autoflush;
         while (<STDIN>) {
@@ -17,9 +15,8 @@ while ($c = $d->accept) {
 	    print $c $_;
 	}
 	print "\nEOF\n";
-	$r = undef;
     }
+    print "CLOSE: ", $c->reason, "\n";
     $c->close;
     $c = undef;
 }
- 

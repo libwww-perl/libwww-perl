@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.17 1995/08/27 23:02:34 aas Exp $
+# $Id: UserAgent.pm,v 1.18 1995/09/03 09:57:46 aas Exp $
 
 package LWP::UserAgent;
 
@@ -13,7 +13,7 @@ LWP::UserAgent - A WWW UserAgent class
  require LWP::UserAgent;
  $ua = new LWP::UserAgent;
 
- $request = new HTTP::Request('file://localhost/etc/motd');
+ $request = new HTTP::Request('GET', 'file://localhost/etc/motd');
 
  $response = $ua->request($request); # or
  $response = $ua->request($request, '/tmp/sss'); # or
@@ -58,6 +58,11 @@ received chuncks can begin before the complete data has arrived.  The
 callback is called with 3 arguments: a reference to the data, a
 reference to the response object and a reference to the protocol
 object.
+
+The library also accepts that you put a subroutine as content in the
+request object.  This subroutine should return the content (possibly
+in pieces) when called.  It should return an empty string when there
+is no more content.
 
 Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
@@ -279,8 +284,6 @@ sub request
 {
     my($self, $request, $arg, $size, $previous) = @_;
 
-    # XXX all dies below should be replaced with a response
-
     LWP::Debug::trace('()');
 
     my $response = $self->simpleRequest($request, $arg, $size);
@@ -316,9 +319,10 @@ sub request
     } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED) {
 
         my $challenge = $response->header('WWW-Authenticate');
-        die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
-            defined $challenge;
-
+	unless (defined $challenge) {
+	    warn "RC_UNAUTHORIZED without WWW-Authenticate\n";
+	    return $response;
+	}
         if (($challenge =~ /^(\S+)\s+Realm\s*=\s*"(.*?)"/i) or
             ($challenge =~ /^(\S+)\s+Realm\s*=\s*<([^<>]*)>/i)) {
 
@@ -351,17 +355,19 @@ sub request
                     return $response; # no password found
                 }
             } else {
-                die "Authentication scheme '$scheme' not supported\n";
+                warn "Authentication scheme '$scheme' not supported\n";
+		return $response;
             }
         } else {
-            die "Unknown challenge '$challenge'";
+            warn "Unknown challenge '$challenge'";
+	    return $response;
         }
 
     } elsif ($code == &HTTP::Status::RC_PAYMENT_REQUIRED or
              $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
-
-        die 'Resolution of' . HTTP::Status::statusMessage($code) .
-            'not yet implemented';
+        warn 'Resolution of' . HTTP::Status::statusMessage($code) .
+             'not yet implemented';
+	return $response;
     }
     $response;
 }

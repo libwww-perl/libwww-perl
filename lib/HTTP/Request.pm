@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.17 1996/09/18 12:15:16 aas Exp $
+# $Id: Request.pm,v 1.18 1997/10/09 07:22:41 aas Exp $
 
 package HTTP::Request;
 
@@ -10,7 +10,7 @@ HTTP::Request - Class encapsulating HTTP Requests
 =head1 SYNOPSIS
 
  require HTTP::Request;
- $request = new HTTP::Request 'GET', 'http://www.oslonett.no/';
+ $request = new HTTP::Request GET => 'http://www.oslonett.no/';
 
 =head1 DESCRIPTION
 
@@ -23,7 +23,7 @@ Instances of this class are usually passed to the C<request()> method
 of an C<LWP::UserAgent> object:
 
  $ua = new LWP::UserAgent;
- $request = new HTTP::Request 'http://www.oslonett.no/';
+ $request = new HTTP::Request GET => 'http://www.oslonett.no/';
  $response = $ua->request($request);
 
 =head1 METHODS
@@ -48,7 +48,7 @@ object C<$url> using method C<$method>.  The C<$url> argument can be
 either a string, or a reference to a C<URI::URL> object.  The $header
 argument should be a reference to a HTTP::Headers object.
 
- $request = new HTTP::Request 'GET', 'http://www.oslonett.no/';
+ $request = new HTTP::Request GET => 'http://www.oslonett.no/';
 
 =cut
 

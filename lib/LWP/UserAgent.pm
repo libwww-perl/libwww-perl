@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.71 1999/11/29 12:33:58 gisle Exp $
+# $Id: UserAgent.pm,v 1.72 2000/03/27 18:31:47 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.71 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.72 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -297,48 +297,51 @@ sub request
     {
 	my $proxy = ($code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED);
 	my $ch_header = $proxy ?  "Proxy-Authenticate" : "WWW-Authenticate";
-	my $challenge = $response->header($ch_header);
-	unless (defined $challenge) {
+	my @challenge = $response->header($ch_header);
+	unless (@challenge) {
 	    $response->header("Client-Warning" => 
 			      "Missing Authenticate header");
 	    return $response;
 	}
 
 	require HTTP::Headers::Util;
-	$challenge =~ tr/,/;/;  # "," is used to separate auth-params!!
-	($challenge) = HTTP::Headers::Util::split_header_words($challenge);
-	my $scheme = lc(shift(@$challenge));
-	shift(@$challenge); # no value
-	$challenge = { @$challenge };  # make rest into a hash
-	for (keys %$challenge) {       # make sure all keys are lower case
-	    $challenge->{lc $_} = delete $challenge->{$_};
-	}
+	CHALLENGE: for my $challenge (@challenge) {
+	    $challenge =~ tr/,/;/;  # "," is used to separate auth-params!!
+	    ($challenge) = HTTP::Headers::Util::split_header_words($challenge);
+	    my $scheme = lc(shift(@$challenge));
+	    shift(@$challenge); # no value
+	    $challenge = { @$challenge };  # make rest into a hash
+	    for (keys %$challenge) {       # make sure all keys are lower case
+		$challenge->{lc $_} = delete $challenge->{$_};
+	    }
 
-	unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
-	    $response->header("Client-Warning" => 
-			      "Bad authentication scheme '$scheme'");
-	    return $response;
-	}
-	$scheme = $1;  # untainted now
-	my $class = "LWP::Authen::\u$scheme";
-	$class =~ s/-/_/g;
-	
-	no strict 'refs';
-	unless (%{"$class\::"}) {
-	    # try to load it
-	    eval "require $class";
-	    if ($@) {
-		if ($@ =~ /^Can\'t locate/) {
-		    $response->header("Client-Warning" =>
-				      "Unsupported authentication scheme '$scheme'");
-		} else {
-		    $response->header("Client-Warning" => $@);
-		}
+	    unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
+		$response->header("Client-Warning" => 
+				  "Bad authentication scheme '$scheme'");
 		return $response;
 	    }
+	    $scheme = $1;  # untainted now
+	    my $class = "LWP::Authen::\u$scheme";
+	    $class =~ s/-/_/g;
+	
+	    no strict 'refs';
+	    unless (%{"$class\::"}) {
+		# try to load it
+		eval "require $class";
+		if ($@) {
+		    if ($@ =~ /^Can\'t locate/) {
+			$response->header("Client-Warning" =>
+					  "Unsupported authentication scheme '$scheme'");
+		    } else {
+			$response->header("Client-Warning" => $@);
+		    }
+		    next CHALLENGE;
+		}
+	    }
+	    return $class->authenticate($self, $proxy, $challenge, $response,
+					$request, $arg, $size);
 	}
-	return $class->authenticate($self, $proxy, $challenge, $response,
-				    $request, $arg, $size);
+	return $response;
     }
     return $response;
 }

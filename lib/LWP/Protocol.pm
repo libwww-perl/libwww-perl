@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.11 1995/09/03 07:16:36 aas Exp $
+# $Id: Protocol.pm,v 1.12 1995/09/04 20:44:38 aas Exp $
 
 package LWP::Protocol;
 
@@ -187,8 +187,7 @@ sub collect
         while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
             LWP::Debug::debug("read " . length $$content . " bytes");
-            LWP::Debug::conns("read: $$content");
-            $response->addContent($content);
+            $response->addContent($$content);
             alarm($self->timeout) if $self->useAlarm;
         }
     }
@@ -202,7 +201,6 @@ sub collect
         while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
             LWP::Debug::debug("read " . length $content . " bytes");
-            LWP::Debug::conns("read: $content");
             print OUT $$content;
             alarm($self->timeout) if $self->useAlarm;
         }
@@ -213,11 +211,10 @@ sub collect
         while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
             LWP::Debug::debug("read " . length $$content . " bytes");
-            LWP::Debug::conns("read: $$content");
 	    if ($response->isSuccess) {
-		&$arg($content, $response, $self);
+		&$arg($$content, $response, $self);
 	    } else {
-		$response->addContent($content);
+		$response->addContent($$content);
 	    }
             alarm($self->timeout) if $self->useAlarm;
         }

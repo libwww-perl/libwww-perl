@@ -86,14 +86,12 @@ sub scheme_parse_test {
         'http://web.net/'
         => {    'scheme'=>'http', 'host'=>'web.net', 'port'=>80,
                 'path'=>'', 'frag'=>undef, 'query'=>undef,
-                'user'=>undef,
                 'full_path' => '/',
                 'as_string' => 'http://web.net/' },
 
         'http://web.net'
         => {    'scheme'=>'http', 'host'=>'web.net', 'port'=>80,
                 'path'=>'', 'frag'=>undef, 'query'=>undef,
-                'user'=>undef,
                 'full_path' => '/',
                 'as_string' => 'http://web.net/' },
 
@@ -201,7 +199,7 @@ sub parts_test {
 sub netloc_test {
     print "netloc_test:\n";
 
-    my $url = new URI::URL 'http://anonymous:p%61ss@hst:12345';
+    my $url = new URI::URL 'ftp://anonymous:p%61ss@hst:12345';
     $url->_expect('user', 'anonymous');
     $url->_expect('password', 'pass');
     $url->_expect('host', 'hst');

@@ -315,11 +315,11 @@ sub frag     { shift->_elem('frag', @_); }
 
 # Generic-RL: Resolving Relative URL into an Absolute URL
 #
-# Based on draft-ietf-uri-relative-url-06.txt Section 4
+# Based on RFC1808 section 4
 #
 sub abs
 {
-    my($self, $base) = @_;
+    my($self, $base, $allow_scheme_in_relative_urls) = @_;
     my $embed = $self->clone;
 
     $base = $self->base unless $base;      # default to default base
@@ -335,8 +335,18 @@ sub abs
       unless grep(defined($_) && $_ ne '',
 		  $scheme,$host,$port,$path,$params,$query,$frag);
 
-    # if we have a scheme we must already be absolute   (2b)
-    return $embed if $scheme;
+    # if we have a scheme we must already be absolute   (2b),
+    #
+    # but sec. 5.2 also says: Some older parsers allow the scheme name
+    # to be present in a relative URL if it is the same as the base
+    # URL scheme.  This is considered to be a loophole in prior
+    # specifications of the partial URLs and should be avoided by
+    # future parsers.
+    #
+    # The old behavoir can be enabled by passing a TRUE value to the
+    # $allow_scheme_in_relative_urls parameter.
+    return $embed if $scheme &&
+      (!$allow_scheme_in_relative_urls || $scheme ne $base->{'scheme'});
 
     $embed->{'_str'} = '';                      # void cached string
     $embed->{'scheme'} = $base->{'scheme'};     # (2c)

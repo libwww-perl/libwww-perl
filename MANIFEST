@@ -86,6 +86,7 @@ lib/URI/URL/wais.pm		Implements wais URLs
 lib/URI/URL/webster.pm		Implements webster URLs
 lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
+lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/afm.t			Test Font::AFM module

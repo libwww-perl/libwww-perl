@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.9 1997/07/09 09:38:18 aas Exp $
+# $Id: Entities.pm,v 1.10 1997/09/05 09:02:04 aas Exp $
 
 =head1 NAME
 
@@ -56,7 +56,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -194,7 +194,7 @@ sub decode_entities
     for (@$array) {
 	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
 	s/(&\#[xX]([0-9a-fA-F]+);?)/$c = hex($2); $c < 256 ? chr($c) : $1/eg;
-	s/(&(\w+);?)/$entity2char{$2} || "$1;"/eg;
+	s/(&(\w+);?)/$entity2char{$2} || $1/eg;
     }
     wantarray ? @$array : $array->[0];
 }

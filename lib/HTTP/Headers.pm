@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.53 2004/04/08 20:37:48 gisle Exp $
+# $Id: Headers.pm,v 1.54 2004/04/08 21:16:12 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.54 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -270,7 +270,11 @@ sub client_date         { shift->_date_header('Client-Date',         @_); }
 sub content_type      {
   my $ct = (shift->_header('Content-Type', @_))[0];
   return '' unless defined($ct) && length($ct);
-  my @ct = split(/\s*;\s*/, lc($ct));
+  my @ct = split(/;\s*/, $ct, 2);
+  for ($ct[0]) {
+      s/\s+//g;
+      $_ = lc($_);
+  }
   wantarray ? @ct : $ct[0];
 }
 
@@ -473,11 +477,12 @@ callback routine has case as suggested by HTTP spec, and the headers
 will be visited in the recommended "Good Practice" order.
 
 Any return values of the callback routine are ignored.  The loop can
-be broken by raising an exception (C<die>).
+be broken by raising an exception (C<die>), but the caller of scan()
+would have to trap the exception itself.
 
 =item $h->as_string
 
-=item $h->as_string( $endl )
+=item $h->as_string( $eol )
 
 Return the header fields as a formatted MIME header.  Since it
 internally uses the C<scan> method to build the string, the result
@@ -485,7 +490,7 @@ will use case as suggested by HTTP spec, and it will follow
 recommended "Good Practice" of ordering the header fieds.  Long header
 values are not folded.
 
-The optional $endl parameter specifies the line ending sequence to
+The optional $eol parameter specifies the line ending sequence to
 use.  The default is "\n".  Embedded "\n" characters in header field
 values will be substitued with this line ending sequence.
 
@@ -547,7 +552,8 @@ content. I<E.g.>:
 
 The value returned will be converted to lower case, and potential
 parameters will be chopped off and returned as a separate value if in
-an array context.  This makes it safe to do the following:
+an array context.  If there is no such header field, then the empty
+string is returned.  This makes it safe to do the following:
 
   if ($h->content_type eq 'text/html') {
      # we enter this place even if the real header value happens to

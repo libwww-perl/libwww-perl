@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 68;
+plan tests => 100;
 
 my($h, $h2);
 
@@ -126,6 +126,10 @@ EOT
 $h2->remove_content_headers;
 ok($h->as_string, $h2->as_string);
 
+$h->clear;
+ok($h->as_string, "");
+undef($h2);
+
 $h = HTTP::Headers->new;
 ok($h->header_field_names, 0);
 ok(j($h->header_field_names), "");
@@ -134,6 +138,56 @@ $h = HTTP::Headers->new( etag => 1, foo => [2,3],
 			 content_type => "text/plain");
 ok($h->header_field_names, 3);
 ok(j($h->header_field_names), "ETag|Content-Type|Foo");
+
+{
+    my @tmp;
+    $h->scan(sub { push(@tmp, @_) });
+    ok(j(@tmp), "ETag|1|Content-Type|text/plain|Foo|2|Foo|3");
+
+    @tmp = ();
+    eval { $h->scan(sub { push(@tmp, @_); die if $_[0] eq "Content-Type" }) };
+    ok($@);
+    ok(j(@tmp), "ETag|1|Content-Type|text/plain");
+
+    @tmp = ();
+    $h->scan(sub { push(@tmp, @_) });
+    ok(j(@tmp), "ETag|1|Content-Type|text/plain|Foo|2|Foo|3");
+}
+
+# CONVENIENCE METHODS
+
+$h = HTTP::Headers->new;
+ok($h->date, undef);
+ok($h->date(time), undef);
+ok(j($h->header_field_names), "Date");
+ok($h->header("Date") =~ /^[A-Z][a-z][a-z], \d\d .* GMT$/);
+{
+    my $off = time - $h->date;
+    ok($off == 0 || $off == 1); 
+}
+
+# other date fields
+for my $field (qw(expires if_modified_since if_unmodified_since
+		  last_modified))
+{
+    ok($h->$field, undef);
+    ok($h->$field(time), undef);
+    ok((time - $h->$field) =~ /^[01]$/);
+}
+ok(j($h->header_field_names), "Date|If-Modified-Since|If-Unmodified-Since|Expires|Last-Modified");
+
+$h->clear;
+ok($h->content_type, "");
+ok($h->content_type("text/html"), "");
+ok($h->content_type, "text/html");
+ok($h->content_type("   TEXT  / HTML   ") , "text/html");
+ok($h->content_type, "text/html");
+ok(j($h->content_type), "text/html");
+ok($h->content_type("text/html;  charSet = \"ISO-8859-1\"; Foo=1 "), "text/html");
+ok($h->content_type, "text/html");
+ok(j($h->content_type), "text/html|charSet = \"ISO-8859-1\"; Foo=1 ");
+
+
 
 
 
@@ -166,7 +220,7 @@ my $str = $h->as_string;
 my $lines = ($str =~ tr/\n/\n/);
 ok($lines, 6);
 
-my $h2 = $h->clone;
+$h2 = $h->clone;
 
 $h->header("accept", "*/*");
 $h->remove_header("my-header");

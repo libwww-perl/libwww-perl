@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.17 2004/11/15 14:16:07 gisle Exp $
+# $Id: Methods.pm,v 1.18 2004/12/30 12:28:14 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -426,8 +426,8 @@ sub read_entity_body {
 		die "Missing newline after chunk data: '$line'"
 		    if !defined($line) || $line ne "";
 		$line = my_readline($self);
-		die "EOF when chunk header expected" unless defined($line);
 	    }
+	    die "EOF when chunk header expected" unless defined($line);
 	    my $chunk_len = $line;
 	    $chunk_len =~ s/;.*//;  # ignore potential chunk parameters
 	    unless ($chunk_len =~ /^([\da-fA-F]+)\s*$/) {

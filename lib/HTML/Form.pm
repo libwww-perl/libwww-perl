@@ -217,7 +217,7 @@ The following instance methods are available on C<HTML::Form> objects:
 
 =item $form->method( $new_method )
 
-This method is gets/sets the I<method> used to for the
+This method is gets/sets the I<method> name used for the
 C<HTTP::Request> generated.  It is a string like "GET" or "POST".
 
 =item $action = $form->action

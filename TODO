@@ -1,32 +1,20 @@
-                                            $Date: 1998/01/26 11:39:54 $
+                                            $Date: 1998/04/07 08:05:44 $
 
-This is a list over things that we plan to implement in libwww-perl-5
-(or 6, or 7,...)  The order of items does not reflect priority.
+This is a list over things that we plan to implement in libwww-perl-5.
+The order of items does not reflect priority.
 
-  o  Add more HTTP/1.1 features as they stabilize
-       Persistent connections
-       Pipelining
-       Transfer-Encoding: chunked
-       Content-Range
-       Multipart mime types
-       Use HTTP/1.1 in the request line when we support it all.
-
-  o  Support PICS??
-
-  o  Make multiple simultaneous requests work.  Make the callback
-     request interface event driven.  This will require a major
-     restructuring of the protocol modules.  They will all have to be
-     rewritten as state machines and all control passed to a
-     event-loop with file callbacks.  Don't expect to see this real
-     soon.
+  o  HTTP/1.1 support is on its way.  This also includes support of
+     multiple parallel connections.  Take a look at LWPng (aka
+     libwww-perl-6).
 
   o  Provide initial credentials so that we don't always have to get a
-     RC_UNAUTHORIZED response first.  Both for Basic and Digest
-     authentication.
+     401 response first.  Both for Basic and Digest authentication.  This
+     is in fact implemented for LWPng.
 
-  o  Allow information callback from protocol modules so that the UI can
-     inform the user of what is going on.  A good start is to pass the $ua
-     reference on to the protocol->request().
+  o  HTTP::Request::Common::POST() should be able to create large
+     file upload requests by making a closure content.
+
+  o  Support PICS??
 
   o  Cache previous ftp connections.  "Keep-Alive"?
 
@@ -34,18 +22,8 @@ This is a list over things that we plan to implement in libwww-perl-5
 
   o  Support If-Modified-Since for ftp.
 
-  o  Make file://non-localhost invoke the ftp.pm module.
-
   o  Use Mail::Send to implement LWP::Protocol::mailto.  Today we just
      invoke sendmail directly, which is not very portable.
-
-  o  Make the parser ignore insignificat whitespace (at the start and end
-     of all block level elements)
-
-  o  Make the $html->as_HTML() output look nicely formatted.
-
-  o  Formatters should support tables.  The postscript formatter should
-     inline images.
 
   o  The lwp-request -o processing should check for Content-Encoding as
      well as Content-Type.

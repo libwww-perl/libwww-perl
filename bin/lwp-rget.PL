@@ -119,7 +119,7 @@ use vars qw($VERSION);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -289,7 +289,7 @@ sub find_name
     $path = "index" unless length($path);
 
     my $extra = "";  # something to make the name unique
-    my $suffix = (media_suffix($type))[0];
+    my $suffix = media_suffix($type);
 
     while (1) {
 	# Construct a new file name

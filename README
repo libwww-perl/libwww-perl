@@ -1,4 +1,4 @@
-This is libwww-perl version 5b5, a set of perl modules for WWW Access.
+This is libwww-perl version 5b6, a set of perl modules for WWW Access.
 
 In order to use this library you will need Perl version 5.001e or
 better.
@@ -8,6 +8,7 @@ changes.  POD style documentation is included in all modules and scripts.
 You should be able to use the 'perldoc' utility to extract documentation
 from these files.
 
+
 You install the library by running these commands:
 
    perl Makefile.PL
@@ -15,10 +16,12 @@ You install the library by running these commands:
    make test
    make install
 
-Installation of the library is really just to copy the files in the
-lib directory to your standard perl library location.  Edit the
-configuration section of Makefile.PL to select which programs to
-install in addition to the library itself.
+You can edit the configuration section of Makefile.PL to select which
+programs to install in addition to the library itself.  If you don't
+want to install any programs then make the initial Makefile with:
+
+   perl Makefile.PL -l
+
 
 The best place to discuss this code is on the <libwww-perl@ics.uci.edu>
 mailing list.  You can join the mailing list by sending a mail message to

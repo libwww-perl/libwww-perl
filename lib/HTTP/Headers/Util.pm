@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -14,7 +14,7 @@ require Exporter;
 
 HTTP::Headers::Util - Header value parsing utility functions
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
   use HTTP::Headers::Util qw(split_header_words);
   @values = split_header_words($h->header("Content-Type"));

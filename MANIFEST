@@ -28,6 +28,7 @@ lib/Font/make_metrics.pl	Writes font metric modules
 lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element
 lib/HTML/Entities.pm		Entities encoding/decoding routines
+lib/HTML/Filter.pm              Identity filter for HTML text
 lib/HTML/FormatPS.pm		Postscript formatter
 lib/HTML/FormatText.pm		Text only formatter
 lib/HTML/Formatter.pm		Generic formatter base class

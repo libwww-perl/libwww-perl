@@ -1,14 +1,16 @@
+This is LWP Version 0.1, a set of perl modules for WWW Access.
 
-Perl5 Modules for WWW Access
+In order to use this library you will need Perl version 5.001 or
+later, and have installed the URI::URL module.  The URI::URL module
+should be available from the same place where you got this.
 
-Copyright by Martijn Koster, all rights reserved.
-This code is presented here for peer review and
-for design discussions only. This is not any sort
-of release.
+See ./lib/LWP/LWP.pm for details of the library. See ./ChangeLog for
+recent changes.
 
-The first release will be available under the same
-terms as Perl, and will be announced on the 
-libwww-perl mailing list, and comp.lang.perl.
+You install the library by copying the directory ./lib/LWP to your
+standard perl library location.
 
-See lib/LWP/LWP.pm for details of the library.
-See ChangeLog for recent changes.
+Copyright 1995 Martijn Koster and Gisle Aas. All rights reserved.
+
+This package is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

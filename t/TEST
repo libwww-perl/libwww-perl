@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl
+
+unless (-d "base") {
+    # try to move into test directory
+    chdir "t" or die "Can't chdir: $!";
+
+    # fix all relative library locations
+    foreach (@INC) {
+	$_ = "../$_" unless m,^/,;
+    }
+    # print "@INC\n";
+}
+
+# Uncomment this if you want tests to run without "make" to move files.
+# use lib "../lib"; # pick up files directly from the ../lib directory
+
+use Test::Harness qw(&runtests $verbose);
+$verbose = shift if $ARGV[0] =~ /^\d+$/;
+
+if (@ARGV) {
+   @tests = @ARGV;
+} else {
+   @tests = (<base/*.t>, <local/*.t>);
+   push(@tests, <net/*.t>) if -f "net/config.pl";
+}
+
+runtests @tests;

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.10 1995/09/16 08:23:44 aas Exp $
+$Id: TODO,v 1.11 1995/09/20 22:46:02 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -17,6 +17,9 @@ RC_UNAUTHORIZED response first.
 Allow information callback from protocol modules so that the UI can
 inform the user of what is going on.  A good start is to pass the $ua
 reference on to the protocol->request().
+
+The http module should work with 0.9 servers like
+http://macpond.cis.upenn.edu/
 
 The ftp module should format directory listings as HTML.
 
@@ -37,12 +40,15 @@ Formatters should support tables.  The postscript formatter should
 inline images.
 
 The HTML::Parse module should make meta information (<HEAD>) easier
-to access.
+to access.  Parse HTML 3.0 markup.
 
 The HTML::Element->asHTML() method should not introduce whitespace
 where it was not present before.
 
 HTTP::Date: remove the reason for BUGS section in the documentation.
+
+The request -o processing should check for Content-Encoding as well as
+Content-Type.
 
 The request script should optionally consult Mail::Cap for handling of
 media types.

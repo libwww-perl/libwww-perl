@@ -34,7 +34,7 @@ lib/HTML/LinkExtor.pm		Extract links from an HTML document
 lib/HTML/Parse.pm		Backwards compatability
 lib/HTML/Parser.pm		Parse SGML text
 lib/HTML/TreeBuilder.pm		Builds a HTML syntax tree
-lib/HTML/HTML3.2.dtd		The SGML DTD
+lib/HTML/HTML32.dtd		The SGML DTD
 lib/HTML/ISOlat1.sgml           Included by the SGML DTD
 lib/HTML/dtd2pm.pl		Writes a perl module
 lib/HTML/ent.pl                 Convert entities

@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.9 1995/07/18 11:51:13 aas Exp $
+# $Id: Protocol.pm,v 1.10 1995/08/09 11:34:34 aas Exp $
 
 package LWP::Protocol;
 
@@ -33,7 +33,7 @@ for examples of usage.
 
 use Carp;
 
-require LWP::StatusCode;
+require HTTP::Status;
 require LWP::MemberMixin;
 
 @ISA = qw(LWP::MemberMixin);
@@ -191,8 +191,8 @@ sub collect
     elsif (!defined ref($arg)) {
         # filename
         open(OUT, ">$arg") or
-            return new LWP::Response
-                          &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+            return new HTTP::Response
+                          &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
                           "Cannot write to '$arg': $!";
 
         while ($content = &$collector, length $$content) {
@@ -215,8 +215,8 @@ sub collect
         }
     }
     else {
-        return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                                 "Unexpected collect argument  '$arg'";
+        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                                  "Unexpected collect argument  '$arg'";
     }
     $response;
 }

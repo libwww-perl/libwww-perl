@@ -24,4 +24,8 @@ sub _esc_path
     $text =~ s/([^-a-zA-Z\d\$_.+!*'(),%?:@&=\/])/$URI::URL::escapes{$1}/oeg; #' fix emacs
     $text;
 }
+
+use Carp;
+sub query { croak "Illegal method for file URLs"; }
+
 1;

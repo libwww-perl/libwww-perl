@@ -16,4 +16,22 @@ sub as_string {
     $str .= "$self->{'encoded822addr'}" if defined $self->{'encoded822addr'};
     $str;
 }
+
+sub netloc { shift->encoded822addr(@_)};
+
+# Standard methods are not legal for mailto URLs
+use Carp;
+my $illegal = "Illegal attribute for mailto URLs";
+
+sub path      { croak $illegal; }
+sub query     { croak $illegal; }
+sub params    { croak $illegal; }
+sub frag      { croak $illegal; }
+
+sub user      { croak $illegal; }  # should we allow this one?
+sub password  { croak $illegal; }
+sub host      { croak $illegal; }  # and this one?
+sub port      { croak $illegal; }
+sub full_path { croak $illegal; }
+
 1;

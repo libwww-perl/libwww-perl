@@ -5,8 +5,9 @@ sub default_port { 70 }
 
 sub _parse {
     my($self, $url)   = @_;
-    $self->{scheme}   = lc($1) if $url =~ s/^\s*([\w\+\.\-]+)://;
+    $self->{'scheme'} = lc($1) if $url =~ s/^\s*([\w\+\.\-]+)://;
     $self->netloc($self->unescape($1)) if $url =~ s!^//([^/]*)!!;
+    $self->{'frag'} = ($self->unescape($1)) if $url =~ s/#(.*)//;
     $self->path($self->unescape($url));
 }
 
@@ -56,4 +57,8 @@ sub _path_elem {
 
     $old;
 }
+
+use Carp;
+sub query { croak "Illegal method for gopher URLs" }
+
 1;

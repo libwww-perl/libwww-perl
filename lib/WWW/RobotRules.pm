@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.9 1996/09/17 11:41:12 aas Exp $
+# $Id: RobotRules.pm,v 1.10 1996/09/19 11:51:14 aas Exp $
 
 package WWW::RobotRules;
 
@@ -30,21 +30,21 @@ WWW::RobotsRules - Parse robots.txt files
 
 =head1 DESCRIPTION
 
-This module parses a F</robots.txt> file as specified in
+This module parses a F<robots.txt> file as specified in
 "A Standard for Robot Exclusion", described in
 <URL:http://info.webcrawler.com/mak/projects/robots/norobots.html>
-Webmasters can use the F</robots.txt> file to disallow conforming
+Webmasters can use the F<robots.txt> file to disallow conforming
 robots access to parts of their WWW server.
 
 The parsed file is kept in the WWW::RobotRules object, and this object
 provide methods to check if access to a given URL is prohibited.  The
-same WWW::RobotRules object can parse multiple F</robots.txt> files.
+same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
 =head1 METHODS
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -350,6 +350,6 @@ This example indicates that no robots should visit this site further:
 
 =head1 SEE ALSO
 
-L<LWP::RobotUA>
+L<LWP::RobotUA>, L<WWW::RobotRules::AnyDBM_File>
 
 =cut

@@ -5,7 +5,7 @@ use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION='0.02';
+$VERSION='0.03';
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -127,13 +127,13 @@ sub parse
 				unless defined $a{value};
 			    $f->push_input("option", \%a);
 			} else {
-			    warn "Bad <select> tag '$tag'" if $^W;
+			    Carp::carp("Bad <select> tag '$tag'") if $^W;
 			}
 		    }
 		}
 	    }
 	} elsif ($form_tags{$tag}) {
-	    warn "<$tag> outside <form>" if $^W;
+	    Carp::carp("<$tag> outside <form>") if $^W;
 	}
     }
     for (@forms) {
@@ -155,7 +155,7 @@ sub push_input
     $type = lc $type;
     my $class = $type2class{$type};
     unless ($class) {
-	warn "Unknown input type '$type'" if $^W;
+	Carp::carp("Unknown input type '$type'") if $^W;
 	$class = "IgnoreInput";
     }
     $class = "IgnoreInput" if exists $attr->{disabled};
@@ -258,6 +258,7 @@ sub value
     my $key  = shift;
     my $input = $self->find_input($key);
     Carp::croak("No such field '$key'") unless $input;
+    local $Carp::CarpLevel = 1;
     $input->value(@_);
 }
 
@@ -319,7 +320,7 @@ sub make_request
 	return HTTP::Request::Common::POST($uri, \@form,
 					   Content_Type => $enctype);
     } else {
-	die "Unknown method '$method'";
+	Carp::croak("Unknown method '$method'");
     }
 }
 
@@ -345,7 +346,7 @@ sub click
         next if $name && $_->name ne $name;
 	return $_->click($self, @_);
     }
-    die "No clickable input with name $name" if $name;
+    Carp::croak("No clickable input with name $name") if $name;
     $self->make_request;
 }
 
@@ -462,6 +463,18 @@ sub value
     $old;
 }
 
+=item $input->possible_values
+
+Returns a list of all values that and input can take.  For inputs that
+does not have discrete values this returns an empty list.
+
+=cut
+
+sub possible_values
+{
+    return;
+}
+
 =item $input->other_possible_values
 
 Returns a list of all values not tried yet.
@@ -533,7 +546,7 @@ sub value
     my $self = shift;
     if (@_) {
 	if (exists($self->{readonly}) || $self->{type} eq "hidden") {
-	    warn "Input '$self->{name}' is readonly" if $^W;
+	    Carp::carp("Input '$self->{name}' is readonly") if $^W;
 	}
     }
     $self->SUPER::value(@_);
@@ -618,17 +631,26 @@ sub value
 	my $val = shift;
 	my $cur;
 	for (@{$self->{menu}}) {
-	    if ($val eq $_) {
+	    if ((defined($val) && defined($_) && $val eq $_) ||
+		(!defined($val) && !defined($_))
+	       )
+	    {
 		$cur = $i;
 		last;
 	    }
 	    $i++;
 	}
-	die "Illegal value '$val'" unless defined $cur;
+	Carp::croak("Illegal value '$val'") unless defined $cur;
 	$self->{current} = $cur;
 	$self->{seen}[$cur] = 1;
     }
     $old;
+}
+
+sub possible_values
+{
+    my $self = shift;
+    @{$self->{menu}};
 }
 
 sub other_possible_values
@@ -699,7 +721,7 @@ L<LWP>, L<HTML::Parser>, L<webchatpp>
 
 =head1 COPYRIGHT
 
-Copyright 1998-1999 Gisle Aas.
+Copyright 1998-2000 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

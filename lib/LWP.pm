@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.12 1995/08/09 08:55:53 aas Exp $
+# $Id: LWP.pm,v 1.13 1995/08/09 11:23:45 aas Exp $
 
 package LWP;
 
-$VERSION = "0.02";
+$VERSION = "0.03";
 
 sub Version { $VERSION; }
 
@@ -20,7 +20,7 @@ LWP - Library for WWW access in Perl
 
 =head1 ARCHITECTURE
 
-The architecture of the library is heavily object oriented.  The user
+The architecture of the library is object oriented.  The user
 agent, requests sent and responses received from the WWW server are
 all represented by objects.  This makes a simple but yet powerful
 interface to these services.  The interface is easy to extend and
@@ -38,27 +38,28 @@ library. Indentation shows class inheritance.
 
  LWP::MemberMixin   -- Access to member variables of Perl5 classes
    LWP::UserAgent   -- WWW user agent class
-
-   LWP::Message     -- HTTP style message
-     LWP::Request   -- HTTP request
-     LWP::Response  -- HTTP response
-
    LWP::Protocol          -- Interface to various protocol schemes
      LWP::Protocol::http  -- http:// access
      LWP::Protocol::file  -- file:// access
+     ...
 
- LWP::MIMEheader    -- MIME/RFC822 style header (used by LWP::Message)
  LWP::Socket        -- Socket creation and reading (LWP::Protocol::http)
- URI::URL           -- Uniform Resource Locators (separate library)
+
+ HTTP::Headers      -- MIME/RFC822 style header (used by HTTP::Message)
+ HTTP::Message      -- HTTP style message
+   HTTP::Request    -- HTTP request
+   HTTP::Response   -- HTTP response
+
+ URI::URL           -- Uniform Resource Locators
 
 The following modules provide various functions and definitions.
 
  LWP                -- This file.  Library version number.
- LWP::MIMEtypes     -- MIME types configuration (text/html etc.)
- LWP::StatusCode    -- HTTP status code (200 OK etc)
- LWP::Date          -- Date parsing module
+ LWP::MediaTypes    -- MIME types configuration (text/html etc.)
  LWP::Debug         -- Debug logging module
  LWP::Simple        -- Simplified procedural interface for common functions
+ HTTP::Status       -- HTTP status code (200 OK etc)
+ HTTP::Date         -- Date parsing module for HTTP date formats
 
 =head1 ACKNOWLEDGEMENTS
 

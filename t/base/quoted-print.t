@@ -2,7 +2,7 @@
 
 use MIME::QuotedPrint;
 
-$x73 = "x" x 73;
+$x70 = "x" x 70;
 
 @tests =
   (
@@ -25,18 +25,20 @@ $x73 = "x" x 73;
 
    # Very long lines should be broken (not more than 76 chars
    ["The Quoted-Printable encoding is intended to represent data that largly consists of octets that correspond to printable characters in the ASCII character set." =>
-    "The Quoted-Printable encoding is intended to represent data that largly cons=
-ists of octets that correspond to printable characters in the ASCII characte=
-r set."
+    "The Quoted-Printable encoding is intended to represent data that largly con=
+sists of octets that correspond to printable characters in the ASCII charac=
+ter set."
     ],
 
    # Not allowed to break =XX escapes using soft line break
-   ["$x73=a" => "$x73=3D=\na"],
-   ["$x73 =a" => "$x73 =\n=3Da"],
-   ["$x73  =a" => "$x73 =\n =3Da"],
-   ["$x73=" => "$x73=3D"],
-   ["$x73 =" => "$x73 =\n=3D"],
-   ["$x73  =" => "$x73 =\n =3D"],
+   ["$x70===xxxx" => "$x70=3D=\n=3D=3Dxxxx"],
+   ["$x70!===xxx" => "$x70!=3D=\n=3D=3Dxxx"],
+   ["$x70!!===xx" => "$x70!!=3D=\n=3D=3Dxx"],
+   ["$x70!!!===x" => "$x70!!!=\n=3D=3D=3Dx"],
+   #                            ^
+   #                    70123456|
+   #                           max
+   #                        line width
 );
 
 $notests = @tests;

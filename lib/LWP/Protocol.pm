@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.20 1996/04/24 07:56:51 aas Exp $
+# $Id: Protocol.pm,v 1.21 1996/05/08 16:26:49 aas Exp $
 
 package LWP::Protocol;
 
@@ -35,6 +35,7 @@ for examples of usage.
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
 
+use strict;
 use Carp ();
 use HTTP::Status 'RC_INTERNAL_SERVER_ERROR';
 
@@ -187,7 +188,7 @@ sub collect
 	open(OUT, ">$arg") or
 	    return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
 			  "Cannot write to '$arg': $!";
-
+        local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
 	while ($content = &$collector, length $$content) {
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
@@ -217,6 +218,18 @@ sub collect
 				  "Unexpected collect argument  '$arg'";
     }
     $response;
+}
+
+
+sub collect_once
+{
+    my($self, $arg, $response) = @_;
+    my $content = \ $_[3];
+    my $first = 1;
+    $self->collect($arg, $response, sub {
+	return $content if $first--;
+	return \ "";
+    });
 }
 
 1;

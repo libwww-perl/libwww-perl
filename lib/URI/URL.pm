@@ -1,5 +1,5 @@
 #
-# $Id: URL.pm,v 3.7 1995/08/12 12:55:46 aas Exp $
+# $Id: URL.pm,v 3.8 1995/08/27 21:57:51 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
@@ -261,8 +261,8 @@ Non-http scheme specific escaping is not correct yet.
 # Perl resumes here
 
 
-use Carp;
-use URI::Escape;
+require Carp;
+require URI::Escape;
 
 # Basic lexical elements, taken from RFC1738:
 # (these are refered to by comments in the code)
@@ -342,13 +342,13 @@ sub new
             }
         }
         unless($scheme){
-            croak "Unable to determine scheme for '$init'"
+            Carp::croak("Unable to determine scheme for '$init'")
                 if $StrictSchemes;
             $scheme = 'http';
         }
         my $impclass = URI::URL::implementor($scheme);
         unless ($impclass) {
-            croak "URI::URL scheme '$scheme' is not supported"
+            Carp::croak("URI::URL scheme '$scheme' is not supported")
                 if $StrictSchemes;
             $impclass = URI::URL::implementor(); # use generic
         }
@@ -539,7 +539,7 @@ sub unsafe {
 sub escape
 {
     my $self = shift;
-    uri_escape(@_);
+    URI::Escape::uri_escape(@_);
 }
 
 # Define method aliases so that subclasses can control escaping at
@@ -561,7 +561,7 @@ sub _esc_query {
 sub unescape
 {
     my $self = shift;
-    uri_unescape(@_);
+    URI::Escape::uri_unescape(@_);
 }
 
 # We don't bother defining method aliases for unescape because
@@ -580,7 +580,6 @@ sub unescape
 package URI::URL::_generic;           # base support for generic-RL's
 @ISA = qw(URI::URL);
 
-use Carp;
 %OVERLOAD = ( '""'=>'as_string', 'fallback'=>1 );      # EXPERIMENTAL
 
 sub new {                               # inherited by subclasses
@@ -901,9 +900,8 @@ package URI::URL::http;
 
 sub default_port { 80 }
 
-use Carp;
-my $illegal = "Illegal method for http URLs";
-sub user     { croak $illegal; }
-sub password { croak $illegal; }
+sub illegal { Carp::croak("Illegal method for http URLs"); }
+*user     = \&illegal;
+*password = \&illegal;
 
 1;

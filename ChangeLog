@@ -3,6 +3,10 @@ Tue Jul 18 1995   Gisle Aas <aas@oslonett.no>
 
  o  Implemented LWP::Protocol::gopher
 
+ o  Implemented LWP::Protocol::mailto
+
+ o  Fixed proxy typo
+
 
 
 Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>

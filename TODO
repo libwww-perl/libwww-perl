@@ -1,11 +1,9 @@
-                                            $Date: 1996/07/22 13:22:25 $
+                                            $Date: 1996/07/23 19:21:21 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
 
   o  Update LWP::Simple documentation of status codes.
-
-  o  $url->eq($url) method
 
   o  Make it possible to turn off HTML::HeadParser
 

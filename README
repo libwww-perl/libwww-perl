@@ -15,7 +15,7 @@ its libraries can be found at:
       ftp://www.ics.uci.edu/pub/websoft/libwww-perl/
 
 The Perl5 version (this package) is a complete rewrite for Perl5: the
-code is organised in Modules, provides an Object Oriented API, is
+code is organized in Modules, provides an Object Oriented API, is
 updated for the latest HTTP and URL specification, and offers some
 extended functionality.
 

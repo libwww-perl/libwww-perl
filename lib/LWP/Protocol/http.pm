@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.51 2001/04/05 14:03:44 gisle Exp $
+# $Id: http.pm,v 1.52 2001/04/05 15:08:33 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -84,9 +84,9 @@ sub _fixup_header
 	# export http_proxy="http://proxyuser:proxypass@proxyhost:port"
 	my $p_auth = $proxy->userinfo();
 	if(defined $p_auth) {
-	    my($p_user, $p_pass) = split(':', $p_auth, 2);
-	    LWP::Debug::debug("PROXY AUTH BASIC: user: $p_user, pass: $p_pass");
-	    $h->proxy_authorization_basic($p_user, $p_pass);
+	    require URI::Escape;
+	    $h->proxy_authorization_basic(map URI::Escape::uri_unescape($_),
+					  split(":", $p_auth, 2))
 	}
     }
 }

@@ -4,6 +4,7 @@ package HTTP::MessageParts;
 # additional methods to deal with message parts.
 
 use strict;
+use Carp qw(croak);
 require HTTP::Message;
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
@@ -141,7 +142,17 @@ sub HTTP::Message::parts {
     }
     my $old = $self->{_parts};
     if (@_) {
-	$self->{_parts} = [@_];
+	my @parts = map { ref($_) eq 'ARRAY' ? @$_ : $_ } @_;
+	my $ct = $self->content_type || "";
+	if ($ct =~ m,^message/,) {
+	    croak("Only one part allowed for $ct content")
+		if @parts > 1;
+	}
+	elsif ($ct !~ m,^multipart/,) {
+	    $self->remove_content_headers;
+	    $self->content_type("multipart/mixed");
+	}
+	$self->{_parts} = \@parts;
 	delete $self->{_content};
     }
     return @$old if wantarray;
@@ -150,7 +161,20 @@ sub HTTP::Message::parts {
 
 sub HTTP::Message::add_part {
     my $self = shift;
-    die "NYI";
+    if (($self->content_type || "") !~ m,^multipart/,) {
+	my $p = HTTP::Message->new($self->headers, $self->content(""));
+	# XXX clear all non-content-headers of $p
+	$self->remove_content_headers;
+	$self->content_type("multipart/mixed");
+	$self->{_parts} = [$p];
+    }
+    elsif (!exists $self->{_parts}) {
+	$self->_parts;
+    }
+
+    push(@{$self->{_parts}}, @_);
+    delete $self->{_content};
+    return;
 }
 
 1;

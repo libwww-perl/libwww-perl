@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.18 1999/03/19 21:00:39 gisle Exp $
+# $Id: file.pm,v 1.19 1999/04/23 17:54:02 gisle Exp $
 
 package LWP::Protocol::file;
 
@@ -137,6 +137,7 @@ sub request
 	open(F, $path) or return new
 	    HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 			   "Cannot read file '$path': $!");
+	binmode(F);
 	$response =  $self->collect($arg, $response, sub {
 	    my $content = "";
 	    my $bytes = sysread(F, $content, $size);

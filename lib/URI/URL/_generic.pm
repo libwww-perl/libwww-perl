@@ -437,7 +437,7 @@ sub rel {
 	# it is already relative
 	return $rel;
     }
-    $path = "/" if $path eq '';
+    $path = "/$path" unless $path =~ m,^/,;
     
     my($bscheme, $bnetloc, $bpath) = @{$base}{qw(scheme netloc path)};
     for ($bscheme, $bnetloc, $netloc) { $_ = '' unless defined }

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.13 1995/12/05 15:51:33 aas Exp $
+$Id: TODO,v 1.14 1995/12/29 13:20:38 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -70,3 +70,5 @@ Include more useful programs
 Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 
 Fix bugs, it here are any...
+
+Make HTML parser warnings optional.

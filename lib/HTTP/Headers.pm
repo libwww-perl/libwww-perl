@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.59 2004/04/10 21:55:14 gisle Exp $
+# $Id: Headers.pm,v 1.60 2004/05/21 08:56:11 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.59 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.60 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -257,7 +257,7 @@ sub if_modified_since   { shift->_date_header('If-Modified-Since',   @_); }
 sub if_unmodified_since { shift->_date_header('If-Unmodified-Since', @_); }
 sub last_modified       { shift->_date_header('Last-Modified',       @_); }
 
-# This is used as a private LWP extention.  The Client-Date header is
+# This is used as a private LWP extension.  The Client-Date header is
 # added as a timestamp to a response when it has been received.
 sub client_date         { shift->_date_header('Client-Date',         @_); }
 

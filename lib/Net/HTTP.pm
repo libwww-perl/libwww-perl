@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.44 2004/04/09 15:07:04 gisle Exp $
+# $Id: HTTP.pm,v 1.45 2004/05/21 08:56:16 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -101,7 +101,7 @@ and C<peer_http_version> attributes.
 =item $s->send_te
 
 Get/set the a value indicating if the request will be sent with a "TE"
-header to indicate the transfer encodings that the server can chose to
+header to indicate the transfer encodings that the server can choose to
 use.  If the C<Compress::Zlib> module is installed then this will
 announce that this client accept both the I<deflate> and I<gzip>
 encodings.

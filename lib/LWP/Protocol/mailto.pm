@@ -1,5 +1,5 @@
 #
-# $Id: mailto.pm,v 1.11 2003/10/23 19:11:33 uid39246 Exp $
+# $Id: mailto.pm,v 1.12 2004/05/21 08:56:15 gisle Exp $
 #
 # This module implements the mailto protocol.  It is just a simple
 # frontend to the Unix sendmail program except on MacOS, where it uses
@@ -61,7 +61,7 @@ sub request
     my $scheme = $url->scheme;
     if ($scheme ne 'mailto') {
 	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-				  "LWP::file::request called for '$scheme'";
+			 "LWP::Protocol::mailto::request called for '$scheme'";
     }
     if ($^O eq "MacOS") {
 	eval {

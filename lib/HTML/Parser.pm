@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.8 1997/12/11 18:36:26 aas Exp $
+# $Id: Parser.pm,v 2.9 1997/12/11 22:44:39 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.9 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -51,6 +51,7 @@ sub parse
 	return $self;
     }
     $$buf .= $_[0];
+    my $netscape_comment = !$self->{'_strict_comment'};
 
     # Parse html text in $$buf.  The strategy is to remove complete
     # tokens from the beginning of $$buf until we can't deside whether
@@ -74,7 +75,7 @@ sub parse
 		$self->text($1);
 	    }
 	# Netscapes buggy comments are easy to handle
-	} elsif (!$self->{'_strict_comment'} && $$buf =~ m|^(<!--)|) {
+	} elsif ($netscape_comment && $$buf =~ m|^<!--|) {
 	    if ($$buf =~ s|^<!--(.*?)-->||s) {
 		$self->comment($1);
 	    } else {
@@ -264,13 +265,13 @@ sub comment
 
 sub start
 {
-    my($self, $tag, $attr, $attrseq, $origtext) = @_;
+    # my($self, $tag, $attr, $attrseq, $origtext) = @_;
     # $attr is reference to a HASH, $attrseq is reference to an ARRAY
 }
 
 sub end
 {
-    my($self, $tag, $origtext) = @_;
+    # my($self, $tag, $origtext) = @_;
 }
 
 1;

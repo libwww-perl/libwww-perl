@@ -438,7 +438,7 @@ sub abs
 
 # The oposite of $url->abs.  Return a URL as much relative as possible
 sub rel {
-    my($self, $base) = shift;
+    my($self, $base) = @_;
     my $rel = $self->clone;
     $base = $self->base unless $base;
     return $rel unless $base;

@@ -1,8 +1,9 @@
 use HTTP::Date;
 
-print "1..26\n";
+print "1..30\n";
 
 $no = 1;
+$| = 1;
 sub ok {
    print "not " if $_[0];
    print "ok $no\n";
@@ -27,11 +28,17 @@ my(@tests) =
  '03-Feb-94 00:00:00 GMT',      # old rfc850 (no weekday)
  '03-Feb-1994 00:00:00 GMT',    # broken rfc850 (no weekday)
  '03-Feb-1994 00:00 GMT',       # broken rfc850 (no weekday, no seconds)
+ '03-Feb-1994 00:00',           # VMS dir listing format
 
  '03-Feb-94',    # old rfc850 HTTP format    (no weekday, no time)
  '03-Feb-1994',  # broken rfc850 HTTP format (no weekday, no time)
  '03 Feb 1994',  # proposed new HTTP format  (no weekday, no time)
  '03/Feb/1994',  # common logfile format     (no time, no offset)
+
+ #'Feb  3 00:00',    # Unix 'ls -l' format (can't really test it here)
+ 'Feb  3 1994',      # Unix 'ls -l' format 
+
+ '1994-02-03 00:00:00 +0000',
 
  # A few tests with extra space at various places
  '  03/Feb/1994      ',
@@ -40,14 +47,32 @@ my(@tests) =
 
 my $time = 760233600;
 for (@tests) {
-    die "str2time('$_') failed" unless str2time($_) == $time;
-    print "'$_'\n";
+    if (/GMT/i) {
+	$t = str2time($_);
+    } else {
+        $t = str2time($_, "GMT");
+    }
+    $t = "UNDEF" unless defined $t;
+    print "'$_'  =>  $t\n";
+    print "not " if $t != $time;
     ok;
 }
 
 # test time2str
 die "time2str failed"
     unless time2str($time) eq 'Thu, 03 Feb 1994 00:00:00 GMT';
+
+# test the 'ls -l' format with missing year$
+# round to nearest minute 3 days ago.
+$time = int((time - 3 * 24*60*60) /60)*60;
+($min, $hr, $mday, $mon) = (localtime $time)[1,2,3,4];
+$mon = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$mon];
+$str = sprintf("$mon %02d %02d:%02d", $mday, $hr, $min);
+$t = str2time($str);
+$t = "UNDEF" unless defined $t;
+print "'$str'  =>  $t ($time)\n";
+print "not " if $t != $time;
+ok;
 
 # try some out of bounds date and some garbage.
 for ('03-Feb-1969', '03-Feb-2039',

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.35 1997/12/16 14:28:29 aas Exp $
+# $Id: http.pm,v 1.36 1997/12/17 09:23:11 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -75,7 +75,8 @@ sub request
     if (defined $content) {
 	$contRef = ref($content) ? $content : \$content;
 	if (ref($contRef) eq 'SCALAR') {
-	    $request->header('Content-Length', length $$contRef);
+	    $request->header('Content-Length' => length $$contRef)
+	        if length $$contRef;
 	} elsif (ref($contRef) eq 'CODE') {
 	    die 'No Content-Length header for request with code content'
 	      unless $request->header('Content-Length');
@@ -105,6 +106,7 @@ sub request
 	my $n = $socket->syswrite($buf, length($buf));
 	die $! unless defined($n);
 	die "short write" unless $n == length($buf);
+	#LWP::Debug::conns($buf);
     }
     if (defined $content) {
 	if (ref($contRef) eq 'CODE') {
@@ -113,12 +115,14 @@ sub request
 		my $n = $socket->syswrite($buf, length($buf));
 		die $! unless defined($n);
 		die "short write" unless $n == length($buf);
+		#LWP::Debug::conns($buf);
 	    }
 	} else {
 	    die "write timeout" if $timeout && !$sel->can_write($timeout);
 	    my $n = $socket->syswrite($$contRef, length($$contRef));
 	    die $! unless defined($n);
 	    die "short write" unless $n == length($$contRef);
+	    #LWP::Debug::conns($buf);
 	}
     }
 

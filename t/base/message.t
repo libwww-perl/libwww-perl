@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 58;
+plan tests => 74;
 
 require HTTP::Message;
 
@@ -81,7 +81,9 @@ $m = HTTP::Message->new([a => 1, b => 2], "abc");
 ok($m->content("foo\n"), "abc");
 ok($m->content, "foo\n");
 
-$m->add_content("bar\n");
+$m->add_content("bar");
+ok($m->content, "foo\nbar");
+$m->add_content(\"\n");
 ok($m->content, "foo\nbar\n");
 
 ok(ref($m->content_ref), "SCALAR");
@@ -255,3 +257,40 @@ B: 3<CR>
 b<CR>
 --xYzZY--<CR>
 EOT
+
+$m = HTTP::Message->new;
+$m->content_ref(\my $foo);
+ok($m->content_ref, \$foo);
+$foo = "foo";
+ok($m->content, "foo");
+$m->add_content("bar");
+ok($foo, "foobar");
+ok($m->as_string, "\nfoobar\n");
+$m->content_type("message/foo");
+$m->parts(HTTP::Message->new(["h", "v"], "C"));
+ok($foo, "H: v\r\n\r\nC");
+$foo =~ s/C/c/;
+$m2 = $m->parts;
+ok($m2->content, "c");
+
+$m = HTTP::Message->new;
+$foo = [];
+$m->content($foo);
+ok($m->content, $foo);
+ok($m->content_ref([]), $foo);
+ok($m->content_ref != $foo);
+eval {$m->add_content("x")};
+ok($@ && $@ =~ /^Can't append to ARRAY content/);
+
+$foo = sub {};
+$m->content($foo);
+ok($m->content, $foo);
+ok($m->content_ref, $foo);
+
+$foo = "foo";
+$m->content(\$foo);
+ok($m->content, "foo");
+ok($m->content_ref, \$foo);
+
+eval {$m->content_ref("foo")};
+ok($@ && $@ =~ /^Setting content_ref to a non-ref/);

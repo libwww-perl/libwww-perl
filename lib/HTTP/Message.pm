@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.42 2004/04/09 15:07:04 gisle Exp $
+# $Id: Message.pm,v 1.43 2004/06/09 11:01:52 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -75,7 +75,7 @@ sub clone
 sub clear {
     my $self = shift;
     $self->{_headers}->clear;
-    $self->{_content} = "";
+    $self->content("");
     delete $self->{_parts};
     return;
 }
@@ -84,16 +84,33 @@ sub clear {
 sub protocol { shift->_elem('_protocol',  @_); }
 
 sub content  {
-    my $self = shift;
-    if (defined(wantarray) && !exists $self->{_content}) {
-	$self->_content;
+
+    my $self = $_[0];
+    if (defined(wantarray)) {
+	$self->_content unless exists $self->{_content};
+	my $old = $self->{_content};
+	&_set_content if @_ > 1;
+	$old = $$old if ref($old) eq "SCALAR";
+	return $old;
     }
-    my $old = $self->{_content};
-    if (@_) {
-	$self->{_content} = shift;
-	delete $self->{_parts};
+
+    if (@_ > 1) {
+	&_set_content;
     }
-    $old;
+    else {
+	Carp::carp("Useless content call in void context") if $^W;
+    }
+}
+
+sub _set_content {
+    my $self = $_[0];
+    if (ref($self->{_content}) eq "SCALAR") {
+	${$self->{_content}} = $_[1];
+    }
+    else {
+	$self->{_content} = $_[1];
+    }
+    delete $self->{_parts} unless $_[2];
 }
 
 
@@ -101,11 +118,18 @@ sub add_content
 {
     my $self = shift;
     $self->_content unless exists $self->{_content};
-    if (ref($_[0])) {
-	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
+    my $chunkref = \$_[0];
+    $chunkref = $$chunkref if ref($$chunkref);  # legacy
+
+    my $ref = ref($self->{_content});
+    if (!$ref) {
+	$self->{_content} .= $$chunkref;
+    }
+    elsif ($ref eq "SCALAR") {
+	${$self->{_content}} .= $$chunkref;
     }
     else {
-	$self->{'_content'} .= $_[0];
+	Carp::croak("Can't append to $ref content");
     }
     delete $self->{_parts};
 }
@@ -116,7 +140,14 @@ sub content_ref
     my $self = shift;
     $self->_content unless exists $self->{_content};
     delete $self->{_parts};
-    \$self->{'_content'};
+    my $old = \$self->{_content};
+    $old = $$old if ref($$old);
+    if (@_) {
+	my $new = shift;
+	Carp::croak("Setting content_ref to a non-ref") unless ref($new);
+	$self->{_content} = $new;
+    }
+    return $old;
 }
 
 
@@ -144,7 +175,7 @@ sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
 
 sub parts {
     my $self = shift;
-    if (defined(wantarray) && !exists $self->{_parts}) {
+    if (defined(wantarray) && (!exists $self->{_parts} || ref($self->{_content}) eq "SCALAR")) {
 	$self->_parts;
     }
     my $old = $self->{_parts};
@@ -160,7 +191,7 @@ sub parts {
 	    $self->content_type("multipart/mixed");
 	}
 	$self->{_parts} = \@parts;
-	delete $self->{_content};
+	_stale_content($self);
     }
     return @$old if wantarray;
     return $old->[0];
@@ -174,13 +205,25 @@ sub add_part {
 	$self->content_type("multipart/mixed");
 	$self->{_parts} = [$p];
     }
-    elsif (!exists $self->{_parts}) {
+    elsif (!exists $self->{_parts} || ref($self->{_content}) eq "SCALAR") {
 	$self->_parts;
     }
 
     push(@{$self->{_parts}}, @_);
-    delete $self->{_content};
+    _stale_content($self);
     return;
+}
+
+sub _stale_content {
+    my $self = shift;
+    if (ref($self->{_content}) eq "SCALAR") {
+	# must recalculate now
+	$self->_content;
+    }
+    else {
+	# just invalidate cache
+	delete $self->{_content};
+    }
 }
 
 
@@ -219,7 +262,7 @@ sub _parts {
 	die "Assert" unless @h;
 	my %h = @{$h[0]};
 	if (defined(my $b = $h{boundary})) {
-	    my $str = $self->{_content};
+	    my $str = $self->content;
 	    $str =~ s/\r?\n--\Q$b\E--\r?\n.*//s;
 	    if ($str =~ s/(^|.*?\r?\n)--\Q$b\E\r?\n//s) {
 		$self->{_parts} = [map HTTP::Message->parse($_),
@@ -230,12 +273,13 @@ sub _parts {
     elsif ($ct eq "message/http") {
 	require HTTP::Request;
 	require HTTP::Response;
-	my $class = ($self->{_content} =~ m,^(HTTP/.*)\n,) ?
+	my $content = $self->content;
+	my $class = ($content =~ m,^(HTTP/.*)\n,) ?
 	    "HTTP::Response" : "HTTP::Request";
-	$self->{_parts} = [$class->parse($self->{_content})];
+	$self->{_parts} = [$class->parse($content)];
     }
     elsif ($ct =~ m,^message/,) {
-	$self->{_parts} = [ HTTP::Message->parse($self->{_content}) ];
+	$self->{_parts} = [ HTTP::Message->parse($self->content) ];
     }
 
     $self->{_parts} ||= [];
@@ -247,7 +291,7 @@ sub _content {
     my $self = shift;
     my $ct = $self->header("Content-Type") || "multipart/mixed";
     if ($ct =~ m,^\s*message/,i) {
-	$self->{_content} = $self->{_parts}[0]->as_string($CRLF);
+	_set_content($self, $self->{_parts}[0]->as_string($CRLF), 1);
 	return;
     }
 
@@ -292,9 +336,10 @@ sub _content {
     $ct = HTTP::Headers::Util::join_header_words(@v);
     $self->header("Content-Type", $ct);
 
-    $self->{_content} = "--$boundary$CRLF" .
+    _set_content($self, "--$boundary$CRLF" .
 	                join("$CRLF--$boundary$CRLF", @parts) .
-			"$CRLF--$boundary--$CRLF";
+			"$CRLF--$boundary--$CRLF",
+                        1);
 }
 
 
@@ -383,6 +428,8 @@ content buffer.
 
 =item $mess->content_ref
 
+=item $mess->content_ref( \$content )
+
 The content_ref() method will return a reference to content buffer string.
 It can be more efficient to access the content this way if the content
 is huge, and it can even be used for direct manipulation of the content,
@@ -391,6 +438,12 @@ for instance:
   ${$res->content_ref} =~ s/\bfoo\b/bar/g;
 
 This example would modify the content buffer in-place.
+
+If an argument is passed it will setup the content to reference some
+external source.  The content() and add_content() methods
+will automatically dereference scalar references passed this way.  For
+other references content() will return the reference itself and
+add_content() will refuse to do anything.
 
 =item $mess->parts
 

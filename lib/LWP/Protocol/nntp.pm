@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.6 1997/12/16 19:47:57 aas Exp $
+# $Id: nntp.pm,v 1.7 1997/12/16 19:58:23 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -56,13 +56,10 @@ sub request
 				   "Can't post to an article <$groupart>");
     }
 
-    # Create a socket and connect to the NNTP server.  We use our own
-    # specialization of the IO::Socket::INET class.  This new class is
-    # defined below.
     my $nntp = Net::NNTP->new(undef,
 			      #Port    => 18574,
 			      Timeout => $timeout,
-			      Debug   => 1,
+			      #Debug   => 1,
 			     );
     die "Can't connect to nntp server" unless $nntp;
 
@@ -113,7 +110,7 @@ sub request
     my($key, $val);
     while ($_ = shift @$art) {
 	if (/^\s+$/) {
-	    last;
+	    last;  # end of headers
 	} elsif (/^(\S+):\s*(.*)/) {
 	    $response->push_header($key, $val) if $key;
 	    ($key, $val) = ($1, $2);
@@ -121,7 +118,7 @@ sub request
 	    next unless $key;
 	    $val .= $1;
 	} else {
-	    print "XXXX: $_\n";
+	    unshift(@$art, $_);
 	    last;
 	}
     }

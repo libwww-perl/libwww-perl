@@ -5,4 +5,3 @@ install:
 
 dist:
 	perl ./make-dist
-

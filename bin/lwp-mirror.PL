@@ -1,10 +1,44 @@
 #!/local/bin/perl -w
 
-# $Id: lwp-mirror.PL,v 1.1 1995/07/11 22:34:55 aas Exp $
+# $Id: lwp-mirror.PL,v 1.2 1995/07/13 14:08:42 aas Exp $
 #
 # Simple mirror utility using LWP
 
-use lib '..';
+=head1 NAME
+
+mirror - Simple mirror utility for WWW
+
+=head1 SYNOPSIS
+
+ mirror [-v] [-b <base URL>] [-t timeout] <url> <local file>
+
+=head1 DESCRIPTION
+
+This program can be used to mirror a document from a WWW server.  The
+document is only transfered if the remote copy is newer than the local
+copy.  If the local copy is newer nothing happens.
+
+Use the C<-v> option to print the version number of this program.
+
+The timeout value specified with the C<-t> option time that the program
+will wait for response from the remote server before it fails.  The
+default unit for the timeout value is seconds.  You might append "m"
+to the timeout value to make it minutes.
+
+Because this program is implemented using the LWP library, it only
+supports the protocols that LWP supports.
+
+=head1 SEE ALSO
+
+L<get>, L<LWP>
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
+
 use LWP;
 use URI::URL;
 use Getopt::Std;
@@ -14,7 +48,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 $ua = new LWP::UserAgent;
 
@@ -22,15 +56,14 @@ $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
 $opt_b = undef;  # base url
 $opt_t = undef;  # timeout
-$opt_i = undef;  # if-modified-since
 
-unless (getopts("hvb:t:i:")) {
+unless (getopts("hvb:t:")) {
     usage();
 }
 
 if ($opt_v) {
     die <<"EOT";
-This is LWP $0 version $VERSION
+This is LWP $0 version $VERSION (using LWP version $LWP::VERSION)
 
 Copyright (C) 1995 Gisle Aas. All rights reserved.
 
@@ -39,8 +72,8 @@ modify it under the same terms as Perl itself.
 EOT
 }
 
-$file = shift or usage();
 $url  = shift or usage();
+$file = shift or usage();
 usage() if $opt_h or @ARGV;
 
 if (defined $opt_t) {
@@ -49,16 +82,7 @@ if (defined $opt_t) {
     $timeout = $1;
     $timeout *= 60   if ($2 eq "m");
     $timeout *= 3600 if ($2 eq "h");
-    print "Timeout $timeout seconds\n";
     $ua->timeout($timeout);
-}
-
-if (defined $opt_i) {
-    $time = str2time($opt_i);
-    die "$0: Illegal time syntax for -i option\n"
-	unless defined $time;
-    $opt_i = time2str($time);
-    die "$=: XXX no way to force the If-Modified-Header, Sorry\n";
 }
 
 
@@ -78,10 +102,9 @@ exit;
 sub usage
 {
     die <<"EOT";
-Usage: $0 [-options] <file> <url>
+Usage: $0 [-options] <url> <file>
     -v           print version number of program
     -b <base>    Use the specified URL as base
     -t <timeout> Set timeout value
-    -i <time>    Force value of If-Modified-Since header
 EOT
 }

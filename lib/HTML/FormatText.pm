@@ -18,7 +18,7 @@ sub begin
 
 sub end
 {
-    print "\n";
+    shift->collect("\n");
 }
 
 
@@ -66,7 +66,7 @@ sub pre_out
     my $indent = ' ' x $formatter->{lm};
     my $pre = shift;
     $pre =~ s/^/$indent/gm;
-    print $pre;
+    $formatter->collect($pre);
     $formatter->{out}++;
 }
 
@@ -93,7 +93,7 @@ sub out
     
     if ($formatter->{pending_space}) {
 	$formatter->{pending_space} = 0;
-	print ' ';
+	$formatter->collect(' ');
 	my $pos = ++$formatter->{curpos};
 	$formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
     }
@@ -101,7 +101,7 @@ sub out
     $formatter->{pending_space} = 1 if $text =~ s/\s+$//;
     return unless length $text;
 
-    print $text;
+    $formatter->collect($text);
     my $pos = $formatter->{curpos} += length $text;
     $formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
     $formatter->{'out'}++;
@@ -114,7 +114,7 @@ sub goto_lm
     my $lm  = $formatter->{lm};
     if ($pos < $lm) {
 	$formatter->{curpos} = $lm;
-	print " " x ($lm - $pos);
+	$formatter->collect(" " x ($lm - $pos));
     }
 }
 
@@ -124,7 +124,7 @@ sub nl
     $formatter->{'out'}++;
     $formatter->{pending_space} = 0;
     $formatter->{curpos} = 0;
-    print "\n";
+    $formatter->collect("\n");
 }
 
 sub adjust_lm

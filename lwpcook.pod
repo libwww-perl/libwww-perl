@@ -136,6 +136,7 @@ You should initialize your proxy setting before you start sending
 requests:
 
   use LWP::UserAgent;
+  $ua = new LWP::UserAgent;
   $ua->env_proxy; # initialize from environment variables
 
   $ua->proxy(ftp  => 'http://proxy.myorg.com');

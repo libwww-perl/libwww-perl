@@ -14,7 +14,7 @@ print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
 =head1 NAME
 
-lwp-rget - Retrive WWW documents recursively
+lwp-rget - Retrieve WWW documents recursively
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ lwp-rget - Retrive WWW documents recursively
 
 =head1 DESCRIPTION
 
-This program will retrive a document and store it in a local file.  It
+This program will retrieve a document and store it in a local file.  It
 will follow any links found in the document and store these documents
 as well, patching links so that they refer to these local copies.
 This process continues until there are no more unvisited links or the
@@ -34,7 +34,7 @@ This program is useful if you want to make a local copy of a
 collection of documents or want to do web reading off-line.
 
 All documents are stored as plain files in the current directory. The
-file names choosen are derived from the last component of URL paths.
+file names chosen are derived from the last component of URL paths.
 
 The options are:
 
@@ -42,9 +42,9 @@ The options are:
 
 =item --depth=I<n>
 
-Limit the recusive level. Embedded images are always loaded, even if
+Limit the recursive level. Embedded images are always loaded, even if
 they fall outside the I<--depth>. This means that one can use
-I<--depth=0> in order to fetch a single document togheter with all
+I<--depth=0> in order to fetch a single document together with all
 inline graphics.
 
 The default depth is 5.
@@ -68,7 +68,7 @@ you to go slowly, not loading the server you visiting too much.
 
 =item --verbose
 
-Make more noice while running.
+Make more noise while running.
 
 =item --version
 
@@ -94,13 +94,13 @@ use strict;
 
 use Getopt::Long;
 use URI::URL;
-use LWP::MediaTypes;
+use LWP::MediaTypes qw(media_suffix);
 
 use vars qw($VERSION $DISTNAME);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -234,7 +234,7 @@ sub fetch
 	    save($name, $doc);
 	    my $base = $res->base;
 	    # Follow and substitute links...
-	    $doc =~ s/(<\s*(img|a|body)\b[^>]+\b(?:src|href|background)=)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
+	    $doc =~ s/(<\s*(img|a|body)\b[^>]+\b(?:src|href|background)\s*=\s*)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
 	}
 	save($name, $doc);
 	return $name;					  

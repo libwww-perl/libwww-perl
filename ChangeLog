@@ -1,3 +1,18 @@
+Tue Dec 16 1997   Gisle Aas <aas@sn.no>
+
+ o  Developer release 5.18_03
+
+ o  Got rid of alarms() and replaced LWP::Socket with IO::Socket::INET.
+    New protocol implementations for http, https, gopher, nntp.
+    $ua->use_alarm() is now a noop.
+
+ o  LWP::Protocol::ftp patch from  Tony Finch <fanf@demon.net>.
+
+ o  Removed depreciated modules from the distibution; HTML::Parse,
+    LWP::Socket, LWP::SecureSocket, LWP::IO, LWP::TkIO.
+
+
+
 Fri Dec 12 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.18

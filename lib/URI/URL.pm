@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.05";   # $Date: 1996/07/17 09:11:42 $
+$VERSION = "4.06";   # $Date: 1996/09/26 08:53:08 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -766,7 +766,14 @@ if the key is repeated (which it is allowed to do).
 
 This method can also be used to set the query sting of the URL like this:
 
-  $url->query_form(foo => 'bar', equal => '=');
+  $url->query_form(foo => 'bar', foo => 'baz', equal => '=');
+
+If the value part of a key/value pair is a reference to an array, then
+it will be converted to separate key/value pairs for each value.  This
+means that these two calls are equal:
+
+  $url->query_form(foo => 'bar', foo => 'baz');
+  $url->query_form(foo => ['bar', 'baz']);
 
 =back
 

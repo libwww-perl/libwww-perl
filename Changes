@@ -17,6 +17,11 @@
     when the content ended up empty.  Fixed by a patch contributed
     by Brian J. Murrell.
 
+    Internally generated responses now contain a text/plain part
+    that repeats the status line.  They also have a "Client-Warning"
+    header that can be used to differentiate these responses from
+    real server responses.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

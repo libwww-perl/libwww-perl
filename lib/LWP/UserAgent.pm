@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.7 2003/10/15 10:50:29 gisle Exp $
+# $Id: UserAgent.pm,v 2.8 2003/10/15 12:46:18 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.8 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -372,9 +372,9 @@ EOT
 	};
 	if ($@) {
 	    $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-	    $response =
-	      HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-				  $@);
+	    $response = _new_response($request,
+				      &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				      $@);
 	}
     } else {
 	$response = $protocol->request($request, $proxy,
@@ -1239,6 +1239,9 @@ sub _new_response {
     my $response = HTTP::Response->new($code, $message);
     $response->request($request);
     $response->header("Client-Date" => HTTP::Date::time2str(time));
+    $response->header("Client-Warning" => "Internal response");
+    $response->header("Content-Type" => "text/plain");
+    $response->content("$code $message\n");
     return $response;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.12 1995/08/27 22:32:25 aas Exp $
+# $Id: Headers.pm,v 1.13 1996/02/05 17:58:37 aas Exp $
 
 package HTTP::Headers;
 
@@ -14,9 +14,9 @@ HTTP::Headers - Class encapsulating HTTP Message headers
 
 =head1 DESCRIPTION
 
-C<HTTP::Headers> is a class encapsulating HTTP style message
-headers: attribute value pairs which may be repeated, and are printed
-in a particular order.
+C<HTTP::Headers> is a class encapsulating HTTP style message headers.
+The headers contain attribute value pairs which may be repeated, and
+are printed in a particular order.
 
 Instances of this class are usually created as member variables of the
 C<HTTP::Request> and C<HTTP::Response> classes, internally to the
@@ -40,7 +40,7 @@ require Carp;
 my @header_order = qw( 
    Date Forwarded MIME-Version Pragma
 
-   Accept Accept-Charset Accept-Encoding Accept-Language
+   Host Accept Accept-Charset Accept-Encoding Accept-Language
    Authorization From If-Modified-Since Orig-URI Referer User-Agent
 
    Location Public Retry-After Server WWW-Authenticate
@@ -60,7 +60,6 @@ for (@header_order) {
     $header_order{$lc} = $i++;
     $standard_case{$lc} = $_;
 }
-undef($i);
 
 
 
@@ -250,6 +249,9 @@ C<scan()> to build the string, the result will use case as suggested
 by HTTP Spec, and it will follow recommended "Good Practice" of
 ordering the header fieds.
 
+The optional parameter specifies the line ending sequence to use.  The
+default is C<"\n">.
+
 =cut
 
 sub asString
@@ -260,6 +262,8 @@ sub asString
     my @result = ();
     $self->scan(sub {
         my($field, $val) = @_;
+	Carp::croak("HTTP header ($field) contains newline")
+	   if $val =~ /\n/;
 	push(@result, "$field: $val");
     });
 

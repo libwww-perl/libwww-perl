@@ -1,8 +1,10 @@
-1999-03-19   Gisle Aas <gisle@aas.no>
+1999-03-20   Gisle Aas <gisle@aas.no>
 
  o  Release 5.42
 	
  o  MacOS patches from Paul J. Schinder <schinder@leprss.gsfc.nasa.gov>
+
+ o  Documentation patch from Michael A. Chase <mchase@ix.netcom.com>
 
  o  PREREQ_PM patch from Andreas Koenig <andreas.koenig@anima.de>
  

@@ -22,7 +22,7 @@ $p = HTML::LinkExtor->new(
       $links .= "$tag @{[%links]}\n";
   });
 
-$p->parse($HTML); $p->parse(undef);
+$p->parse($HTML); $p->eof;
 
 $links =~ m|^base href http://www\.sn\.no/$|m or print "not ";
 print "ok 1\n";
@@ -34,7 +34,7 @@ print "ok 3\n";
 # Try with base URL and the $p->links interface.
 
 $p = new HTML::LinkExtor undef, "http://www.sn.no/foo/foo.html";
-$p->parse($HTML); $p->parse(undef);
+$p->parse($HTML); $p->eof;
 
 @p = $p->links;
 
@@ -62,7 +62,7 @@ print "ok 8\n";
 # Used to be problems when using the links method on a document with
 # no links it it.  This is a test to prove that it works.
 $p = new HTML::LinkExtor;
-$p->parse("this is a document with no links"); $p->parse(undef);
+$p->parse("this is a document with no links"); $p->eof;
 @a = $p->links;
 print "not " if @a != 0;
 print "ok 9\n";

@@ -27,8 +27,7 @@ print "1..$notests\n";
 
 require HTML::TreeBuilder;
 $h = new HTML::TreeBuilder;
-$h->parse($HTML);
-$h->parse(undef);
+$h->parse($HTML)->eof;
 $html = $h->as_HTML;
 $h->delete;
 
@@ -43,7 +42,7 @@ for $pos (1 .. length($HTML) - 1) {
 	$h = new HTML::TreeBuilder;
 	$h->parse($first);
 	$h->parse($last);
-	$h->parse(undef);
+	$h->eof;
     };
     if ($@) {
 	print "Died when splitting at position $pos:\n";
@@ -79,7 +78,7 @@ $h = new HTML::TreeBuilder;
 while ($HTML =~ /(.)/sg) {
     $h->parse($1);
 }
-$h->parse(undef);
+$h->eof;
 $new_html = $h->as_HTML;
 if ($new_html ne $html) {
    print "Also different when parsed one char at a time\n";

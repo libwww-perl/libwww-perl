@@ -37,7 +37,7 @@ you.
 
 INSTALLATION
 
-In order to use this package you will need Perl version 5.002beta2 or
+In order to use this package you will need Perl version 5.002 or
 better.
 
 You install the library by running these commands:

@@ -1,10 +1,10 @@
 package HTTP::Request;
 
-# $Id: Request.pm,v 1.37 2004/04/07 08:02:16 gisle Exp $
+# $Id: Request.pm,v 1.38 2004/04/07 08:28:45 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -124,10 +124,10 @@ inherits its methods.  The following additional methods are available:
 
 Constructs a new C<HTTP::Request> object describing a request on the
 object $uri using method $method.  The $method argument must be a
-string.  The $uri argument can be either a string, or a reference
-to a C<URI> object.  The optional $header argument should be a
-reference to an C<HTTP::Headers> object.  The optional $content
-argument should be a string of bytes.
+string.  The $uri argument can be either a string, or a reference to a
+C<URI> object.  The optional $header argument should be a reference to
+an C<HTTP::Headers> object or a plain array reference of key/value
+pairs.  The optional $content argument should be a string of bytes.
 
 =item $r->method
 
@@ -167,8 +167,9 @@ module can be used to turn such strings into a string of bytes.
 
 =item $r->as_string
 
+=item $r->as_string( $eol )
+
 Method returning a textual representation of the request.
-Mainly useful for debugging purposes. It takes no arguments.
 
 =back
 
@@ -179,7 +180,7 @@ L<HTTP::Response>
 
 =head1 COPYRIGHT
 
-Copyright 1995-2001 Gisle Aas.
+Copyright 1995-2004 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

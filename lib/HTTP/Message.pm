@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.36 2004/04/07 07:54:23 gisle Exp $
+# $Id: Message.pm,v 1.37 2004/04/07 08:28:44 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -144,22 +144,31 @@ __END__
 
 =head1 NAME
 
-HTTP::Message - HTTP style message base class
+HTTP::Message - HTTP style message (base class)
 
 =head1 SYNOPSIS
 
- package HTTP::Request;  # or HTTP::Response
- require HTTP::Message;
- @ISA=qw(HTTP::Message);
+ use base 'HTTP::Message';
 
 =head1 DESCRIPTION
 
 An C<HTTP::Message> object contains some headers and a content body.
-The class is abstract, i.e. it only used as a base class for
-C<HTTP::Request> and C<HTTP::Response> and should never instantiated
-as itself.  The following methods are available:
+The following methods are available:
 
 =over 4
+
+=item $mess = HTTP::Message->new
+
+=item $mess = HTTP::Message->new( $headers )
+
+=item $mess = HTTP::Message->new( $headers, $content )
+
+This constructs a new message object.  Normally you would want
+construct C<HTTP::Request> and C<HTTP::Response> objects instead.
+
+The optional $header argument should be a reference to an
+C<HTTP::Headers> object or a plain array reference of key/value pairs.
+The optional $content argument should be a string of bytes.
 
 =item $mess->content
 
@@ -195,7 +204,7 @@ Returns the embedded HTTP::Headers object.
 
 =item $mess->headers_as_string
 
-=item $mess->headers_as_string( $endl )
+=item $mess->headers_as_string( $eol )
 
 Call the as_string() method for the headers in the
 message.  This will be the same as
@@ -219,6 +228,18 @@ like C<HTTP/1.0> or C<HTTP/1.1>.
 
 Returns a copy of the message object.
 
+=item $mess->as_string
+
+=item $mess->as_string( $eol )
+
+Returns the message formatted as a single string.
+
+The optional $eol parameter specifies the line ending sequence to use.
+The default is "\n".  If no $eol is given then as_string will ensure
+that the returned string is newline terminated (even when the message
+content is not).  No extra newline is appened ff an explicit $eol is
+passed.
+
 =back
 
 All methods unknown to C<HTTP::Message> itself are delegated to the
@@ -230,6 +251,7 @@ details of these methods:
     $mess->push_header( $field => $val )
     $mess->init_header( $field => $val )
     $mess->remove_header( $field )
+    $mess->remove_content_headers
     $mess->scan( \&doit )
 
     $mess->date
@@ -254,7 +276,7 @@ details of these methods:
 
 =head1 COPYRIGHT
 
-Copyright 1995-2001 Gisle Aas.
+Copyright 1995-2004 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

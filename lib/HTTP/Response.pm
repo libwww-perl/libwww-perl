@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.44 2004/04/07 08:02:16 gisle Exp $
+# $Id: Response.pm,v 1.45 2004/04/07 08:28:45 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -243,9 +243,10 @@ inherits its methods.  The following additional methods are available:
 
 Constructs a new C<HTTP::Response> object describing a response with
 response code $code and optional message $msg.  The optional $header
-argument should be a reference to an C<HTTP::Headers> object.  The
-optional $content argument should be a string of bytes.  The meaning
-these arguments are described below.
+argument should be a reference to an C<HTTP::Headers> object or a
+plain array reference of key/value pairs.  The optional $content
+argument should be a string of bytes.  The meaning these arguments are
+described below.
 
 =item $r->code
 
@@ -343,8 +344,9 @@ either).
 
 =item $r->as_string
 
-Returns a textual representation of the response.  Mainly
-useful for debugging purposes. It takes no arguments.
+=item $r->as_string( $eol )
+
+Returns a textual representation of the response.
 
 =item $r->is_info
 
@@ -401,7 +403,7 @@ L<HTTP::Headers>, L<HTTP::Message>, L<HTTP::Status>, L<HTTP::Request>
 
 =head1 COPYRIGHT
 
-Copyright 1995-2001 Gisle Aas.
+Copyright 1995-2004 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

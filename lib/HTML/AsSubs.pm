@@ -62,10 +62,16 @@ L<HTML::Element>
 
 =cut
 
+use strict;
+use vars qw(@ISA $VERSION @EXPORT);
+
 require HTML::Element;
 require Exporter;
 @ISA = qw(Exporter);
 
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+
+use vars qw(@TAGS);
 @TAGS = qw(html
 	   head title base link meta isindex nextid script style
 	   body h1 h2 h3 h4 h5 h6 p pre div blockquote
@@ -83,6 +89,7 @@ require Exporter;
            frame frameset noframe
 	  );
 
+my @code;
 for (@TAGS) {
     push(@code, "sub $_ { _elem('$_', \@_); }\n");
     push(@EXPORT, $_);

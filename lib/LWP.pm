@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.43 1996/12/04 15:54:01 aas Exp $
+# $Id: LWP.pm,v 1.44 1997/01/26 15:42:32 aas Exp $
 
 package LWP;
 
@@ -593,7 +593,7 @@ Koenig, Jared Rhine, and Jack Shirazi.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-1996, Gisle Aas
+  Copyright 1995-1997, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

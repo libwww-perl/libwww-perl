@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.70 1999/11/22 10:36:04 gisle Exp $
+# $Id: UserAgent.pm,v 1.71 1999/11/29 12:33:58 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -10,9 +10,9 @@ LWP::UserAgent - A WWW UserAgent class
 =head1 SYNOPSIS
 
  require LWP::UserAgent;
- $ua = new LWP::UserAgent;
+ $ua = LWP::UserAgent->new;
 
- $request = new HTTP::Request('GET', 'file://localhost/etc/motd');
+ $request = HTTP::Request->new('GET', 'file://localhost/etc/motd');
 
  $response = $ua->request($request); # or
  $response = $ua->request($request, '/tmp/sss'); # or
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.70 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.71 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -105,7 +105,7 @@ use LWP::Protocol ();
 use Carp ();
 
 
-=item $ua = new LWP::UserAgent;
+=item $ua = LWP::UserAgent->new;
 
 Constructor for the UserAgent.  Returns a reference to a
 LWP::UserAgent object.
@@ -535,7 +535,7 @@ sub mirror
     my($self, $url, $file) = @_;
 
     LWP::Debug::trace('()');
-    my $request = new HTTP::Request('GET', $url);
+    my $request = HTTP::Request->new('GET', $url);
 
     if (-e $file) {
 	my($mtime) = (stat($file))[9];

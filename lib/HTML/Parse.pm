@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.7 1995/09/11 10:22:55 aas Exp $
+# $Id: Parse.pm,v 1.8 1995/09/11 14:26:30 aas Exp $
 
 =head1 NAME
 
@@ -61,11 +61,6 @@ Do not represent the text content of elements.  This saves space if
 all you want is to examine the structure of the document.  Default is
 false.
 
-=item $HTML::Parse::SPLIT_TEXT
-
-This variable controls whether the text content of elements should be
-cut into pieces. Default is false.
-
 =back
 
 =head1 SEE ALSO
@@ -94,12 +89,11 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
 $IMPLICIT_TAGS  = 1;
-$SPLIT_TEXT     = 0;
 $IGNORE_UNKNOWN = 1;
 $IGNORE_TEXT    = 0;
 
@@ -185,19 +179,24 @@ sub parse_html
     }
     return $html unless length $$buf;
     
+    # Split HTML text into tokens.
     my @x = split(/(<[^>]+>)/, $$buf);
-    if ($x[-1] =~ s/(<.*)//s) {
-	$$buf = $1;
+    if ($x[-1] =~ m/>/) {              # last token is complete a tag
+	$$buf = '';
+    } elsif ($x[-1] =~ s/(<.*)//s) {   # last token is partial tag
+	$$buf = $1;                    # parse this next time
 	pop(@x) unless length $x[-1];
-    } else {
+    } else {                           # last token is text
 	$$buf = '';
     }
+
+    # Process all complete tokens
     for (@x) {
-	if (m:^</:) {
-	    endtag($html, $_);
+	if (m:^</\s*(\w+)\s*>$:) {
+	    endtag($html, lc $1);
 	} elsif (m/^<\s*\w+/) {
 	    starttag($html, $_);
-	} elsif (m/^<!DOCTYPE\b/) {
+	} elsif (m/^<!\s*DOCTYPE\b/) {
 	    # just ignore it
 	} else {
 	    text($html, $_);
@@ -295,6 +294,8 @@ sub starttag
 		$pos = insertTag($html, 'head', 1);
 	    }
         } elsif ($isBodyElement{$tag}) {
+
+	    # Ensure that we are within <body>
 	    if ($pos->isInside('head')) {
 		endtag($html, 'head');
 		$pos = insertTag($html, 'body');
@@ -307,9 +308,7 @@ sub starttag
 	    # Handle implicit endings and insert based on <tag> and position
 	    if ($tag eq 'p' || $tag =~ /^h[1-6]/) {
 		# Can't have <p> or <h#> inside these
-		for (qw(p h1 h2 h3 h4 h5 h6 pre textarea)) {
-		    endtag($html, $_);
-		}
+		endtag($html, [qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
 	    } elsif ($tag =~ /^[oud]l$/) {
 		# Can't have lists inside <h#>
 		if ($ptag =~ /^h[1-6]/) {
@@ -319,12 +318,11 @@ sub starttag
 		}
 	    } elsif ($tag eq 'li') {
 		# Fix <li> outside list
-		endtag($html, 'li');
+		endtag($html, 'li', keys %isList);
 		$ptag = $html->pos->tag;
 		$pos = insertTag($html, 'ul') unless $isList{$ptag};
 	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
-		endtag($html, 'dt');
-		endtag($html, 'dd');
+		endtag($html, ['dt'. 'dd'], 'dl');
 		$ptag = $html->pos->tag;
 		# Fix <dt> or <dd> outside <dl>
 		$pos = insertTag($html, 'dl') unless $ptag eq 'dl';
@@ -337,14 +335,13 @@ sub starttag
 		    $pos = insertTag($html, 'select') unless $ptag eq 'select';
 		}
 	    } elsif ($isTableElement{$tag}) {
-		endtag($html, $tag);
+		endtag($html, $tag, 'table');
 		$pos = insertTag($html, 'table') if !$pos->isInside('table');
 	    } elsif ($isPhraseMarkup{$tag}) {
 		if ($ptag eq 'body') {
 		    $pos = insertTag($html, 'p');
 		}
 	    }
-	    
 
 	} else {
 	    # unknown tag
@@ -379,19 +376,38 @@ sub insertTag
 
 sub endtag
 {
-    my $html = shift;
-    my($tag) = $_[0] =~ m|^(?:</)?(\w+)>?$|;
-    unless (defined $tag) {
-	warn "Illegal end tag $_[0]";
-    } else {
-	#print "END: $tag\n";
-	$tag = lc $tag;
-	my $p = $html->pos;
-	while (defined $p and $p->tag ne $tag) {
+    my($html, $tag, @stop) = @_;
+
+    # End the specified tag, but don't move above any of the @stop tags.
+    # The tag can also be a reference to an array.  Terminate the first
+    # tag found.
+    
+    my $p = $html->pos;
+    if (ref $tag) {
+      PARENT:
+	while (defined $p) {
+	    my $ptag = $p->tag;
+	    for (@$tag) {
+		last PARENT if $ptag eq $_;
+	    }
+	    for (@stop) {
+		return if $ptag eq $_;
+	    }
 	    $p = $p->parent;
 	}
-	$html->pos($p->parent) if defined $p;
+    } else {
+	while (defined $p) {
+	    my $ptag = $p->tag;
+	    last if $ptag eq $tag;
+	    for (@stop) {
+		return if $ptag eq $_;
+	    }
+	    $p = $p->parent;
+	}
     }
+
+    # Move position if the specified tag was found
+    $html->pos($p->parent) if defined $p;
 }
 
 
@@ -424,20 +440,16 @@ sub text
 	    insertTag($html, 'body');
 	    $pos = insertTag($html, 'p');
 	} elsif ($ptag eq 'body' ||
-		 $ptag eq 'li'   ||
-		 $ptag eq 'dd'   ||
+	       # $ptag eq 'li'   ||
+	       # $ptag eq 'dd'   ||
 		 $ptag eq 'form') {
 	    $pos = insertTag($html, 'p');
 	}
 	return if $IGNORE_TEXT;
 	for (@text) {
 	    next if /^\s*$/;  # empty text
-	    if ($SPLIT_TEXT) {
-		$pos->pushContent(split(' ', $_));
-	    } else {
-		s/\s+/ /g;  # canoncial space
-		$pos->pushContent($_);
-	    }
+	    s/\s+/ /g;  # canoncial space
+	    $pos->pushContent($_);
 	}
     }
 }

@@ -15,28 +15,29 @@ TESTS=	getAndPrint-local \
 tests: $(TESTS)
 
 getAndPrint-local:
-	-perl -w getAndPrint-local.pl
+	-perl -I../blib -w getAndPrint-local.pl
 
 getAndStore-local:
-	-perl -w getAndStore-local.pl
+	-perl -I../blib -w getAndStore-local.pl
 
 getAndPrint-http:
-	-perl -w getAndPrint-http.pl
+	-perl -I../blib -w getAndPrint-http.pl
 
 getAndStore-http:
-	-perl -w getAndStore-http.pl
+	-perl -I../blib -w getAndStore-http.pl
 
 timeout:
-	-perl -w timeout-http.pl
+	-perl -I../blib -w timeout-http.pl
 
 post:
-	-perl -w post-http.pl
+	-perl -I../blib -w post-http.pl
 
 get:
-	-perl -w get-http.pl
+	-perl -I../blib -w get-http.pl
 
 moved:
-	-perl -w moved.pl
+	-perl -I../blib -w moved.pl
 
 autoload:
-	-perl -w autoload.pl
+	-perl -I../blib -w autoload.pl
+

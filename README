@@ -3,7 +3,7 @@
 
 Libwww-perl is a collection of Perl modules which provides a simple
 and consistent programming interface (API) to the World-Wide Web.  The
-main focus of the library is to provide objects and functions that
+main focus of the library is to provide classes and functions that
 allow you to write WWW clients, thus libwww-perl said to be a WWW
 client library. The library also contain modules that are of more
 general use.
@@ -47,13 +47,14 @@ library, by running these commands:
 
 You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
-want to install any programs then make the initial Makefile with:
+want to install any programs (but only the library files) then make
+the initial Makefile with:
 
    perl Makefile.PL -n
 
 If you want to install a private copy of libwww-perl in your home
 directory, then you should try to produce the initial Makefile with
-this command:
+something like this command:
 
   perl Makefile.PL PREFIX=~/perl
 
@@ -74,8 +75,8 @@ See lib/LWP.pm for an overview of the library. See ChangeLog for
 recent changes.  POD style documentation is included in all modules
 and scripts.  These are normally converted to manual pages and
 installed as part of the "make install" process.  You should also be
-able to use the 'perldoc' utility to extract documentation from these
-files.
+able to use the 'perldoc' utility to extract documentation from the
+module files directly.
 
 
 THE HTML MODULES ARE STILL ALPHA
@@ -88,7 +89,7 @@ change in future releases of this library.  You are warned!
 SUPPORT
 
 Question about how to use this library should be directed to the
-comp.lang.perl.modules USENET newsgroup.  Bug reports and suggestions
+comp.lang.perl.modules USENET Newsgroup.  Bug reports and suggestions
 for improvements can be sendt to the <libwww-perl@ics.uci.edu> mailing
 list.  This mailing list is also the place for general discussions of
 the libwww-perl package.

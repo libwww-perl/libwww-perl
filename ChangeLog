@@ -1,3 +1,15 @@
+Fri Jul 10 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.35
+
+ o  More lwp-rget patches from David D. Kilzer <ddkilzer@madison.dseg.ti.com>.
+    Adds the following new options: --iis, --keepext, --tolower
+
+ o  LWP::MediaTypes patches from MacEachern <dougm@pobox.com>.  Adds new
+    functions: add_type(), add_encoding(), read_media_types()
+
+
+
 Tue Jul  7 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.34

@@ -1,8 +1,10 @@
 package HTML::FormatPS;
 
-require HTML::Formatter;
+# $Id: FormatPS.pm,v 1.10 1995/09/14 08:56:12 aas Exp $
+
 use Carp;
 
+require HTML::Formatter;
 @ISA = qw(HTML::Formatter);
 
 sub mm { $_[0] * 72 / 25.4; }
@@ -74,7 +76,7 @@ sub new
     # Set up defaults
     my $self = bless {
 	family => "Times",
-	mH => mm(30),
+	mH => mm(40),
 	mW => mm(20),
 	printpageno => 1,
 	fontscale   => 1,
@@ -179,13 +181,17 @@ sub begin
 
     $self->{output} = ();
     $self->{pageno} = 1;
+
+    $self->{line} = "";
+    $self->{showstring} = "";
+
     $self->newpage;
 }
 
 sub end
 {
     my $self = shift;
-    $self->show;
+    $self->showline;
     $self->endpage if $self->{out};
     my $pages = $self->{pageno} - 1;
 
@@ -277,25 +283,6 @@ sub header_end
     1;
 }
 
-sub skip_vspace
-{
-    my $self = shift;
-    if (defined $self->{vspace}) {
-	if ($self->{out}) {
-	    $self->{ypos} -= ($self->{vspace} + 1) * 10 * $self->{fontscale};
-	    if ($self->{ypos} < $self->{bm}) {
-		$self->show;
-		$self->newpage;
-		return;
-	    }
-	}
-	$self->{xpos} = $self->{lm};
-	$self->show;
-	$self->moveto;
-	$self->{vspace} = undef;
-    }
-}
-
 sub pre_out
 {
     my($self, $text) = @_;
@@ -304,29 +291,59 @@ sub pre_out
     my $font = $self->findfont();
     if (length $font) {
 	$self->show;
-	$self->collect("$font\n");
+	$self->{line} .= "$font\n";
     }
     while ($text =~ s/(.*)\n//) {
-	$self->{line} .= $1;
-	$self->newline;
+	$self->{showstring} .= $1;
+	$self->showline;
     }
-    $self->{line} .= $text;
+    $self->{showstring} .= $text;
     $self->tt_end;
 }
 
-sub newline
+sub skip_vspace
+{
+    my $self = shift;
+    if (defined $self->{vspace}) {
+	$self->showline;
+	if ($self->{out}) {
+	    $self->{ypos} -= $self->{vspace} * 10 * $self->{fontscale};
+	    if ($self->{ypos} < $self->{bm}) {
+		$self->newpage;
+	    }
+	}
+	$self->{xpos} = $self->{lm};
+	$self->{vspace} = undef;
+    }
+}
+
+sub showline
 {
     my $self = shift;
     $self->show;
-    $self->{ypos} -= $self->{pointsize};
-    $self->{xpos} = $self->{lm};
+    my $line = $self->{line};
+    return unless length $line;
+    $self->{ypos} -= $self->{pointsize};   # should really use largest on line
     if ($self->{ypos} < $self->{bm}) {
 	$self->newpage;
-	$font = $self->findfont();
-	die "This should not happen" unless length $font;
-	$self->collect("$font\n");
+	$self->{ypos} -= $self->{pointsize};
+	# XXX: should stick intialial font specification into line.
     }
-    $self->moveto;
+    my $lm = $self->{lm};
+    my $x = $lm;
+    if ($self->{center}) {
+	# Unfortunately, the center attribute is gone when we get here
+	my $linewidth = $self->{xpos} - $lm;
+	$x += ($self->{rm} - $lm - $linewidth) / 2;
+    }
+
+    $self->collect(sprintf "%.1f %.1f M\n", $x, $self->{ypos});  # moveto
+    $self->collect($line);
+    $self->{line} = "";
+    $self->{xpos} = $lm;
+
+    # additional spacing between lines
+    #$self->{ypos} -= 0.1 * $self->{pointsize};
 }
 
 
@@ -339,18 +356,15 @@ sub out
     my $font = $self->findfont();
     if (length $font) {
 	$self->show;
-	$self->collect("$font\n");
+	$self->{line} .= "$font\n";
     }
     my $w = $self->width($text);
-    my $xpos = $self->{xpos};
-    my $rm   = $self->{rm};
-    if ($xpos + $w > $rm) {
-	$self->newline;
+    if ($self->{xpos} + $w > $self->{rm}) {
+	$self->showline;
 	next if $text =~ /^\s*$/;
-    } else {
-	$self->{xpos} += $w;
-    }
-    $self->{line} .= $text;
+    };
+    $self->{xpos} += $w;
+    $self->{showstring} .= $text;
     $self->{out}++;
 }
 
@@ -391,23 +405,16 @@ sub newpage
 
     $self->{xpos} = $llx;
     $self->{ypos} = $ury;
-    $self->{currentfont} = "";
-}
-
-sub moveto
-{
-    my $self = shift;
-    $self->collect(sprintf "%.1f %.1f M\n", $self->{xpos}, $self->{ypos});
 }
 
 sub show
 {
     my $self = shift;
-    my $line = $self->{line};
-    return unless length $line;
-    $line =~ s/([\(\)])/\\$1/g;
-    $self->collect("($line)S\n");
-    $self->{line} = "";
+    my $str = $self->{showstring};
+    return unless length $str;
+    $str =~ s/([\(\)])/\\$1/g;    # must escape parentesis
+    $self->{line} .= "($str)S\n";
+    $self->{showstring} = "";
 }
 
 sub width

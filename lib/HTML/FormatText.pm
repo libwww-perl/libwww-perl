@@ -1,6 +1,6 @@
 package HTML::FormatText;
 
-# $Id: FormatText.pm,v 1.13 1997/10/12 13:36:23 aas Exp $
+# $Id: FormatText.pm,v 1.14 1997/10/12 20:27:57 aas Exp $
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ HTML::FormatText - Format HTML as text
 
  require HTML::FormatText;
  $html = parse_htmlfile("test.html");
- $formatter = new HTML::FormatText;
+ $formatter = HTML::FormatText->new(leftmargin => 0, rightmargin => 50);
  print $formatter->format($html);
 
 =head1 DESCRIPTION
@@ -19,13 +19,28 @@ The HTML::FormatText is a formatter that outputs plain latin1 text.
 All character attributes (bold/italic/underline) are ignored.
 Formatting of HTML tables and forms is not implemented.
 
+You might specify the following parameters when constructing the
+formatter:
+
+=over 4
+
+=item I<leftmargin> (alias I<lm>)
+
+The column of the left margin. The default is 3.
+
+=item I<rightmargin> (alias I<rm>)
+
+The column of the right margin. The default is 72.
+
+=back
+
 =head1 SEE ALSO
 
 L<HTML::Formatter>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995-1997 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -37,21 +52,57 @@ Gisle Aas <aas@oslonett.no>
 =cut
 
 require HTML::Formatter;
-
 @ISA = qw(HTML::Formatter);
 
 use strict;
+
+sub default_values
+{
+    (
+     lm =>  3, # left margin
+     rm => 72, # right margin (actually, maximum text width)
+    );
+}
+
+sub configure
+{
+    my($self,$hash) = @_;
+    my $lm = $self->{lm};
+    my $rm = $self->{rm};
+
+    $lm = delete $hash->{lm} if exists $hash->{lm};
+    $lm = delete $hash->{leftmargin} if exists $hash->{leftmargin};
+    $rm = delete $hash->{rm} if exists $hash->{rm};
+    $rm = delete $hash->{rightmargin} if exists $hash->{rightmargin};
+
+    my $width = $rm - $lm;
+    if ($width < 1) {
+	warn "Bad margins, ignored" if $^W;
+	return;
+    }
+    if ($width < 20) {
+	warn "Page probably too narrow" if $^W;
+    }
+
+    for (keys %$hash) {
+	warn "Unknown configure option '$_'" if $^W;
+    }
+
+    $self->{lm} = $lm;
+    $self->{rm} = $rm;
+    $self;
+}
+
 
 sub begin
 {
     my $self = shift;
     $self->HTML::Formatter::begin;
-    $self->{lm}  =    3;  # left margin
-    $self->{rm}  =   72;  # right margin (actually, maximum text width)
     $self->{curpos} = 0;  # current output position.
     $self->{maxpos} = 0;  # highest value of $pos (used by header underliner)
     $self->{hspace} = 0;  # horizontal space pending flag
 }
+
 
 sub end
 {
@@ -81,6 +132,7 @@ sub header_end
     1;
 }
 
+
 sub hr_start
 {
     my $self = shift;
@@ -88,6 +140,7 @@ sub hr_start
     $self->out('-' x ($self->{rm} - $self->{lm}));
     $self->vspace(1);
 }
+
 
 sub pre_out
 {
@@ -105,6 +158,7 @@ sub pre_out
     $self->collect($pre);
     $self->{out}++;
 }
+
 
 sub out
 {
@@ -144,6 +198,7 @@ sub out
     $self->{'out'}++;
 }
 
+
 sub goto_lm
 {
     my $self = shift;
@@ -155,6 +210,7 @@ sub goto_lm
     }
 }
 
+
 sub nl
 {
     my $self = shift;
@@ -163,12 +219,14 @@ sub nl
     $self->collect("\n");
 }
 
+
 sub adjust_lm
 {
     my $self = shift;
     $self->{lm} += $_[0];
     $self->goto_lm;
 }
+
 
 sub adjust_rm
 {

@@ -2,7 +2,7 @@ package HTTP::Headers::Auth;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 package HTTP::Headers;
@@ -21,14 +21,19 @@ sub _parse_authenticate
     for (HTTP::Headers::Util::split_header_words(@_)) {
 	if (!defined($_->[1])) {
 	    # this is a new auth scheme
-	    push(@ret, uc(shift @$_));
+	    push(@ret, lc(shift @$_) => {});
 	    shift @$_;
-	    push(@ret, $_);
-	} elsif (@ret) {
+	}
+	if (@ret) {
 	    # this a new parameter pair for the last auth scheme
-	    push(@{$ret[-1]}, @$_);
+	    while (@$_) {
+		my $k = lc(shift @$_);
+		my $v = shift @$_;
+	        $ret[-1]{$k} = $v;
+	    }
 	} else {
 	    # something wrong, parameter pair without any scheme seen
+	    # IGNORE
 	}
     }
     @ret;

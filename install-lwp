@@ -1,5 +1,6 @@
 #!/local/bin/perl
 
+# $Id: install-lwp,v 1.3 1995/07/11 13:27:40 aas Exp $
 #
 # This script might be used to install LWP
 #
@@ -14,11 +15,11 @@ eval {
     require URI::URL;
 };
 if ($@) {
-    print "You need to install the URI::URL module before you install LWP.\n";
+    die "You need to install the URI::URL module before you install LWP.\n";
 } else {
     print "Good, you have installed URI::URL version $URI::URL::Version.\n";
     if ($URI::URL::Version < 2.11) {
-	print "Please upgrade URI::URL, LWP needs at least version 2.11\n";
+	die "Please upgrade URI::URL, LWP needs at least version 2.11\n";
     }
 }
 

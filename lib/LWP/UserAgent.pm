@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.9 1995/07/16 07:26:32 aas Exp $
+# $Id: UserAgent.pm,v 1.10 1995/07/17 10:08:03 aas Exp $
 
 package LWP::UserAgent;
 
@@ -55,16 +55,15 @@ Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
 
 By default the library uses alarm() to implement timeouts, dying if
-the timeout occurs. If this is not required or interferes with other
-parts of the application one can disable the use alarms. When alarms
-are disabled timeouts can still occur for example when reading data,
-but other cases like name lookups etc will not be timed out by the
-library itself.
+the timeout occurs. If this is not the prefered behaviour or it
+interferes with other parts of the application one can disable the use
+alarms. When alarms are disabled timeouts can still occur for example
+when reading data, but other cases like name lookups etc will not be
+timed out by the library itself.
 
-The library catches catches errors (such as internal errors and
-timeouts) and present them as HTTP error responses. Alternatively
-one can switch off this behaviour, and let the application handle
-dies.
+The library catches errors (such as internal errors and timeouts) and
+present them as HTTP error responses. Alternatively one can switch off
+this behaviour, and let the application handle dies.
 
 =head1 SEE ALSO
 
@@ -229,15 +228,15 @@ sub simpleRequest
     
     if ($@) {
         if ($@ =~ /timeout/i) {
-            $response = new LWP::Response(
+            $response = new LWP::Response
                                  &LWP::StatusCode::RC_REQUEST_TIMEOUT,
                                  'User-agent timeout while ' .
-                                          $LWP::Debug::timeoutMessage);
+                                          $LWP::Debug::timeoutMessage;
         }
         else {
             # Died on coding error
-            $response = new LWP::Response(
-                        &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR, $@);
+            $response = new LWP::Response
+                        &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR, $@;
         }
     }
 

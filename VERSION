@@ -1,1 +1,82 @@
-0.01
+#!/usr/bin/perl
+
+=head1 VERSION
+
+This is a self-modifying file. Whenever a version number in one of the
+members increases, this program increases its own version number by
+0.01. Members are enumerated below the __END__ token.
+
+This implies that we get a new timestamp. If we make Makefile
+dependent on this program, we get a new Makefile everytime one of the
+versions changes. It is really not the cheapest solution, but maybe
+the most trivial one.
+
+Add a new module by writing its name on a line after the __END__ token.
+
+Change the overall version number arbitrarily by changing it within
+this file.
+
+=head1 Author
+
+Andreas Koenig <koenig@mind.de>
+
+=cut
+
+use lib "lib";
+
+while (<DATA>){
+    chop;
+    my($lib,$version)=split;
+    next unless $lib;
+    $lib{$lib}=$version || 0;
+}
+
+
+for $lib (sort keys %lib) {
+    push @m, "use $lib;";
+    push @n, "\$rewrite++ if \$$lib\::VERSION > $lib{$lib};\n";
+    push @o, "$lib \$$lib\::VERSION\n";
+}
+
+eval join "", @m;
+die $@ if $@;
+eval join "", @n;
+die $@ if $@;
+eval join "", "\$o = \"", @o, "\"";
+die $@ if $@;
+
+$VERSION=0.03;
+
+&rewrite if $rewrite;
+printf "%.2f\n", $VERSION;
+
+sub rewrite {
+    $VERSION += 0.01;
+    open READ, "$0";
+    $versions = "";
+    while (<READ>) {
+	s/(\$VERSION=)\d+\.\d+/$1.$VERSION/e;
+	$versions .= $_;
+	last if /^__END__/;
+    }
+    close READ;
+    open WRITE, ">$0";
+    print WRITE $versions;
+    print WRITE $o;
+    close WRITE;
+    $^I="~";
+    @ARGV=qw(README);
+    while (<>) {
+	s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig;
+    }
+    @ARGV=qw(lib/LWP.pm);
+    while (<>) {
+	s/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1\"$VERSION\"/;
+    }
+}
+
+__END__
+LWP 0.01
+LWP::Base64 1.06
+LWP::Date 1.06
+LWP::Socket 1.05

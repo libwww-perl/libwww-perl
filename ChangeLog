@@ -11,8 +11,6 @@ Mon Sep  4 1995   Gisle Aas <aas@oslonett.no>
  o  LWP::MediaType reads default types from media.types file.
     guessMediaType() now also returns encodings.  New function mediaSuffix()
 
- o  Provide function to validate redirects in LWP::UserAgent
-
  o  Pass $url to $ua->getBasicCredentials().  This also fixes security
     hole with the old implementation of getBasicCredentials().
 

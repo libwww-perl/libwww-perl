@@ -16,6 +16,9 @@ Tue Oct  1 1996   Gisle Aas <aas@sn.no>
  o  HTML::Parser: Use new $p->eof to signal end of document instead of
     $p->parse(undef).
 
+ o  HTML::Element::starttag() is now smarter about which quotes it
+    use around attribute values.
+
  o  New HTTP::Response methods: current_age(), freshness_lifetime(),
     is_fresh(), fresh_until().
 

@@ -1,3 +1,20 @@
+2001-09-17   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_97
+
+    LWP::Protocol::http11: fix socket leak.  Because we managed
+    to set up a circular reference within the sockets objects they
+    stayed around forever.
+
+    LWP::Protocol::http: Pass all header data to LWP::Debug::conns.
+    Based on patch by Martijn.
+
+    LWP::UserAgent: Sean fixed a Cut&Paste error.
+
+    HTTP::Cookies: avoid pack("c",...) warning from bleadperl.
+
+
+
 2001-08-27   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_96

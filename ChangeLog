@@ -38,6 +38,8 @@ Tue Jan 20 1998   Gisle Aas <aas@sn.no>
     also be made conditional based on the peer certificate using the
     If-SSL-Cert-Subject header in requests.
 
+ o  HTML::Parse is back.  (It was even used in lwpcook.pod)
+
 
 
 Wed Dec 17 1997   Gisle Aas <aas@sn.no>

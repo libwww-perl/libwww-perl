@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.18 2000/09/16 18:25:47 gisle Exp $
+# $Id: Common.pm,v 1.19 2001/01/05 18:53:11 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -62,7 +62,7 @@ sub POST
 		}
 	    }
 
-	    ($content, $boundary) = form_data($content, $boundary);
+	    ($content, $boundary) = form_data($content, $boundary, $req);
 
 	    if ($boundary_index) {
 		$v[$boundary_index] = $boundary;
@@ -109,7 +109,7 @@ sub _simple_req
 
 sub form_data   # RFC1867
 {
-    my($data, $boundary) = @_;
+    my($data, $boundary, $req) = @_;
     my @data = ref($data) eq "HASH" ? %$data : @$data;  # copy
     my $fhparts;
     my @parts;
@@ -183,23 +183,55 @@ sub form_data   # RFC1867
 	unshift(@parts, "--$boundary$CRLF");
 	push(@parts, "$CRLF--$boundary--$CRLF");
 
+	# See if we can generate Content-Length header
+	my $length = 0;
+	for (@parts) {
+	    if (ref $_) {
+	 	my ($head, $f) = @$_;
+		my $file_size;
+		unless ( -f $f && ($file_size = -s _) ) {
+		    # The file is either a dynamic file like /dev/audio
+		    # or perhaps a file in the /proc file system where
+		    # stat may return a 0 size even though reading it
+		    # will produce data.  So we cannot make
+		    # a Content-Length header.  
+		    undef $length;
+		    last;
+		}
+	    	$length += $file_size + length $head;
+	    } else {
+		$length += length;
+	    }
+        }
+        $length && $req->header('Content-Length' => $length);
+
 	# set up a closure that will return content piecemeal
 	$content = sub {
 	    for (;;) {
-		return unless @parts;
+		unless (@parts) {
+		    defined $length && $length != 0 &&
+		    	Carp::croak "length of data sent did not match calculated Content-Length header.  Probably because uploaded file changed in size during transfer.";
+		    return;
+		}
 		my $p = shift @parts;
 		unless (ref $p) {
 		    $p .= shift @parts while @parts && !ref($parts[0]);
+		    defined $length && ($length -= length $p);
 		    return $p;
 		}
 		my($buf, $fh) = @$p;
-		my $n = read($fh, $buf, 2048, length($buf));
+		my $buflength = length $buf;
+		my $n = read($fh, $buf, 2048, $buflength);
 		if ($n) {
+		    $buflength += $n;
 		    unshift(@parts, ["", $fh]);
 		} else {
 		    close($fh);
 		}
-		return $buf if length $buf;
+		if ($buflength) {
+		    defined $length && ($length -= $buflength);
+		    return $buf 
+	    	}
 	    }
 	};
 
@@ -386,10 +418,12 @@ value, then you get back a request object with a subroutine closure as
 the content attribute.  This subroutine will read the content of any
 files on demand and return it in suitable chunks.  This allow you to
 upload arbitrary big files without using lots of memory.  You can even
-upload infinite files like F</dev/audio> if you wish.  Another
-difference is that there will be no Content-Length header defined for
-the request if you use this feature.  Not all servers (or server
-applications) like this.
+upload infinite files like F</dev/audio> if you wish; however, if
+the file is not a plain file, there will be no Content-Length header 
+defined for the request.  Not all servers (or server
+applications) like this.  Also, if the file(s) change in size between
+the time the Content-Length is calculated and the time that the last
+chunk is delivered, the subroutine will C<Croak>.
 
 =back
 

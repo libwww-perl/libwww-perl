@@ -9,13 +9,13 @@
     return a list names as suggested by its name.
 
     HTML::Headers: $h->remove_content_headers will now
-    also remove the headers "Allow", "Expres" and
+    also remove the headers "Allow", "Expires" and
     "Last-Modified".  These are also part of the set
     that RFC 2616 denote as Entity Header Fields.
 
     HTML::Headers: $h->content_type is now more careful
     to remove embedded space in the returned value.
-    It also now returns all the paramters as the second
+    It also now returns all the parameters as the second
     return value as documented.
 
     HTML::Headers: $h->header() now croaks.  It used to

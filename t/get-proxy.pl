@@ -4,7 +4,7 @@
 # via a HTTP proxy.
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::Debug;
 require LWP::http;

@@ -3,7 +3,7 @@
 # Simple get for quickie testing
 #
 
-sub BEGIN { unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::Debug;
 require LWP::UserAgent;
@@ -13,7 +13,7 @@ $me = 'autoload';
 
 $url = 'http://localhost/';
 
-LWP::Debug::level('+trace'); # maximum logging
+LWP::Debug::level('+trace');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 

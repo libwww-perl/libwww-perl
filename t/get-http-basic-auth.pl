@@ -4,7 +4,7 @@
 # with Basic Authentication
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 package LWP::askUA;
 

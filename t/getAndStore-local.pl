@@ -4,7 +4,7 @@
 # and saving into a file
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::file;
 require LWP::UserAgent;

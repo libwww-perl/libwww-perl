@@ -3,7 +3,7 @@
 # Check GET via HTTP.
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::http;
 require LWP::UserAgent;

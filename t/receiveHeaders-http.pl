@@ -6,7 +6,7 @@
 # for manual inspection.
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::http;
 require LWP::UserAgent;

@@ -4,7 +4,7 @@
 # and printing to STDOUT
 #
 
-sub BEGIN {    unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::file;
 require LWP::UserAgent;

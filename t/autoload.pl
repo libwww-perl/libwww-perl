@@ -3,7 +3,7 @@
 # Simple get for quickie testing
 #
 
-sub BEGIN { unshift(@INC, '..'); }
+use lib '..';
 
 require LWP::Debug;
 require LWP::UserAgent;

@@ -33,6 +33,7 @@ EOM
 my $content2 = <<EOM;
 # http://foo/robots.txt
 User-agent: MOMspider
+ # comment which should be ignored
 Disallow: /private
 EOM
 

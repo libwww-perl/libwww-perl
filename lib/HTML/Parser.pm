@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.11 1997/12/11 23:35:24 aas Exp $
+# $Id: Parser.pm,v 2.12 1997/12/11 23:59:39 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.12 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -56,7 +56,10 @@ sub parse
     # Parse html text in $$buf.  The strategy is to remove complete
     # tokens from the beginning of $$buf until we can't deside whether
     # it is a token or not, or the $$buf is empty.
-    while (1) {  # the loop will end by returning when text is parsed
+
+  TOKEN:
+    while (1) {
+
 	# First we try to pull off any plain text (anything before a "<" char)
 	if ($$buf =~ s|^([^<]+)||) {
 	    unless (length $$buf) {
@@ -70,17 +73,19 @@ sub parse
 		    $$buf = $1;
 		};
 		$self->text($text);
-		return $self;
+		last TOKEN;
 	    } else {
 		$self->text($1);
 	    }
+
 	# Netscapes buggy comments are easy to handle
 	} elsif ($netscape_comment && $$buf =~ m|^<!--|) {
 	    if ($$buf =~ s|^<!--(.*?)-->||s) {
 		$self->comment($1);
 	    } else {
-		return $self;  # must wait until we see the end of it
+		last TOKEN;  # must wait until we see the end of it
 	    }
+
 	# Then, markup declarations (usually either <!DOCTYPE...> or a comment)
 	} elsif ($$buf =~ s|^(<!)||) {
 	    my $eaten = $1;
@@ -97,7 +102,7 @@ sub parse
 		} else {
 		    # Need more data to get all comment text.
 		    $$buf = $eaten . $$buf;
-		    return $self;
+		    last TOKEN;
 		}
 	    }
 	    # Can we finish the tag
@@ -108,11 +113,13 @@ sub parse
 		for (@com) { $self->comment($_); }
 	    } else {
 		$$buf = $eaten . $$buf;  # must start with it all next time
-		return $self;
+		last TOKEN;
 	    }
+
         # Should we look for 'processing instructions' <? ...> ??
 	#} elsif ($$buf =~ s|<\?||) {
 	    # ...
+
 	# Then, look for a end tag
 	} elsif ($$buf =~ s|^</||) {
 	    # end tag
@@ -120,11 +127,12 @@ sub parse
 		$self->end(lc($1), "</$1$2");
 	    } elsif ($$buf =~ m|^[a-zA-Z]*[a-zA-Z0-9\.\-]*\s*$|) {
 		$$buf = "</" . $$buf;  # need more data to be sure
-		return $self;
+		last TOKEN;
 	    } else {
 		# it is plain text after all
 		$self->text("</");
 	    }
+
 	# Then, finally we look for a start tag
 	} elsif ($$buf =~ s|^(<([a-zA-Z]+)>)||) {
 	    # special case plain start tags for slight speed-up (2.5%)
@@ -171,7 +179,7 @@ sub parse
 		    } elsif ($$buf =~ m|^(=\s*)$| or
 			     $$buf =~ m|^(=\s*[\"\'].*)|s) {
 			$$buf = "$eaten$1";
-			return $self;
+			last TOKEN;
 		    } else {
 			# assume attribute with implicit value
 			$val = $attr;
@@ -188,23 +196,22 @@ sub parse
 		    $self->text($eaten);
 		} else {
 		    $$buf = $eaten;  # need more data to know
-		    return $self;
+		    last TOKEN;
 		}
 
 	    } elsif (length $$buf) {
 		$self->text($eaten);
 	    } else {
 		$$buf = $eaten . $$buf;  # need more data to parse
-		return $self;
+		last TOKEN;
 	    }
 
-	} elsif (length $$buf) {
-	    die; # This should never happen
 	} else {
-	    # The buffer is empty now
-	    return $self;
+	    #die if length($$buf);  # This should never happen
+	    last TOKEN; 	    # The buffer should be empty now
 	}
     }
+
     $self;
 }
 

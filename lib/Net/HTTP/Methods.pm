@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.1 2001/11/17 01:42:46 gisle Exp $
+# $Id: Methods.pm,v 1.2 2001/11/17 02:32:00 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -321,6 +321,7 @@ sub read_entity_body {
     my $self = shift;
     my $buf_ref = \$_[0];
     my $size = $_[1];
+    die "Offset not supported yet" if $_[2];
 
     my $chunked;
     my $bytes;

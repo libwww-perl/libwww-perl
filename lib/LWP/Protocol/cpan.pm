@@ -10,7 +10,36 @@ require URI;
 require HTTP::Status;
 require HTTP::Response;
 
-my $CPAN = "http://cpan.org/";
+our $CPAN;
+
+unless ($CPAN) {
+    # Try to find local CPAN mirror via $CPAN::Config
+    eval {
+	require CPAN::Config;
+	if($CPAN::Config) {
+	    my $urls = $CPAN::Config->{urllist};
+	    if (ref($urls) eq "ARRAY") {
+		my $file;
+		for (@$urls) {
+		    if (/^file:/) {
+			$file = $_;
+			last;
+		    }
+		}
+
+		if ($file) {
+		    $CPAN = $file;
+		}
+		else {
+		    $CPAN = $urls->[0];
+		}
+	    }
+	}
+    };
+
+    $CPAN ||= "http://cpan.org";  # last resort
+}
+
 
 sub request {
     my($self, $request, $proxy, $arg, $size) = @_;

@@ -3,8 +3,8 @@ require HTTP::Headers;
 print "1..8\n";
 
 $h = new HTTP::Headers
-	"mime-version" => "1.0",
-	"content-type" => "text/html";
+	mime_version  => "1.0",
+	content_type  => "text/html";
 
 $h->header(URI => "http://www.oslonett.no/");
 
@@ -66,11 +66,17 @@ if (@accept == 1) {
     print "ok 7\n";
 }
 
+# Check order of headers, but first remove this one
+$h2->remove_header('mime_version');
+
+# and add this general header
+$h2->header(Connection => 'close');
+
 @x = ();
 $h2->scan(sub {push(@x, shift);});
 
 $str = join(";", @x);
-$expected = "MIME-Version;Accept;Accept;Accept;Content-Type;MY-Header";
+$expected = "Connection;Accept;Accept;Accept;Content-Type;MY-Header";
 
 if ($str eq $expected) {
     print "ok 8\n";

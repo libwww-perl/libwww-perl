@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.63 2001/12/14 19:33:52 gisle Exp $
+# $Id: http.pm,v 1.64 2002/09/20 14:53:30 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -72,9 +72,9 @@ sub _check_sock
 sub _get_sock_info
 {
     my($self, $res, $sock) = @_;
-    #if (defined(my $peerhost = $sock->peerhost)) {
-    #    $res->header("Client-Peer" => "$peerhost:" . $sock->peerport);
-    #}
+    if (defined(my $peerhost = $sock->peerhost)) {
+        $res->header("Client-Peer" => "$peerhost:" . $sock->peerport);
+    }
 }
 
 sub _fixup_header

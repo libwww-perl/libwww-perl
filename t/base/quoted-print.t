@@ -41,7 +41,7 @@ ter set."
    #                        line width
 );
 
-$notests = @tests;
+$notests = @tests + 1;
 print "1..$notests\n";
 
 $testno = 0;
@@ -66,3 +66,9 @@ for (@tests) {
     }
     print "ok $testno\n";
 }
+
+# Some extra testing for a case that was wrong until libwww-perl-5.09
+print "not " unless decode_qp("foo  \n\nfoo =\n\nfoo=20\n\n") eq
+                                "foo\n\nfoo \nfoo \n\n";
+$testno++; print "ok $testno\n";
+

@@ -1,4 +1,4 @@
-print "1..15\n";
+print "1..16\n";
 
 use HTTP::Request::Common;
 
@@ -127,3 +127,15 @@ print $r->as_string;
 print "not " if $r->content =~ /filename=/;
 print "ok 15\n";
 
+
+# The POST routine can now also take a hash reference.
+my %hash = (foo => 42, bar => 24);
+$r = POST 'http://www.perl.org/survey.cgi', \%hash;
+print $r->as_string;
+print "not " unless $r->content =~ /foo=42/ &&
+                    $r->content =~ /bar=24/ &&
+                    $r->content_type eq "application/x-www-form-urlencoded" &&
+                    $r->content_length == 13;
+print "ok 16\n";
+
+ 

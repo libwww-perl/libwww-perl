@@ -22,7 +22,7 @@ Andreas Koenig <koenig@mind.de>
 
 =cut
 
-$VERSION=0.06;
+$VERSION=0.03;
 
 use lib "lib";
 

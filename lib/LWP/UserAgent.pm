@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.54 1997/12/15 20:29:33 aas Exp $
+# $Id: UserAgent.pm,v 1.55 1997/12/16 20:08:21 aas Exp $
 
 package LWP::UserAgent;
 
@@ -79,20 +79,6 @@ content in the request object.  This subroutine should return the
 content (possibly in pieces) when called.  It should return an empty
 string when there is no more content.
 
-The user of this module can finetune timeouts and error handling by
-calling the use_alarm() and use_eval() methods.
-
-By default the library uses alarm() to implement timeouts, dying if
-the timeout occurs. If this is not the prefered behaviour or it
-interferes with other parts of the application one can disable the use
-alarms. When alarms are disabled timeouts can still occur for example
-when reading data, but other cases like name lookups etc will not be
-timed out by the library itself.
-
-The library catches errors (such as internal errors and timeouts) and
-present them as HTTP error responses. Alternatively one can switch off
-this behaviour, and let the application handle dies.
-
 =head1 METHODS
 
 The following methods are available:
@@ -145,7 +131,6 @@ sub new
 		'proxy'       => undef,
 		'cookie_jar'  => undef,
 		'use_eval'    => 1,
-		'use_alarm'   => 0,
                 'parse_head'  => 1,
                 'max_size'    => undef,
 		'no_proxy'    => [],
@@ -216,7 +201,7 @@ sub simple_request
     $request->header('From' => $from) if $from;
     $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
-    # Inform the protocol if we need to use alarm() and parse_head()
+    # Transfer some attributes to the protocol object
     $protocol->parse_head($parse_head);
     $protocol->max_size($max_size);
     
@@ -227,19 +212,12 @@ sub simple_request
 					   $arg, $size, $timeout);
 	};
 	if ($@) {
-	    if ($@ =~ /^timeout/i) {
-		$response =
-		  HTTP::Response->new(&HTTP::Status::RC_REQUEST_TIMEOUT, 
-				      'User-agent timeout');
-	    } else {
-		$@ =~ s/\s+at\s+\S+\s+line\s+\d+\.?\s*//;
-		$response =
-		  HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-				      $@);
-	    }
+	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+\.?\s*//;
+	    $response =
+	      HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				  $@);
 	}
     } else {
-	# user has to handle any dies, usually timeouts
 	$response = $protocol->request($request, $proxy,
 				       $arg, $size, $timeout);
 	# XXX: Should we die unless $response->is_success ???
@@ -455,18 +433,6 @@ Get/set the I<HTTP::Cookies> object to use.  The default is to have no
 cookie_jar, i.e. never automatically add "Cookie" headers to the
 requests.
 
-=item $ua->use_alarm([$boolean])
-
-Get/set a value indicating wether to use alarm() when implementing
-timeouts.  The default is TRUE, if your system supports it.  You can
-disable it if it interfers with other uses of alarm in your application.
-
-=item $ua->use_eval([$boolean])
-
-Get/set a value indicating wether to handle internal errors internally
-by trapping with eval.  The default is TRUE, i.e. the $ua->request()
-will never die.
-
 =item $ua->parse_head([$boolean])
 
 Get/set a value indicating wether we should initialize response
@@ -486,10 +452,12 @@ sub timeout    { shift->_elem('timeout',   @_); }
 sub agent      { shift->_elem('agent',     @_); }
 sub from       { shift->_elem('from',      @_); }
 sub cookie_jar { shift->_elem('cookie_jar',@_); }
-sub use_alarm  { shift->_elem('use_alarm', @_); }
-sub use_eval   { shift->_elem('use_eval',  @_); }
 sub parse_head { shift->_elem('parse_head',@_); }
 sub max_size   { shift->_elem('max_size',  @_); }
+
+# depepreciated
+sub use_alarm  { shift->_elem('use_alarm', @_); }
+sub use_eval   { shift->_elem('use_eval',  @_); }
 
 
 # Declarations of AutoLoaded methods

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.70 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Makefile.PL,v 1.71 2004/04/06 11:50:41 gisle Exp $
 
 require 5.005;
 use strict;
@@ -296,7 +296,7 @@ test: all
 sub libscan
 {
     my($self, $path) = @_;
-    return '' if $path =~ m/.(pl|dtd|sgml)$/;
+    return '' if $path =~ m/\.(pl|dtd|sgml)$/;
     return '' if $path =~ m:\bCVS/:;
     return '' if $path =~ m/~$/;
     $path;

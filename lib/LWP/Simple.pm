@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.22 1997/10/12 22:25:54 aas Exp $
+# $Id: Simple.pm,v 1.23 1997/10/13 14:10:27 aas Exp $
 
 =head1 NAME
 
@@ -70,9 +70,9 @@ the HTTP response code.
 
 =back
 
-This module also exports the HTTP::Status constants and procedures if
-you ask for it.  These can be used when you check the response code
-from getprint(), getstore() and mirror().  The constants are:
+This module also exports the HTTP::Status constants and procedures.
+These can be used when you check the response code from getprint(),
+getstore() and mirror().  The constants are:
 
    RC_CONTINUE
    RC_SWITCHING_PROTOCOLS
@@ -152,20 +152,22 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);
 @EXPORT_OK = qw($ua);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+# I really hate this.  I was a bad idea to to it in the first place.
+# Wonder how to get rid of it???  (It even makes LWP::Simple 7% slower
+# for trivial tests)
+use HTTP::Status;
+push(@EXPORT, @HTTP::Status::EXPORT);
+
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {$_ eq "http_proxy"} keys %ENV;
+
 
 sub import
 {
     my $pkg = shift;
     my $callpkg = caller;
-    for (@_) {
-	$FULL_LWP++ if $_ eq '$ua';
-        if (/^(?:is_|RC_)/ && !defined(&HTTP::Status::RC_OK)) {
-	    require HTTP::Status;
-	    push(@EXPORT_OK, @HTTP::Status::EXPORT);
-	}
-    }
+    $FULL_LWP++ if grep $_ eq '$ua', @_;
     Exporter::export($pkg, $callpkg, @_);
 }
 

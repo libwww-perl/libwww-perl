@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.10 1995/12/29 14:13:51 aas Exp $
+# $Id: Simple.pm,v 1.11 1996/02/05 18:05:42 aas Exp $
 
 =head1 NAME
 
@@ -7,14 +7,14 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 
 =head1 SYNOPSIS
 
- perl -e 'use LWP::Simple; getprint("http://www.oslonett.no");'
+ perl -MLWP::Simple -e 'getprint "http://www.sn.no"'
 
  use LWP::Simple;
- $content = get("http://www.oslonett.no/")
- if (mirror("http://www.oslonett.no/", "foo") == RC_NOT_MODIFIED) {
+ $content = get("http://www.sn.no/")
+ if (mirror("http://www.sn.no/", "foo") == RC_NOT_MODIFIED) {
      ...
  }
- if (isSuccess(getprint("http://www.oslonett.no/"))) {
+ if (isSuccess(getprint("http://www.sn.no/"))) {
      ...
  }
 
@@ -22,15 +22,23 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 
 This interface is intended for those who want a simplified view of the
 LWP library.  This interface should also be suitable for one-liners.
+If you need more control or miss access to the header fields in the
+requests sent and responses received you should use the full OO
+interface provided by the LWP::UserAgent module.
 
-This following procedures are exported:
+This following functions are exported by this module:
 
 =over 3
 
 =item get($url)
 
-Gets a document.  Returns the document is successful.  Returns 'undef'
-if it fails.
+This function will get the document identified by the given URL.  The
+get() function will return the document if successful or 'undef' if it
+fails.
+
+You will not be able to examine the response code or response headers
+(like I<Content-Type>) when you are accessing the web using this
+function.  If you need this you should use the full OO interface.
 
 =item head($url)
 
@@ -42,8 +50,8 @@ Returns 'undef' if it fails.
 =item getprint($url)
 
 Get and print a document identified by a URL. The document is printet
-on STDOUT. The error message is printed on STDERR if it fails.
-It returns the response code.
+on STDOUT. The error message (formatted as HTML) is printed on STDERR
+if it fails.  It returns the response code.
 
 =item getstore($url, $file)
 
@@ -52,12 +60,12 @@ returns the response code.
 
 =item mirror($url, $file)
 
-Get and store a document identified by a URL, using If-modified-since,
-and checking of the content-length.  Returns response code.
+Get and store a document identified by a URL, using I<If-modified-since>,
+and checking of the I<Content-Length>.  Returns response code.
 
 =back
 
-This modules also exports the HTTP::Status constants and
+This module also exports the HTTP::Status constants and
 procedures.  These can be used when you check the response code from
 C<getprint>, C<getstore> and C<mirror>.  The constants are:
 
@@ -103,11 +111,12 @@ Check if response code indicated that an error occured.
 
 =back
 
-The module will also export the $ua object if you insist.
+The module will also export the LWP::UserAgent object as C<$ua> if you
+ask for it explicitly.
 
 =head1 SEE ALSO
 
-L<LWP>, L<LWP::UserAgent>, L<get>, L<mirror>
+L<LWP>, L<LWP::UserAgent>, L<HTTP::Status>, L<request>, L<mirror>
 
 =cut
 
@@ -123,12 +132,13 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
+require LWP;
 require LWP::UserAgent;
-$ua = new LWP::UserAgent;  # we create a global UserAgent object
-$ua->agent(sprintf("LWP::Simple/%d.%02d",
-		   q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/));
 use HTTP::Date qw(str2time);
 use Carp;
+
+$ua = new LWP::UserAgent;  # we create a global UserAgent object
+$ua->agent("LWP::Simple/$LWP::VERSION");
 
 
 sub get
@@ -169,7 +179,6 @@ sub getprint
 
     my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request);
-
     if ($response->isSuccess) {
         print $response->content;
     } else {

@@ -66,10 +66,10 @@ sub begin
     $self->HTML::Formatter::begin;
 
     # Margins is points
-    $self->{lm} = 100;
-    $self->{rm} = 520;
-    $self->{bm} = 150;
-    $self->{tm} = 700;
+    $self->{lm} = 200;
+    $self->{rm} = 400;
+    $self->{bm} = 300;
+    $self->{tm} = 500;
 
     # Font setup
     $self->{family} = "Times";
@@ -107,6 +107,7 @@ sub begin
 %%EndResource
 EOT
     print "%%EndProlog\n";
+    $self->newpage;
 }
 
 sub end
@@ -120,7 +121,9 @@ sub end
 	my $size = $1;
 	print "% /$short/$full findfont $size scalefont def\n";
     }
-    print "showpage\n";
+    if ($self->{out}) {
+	$self->endpage;
+    }
 }
 
 sub header_start
@@ -157,7 +160,7 @@ sub out
 
     if (defined $self->{vspace}) {
 	if ($self->{out}) {
-	    $self->{ypos} -= ($self->{vspace}+1)*10;
+	    $self->{ypos} -= ($self->{vspace} + 1) * 10;
 	}
 	$self->{xpos} = $self->{lm};
 	$self->show;
@@ -175,14 +178,55 @@ sub out
     my $rm   = $self->{rm};
     if ($xpos + $w > $rm) {
 	$self->show;
-	$self->{ypos} -= 10;
+	$self->{ypos} -= $self->{pointsize};
 	$self->{xpos} = $self->{lm};
+	if ($self->{ypos} < $self->{bm}) {
+	    $self->newpage;
+	    $font = $self->findfont();
+	    die "This should not happen" unless length $font;
+	    print "$font\n";
+	}
 	$self->moveto;
+	next if $text =~ /^\s*$/;
     } else {
-	$self->{line} .= $text;
 	$self->{xpos} += $w;
     }
+    $self->{line} .= $text;
     $self->{out}++;
+}
+
+sub endpage
+{
+    my $self = shift;
+    # End previous page
+    print "showpage\n";
+    $self->{pageno}++;
+}
+
+sub newpage
+{
+    my $self = shift;
+    if ($self->{out}) {
+	$self->endpage;
+    }
+    $self->{out} = 0;
+    my $pageno = $self->{pageno};
+    print "\n%%Page: $pageno $pageno\n";
+
+    # Print area marker (just for debugging)
+    my($llx, $lly, $urx, $ury) = @{$self}{qw(lm bm rm tm)};
+    print "gsave 0.1 setlinewidth\n";
+    print "clippath 0.9 setgray fill 1 setgray\n";
+    print "$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n";
+    print "grestore\n";
+
+    # Print page number
+    print "/Helvetica findfont 10 scalefont setfont 10 10 M($pageno)S\n";
+    print "\n";
+
+    $self->{xpos} = $llx;
+    $self->{ypos} = $ury;
+    $self->{currentfont} = "";
 }
 
 sub moveto

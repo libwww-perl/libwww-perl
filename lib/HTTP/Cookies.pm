@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -331,7 +331,8 @@ sub extract_cookies
 
 	# Check domain
 	my $domain  = delete $hash{domain};
-	if (defined($domain) && $domain ne $req_host) {
+	if (defined($domain)
+	    && $domain ne $req_host && $domain ne ".$req_host") {
 	    if ($domain !~ /\./ && $domain ne "local") {
 	        LWP::Debug::debug("Domain $domain contains no dot");
 		next SET_COOKIE;

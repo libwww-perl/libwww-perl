@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.1 1995/08/23 08:28:14 aas Exp $
+# $Id: Base64.pm,v 1.2 1995/08/23 10:37:00 aas Exp $
 
 package MIME::Base64;
 
@@ -22,6 +22,12 @@ This module provides functions to encode and decode strings into the
 Base64 encoding specified in RFC 1521 - I<MIME (Multipurpose Internet
 Mail Extensions)>.
 
+RFC 1521 says that the encoded bytes must be represented in lines of
+no more than 76 characters each. The second argument to
+base64_encode() is the line ending sequence to use. It defaults to
+C<"\n">.  Use C<''> if you do not want the encoded string broken into
+lines.
+
 =head1 COPYRIGHT
 
 Copyright (c) 1995 Gisle Aas. All rights reserved.
@@ -31,8 +37,12 @@ modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>, based on LWP::Base64 written by Martijn
-Koster <m.koster@nexor.co.uk> and Joerg Reichelt <j.reichelt@nexor.co.uk>
+Gisle Aas <aas@oslonett.no>
+
+Based on LWP::Base64 written by Martijn Koster <m.koster@nexor.co.uk>
+and Joerg Reichelt <j.reichelt@nexor.co.uk> and code posted to
+comp.lang.perl <3pd2lp$6gf@wsinti07.win.tue.nl> by Hans Mulder
+<hansm@wsinti07.win.tue.nl>
 
 =cut
 
@@ -40,7 +50,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(base64_encode base64_decode);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
@@ -48,14 +58,20 @@ use integer;
 sub base64_encode
 {
     my $res = "";
+    my $eol = $_[1];
+    $eol = "\n" unless defined $eol;
     while ($_[0] =~ /(.{1,45})/gs) {
 	$res .= substr(pack('u', $1), 1);
 	chop($res);
     }
-    $res =~ tr| -_|A-Za-z0-9+/|;
+    $res =~ tr|` -_|AA-Za-z0-9+/|;
     # fix padding at the end
     my $padding = (3 - length($_[0]) % 3) % 3;
     $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
+    # break encoded string into lines of no more than 76 characters each
+    if (length $eol) {
+	$res =~ s/(.{1,76})/$1$eol/g;
+    }
     $res;
 }
 

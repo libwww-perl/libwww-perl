@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.2 1995/07/18 12:50:39 aas Exp $
+# $Id: gopher.pm,v 1.3 1995/07/24 13:38:50 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -125,17 +125,37 @@ sub request
     LWP::Debug::conns("sending request: $requestLine");
     $socket->write($requestLine);
     
-    # XXX: the callback now gets raw gopher data.  This is not be the
-    # right thing to do.
+    my $user_arg = $arg;
+
+    # must handle menus in a special way since they are to be
+    # converted to HTML.  Undefing $arg ensures that the user does
+    # not see the data before we get a change to convert it.
+    $arg = undef if $gophertype eq '1';
+
+    # collect response
     $response = $self->collect($arg, $response, sub { 
         LWP::Debug::debug('collecting');
-        my $content = '';
-        my $result = $socket->readUntil(undef, \$content, $size, $timeout);
+	my $content = '';
+	my $result = $socket->readUntil(undef, \$content, $size, $timeout);
         LWP::Debug::debug("collected: $content");
-        return \$content;
-        } );
+	return \$content;
+      } );
 
-    $response->content(menu2html($response->content)) if $gophertype eq '1';
+    # Convert menu to HTML and return data to user.
+    if ($gophertype eq '1') {
+	my $content = menu2html($response->content);
+	if (defined $user_arg) {
+	    # let's collect once
+	    my $first = 1;
+	    $response = $self->collect($user_arg, $response, sub {
+		if ($first) {
+		    $first = 0;
+		    return \$content;
+		}
+		return \ "";
+	    });
+	}
+    }
     
     $response;
 }

@@ -1,13 +1,12 @@
 #
-# $Id: LWP.pm,v 1.5 1995/07/11 22:36:06 aas Exp $
+# $Id: LWP.pm,v 1.6 1995/07/14 01:17:03 aas Exp $
 
 package LWP;
 
-$VERSION = # shut up -w
-$VERSION = "0.01";  # Automatically updated by 'make-dist'
+$VERSION = "0.01";  # Automatically updated by 'update_version'
 
 require 5.001;
-require LWP::UserAgent;
+require LWP::UserAgent;  # this should load everything you need
 
 1;
 
@@ -17,18 +16,9 @@ __END__
 
 LWP - Library for the Web in Perl 5
 
-=head INTRO
-
-The latest version of this library will be available from:
-
- http://www.oslonett.no/home/aas/perl/www/
-
-This code should be discussed on the libwww-perl@ics.UCI.EDU
-mailing list.
-
 =head1 ARCHITECTURE
 
-This architecture is very heavily object oriented.
+The architecture of the library is very heavily object oriented.
 
 =head2 Overview of classes and packages
 
@@ -65,15 +55,10 @@ Oosten, Jared Rhine, Jack Shirazi, Gene Spafford, Marc VanHeyningen,
 Steven E. Brenner, Marion Hakanson, Waldemar Kebsch, Tony Sanders, and
 Larry Wall; see the libwww-perl library for details.
 
-The primary architect for this Perl 5 library is Martijn Koster, with
-lots of help from Gisle Aas, Graham Barr, Tim Bunce, Andreas Koenig,
-Jared Rhine, and Jack Shirazi.
+The primary architect for this Perl 5 library is Martijn Koster and
+Gisle Aas, with lots of help from Graham Barr, Tim Bunce, Andreas
+Koenig, Jared Rhine, and Jack Shirazi.
 
-=head1 TO DO
-
-More documentation
-
-Lots of other things.
 
 =head1 COPYRIGHT
 
@@ -82,5 +67,14 @@ Copyright (c) 1995 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
+=head1 AVAILABILITY
+
+The latest version of this library is likly to be available from:
+
+ http://www.oslonett.no/home/aas/perl/www/
+
+The best place to discuss this code is on the <libwww-perl@ics.uci.edu>
+mailing list.
 
 =cut

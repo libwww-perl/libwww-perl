@@ -113,9 +113,15 @@ $r = POST 'http://www.perl.org/survey.cgi',
       Content_type => 'multipart/form-data';
 print $r->as_string;
 
-print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
-	            $r->content =~ /^Content-Type: text\/html/m and
-	            $r->content =~ /^<h1>Hello, world/m;
+if($^O eq "MacOS") {
+    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+		        $r->content =~ /^\012Content-Type: text\/html/m and
+	        	$r->content =~ /^\012<h1>Hello, world/m;
+} else {
+    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+	                $r->content =~ /^Content-Type: text\/html/m and
+	                $r->content =~ /^<h1>Hello, world/m;
+}
 print "ok 14\n";
 
 

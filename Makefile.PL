@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.35 1996/07/17 09:36:41 aas Exp $
+# $Id: Makefile.PL,v 1.36 1996/10/17 11:44:40 aas Exp $
 
 #--- Configuration section ---
 
@@ -24,6 +24,25 @@ unless (getopts("n")) {
 # Check for non-standard modules that are used by this library.
 $| = 1;
 my $missing_modules = 0;
+
+print "Checking for IO::Socket.";
+eval {
+    require IO::Socket;
+    IO::Socket->require_version('1.13');
+};
+if ($@) {
+    print " failed\n";
+    $missing_modules++;
+    print <<EOT;
+$@
+The IO::Socket module is used by the HTTP::Daemon.  It is also
+a prerequisite for Net::FTP.
+
+EOT
+    sleep(2);  # Don't hurry too much
+} else {
+    print " ok\n";
+}
 
 print "Checking for Net::FTP...";
 eval {

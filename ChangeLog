@@ -1,20 +1,21 @@
 
-
+Mon Jan 27 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.06
 
-
-
-
-
  o  URI::URL is now compatible with perl5.004 overloading.
 
- o  HTML::HeadParser makes X-Meta-Foo headers.
+ o  HTML::HeadParser makes X-Meta-Name headers for <meta> elements
+    that does not specify an 'http-equiv' attribute.
 
- o  URI::URL::ftp does not die if Net::Domain is not installed.
+ o  URI::URL::ftp does not die if Net::Domain is not installed and
+    you ask for an anonymous username or password.
 
  o  WWW::RobotRules:  The robots.txt parser did not ignore comment lines
     as it should.
+
+ o  LWP::Protocol::http is more forgiving towards servers that return
+    bad responses.
 
  o  Allow "?" before search string in gopher URLs.
 
@@ -32,7 +33,8 @@
 
  o  Support experimental data:- URLs
 
- o  Some tests now die more gracefully if IO::* modules is not installed.
+ o  Some tests (those using HTTP::Daemon) now die more gracefully if
+    IO::* modules is not installed.
 
 
 

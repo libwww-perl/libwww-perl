@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.95 2001/08/28 17:09:25 gisle Exp $
+# $Id: UserAgent.pm,v 1.96 2001/09/20 00:14:26 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -29,53 +29,57 @@ LWP::UserAgent - A WWW UserAgent class
 
 =head1 DESCRIPTION
 
-The C<LWP::UserAgent> is a class implementing a simple World-Wide Web
+The C<LWP::UserAgent> is a class implementing a World-Wide Web
 user agent in Perl. It brings together the HTTP::Request,
 HTTP::Response and the LWP::Protocol classes that form the rest of the
 core of libwww-perl library. For simple uses this class can be used
 directly to dispatch WWW requests, alternatively it can be subclassed
 for application-specific behaviour.
 
-In normal use the application creates a UserAgent object, and then
-configures it with values for timeouts, proxies, name, etc. It next
+In normal use the application creates a C<LWP::UserAgent> object, and then
+configures it with values for timeouts, proxies, name, etc. It then
 creates an instance of C<HTTP::Request> for the request that
-needs to be performed. This request is then passed to the UserAgent
-request() method, which dispatches it using the relevant protocol,
+needs to be performed. This request is then passed to one of the UserAgent's
+request() methods, which dispatches it using the relevant protocol,
 and returns a C<HTTP::Response> object.
 
+There are convenience methods for sending the most common request
+types; get(), head() and post().
+
 The basic approach of the library is to use HTTP style communication
-for all protocol schemes, i.e. you also receive an C<HTTP::Response>
+for all protocol schemes, i.e. you even receive an C<HTTP::Response>
 object for gopher or ftp requests.  In order to achieve even more
 similarity to HTTP style communications, gopher menus and file
 directories are converted to HTML documents.
 
-The request() method can process the content of the response in one of
-three ways: in core, into a file, or into repeated calls to a
-subroutine.  You choose which one by the kind of value passed as the
-second argument to request().
+The send_request(), simple_request() and request() methods can process
+the content of the response in one of three ways: in core, into a
+file, or into repeated calls to a subroutine.  You choose which one by
+the kind of value passed as the second argument.
 
-The in core variant simply stores the content in a scalar 'content' attribute
-of the response object and is suitable for small
-HTML replies that might need further parsing.  This variant is used if
-the second argument is missing (or is undef).
+The in core variant simply stores the content in a scalar 'content'
+attribute of the response object and is suitable for small HTML
+replies that might need further parsing.  This variant is used if the
+second argument is missing (or is undef).
 
 The filename variant requires a scalar containing a filename as the
-second argument to request() and is suitable for large WWW objects
-which need to be written directly to the file without requiring large
-amounts of memory. In this case the response object returned from
-request() will have an empty content attribute.  If the request fails, then the
-content might not be empty, and the file will be untouched.
+second argument to the request method and is suitable for large WWW
+objects which need to be written directly to the file without
+requiring large amounts of memory. In this case the response object
+returned from the request method will have an empty content attribute.
+If the request fails, then the content might not be empty, and the
+file will be untouched.
 
 The subroutine variant requires a reference to callback routine as the
-second argument to request() and it can also take an optional chuck
-size as the third argument.  This variant can be used to construct
-"pipe-lined" processing, where processing of received chuncks can
-begin before the complete data has arrived.  The callback function is
-called with 3 arguments: the data received this time, a reference to
-the response object and a reference to the protocol object.  The
-response object returned from request() will have empty content.  If
-the request fails, then the the callback routine is not
-called, and the response->content might not be empty.
+second argument to the request method and it can also take an optional
+chuck size as the third argument.  This variant can be used to
+construct "pipe-lined" processing, where processing of received
+chuncks can begin before the complete data has arrived.  The callback
+function is called with 3 arguments: the data received this time, a
+reference to the response object and a reference to the protocol
+object.  The response object returned from the request method will
+have empty content.  If the request fails, then the the callback
+routine is not called, and the response->content might not be empty.
 
 The request can be aborted by calling die() in the callback
 routine.  The die message will be available as the "X-Died" special
@@ -99,7 +103,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.95 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.96 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -238,29 +242,9 @@ sub new
 }
 
 
-=item $ua->simple_request($request, [$arg [, $size]])
-
-This method dispatches a single WWW request on behalf of a user, and
-returns the response received.  The C<$request> should be a reference
-to a C<HTTP::Request> object with values defined for at least the
-method() and uri() attributes.
-
-If C<$arg> is a scalar it is taken as a filename where the content of
-the response is stored.
-
-If C<$arg> is a reference to a subroutine, then this routine is called
-as chunks of the content is received.  An optional C<$size> argument
-is taken as a hint for an appropriate chunk size.
-
-If C<$arg> is omitted, then the content is stored in the response
-object itself.
-
-=cut
-
-sub simple_request
-{
-    my($self, $request, $arg, $size) = @_;
-
+# private method.  check sanity of given $request
+sub _request_sanity_check {
+    my($self, $request) = @_;
     # some sanity checking
     if (defined $request) {
 	if (ref $request) {
@@ -275,6 +259,34 @@ sub simple_request
     else {
         Carp::croak("No request object passed in");
     }
+}
+
+
+=item $ua->send_request($request, $arg [, $size])
+
+This method dispatches a single WWW request on behalf of a user, and
+returns the response received.  The request is sent off unmodified,
+without passing it through C<prepare_request()>.
+
+The C<$request> should be a reference to a C<HTTP::Request> object
+with values defined for at least the method() and uri() attributes.
+
+If C<$arg> is a scalar it is taken as a filename where the content of
+the response is stored.
+
+If C<$arg> is a reference to a subroutine, then this routine is called
+as chunks of the content is received.  An optional C<$size> argument
+is taken as a hint for an appropriate chunk size.
+
+If C<$arg> is omitted, then the content is stored in the response
+object itself.
+
+=cut
+
+sub send_request
+{
+    my($self, $request, $arg, $size) = @_;
+    $self->_request_sanity_check($request);
 
     my($method, $url) = ($request->method, $request->uri);
 
@@ -325,28 +337,18 @@ sub simple_request
       # else fall thru and create the protocol object normally
     }
 
-
     unless($protocol) {
       $protocol = eval { LWP::Protocol::create($scheme, $self) };
       if ($@) {
 	$@ =~ s/ at .* line \d+.*//s;  # remove file/line number
+
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@);
       }
     }
 
     # Extract fields that will be used below
-    my ($agent, $from, $timeout, $cookie_jar, $use_eval, $max_size) =
-      @{$self}{qw(agent from timeout cookie_jar use_eval max_size)};
-
-    # Set User-Agent and From headers if they are defined
-    $request->init_header('User-Agent' => $agent) if $agent;
-    $request->init_header('From' => $from) if $from;
-    if (defined $max_size) {
-	my $last = $max_size - 1;
-	$last = 0 if $last < 0;  # there is no way to actually request no content
-	$request->init_header('Range' => "bytes=0-$last");
-    }
-    $cookie_jar->add_cookie_header($request) if $cookie_jar;
+    my ($timeout, $cookie_jar, $use_eval, $parse_head, $max_size) =
+      @{$self}{qw(timeout cookie_jar use_eval parse_head max_size)};
 
     my $response;
     if ($use_eval) {
@@ -374,12 +376,66 @@ sub simple_request
 }
 
 
+=item $ua->prepare_request($request)
+
+This method modifies given C<HTTP::Request> object by setting up
+various headers based on the attributes of the $ua.  The headers
+affected are; C<User-Agent>, C<From>, C<Range> and C<Cookie>.
+
+The return value is the $request object passed in.
+
+=cut
+
+sub prepare_request
+{
+    my($self, $request) = @_;
+    $self->_request_sanity_check($request);
+
+    # Extract fields that will be used below
+    my ($agent, $from, $cookie_jar, $max_size) =
+      @{$self}{qw(agent from cookie_jar max_size)};
+
+    # Set User-Agent and From headers if they are defined
+    $request->init_header('User-Agent' => $agent) if $agent;
+    $request->init_header('From' => $from) if $from;
+    if (defined $max_size) {
+	my $last = $max_size - 1;
+	$last = 0 if $last < 0;  # there is no way to actually request no content
+	$request->init_header('Range' => "bytes=0-$last");
+    }
+    $cookie_jar->add_cookie_header($request) if $cookie_jar;
+
+    return($request);
+}
+
+
+=item $ua->simple_request($request, [$arg [, $size]])
+
+This method dispatches a single WWW request on behalf of a user, and
+returns the response received.  If differs from C<send_request()> by
+automatically calling the C<prepare_request()> method before the
+request is sent.
+
+The arguments are the same as for C<send_request()>.
+
+=cut
+
+sub simple_request
+{
+    my($self, $request, $arg, $size) = @_;
+    $self->_request_sanity_check($request);
+    my $new_request = $self->prepare_request($request);
+    return($self->send_request($new_request, $arg, $size));
+}
+
+
 =item $ua->request($request, $arg [, $size])
 
 Process a request, including redirects and security.  This method may
 actually send several different simple requests.
 
-The arguments are the same as for C<simple_request()>.
+The arguments are the same as for C<send_request()> and
+C<simple_request()>.
 
 =cut
 

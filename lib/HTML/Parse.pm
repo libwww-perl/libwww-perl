@@ -1,14 +1,12 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.4 1995/09/05 22:12:31 aas Exp $
+# $Id: Parse.pm,v 1.5 1995/09/05 23:05:19 aas Exp $
 
 =head1 NAME
 
 parse_html - Parse HTML text
 
 parse_htmlfile - Parse HTML text from file
-
-expand_entities - Expand HTML entites in a string
 
 =head1 SYNOPSIS
 
@@ -19,9 +17,6 @@ expand_entities - Expand HTML entites in a string
  $h->delete;
 
  print parse_htmlfile("index.html")->asHTML;  # tidy up markup in a file
-
- $a = "V&aring;re norske tegn b&oslash;r &#230res";
- expand_entities($a);
 
 =head1 DESCRIPTION
 
@@ -34,7 +29,7 @@ The parser currently understands HTML 2.0 markup + tables + some
 Netscape extentions.
 
 Entites in all text content and attribute values will be expanded by
-the parser.  There is normally no need to call expand_entites().
+the parser.
 
 You must delete the parse tree explicitly to free the memory
 assosiated with it before the perl interpreter terminates.  The reason
@@ -75,7 +70,7 @@ cut into pieces. Default is false.
 
 =head1 SEE ALSO
 
-L<HTML::Element>
+L<HTML::Element>, L<HTML::Entities>
 
 =head1 COPYRIGHT
 
@@ -97,8 +92,9 @@ require Exporter;
 @EXPORT = qw(parse_html parse_htmlfile expand_entities);
 
 require HTML::Element;
+require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -165,83 +161,6 @@ for (qw(input select option textarea)) {
     $isFormElement{$_} = 1;
 }
 
-
-%entities = (
-
- 'lt'     => '<',
- 'gt'     => '>',
- 'amp'    => '&',
- 'quot'   => '"',
- 'nbsp'   => "\240",
-
- 'Aacute' => 'Á',
- 'Acirc'  => 'Â',
- 'Agrave' => 'À',
- 'Aring'  => 'Å',
- 'Atilde' => 'Ã',
- 'Auml'   => 'Ä',
- 'Ccedil' => 'Ç',
- 'ETH'    => 'Ð',
- 'Eacute' => 'É',
- 'Ecirc'  => 'Ê',
- 'Egrave' => 'È',
- 'Euml'   => 'Ë',
- 'Iacute' => 'Í',
- 'Icirc'  => 'Î',
- 'Igrave' => 'Ì',
- 'Iuml'   => 'Ï',
- 'Ntilde' => 'Ñ',
- 'AElig'  => 'Æ',
- 'Oacute' => 'Ó',
- 'Ocirc'  => 'Ô',
- 'Ograve' => 'Ò',
- 'Oslash' => 'Ø',
- 'Otilde' => 'Õ',
- 'Ouml'   => 'Ö',
- 'THORN'  => 'Þ',
- 'Uacute' => 'Ú',
- 'Ucirc'  => 'Û',
- 'Ugrave' => 'Ù',
- 'Uuml'   => 'Ü',
- 'Yacute' => 'Ý',
- 'aelig'  => 'æ',
- 'aacute' => 'á',
- 'acirc'  => 'â',
- 'agrave' => 'à',
- 'aring'  => 'å',
- 'atilde' => 'ã',
- 'auml'   => 'ä',
- 'ccedil' => 'ç',
- 'eacute' => 'é',
- 'ecirc'  => 'ê',
- 'egrave' => 'è',
- 'eth'    => 'ð',
- 'euml'   => 'ë',
- 'iacute' => 'í',
- 'icirc'  => 'î',
- 'igrave' => 'ì',
- 'iuml'   => 'ï',
- 'ntilde' => 'ñ',
- 'oacute' => 'ó',
- 'ocirc'  => 'ô',
- 'ograve' => 'ò',
- 'oslash' => 'ø',
- 'otilde' => 'õ',
- 'ouml'   => 'ö',
- 'szlig'  => 'ß',
- 'thorn'  => 'þ',
- 'uacute' => 'ú',
- 'ucirc'  => 'û',
- 'ugrave' => 'ù',
- 'uuml'   => 'ü',
- 'yacute' => 'ý',
- 'yuml'   => 'ÿ',
-
- # Netscape extentions
- 'reg'    => '®',
- 'copy'   => '©',
-
-);
 
 
 
@@ -331,7 +250,7 @@ sub starttag
 		    die "This should not happen";
                 }
 		# expand entities
-		expand_entities($val);
+		HTML::Entities::decode($val);
 	    } else {
 		# boolean attribute
 		$val = $key;
@@ -478,7 +397,7 @@ sub text
     my $pos = $html->pos;
 
     my @text = @_;
-    expand_entities(@text);
+    HTML::Entities::decode(@text) unless $IGNORE_TEXT;
 
     if ($pos->isInside('pre')) {
 	return if $IGNORE_TEXT;
@@ -519,13 +438,5 @@ sub text
     }
 }
 
-
-sub expand_entities
-{
-    for (@_) {
-	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
-	s/(&(\w+);?)/$entities{$2} || $1/eg;
-    }
-}
 
 1;

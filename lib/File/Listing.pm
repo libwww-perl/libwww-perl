@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.9 1997/12/17 19:25:50 aas Exp $
+# $Id: Listing.pm,v 1.10 1998/03/11 11:57:17 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -218,7 +218,7 @@ sub line
 
     } elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
 	my $dir = $1;
-	next if $dir eq '.';
+	return () if $dir eq '.';
 	$curdir = $dir;
 	return ();
     } elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {

@@ -11,6 +11,7 @@ sub _parse {
     $self->URI::URL::_generic::_parse($init, qw(netloc path frag));
 
     my @parts = $self->path_components;
+    shift @parts if @parts && $parts[0] eq '';
 
     $self->{'group'} = uri_unescape($parts[0]);
     $self->{'digits'}= uri_unescape($parts[1]);
@@ -34,8 +35,11 @@ require Carp;
 sub illegal { Carp::croak("Illegal attribute for nntp URLs"); }
 
 *path      = \&illegal;
+*epath     = \&illegal;
 *query     = \&illegal;
+*equery    = \&illegal;
 *params    = \&illegal;
+*eparams   = \&illegal;
 *frag      = \&illegal;
 *user      = \&illegal;
 *password  = \&illegal;

@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.6 1995/08/21 06:22:45 aas Exp $
+# $Id: MediaTypes.pm,v 1.7 1995/08/21 13:25:00 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -36,120 +36,38 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guessMediaType mediaSuffix);
 
-my %types = (
-    "mime"  => "www/mime",
-    "bin"   => "application/octet-stream",
-    "oda"   => "application/oda",
-    "pdf"   => "application/pdf",
-    "ps"    => "application/postscript",
-    "eps"   => "application/postscript",
-    "ai"    => "application/postscript",
-    "rtf"   => "application/x-rtf",
-    "csh"   => "application/x-csh",
-    "dvi"   => "application/x-dvi",
-    "hdf"   => "application/x-hdf",
-    "latex" => "application/x-latex",
-    "nc"    => "application/x-netcdf",
-    "cdf"   => "application/x-netcdf",
-    "sh"    => "application/x-sh",
-    "tcl"   => "application/x-tcl",
-    "tex"   => "application/x-tex",
-    "texi"  => "application/x-texinfo",
-    "texinfo" => "application/x-texinfo",
-    "t"     => "application/x-troff",
-    "roff"  => "application/x-troff",
-    "tr"    => "application/x-troff",
-    "man"   => "application/x-troff-man",
-    "1"     => "application/x-troff-man",
-    "2"     => "application/x-troff-man",
-    "3"     => "application/x-troff-man",
-    "4"     => "application/x-troff-man",
-    "5"     => "application/x-troff-man",
-    "6"     => "application/x-troff-man",
-    "7"     => "application/x-troff-man",
-    "8"     => "application/x-troff-man",
-    "me"    => "application/x-troff-me",
-    "ms"    => "application/x-troff-ms",
-    "src"   => "application/x-wais-source",
-    "bcpio" => "application/x-bcpio",
-    "cpio"  => "application/x-cpio",
-    "gtar"  => "application/x-gtar",
-    "shar"  => "application/x-shar",
-    "sv4cpio" => "application/x-sv4cpio",
-    "igs"   => "application/iges",
-    "iges"  => "application/iges",
-    "stp"   => "application/STEP",
-    "step"  => "application/STEP",
-    "dxf"   => "application/dxf",
-    "vda"   => "application/vda",
-    "set"   => "application/set",
-    "stl"   => "application/SLA",
-    "dwg"   => "application/acad",
-    "DWG"   => "application/acad",
-    "SOL"   => "application/solids",
-    "DRW"   => "application/drafting",
-    "prt"   => "application/pro_eng",
-    "unv"   => "application/i-deas",
-    "CCAD"  => "application/clariscad",
-    "snd"   => "audio/basic",
-    "au"    => "audio/basic",
-    "aiff"  => "audio/x-aiff",
-    "aifc"  => "audio/x-aiff",
-    "aif"   => "audio/x-aiff",
-    "wav"   => "audio/x-wav",
-    "gif"   => "image/gif",
-    "ief"   => "image/ief",
-    "jpg"   => "image/jpeg",
-    "jpe"   => "image/jpeg",
-    "jpeg"  => "image/jpeg",
-    "jfif"  => "image/jpeg",
-    "tif"   => "image/tiff",
-    "tiff"  => "image/tiff",
-    "ras"   => "image/cmu-raster",
-    "pnm"   => "image/x-portable-anymap",
-    "pbm"   => "image/x-portable-bitmap",
-    "pgm"   => "image/x-portable-graymap",
-    "ppm"   => "image/x-portable-pixmap",
-    "rgb"   => "image/x-rgb",
-    "xbm"   => "image/x-xbitmap",
-    "xpm"   => "image/x-xpixmap",
-    "xwd"   => "image/x-xwindowdump",
-    "html"  => "text/html",
-    "htm"   => "text/html",
-    "htmls" => "text/html",
-    "c"     => "text/plain",
-    "h"     => "text/plain",
-    "cc"    => "text/plain",
-    "cxx"   => "text/plain",
-    "hh"    => "text/plain",
-    "m"     => "text/plain",
-    "f90"   => "text/plain",
-    "txt"   => "text/plain",
-    "text"  => "text/plain",
-    "pl"    => "text/plain",
-    "pm"    => "text/plain",
-    "rtx"   => "text/richtext",
-    "tsv"   => "text/tab-separated-values",
-    "etx"   => "text/x-setext",
-    "mpg"   => "video/mpeg",
-    "mpe"   => "video/mpeg",
-    "mpeg"  => "video/mpeg",
-    "qt"    => "video/quicktime",
-    "mov"   => "video/quicktime",
-    "avi"   => "video/x-msvideo",
-    "movie" => "video/x-sgi-movie",
-    "zip"   => "multipart/x-zip",
-    "tar"   => "multipart/x-tar",
-    "ustar" => "multipart/x-ustar",
+my %suffixType = (              # note: initialized from mime.types
+    'txt'   => 'text/plain',
+    'html'  => 'text/html',
+    'gif'   => 'image/gif',
+    'jpg'   => 'image/jpeg',
 );
 
-my %encoding = (
+my %suffixEncoding = (
     'Z'   => 'compress',
     'gz'  => 'gzip',
     'hqx' => 'x-hqx',
     'uu'  => 'x-uuencode',
     'z'   => 'x-pack'
 );
+
+
+# Try to locate "mime.types" file, and initialize %suffixType from it
+for $typefile ("$ENV{HOME}/.mime.types", map {"$_/LWP/mime.types"} @INC) {
+    if (open(TYPE, "$typefile")) {
+	%suffixType = ();  # forget default types
+	while (<TYPE>) {
+	    next if /^\s*#/; # comment line
+	    next if /^\s*$/; # blank line
+	    my($type, @exts) = split(' ', $_);
+	    for $ext (@exts) {
+		$suffixType{$ext} = $type;
+	    }
+	}
+	close(TYPE);
+	last;
+    }
+}
 
 
 ####################################################################
@@ -194,22 +112,22 @@ sub guessMediaType
     my $ct = undef;
     for (@parts) {
 	# first check this dot part as encoding spec
-	if (exists $encoding{$_}) {
-	    unshift(@encoding, $encoding{$_});
+	if (exists $suffixEncoding{$_}) {
+	    unshift(@encoding, $suffixEncoding{$_});
 	    next;
 	}
-	if (exists $encoding{lc $_}) {
-	    unshift(@encoding, $encoding{lc $_});
+	if (exists $suffixEncoding{lc $_}) {
+	    unshift(@encoding, $suffixEncoding{lc $_});
 	    next;
 	}
 
 	# check content-type
-	if (exists $types{$_}) {
-	    $ct = $types{$_};
+	if (exists $suffixType{$_}) {
+	    $ct = $suffixType{$_};
 	    last;
 	}
-	if (exists $types{lc $_}) {
-	    $ct = $types{lc $_};
+	if (exists $suffixType{lc $_}) {
+	    $ct = $suffixType{lc $_};
 	    last;
 	}
 
@@ -239,11 +157,11 @@ specified media type.  Wildcard types can be used.
 =cut
 
 sub mediaSuffix {
-    my(@file) = @_;
+    my(@type) = @_;
     my(@suffix,$nom,$val);
-    foreach (@file) {
+    foreach (@type) {
 	s/\*/.*/;
-	while(($nom,$val) = each(%types)) {
+	while(($nom,$val) = each(%suffixType)) {
 	    push(@suffix, $nom) if $val =~ /^$_$/;
 	}
     }

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.29 1997/12/02 13:22:52 aas Exp $
+# $Id: Protocol.pm,v 1.30 1997/12/15 20:29:10 aas Exp $
 
 package LWP::Protocol;
 
@@ -60,7 +60,6 @@ sub new
 
     my $self = bless {
 	'timeout' => 0,
-	'use_alarm' => 1,
 	'parse_head' => 1,
     }, $class;
     $self;
@@ -153,11 +152,6 @@ sub request
 Get and set the timeout value in seconds
 
 
-=item $prot->use_alarm($yesno)
-
-Indicates if the library is allowed to use the core alarm()
-function to implement timeouts.
-
 =item $prot->parse_head($yesno)
 
 Should we initialize response headers from the <head> section of HTML
@@ -166,7 +160,6 @@ documents.
 =cut
 
 sub timeout    { shift->_elem('timeout',    @_); }
-sub use_alarm  { shift->_elem('use_alarm',  @_); }
 sub parse_head { shift->_elem('parse_head', @_); }
 sub max_size   { shift->_elem('max_size',   @_); }
 
@@ -198,8 +191,8 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
-    my($use_alarm, $parse_head, $timeout, $max_size) =
-      @{$self}{qw(use_alarm parse_head timeout max_size)};
+    my($parse_head, $timeout, $max_size) =
+      @{$self}{qw(parse_head timeout max_size)};
 
     my $parser;
     if ($parse_head && $response->content_type eq 'text/html') {
@@ -213,7 +206,6 @@ sub collect
 	    if ($parser) {
 		$parser->parse($$content) or undef($parser);
 	    }
-	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    $response->add_content($$content);
 	    $content_size += length($$content);
@@ -223,7 +215,6 @@ sub collect
 		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
-	    alarm($timeout) if $use_alarm;
 	}
     }
     elsif (!ref($arg)) {
@@ -237,7 +228,6 @@ sub collect
 	    if ($parser) {
 		$parser->parse($$content) or undef($parser);
 	    }
-	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    print OUT $$content;
 	    $content_size += length($$content);
@@ -247,7 +237,6 @@ sub collect
 		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
-	    alarm($timeout) if $use_alarm;
 	}
 	close(OUT);
     }
@@ -257,7 +246,6 @@ sub collect
 	    if ($parser) {
 		$parser->parse($$content) or undef($parser);
 	    }
-	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
             eval {
 		&$arg($$content, $response, $self);
@@ -267,7 +255,6 @@ sub collect
 		$response->header('X-Died' => $@);
 		last;
 	    }
-	    alarm($timeout) if $use_alarm
 	}
     }
     else {

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# This script propegate the version number of the library to various
+# files.  The version numer is found in the VERSION file.
+
+VERSION=`cat VERSION`;
+
+# Updating version number in README file
+echo perl -pi~ -e "s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig" README
+
+# Updating version number in LWP.pm file
+perl -pi~ -e "s/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1\"$VERSION\"/" LWP.pm

@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.19 1995/09/04 18:41:15 aas Exp $
+# $Id: UserAgent.pm,v 1.20 1995/09/04 19:42:17 aas Exp $
 
 package LWP::UserAgent;
 
@@ -329,7 +329,8 @@ sub request
             my($scheme, $realm) = ($1, $2);
             if ($scheme =~ /^Basic$/i) {
 
-                my($uid, $pwd) = $self->getBasicCredentials($realm);
+                my($uid, $pwd) = $self->getBasicCredentials($realm,
+							    $request->url);
 
                 if (defined $uid and defined $pwd) {
                     my $uidpwd = "$uid:$pwd";
@@ -398,12 +399,12 @@ sub redirectOK
 
 sub credentials
 { 
-    my($self, $realm, $uid, $pwd) = @_;
-    @{ $self->{'basic_authentication'}{$realm} } = ($uid, $pwd);
+    my($self, $netloc, $realm, $uid, $pass) = @_;
+    @{ $self->{'basic_authentication'}{$netloc}{$realm} } = ($uid, $pass);
 }
 
 
-=head2 getBasicCredentials($realm)
+=head2 getBasicCredentials($realm, $uri)
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication.
@@ -420,10 +421,11 @@ C<request> program distributed with this library.
 
 sub getBasicCredentials
 {
-    my($self, $realm) = @_;
+    my($self, $realm, $uri) = @_;
+    my $netloc = $uri->netloc;
 
-    if (exists $self->{'basic_authentication'}{$realm}) {
-        return @{ $self->{'basic_authentication'}{$realm} };
+    if (exists $self->{'basic_authentication'}{$netloc}{$realm}) {
+        return @{ $self->{'basic_authentication'}{$netloc}{$realm} };
     }
 
     return (undef, undef);

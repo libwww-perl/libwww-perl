@@ -9,7 +9,7 @@
     HTML::Form's dump now also print alternative value names.
 
     HTML::Form will now pick up the phrase after a <input type=radio>
-    or <input type=checkbox> and use that as the name of checked
+    or <input type=checkbox> and use that as the name of the checked
     value.
 
 

@@ -1,6 +1,6 @@
 package Net::HTTP::NB;
 
-# $Id: NB.pm,v 1.1 2001/04/13 05:55:45 gisle Exp $
+# $Id: NB.pm,v 1.2 2001/04/13 06:41:19 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -65,9 +65,8 @@ Net::HTTP::NB - Non-blocking HTTP client
 
  READ_HEADER: {
     die "Header timeout" unless $sel->can_read(10);
-    my @h = $s->read_response_headers;
-    next READ_HEADER unless @h;
-    my($ver, $code, $mess, %h) = @h;
+    my($code, $mess, %h) = $s->read_response_headers;
+    redo READ_HEADER unless $code;
  }
 
  while (1) {
@@ -92,6 +91,10 @@ If read_entity_body() did not see new entity data in its read
 the value "0E0" is returned.  This must be treated differently from a
 return value of "0" which means end-of-entity.  Both are zero
 numerically, but only the last one is FALSE.
+
+=head1 SEE ALSO
+
+L<Net::HTTP>
 
 =head1 COPYRIGHT
 

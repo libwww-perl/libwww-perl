@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.46 2004/11/30 08:55:04 gisle Exp $
+# $Id: Message.pm,v 1.47 2004/11/30 10:10:53 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -193,14 +193,14 @@ sub decoded_content
 		$content = Compress::Zlib::uncompress($content);
 		Carp::croak("Can't inflate content") unless defined $content;
 	    }
-	    elsif ($ce eq "compress") {
-		Carp::croak("Can't uncompress compress");
+	    elsif ($ce eq "compress" || $ce eq "x-compress") {
+		Carp::croak("Can't uncompress content");
 	    }
-	    elsif ($ce eq "base64") {
+	    elsif ($ce eq "base64") {  # not really C-T-E, but should be harmless
 		require MIME::Base64;
 		$content = MIME::Base64::decode($content);
 	    }
-	    elsif ($ce eq "quoted-printable") {
+	    elsif ($ce eq "quoted-printable") { # not really C-T-E, but should be harmless
 		require MIME::QuotedPrint;
 		$content = MIME::QuotedPrint::decode($content);
 	    }

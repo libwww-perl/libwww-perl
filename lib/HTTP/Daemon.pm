@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.6 1996/10/18 16:27:38 aas Exp $
+# $Id: Daemon.pm,v 1.7 1996/10/21 22:04:07 aas Exp $
 #
 
 use strict;
@@ -31,10 +31,10 @@ HTTP::Daemon - a simple http server class
 
 =head1 DESCRIPTION
 
-Instances of the I<HTTP::Daemon> class are http servers that listens
-on a socket for incoming requests. The I<HTTP::Daemon> is a sub-class
-of I<IO::Socket::INET>, so you can do socket operations directly on
-it.
+Instances of the I<HTTP::Daemon> class are HTTP/1.1 servers that
+listens on a socket for incoming requests. The I<HTTP::Daemon> is a
+sub-class of I<IO::Socket::INET>, so you can do socket operations
+directly on it.
 
 The accept() method will return when a connection from a client is
 available. The returned value will be a reference to a object of the
@@ -54,7 +54,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -163,61 +163,158 @@ Will read data from the client and turn it into a I<HTTP::Request>
 object which is then returned. Will return undef if reading of the
 request failed.
 
+The $c->get_request method support HTTP/1.1 content bodies, including
+I<chunked> transfer encoding with footer and I<multipart/*> types.
+
 =cut
 
 sub get_request
 {
     my $self = shift;
-    my $req = my $buf = "";
+    my $buf = "";
     
-    my $timeout = ${*$self}{'io_socket_timeout'};
+    my $timeout = $ {*$self}{'io_socket_timeout'};
     my  $fdset = "";
     vec($fdset, $self->fileno,1) = 1;
 
+  READ_HEADER:
     while (1) {
 	if ($timeout) {
 	    return undef unless select($fdset,undef,undef,$timeout);
 	}
-	my $n = sysread($self, $buf, 1024);
+	my $n = sysread($self, $buf, 1024, length($buf));
 	return undef if $n == 0;  # unexpected EOF
-	#print length($buf), " bytes read\n";
-	$req .= $buf;
-	if ($req =~ /^\w+[^\n]+HTTP\/\d+\.\d+\015?\012/) {
-	    last if $req =~ /(\015?\012){2}/;
-	} elsif ($req =~ /\012/) {
-	    last;  # HTTP/0.9 client
+	if ($buf =~ /^\w+[^\n]+HTTP\/\d+\.\d+\015?\012/) {
+	    last READ_HEADER if $buf =~ /(\015?\012){2}/;
+	} elsif ($buf =~ /\012/) {
+	    last READ_HEADER;  # HTTP/0.9 client
 	}
     }
-    $req =~ s/^(\w+)\s+(\S+)(?:\s+(HTTP\/\d+\.\d+))?[^\012]*\012//;
+    $buf =~ s/^(\w+)\s+(\S+)(?:\s+(HTTP\/\d+\.\d+))?[^\012]*\012//;
     my $proto = $3 || "HTTP/0.9";
     my $r = HTTP::Request->new($1, url($2, $self->daemon->url));
     $r->protocol($3);
-    while ($req =~ s/^([\w\-]+):\s*([^\012]*)\012//) {
-	my($key,$val) = ($1, $2);
-	$val =~ s/\015$//;
-	$r->header($key => $val);
-	#XXX: must handle header continuation lines
-    }
-    if ($req) {
-	unless ($req =~ s/^\015?\012//) {
-	    warn "Headers not terminated by blank in request";
+
+    my($key, $val);
+  HEADER:
+    while ($buf =~ s/^([^\012]*)\012//) {
+	$_ = $1;
+	s/\015$//;
+	if (/^([\w\-]+)\s*:\s*(.*)/) {
+	    $r->push_header($key, $val) if $key;
+	    ($key, $val) = ($1, $2);
+	} elsif (/^\s+(.*)/) {
+	    $val .= " $1";
+	} else {
+	    last HEADER;
 	}
     }
-    my $len = $r->content_length;
-    if ($len) {
-	# should read request entity body from the client
-	$len -= length($req);
+    $r->push_header($key, $val) if $key;
+
+    my $te  = $r->header('Transfer-Encoding');
+    my $ct  = $r->header('Content-Type');
+    my $len = $r->header('Content-Length');
+
+    if ($te && lc($te) eq 'chunked') {
+	# Handle chunked transfer encoding
+	my $body = "";
+      CHUNK:
+	while (1) {
+	    if ($buf =~ s/^([^\012]*)\012//) {
+		my $chunk_head = $1;
+		$chunk_head =~ /^([0-9A-Fa-f]+)/;
+		return undef unless length($1);
+		my $size = hex($1);
+		last CHUNK if $size == 0;
+
+		my $missing = $size - length($buf);
+		$body .= $buf;
+		$buf = "";
+		# must read rest of chunk and append it to the $body
+		while ($missing > 0) {
+		    if ($timeout) {
+			return undef unless select($fdset,undef,undef,$timeout);
+		    }
+		    my $n = sysread($self, $body, $missing, length($body));
+		    return undef if $n == 0;
+		    $missing -= $n;
+		}
+	    } else {
+		# need more data in order to have a complete chunk header
+		if ($timeout) {
+		    return undef unless select($fdset,undef,undef,$timeout);
+		}
+		my $n = sysread($self, $buf, 2048, length($buf));
+		return undef if $n == 0;
+	    }
+	}
+	$r->content($body);
+
+	# pretend it was a normal entity body
+	$r->remove_header('Transfer-Encoding');
+	$r->header('Content-Length', length($body));
+
+	my($key, $val);
+      FOOTER:
+	while (1) {
+	    if ($buf !~ /\012/) {
+		# need at least one line to look at
+		if ($timeout) {
+		    return undef unless select($fdset,undef,undef,$timeout);
+		}
+		my $n = sysread($self, $buf, 2048, length($buf));
+		return undef if $n == 0;
+	    } else {
+		$buf =~ s/^([^\012]*)\012//;
+		$_ = $1;
+		s/\015$//;
+		last FOOTER if length($_) == 0;
+
+		if (/^([\w\-]+)\s*:\s*(.*)/) {
+		    $r->push_header($key, $val) if $key;
+		    ($key, $val) = ($1, $2);
+		} elsif (/^\s+(.*)/) {
+		    $val .= " $1";
+		} else {
+		    return undef;  # bad syntax
+		}
+	    }
+	}
+	$r->push_header($key, $val) if $key;
+
+    } elsif ($te) {
+	# Unknown transfer encoding
+	$self->send_error(501);
+	return undef;
+
+    } elsif ($ct && lc($ct) =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*(\w+)/) {
+	# Handle multipart content type
+	my $boundary = "\012--$1--";
+	while (index($buf, $boundary) < 0) {
+	    # end marker not yet found
+	    if ($timeout) {
+		return undef unless select($fdset,undef,undef,$timeout);
+	    }
+	    my $n = sysread($self, $buf, 2048, length($buf));
+	    return undef if $n == 0;
+	}
+
+    } elsif ($len) {
+	# Plain body specified by "Content-Length"
+
+	$len -= length($buf);
 	while ($len > 0) {
 	    if ($timeout) {
 		return undef unless select($fdset,undef,undef,$timeout);
 	    }
-	    my $n = sysread($self, $buf, 1024);
+	    my $n = sysread($self, $buf, $len, length($buf));
 	    return undef if $n == 0;
-	    $req .= $buf;
 	    $len -= $n;
 	}
-	$r->content($req);
+	$r->content($buf);
+
     }
+
     $r;
 }
 
@@ -233,7 +330,7 @@ sub send_status_line
     my($self, $status, $message, $proto) = @_;
     $status  ||= RC_OK;
     $message ||= status_message($status);
-    $proto   ||= "HTTP/1.0";
+    $proto   ||= "HTTP/1.1";
     print $self "$proto $status $message$CRLF";
 }
 

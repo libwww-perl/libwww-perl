@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.14 1995/10/04 11:05:47 aas Exp $
+# $Id: Makefile.PL,v 1.15 1995/12/29 15:22:53 aas Exp $
 
 #--- Configuration section ---
 
@@ -23,7 +23,7 @@ unless (getopts("l")) {
 $PERL = find_perl(5.001, [ $^X, "perl", "perl5", "perl$]" ],
                          [split ":", $ENV{PATH}], 0);
 $NAME = 'libwww-perl';
-chomp ($VERSION = `$PERL VERSION`);
+$VERSION = '5b7';   #chomp ($VERSION = `$PERL VERSION`);
 
 # Write findings to a file so that other .PL files can read them.
 open(OUT, ">myConfig.out") or die "Can't open myConfig.out: $!";
@@ -70,7 +70,7 @@ sub initialize
 if ($ExtUtils::MakeMaker::Version >= 4.15) {
     # This is important only for the developer:
     $hash{'macro'} = {
-        CONFIGDEP => '$(PERL_ARCHLIB)/Config.pm $(PERL_INC)/config.h VERSION'
+        CONFIGDEP => '$(PERL_ARCHLIB)/Config.pm $(PERL_INC)/config.h'
     };
 }
 
@@ -85,11 +85,6 @@ exit;
 
 sub MY::postamble {
     my @m;
-    push @m, "
-config ::
-	@\$(PERL) VERSION > /dev/null
-
-";
     if (@request_aliases && grep($_ eq 'request', @programs_to_install)) {
 	push @m, "all ::\n";
 	push @m, "\t\$(FULLPERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";

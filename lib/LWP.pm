@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.63 1997/12/17 10:07:47 aas Exp $
+# $Id: LWP.pm,v 1.64 1997/12/30 23:16:48 aas Exp $
 
 package LWP;
 
-$VERSION = "5.18_04";
+$VERSION = "5.18_05";
 sub Version { $VERSION; }
 
 require 5.004;
@@ -32,7 +32,7 @@ allow you to write WWW clients, thus libwww-perl said to be a WWW
 client library. The library also contain modules that are of more
 general use.
 
-The main architecture of the library is object oriented.  The user
+Most modules in this library are object oriented.  The user
 agent, requests sent and responses received from the WWW server are
 all represented by objects.  This makes a simple and powerful
 interface to these services.  The interface should be easy to extend
@@ -50,7 +50,7 @@ used separately or together.
 =item *
 
 Provides an object oriented model of HTTP-style communication.  Within
-this framework we currently support access to http, gopher, ftp, news,
+this framework we currently support access to http, https, gopher, ftp, news,
 file, and mailto resources.
 
 =item *
@@ -93,6 +93,10 @@ called 'tkweb' is distributed with the Tk extension for perl.
 An implementation of the HTTP content negotiation algorithm that can
 be used both in protocol modules and in server scripts (like CGI
 scripts).
+
+=item *
+
+It can deal with HTTP cookies.
 
 =item *
 
@@ -278,16 +282,6 @@ address will be sent to the servers with every request.
 
 =item *
 
-The B<use_alarm> specify if it is OK for the user agent to use the
-alarm(2) system to implement timeouts.
-
-=item *
-
-The B<use_eval> specify if the agent should raise an
-exception (C<die> in perl) if an error condition occur.
-
-=item *
-
 The B<parse_head> specify whether we should initialize response
 headers from the E<lt>head> section of HTML documents.
 
@@ -463,7 +457,7 @@ encoded (as the first letter) in the request URL path itself.
 
 Example:
 
-  $req = HTTP::Request->new('GET', 'gopher://gopher.sn.no/');
+  $req = HTTP::Request->new(GET => 'gopher://gopher.sn.no/');
 
 
 
@@ -492,7 +486,7 @@ The "To" header is initialized from the mail address in the URL.
 Example:
 
   $req = HTTP::Request->new(POST => 'mailto:libwww-perl-request@ics.uci.edu');
-  $req->header("Subject", "subscribe");
+  $req->header(Subject => "subscribe");
   $req->content("Please subscribe me to the libwww-perl mailing list!\n");
 
 
@@ -510,7 +504,6 @@ library. Indentation shows class inheritance.
      LWP::Protocol::ftp   -- ftp:// access
      ...
 
- LWP::Socket        -- Socket creation and IO
  LWP::Authen::Basic -- Handle 401 and 407 responses
  LWP::Authen::Digest
 
@@ -546,12 +539,6 @@ The following modules provide various functions and definitions.
  HTML::Entities     -- Expand or unexpand entities in HTML text
  File::Listing      -- Parse directory listings
 
-HTTP use the Base64 encoding at some places.  The QuotedPrint module
-is just included to make the MIME:: collection more complete.
-
- MIME::Base64       -- Base64 encoding/decoding routines
- MIME::QuotedPrint  -- Quoted Printable encoding/decoding routines
-
 The following modules does not have much to do with the World Wide
 Web, but are included just because I am lazy and did not bother to
 make separate distributions for them.  Regard them as bonus, provided
@@ -564,7 +551,7 @@ free for your pleasure.
 =head1 MORE DOCUMENTATION
 
 All modules contain detailed information on the interfaces they
-provide.  The L<lwpcook> is the libwww-perl cookbook that contain
+provide.  The I<lwpcook> manpage is the libwww-perl cookbook that contain
 examples of typical usage of the library.  You might want to take a
 look at how the scripts C<lwp-request>, C<lwp-rget> and C<lwp-mirror>
 are implemented.

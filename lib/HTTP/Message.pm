@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.7 1995/08/27 22:32:26 aas Exp $
+# $Id: Message.pm,v 1.8 1995/09/04 20:46:00 aas Exp $
 
 package HTTP::Message;
 
@@ -61,12 +61,14 @@ sub clone
 
 =head2 content([$content])
 
-=head2 addContent($data_reference)
+=head2 addContent($data)
 
 These methods manages the content of the message.  The C<content()>
 method sets the content if an argument is given.  If no argument is
 given the content is not touched.  In either case the previous content
 is returned.
+
+The addContent() methods appends data to the content.
 
 =cut
 
@@ -74,8 +76,12 @@ sub content   { shift->_elem('_content',  @_); }
 
 sub addContent
 {
-    my($self, $data) = @_;
-    $self->{'_content'} .= $$data;
+    my $self = shift;
+    if (ref($_[0])) {
+	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
+    } else {
+	$self->{'_content'} .= $_[0];
+    }
 }
 
 

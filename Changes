@@ -1,3 +1,44 @@
+2001-11-16   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.61
+
+    LWP::Protocol::http did not invoke its _fixup_header method.
+    The result was that the 'Host' header got completely wrong
+    when talking through a proxy server.
+
+    The live Google test is gone.  They blocked us.
+
+    The guts of Net::HTTP has moved to Net::HTTP::Methods.
+
+    Net::HTTP now has limits on the size of the header which are
+    set by default.
+
+    New module Net::HTTPS.
+
+    Documentation tweaks.
+
+    HTTP::Headers: The 'remove_header' method now return the values
+    of the fields removed as suggested by Blair Zajac <blair@orcaware.com>.
+    Also a typo fix by Blair.
+
+    HTTP::Message: The delegation via &AUTOLOAD should be slightly
+    faster now.  It will install a real forwarding function the
+    first time it is called for each HTTP::Headers method.
+
+    LWP::UserAgent: Don't forward 'Cookie' headers on redirect.
+    Patch by Steve A Fink <steve@fink.com>.
+
+    LWP::Protocol::http has been reorganized to make it simpler
+    to subclass it. Other minor changes to it include:
+       - Client-Warning is gone
+       - Client-Request-Num renamed to Client-Response-Num
+       - A 'Transfer-Encoding' header is rewritten into a
+         'Client-Transfer-Encoding' header.
+
+    LWP::Protocol::https is completely redone.
+
+
+
 2001-10-26   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.60
@@ -5,7 +46,7 @@
     Made HTTP/1.1 the default.  The old HTTP/1.0 module has been
     renamed as LWP::Protocol::http10.  There is an environment
     variable; PERL_LWP_USE_HTTP_10 that can be set to have LWP
-    still pick up the old handlers.
+    still pick up the old drivers.
 
     Deal with "100 continue" responses even when not requested by
     and Expect header in the request.  MS IIS seems to eager to send

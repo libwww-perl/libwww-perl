@@ -6,7 +6,7 @@ print "1..1\n";
 
 use HTML::Parse qw(parse_htmlfile);
 
-$file = "/usr/tmp/lwp-test-$$";
+$file = "lwp-test-$$";
 
 open(F, ">$file") or die "Can't open $file: $!";
 

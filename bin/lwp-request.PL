@@ -12,7 +12,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.39 1999/10/28 12:13:21 gisle Exp $
+# $Id: lwp-request.PL,v 1.40 2001/08/02 21:15:51 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -190,7 +190,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -408,7 +408,7 @@ while ($url = shift) {
         }
     };
     if ($@) {
-	$@ =~ s/at\s+\S+\s+line\s\d+//;
+	$@ =~ s/ at .* line \d+.*//;
 	print STDERR $@;
 	$errors++;
 	next;

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.45 1997/09/20 11:35:42 aas Exp $
+# $Id: UserAgent.pm,v 1.46 1997/10/02 16:10:53 aas Exp $
 
 package LWP::UserAgent;
 
@@ -686,6 +686,11 @@ sub mirror
 		"expected $content_length bytes, got $file_length\n";
 	} else {
 	    # OK
+	    if (-e $file) {
+		# Some dosish systems fail to rename if the target exists
+		chmod 0777, $file;
+		unlink $file;
+	    }
 	    rename($tmpfile, $file) or
 		die "Cannot rename '$tmpfile' to '$file': $!\n";
 	}

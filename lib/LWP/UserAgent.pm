@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.14 1995/08/09 12:00:02 aas Exp $
+# $Id: UserAgent.pm,v 1.15 1995/08/09 12:15:07 aas Exp $
 
 package LWP::UserAgent;
 
@@ -174,11 +174,22 @@ sub isProtocolSupported
 }
 
 
-=head2 simpleRequest($request, $arg [, $size])
+=head2 simpleRequest($request, [$arg [, $size]])
 
 This method dispatches a single WWW request on behalf of a user, and
-returns the response received. See the description above for the use
-of the method arguments.
+returns the response received.  The C<$request> should be a reference
+to a C<HTTP::Request> object with values defined for at least the
+C<method()> and C<url()> attributes.
+
+If C<$arg> is a scalar it is taken as a filename where the content of
+the response is stored.
+
+If C<$arg> is a reference to a subroutine, then this routine is called
+as chunks of the content is received.  An optional C<$size> argument
+is taken as a hint for an appropriate chunk size.
+
+If C<$arg> is omitted, then the content is stored in the response
+object.
 
 =cut
 
@@ -259,6 +270,8 @@ sub simpleRequest
 
 Process a request, including redirects and security.  This method may
 actually send several different simple reqeusts.
+
+The arguments are the same as for C<simpleRequest()>.
 
 =cut
 

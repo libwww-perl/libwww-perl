@@ -3,7 +3,7 @@ use HTTP::Date;
 require Time::Local if $^O eq "MacOS";
 my $offset = ($^O eq "MacOS") ? Time::Local::timegm(0,0,0,1,0,70) : 0;
 
-print "1..58\n";
+print "1..59\n";
 
 $no = 1;
 $| = 1;
@@ -99,6 +99,7 @@ ok;
 # try some garbage.
 for (undef, '', 'Garbage',
      'Mandag 16. September 1996',
+     '12 Arp 2003',
 #     'Thu Feb  3 00:00:00 CET 1994',
 #     'Thu, 03 Feb 1994 00:00:00 CET',
 #     'Wednesday, 31-Dec-69 23:59:59 GMT',

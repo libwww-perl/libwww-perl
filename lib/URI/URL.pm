@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.03";   # $Date: 1996/03/18 17:44:15 $
+$VERSION = "4.03";   # $Date: 1996/03/21 09:13:24 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -152,7 +152,6 @@ sub implementor
     unless (defined @{"${ic}::ISA"}) {
 	# Try to load it
 	eval { require "URI/URL/$scheme.pm"; };
-	Carp::carp($@) if $@ && $StrictSchemes;
 	$ic = '' unless defined @{"${ic}::ISA"};
     }
     if ($ic) {

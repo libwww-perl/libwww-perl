@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.2 1995/09/04 18:39:51 aas Exp $
+# $Id: IO.pm,v 1.3 1995/11/05 10:40:43 aas Exp $
 
 require LWP::Debug;
 
@@ -34,11 +34,14 @@ sub read
 
     my $rin = '';
     vec($rin, fileno($fd), 1) = 1;
-    my $nfound = select($rin, undef, undef, $timeout);
+    my $err;
+    my $nfound = select($rin, undef, $err = $rin, $timeout);
     if ($nfound == 0) {
 	die "Timeout";
     } elsif ($nfound < 0) {
 	die "Select failed: $!";
+    } elsif ($err) {
+	die "Exception on socket handle";
     } else {
 	my $n = sysread($fd, $_[0], $size, $offset);
 	LWP::Debug::conns("Read $n bytes: '$_[0]'") if defined $n;
@@ -60,12 +63,14 @@ sub write
     while ($offset < $len) {
 	my $win = '';
 	vec($win, fileno($fd), 1) = 1;
-	my $nfound = select(undef, $win, undef, $timeout);
+	my $err;
+	my $nfound = select(undef, $win, $err = $win, $timeout);
 	if ($nfound == 0) {
 	    die "Timeout";
-	    #return $bytes_written;
 	} elsif ($nfound < 0) {
 	    die "Select failed: $!";
+	} elsif ($err) {
+	    die "Exception on socket handle";
 	} else {
 	    my $n = syswrite($fd, $_[0], $len-$offset, $offset);
 	    return $bytes_written unless defined $n;

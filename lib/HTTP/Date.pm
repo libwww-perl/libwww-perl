@@ -1,19 +1,18 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.2 1995/06/12 18:22:07 aas Exp $
+# $Id: Date.pm,v 1.3 1995/07/11 11:54:33 aas Exp $
 #
 package LWP::Date;
 
 =head1 NAME
 
-LWP::Date -- date conversion routines
+time2str, str2time - date conversion routines
 
 =head1 SYNOPSIS
 
  use LWP::Date;
 
- $stringGMT = time2str(time()); # Format as GMT time
-
+ $stringGMT = time2str(time);   # Format as GMT time
  $mtime = str2time($stringGMT); # convert ascii date to machine time
  
 =head1 DESCRIPTION
@@ -50,12 +49,13 @@ module.
 
 ####################################################################
 
-$Version = '$Revision: 1.2 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
+$VERSION = $VERSION = # shut up -w
+    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
+require 5.001;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw( time2str str2time );
+@EXPORT_OK = qw(time2str str2time);
 
 use Time::Local;
 
@@ -80,14 +80,8 @@ sub time2str
 
     my ($sec, $min, $hour, $mday, $mon, $year,
         $wday, $yday, $isdst) = gmtime($time);
-    
-    # turn 2-digit year into 4 digits
-    if ($year <= 50) {
-        $year += 2000; #XXX: is this correct or will year epoch always be 1900
-    }
-    elsif ($year > 50 and $year < 100) {
-        $year += 1900;
-    }
+
+    $year += 1900;
     
     $wday = substr($DoW[$wday],0,3);
     sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
@@ -236,7 +230,6 @@ __END__
 import LWP::Date @LWP::Date::EXPORT_OK;
 
 # test str2time for supported dates
-
 my(@tests) =
 (
  'Thu Feb  3 00:00:00 GMT 1994',        # ctime format
@@ -253,32 +246,23 @@ my(@tests) =
  '03-Feb-1994',  # broken rfc850 HTTP format (no weekday, no time)
  '03 Feb 1994',  # proposed new HTTP format  (no weekday, no time)
  '03/Feb/1994',  # common logfile format     (no time, no offset)
- );
+);
 
 my $first = shift @tests;
 my $time = str2time($first);
-for(@tests) {
-    die "str2time('$_') failed" unless (&str2time($_) == $time);
 
+for (@tests) {
+    die "str2time('$_') failed" unless str2time($_) == $time;
     print "ok: '$_'\n";
 }
 
 # test time2str
-
-die "time2str failed" unless (&time2str($time,'GMT') eq
-                  'Thu, 03 Feb 1994 00:00:00 GMT');
+die "time2str failed"
+    unless time2str($time,'GMT') eq 'Thu, 03 Feb 1994 00:00:00 GMT';
 
 # try some out of bounds dates too.
-
-my(@tests) = (
-              '03-Feb-1969',
-              '03-Feb-2039',
-              );
-for(@tests) {
-    die "str2time('$_') failed" if defined &str2time($_);
-
+for ('03-Feb-1969', '03-Feb-2039') {
+    die "str2time('$_') failed" if defined str2time($_);
     print "ok: '$_'\n";
 }
-print "LWP::Date $LWP::Date::Version ok\n";
-
-1;
+print "LWP::Date $LWP::Date::VERSION ok\n";

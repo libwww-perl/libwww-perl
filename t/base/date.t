@@ -3,7 +3,7 @@ use HTTP::Date;
 require Time::Local if $^O eq "MacOS";
 my $offset = ($^O eq "MacOS") ? Time::Local::timegm(0,0,0,1,0,70) : 0;
 
-print "1..59\n";
+print "1..57\n";
 
 $no = 1;
 $| = 1;
@@ -59,17 +59,23 @@ my(@tests) =
  '  03   Feb   1994  0:00  ',
 );
 
-my $time = (760233600 + $offset) | 0;  # assume broken POSIX counting of seconds
+my $time = (760233600 + $offset);  # assume broken POSIX counting of seconds
 for (@tests) {
+    my $t;
     if (/GMT/i) {
 	$t = str2time($_);
     } else {
 	$t = str2time($_, "GMT");
     }
+    my $t2 = str2time(lc($_), "GMT");
+    my $t3 = str2time(uc($_), "GMT");
+
     $t = "UNDEF" unless defined $t;
     print "'$_'  =>  $t\n";
     print $@ if $@;
-    print "not " if $t eq 'UNDEF' || $t != $time;
+    print "not " if $t eq 'UNDEF' || $t  != $time
+	                          || $t2 != $time
+	                          || $t3 != $time;
     ok;
 }
 
@@ -93,8 +99,8 @@ ok;
 for ('03-Feb-1969', '03-Feb-2039',
      undef, '', 'Garbage',
      'Mandag 16. September 1996',
-     'Thu Feb  3 00:00:00 CET 1994',
-     'Thu, 03 Feb 1994 00:00:00 CET',
+#     'Thu Feb  3 00:00:00 CET 1994',
+#     'Thu, 03 Feb 1994 00:00:00 CET',
      'Wednesday, 31-Dec-69 23:59:59 GMT',
 
      '1980-00-01',

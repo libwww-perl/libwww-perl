@@ -1,9 +1,51 @@
+2004-06-14   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.800
+
+    HTML::Form will now "support" keygen-inputs.  It will not
+    calculate a key by itself.  The user will have to set its
+    value for it to be returned by the form.
+
+    HTML::Form will allow individual menu entries to be disabled.
+    This was needed to support <input type=radio disabled value=foo>
+    and <select><option disabled>foo.
+
+    HTML::Form now avoids name clashes between the <select> and
+    <option> attributes.
+
+    HTTP::Headers now special case field names that start with a
+    ':'.   This is used as an escape mechanism when you need the
+    header names to not go through canonicalization.
+
+    HTTP::Message will now allow an external content_ref
+    to be set.
+
+    HTTP::Request::Common.  The individual parts will no longer
+    have a Content-Length header for file uploads.
+
+    LWP::Simple doc patch for getprint.
+    Contributed by Yitzchak Scott-Thoennes <sthoenna@efn.org>.
+
+    LWP::UserAgent: New methods default_header() and
+    default_headers().
+
+    LWP::Protocol::file and LWP::Protocol::mailto.  Typo fix
+    fix by Ville Skyttä <ville.skytta@iki.fi>.
+
+    Net::HTTP typo fix by Ville Skyttä <ville.skytta@iki.fi>.
+    
+    LWP::Protocol::loopback:  This is a protocol handler that
+    works like the HTTP TRACE method, it will return the request
+    provided to it.  This is sometimes useful for testing.
+
+
+
 2004-04-13   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.79
 
     HTML::Form now exposes the 'readonly' and 'disabled'
-    attribute for inputs.  This allow your program to simulate
+    attribute for inputs.  This allows your program to simulate
     JavaScript code that modifies these attributes.
 
     RFC 2616 says that http: referer should not be sent with
@@ -17,7 +59,7 @@
     Patch by Ville Skyttä <ville.skytta@iki.fi>.
 
     HTTP::Headers: New method 'header_field_names' that
-    return a list names as suggested by its name.
+    return a list of names as suggested by its name.
 
     HTTP::Headers: $h->remove_content_headers will now
     also remove the headers "Allow", "Expires" and

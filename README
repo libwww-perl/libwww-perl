@@ -2,12 +2,15 @@ README file for libwww-perl version 5b9
 ---------------------------------------
 
 Libwww-perl is a collection of Perl modules which provides a simple
-and consistent programming interface (API) to the World-Wide Web.
+and consistent programming interface (API) to the World-Wide Web.  The
+library also contain modules that are of more general use.  The main
+focus of the library is to provide functions that allow you to write
+WWW clients, thus libwww-perl is often presented as a WWW client
+library.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
 Library of Common Code.
-
 
 The Perl4 version is maintained by Roy Fielding, and was the basis for
 tools such as MOMSpider. This version and much more information about
@@ -31,8 +34,8 @@ version should always be available from:
      http://www.sn.no/libwww-perl/
 
 The library is also available from the Comprehensive Perl Archive
-Network (CPAN). Visit http://www.perl.com/ to find a CPAN site near
-you.
+Network (CPAN). Visit <URL:http://www.perl.com/> to find a CPAN site
+near you.
 
 
 INSTALLATION
@@ -40,7 +43,7 @@ INSTALLATION
 In order to use this package you will need Perl version 5.002 or
 better.
 
-You install the library by running these commands:
+As usual, you install the library by running these commands:
 
    perl Makefile.PL
    make
@@ -51,10 +54,11 @@ You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
 want to install any programs then make the initial Makefile with:
 
-   perl Makefile.PL -l
+   perl Makefile.PL -n
 
-Consult the t/README file for instructions on how to enable the
-network tests.
+Network tests are not enabled automatically when you unpack this
+package.  Consult the t/README file for instructions on how to enable
+these tests.
 
 
 DOCUMENTATION

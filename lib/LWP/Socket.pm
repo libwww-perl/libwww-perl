@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.19 1996/02/26 19:15:51 aas Exp $
+# $Id: Socket.pm,v 1.20 1996/03/14 16:24:54 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in
@@ -223,11 +223,11 @@ sub read_until
 
     my $buf = \$self->{'buffer'};
 
-    until (length $delim and $$buf =~ /$delim/) {
-	LWP::IO::read($socket, $$buf, $size, length($$buf), $timeout);
-    }
-
     if (length $delim) {
+	while ($$buf !~ /$delim/) {
+	    LWP::IO::read($socket, $$buf, $size, length($$buf), $timeout)
+		or die "Unexpected EOF";
+        }
         ($$data_ref, $self->{'buffer'}) = split(/$delim/, $$buf, 2);
     } else {
         $data_ref = $buf;

@@ -1,29 +1,28 @@
+
                      L I B W W W - P E R L - 5
                    -----------------------------
 
-Libwww-perl is a collection of Perl modules which provides a simple
-and consistent application programming interface (API) to the
+
+The libwww-perl collection is a set of Perl modules which provides a
+simple and consistent application programming interface to the
 World-Wide Web.  The main focus of the library is to provide classes
-and functions that allow you to write WWW clients, thus libwww-perl
-said to be a WWW client library. The library also contain modules that
-are of more general use and even classes that help you implement
-simple HTTP servers.
+and functions that allow you to write WWW clients. The library also
+contain modules that are of more general use and even classes that
+help you implement simple HTTP servers.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
 Library of Common Code (nowadays known as 'w3c-libwww').
 
-The Perl4 version is still(?) maintained by Roy Fielding, and was the
+The Perl4 version was maintained by Roy Fielding, and was the
 basis for tools such as MOMSpider. The perl4 version of libwww-perl
-and much more information about its libraries can be found at:
+and much more information about its libraries can still be found at:
 http://www.ics.uci.edu/pub/websoft/libwww-perl/
 
 The Perl5 version (this package) is a complete rewrite for Perl5: the
 code is organized in Modules, provides an Object Oriented API, and
-offers some extended functionality.
+offers lots of extended functionality.
 
-Full HTTP/1.1 support is on its way.  Alpha releases of the LWPng
-package is currently available from CPAN.
 
 
 PREREQUISITES
@@ -40,17 +39,17 @@ libwww-perl:
   libnet
   Digest-MD5
 
-These packages should be available on CPAN.
+These packages should be available on CPAN (see below).
 
 If you want to access sites using the https protocol, then you need to
 install the Crypt::SSLeay or the IO::Socket::SSL module.  The
 README.SSL file will tell you more about how libwww-perl supports SSL.
 
 
+
 INSTALLATION
 
-You install libwww-perl, as you would install any perl module library,
-by running these commands:
+You install libwww-perl using the normal perl module distribution drill:
 
    perl Makefile.PL
    make
@@ -74,19 +73,19 @@ The Makefile.PL program will start out by checking your perl
 installation for a few packages that are recommended to be installed
 together with libwww-perl.
 
-Optional network tests are _not_ enabled automatically when you unpack
-this package.  Consult the t/README file for instructions on how to
-enable these tests.
 
 
 DOCUMENTATION
 
-See lib/LWP.pm for an overview of the library. See ChangeLog for
-recent changes.  POD style documentation is included in all modules
-and scripts.  These are normally converted to manual pages and
-installed as part of the "make install" process.  You should also be
-able to use the 'perldoc' utility to extract and read documentation
-from the module files directly.
+See ./lib/LWP.pm for an overview of the library. See ./ChangeLog for
+recent changes.
+
+POD style documentation is included in all modules and scripts.  These
+are normally converted to manual pages and installed as part of the
+"make install" process.  You should also be able to use the 'perldoc'
+utility to extract and read documentation from the module files
+directly.
+
 
 
 SUPPORT
@@ -101,6 +100,7 @@ You can join the mailing list by sending a message to
 <libwww-subscribe@perl.org>.
        ^^^^^^^^^^
 
+
 AVAILABILITY
 
 The latest version of libwww-perl should always be available from:
@@ -112,6 +112,7 @@ Network (CPAN).  Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
 site near you.
 
 
+
 COPYRIGHT
 
   © 1995-2001 Gisle Aas. All rights reserved.
@@ -119,6 +120,5 @@ COPYRIGHT
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
-
 
 Enjoy!

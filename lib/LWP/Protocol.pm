@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.35 1999/08/02 22:57:09 gisle Exp $
+# $Id: Protocol.pm,v 1.36 2000/04/09 11:20:48 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,7 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -296,7 +296,7 @@ for examples of usage.
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-2000 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

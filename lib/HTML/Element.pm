@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.11 1995/09/12 10:35:17 aas Exp $
+# $Id: Element.pm,v 1.12 1995/09/12 11:26:48 aas Exp $
 
 =head1 NAME
 
@@ -38,9 +38,10 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
+%OVERLOAD = ( '""'=>'asHTML', 'fallback'=>1 );      # EXPERIMENTAL
 
 # Elements that does not have corresponding end tags
 for (qw(base link meta isindex nextid
@@ -78,7 +79,7 @@ sub new
     my $self  = bless { _tag => lc $tag }, $class;
     my($attr, $val);
     while (($attr, $val) = splice(@_, 0, 2)) {
-	$val = 1 unless defined $val;
+	$val = attr unless defined $val;
 	$self->{lc $attr} = $val;
     }
     if ($tag eq 'html') {

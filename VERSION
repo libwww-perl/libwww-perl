@@ -4,7 +4,8 @@
 
 This is a self-modifying file. Whenever a version number in one of the
 members increases, this program increases its own version number by
-0.01. Members are enumerated below the __END__ token.
+0.01. Can also increment alfa/beta version numbers.  Members are
+enumerated below the __END__ token.
 
 This implies that we get a new timestamp. If we make Makefile
 dependent on this program, we get a new Makefile everytime one of the
@@ -22,7 +23,7 @@ Andreas Koenig <koenig@mind.de>
 
 =cut
 
-$VERSION=0.04;
+$VERSION="5b1";
 
 use lib "lib";
 
@@ -48,15 +49,22 @@ eval join "", "\$o = \"", @o, "\"";
 die $@ if $@;
 
 &rewrite if $rewrite;
-printf "%.2f\n", $VERSION;
+print "$VERSION\n";
 
 sub rewrite
 {
-    $VERSION += 0.01;
+    # Increment version number
+    if ($VERSION =~ /((?:^\d+(?:\.\d+)?-?)?[ab])(\d+)$/) {
+	$VERSION = $1 . ($2 + 1);
+    } else {
+	$VERSION = sprintf("%.2f", $VERSION + 0.01);
+    }
+    # Patch this file
     open READ, "$0" or die "Can't read myself: $!";
     $versions = "";
     while (<READ>) {
-	s/(^\$VERSION=)\d+\.\d+/$1.$VERSION/e;
+	s/(^\$VERSION=)\d+(?:\.\d+)?;/$1$VERSION;/;
+	s/(^\$VERSION=)"\S+"/$1"$VERSION"/;
 	$versions .= $_;
 	last if /^__END__/;
     }
@@ -65,14 +73,6 @@ sub rewrite
     print WRITE $versions;
     print WRITE $o;
     close WRITE;
-
-    # Let's also update the version number in the README file
-# XXX this does not work for me (aas@oslonett.no)
-#    $^I="~";
-#    @ARGV=qw(README);
-#    while (<>) {
-#	s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig;
-#    }
 }
 
 __END__
@@ -81,7 +81,7 @@ HTML::Entities 1.01
 HTML::Parse 1.06
 HTTP::Date 1.10
 LWP 0.04
-LWP::Socket 1.12
+LWP::Socket 1.13
 MIME::Base64 1.03
 MIME::QuotedPrint 1.04
 Mail::Cap 1.03

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.5 2001/04/07 23:59:08 gisle Exp $
+# $Id: HTTP.pm,v 1.6 2001/04/09 20:43:21 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -136,9 +136,6 @@ sub write_request {
     print $self $content;
 }
 
-sub read_response {
-    my $self = shift;
-}
 
 sub read_line {
     my $self = shift;
@@ -149,6 +146,7 @@ sub read_line {
     $line =~ s/\015?\012\z//;
     return $line;
 }
+
 
 sub read_response_headers {
     my $self = shift;
@@ -252,6 +250,7 @@ sub read_entity_body {
 	    else {
 		# read trailers
 		read_line($self) eq "" || die;
+		$$buf_ref = "";
 		return 0;
 	    }
 	}
@@ -265,93 +264,14 @@ sub read_entity_body {
 	return $n;
     }
     else {
+	# read until eof
 	return read($self, $$buf_ref, $size) if $size > 0;
+
+	# slurp rest
 	local $/ = undef;
 	$$buf_ref = <$self>;
 	return length($$buf_ref);
     }
-}
-
-
-sub feed_sink {
-    my($sink, $data) = @_;
-    if (ref($sink) eq "CODE") {
-	&$sink($data);
-    }
-    else {
-	# could deal with array and scalars here
-	die;
-    }
-    return;
-}
-
-sub xread_entity_body {
-    my($self, $sink) = @_;
-
-    # Some responses are always empty
-    my $method = shift(@{${*$self}{'http_request_method'}});
-    my $status = ${*$self}{'http_status'};
-    if ($method eq "HEAD" || $status =~ /^(?:1|[23]04)/) {
-	# these responses are always empty
-	feed_sink($sink, "") if $sink;
-	return "";
-    }
-
-    # Transfer encoding
-    my $te = ${*$self}{'http_te'};
-    if ($te) {
-	return _read_chunked_content($self, $sink) if $te eq "chunked";
-	die "Don't know about transfer encoding '$te'";
-    }
-
-    # Content Length
-    my $content_length = ${*$self}{'http_content_length'};
-    if (defined $content_length) {
-	my $buf;
-	read($self, $buf, $content_length) == $content_length || die;
-	return feed_sink($sink, $buf) if $sink;
-	return $buf;
-    }
-
-    # XXX Multi-Part types are self delimiting, but RFC 2616 says we
-    # only has to deal with 'multipart/byteranges'
-
-    # Read until EOF
-    my $buf = "";
-    while (1) {
-	my $n = read($self, $buf, 1024*16, length($buf));
-	if (!$n) {
-	    warn "$!" unless defined $n;
-	    last;
-	}
-	if ($sink) {
-	    feed_sink($sink, $buf);
-	    $buf = "";
-	}
-    }
-    return $buf;
-}
-
-sub _read_chunked_content {
-    my($self, $sink) = @_;
-    my @buf;
-    while (my $n = read_line($self)) {
-	$n =~ s/;.*//;  # ignore potential chunk parameters
-	$n =~ s/\s+$//;
-	$n = hex($n);
-	my $buf;
-	read($self, $buf, $n) == $n || die;
-	read_line($self) eq "" || die;
-	if ($sink) {
-	    feed_sink($sink, $buf);
-	}
-	else {
-	    push(@buf, $buf);
-	}
-    }
-    # XXX There can be trailer headers here
-    read_line($self) eq "" || die;
-    return join("", @buf);
 }
 
 1;

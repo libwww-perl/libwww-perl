@@ -1,7 +1,6 @@
-print "1..32\n";
+print "1..33\n";
 
 #use LWP::Debug '+';
-
 use HTTP::Cookies;
 use HTTP::Request;
 use HTTP::Response;
@@ -492,6 +491,34 @@ print "Cookie: $_\n";
 print "not " unless /foo2=bar/ && count_cookies($c) == 3;
 print "ok 32\n";
 print $c->as_string;
+
+# Test for empty path
+# Broken web-server ORION/1.3.38 returns to the client response like
+#
+#	Set-Cookie: JSESSIONID=ABCDERANDOM123; Path=
+#
+# e.g. with Path set to nothing.
+# In this case routine extract_cookies() must set cookie to / (root)
+print "---\n";
+print "Test for empty path...\n";
+$c = HTTP::Cookies->new;  # clear it
+
+$req = HTTP::Request->new(GET => "http://www.ants.com/");
+
+$res = HTTP::Response->new(200, "OK");
+$res->request($req);
+$res->header("Set-Cookie" => "JSESSIONID=ABCDERANDOM123; Path=");
+print $res->as_string;
+$c->extract_cookies($res);
+
+$req = HTTP::Request->new(GET => "http://www.ants.com/");
+$c->add_cookie_header($req);
+print $req->as_string;
+
+print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
+                    $req->header("Cookie2") eq "\$Version=1";
+print "ok 33\n";
+
 
 #-------------------------------------------------------------------
 

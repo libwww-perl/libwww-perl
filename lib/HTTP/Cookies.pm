@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -349,7 +349,7 @@ sub extract_cookies
 
 	my $path = delete $hash{path};
 	my $path_spec;
-	if (defined $path) {
+	if (defined $path && $path ne '') {
 	    $path_spec++;
 	    $self->_normalize_path($path) if $path =~ /%/;
 	    if (!$netscape_cookies &&

@@ -17,17 +17,20 @@ HTML::HeadParser - Parse <HEAD> section of a HTML document
 =head1 DESCRIPTION
 
 The I<HTML::HeadParser> is a specialized (and lightweight)
-I<HTML::Parser> that will only parse the <HEAD>...</HEAD> section of a
+I<HTML::Parser> that will only parse the E<lt>HEAD>...E<lt>/HEAD> section of a
 HTML document.  The parse() and parse_file() methods will return a
-FALSE value as soon as a <BODY> element is found, and should not be
+FALSE value as soon as a E<lt>BODY> element is found, and should not be
 called again after this.
 
-The I<HTML::HeadParser> constructor takes a I<HTTP::Headers> object
-reference as argument.  The parser will update this header object as
-the various head elements are recognized.
+The I<HTML::HeadParser> constructor takes an optional I<HTTP::Headers>
+object reference as argument.  The parser will update this header
+object as the various E<lt>HEAD> elements are recognized.  If no
+header is given we will create an internal (and initially empty)
+header object.  This header object can be accessed with the header()
+method.
 
 The following header fields are initialized from elements found in the
-E<lt>head> section of a HTML document:
+E<lt>HEAD> section of the HTML document:
 
 =over 4
 
@@ -45,7 +48,8 @@ element.
 
 The I<Isindex> header will be added if there is a E<lt>isindex>
 element in the E<lt>head>.  The header value is initialized from the
-I<prompt> attribute if it is present.
+I<prompt> attribute if it is present.  If not I<prompt> attribute is
+given it will have '?' as the value.
 
 =item X-Meta-Foo
 
@@ -55,34 +59,15 @@ will be honored as the header name.
 
 =back
 
-=head1 EXAMPLES
+=head1 METHODS
 
- $h = HTTP::Headers->new;
- $p = HTML::HeadParser->new($h);
- $p->parse(<<EOT);
- <title>Stupid example</title>
- <base href="http://www.sn.no/libwww-perl/">
- Normal text starts here.
- EOT
- undef $p;
- print $h->title;   # should print "Stupid example"
+The following methods (in addition to those provided by the
+superclass) are available:
 
-=head1 SEE ALSO
-
-L<HTML::Parser>, L<HTTP::Headers>
-
-=head1 COPYRIGHT
-
-Copyright 1996 Gisle Aas. All rights reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Gisle Aas E<lt>aas@sn.no>
+=over 4
 
 =cut
+
 
 require HTML::Parser;
 @ISA = qw(HTML::Parser);
@@ -93,9 +78,13 @@ require HTTP::Headers;
 use strict;
 use vars qw($VERSION $DEBUG);
 #$DEBUG = 1;
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 my $FINISH = "HEAD PARSED\n";
+
+=item $hp = HTML::HeadParser->new( [$header] )
+
+=cut
 
 sub new
 {
@@ -107,6 +96,13 @@ sub new
     $self->{'text'} = '';  # the accumulated text associated with the element
     $self;
 }
+
+=item $hp->parse( $text )
+
+Parses some HTML text (see HTML::Parser->parse()) but will return
+FALSE as soon as parsing should end.
+
+=cut
 
 sub parse
 {
@@ -120,11 +116,28 @@ sub parse
     $self;
 }
 
+=item $hp->header;
+
+Returns a reference to the HTML::Header object.
+
+=item $hp->header( $key )
+
+Returns a header value.
+
+=cut
+
 sub header
 {
     my $self = shift;
+    return $self->{'header'} unless @_;
     $self->{'header'}->header(@_);
 }
+
+=item $hp->as_string;
+
+Same as $hp->header->as_string
+
+=cut
 
 sub as_string
 {
@@ -132,7 +145,7 @@ sub as_string
     $self->{'header'}->as_string;
 }
 
-sub flush_text
+sub flush_text   # internal
 {
     my $self = shift;
     my $tag  = $self->{'tag'};
@@ -217,3 +230,35 @@ sub text
 }
 
 1;
+
+__END__
+
+=head1 EXAMPLES
+
+ $h = HTTP::Headers->new;
+ $p = HTML::HeadParser->new($h);
+ $p->parse(<<EOT);
+ <title>Stupid example</title>
+ <base href="http://www.sn.no/libwww-perl/">
+ Normal text starts here.
+ EOT
+ undef $p;
+ print $h->title;   # should print "Stupid example"
+
+=head1 SEE ALSO
+
+L<HTML::Parser>, L<HTTP::Headers>
+
+=head1 COPYRIGHT
+
+Copyright 1996-1997 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Gisle Aas E<lt>aas@sn.no>
+
+=cut
+

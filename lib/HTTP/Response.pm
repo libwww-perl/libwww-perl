@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.33 1999/03/20 07:37:35 gisle Exp $
+# $Id: Response.pm,v 1.34 2000/06/13 20:05:59 gisle Exp $
 
 package HTTP::Response;
 
@@ -45,7 +45,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Status ();
 use strict;
@@ -127,10 +127,10 @@ sub status_line
 
 =item $r->base
 
-Returns the base URL for this response.  The return value will be a
+Returns the base URI for this response.  The return value will be a
 reference to a URI object.
 
-The base URL is obtained from one the following sources (in priority
+The base URI is obtained from one the following sources (in priority
 order):
 
 =over 4
@@ -150,14 +150,14 @@ also look for the "Base:" header.
 
 =item 3.
 
-The URL used to request this response. This might not be the original
-URL that was passed to $ua->request() method, because we might have
+The URI used to request this response. This might not be the original
+URI that was passed to $ua->request() method, because we might have
 received some redirect responses first.
 
 =back
 
 When the LWP protocol modules produce the HTTP::Response object, then
-any base URL embedded in the document (step 1) will already have
+any base URI embedded in the document (step 1) will already have
 initialized the "Content-Base:" header. This means that this method
 only performs the last 2 steps (the content is not always available
 either).
@@ -167,12 +167,10 @@ either).
 sub base
 {
     my $self = shift;
-    my $base = $self->header('Content-Base')     ||  # HTTP/1.1
+    my $base = $self->header('Content-Base')     ||  # used to be HTTP/1.1
                $self->header('Content-Location') ||  # HTTP/1.1
-               $self->header('Base')             ||  # backwards compatability HTTP/1.0
-               $self->request->url;
-    $base = $HTTP::URI_CLASS->new($base) unless ref $base;
-    $base;
+               $self->header('Base');                # HTTP/1.0
+    return $HTTP::URI_CLASS->new_abs($base, $self->request->uri);
 }
 
 

@@ -70,6 +70,7 @@ t/base/ua.t			Basic LWP::UserAgent tests
 t/html/form.t			Test HTML::Form module
 t/live/google.t
 t/live/jigsaw-auth-b.t
+t/live/jigsaw-auth-d.t
 t/live/jigsaw-chunk.t
 t/live/jigsaw-md5.t
 t/live/jigsaw-neg.t

@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.27 1997/09/20 11:04:35 aas Exp $
+# $Id: lwp-request.PL,v 1.28 1997/10/13 11:56:00 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -173,14 +173,14 @@ L<lwp-mirror>, L<LWP>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
+Copyright 1995-1997 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@a.sn.no>
+Gisle Aas <aas@sn.no>
 
 =cut
 
@@ -188,7 +188,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -207,16 +207,13 @@ use HTTP::Date qw(time2str str2time);
 # "" = No content in request, "C" = Needs content in request
 #
 %allowed_methods = (
-    GET        => "",   
+    GET        => "",
     HEAD       => "",
-    POST       => "C",   
+    POST       => "C",
     PUT        => "C",
-    DELETE     => "",   
-    LINK       => "",
-    UNLINK     => "",
-    CHECKIN    => "C",
-    CHECKOUT   => "",
-    SHOWMETHOD => "",
+    DELETE     => "",
+    TRACE      => "",
+    OPTIONS    => "",
 );
 
 
@@ -297,7 +294,7 @@ if ($opt_v) {
     die <<"EOT";
 This is lwp-request version $VERSION ($DISTNAME)
 
-Copyright 1995-1996, Gisle Aas.
+Copyright 1995-1997, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -391,10 +388,14 @@ while ($url = shift) {
     # Create the URL object, but protect us against bad URLs
     eval {
 	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
-	    $url = new URI::URL $url, $opt_b;
+	    $url = URI::URL->new($url, $opt_b);
+        } elsif ($url =~ /^(www|web)\./) {
+	    $url = URI::URL->new("http://$url");
+        } elsif ($url =~ /^(ftp|gopher|news)\./) {
+	    $url = URI::URL->new("$1://$url");
 	} else {
 	    # No scheme specified for the URL (treat it as a file)
-	    $url = newlocal URI::URL $url;
+	    $url = URI::URL->newlocal($url);
 	}
     };
     if ($@) {
@@ -507,6 +508,7 @@ Usage: $progname [-options] <url>...
     -t <timeout>  Set timeout value
     -i <time>     Set the If-Modified-Since header on the request
     -c <conttype> use this content-type for POST, PUT, CHECKIN
+    -a            Use text mode for content I/O
     -p <proxyurl> use this as a proxy
     -P            don't load proxy settings from environment
 
@@ -522,7 +524,6 @@ Usage: $progname [-options] <url>...
     -h            Print this message
 
     -x            Extra debugging output
-    -a            Use text mode for content i/o
 EOT
 }
 !NO!SUBS!

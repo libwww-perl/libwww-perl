@@ -162,7 +162,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -223,7 +223,7 @@ unless (defined $PREFIX) {
     $PREFIX = $PREFIX->as_string;
 }
 
-%KEEPEXT = map { lc($_) => 1 } split(/\s*,\s*/, $KEEPEXT{'OPT'});
+%KEEPEXT = map { lc($_) => 1 } split(/\s*,\s*/, ($KEEPEXT{'OPT'}||0));
 $REFERER = "" unless defined $REFERER;
 
 print <<"" if $VERBOSE;
@@ -343,7 +343,7 @@ s/
 	    ([^\s>]+)		    # quoteless value
     )
 /
-  new_link($url, $1, lc($2), $3||$5, $4||$6||$7, $base, $name, $depth+1)
+  new_link("$url", $1, lc($2), $3||$5, $4||$6||$7, $base, $name, $depth+1)
 /giex;
 	   # XXX
 	   # The regular expression above is not strictly correct.
@@ -591,6 +591,7 @@ Allowed options are:
   --hier	    Download into hierarchy (not all files into cwd)
   --iis		    Workaround IIS 2.0 bug by sending "Accept: */*" MIME
 		    header; translates backslashes (\\) to forward slashes (/)
+  --referer=URI     Set initial referer header
   --keepext=type    Keep file extension for MIME types (comma-separated list)
   --limit=N	    A limit on the number documents to get (default is $MAX_DOCS)
   --nospace	    Translate spaces URLs (not #fragments) to underscores (_)

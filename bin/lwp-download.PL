@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.5 1997/12/03 21:21:00 aas Exp $
+# $Id: lwp-download.PL,v 1.6 1998/04/28 08:05:24 aas Exp $
 
 =head1 NAME
 
@@ -35,10 +35,11 @@ specified as the second command line argument.
 The I<lwp-download> program is implemented using the I<libwww-perl>
 library.  It is better suited to down load big files than the
 I<lwp-request> program because it does not store the file in memory.
-Another benefit is that it will keep you updated about it's progress
-and that you don't have any options to worry about.
+Another benefit is that it will keep you updated about its progress
+and that you don't have much options to worry about.
 
-Use the C<-a> option to save the file in text (ascii) mode.
+Use the C<-a> option to save the file in text (ascii) mode.  Might make a
+difference on dosish systems.
 
 =head1 EXAMPLE
 
@@ -87,7 +88,7 @@ my $size = 0;  # number of bytes received
 my $start_t;   # start time of download
 my $last_dur;  # time of last callback
 
-my $shown = 0; # has we called the show() function yet
+my $shown = 0; # have we called the show() function yet
 
 $SIG{INT} = sub { die "Interrupted\n"; };
 

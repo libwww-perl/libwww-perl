@@ -1,4 +1,4 @@
-This is LWP version 0.04, a set of perl modules for WWW Access.
+This is libwww-perl version 5b1, a set of perl modules for WWW Access.
 
 In order to use this library you will need Perl version 5.001e or
 better.
@@ -15,8 +15,10 @@ You install the library by running these commands:
    make test
    make install
 
-Installation of the library is really just to copy the files in the lib
-directory to your standard perl library location.
+Installation of the library is really just to copy the files in the
+lib directory to your standard perl library location.  Edit the
+configuration section of Makefile.PL to select which programs to
+install in addition to the library itself.
 
 The best place to discuss this code is on the <libwww-perl@ics.uci.edu>
 mailing list.  You can join the mailing list by sending a mail message to

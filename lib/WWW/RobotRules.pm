@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.31 2004/11/12 16:05:09 gisle Exp $
+# $Id: RobotRules.pm,v 1.32 2004/11/12 16:14:25 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -70,7 +70,7 @@ sub parse {
 	}
 	elsif (/^\s*Disallow\s*:\s*(.*)/i) {
 	    unless (defined $ua) {
-		warn "RobotRules: Disallow without preceding User-agent\n";
+		warn "RobotRules <$robot_txt_uri>: Disallow without preceding User-agent\n" if $^W;
 		$is_anon = 1;  # assume that User-agent: * was intended
 	    }
 	    my $disallow = $1;
@@ -97,7 +97,7 @@ sub parse {
 	    }
 	}
 	else {
-	    warn "RobotRules: Unexpected line: $_\n";
+	    warn "RobotRules <$robot_txt_uri>: Unexpected line: $_\n" if $^W;
 	}
     }
 

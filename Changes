@@ -1,3 +1,28 @@
+2001-05-05   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_94
+
+    Sean M. Burke's update to LWP::UserAgent:
+       - updated redirect_ok behaviour
+       - new convenience methods: get/head/post/put
+       - protocols_allowed/protocols_forbidden
+       - LWP::Protocol::nogo (new module)
+
+    Added digest auth test against Jigsaw
+
+    Fixed a 'use of uninitialized'-warning in the handling of
+    digest authentication.
+
+    Net::HTTP updates:
+      - new option: SendTE
+      - support transfer-encoding 'deflate' and 'gzip' (when Compress::Zlib
+        is available).
+      - new methods: format_chunk, format_chunk_eof
+      - use -1 (instead of "0E0" as signal that no data was available,
+        but this was not EOF).
+
+
+
 2001-04-28   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_93

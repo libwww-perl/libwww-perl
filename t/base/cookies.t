@@ -45,7 +45,8 @@ my $year_plus_one = (localtime)[5] + 1900 + 1;
 
 $c = HTTP::Cookies->new;
 
-$req = HTTP::Request->new(GET => "http://www.acme.com/");
+$req = HTTP::Request->new(GET => "http://1.1.1.1/");
+$req->header("Host", "www.acme.com:80");
 
 $res = HTTP::Response->new(200, "OK");
 $res->request($req);

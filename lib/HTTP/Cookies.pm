@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -102,7 +102,7 @@ sub add_cookie_header
     my $self = shift;
     my $request = shift || return;
     my $url = $request->url;
-    my $domain = $url->host;
+    my $domain = _host($request, $url);
     $domain = "$domain.local" unless $domain =~ /\./;
     my $secure_request = ($url->scheme eq "https");
     my $req_path = _url_path($url);
@@ -243,8 +243,9 @@ sub extract_cookies
 
     return $response unless @set || @ns_set;  # quick exit
 
-    my $url = $response->request->url;
-    my $req_host = $url->host;
+    my $request = $response->request;
+    my $url = $request->url;
+    my $req_host = _host($request, $url);
     $req_host = "$req_host.local" unless $req_host =~ /\./;
     my $req_port = $url->port;
     my $req_path = _url_path($url);
@@ -668,6 +669,16 @@ sub as_string
 	push(@res, "Set-Cookie3: " . join_header_words(\@h));
     });
     join("\n", @res, "");
+}
+
+sub _host
+{
+    my($request, $url) = @_;
+    if (my $h = $request->header("Host")) {
+	$h =~ s/:\d+$//;  # might have a port as well
+	return $h;
+    }
+    return $url->host;
 }
 
 sub _url_path

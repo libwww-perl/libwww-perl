@@ -1,15 +1,15 @@
 #
-# $Id: Status.pm,v 1.8 1995/08/09 09:21:07 aas Exp $
+# $Id: Status.pm,v 1.9 1995/08/09 09:43:48 aas Exp $
 
-package HTTP::StatusCode;
+package HTTP::Status;
 
 =head1 NAME
 
-HTTP::StatusCode - HTTP Status code processing
+HTTP::Status - HTTP Status code processing
 
 =head1 SYNOPSIS
 
- use HTTP::StatusCode;
+ use HTTP::Status;
 
  if ($rc != RC_OK) { 
      print statusMessage($rc), "\n";
@@ -21,7 +21,7 @@ HTTP::StatusCode - HTTP Status code processing
 
 =head1 DESCRIPTION
 
-HTTP::StatusCode is a library of routines for manipulating
+HTTP::Status is a library of routines for manipulating
 HTTP Status Codes for L<libwww-perl>.
 
 The following functions can be used as mnemonic status codes:
@@ -54,7 +54,7 @@ The following functions can be used as mnemonic status codes:
    RC_SERVICE_UNAVAILABLE
    RC_GATEWAY_TIMEOUT
 
-The C<message()> function will translate status codes to human
+The C<statusMessage()> function will translate status codes to human
 readable strings.
 
 The C<isSuccess()>, C<isError()>, and C<isRedirect()> functions will
@@ -68,7 +68,7 @@ error, or a redirect respectively.
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(isSuccess isError isRedirect message);
+@EXPORT = qw(isSuccess isError isRedirect statusMessage);
 
 # Note also addition of mnemonics to @EXPORT_OK below
 
@@ -117,13 +117,13 @@ die if $@;
 undef $mnemonicCode;
 
 
-=head2 message($code)
+=head2 statusMessage($code)
 
 Return user friendly error message for status code C<$code>
 
 =cut
 
-sub message
+sub statusMessage
 {
     return undef unless exists $StatusCode{$_[0]};
     $StatusCode{$_[0]};

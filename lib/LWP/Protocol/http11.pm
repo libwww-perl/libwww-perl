@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.18 2001/05/02 05:12:48 gisle Exp $
+# $Id: http11.pm,v 1.19 2001/05/02 05:14:14 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -75,19 +75,6 @@ sub _new_socket
 					  SendTE    => 1,
 					  $self->_extra_sock_opts($host, $port),
 					 );
-    # Enabling of SendTE breaks www.google.com's persistent connection.
-    # This would make us send a request like:
-    #
-    #  GET / HTTP/1.1
-    #  TE: deflate,gzip;q=0.3
-    #  Keep-Alive: 300
-    #  Connection: TE, Keep-Alive
-    #  Host: www.google.com:80
-    #  User-Agent: libwww-perl/5.5393
-    #  Cookie: PREF=ID=5bc73da54e26250f:TM=988529693:LM=988529693
-    #
-    # It seems like they only will keep the connection up if the Keep-Alive
-    # header is alone.
 
     unless ($sock) {
 	# IO::Socket::INET leaves additional error messages in $@

@@ -1,6 +1,4 @@
-#!/local/bin/perl -w
-#
-# $Id: Socket.pm,v 1.18 1996/02/05 18:04:15 aas Exp $
+# $Id: Socket.pm,v 1.19 1996/02/26 19:15:51 aas Exp $
 
 package LWP::Socket;
 
@@ -14,7 +12,7 @@ LWP::Socket - TCP/IP socket interface
  $socket->connect('localhost', 7); # echo
  $quote = 'I dunno, I dream in Perl sometimes...';
  $socket->write("$quote\n");
- $socket->readUntil("\n", \$buffer);
+ $socket->read_until("\n", \$buffer);
  $socket->read(\$buffer);
  $socket = undef;  # close
 
@@ -30,28 +28,31 @@ be part of the standard Perl5 library.
 Running this module standalone executes a self test which requires
 localhost to serve chargen and echo protocols.
 
+=head1 METHODS
+
 =cut
 
-#####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-use Socket qw(1.5);
-use Carp;
+use Socket qw(pack_sockaddr_in unpack_sockaddr_in
+	      PF_INET SOCK_STREAM INADDR_ANY
+              inet_ntoa inet_aton);
+Socket->require_version(1.5);
 
-require LWP::Debug;
-require LWP::IO;
+use Carp ();
+use Symbol qw(gensym);
+
+use LWP::Debug ();
+use LWP::IO ();
 
 my $tcp_proto = (getprotobyname('tcp'))[2];
 
-#####################################################################
 
-=head1 METHODS
+=head2 $sock = new LWP::Socket()
 
-=head2 new()
-
-Constructs a socket object.
+Constructs a new socket object.
 
 =cut
 
@@ -59,14 +60,12 @@ sub new
 {
     my($class, $socket, $host, $port) = @_;
 
-    LWP::Debug::trace("($class)");
-
     unless ($socket) {
-	$socket = _gensym();
+	$socket = gensym();
 	LWP::Debug::debug("Socket $socket");
 
 	socket($socket, PF_INET, SOCK_STREAM, $tcp_proto) or
-	  croak "socket: $!";
+	  Carp::croak("socket: $!");
     }
 
     my $self = bless {
@@ -84,14 +83,13 @@ sub DESTROY
 {
     my $socket = shift->{'socket'};
     close($socket);
-    _ungensym($socket);
 }
 
 sub host { shift->{'host'}; }
 sub port { shift->{'port'}; }
 
 
-=head2 connect($host, $port)
+=head2 $sock->connect($host, $port)
 
 Connect the socket to given host and port.
 
@@ -100,8 +98,8 @@ Connect the socket to given host and port.
 sub connect
 {
     my($self, $host, $port) = @_;
-    croak "no host" unless defined $host && length $host;
-    croak "no port" unless defined $port && $port > 0;
+    Carp::croak("no host") unless defined $host && length $host;
+    Carp::croak("no port") unless defined $port && $port > 0;
 
     LWP::Debug::trace("($host, $port)");
 
@@ -109,17 +107,18 @@ sub connect
     $self->{'port'} = $port;
 
     my @addr = $self->_getaddress($host, $port);
-    croak "Can't resolv address for $host"
+    Carp::croak("Can't resolv address for $host")
       unless @addr;
 
-    LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
+    LWP::Debug::debug("Connecting to host '$host' on port '$port'...");
     for (@addr) {
 	connect($self->{'socket'}, $_) and return;
     }
-    croak "Could not connect to $host:$port";
+    Carp::croak("Could not connect to $host:$port");
 }
 
-=head2 shutdown()
+
+=head2 $sock->shutdown()
 
 Shuts down the connection.
 
@@ -134,7 +133,8 @@ sub shutdown
     delete $self->{'port'};
 }
 
-=head2 bind($host, $port)
+
+=head2 $sock->bind($host, $port)
 
 Binds a name to the socket.
 
@@ -147,7 +147,8 @@ sub bind
     bind($self->{'socket'}, $name);
 }
 
-=head2 listen($queuesize)
+
+=head2 $sock->listen($queuesize)
 
 Set up listen queue for socket.
 
@@ -158,7 +159,8 @@ sub listen
     listen(shift->{'socket'}, @_);
 }
 
-=head2 accept($timeout)
+
+=head2 $sock->accept($timeout)
 
 Accepts a new connection.  Returns a new LWP::Socket object if successful.
 Timeout not implemented yet.
@@ -169,18 +171,18 @@ sub accept
 {
     my $self = shift;
     my $timeout = shift;
-    my $ns = _gensym();
+    my $ns = gensym();
     my $addr = accept($ns, $self->{'socket'});
     if ($addr) {
 	my($port, $addr) = unpack_sockaddr_in($addr);
 	return new LWP::Socket $ns, inet_ntoa($addr), $port;
     } else {
-	_ungensym($ns);
-	croak "Can't accept: $!";
+	Carp::croak("Can't accept: $!");
     }
 }
 
-=head2 getsockname()
+
+=head2 $sock->getsockname()
 
 Returns a 2 element array ($host, $port)
 
@@ -192,7 +194,8 @@ sub getsockname
     (inet_ntoa($addr), $port);
 }
 
-=head2 readUntil($delim, $data_ref, $size, $timeout)
+
+=head2 $sock->read_until($delim, $data_ref, $size, $timeout)
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
@@ -203,15 +206,20 @@ Note that $delim is discarded from the data returned.
 
 =cut
 
-sub readUntil
+sub read_until
 {
     my ($self, $delim, $data_ref, $size, $timeout) = @_;
+
+    {
+	my $d = $delim;
+        $d =~ s/\r/\\r/g;
+	$d =~ s/\n/\\n/g;
+	LWP::Debug::trace("('$d',...)");
+    }
 
     my $socket = $self->{'socket'};
     $delim = '' unless defined $delim;
     $size ||= $self->{'size'};
-
-    LWP::Debug::trace('(...)');
 
     my $buf = \$self->{'buffer'};
 
@@ -229,7 +237,8 @@ sub readUntil
     1;
 }
 
-=head2 read($bufref, [$size, $timeout])
+
+=head2 $sock->read($bufref, [$size, $timeout])
 
 Reads data of the socket.  Not more than $size bytes.  Might return
 less if the data is available.  Dies on timeout.
@@ -252,7 +261,8 @@ sub read
     LWP::IO::read($self->{'socket'}, $$data_ref, $size, undef, $timeout);
 }
 
-=head2 pushback($data)
+
+=head2 $sock->pushback($data)
 
 Put data back into the socket.  Data will returned next time you
 read().  Can be used if you find out that you have read too much.
@@ -266,7 +276,8 @@ sub pushback
     substr($self->{'buffer'}, 0, 0) = shift;
 }
 
-=head2 write($data, [$timeout])
+
+=head2 $sock->write($data, [$timeout])
 
 Write data to socket.  The $data argument might be a scalar or code.
 
@@ -301,17 +312,12 @@ sub write
 	    last if $n != $len;
 	}
     } else {
-	croak 'Illegal LWP::Socket->write() argument';
+	Carp::croak('Illegal LWP::Socket->write() argument');
     }
     $bytes_written;
 }
 
 
-
-#####################################################################
-#
-# Private methods
-#
 
 =head2 _getaddress($h, $p)
 
@@ -337,33 +343,14 @@ sub _getaddress
         $addr[0] = pack_sockaddr_in($port, inet_aton($1));
     } else {
         # hostname
-        LWP::Debug::debugl("resolving host '$host'...");
+        LWP::Debug::debug("resolving host '$host'...");
         (undef,undef,undef,undef,@addr) = gethostbyname($host);
 	for (@addr) {
-	    LWP::Debug::debugl("   ..." . inet_ntoa($_));
+	    LWP::Debug::debug("   ..." . inet_ntoa($_));
 	    $_ = pack_sockaddr_in($port, $_);
 	}
     }
     wantarray ? @addr : $addr[0];
-}
-
-
-# Borrowed from POSIX.pm
-# It should actually be in FileHandle.pm,
-# so we could use it from there.
-
-$gensym = 'SOCKET000';
-
-sub _gensym
-{
-    'LWP::Socket::' . $gensym++;
-}
-
-sub _ungensym
-{
-    local($x) = shift;
-    $x =~ s/.*:://;             # lose package name
-    delete $LWP::Socket::{$x};  # delete from package symbol table
 }
 
 
@@ -395,10 +382,10 @@ sub chargen
 {
     my $socket = new LWP::Socket;
     $socket->connect('localhost', 19); # chargen
-    $socket->readUntil('A', \$buffer, 8);
+    $socket->read_until('A', \$buffer, 8);
 
     die 'Read Error' unless $buffer eq ' !"#$%&\'()*+,-./0123456789:;<=>?@';
-    $socket->readUntil('Z', \$buffer, 8);
+    $socket->read_until('Z', \$buffer, 8);
     die 'Read Error' unless $buffer eq 'BCDEFGHIJKLMNOPQRSTUVWXY';
 }
 
@@ -409,6 +396,6 @@ sub echo
     $quote = 'I dunno, I dream in Perl sometimes...';
              # --Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
     $socket->write("$quote\n");
-    $socket->readUntil("\n", \$buffer);
+    $socket->read_until("\n", \$buffer);
     die 'Read Error' unless $buffer eq $quote;
 }

@@ -1,25 +1,27 @@
 # This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.3 1995/07/24 13:23:11 aas Exp $
+# $Id: Makefile.PL,v 1.4 1995/07/25 08:29:40 aas Exp $
 
 use ExtUtils::MakeMaker;
 
 sub initialize
 {
     ### The URI::URL check will be coverable by PREREQ via MakeMaker
-    my $REQ_URIURL = 3.02;
-    eval {require URI::URL;};
-    if ($@) {
-	die "You need to install the URI::URL module before you install LWP.\n";
-    } else {
-	my $version = $URI::URL::Version || $URI::URL::VERSION;
-	$URI::URL::Version = undef;  # avoid typo warning
-	print "You have installed URI::URL version $version.\n";
-	if ($URI::URL::VERSION < $REQ_URIURL) {
-	    die "Please upgrade URI::URL, needs at least version $REQ_URIURL\n";
-	} else {
-	    # print "That's just what I need!\n";
-	}
-    }
+    # We distribute URI::URL with this package, so we don't need this check.
+    #my $REQ_URIURL = 3.02;
+    #eval {require URI::URL;};
+    #if ($@) {
+    #	die "You need to install the URI::URL module before you install LWP.\n";
+    #} else {
+    #	my $version = $URI::URL::Version || $URI::URL::VERSION;
+    #	$URI::URL::Version = undef;  # avoid typo warning
+    #	print "You have installed URI::URL version $version.\n";
+    #	if ($URI::URL::VERSION < $REQ_URIURL) {
+    #	    die "Please upgrade URI::URL, needs at least version $REQ_URIURL\n";
+    #	} else {
+    #	    # print "That's just what I need!\n";
+    #	}
+    #}
+
     %hash = (
 	NAME => 'lwp',  # will be changed to libwww-perl
 	SKIP => [qw(static dynamic)],

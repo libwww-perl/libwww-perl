@@ -1,3 +1,16 @@
+Wed Apr  1 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.30
+
+ o  Unbundled some modules.
+
+       * HTML-Parser  (HTML::Parser, HTML::Entites, HTML::LinkExtor,...)
+       * HTML-Tree    (HTML::Element, HTML::TreeBuilder,...)
+       * Font-AFM     (Font::AFM, Font::Metrics::*)
+       * File-CounterFile
+
+
+
 Tue Mar 24 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.22

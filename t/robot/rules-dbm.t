@@ -1,6 +1,5 @@
-#!/local/perl/d/bin/perl -w
 
-print "1..12\n";
+print "1..13\n";
 
 
 use WWW::RobotRules::AnyDBM_File;
@@ -50,8 +49,8 @@ print "ok 5\n";
 
 $r = undef;
 
-# Try to reopen the database
-$r = new WWW::RobotRules::AnyDBM_File "myrobot/2.0", $file;
+# Try to reopen the database without a name specified
+$r = new WWW::RobotRules::AnyDBM_File undef, $file;
 $r->visit("www.aas.no");
 
 print "not " if $r->no_vists("www.aas.no") != 3;
@@ -112,5 +111,15 @@ while (($key,$val) = each(%cat)) {
 }
 print "******\n";
 
+
+unlink "$file.pag", "$file.dir";
+
+# Try open a an emty database without specifying a name
+eval { 
+   $r = new WWW::RobotRules::AnyDBM_File undef, $file;
+};
+print $@;
+print "not " unless $@;  # should fail
+print "ok 13\n";
 
 unlink "$file.pag", "$file.dir";

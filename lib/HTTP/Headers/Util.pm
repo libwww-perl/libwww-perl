@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -122,12 +122,16 @@ sub split_header_words
 =item join_header_words( @arrays )
 
 This will do the opposite convertion of what split_header_words()
-does.  It takes a list of anonymous arrays as argument and produce a
-single header value.  Attribute values are quoted if needed.  Example:
+does.  It takes a list of anonymous arrays as argument (or a list of
+key/value pairs) and produce a single header value.  Attribute values
+are quoted if needed.
+
+Example:
 
    join_header_words(["text/plain" => undef, charset => "iso-8859/1"]);
+   join_header_words(""text/plain" => undef, charset => "iso-8859/1");
 
-will return the string:
+will both return the string:
 
    text/plain; charset="iso-8859/1"
 
@@ -135,6 +139,7 @@ will return the string:
 
 sub join_header_words
 {
+    @_ = ([@_]) if @_ && !ref($_[0]);
     my @res;
     for (@_) {
 	my @cur = @$_;

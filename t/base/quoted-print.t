@@ -41,7 +41,7 @@ ter set."
    #                        line width
 );
 
-$notests = @tests + 1;
+$notests = @tests + 2;
 print "1..$notests\n";
 
 $testno = 0;
@@ -70,5 +70,10 @@ for (@tests) {
 # Some extra testing for a case that was wrong until libwww-perl-5.09
 print "not " unless decode_qp("foo  \n\nfoo =\n\nfoo=20\n\n") eq
                                 "foo\n\nfoo \nfoo \n\n";
+$testno++; print "ok $testno\n";
+
+# Same test but with "\r\n" terminated lines
+print "not " unless decode_qp("foo  \r\n\r\nfoo =\r\n\r\nfoo=20\r\n\r\n") eq
+                                "foo\r\n\r\nfoo \r\nfoo \r\n\r\n";
 $testno++; print "ok $testno\n";
 

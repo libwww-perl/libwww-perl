@@ -1,9 +1,9 @@
 #
-# $Id: https.pm,v 1.1 1997/08/05 14:27:39 aas Exp $
+# $Id: https.pm,v 1.2 1997/08/05 14:36:58 aas Exp $
 
 package LWP::Protocol::https;
 
-require require LWP::SecureSocket;
+require LWP::SecureSocket;
 
 require LWP::Protocol::http;
 @ISA=qw(LWP::Protocol::http);

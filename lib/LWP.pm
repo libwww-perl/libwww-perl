@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.44 1997/01/26 15:42:32 aas Exp $
+# $Id: LWP.pm,v 1.45 1997/01/27 14:16:25 aas Exp $
 
 package LWP;
 
@@ -351,7 +351,7 @@ layer.  In the same way, a "From" header is initialized from the
 $ua->from value.
 
 For all responses, the library will add a header called "Client-Date".
-This header will recode the time when the response was received by
+This header will encode the time when the response was received by
 your application.  This format and semantics of the header is just
 like the server created "Date" header.
 

@@ -105,6 +105,7 @@ t/html/oldparse.t		Test HTML::Parse compatability module
 t/html/parser.t			Test HTML::Parser module
 t/html/parsefile.t              Test parsing from file
 t/html/headparser.t             Test HTML::HeadParser module
+t/html/linkextractor.t		Test HTML::LinkExtor module
 t/html/split.t                  Test incremental parsing
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.7 1996/09/16 15:34:24 aas Exp $
+# $Id: RobotRules.pm,v 1.8 1996/09/17 11:07:13 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -61,6 +61,10 @@ argument given to new() is the name of the robot.
 
 sub new {
     my($class, $ua) = @_;
+
+    # This ugly hack is needed to ensure backwards compatability.
+    # The "WWW::RobotRules" class is now really abstract.
+    $class = "WWW::RobotRules::InCore" if $class eq "WWW::RobotRules";
 
     my $self = bless { }, $class;
     $self->agent($ua);
@@ -194,6 +198,22 @@ sub allowed {
     return 1;
 }
 
+# The following methods must be provided by the subclass.
+sub visit;
+sub no_vists;
+sub last_vists;
+sub fresh_until;
+sub push_rules;
+sub clear_rules;
+sub rules;
+sub clear;
+sub dump;
+
+package WWW::RobotRules::InCore;
+
+use vars qw(@ISA);
+@ISA = qw(WWW::RobotRules);
+
 sub visit {
     my($self, $netloc, $time) = @_;
     $time ||= time;
@@ -248,7 +268,7 @@ sub rules {
 sub clear
 {
     my $self = shift;
-    delete $self->{'rules'};
+    delete $self->{'loc'};
 }
 
 sub dump

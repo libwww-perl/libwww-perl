@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.8 1995/08/07 08:52:19 aas Exp $
+# $Id: Simple.pm,v 1.9 1995/08/09 11:33:04 aas Exp $
 
 =head1 NAME
 
@@ -57,7 +57,7 @@ and checking of the content-length.  Returns response code.
 
 =back
 
-This modules also exports the LWP::StatusCode constants and
+This modules also exports the HTTP::Status constants and
 procedures.  These can be used when you check the response code from
 C<getprint>, C<getstore> and C<mirror>.  The constants are:
 
@@ -89,7 +89,7 @@ C<getprint>, C<getstore> and C<mirror>.  The constants are:
    RC_SERVICE_UNAVAILABLE
    RC_GATEWAY_TIMEOUT
 
-The LWP::StatusCode procedures are:
+The HTTP::Status procedures are:
 
 =over 3
 
@@ -119,14 +119,14 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);  # note additions below
 @EXPORT_OK = qw($ua);
 
-# We also export everything from LWP::StatusCode
-use LWP::StatusCode @LWP::StatusCode::EXPORT_OK;
-push(@EXPORT, @LWP::StatusCode::EXPORT_OK);
+# We also export everything from HTTP::Status
+use HTTP::Status;
+push(@EXPORT, @HTTP::Status::EXPORT);
 
 require LWP::UserAgent;
 $ua = new LWP::UserAgent;  # we create a global UserAgent object
 
-use LWP::Date qw(str2time);
+use HTTP::Date qw(str2time);
 use Carp;
 
 
@@ -134,7 +134,7 @@ sub get
 {
     my($url) = @_;
 
-    my $request = new LWP::Request('GET', $url);
+    my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request);
 
     return $response->content if $response->isSuccess;
@@ -146,7 +146,7 @@ sub head
 {
     my($url) = @_;
 
-    my $request = new LWP::Request('HEAD', $url);
+    my $request = new HTTP::Request('HEAD', $url);
     my $response = $ua->request($request);
 
     if ($response->isSuccess) {
@@ -166,7 +166,7 @@ sub getprint
 {
     my($url) = @_;
 
-    my $request = new LWP::Request('GET', $url);
+    my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request);
 
     if ($response->isSuccess) {
@@ -183,7 +183,7 @@ sub getstore
     my($url, $file) = @_;
     croak("getstore needs two arguments") unless @_ == 2;
 
-    my $request = new LWP::Request('GET', $url);
+    my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request, $file);
 
     $response->code;

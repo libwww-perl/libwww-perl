@@ -2,12 +2,12 @@ package HTTP::Header::ETag;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Date;
 
-require HTTP::Header;
-pacakge HTTP::Headers;
+require HTTP::Headers;
+package HTTP::Headers;
 
 sub _etags
 {
@@ -15,9 +15,9 @@ sub _etags
     my $header = shift;
     my @old = _split_etag_list($self->_header($header));
     if (@_) {
-	$self->_header($header => join(", ", _split_etag_list(@_));
+	$self->_header($header => join(", ", _split_etag_list(@_)));
     }
-    wantarray ? @old : join(", ", $old);
+    wantarray ? @old : join(", ", @old);
 }
 
 sub etag          { shift->_etags("ETag", @_); }
@@ -26,12 +26,13 @@ sub if_none_match { shift->_etags("If-None-Match", @_); }
 
 sub if_range {
     # Either a date or an entity-tag
+    my $self = shift;
     my @old = $self->_header("If-Range");
     if (@_) {
 	my $new = shift;
 	if (!defined $new) {
 	    $self->remove_header("If-Range");
-	} elif ($new =~ /^\d+$/) {
+	} elsif ($new =~ /^\d+$/) {
 	    $self->_date_header("If-Range", $new);
 	} else {
 	    $self->_etags("If-Range", $new);

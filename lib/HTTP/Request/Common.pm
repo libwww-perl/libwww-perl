@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.3 1997/08/04 15:38:58 aas Exp $
+# $Id: Common.pm,v 1.4 1997/09/03 11:18:13 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -47,7 +47,8 @@ sub POST
 	if (lc($ct) eq 'multipart/form-data') {    #XXX: boundary="..."
 	    my $boundary;
 	    ($content, $boundary) = form_data($content, $boundary);
-	    $ct = qq(multipart/form-data; boundary="$boundary");
+	    $boundary = qq("$boundary") if $boundary =~ /\W/;
+	    $ct = qq(multipart/form-data; boundary=$boundary);
 	} else {
 	    # We use a temporary URI::URL object to format
 	    # the application/x-www-form-urlencoded content.
@@ -156,7 +157,9 @@ sub boundary
 {
     my $size = shift || 1;
     require MIME::Base64;
-    MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
+    my $b = MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
+    $b =~ s/[\W]/X/g;  # ensure alnum only
+    $b;
 }
 
 1;

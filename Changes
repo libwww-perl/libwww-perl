@@ -1,3 +1,30 @@
+2001-08-06   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_95
+
+    Fix HTTP::Cookies where there is a mix of Set-Cookie and
+    Set-Cookie2 headers.  In that case we used to ignore all Set-Cookie
+    headers.  Now we only ignore those Set-Cookie headers that reference
+    the same cookie as a Set-Cookie2 header.
+
+    HTTP::Request, HTTP::Response will by default now use "URI" class,
+    instead of "URI::URL", when constructing its URI objects.  This
+    has a potential for breaking existing code as URI::URL objects had
+    some extra methods that external code might depend upon.
+
+    Patches by Sean M. Burke:
+       - Fix treatment of language tags in HTTP::Negotiate 
+       - Avoid trailing newline in $response->message
+       - HTTP::Response clarifications
+
+    LWP::Simple deals with non-absolute redirects "correctly" now.
+
+    Net::HTTP does not try to load Compress::Zlib until it is needed.
+
+    Net::HTTP documentation has been updated.
+
+
+
 2001-05-05   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_94

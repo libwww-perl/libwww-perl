@@ -1,5 +1,5 @@
 #
-# $Id: mailto.pm,v 1.9 1999/03/19 21:00:13 gisle Exp $
+# $Id: mailto.pm,v 1.10 2003/10/14 18:04:09 gisle Exp $
 #
 # This module implements the mailto protocol.  It is just a simple
 # frontend to the Unix sendmail program except on MacOS, where it uses
@@ -18,7 +18,19 @@ use vars qw(@ISA $SENDMAIL);
 
 @ISA = qw(LWP::Protocol);
 
-$SENDMAIL ||= "/usr/lib/sendmail";
+unless ($SENDMAIL = $ENV{SENDMAIL}) {
+    for my $sm (qw(/usr/sbin/sendmail
+		   /usr/lib/sendmail
+		   /usr/ucblib/sendmail
+		  ))
+    {
+	if (-x $sm) {
+	    $SENDMAIL = $sm;
+	    last;
+	}
+    }
+    die "Can't find the 'sendmail' program" unless $SENDMAIL;
+}
 
 sub request
 {

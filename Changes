@@ -19,7 +19,11 @@
     testing the outcome of the match.  This sometimes produced
     an extra garbage Authentication header.
     Based on the patch by <bai@dreamarts.co.jp> in
-    <http://rt.cpan.org/Ticket/Display.html?id=1994>
+    <http://rt.cpan.org/Ticket/Display.html?id=1994>.
+
+    LWP::Protocol::mailto will try harder to locate the sendmail
+    program as suggested in <http://rt.cpan.org/Ticket/Display.html?id=2363>.
+    Also let $ENV{SENDMAIL} override the search.
 
 
 

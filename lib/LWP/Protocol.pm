@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.14 1995/12/05 14:42:55 aas Exp $
+# $Id: Protocol.pm,v 1.15 1995/12/29 15:35:07 aas Exp $
 
 package LWP::Protocol;
 
@@ -191,7 +191,7 @@ sub collect
             alarm($self->timeout) if $self->useAlarm;
         }
     }
-    elsif (!defined ref($arg)) {
+    elsif (!ref($arg)) {
         # filename
         open(OUT, ">$arg") or
             return new HTTP::Response

@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.90 1999/09/20 13:25:36 gisle Exp $
+# $Id: LWP.pm,v 1.91 1999/10/28 12:04:57 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.45";
+$VERSION = "5.46";
 sub Version { $VERSION; }
 
 require 5.004;
@@ -492,7 +492,7 @@ The "To" header is initialized from the mail address in the URL.
 
 Example:
 
-  $req = HTTP::Request->new(POST => 'mailto:libwww-perl-request@ics.uci.edu');
+  $req = HTTP::Request->new(POST => 'mailto:libwww@perl.ord');
   $req->header(Subject => "subscribe");
   $req->content("Please subscribe me to the libwww-perl mailing list!\n");
 
@@ -575,11 +575,12 @@ modify it under the same terms as Perl itself.
 
 =head1 AVAILABILITY
 
-The latest version of this library is likely to be available from:
+The latest version of this library is likely to be available from CPAN
+as well as:
 
- http://www.sn.no/libwww-perl/
+ http://www.linpro.no/lwp/
 
-The best place to discuss this code is on the
-<libwww-perl@ics.uci.edu> mailing list.
+The best place to discuss this code is on the <libwww@perl.org>
+mailing list.
 
 =cut

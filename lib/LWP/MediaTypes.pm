@@ -1,11 +1,11 @@
 #
-# $Id: MediaTypes.pm,v 1.10 1996/02/26 19:11:44 aas Exp $
+# $Id: MediaTypes.pm,v 1.11 1996/03/12 13:17:40 aas Exp $
 
 package LWP::MediaTypes;
 
 =head1 NAME
 
-guess_media_type - guess media type for a file or an URL.
+guess_media_type - guess media type for a file or a URL.
 
 media_suffix - returns file extentions for a media type
 
@@ -74,7 +74,7 @@ In scalar context it returns only the content-type.  In array context
 it returns an array consisting of content-type followed by any
 content-encodings applied.
 
-The guess_media_type function also accepts an URI::URL object as argument.
+The guess_media_type function also accepts a URI::URL object as argument.
 
 If the type can not be deduced from looking at the file name only,
 then guess_media_type() will take a look at the actual file using the

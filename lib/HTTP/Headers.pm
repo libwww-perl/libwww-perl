@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.21 1996/07/17 11:39:02 aas Exp $
+# $Id: Headers.pm,v 1.22 1996/07/17 13:01:44 aas Exp $
 
 package HTTP::Headers;
 
@@ -79,9 +79,9 @@ Constructs a new C<HTTP::Headers> object.  You might pass some initial
 attribute-value pairs as parameters to the constructor.  I<E.g.>:
 
  $h = new HTTP::Headers
-     'Content-Type' => 'text/html',
-     'MIME-Version' => '1.0',
-     'Date'         => 'Thu, 03 Feb 1994 00:00:00 GMT';
+     Date         => 'Thu, 03 Feb 1994 00:00:00 GMT',
+     Content_Type => 'text/html; version=3.2',
+     Content_Base => 'http://www.sn.no/';
 
 =cut
 
@@ -99,19 +99,24 @@ sub new
 
 =head2 $h->header($field [=> $val],...)
 
-Get/Set the value of a request header.  The header field name is not
-case sensitive.  The value argument may be a scalar or a reference to
-a list of scalars. If the value argument is not defined, then the
-header is not modified.
+Get or set the value of a header.  The header field name is not case
+sensitive.  To make the life of perl users who wants to avoid quotes
+around names preceding the => operator, you can use '_' as a synonym
+for '-' in header names.
+
+The value argument may be a scalar or a reference to a list of
+scalars. If the value argument is not defined, then the header is not
+modified.
 
 The header() method accepts multiple ($field => $value) pairs.
 
 The list of previous values for the last $field is returned.  Only the
 first header value is returned in scalar context.
 
- $header->header('MIME-Version' => '1.0',
-		 'User-Agent'   => 'My-Web-Client/0.01');
- $header->header('Accept' => "text/html, text/plain, image/*");
+ $header->header(MIME_Version => '1.0',
+		 User_Agent   => 'My-Web-Client/0.01');
+ $header->header(Accept => "text/html, text/plain, image/*");
+ $header->header(Accept => [qw(text/html text/plain image/*)]);
  @accepts = $header->header('Accept');
 
 =cut
@@ -129,6 +134,7 @@ sub header
 sub _header
 {
     my($self, $field, $val, $push) = @_;
+    $field =~ tr/_/-/;  # allow use of '_' as alternative to '-' in fields
 
     # $push is only used interally sub push_header
 
@@ -248,7 +254,7 @@ is not case sensitive.  The field need not already have a
 value. Previous values for the same field are retained.  The argument
 may be a scalar or a reference to a list of scalars.
 
- $header->push_header('Accept' => 'image/jpeg');
+ $header->push_header(Accept => 'image/jpeg');
 
 =head2 $h->remove_header($field,...)
 
@@ -400,9 +406,10 @@ sub push_header
 
 sub remove_header
 {
-    my $self = shift;
+    my($self, @fields) = @_;
     my $field;
-    foreach $field (@_) {
+    foreach $field (@fields) {
+	$field =~ tr/_/-/;
 	delete $self->{'_header'}{lc $field};
     }
 }

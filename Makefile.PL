@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.59 2001/10/26 22:15:08 gisle Exp $
+# $Id: Makefile.PL,v 1.60 2001/11/15 09:05:59 gisle Exp $
 
 require 5.005;
 use strict;
@@ -50,6 +50,7 @@ if ($some_time_ago lt $release_date) {
 	close($s);
 
 	print <<EOT;
+
 You appear to be directly connected to the Internet.  I have some tests
 that tries to access some sites on the net to verify that the new HTTP/1.1
 support works as it should.
@@ -71,6 +72,9 @@ if (@programs_to_install) {
 
 This package comes with some sample programs that I can try
 to install in $Config{sitebin}.
+
+   Note that you can avoid these questions by passing
+   the '-n' option to 'Makefile.PL'.
 
 EOT
     my @tmp;

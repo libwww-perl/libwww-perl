@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.03";   # $Date: 1996/03/21 09:13:24 $
+$VERSION = "4.03";   # $Date: 1996/04/09 15:44:46 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -26,9 +26,9 @@ use Carp ();
 
 use strict;
 use vars qw($reserved $reserved_no_slash $reserved_no_form $unsafe
-            $COMPAT_VER_3
-            $Debug $StrictSchemes
-            %OVERLOAD
+	    $COMPAT_VER_3
+	    $Debug $StrictSchemes
+	    %OVERLOAD
 	   );
 
 $reserved          = ";\\/?:\\@&=#%"; # RFC 1738 reserved pluss '#' and '%'
@@ -85,39 +85,39 @@ sub new
 
     my $self;
     if (ref $init) {
-        $self = $init->clone;
-        $self->base($base) if $base;
+	$self = $init->clone;
+	$self->base($base) if $base;
     } else {
-        $init = "" unless defined $init;
+	$init = "" unless defined $init;
 	# RFC 1738 appendix suggest that we just ignore extra whitespace
-        $init =~ s/\s+//g;
+	$init =~ s/\s+//g;
 	# Also get rid of any <URL: > wrapper
 	$init =~ s/^<(?:URL:)?(.*)>$/$1/;
 
-        # We need a scheme to determine which class to use
-        my($scheme) = $init =~ m/^([.+\-\w]+):/;
-        if (!$scheme and $base){ # get scheme from base
-            if (ref $base){ # may be object or just a string
-                $scheme = $base->scheme;
-            } else {
-                $scheme = $1 if $base =~ m/^([.+\-\w]+):/;
-            }
-        }
-        unless($scheme){
-            Carp::croak("Unable to determine scheme for '$init'")
-                if $StrictSchemes;
-            $scheme = 'http';
-        }
-        my $impclass = URI::URL::implementor($scheme);
-        unless ($impclass) {
-            Carp::croak("URI::URL scheme '$scheme' is not supported")
-                if $StrictSchemes;
-            $impclass = URI::URL::implementor(); # use generic
-        }
+	# We need a scheme to determine which class to use
+	my($scheme) = $init =~ m/^([.+\-\w]+):/;
+	if (!$scheme and $base){ # get scheme from base
+	    if (ref $base){ # may be object or just a string
+		$scheme = $base->scheme;
+	    } else {
+		$scheme = $1 if $base =~ m/^([.+\-\w]+):/;
+	    }
+	}
+	unless($scheme){
+	    Carp::croak("Unable to determine scheme for '$init'")
+		if $StrictSchemes;
+	    $scheme = 'http';
+	}
+	my $impclass = URI::URL::implementor($scheme);
+	unless ($impclass) {
+	    Carp::croak("URI::URL scheme '$scheme' is not supported")
+		if $StrictSchemes;
+	    $impclass = URI::URL::implementor(); # use generic
+	}
 
-        # hand-off to scheme specific implementation sub-class
+	# hand-off to scheme specific implementation sub-class
 	$self->{'_orig_url'} = $init if $Debug;
-        $self = $impclass->new($init, $base);
+	$self = $impclass->new($init, $base);
     }
     $self->print_on('STDERR') if $Debug;
     return $self;
@@ -139,8 +139,8 @@ sub implementor
     $scheme = (defined $scheme) ? lc($scheme) : '_generic';
 
     if ($impclass) {
-        $impclass->_init_implementor($scheme);
-        $ImplementedBy{$scheme} = $impclass;
+	$impclass->_init_implementor($scheme);
+	$ImplementedBy{$scheme} = $impclass;
     }
     return $ic if $ic = $ImplementedBy{$scheme};
 
@@ -155,8 +155,8 @@ sub implementor
 	$ic = '' unless defined @{"${ic}::ISA"};
     }
     if ($ic) {
-        $ic->_init_implementor;
-        $ImplementedBy{$scheme} = $ic;
+	$ic->_init_implementor;
+	$ImplementedBy{$scheme} = $ic;
     }
     $ic;
 }
@@ -174,7 +174,7 @@ sub _init_implementor
     no strict qw(refs);
     # Setup overloading - experimental
     %{"${class}::OVERLOAD"} = %URI::URL::OVERLOAD
-        unless defined %{"${class}::OVERLOAD"};
+	unless defined %{"${class}::OVERLOAD"};
     $Implementors{$class} = 1;
 }
 
@@ -198,7 +198,7 @@ sub _elem
 
 #
 # A U T O  L O A D I N G
-# 
+#
 # The rest of the methods are autoloaded because they should be less
 # frequently used.  We define stubs here so that inheritance works as
 # it should.
@@ -247,8 +247,8 @@ sub base {
     my $base = $self->_elem('_base');            # get
     return undef unless defined $base;
     unless (ref $base){
-        $base = new URI::URL $base;
-        $self->_elem('_base', $base); # set new object
+	$base = new URI::URL $base;
+	$self->_elem('_base', $base); # set new object
     }
     $base;
 }
@@ -280,7 +280,7 @@ sub abs {
 
 # This method should always be overridden in subclasses
 sub as_string {
-    "";  
+    "";
 }
 
 sub print_on
@@ -291,9 +291,9 @@ sub print_on
     my($k, $v);
     print $fh "Dump of URL $self...\n";
     foreach $k (sort keys %$self){
-        $v = $self->{$k};
-        $v = 'UNDEF' unless defined $v;
-        print $fh "  $k\t'$v'\n";
+	$v = $self->{$k};
+	$v = 'UNDEF' unless defined $v;
+	print $fh "  $k\t'$v'\n";
     }
 }
 
@@ -320,7 +320,7 @@ Use the URI::Escape module instead.  The method was called");
 
 
 #########################################################################
-#### D O C U M E N T A T I O N 
+#### D O C U M E N T A T I O N
 #########################################################################
 
 =head1 NAME
@@ -485,7 +485,7 @@ New URL schemes or alternative implementations for existing schemes
 can be added to your own code. To create a new scheme class use code
 like:
 
-   package MYURL::foo;              
+   package MYURL::foo;
    @ISA = (URI::URL::implementor());   # inherit from generic scheme
 
 The 'URI::URL::implementor()' function call with no parameters returns

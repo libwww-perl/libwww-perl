@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.3 1996/04/09 08:48:18 aas Exp $
+# $Id: RobotUA.pm,v 1.4 1996/04/09 15:44:29 aas Exp $
 
 package LWP::RobotUA;
 
@@ -25,7 +25,7 @@ LWP::RobotUA - A class for Web Robots
   $ua->delay(10);  # be very nice, go slowly
   ...
   # just use it just like a normal LWP::UserAgent
-  $res = $ua->request($req); 
+  $res = $ua->request($req);
 
 =head1 DESCRIPTION
 
@@ -152,7 +152,7 @@ sub host_wait
     my($self, $host) = @_;
     return undef unless defined $host;
     if ($self->{'visited'}{$host}) {
-        my $wait = int($self->{'delay'} * 60 -
+	my $wait = int($self->{'delay'} * 60 -
 		       (time - $self->{'visited'}{$host}{'last'}));
 	$wait = 0 if $wait < 0;
 	return $wait;
@@ -193,7 +193,7 @@ sub simple_request
     # Check rules
     LWP::Debug::debug("Checking robot rules");
     unless ($self->{'rules'}->allowed($request->url)) {
-	return new HTTP::Response 
+	return new HTTP::Response
 	  &HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt';
     }
     my $wait = $self->host_wait($host);
@@ -203,7 +203,7 @@ sub simple_request
 	if ($self->{'use_alarm'}) {
 	    sleep($wait)
 	} else {
-	    my $res = new HTTP::Response 
+	    my $res = new HTTP::Response
 	      &HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down';
 	    $res->header('Retry-After', time2str(time + $wait));
 	    return $res;
@@ -215,7 +215,7 @@ sub simple_request
 
     $self->{'visited'}{$host}{'last'} = time;
     $self->{'visited'}{$host}{'count'}++;
-    
+
     $res;
 }
 
@@ -236,10 +236,10 @@ sub as_string
     push(@s, "    Rules = $self->{'rules'}");
     push(@s, "    Visits");
     for (sort keys %{$self->{'visited'}}) {
-        my $e = $self->{visited}{$_};
-	push(@s, sprintf "      %-20s: " . 
-	                 localtime($e->{'last'}) . "%4d",
-	                 $_, $e->{'count'});
+	my $e = $self->{visited}{$_};
+	push(@s, sprintf "      %-20s: " .
+			 localtime($e->{'last'}) . "%4d",
+			 $_, $e->{'count'});
     }
 
     join("\n", @s, '');

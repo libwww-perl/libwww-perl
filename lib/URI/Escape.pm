@@ -1,5 +1,5 @@
 #
-# $Id: Escape.pm,v 3.5 1996/02/26 18:40:30 aas Exp $
+# $Id: Escape.pm,v 3.6 1996/04/09 15:44:45 aas Exp $
 #
 
 package URI::Escape;
@@ -73,7 +73,7 @@ sub uri_escape
 	&{$subst{$patn}}($text);
     } else {
 	# Default unsafe characters. (RFC1738 section 2.2)
-        $text =~ s/([\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g; #"
+	$text =~ s/([\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF])/$escapes{$1}/g; #"
     }
     $text;
 }

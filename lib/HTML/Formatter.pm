@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.11 1996/01/05 11:31:17 aas Exp $
+# $Id: Formatter.pm,v 1.12 1996/04/09 15:44:13 aas Exp $
 
 =head1 NAME
 
@@ -77,7 +77,7 @@ sub begin
     $self->{nobr}      = 0;
 
     $self->{font_size}     = [3];   # last element is current size
-    $self->{basefont_size} = [3];  
+    $self->{basefont_size} = [3];
 
     $self->{makers} = [];           # last element is current marker
     $self->{vspace} = undef;        # vertical space
@@ -132,7 +132,7 @@ sub br_start
     my $self = shift;
     $self->vspace(0);
     $self->eat_leading_space;
-    
+
 }
 
 sub hr_start
@@ -409,7 +409,7 @@ BEGIN {
 sub ol_start
 {
     my $self = shift;
-   
+
     $self->vspace(1);
     push(@{$self->{markers}}, 1);
     $self->adjust_lm(+2);
@@ -426,7 +426,7 @@ sub ol_end
 
 
 sub dl_start
-{  
+{
     my $self = shift;
     $self->adjust_lm(+2);
     $self->vspace(1);

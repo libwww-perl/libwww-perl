@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.8 1995/10/18 10:17:40 aas Exp $
+# $Id: AFM.pm,v 1.9 1996/04/09 15:44:07 aas Exp $
 
 package Font::AFM;
 
@@ -194,7 +194,7 @@ Lingature data is not parsed.
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub ModuleVersion { $VERSION; }
 
 
@@ -263,11 +263,11 @@ sub new
        next if /^StartComposites/ .. /^EndComposites/; # same for composites
        if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
 	   # only lines that start with "C" or "CH" are parsed
-	   next unless /^CH?\s/;  
+	   next unless /^CH?\s/;
 	   my($name) = /\bN\s+(\w+)\s*;/;
 	   my($wx)   = /\bWX\s+(\d+)\s*;/;
 	   my($bbox)    = /\bB\s+([^;]+)\s*;/;
-           # Should also parse lingature data (format: L successor lignature)
+	   # Should also parse lingature data (format: L successor lignature)
 	   $this->{'wx'}{$name} = $wx;
 	   $this->{'bbox'}{$name} = $bbox;
 	   next;

@@ -7,12 +7,12 @@ eval {
 };
 if ($@) {
    if ($@ =~ /Can't find the AFM file for/) {
-        print $@;
+	print $@;
 	print "ok 1\n";  # don't worry, be happy !!
-                         # less complains about test that fails
+			 # less complains about test that fails
    } else {
-        print $@;
-        print "not ok 1\n";
+	print $@;
+	print "not ok 1\n";
    }
    exit;
 }

@@ -1,7 +1,7 @@
 #
-# $Id: mailto.pm,v 1.6 1996/02/26 19:13:59 aas Exp $
+# $Id: mailto.pm,v 1.7 1996/04/09 15:44:38 aas Exp $
 #
-# This module implements the mailto protocol.  It is just a simple 
+# This module implements the mailto protocol.  It is just a simple
 # frontend to the Unix sendmail program.  In the long run this module
 # will built using the Mail::Send module.
 
@@ -26,17 +26,17 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-                                  'You can not proxy with mail';
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+				  'You can not proxy with mail';
     }
 
     # check method
     $method = $request->method;
 
     if ($method ne 'POST') {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-                                  'Library does not allow method ' .
-                                  "$method for 'mailto:' URLs";
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+				  'Library does not allow method ' .
+				  "$method for 'mailto:' URLs";
     }
 
     # check url
@@ -44,17 +44,17 @@ sub request
 
     my $scheme = $url->scheme;
     if ($scheme ne 'mailto') {
-        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                  "LWP::file::request called for '$scheme'";
+	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				  "LWP::file::request called for '$scheme'";
     }
     unless (-x $SENDMAIL) {
-        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                  "You don't have $SENDMAIL";
+	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				  "You don't have $SENDMAIL";
     }
 
     open(SENDMAIL, "| $SENDMAIL -oi -t") or
-        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                  "Can't run $SENDMAIL: $!";
+	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				  "Can't run $SENDMAIL: $!";
 
     my $addr = $url->encoded822addr;
 
@@ -75,9 +75,9 @@ sub request
 	}
     }
     close(SENDMAIL);
-    
+
     my $response = new HTTP::Response &HTTP::Status::RC_ACCEPTED,
-                                     'Mail accepted by sendmail';
+				     'Mail accepted by sendmail';
     $response->header('Content-Type', 'text/plain');
     $response->content("Mail sent to <$addr>\n");
 

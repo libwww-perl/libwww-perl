@@ -18,10 +18,10 @@ sub not_ok
 
 
  #  ID       QS     Content-Type             Encoding     Char-Set      Lang    Size
- $variants = 
+ $variants =
   [
    ['var1',  0.950, 'text/plain',           ['uuencode',
-                                             'compress'], 'iso-8859-2', 'se',    400],
+					     'compress'], 'iso-8859-2', 'se',    400],
    ['var2',  1.000, 'text/html;version=2.0', 'gzip',      'iso-8859-1', 'en',   3000],
    ['var3',  0.333, 'image/gif',            undef,        undef,        undef, 43555],
  ];
@@ -32,9 +32,9 @@ $request = new HTTP::Request 'GET', 'http://localhost/';
 @a = choose($variants, $request);
 show_res(@a);
 expect(\@a, [['var2' => 1],
-             ['var1' => 0.95],
-             ['var3' => 0.333]
-            ]
+	     ['var1' => 0.95],
+	     ['var3' => 0.333]
+	    ]
 );
 
 
@@ -58,9 +58,9 @@ $request->header('Accept-Encoding', 'gzip');
 @a = choose($variants, $request);
 show_res(@a);
 expect(\@a, [['var2' => 0.25],
-             ['var1' => 0],
-             ['var3' => 0]
-            ]
+	     ['var1' => 0],
+	     ['var3' => 0]
+	    ]
 );
 
 
@@ -89,7 +89,7 @@ sub expect
 		return;
 	    }
 	}
-	
+
     } until (!defined($a) || !defined($b));
     return not_ok if defined($a) ne defined($b);
     ok;

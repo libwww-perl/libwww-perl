@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.15 1996/04/07 20:39:35 aas Exp $
+# $Id: Simple.pm,v 1.16 1996/04/09 15:44:30 aas Exp $
 
 =head1 NAME
 
@@ -168,14 +168,14 @@ sub head ($)
     my $response = $ua->request($request);
 
     if ($response->is_success) {
-        return ($response->header('Content-Type'),
-                $response->header('Content-Length'),
-                str2time($response->header('Last-Modified')),
-                str2time($response->header('Expires')),
-                $response->header('Server'),
-               );
+	return ($response->header('Content-Type'),
+		$response->header('Content-Length'),
+		str2time($response->header('Last-Modified')),
+		str2time($response->header('Expires')),
+		$response->header('Server'),
+	       );
     } else {
-        return undef;
+	return undef;
     }
 }
 
@@ -187,9 +187,9 @@ sub getprint ($)
     my $request = new HTTP::Request 'GET', $url;
     my $response = $ua->request($request);
     if ($response->is_success) {
-        print $response->content;
+	print $response->content;
     } else {
-        print STDERR $response->error_as_HTML;
+	print STDERR $response->error_as_HTML;
     }
     $response->code;
 }

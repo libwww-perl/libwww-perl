@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.12 1996/02/26 19:13:27 aas Exp $
+# $Id: file.pm,v 1.13 1996/04/09 15:44:35 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -26,17 +26,17 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-                                  'You can not proxy through the filesystem';
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+				  'You can not proxy through the filesystem';
     }
 
     # check method
     $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD') {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-                                  'Library does not allow method ' .
-                                  "$method for 'file:' URLs";
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+				  'Library does not allow method ' .
+				  "$method for 'file:' URLs";
     }
 
     # check url
@@ -44,14 +44,14 @@ sub request
 
     my $scheme = $url->scheme;
     if ($scheme ne 'file') {
-        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                  "LWP::file::request called for '$scheme'";
+	return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				  "LWP::file::request called for '$scheme'";
     }
 
     my $host = $url->host;
     if ($host and $host !~ /^localhost$/i) {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST_CLIENT,
-                                  'Only file://localhost/ allowed';
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST_CLIENT,
+				  'Only file://localhost/ allowed';
     }
 
     # URL OK, look at file
@@ -59,95 +59,95 @@ sub request
 
     # test file exists and is readable
     unless (-e $path) {
-        return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
-                                  "File `$path' does not exist";
+	return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
+				  "File `$path' does not exist";
     }
     unless (-r _) {
-        return new HTTP::Response &HTTP::Status::RC_FORBIDDEN,
-                                  'User does not have read permission';
+	return new HTTP::Response &HTTP::Status::RC_FORBIDDEN,
+				  'User does not have read permission';
     }
 
     # looks like file exists
     my($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
        $atime,$mtime,$ctime,$blksize,$blocks)
-            = stat(_);
+	    = stat(_);
 
     # XXX should check Accept headers?
 
     # check if-modified-since
     my $ims = $request->header('If-Modified-Since');
     if (defined $ims) {
-        my $time = HTTP::Date::str2time($ims);
-        if (defined $time and $time >= $mtime) {
-            return new HTTP::Response &HTTP::Status::RC_NOT_MODIFIED,
-                                      "$method $path";
-        }
+	my $time = HTTP::Date::str2time($ims);
+	if (defined $time and $time >= $mtime) {
+	    return new HTTP::Response &HTTP::Status::RC_NOT_MODIFIED,
+				      "$method $path";
+	}
     }
 
     # Ok, should be an OK response by now...
     $response = new HTTP::Response &HTTP::Status::RC_OK;
-    
+
     # fill in response headers
     $response->header('Last-Modified', HTTP::Date::time2str($mtime));
 
     if (-d _) {         # If the path is a directory, process it
-        # generate the HTML for directory
-        opendir(D, $path) or
-           return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                     "Cannot read directory '$path': $!";
-        my(@files) = sort readdir(D);
-        closedir(D);
- 
-        # Make directory listing
-        for (@files) {
-            $_ .= "/" if -d "$path/$_";
-            $_ = qq{<LI> <a href="$_">$_</a>};
-        }
+	# generate the HTML for directory
+	opendir(D, $path) or
+	   return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				     "Cannot read directory '$path': $!";
+	my(@files) = sort readdir(D);
+	closedir(D);
+
+	# Make directory listing
+	for (@files) {
+	    $_ .= "/" if -d "$path/$_";
+	    $_ = qq{<LI> <a href="$_">$_</a>};
+	}
 	# Ensure that the base URL is "/" terminated
 	my $base = $url->clone;
 	unless ($base->epath =~ m|/$|) {
 	    $base->epath($base->epath . "/");
 	}
-        my $html = join("\n",
-                        "<HTML>\n<HEAD>",
-                        "<TITLE>Directory $path</TITLE>",
+	my $html = join("\n",
+			"<HTML>\n<HEAD>",
+			"<TITLE>Directory $path</TITLE>",
 			"<BASE HREF=\"$base\">",
-                        "</HEAD>\n<BODY>",
-                        "<UL>", @files, "</UL>",
-                        "</BODY>\n</HTML>\n");
+			"</HEAD>\n<BODY>",
+			"<UL>", @files, "</UL>",
+			"</BODY>\n</HTML>\n");
 
-        $response->header('Content-Type',   'text/html');
-        $response->header('Content-Length', length $html);
+	$response->header('Content-Type',   'text/html');
+	$response->header('Content-Length', length $html);
 
-        # let's collect once
-        my $first = 1;
-        $response =  $self->collect($arg, $response, sub {
-            if ($first) {
-               $first = 0;
-               return \$html;
-            }
-            return \ "";
-        });
-        
+	# let's collect once
+	my $first = 1;
+	$response =  $self->collect($arg, $response, sub {
+	    if ($first) {
+	       $first = 0;
+	       return \$html;
+	    }
+	    return \ "";
+	});
+
     } else {            # path is a regular file
-        my($type, @enc) = LWP::MediaTypes::guess_media_type($path);
-        $response->header('Content-Type',   $type) if $type;
-        $response->header('Content-Length', $size);
+	my($type, @enc) = LWP::MediaTypes::guess_media_type($path);
+	$response->header('Content-Type',   $type) if $type;
+	$response->header('Content-Length', $size);
 	for (@enc) {
 	    $response->push_header('Content-Encoding', $_);
 	}
 
-        # read the file
-        open(F, $path) or return new 
-           HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                          "Cannot read file '$path': $!");
-        $response =  $self->collect($arg, $response, sub {
-            my $content = "";
-            my $bytes = sysread(F, $content, $size);
-            return \$content if $bytes > 0;
-            return \ "";
-        });
-        close(F);
+	# read the file
+	open(F, $path) or return new
+	   HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+			  "Cannot read file '$path': $!");
+	$response =  $self->collect($arg, $response, sub {
+	    my $content = "";
+	    my $bytes = sysread(F, $content, $size);
+	    return \$content if $bytes > 0;
+	    return \ "";
+	});
+	close(F);
     }
 
     $response;

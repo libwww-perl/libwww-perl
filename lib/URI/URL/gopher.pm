@@ -33,10 +33,10 @@ sub _parse_gopherpath {
     my $p = uri_unescape($self->{'path'});
 
     if (defined($p) && $p ne '/' && $p =~ s!^/?(.)!!) {
-        $self->{'gtype'} = $1;
+	$self->{'gtype'} = $1;
     } else {
-        $self->{'gtype'} = "1";
-        $p = "";
+	$self->{'gtype'} = "1";
+	$p = "";
     }
 
     delete $self->{'selector'};

@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.3 1996/03/18 17:45:34 aas Exp $
+# $Id: Negotiate.pm,v 1.4 1996/04/09 15:44:19 aas Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -64,7 +64,7 @@ sub choose ($;$)
 	    } else {
 		$param{'q'} = 1;
 	    }
-	    
+
 	    $param{'q'} = 1 unless defined $param{'q'};
 	    $accept{$type}{$name} = \%param;
 	}
@@ -95,7 +95,7 @@ sub choose ($;$)
     }
 
     my @Q = ();  # This is where we collect the results of the
-                 # quality calcualtions
+		 # quality calcualtions
 
     # Calculate quality for all the variant's that are available.
     for (@$variants) {
@@ -177,7 +177,7 @@ sub choose ($;$)
 		    }
 		}
 		$q = $accept{'language'}{$selected}{'q'} if $selected;
-		
+
 		# If none of the variant's content language tags or
 		# tag prefixes are listed in the provided
 		# Accept-Language field, then the value assigned
@@ -188,7 +188,7 @@ sub choose ($;$)
 	} else {
 	    $ql = 0.5 if $any_lang && exists $accept{'language'};
 	}
-	
+
 	my $q   = 1;
 	my $mbx = undef;
 	# If no Accept field is given, then the value assigned is "q=1".
@@ -245,7 +245,7 @@ sub choose ($;$)
 	    $q   = $sel_q || 0;
 	    $mbx = $sel_mbx;
 	}
-	
+
 	my $Q;
 	if (!defined($mbx) || $mbx >= $bs) {
 	    $Q = $qs * $qe * $qc * $ql * $q;
@@ -286,7 +286,7 @@ choose - choose a variant of a document to serve (HTTP content negotiation)
  use HTTP::Negotiate;
 
  #  ID       QS     Content-Type   Encoding Char-Set        Lang   Size
- $variants = 
+ $variants =
   [['var1',  1.000, 'text/html',   undef,   'iso-8859-1',   'en',   3000],
    ['var2',  0.950, 'text/plain',  'gzip',  'us-ascii',     'no',    400],
    ['var3',  0.3,   'image/gif',   undef,   undef,          undef, 43555],

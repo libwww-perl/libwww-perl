@@ -61,10 +61,10 @@ sub newlocal {
 
     my $url = new URI::URL "file:";
     unless (defined $path and $path =~ m:^/:) {
-        require Cwd;
-        my $cwd = Cwd::fastcwd();
-        $cwd =~ s:/?$:/:; # force trailing slash on dir
-        $path = (defined $path) ? $cwd . $path : $cwd;
+	require Cwd;
+	my $cwd = Cwd::fastcwd();
+	$cwd =~ s:/?$:/:; # force trailing slash on dir
+	$path = (defined $path) ? $cwd . $path : $cwd;
     }
     $url->path($path);
     $url;

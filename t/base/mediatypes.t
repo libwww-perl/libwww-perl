@@ -38,14 +38,14 @@ for (@tests) {
     ($type, @enc) = guess_media_type($file);
     if ($type1 ne $type) {
        print "guess_media_type does not return same content-type in scalar and array conext.\n";
-	next;       
+	next;
     }
     $type = "undef" unless defined $type;
     if ($type eq $expectedtype and "@enc" eq "@expectedEnc") {
 	print "ok $testno\n";
     } else {
 	print "expected '$expectedtype' for '$file', got '$type'\n";
-        print "encoding: expected: '@expectedEnc', got '@enc'\n"
+	print "encoding: expected: '@expectedEnc', got '@enc'\n"
 	  if @expectedEnc || @enc;
 	print "nok ok $testno\n";
     }

@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.4 1996/03/18 18:06:44 aas Exp $
+# $Id: Listing.pm,v 1.5 1996/04/09 15:44:05 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -167,9 +167,9 @@ sub file_mode ($)
     while (/(.)/g) {
 	$mode <<= 1;
 	$mode |= 1 if $1 ne "-" &&
-                      $1 ne 'S' &&
-                      $1 ne 't' &&
-                      $1 ne 'T';
+		      $1 ne 'S' &&
+		      $1 ne 't' &&
+		      $1 ne 'T';
     }
 
     $type eq "d" and $mode |= 0040000 or	# Directory
@@ -199,15 +199,15 @@ sub line
     my ($kind, $size, $date, $name);
     if (($kind, $size, $date, $name) =
 	/^([\-FlrwxsStTdD]{10})                   # Type and permission bits
-         .*                                       # Graps
+	 .*                                       # Graps
 	 \D(\d+)                                  # File size
-         \s+                                      # Some space
-         (\w{3}\s+\d+\s+(?:\d{1,2}:\d{2}|\d{4}))  # Date
-         \s+                                      # Some more space
-         (.*)$                                    # File name
-        /x )
+	 \s+                                      # Some space
+	 (\w{3}\s+\d+\s+(?:\d{1,2}:\d{2}|\d{4}))  # Date
+	 \s+                                      # Some more space
+	 (.*)$                                    # File name
+	/x )
 
-    {  
+    {
 	return if $name eq '.' || $name eq '..';
 	$name = "$curdir/$name" if length $curdir;
 	my $type = '?';
@@ -224,7 +224,7 @@ sub line
 
     } elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
 	my $dir = $1;
-        next if $dir eq '.';
+	next if $dir eq '.';
 	$curdir = $dir;
 	return ();
     } elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {
@@ -232,7 +232,7 @@ sub line
     } else {
 	return () unless defined $error;
 	&$error($_) if ref($error) eq 'CODE';
-        warn "Can't parse: $_\n" if $error eq 'warn';
+	warn "Can't parse: $_\n" if $error eq 'warn';
 	return ();
     }
 

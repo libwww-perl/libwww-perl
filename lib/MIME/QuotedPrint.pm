@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 1.8 1996/03/18 17:50:23 aas Exp $
+# $Id: QuotedPrint.pm,v 1.9 1996/04/09 15:44:42 aas Exp $
 
 package MIME::QuotedPrint;
 
@@ -12,7 +12,7 @@ decode_qp - Decode quoted-printable string
 =head1 SYNOPSIS
 
  use MIME::QuotedPrint;
- 
+
  $encoded = encode_qp($decoded);
  $decoded = decode_qp($encoded);
 
@@ -56,7 +56,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 sub encode_qp ($)
@@ -65,7 +65,7 @@ sub encode_qp ($)
     $res =~ s/([^ \t\n!-<>-~])/sprintf("=%02X", ord($1))/eg;  # rule #2,#3
     $res =~ s/([ \t]+)$/
       join('', map { sprintf("=%02X", ord($_)) }
-	           split('', $1)
+		   split('', $1)
       )/egm;                        # rule #3 (encode whitespace at eol)
 
     # rule #5 (lines must be shorter than 76 chars, but we are not allowed
@@ -73,7 +73,7 @@ sub encode_qp ($)
     my $brokenlines = "";
     $brokenlines .= "$1=\n" while $res =~ s/^(.{74}([^=]{2})?)//;
     # unnessesary to make a break at the last char
-    $brokenlines =~ s/=\n$// unless length $res; 
+    $brokenlines =~ s/=\n$// unless length $res;
 
     "$brokenlines$res";
 }

@@ -36,7 +36,7 @@ my(@tests) =
  '03/Feb/1994',  # common logfile format     (no time, no offset)
 
  #'Feb  3 00:00',    # Unix 'ls -l' format (can't really test it here)
- 'Feb  3 1994',      # Unix 'ls -l' format 
+ 'Feb  3 1994',      # Unix 'ls -l' format
 
  # ISO 8601 formats
  '1994-02-03 00:00:00 +0000',
@@ -59,7 +59,7 @@ for (@tests) {
     if (/GMT/i) {
 	$t = str2time($_);
     } else {
-        $t = str2time($_, "GMT");
+	$t = str2time($_, "GMT");
     }
     $t = "UNDEF" unless defined $t;
     print "'$_'  =>  $t\n";
@@ -85,7 +85,7 @@ ok;
 
 # try some out of bounds date and some garbage.
 for ('03-Feb-1969', '03-Feb-2039',
-     undef, '', 'Garbage', 
+     undef, '', 'Garbage',
      'Mandag 16. September 1996',
      'Thu Feb  3 00:00:00 CET 1994',
      'Thu, 03 Feb 1994 00:00:00 CET',

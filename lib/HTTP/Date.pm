@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.15 1996/03/18 17:44:53 aas Exp $
+# $Id: Date.pm,v 1.16 1996/04/09 15:44:16 aas Exp $
 #
 package HTTP::Date;
 
@@ -87,7 +87,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -144,16 +144,16 @@ sub str2time ($;$)
       ($day,$mon,$yr,$hr,$min,$sec,$tz) =
 	/^\s*
 	 (\d\d?)               # day
-            (?:\s+|[-\/])
-         (\w+)                 # month
-            (?:\s+|[-\/])
-         (\d+)                 # year
+	    (?:\s+|[-\/])
+	 (\w+)                 # month
+	    (?:\s+|[-\/])
+	 (\d+)                 # year
 	 (?:
-               (?:\s+|:)       # separator before clock
-            (\d\d?):(\d\d)     # hour:min
+	       (?:\s+|:)       # separator before clock
+	    (\d\d?):(\d\d)     # hour:min
 	    (?::(\d\d))?       # optional seconds
-         )?                    # optional clock
-            \s*
+	 )?                    # optional clock
+	    \s*
 	 ([-+]?\d{2,4}|GMT|gmt)? # timezone
 	    \s*$
 	/x
@@ -162,50 +162,50 @@ sub str2time ($;$)
       # Try the ctime and asctime format
       ($mon, $day, $hr, $min, $sec, $tz, $yr) =
 	/^\s*                  # allow intial whitespace
-	 (\w{1,3})             # month       
+	 (\w{1,3})             # month
 	    \s+
-         (\d\d?)               # day
-            \s+
-         (\d\d?):(\d\d)        # hour:min
-         (?::(\d\d))?          # optional seconds
-            \s+
-         (?:(GMT|gmt)\s+)?     # optional GMT timezone
-         (\d+)                 # year
-            \s*$               # allow trailing whitespace
+	 (\d\d?)               # day
+	    \s+
+	 (\d\d?):(\d\d)        # hour:min
+	 (?::(\d\d))?          # optional seconds
+	    \s+
+	 (?:(GMT|gmt)\s+)?     # optional GMT timezone
+	 (\d+)                 # year
+	    \s*$               # allow trailing whitespace
 	/x
 	  and last PARSEDATE;
 
       # Then the Unix 'ls -l' date format
       ($mon, $day, $yr, $hr, $min) =
 	/^\s*
-         (\w{3})               # month
-            \s+
-         (\d\d?)               # day
-            \s+
-         (?:
-            (\d\d\d\d) |       # year
-            (\d{1,2}):(\d{2})  # hour:min
-         )
-         \s*$
+	 (\w{3})               # month
+	    \s+
+	 (\d\d?)               # day
+	    \s+
+	 (?:
+	    (\d\d\d\d) |       # year
+	    (\d{1,2}):(\d{2})  # hour:min
+	 )
+	 \s*$
        /x
-         and last PARSEDATE;
+	 and last PARSEDATE;
 
       # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
       ($yr, $mon, $day, $hr, $min, $sec, $tz) =
-        /^\s*
-          (\d{4})              # year
-             [-\/]?
-          (\d\d?)              # numerical month
-             [-\/]?
+	/^\s*
+	  (\d{4})              # year
+	     [-\/]?
+	  (\d\d?)              # numerical month
+	     [-\/]?
 	  (\d\d?)              # day
 	 (?:
-               (?:\s+|:|T|-)   # separator before clock
-            (\d\d?):?(\d\d)    # hour:min
+	       (?:\s+|:|T|-)   # separator before clock
+	    (\d\d?):?(\d\d)    # hour:min
 	    (?::?(\d\d))?      # optional seconds
-         )?                    # optional clock
-            \s*
+	 )?                    # optional clock
+	    \s*
 	 ([-+]?\d\d?:?(:?\d\d)?
-          |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
+	  |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
 	    \s*$
 	/x
 	  and last PARSEDATE;
@@ -218,7 +218,7 @@ sub str2time ($;$)
    if ($mon =~ /^\d+$/) {
      # numeric month
      return undef if $mon < 1 || $mon > 12;
-     $mon--; 
+     $mon--;
    } else {
      $mon = lc $mon;
      return undef unless exists $MoY{$mon};

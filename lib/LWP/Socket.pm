@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.20 1996/03/14 16:24:54 aas Exp $
+# $Id: Socket.pm,v 1.21 1996/04/09 15:44:31 aas Exp $
 
 package LWP::Socket;
 
@@ -33,12 +33,12 @@ localhost to serve chargen and echo protocols.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in
 	      PF_INET SOCK_STREAM INADDR_ANY
-              inet_ntoa inet_aton);
+	      inet_ntoa inet_aton);
 Socket->require_version(1.5);
 
 use Carp ();
@@ -69,11 +69,11 @@ sub new
     }
 
     my $self = bless {
-        'socket' => $socket,
-        'host'   => $host,
-        'port'   => $port,
-        'buffer' => '',
-        'size'   => 4096,
+	'socket' => $socket,
+	'host'   => $host,
+	'port'   => $port,
+	'buffer' => '',
+	'size'   => 4096,
     }, $class;
 
     $self;
@@ -212,7 +212,7 @@ sub read_until
 
     {
 	my $d = $delim;
-        $d =~ s/\r/\\r/g;
+	$d =~ s/\r/\\r/g;
 	$d =~ s/\n/\\n/g;
 	LWP::Debug::trace("('$d',...)");
     }
@@ -227,10 +227,10 @@ sub read_until
 	while ($$buf !~ /$delim/) {
 	    LWP::IO::read($socket, $$buf, $size, length($$buf), $timeout)
 		or die "Unexpected EOF";
-        }
-        ($$data_ref, $self->{'buffer'}) = split(/$delim/, $$buf, 2);
+	}
+	($$data_ref, $self->{'buffer'}) = split(/$delim/, $$buf, 2);
     } else {
-        $data_ref = $buf;
+	$data_ref = $buf;
 	$self->{'buffer'} = '';
     }
 
@@ -339,12 +339,12 @@ sub _getaddress
 	$addr[0] = pack_sockaddr_in($port, INADDR_ANY);
     }
     elsif ($host =~ /^(\d+\.\d+\.\d+\.\d+)$/) {
-        # numeric IP address
-        $addr[0] = pack_sockaddr_in($port, inet_aton($1));
+	# numeric IP address
+	$addr[0] = pack_sockaddr_in($port, inet_aton($1));
     } else {
-        # hostname
-        LWP::Debug::debug("resolving host '$host'...");
-        (undef,undef,undef,undef,@addr) = gethostbyname($host);
+	# hostname
+	LWP::Debug::debug("resolving host '$host'...");
+	(undef,undef,undef,undef,@addr) = gethostbyname($host);
 	for (@addr) {
 	    LWP::Debug::debug("   ..." . inet_ntoa($_));
 	    $_ = pack_sockaddr_in($port, $_);
@@ -394,7 +394,7 @@ sub echo
     $socket = new LWP::Socket;
     $socket->connect('localhost', 7); # echo
     $quote = 'I dunno, I dream in Perl sometimes...';
-             # --Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
+	     # --Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
     $socket->write("$quote\n");
     $socket->read_until("\n", \$buffer);
     die 'Read Error' unless $buffer eq $quote;

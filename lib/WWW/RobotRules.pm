@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.5 1996/03/18 17:48:43 aas Exp $
+# $Id: RobotRules.pm,v 1.6 1996/04/09 15:44:56 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -235,7 +235,7 @@ The following example "/robots.txt" file specifies that no robots
 should visit any URL starting with "/cyberworld/map/" or "/tmp/":
 
   # robots.txt for http://www.site.com/
-  
+
   User-agent: *
   Disallow: /cyberworld/map/ # This is an infinite virtual URL space
   Disallow: /tmp/ # these will soon disappear
@@ -245,10 +245,10 @@ any URL starting with "/cyberworld/map/", except the robot called
 "cybermapper":
 
   # robots.txt for http://www.site.com/
-  
+
   User-agent: *
   Disallow: /cyberworld/map/ # This is an infinite virtual URL space
-  
+
   # Cybermapper knows where to go.
   User-agent: cybermapper
   Disallow:

@@ -53,27 +53,27 @@ sub _parse {
 
     # 2.4.6
     #
-    # RFC 1738 says: 
+    # RFC 1738 says:
     #
-    #     Note that the "/" between the host (or port) and the 
+    #     Note that the "/" between the host (or port) and the
     #     url-path is NOT part of the url-path.
     #
     # however, RFC 1808, 2.4.6. says:
     #
     #    Even though the initial slash is not part of the URL path,
-    #    the parser must remember whether or not it was present so 
-    #    that later processes can differentiate between relative 
+    #    the parser must remember whether or not it was present so
+    #    that later processes can differentiate between relative
     #    and absolute paths.  Often this is done by simply storing
     #    he preceding slash along with the path.
-    # 
-    # In version < 4.01 of URI::URL we used to strip the leading 
+    #
+    # In version < 4.01 of URI::URL we used to strip the leading
     # "/" when asked for $self->path().  This created problems for
     # the consitency of the interface, so now we just consider the
     # slash to be part of the path and we also make an empty path
     # default to "/".
 
     # we don't test for $parse{path} becase it is mandatory
-    $self->{'path'} = $u;   
+    $self->{'path'} = $u;
 }
 
 
@@ -89,10 +89,10 @@ sub as_string
     my $u = $self->full_path(1);  # path+params+query
 
     # rfc 1808 says:
-    #    Note that the fragment identifier (and the "#" that precedes 
+    #    Note that the fragment identifier (and the "#" that precedes
     #    it) is not considered part of the URL.  However, since it is
     #    commonly used within the same string context as a URL, a parser
-    #    must be able to recognize the fragment when it is present and 
+    #    must be able to recognize the fragment when it is present and
     #    set it aside as part of the parsing process.
     $u .= "#" . uri_escape($frag, $URI::URL::unsafe) if defined $frag;
 
@@ -146,14 +146,14 @@ sub netloc {
     # update fields derived from netloc
     my $nl = $self->{'netloc'} || ''; # already unescaped
     if ($nl =~ s/^([^:@]*):?(.*?)@//){
-        $self->{'user'}     = uri_unescape($1);
-        $self->{'password'} = uri_unescape($2) if $2 ne '';
+	$self->{'user'}     = uri_unescape($1);
+	$self->{'password'} = uri_unescape($2) if $2 ne '';
     }
     if ($nl =~ s/^([^:]*):?(\d*)//){
 	# Since this happes so frequently, we inline this call:
 	#    my $host = uri_unescape($1);
 	my $host = $1; $host =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/eg;
-        $self->{'host'} = $host;
+	$self->{'host'} = $host;
 	if ($2 ne '') {
 	    $self->{'port'} = $2;
 	    if ($2 == $self->default_port) {
@@ -328,7 +328,7 @@ sub abs
     $base = new URI::URL $base unless ref $base; # make obj if needed
 
     my($scheme, $host, $path, $params, $query, $frag) =
-        @{$embed}{qw(scheme host path params query frag)};
+	@{$embed}{qw(scheme host path params query frag)};
 
     # just use base if we are empty             (2a)
     return $base->clone
@@ -355,17 +355,17 @@ sub abs
     $embed->netloc($base->{'netloc'});          # (3)
 
     return $embed if $path =~ m:^/:;            # (4)
-    
+
     if ($path eq '') {                          # (5)
-        $embed->{'path'} = $base->{'path'};     # (5)
+	$embed->{'path'} = $base->{'path'};     # (5)
 
-        return $embed if defined $embed->{'params'}; # (5a)
-        $embed->{'params'} = $base->{'params'};      # (5a)
+	return $embed if defined $embed->{'params'}; # (5a)
+	$embed->{'params'} = $base->{'params'};      # (5a)
 
-        return $embed if defined $embed->{'query'};  # (5b)
-        $embed->{'query'} = $base->{'query'};        # (5b)
+	return $embed if defined $embed->{'query'};  # (5b)
+	$embed->{'query'} = $base->{'query'};        # (5b)
 
-        return $embed;
+	return $embed;
     }
 
     # (Step 6)  # draft 6 suggests stack based approach
@@ -387,30 +387,30 @@ sub abs
     my $segment;
 
     foreach $segment (@path) {            # left to right
-        if ($segment eq '.') {            # ignore "same" directory
-            $isdir = 1;
-        }
-        elsif ($segment eq '..') {
-            $isdir = 1;
-            my $last = pop(@newpath);
-            if (!defined $last) {         # nothing to pop
-                push(@newpath, $segment); # so must append
-            }
-            elsif ($last eq '..') {       # '..' cannot match '..'
-                # so put back again, and append
-                push(@newpath, $last, $segment);
-            }
-            #else 
-                # it was a component, 
-                # keep popped
-        } else {
-            $isdir = 0;
-            push(@newpath, $segment);
-        }
+	if ($segment eq '.') {            # ignore "same" directory
+	    $isdir = 1;
+	}
+	elsif ($segment eq '..') {
+	    $isdir = 1;
+	    my $last = pop(@newpath);
+	    if (!defined $last) {         # nothing to pop
+		push(@newpath, $segment); # so must append
+	    }
+	    elsif ($last eq '..') {       # '..' cannot match '..'
+		# so put back again, and append
+		push(@newpath, $last, $segment);
+	    }
+	    #else
+		# it was a component,
+		# keep popped
+	} else {
+	    $isdir = 0;
+	    push(@newpath, $segment);
+	}
     }
 
-    $embed->{'path'} = '/' . join('/', @newpath) . 
-        ($isdir && @newpath ? '/' : '');
+    $embed->{'path'} = '/' . join('/', @newpath) .
+	($isdir && @newpath ? '/' : '');
 
     $embed;
 }

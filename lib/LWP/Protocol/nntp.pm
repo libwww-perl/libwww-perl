@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.2 1996/03/22 09:20:38 aas Exp $
+# $Id: nntp.pm,v 1.3 1996/04/09 15:44:39 aas Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -33,7 +33,7 @@ sub request
 
     # Check for proxy
     if (defined $proxy) {
-        return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 				   'You can not proxy through NNTP');
     }
 
@@ -41,16 +41,16 @@ sub request
     my $url = $request->url;
     my $scheme = $url->scheme;
     unless ($scheme eq 'news') {
-        return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				   "LWP::Protocol::nntp::request called for '$scheme'");
     }
 
     # check for a valid method
     my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'POST') {
-        return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
-                                   'Library does not allow method ' .
-                                   "$method for 'news:' URLs");
+	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+				   'Library does not allow method ' .
+				   "$method for 'news:' URLs");
     }
 
     # extract the identifier and check against posting to an article
@@ -147,12 +147,12 @@ sub request
 
     # Ensure that there is a Content-Type header
     $response->header("Content-Type", "text/plain")
-        unless $response->header("Content-Type");
+	unless $response->header("Content-Type");
 
     # Collect the body
     if (defined $body) {
 	$body =~ s/\r//g;
-        $body =~ s/^\.\././gm;
+	$body =~ s/^\.\././gm;
 	# Let's collect once
 	my $first = 1;
 	$response = $self->collect($arg, $response, sub {
@@ -210,5 +210,5 @@ sub code    { shift->{'nntp_code'};    }
 
 
 package LWP::Prototocol::nntp;
-                
+
 1;

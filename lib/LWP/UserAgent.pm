@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.33 1996/04/09 08:47:13 aas Exp $
+# $Id: UserAgent.pm,v 1.34 1996/04/09 15:44:32 aas Exp $
 
 package LWP::UserAgent;
 
@@ -132,17 +132,17 @@ sub new
 
     my $self;
     if (ref $init) {
-        $self = $init->clone;
+	$self = $init->clone;
     } else {
-        $self = bless {
-                'agent'       => "libwww-perl/$LWP::VERSION",
-                'from'        => undef,
-                'timeout'     => 3*60,
-                'proxy'       => undef,
-                'use_eval'     => 1,
-                'use_alarm'    => 1,
-                'no_proxy'     => [],
-        }, $class;
+	$self = bless {
+		'agent'       => "libwww-perl/$LWP::VERSION",
+		'from'        => undef,
+		'timeout'     => 3*60,
+		'proxy'       => undef,
+		'use_eval'     => 1,
+		'use_alarm'    => 1,
+		'no_proxy'     => [],
+	}, $class;
     }
 }
 
@@ -174,9 +174,9 @@ sub simple_request
 
     # Check that we have a METHOD and a URL first
     return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "Method missing")
-        unless $method;
+	unless $method;
     return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "URL missing")
-        unless $url;
+	unless $url;
 
     LWP::Debug::trace("$method $url");
 
@@ -184,9 +184,9 @@ sub simple_request
     my $scheme = '';
     my $proxy = $self->_need_proxy($url);
     if (defined $proxy) {
-        $scheme = $proxy->scheme;
+	$scheme = $proxy->scheme;
     } else {
-        $scheme = $url->scheme;
+	$scheme = $url->scheme;
     }
     my $protocol;
     eval {
@@ -211,20 +211,20 @@ sub simple_request
     # If we use alarm() we need to register a signal handler
     # and start the timeout
     if ($use_alarm) {
-        $SIG{'ALRM'} = sub {
-            LWP::Debug::trace('timeout');
-            die 'Timeout';
-        };
+	$SIG{'ALRM'} = sub {
+	    LWP::Debug::trace('timeout');
+	    die 'Timeout';
+	};
 	$protocol->timeout($timeout);
-        alarm($timeout);
+	alarm($timeout);
     }
 
     if ($use_eval) {
-        # we eval, and turn dies into responses below
-        eval {
-            $response = $protocol->request($request, $proxy, 
-                                           $arg, $size, $timeout);
-        };
+	# we eval, and turn dies into responses below
+	eval {
+	    $response = $protocol->request($request, $proxy,
+					   $arg, $size, $timeout);
+	};
 	if ($@) {
 	    if ($@ =~ /^timeout/i) {
 		$response = HTTP::Response->new(&HTTP::Status::RC_REQUEST_TIMEOUT, 'User-agent timeout');
@@ -232,15 +232,15 @@ sub simple_request
 		$@ =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;  # remove file/line number
 		$response = HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
 	    }
-        }
+	}
     } else {
-        # user has to handle any dies, usually timeouts
-        $response = $protocol->request($request, $proxy,
-                                       $arg, $size, $timeout);
+	# user has to handle any dies, usually timeouts
+	$response = $protocol->request($request, $proxy,
+				       $arg, $size, $timeout);
 	# XXX: Should we die unless $response->is_success ???
     }
     alarm(0) if ($use_alarm); # no more timeout
-    
+
     $response->request($request);  # record request for reference
     $response->header("Client-Date" => HTTP::Date::time2str(time));
     return $response;
@@ -270,15 +270,15 @@ sub request
     LWP::Debug::debug('Simple result: ' . HTTP::Status::status_message($code));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
-        $code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
+	$code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
 
-        # Make a copy of the request and initialize it with the new URI
-        my $referral = $request->clone;
-        my $referral_uri = URI::URL->new($response->header('Location'));
+	# Make a copy of the request and initialize it with the new URI
+	my $referral = $request->clone;
+	my $referral_uri = URI::URL->new($response->header('Location'));
 	# some servers erroneously return a relative URL for redirects,
 	# so make it absolute.
 	$referral_uri = $referral_uri->abs($response->base);
-        $referral->url($referral_uri);
+	$referral->url($referral_uri);
 
 	return $response unless $self->redirect_ok($referral);
 
@@ -293,29 +293,29 @@ sub request
 	    $r = $r->previous;
 	}
 
-        return $self->request($referral, $arg, $size, $response);
+	return $self->request($referral, $arg, $size, $response);
 
     } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED) {
 
-        my $challenge = $response->header('WWW-Authenticate');
+	my $challenge = $response->header('WWW-Authenticate');
 	unless (defined $challenge) {
 	    warn "RC_UNAUTHORIZED without WWW-Authenticate\n";
 	    return $response;
 	}
-        if (($challenge =~ /^(\S+)\s+Realm\s*=\s*"(.*?)"/i) or
-            ($challenge =~ /^(\S+)\s+Realm\s*=\s*<([^<>]*)>/i)) {
+	if (($challenge =~ /^(\S+)\s+Realm\s*=\s*"(.*?)"/i) or
+	    ($challenge =~ /^(\S+)\s+Realm\s*=\s*<([^<>]*)>/i)) {
 
-            my($scheme, $realm) = ($1, $2);
-            if ($scheme =~ /^Basic$/i) {
+	    my($scheme, $realm) = ($1, $2);
+	    if ($scheme =~ /^Basic$/i) {
 
-                my($uid, $pwd) = $self->get_basic_credentials($realm,
+		my($uid, $pwd) = $self->get_basic_credentials($realm,
 							    $request->url);
 
-                if (defined $uid and defined $pwd) {
-                    my $uidpwd = "$uid:$pwd";
-                    my $header = "$scheme " . encode_base64($uidpwd, '');
+		if (defined $uid and defined $pwd) {
+		    my $uidpwd = "$uid:$pwd";
+		    my $header = "$scheme " . encode_base64($uidpwd, '');
 
-                    # Need to check this isn't a repeated fail!
+		    # Need to check this isn't a repeated fail!
 		    my $r = $response;
 		    while ($r) {
 			my $auth = $r->request->header('Authorization');
@@ -327,18 +327,18 @@ sub request
 			$r = $r->previous;
 		    }
 
-                    my $referral = $request->clone;
-                    $referral->header('Authorization' => $header);
+		    my $referral = $request->clone;
+		    $referral->header('Authorization' => $header);
 
-                    return $self->request($referral, $arg, $size, $response);
-                } else {
-                    return $response; # no password found
-                }
-            } elsif ($scheme =~ /^Digest$/i) {
+		    return $self->request($referral, $arg, $size, $response);
+		} else {
+		    return $response; # no password found
+		}
+	    } elsif ($scheme =~ /^Digest$/i) {
 		# http://hopf.math.nwu.edu/digestauth/draft.rfc
-		require MD5; 
+		require MD5;
 		my $md5 = new MD5;
-                my($uid, $pwd) = $self->get_basic_credentials($realm,
+		my($uid, $pwd) = $self->get_basic_credentials($realm,
 							      $request->url);
 		my $string = $challenge;
 		$string =~ s/^$scheme\s+//;
@@ -359,7 +359,7 @@ sub request
 		$md5->add(join(":", @digest));
 		my($digest) = $md5->hexdigest;
 		$md5->reset;
-		
+
 		my %resp = map { $_, $mda{$_} } qw(realm nonce opaque);
 		@resp{qw(username uri response)} =
 		  ($uid, $request->url->path, $digest);
@@ -402,15 +402,15 @@ sub request
 		warn "Authentication scheme '$scheme' not supported\n";
 		return $response;
 	    }
-        } else {
-            warn "Unknown challenge '$challenge'";
+	} else {
+	    warn "Unknown challenge '$challenge'";
 	    return $response;
-        }
+	}
 
     } elsif ($code == &HTTP::Status::RC_PAYMENT_REQUIRED or
-             $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
-        warn 'Resolution of' . HTTP::Status::status_message($code) .
-             'not yet implemented';
+	     $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
+	warn 'Resolution of' . HTTP::Status::status_message($code) .
+	     'not yet implemented';
 	return $response;
     }
     $response;
@@ -431,7 +431,7 @@ for all others.
 sub redirect_ok
 {
     # draft-ietf-http-v10-spec-02.ps from www.ics.uci.edu, specify:
-    # 
+    #
     # If the 30[12] status code is received in response to a request using
     # the POST method, the user agent must not automatically redirect the
     # request unless it can be confirmed by the user, since this might change
@@ -451,7 +451,7 @@ useful to specialize the get_basic_credentials() method instead.
 =cut
 
 sub credentials
-{ 
+{
     my($self, $netloc, $realm, $uid, $pass) = @_;
     @{ $self->{'basic_authentication'}{$netloc}{$realm} } = ($uid, $pass);
 }
@@ -478,7 +478,7 @@ sub get_basic_credentials
     my $netloc = $uri->netloc;
 
     if (exists $self->{'basic_authentication'}{$netloc}{$realm}) {
-        return @{ $self->{'basic_authentication'}{$netloc}{$realm} };
+	return @{ $self->{'basic_authentication'}{$netloc}{$realm} };
     }
 
     return (undef, undef);
@@ -581,12 +581,12 @@ sub is_protocol_supported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-        # assume we got a reference to an URI::URL object
-        $scheme = $scheme->abs->scheme;
+	# assume we got a reference to an URI::URL object
+	$scheme = $scheme->abs->scheme;
     } else {
-        Carp::croak("Illeal scheme '$scheme' passed to is_protocol_supported")
-            if $scheme =~ /\W/;
-        $scheme = lc $scheme;
+	Carp::croak("Illeal scheme '$scheme' passed to is_protocol_supported")
+	    if $scheme =~ /\W/;
+	$scheme = lc $scheme;
     }
     return LWP::Protocol::implementor($scheme);
 }
@@ -608,35 +608,35 @@ sub mirror
     my $request = new HTTP::Request('GET', $url);
 
     if (-e $file) {
-        my($mtime) = (stat($file))[9];
-        if($mtime) {
-            $request->header('If-Modified-Since' =>
-                             HTTP::Date::time2str($mtime));
-        }
+	my($mtime) = (stat($file))[9];
+	if($mtime) {
+	    $request->header('If-Modified-Since' =>
+			     HTTP::Date::time2str($mtime));
+	}
     }
     my $tmpfile = "$file-$$";
 
     my $response = $self->request($request, $tmpfile);
     if ($response->is_success) {
-        
-        my $file_length = (stat($tmpfile))[7];
-        my($content_length) = $response->header('Content-length');
-    
-        if (defined $content_length and $file_length < $content_length) {
-            unlink($tmpfile);
-            die "Transfer truncated: " .
-                "only $file_length out of $content_length bytes received\n";
-        } elsif (defined $content_length and $file_length > $content_length) {
-            unlink($tmpfile);
-            die "Content-length mismatch: " .
-                "expected $content_length bytes, got $file_length\n";
-        } else {
-            # OK
-            rename($tmpfile, $file) or
-                die "Cannot rename '$tmpfile' to '$file': $!\n";
-        }
+
+	my $file_length = (stat($tmpfile))[7];
+	my($content_length) = $response->header('Content-length');
+
+	if (defined $content_length and $file_length < $content_length) {
+	    unlink($tmpfile);
+	    die "Transfer truncated: " .
+		"only $file_length out of $content_length bytes received\n";
+	} elsif (defined $content_length and $file_length > $content_length) {
+	    unlink($tmpfile);
+	    die "Content-length mismatch: " .
+		"expected $content_length bytes, got $file_length\n";
+	} else {
+	    # OK
+	    rename($tmpfile, $file) or
+		die "Cannot rename '$tmpfile' to '$file': $!\n";
+	}
     } else {
-        unlink($tmpfile);
+	unlink($tmpfile);
     }
     return $response;
 }
@@ -664,13 +664,13 @@ sub proxy
     LWP::Debug::trace("$key, $proxy");
 
     if (!ref($key)) {   # single scalar passed
-        my $old = $self->{'proxy'}{$key};
-        $self->{'proxy'}{$key} = $proxy;
-        return $old;    
+	my $old = $self->{'proxy'}{$key};
+	$self->{'proxy'}{$key} = $proxy;
+	return $old;
     } elsif (ref($key) eq 'ARRAY') {
-        for(@$key) {    # array passed
-            $self->{'proxy'}{$_} = $proxy;
-        }
+	for(@$key) {    # array passed
+	    $self->{'proxy'}{$_} = $proxy;
+	}
     }
     return undef;
 }
@@ -690,15 +690,15 @@ specify proxies like this (sh-syntax):
 sub env_proxy {
     my ($self) = @_;
     while(($k, $v) = each %ENV) {
-        $k = lc($k);
-        next unless $k =~ /^(.*)_proxy$/;
-        $k = $1;
-        if ($k eq 'no') {
-            $self->no_proxy(split(/\s*,\s*/, $v));
-        }
-        else {
-            $self->proxy($k, $v);           
-        }
+	$k = lc($k);
+	next unless $k =~ /^(.*)_proxy$/;
+	$k = $1;
+	if ($k eq 'no') {
+	    $self->no_proxy(split(/\s*,\s*/, $v));
+	}
+	else {
+	    $self->proxy($k, $v);
+	}
     }
 }
 
@@ -714,10 +714,10 @@ domains clears the list of domains. Eg:
 sub no_proxy {
     my($self, @no) = @_;
     if (@no) {
-        push(@{ $self->{'no_proxy'} }, @no);
+	push(@{ $self->{'no_proxy'} }, @no);
     }
     else {
-        $self->{'no_proxy'} = [];
+	$self->{'no_proxy'} = [];
     }
 }
 
@@ -735,9 +735,9 @@ sub _need_proxy
     # check the list of noproxies
 
     if (@{ $self->{'no_proxy'} }) {
-        my $host = $url->host;
+	my $host = $url->host;
 	return undef unless defined $host;
-        my $domain;
+	my $domain;
 	for $domain (@{ $self->{'no_proxy'} }) {
 	    if ($host =~ /$domain$/) {
 		LWP::Debug::trace("no_proxy configured");
@@ -748,12 +748,12 @@ sub _need_proxy
 
     # Currently configured per scheme.
     # Eventually want finer granularity
-    
+
     my $scheme = $url->scheme;
     if (exists $self->{'proxy'}{$scheme}) {
 
-        LWP::Debug::debug('Proxied');
-        return new URI::URL($self->{'proxy'}{$scheme});
+	LWP::Debug::debug('Proxied');
+	return new URI::URL($self->{'proxy'}{$scheme});
     }
 
     LWP::Debug::debug('Not proxied');

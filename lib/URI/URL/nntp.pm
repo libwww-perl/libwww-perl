@@ -26,7 +26,7 @@ sub as_string {
     my $str = "$self->{'scheme'}:";
     $str .= "//$self->{'netloc'}" if defined $self->{'netloc'};
     $str .= "/" . uri_escape($self->{'group'}) . "/" .
-                  uri_escape($self->{'digits'});
+		  uri_escape($self->{'digits'});
     $str;
 }
 

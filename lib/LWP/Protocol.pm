@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.18 1996/04/07 20:38:33 aas Exp $
+# $Id: Protocol.pm,v 1.19 1996/04/09 15:44:28 aas Exp $
 
 package LWP::Protocol;
 
@@ -49,12 +49,12 @@ virtual base class this method should B<not> be called directly.
 =cut
 
 sub new
-{ 
+{
     my($class) = @_;
 
-    my $self = bless {  
-        'timeout' => 0,
-        'use_alarm' => 1,
+    my $self = bless {
+	'timeout' => 0,
+	'use_alarm' => 1,
     }, $class;
     $self;
 }
@@ -73,7 +73,7 @@ sub create
 {
     my $scheme = shift;
     my $impclass = LWP::Protocol::implementor($scheme) or
-        Carp::croak("Protocol scheme '$scheme' is not supported");
+	Carp::croak("Protocol scheme '$scheme' is not supported");
 
     # hand-off to scheme specific implementation sub-class
     my $prot = new $impclass, $scheme;
@@ -93,7 +93,7 @@ sub implementor
     my($scheme, $impclass) = @_;
 
     if ($impclass) {
-        $ImplementedBy{$scheme} = $impclass;
+	$ImplementedBy{$scheme} = $impclass;
     }
     my $ic = $ImplementedBy{$scheme};
     return $ic if $ic;
@@ -113,7 +113,7 @@ sub implementor
 	    } else {
 		die "$@\n";
 	    }
-        }
+	}
     }
     $ImplementedBy{$scheme} = $ic if $ic;
     $ic;
@@ -174,40 +174,40 @@ sub collect
     my($use_alarm, $timeout) = @{$self}{'use_alarm', 'timeout'};
 
     if (!defined($arg) || !$response->is_success) {
-        # scalar
-        while ($content = &$collector, length $$content) {
-            alarm(0) if $use_alarm;
-            LWP::Debug::debug("read " . length($$content) . " bytes");
-            $response->add_content($$content);
-            alarm($timeout) if $use_alarm;
-        }
+	# scalar
+	while ($content = &$collector, length $$content) {
+	    alarm(0) if $use_alarm;
+	    LWP::Debug::debug("read " . length($$content) . " bytes");
+	    $response->add_content($$content);
+	    alarm($timeout) if $use_alarm;
+	}
     }
     elsif (!ref($arg)) {
-        # filename
-        open(OUT, ">$arg") or
-            return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
-                          "Cannot write to '$arg': $!";
+	# filename
+	open(OUT, ">$arg") or
+	    return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
+			  "Cannot write to '$arg': $!";
 
-        while ($content = &$collector, length $$content) {
-            alarm(0) if $use_alarm;
-            LWP::Debug::debug("read " . length($$content) . " bytes");
-            print OUT $$content;
-            alarm($timeout) if $use_alarm;
-        }
-        close(OUT);
+	while ($content = &$collector, length $$content) {
+	    alarm(0) if $use_alarm;
+	    LWP::Debug::debug("read " . length($$content) . " bytes");
+	    print OUT $$content;
+	    alarm($timeout) if $use_alarm;
+	}
+	close(OUT);
     }
     elsif (ref($arg) eq 'CODE') {
-        # read into callback
-        while ($content = &$collector, length $$content) {
-            alarm(0) if $use_alarm;
-            LWP::Debug::debug("read " . length($$content) . " bytes");
+	# read into callback
+	while ($content = &$collector, length $$content) {
+	    alarm(0) if $use_alarm;
+	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    &$arg($$content, $response, $self);
-            alarm($timeout) if $use_alarm
-        }
+	    alarm($timeout) if $use_alarm
+	}
     }
     else {
-        return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
-                                  "Unexpected collect argument  '$arg'";
+	return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
+				  "Unexpected collect argument  '$arg'";
     }
     $response;
 }

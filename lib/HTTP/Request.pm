@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.15 1996/04/07 20:35:58 aas Exp $
+# $Id: Request.pm,v 1.16 1996/04/09 15:44:20 aas Exp $
 
 package HTTP::Request;
 
@@ -95,14 +95,14 @@ sub url
     my $self = shift;
     my($url) = @_;
     if (@_) {
-        if (!defined $url) {
-            # that's ok
+	if (!defined $url) {
+	    # that's ok
 	} elsif (ref $url) {
-            $url = $url->abs;
-        } else {
+	    $url = $url->abs;
+	} else {
 	    eval {  $url = URI::URL->new($url); };
 	    $url = undef if $@;
-        }
+	}
     }
     $self->_elem('_url', $url);
 }
@@ -126,7 +126,7 @@ sub as_string
     push(@result, $self->headers_as_string);
     my $content = $self->content;
     if ($content) {
-        push(@result, $self->content);
+	push(@result, $self->content);
     }
     push(@result, ("-" x 35));
     join("\n", @result, "");

@@ -1,13 +1,13 @@
 #
 # Test retrieving a file with a 'file://' URL,
-# 
+#
 
 print "1..2\n";
 
 use LWP::Simple;
 require LWP::Protocol::file;
 
-my $orig = "/usr/tmp/lwp-orig-$$";          # local file 
+my $orig = "/usr/tmp/lwp-orig-$$";          # local file
 my $copy = "/usr/tmp/lwp-copy-$$"; 	    # downloaded copy
 
 # First we create the original

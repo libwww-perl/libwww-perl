@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.10 1996/04/07 20:37:27 aas Exp $
+# $Id: Debug.pm,v 1.11 1996/04/09 15:44:25 aas Exp $
 #
 package LWP::Debug;
 
@@ -49,7 +49,7 @@ your namespace):
 
 =head2 trace($msg)
 
-The C<trace()> function is used for tracing function 
+The C<trace()> function is used for tracing function
 calls. The package and calling subroutine name is
 printed along with the passed argument. This should
 be called at the start of every major function.
@@ -96,12 +96,12 @@ sub import
 sub level
 {
     for (@_) {
-        if ($_ eq '+') {              # all on
-            # switch on all levels
+	if ($_ eq '+') {              # all on
+	    # switch on all levels
 	    %current_level = map { $_ => 1 } @levels;
 	} elsif ($_ eq '-') {           # all off
 	    %current_level = ();
-        } elsif (/^([-+])(\w+)$/) {
+	} elsif (/^([-+])(\w+)$/) {
 	    $current_level{$2} = $1 eq '+';
 	} else {
 	    Carp::croak("Illegal level format $_");

@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.13 1996/04/07 20:35:33 aas Exp $
+# $Id: Message.pm,v 1.14 1996/04/09 15:44:18 aas Exp $
 
 package HTTP::Message;
 
@@ -34,15 +34,15 @@ sub new
 {
     my($class, $header, $content) = @_;
     if (defined $header) {
-        Carp::croak("Bad header argument") unless ref $header;
-        $header = $header->clone;
+	Carp::croak("Bad header argument") unless ref $header;
+	$header = $header->clone;
     } else {
-        $header = new HTTP::Headers;
+	$header = new HTTP::Headers;
     }
     $content = '' unless defined $content;
     bless {
-        '_headers' => $header,
-        '_content' => $content,
+	'_headers' => $header,
+	'_content' => $content,
     }, $class;
 }
 

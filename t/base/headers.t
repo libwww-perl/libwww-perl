@@ -8,7 +8,7 @@ $h = new HTTP::Headers
 
 $h->header(URI => "http://www.oslonett.no/");
 
-if ($h->header("MIME-Version") eq "1.0") {	
+if ($h->header("MIME-Version") eq "1.0") {
     print "ok 1\n";
 } else {
     print "not ok 1\n";

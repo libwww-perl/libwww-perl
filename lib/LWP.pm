@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.27 1996/04/09 08:49:03 aas Exp $
+# $Id: LWP.pm,v 1.28 1996/04/09 15:43:54 aas Exp $
 
 package LWP;
 
@@ -49,7 +49,7 @@ Provides an object oriented model of HTTP-style communication.  Within
 this framework we currently support access to http, gopher, ftp, news,
 file, and mailto resources.
 
-=item * 
+=item *
 
 The library be used through the full object oriented interface or
 through a very simple procedural interface.
@@ -423,7 +423,7 @@ Examples:
   This is the content of the message that we are sending to
   the world.
   EOT
-   
+
 
 =head2 Gopher Request
 
@@ -453,7 +453,7 @@ guessed based on the file suffix.
 
 Example:
 
-  $req = HTTP::Request->new('GET', 'file:/etc/passwd');  
+  $req = HTTP::Request->new('GET', 'file:/etc/passwd');
 
 
 =head2 Mailto Request

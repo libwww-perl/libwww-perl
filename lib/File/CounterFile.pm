@@ -1,6 +1,6 @@
 # This -*-perl -*- module implements a persistent counter class.
 #
-# $Id: CounterFile.pm,v 0.7 1996/02/26 18:58:50 aas Exp $
+# $Id: CounterFile.pm,v 0.8 1996/04/09 15:44:04 aas Exp $
 #
 
 package File::CounterFile;
@@ -86,7 +86,7 @@ use Carp   qw(croak);
 use Symbol qw(gensym);
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 0.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.8 $ =~ /(\d+)\.(\d+)/);
 
 $MAGIC           = "#COUNTER-1.0\n";   # first line in counter files
 $DEFAULT_INITIAL = 0;                  # default initial counter value
@@ -97,7 +97,7 @@ $DEFAULT_DIR     = $ENV{TMPDIR} || "/usr/tmp";
 # Experimental overloading.
 %OVERLOAD = ('++'     => \&inc,
 	     '--'     => \&dec,
- 	     '""'     => \&value,
+	     '""'     => \&value,
 	     fallback => 1,
 );
 

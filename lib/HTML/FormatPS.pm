@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.16 1996/01/05 11:32:07 aas Exp $
+# $Id: FormatPS.pm,v 1.17 1996/04/09 15:44:11 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -13,8 +13,8 @@ HTML::FormatPS - Format HTML as postscript
   require HTML::FormatPS;
   $html = parse_htmlfile("test.html");
   $formatter = new HTML::FormatPS
-                   FontFamily => 'Helvetica',
-                   PaperSize  => 'Letter';
+		   FontFamily => 'Helvetica',
+		   PaperSize  => 'Letter';
   print $formatter->format($html);
 
 =head1 DESCRIPTION
@@ -158,7 +158,7 @@ sub in { $_[0] * 72; }
 sub BOLD   { 0x01; }
 sub ITALIC { 0x02; }
 
-%param = 
+%param =
 (
  papersize        => 'papersize',
  paperwidth       => 'paperwidth',
@@ -309,7 +309,7 @@ sub begin
     $self->{currentfont} = "";
     $self->{prev_currentfont} = "";
     $self->{largest_pointsize} = 0;
-    
+
     $self->newpage;
 }
 
@@ -330,7 +330,7 @@ sub end
     push(@prolog, "%%PageOrder: Ascend\n");
     push(@prolog, "%%Orientation: Portrait\n");
     my($pw, $ph) = map { int($_); } @{$self}{qw(paperwidth paperheight)};
-    
+
     push(@prolog, "%%DocumentMedia: Plain $pw $ph 0 white ()\n");
     push(@prolog, "%%DocumentNeededResources: encoding ISOLatin1Encoding\n");
     my($full, %seenfont);
@@ -338,7 +338,7 @@ sub end
 	$full =~ s/-\d+$//;
 	next if $seenfont{$full}++;
 	push(@prolog, "%%+ font $full\n");
-    }    
+    }
     push(@prolog, "%%DocumentSuppliedResources: procset newencode 1.0 0\n");
     push(@prolog, "%%EndComments\n");
     push(@prolog, <<'EOT');
@@ -353,12 +353,12 @@ sub end
 /NE { %def
    findfont begin
       currentdict dup length dict begin
-         { %forall
-            1 index/FID ne {def} {pop pop} ifelse
-         } forall
-         /FontName exch def
-         /Encoding exch def
-         currentdict dup
+	 { %forall
+	    1 index/FID ne {def} {pop pop} ifelse
+	 } forall
+	 /FontName exch def
+	 /Encoding exch def
+	 currentdict dup
       end
    end
    /FontName get exch definefont pop
@@ -496,7 +496,7 @@ sub showline
 	    $self->collect("($bullet)S\n");
 	}
 	$self->{bullet} = '';
-	
+
     }
 
     $self->{prev_currentfont} = $self->{currentfont};
@@ -530,7 +530,7 @@ sub newpage
     # Print area marker (just for debugging)
     if ($DEBUG) {
 	my($llx, $lly, $urx, $ury) = map { sprintf "%.1f", $_}
-	                             @{$self}{qw(lm bm rm tm)};
+				     @{$self}{qw(lm bm rm tm)};
 	$self->collect("gsave 0.1 setlinewidth\n");
 	$self->collect("clippath 0.9 setgray fill 1 setgray\n");
 	$self->collect("$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n");

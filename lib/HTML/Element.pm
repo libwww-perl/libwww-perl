@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.25 1996/03/05 15:25:55 aas Exp $
+# $Id: Element.pm,v 1.26 1996/04/09 15:44:09 aas Exp $
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags
@@ -59,7 +59,7 @@ for (qw(base link meta isindex nextid
 );
 
 
-# Elements that act as paragraph 
+# Elements that act as paragraph
 for (qw(p form h1 h2 h3 h4 h5 h6
 	blockquote hr title body
        )){
@@ -518,13 +518,13 @@ sub as_HTML
 		    }
 		    $html .= join "\n" . "  " x ($depth+1), @m, $copy;
 		    $pos = length $copy;
-  		}
+		}
 		if (substr($html,length($html)-1) =~ /\s/) {
 		    $black = 0;
 		    $pos = 0;
 		} else {
 		    $black = 1;
-  		}
+		}
 	    }
 	}
     }

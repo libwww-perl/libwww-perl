@@ -11,7 +11,7 @@ sub _parse {
     my($self, $init) = @_;
     # All we want from _generic is the 'netloc' handling.
     $self->URI::URL::_generic::_parse($init, 'netloc');
-}    
+}
 
 
 require Carp;

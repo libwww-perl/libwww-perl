@@ -18,7 +18,7 @@ use strict;
 print "1..26\n"; # for Test::Harness
 
 # We test a number of different /robots.txt files,
-# 
+#
 
 my $content1 = <<EOM;
 # http://foo/robots.txt
@@ -27,7 +27,7 @@ Disallow: /private
 Disallow: http://foo/also_private
 
 User-agent: MOMspider
-Disallow: 
+Disallow:
 EOM
 
 my $content2 = <<EOM;
@@ -60,7 +60,7 @@ my @tests1 = (
 	    2 => 'http://foo/also_private' => 1,
 	   ],
 
-	   [$content1, 'Wubble' => 
+	   [$content1, 'Wubble' =>
 	    3 => 'http://foo/private' => 0,
 	    4 => 'http://foo/also_private' => 0,
 	    5 => 'http://foo/other' => 1,
@@ -71,7 +71,7 @@ my @tests1 = (
 	    7 => 'http://foo/other' => 1,
 	   ],
 
-	   [$content2, 'Wubble' => 
+	   [$content2, 'Wubble' =>
 	    8  => 'http://foo/private' => 1,
 	    9  => 'http://foo/also_private' => 1,
 	    10 => 'http://foo/other' => 1,
@@ -82,7 +82,7 @@ my @tests1 = (
 	    12 => 'http://foo/other' => 1,
 	   ],
 
-	   [$content3, 'Wubble' => 
+	   [$content3, 'Wubble' =>
 	    13 => 'http://foo/private' => 1,
 	    14 => 'http://foo/other' => 1,
 	   ],
@@ -93,26 +93,26 @@ my @tests1 = (
 	    17 => 'http://foo/that' => 1,
 	   ],
 
-	   [$content4, 'Another' => 
+	   [$content4, 'Another' =>
 	    18 => 'http://foo/private' => 1,
 	    19 => 'http://foo/this' => 1,
 	    20 => 'http://foo/that' => 0,
 	   ],
 
-	   [$content4, 'Wubble' => 
+	   [$content4, 'Wubble' =>
 	    21 => 'http://foo/private' => 0,
 	    22 => 'http://foo/this' => 1,
 	    23 => 'http://foo/that' => 1,
 	   ],
 
-	   [$content4, 'Another/1.0' => 
+	   [$content4, 'Another/1.0' =>
 	    24 => 'http://foo/private' => 1,
 	    25 => 'http://foo/this' => 1,
 	    26 => 'http://foo/that' => 0,
 	   ],
 
-           # when adding tests, remember to increase
-           # the maximum at the top
+	   # when adding tests, remember to increase
+	   # the maximum at the top
 
 	  );
 
@@ -126,7 +126,7 @@ for $t (@tests1) {
 
     my ($num, $path, $expected);
     while(($num, $path, $expected) = splice(@$t, 0, 3)) {
-	
+
 	if($robotsrules->allowed($path) != $expected) {
 	    confess "Test Failed: $ua => $path";
 	}

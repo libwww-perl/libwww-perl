@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.2 1996/02/05 18:01:07 aas Exp $
+# $Id: Entities.pm,v 1.3 1996/04/09 15:44:10 aas Exp $
 
 =head1 NAME
 
@@ -60,7 +60,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -166,12 +166,12 @@ sub encode_entities
 {
     if (defined $_[1]) {
 	unless (exists $subst{$_[1]}) {
-            # Because we can't compile regex we fake it with a cached sub
+	    # Because we can't compile regex we fake it with a cached sub
 	    $subst{$_[1]} =
 	      eval "sub {\$_[0] =~ s/([$_[1]])/\$char2entity{\$1}/g; }";
 	    die $@ if $@;
-        }
-        &{$subst{$_[1]}}($_[0]);
+	}
+	&{$subst{$_[1]}}($_[0]);
     } else {
 	# Encode control chars, high bit chars and '<', '&', '>', '"'
 	$_[0] =~ s/([^\n\t !#$%'-;=?-~])/$char2entity{$1}/g;

@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.12 1996/04/03 11:41:12 aas Exp $
+# $Id: MediaTypes.pm,v 1.13 1996/04/09 15:44:27 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -46,7 +46,7 @@ my %suffixEncoding = (
 
 # Try to locate "media.types" file, and initialize %suffixType from it
 for $typefile ((map {"$_/LWP/media.types"} @INC),
-               "$ENV{HOME}/.media.types",
+	       "$ENV{HOME}/.media.types",
 	       "$ENV{HOME}/.mime.types",
 	       ) {
     open(TYPE, $typefile) || next;

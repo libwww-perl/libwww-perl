@@ -28,8 +28,8 @@ my $str = $response->as_string;
 
 print "$str\n";
 
-if ($response->is_error and 
-    $response->code == &HTTP::Status::RC_REQUEST_TIMEOUT and 
+if ($response->is_error and
+    $response->code == &HTTP::Status::RC_REQUEST_TIMEOUT and
     $str =~ /timeout/) {
     print "ok 1\n";
 }

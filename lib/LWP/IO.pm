@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.6 1996/02/26 19:09:34 aas Exp $
+# $Id: IO.pm,v 1.7 1996/04/09 15:44:26 aas Exp $
 
 require LWP::Debug;
 use AutoLoader;
@@ -51,7 +51,7 @@ sub read
     } else {
 	my $n = sysread($fd, $_[0], $size, $offset);
 	# Since so much data might pass here we cheat about debugging
-        if ($LWP::Debug::current_level{'conns'}) {
+	if ($LWP::Debug::current_level{'conns'}) {
 	    LWP::Debug::debug("Read $n bytes");
 	    LWP::Debug::conns($_[0]) if $n;
 	}

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.17 1996/03/29 13:52:10 aas Exp $
+# $Id: Parse.pm,v 1.18 1996/04/09 15:44:14 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -132,7 +132,7 @@ for (qw(wbr nobr center blink font basefont)) {
 for (qw(cite code em kbd samp strong var b i u tt
 	a img br hr
 	wbr nobr center blink
-        small big font basefont
+	small big font basefont
 	table
        )
     ) {
@@ -179,7 +179,7 @@ sub parse_html
 	$html->{_comment} = 1;
     }
     return $html unless length $$buf;
-    
+
     # Split HTML text into tokens.
     my @x = split(/(<[^>]+>)/, $$buf);
     if ($x[-1] =~ m/>/) {              # last token is complete a tag
@@ -226,7 +226,7 @@ sub starttag
 {
     my $html = shift;
     my $elem = shift;
-    
+
     $elem =~ s/^<\s*(\w+)\s*//;
     my $tag = $1;
     $elem =~ s/>$//;
@@ -246,9 +246,9 @@ sub starttag
 		    $val = $1;
 		} elsif ($elem =~ s/^(\S*)\s*//) {        # unquoted val
 		    $val = $1;
-                } else {
+		} else {
 		    die "This should not happen";
-                }
+		}
 		# expand entities
 		HTML::Entities::decode($val);
 	    } else {
@@ -256,16 +256,16 @@ sub starttag
 		$val = $key;
 	    }
 	    $attr{$key} = $val;
-        }
+	}
 
 	my $pos  = $html->{_pos};
 	$pos = $html unless defined $pos;
 	my $ptag = $pos->{_tag};
 	my $e = new HTML::Element $tag, %attr;
 
-        if (!$IMPLICIT_TAGS) {
+	if (!$IMPLICIT_TAGS) {
 	    # do nothing
-        } elsif ($isBodyElement{$tag}) {
+	} elsif ($isBodyElement{$tag}) {
 
 	    # Ensure that we are within <body>
 	    if ($pos->is_inside('head')) {
@@ -364,7 +364,7 @@ sub endtag
     # End the specified tag, but don't move above any of the @stop tags.
     # The tag can also be a reference to an array.  Terminate the first
     # tag found.
-    
+
     my $p = $html->{_pos};
     $p = $html unless defined($p);
     if (ref $tag) {

@@ -7,7 +7,7 @@ $x73 = "x" x 73;
 @tests =
   (
    # plain ascii should not be encoded
-   ["quoted printable"  => 
+   ["quoted printable"  =>
     "quoted printable"],
 
    # 8-bit chars should be encoded

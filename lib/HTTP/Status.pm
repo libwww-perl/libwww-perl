@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.15 1996/03/18 17:45:10 aas Exp $
+# $Id: Status.pm,v 1.16 1996/04/09 15:44:23 aas Exp $
 
 package HTTP::Status;
 
@@ -13,7 +13,7 @@ HTTP::Status - HTTP Status code processing
 
  use HTTP::Status;
 
- if ($rc != RC_OK) { 
+ if ($rc != RC_OK) {
      print status_message($rc), "\n";
  }
 

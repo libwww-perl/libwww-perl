@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.17 1996/04/03 13:22:48 aas Exp $
+# $Id: Headers.pm,v 1.18 1996/04/09 15:44:17 aas Exp $
 
 package HTTP::Headers;
 
@@ -39,9 +39,9 @@ require Carp;
 #    - Request-Headers
 #    - Response-Headers
 #    - Entity-Headers
-# (From draft-ietf-http-v11-spec-00.ps, Nov 22, 1995) 
+# (From draft-ietf-http-v11-spec-00.ps, Nov 22, 1995)
 
-my @header_order = qw( 
+my @header_order = qw(
    Cache-Control Connection Date Forwarded Message-ID MIME-Version
    Pragma Upgrade
 
@@ -60,7 +60,7 @@ my @header_order = qw(
 # for sorting and case matching.
 my $i = 0;
 my %header_order;
-my %standard_case;  
+my %standard_case;
 for (@header_order) {
     my $lc = lc $_;
     $header_order{$lc} = $i++;
@@ -85,7 +85,7 @@ sub new
 {
     my($class) = shift;
     my $self = bless {
-        '_header'   => { },
+	'_header'   => { },
     }, $class;
 
     $self->header(@_); # set up initial headers
@@ -117,7 +117,7 @@ sub header
     my $self = shift;
     my($field, $val, @old);
     while (($field, $val) = splice(@_, 0, 2)) {
-        @old = $self->_header($field, $val);
+	@old = $self->_header($field, $val);
     }
     wantarray ? @old : $old[0];
 }
@@ -133,27 +133,27 @@ sub _header
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
-        $field =~ s/\b(\w)/\u$1/g;
-        $standard_case{$lc_field} = $field;
+	$field =~ s/\b(\w)/\u$1/g;
+	$standard_case{$lc_field} = $field;
     }
 
     my $this_header = \@{$self->{'_header'}{$lc_field}};
 
     my @old = ();
     if (!$push && defined $this_header) {
-        @old = @$this_header;  # save it so we can return it
+	@old = @$this_header;  # save it so we can return it
     }
     if (defined $val) {
-        @$this_header = () unless $push;
-        if (!ref($val)) {
-            # scalar: create list with single value
-            push(@$this_header, $val);
-        } elsif (ref($val) eq 'ARRAY') {
-            # list: copy list            
-            push(@$this_header, @$val);
-        } else {
-            Carp::croak("Unexpected field value $val");
-        }
+	@$this_header = () unless $push;
+	if (!ref($val)) {
+	    # scalar: create list with single value
+	    push(@$this_header, $val);
+	} elsif (ref($val) eq 'ARRAY') {
+	    # list: copy list
+	    push(@$this_header, @$val);
+	} else {
+	    Carp::croak("Unexpected field value $val");
+	}
     }
     @old;
 }
@@ -189,13 +189,13 @@ sub scan
     my($self, $sub) = @_;
     my $field;
     foreach $field (sort _header_cmp keys %{$self->{'_header'}} ) {
-        my $list = $self->{'_header'}{$field};
-        if (defined $list) {
-            my $val;
-            for $val (@$list) {
-                &$sub($standard_case{$field} || $field, $val);
-            }
-        }
+	my $list = $self->{'_header'}{$field};
+	if (defined $list) {
+	    my $val;
+	    for $val (@$list) {
+		&$sub($standard_case{$field} || $field, $val);
+	    }
+	}
     }
 }
 
@@ -219,7 +219,7 @@ sub as_string
 
     my @result = ();
     $self->scan(sub {
-        my($field, $val) = @_;
+	my($field, $val) = @_;
 	Carp::croak("HTTP header ($field) contains newline")
 	   if $val =~ /\n/;
 	push(@result, "$field: $val");
@@ -288,7 +288,7 @@ This header indicates the date and time at which the resource was last
 modified. E.g.:
 
   # check if document is more than 1 hour old
-  if ($h->last_modified < time - 60*60) {  
+  if ($h->last_modified < time - 60*60) {
 	...
   }
 
@@ -380,7 +380,7 @@ sub remove_header
     my $self = shift;
     my $field;
     foreach $field (@_) {
-        delete $self->{'_header'}{lc $field};
+	delete $self->{'_header'}{lc $field};
     }
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.6 1996/03/18 17:50:21 aas Exp $
+# $Id: Base64.pm,v 1.7 1996/04/09 15:44:41 aas Exp $
 
 package MIME::Base64;
 
@@ -12,7 +12,7 @@ decode_base64 - Decode base64 string
 =head1 SYNOPSIS
 
  use MIME::Base64;
- 
+
  $encoded = encode_base64('Aladdin:open sesame');
  $decoded = decode_base64($encoded);
 
@@ -62,7 +62,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
@@ -94,7 +94,7 @@ sub decode_base64 ($)
 
     my $str = shift;
     my $res = "";
-   
+
     $str =~ tr|A-Za-z0-9+/||cd;             # remove non-base64 chars (padding)
     $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
     while ($str =~ /(.{1,60})/gs) {

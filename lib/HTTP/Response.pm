@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.17 1996/04/07 20:37:02 aas Exp $
+# $Id: Response.pm,v 1.18 1996/04/09 15:44:21 aas Exp $
 
 package HTTP::Response;
 
@@ -27,7 +27,7 @@ C<request()> method of an C<LWP::UserAgent> object:
  if ($response->is_success) {
      print $response->content;
  } else {
-     print $response->error_as_HTML;    
+     print $response->error_as_HTML;
  }
 
 =head1 METHODS
@@ -125,7 +125,7 @@ sub base
 	if ($self->{'_content'} =~ /<\s*base\s+href=([^\s>]+)/i) {
 	    $base = $1;
 	    $base =~ s/^(["'])(.*)\1$/$2/;  #" get rid of any quoting
-            return $base;
+	    return $base;
 	}
     }
     $base = $self->header('Base') unless $base;
@@ -153,7 +153,7 @@ sub as_string
     push(@result, $self->headers_as_string);
     my $content = $self->content;
     if ($content) {
-        push(@result, $self->content);
+	push(@result, $self->content);
     }
     push(@result, ("-" x 35));
     join("\n", @result, "");

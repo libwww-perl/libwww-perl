@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.22 1996/03/25 10:02:47 aas Exp $
+# $Id: http.pm,v 1.23 1996/04/09 15:44:38 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -18,20 +18,20 @@ use strict;
 
 my $httpversion  = 'HTTP/1.0';     # for requests
 my $endl         = "\015\012";     # how lines should be terminated;
-                                   # "\r\n" is not correct on all systems, for
-                                   # instance MacPerl defines it to "\012\015"
+				   # "\r\n" is not correct on all systems, for
+				   # instance MacPerl defines it to "\012\015"
 
 # "" = No content in request, "C" = Needs content in request
 my %allowedMethods = (
     OPTIONS    => "",
-    GET        => "",   
+    GET        => "",
     HEAD       => "",
-    POST       => "C",   
+    POST       => "C",
     PUT        => "C",
     PATCH      => "C",
     COPY       => "",
     MOVE       => "",
-    DELETE     => "",   
+    DELETE     => "",
     LINK       => "",
     UNLINK     => "",
     TRACE      => "",
@@ -49,9 +49,9 @@ sub request
     # check method
     my $method = $request->method;
     unless (defined $allowedMethods{$method}) {
-        return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
-                                  'Library does not allow method ' .
-                                  "$method for 'http:' URLs";
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+				  'Library does not allow method ' .
+				  "$method for 'http:' URLs";
     }
 
     my $url = $request->url;
@@ -59,15 +59,15 @@ sub request
 
     # Check if we're proxy'ing
     if (defined $proxy) {
-        # $proxy is an URL to an HTTP server which will proxy this request
-        $host = $proxy->host;
-        $port = $proxy->port;
-        $fullpath = $url->as_string;
+	# $proxy is an URL to an HTTP server which will proxy this request
+	$host = $proxy->host;
+	$port = $proxy->port;
+	$fullpath = $url->as_string;
     }
     else {
-        $host = $url->host;
-        $port = $url->port;
-        $fullpath = $url->full_path;
+	$host = $url->host;
+	$port = $url->port;
+	$fullpath = $url->full_path;
     }
 
     alarm($timeout) if $self->use_alarm and $timeout;
@@ -107,7 +107,7 @@ sub request
     }
 
     $socket->write($request_line . $request->headers_as_string($endl) . $endl);
-    if (defined $content) { 
+    if (defined $content) {
 	if (ref($contRef) eq 'CODE') {
 	    $socket->write($contRef, $timeout);
 	} else {
@@ -126,32 +126,32 @@ sub request
     # parse response header
     if ($line =~ /^HTTP\/(\d+\.\d+)\s+(\d+)\s+(.*)/) { # HTTP/1.0 or better
 	my $ver = $1;
-        LWP::Debug::debug("HTTP/$ver server");
+	LWP::Debug::debug("HTTP/$ver server");
 
-        $response = HTTP::Response->new($2, $3);
-        
-        LWP::Debug::debug('reading rest of response header');
-        my $header = '';
-        my $result = $socket->read_until("\015?\012\015?\012", \$header,
+	$response = HTTP::Response->new($2, $3);
+
+	LWP::Debug::debug('reading rest of response header');
+	my $header = '';
+	my $result = $socket->read_until("\015?\012\015?\012", \$header,
 					 undef, $timeout);
 
-        # now entire header is read, parse it
-        LWP::Debug::debug('parsing response header');
-        my($key, $val);
-        for (split(/\015?\012/, $header)) {
-            if (/^(\S+?):\s*(.*)$/) {
+	# now entire header is read, parse it
+	LWP::Debug::debug('parsing response header');
+	my($key, $val);
+	for (split(/\015?\012/, $header)) {
+	    if (/^(\S+?):\s*(.*)$/) {
 		$response->push_header($key, $val) if $key;
 		($key, $val) = ($1, $2);
-            } elsif (/\s+(.*)/) {
+	    } elsif (/\s+(.*)/) {
 		next unless $key;
-                $val .= " $1";
-            }
-        }
+		$val .= " $1";
+	    }
+	}
 	$response->push_header($key, $val) if $key;
     } else {
-        # HTTP/0.9 or worse. Assume OK
-        LWP::Debug::debug('HTTP/0.9 server');
-        $response = HTTP::Response->new(&HTTP::Status::RC_OK,
+	# HTTP/0.9 or worse. Assume OK
+	LWP::Debug::debug('HTTP/0.9 server');
+	$response = HTTP::Response->new(&HTTP::Status::RC_OK,
 					'HTTP 0.9 server');
 	#XXX: Unfortunately, we have lost the line ending sequence.  So
 	# we just guess that it is '\n'.  This will not always be correct.
@@ -162,12 +162,12 @@ sub request
     alarm($timeout) if $self->use_alarm and $timeout;
 
     LWP::Debug::debug('Reading content');
-    $response = $self->collect($arg, $response, sub { 
-        LWP::Debug::debug('collecting');
-        my $content = '';
-        my $result = $socket->read(\$content, $size, $timeout);
-        return \$content;
-        } );
+    $response = $self->collect($arg, $response, sub {
+	LWP::Debug::debug('collecting');
+	my $content = '';
+	my $result = $socket->read(\$content, $size, $timeout);
+	return \$content;
+	} );
     $socket = undef;  # close it
 
     $response;

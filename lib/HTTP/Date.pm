@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.8 1995/08/17 13:43:35 aas Exp $
+# $Id: Date.pm,v 1.9 1995/08/27 22:09:44 aas Exp $
 #
 package HTTP::Date;
 
@@ -47,7 +47,7 @@ module.
 
 ####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.001;
@@ -55,7 +55,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(time2str str2time);
 
-use Time::Local;
+require Time::Local;
 
 @DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
@@ -187,7 +187,7 @@ sub str2time
     return undef unless defined $mon;
 
     # Translate to seconds since Epoch
-    return (timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
+    return (Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
 }
 
 1;

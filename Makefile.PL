@@ -1,7 +1,7 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.57 2001/10/26 18:04:13 gisle Exp $
+# $Id: Makefile.PL,v 1.58 2001/10/26 18:14:53 gisle Exp $
 
-require 5.004;
+require 5.005;
 use strict;
 use ExtUtils::MakeMaker;
 use Config;

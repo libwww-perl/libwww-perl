@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.48 1997/12/01 15:30:38 aas Exp $
+# $Id: UserAgent.pm,v 1.49 1997/12/01 15:50:30 aas Exp $
 
 package LWP::UserAgent;
 
@@ -110,7 +110,6 @@ require LWP::MemberMixin;
 require URI::URL;
 require HTTP::Request;
 require HTTP::Response;
-require HTTP::Headers::Util;
 
 use HTTP::Date ();
 
@@ -329,6 +328,8 @@ sub request
 			      "Missing Authenticate header");
 	    return $response;
 	}
+
+	require HTTP::Headers::Util;
 	($challenge) = HTTP::Headers::Util::split_header_words($challenge);
 	my $scheme = lc(shift(@$challenge));
 	shift(@$challenge); # no value

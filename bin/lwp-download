@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.9 2004/12/11 12:31:43 gisle Exp $
+# $Id: lwp-download,v 2.10 2004/12/11 12:47:55 gisle Exp $
 
 =head1 NAME
 
@@ -62,7 +62,8 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.9 $;
+usage() if defined($argfile) && !length($argfile);
+my $version = q$Revision: 2.10 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -94,7 +95,7 @@ my $res = $ua->request($req,
 	      ($directory, $argfile) = ($argfile, undef);
 	  }
 
-	  unless (defined $argfile && length $argfile) {
+	  unless (defined $argfile) {
 	      # must find a suitable name to use.  First thing
 	      # to do is to look for the "Content-Disposition"
 	      # header defined by RFC1806.  This is also supported

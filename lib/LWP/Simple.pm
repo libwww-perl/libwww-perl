@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.27 1998/03/20 05:46:55 aas Exp $
+# $Id: Simple.pm,v 1.28 1998/04/20 07:11:24 aas Exp $
 
 =head1 NAME
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -311,8 +311,8 @@ sub _trivial_http_get
 
    if ($buf =~ m,^HTTP/\d+\.\d+\s+(\d+)[^\012]*\012,) {
        my $code = $1;
-       #print "CODE=$code\n";
-       if ($code =~ /^3/ && $buf =~ /\012Location:\s*(\S+)/) {
+       #print "CODE=$code\n$buf\n";
+       if ($code =~ /^30[1237]/ && $buf =~ /\012Location:\s*(\S+)/) {
            # redirect
            my $url = $1;
            return undef if $loop_check{$url}++;

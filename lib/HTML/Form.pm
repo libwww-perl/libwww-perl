@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.42 2004/06/14 11:19:57 gisle Exp $
+# $Id: Form.pm,v 1.43 2004/06/16 08:52:38 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -729,7 +729,7 @@ error to try to set it to something else and the method will croak if
 you try.
 
 You will also be able to set the value of read-only inputs, but a
-warning will be generated if running under 'perl -w'.
+warning will be generated if running under C<perl -w>.
 
 =cut
 

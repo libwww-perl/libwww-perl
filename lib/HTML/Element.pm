@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.7 1995/09/11 10:22:04 aas Exp $
+# $Id: Element.pm,v 1.8 1995/09/11 14:23:57 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -262,7 +262,17 @@ sub pushContent
 {
     my $self = shift;
     $self->{'_content'} = [] unless exists $self->{'_content'};
-    push(@{$self->{'_content'}}, @_);
+    my $content = $self->{'_content'};
+    if (@$content && !ref $content->[-1]) {  # last element is a text segment
+	if (ref $_[0]) {
+	    push(@$content, @_);
+	} else {
+	    # just join the text segments together
+	    $content->[-1] .= $_[0];
+	}
+    } else {
+       push(@$content, @_);
+    }
     $self;
 }
 

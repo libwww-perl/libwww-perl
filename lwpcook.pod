@@ -137,7 +137,7 @@ requests:
   $ua->proxy(wais => 'http://proxy.myorg.com');
   $ua->no_proxy(qw(no se fi));
 
-  my $req = new HTTP::Request 'wais://xxx.com/';
+  my $req = HTTP::Request->new(GET => 'wais://xxx.com/');
   print $ua->request($req)->as_string;
 
 The LWP::Simple interface will call env_proxy() for you automatically.

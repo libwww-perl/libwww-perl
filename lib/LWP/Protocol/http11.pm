@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.1 2001/04/07 02:44:03 gisle Exp $
+# $Id: http11.pm,v 1.2 2001/04/09 20:33:55 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -152,10 +152,16 @@ sub request
 
     $response->remove_header('Transfer-Encoding');
 
-    $response = $self->collect_once($arg, $response, $socket->read_entity_body);
-
-    #$socket->close;
-
+    $response = $self->collect($arg, $response, sub {
+	my $buf;
+	CHUNK: {
+	    # XXX check for timeout
+	    my $n = $socket->read_entity_body($buf, $size);
+	    die $! unless defined $n;
+	    redo CHUNK if $n && $n == 0;
+	};
+        return \$buf;
+    } );
     $response;
 }
 

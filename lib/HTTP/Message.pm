@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.5 1995/08/09 09:45:07 aas Exp $
+# $Id: Message.pm,v 1.6 1995/08/09 11:25:42 aas Exp $
 
 package HTTP::Message;
 
@@ -19,8 +19,6 @@ C<HTTP::Response>.
 
 #####################################################################
 
-require LWP::MemberMixin;
-@ISA = qw(LWP::MemberMixin);
 require HTTP::Headers;
 use Carp;
 
@@ -93,10 +91,21 @@ header.  Refer to L<HTTP::Headers> for details.
 
 =cut
 
-# forward these to the header member variable
+# forward these to the header member
 sub header          { shift->{'_header'}->header(@_);       }
 sub pushHeader      { shift->{'_header'}->pushHeader(@_);   }
 sub removeHeader    { shift->{'_header'}->removeHeader(@_); }
 sub headerAsString  { shift->{'_header'}->asString(@_);     }
+
+
+
+# Private method to access members in %$self
+sub _elem
+{
+    my($self, $elem, $val) = @_;
+    my $old = $self->{$elem};
+    $self->{$elem} = $val if defined $val;
+    return $old;
+}
 
 1;

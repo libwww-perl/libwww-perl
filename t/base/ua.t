@@ -1,4 +1,4 @@
-print "1..5\n";
+print "1..9\n";
 
 use LWP::UserAgent;
 
@@ -24,4 +24,27 @@ print "ok 4\n";
 print "not " unless $ua->proxy("http") eq "http://proxy.foo.com";
 print "ok 5\n";
 
+print "not " unless ref($ua->default_headers) eq "HTTP::Headers";
+print "ok 6\n";
 
+$ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
+print "not " unless $ua->default_headers->header("Foo") eq "bar";
+print "ok 7\n";
+
+print "not " unless $ua->default_header("Foo") eq "bar";
+print "ok 8\n";
+
+# Try it
+$ua->proxy(http => "loopback:");
+$ua->agent("foo/0.1");
+
+print "not " unless $ua->get("http://www.example.com", x => "y")->content eq <<EOT; print "ok 9\n";
+GET http://www.example.com
+Via: loopback/1.0 loopback:
+User-Agent: foo/0.1
+Foo: bar
+Multi: 1
+Multi: 2
+X: y
+
+EOT

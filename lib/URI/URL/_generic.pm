@@ -10,7 +10,7 @@ package URI::URL::_generic;           # base support for generic-RL's
 require URI::URL;
 @ISA = qw(URI::URL);
 
-use URI::Escape;
+use URI::Escape qw(uri_escape uri_unescape %escapes);
 
 
 sub new {                               # inherited by subclasses
@@ -42,7 +42,7 @@ sub _parse {
     # 2.4.2
     $self->{'scheme'} = lc($1) if $u =~ s/^\s*([\w\+\.\-]+)://;
     # 2.4.3
-    $self->netloc($1)
+    $self->netloc("$1")	# passing $1 directly fails if netloc is autoloaded
       if $parse{'netloc'} && $u =~ s!^//([^/]*)!!;
     # 2.4.4
     $self->{'query'} = $1
@@ -66,9 +66,11 @@ sub _parse {
     #    and absolute paths.  Often this is done by simply storing
     #    he preceding slash along with the path.
     # 
-    # so we'll store it in $self->{path}, and strip it when asked
-    # for $self->path().  You can test examine if this "/" is
-    # present by calling the $url->absolute_path method.
+    # In version < 4.01 of URI::URL we used to strip the leading 
+    # "/" when asked for $self->path().  This created problems for
+    # the consitency of the interface, so now we just consider the
+    # slash to be part of the path and we also make an empty path
+    # default to "/".
 
     # we don't test for $parse{path} becase it is mandatory
     $self->{'path'} = $u;   
@@ -96,45 +98,45 @@ sub as_string
 
     $u = "//$netloc$u" if defined $netloc;
     $u = "$scheme:$u" if $scheme;
-    $self->{'_str'} = $u;  # set cache
-    uri_escape($u, $URI::URL::unsafe);
+    # Inline: uri_escape($u, $URI::URL::unsafe);
+    $u =~ s/([$URI::URL::unsafe])/$escapes{$1}/go;
+    $self->{'_str'} = $u;  # set cache and return
 }
 
-# Generic-RL stringify full path (path+query+params)
+# Generic-RL stringify full path "path;params?query"
 #
 sub full_path
 {
     my($self, $dont_escape)  = @_;
-    my($path, $params, $query)
-        = @{$self}{ qw(path params query) };
+    my($path, $params, $query) = @{$self}{'path', 'params', 'query'};
     my $p = '';
     $p .= $path if defined $path;
     # see comment in _parse 2.4.6 about the next line
     $p = "/$p" if defined($self->{netloc}) && $p !~ m:^/:;
     $p .= ";$params" if defined $params;
     $p .= "?$query"  if defined $query;
-    $dont_escape ? $p : URI::Escape::uri_escape($p, $URI::URL::unsafe);
+    return $p if $dont_escape;
+    # Inline: URI::Escape::uri_escape($p, $URI::URL::unsafe);
+    $p =~ s/([$URI::URL::unsafe])/$escapes{$1}/go;
+    $p;
 }
 
-# Is this an absolute path???
-sub absolute_path
-{
-    my $self = shift;
-    my $path = $self->{'path'};
-    return 0 unless defined $path;
-    return 1 if defined $self->{'netloc'};
-    $path =~ m|^/|;   # see comment in _parse 2.4.6
-}
+# default_port()
+#
+# subclasses will usually want to override this
+#
+sub default_port { 0; }
+
 
 #####################################################################
 #
 # Methods to handle URL's elements
 
 # These methods always return the current value,
-# so you can use $url->scheme to read the current value.
-# If a new value is passed, e.g. $url->scheme('http'),
+# so you can use $url->path to read the current value.
+# If a new value is passed, e.g. $url->path('foo'),
 # it also sets the new value, and returns the previous value.
-# Use $url->scheme(undef) to set the value to undefined.
+# Use $url->path(undef) to set the value to undefined.
 
 sub netloc {
     my $self = shift;
@@ -148,7 +150,10 @@ sub netloc {
         $self->{'password'} = uri_unescape($2) if $2 ne '';
     }
     if ($nl =~ s/^([^:]*):?(\d*)//){
-        $self->{'host'} = uri_unescape($1);
+	# Since this happes so frequently, we inline this call:
+	#    my $host = uri_unescape($1);
+	my $host = $1; $host =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/eg;
+        $self->{'host'} = $host;
 	if ($2 ne '') {
 	    $self->{'port'} = $2;
 	    if ($2 == $self->default_port) {
@@ -159,6 +164,34 @@ sub netloc {
     $self->{'_str'} = '';
     $old;
 }
+
+
+# A U T O  L O A D E R
+# Don't remove this comment, it keeps AutoSplit happy!!
+# @ISA = qw(AutoLoader)
+#
+# The rest of the methods are only loaded on demand.  Stubs are neccesary
+# for inheritance to work.
+
+#sub netloc;  # because netloc is used by the _parse()
+sub user;
+sub password;
+sub host;
+sub port;
+sub _netloc_elem;
+sub epath;
+sub path;
+sub path_components;
+sub eparams;
+sub params;
+sub equery;
+sub query;
+sub frag;
+sub abs;
+
+1;
+__END__
+
 
 # Fields derived from generic netloc:
 sub user     { shift->_netloc_elem('user',    @_); }
@@ -179,7 +212,7 @@ sub _netloc_elem {
     # update the 'netloc' element
     my $nl = '';
     my $host = $self->{'host'};
-    if (defined $host) {  # cant be any netloc without any host
+    if (defined $host) {  # can't be any netloc without any host
 	my $user = $self->{'user'};
 	$nl .= uri_escape($user, $URI::URL::reserved) if defined $user;
 	$nl .= ":" . uri_escape($self->{'password'}, $URI::URL::reserved)
@@ -195,32 +228,50 @@ sub _netloc_elem {
 }
 
 sub epath {
-     my $old = shift->_elem('path', @_);
-     $old =~ s!^/!! if defined $old;
+     my $self = shift;
+     my $old = $self->_elem('path', @_);
+     return '/' if !defined($old) || !length($old);
+     return '/$old' if $old !~ m|^/| && defined $self->{'netloc'};
      $old;
 }
 
 sub path {
     my $self = shift;
-    my $old = $self->_elem('path', map { uri_escape($_, $URI::URL::reserved_no_slash) } @_);
-    if (defined $old) {
-	$old =~ s!^/!!;
-	Carp::croak("Path components contain '/' (you must call epath)")
-	  if $old =~ /%2[fF]/;
-	return uri_unescape($old);
+    my $old = $self->_elem('path',
+			   map { uri_escape($_,
+					    $URI::URL::reserved_no_slash)
+			       } @_);
+
+    if ($URI::URL::COMPAT_VER_3) {
+	# We used to get rid of the leading "/" in the path
+	if (defined $old) {
+	    $old =~ s|^/||;
+	    Carp::croak("Path components contain '/' (you must call epath)")
+		if $old =~ /%2[fF]/;
+	    return uri_unescape($old);
+	}
+	return undef;
     }
-    undef;
+
+    return '/' if !defined($old) || !length($old);
+    Carp::croak("Path components contain '/' (you must call epath)")
+	if $old =~ /%2[fF]/;
+    $old = "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
+    return uri_unescape($old);
 }
 
 sub path_components {
     my $self = shift;
     my $old = $self->{'path'};
+    return ('') if !defined($old) || !length($old);
+    $old = "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
     if (@_) {
 	$self->_elem('path',
-		     join("/", map { uri_escape($_, $URI::URL::reserved) } @_));
+		     join("/", map { uri_escape($_,
+						$URI::URL::reserved.".")
+				   } @_));
     }
-    $old =~ s|^/||;
-    map { uri_unescape($_) } split("/", $old);
+    map { uri_unescape($_) } split("/", $old, -1);
 }
 
 sub eparams  { shift->_elem('params',  @_); }
@@ -250,7 +301,8 @@ sub query {
 		Carp::croak("$mess (you must call equery)");
 	    }
 	}
-	# Now it should be safe to unescape the string
+	# Now it should be safe to unescape the string without loosing
+	# information
 	return uri_unescape($old);
     }
     undef;
@@ -275,15 +327,13 @@ sub abs
 
     $base = new URI::URL $base unless ref $base; # make obj if needed
 
-    my($scheme, $host, $port, $path, $params, $query, $frag) =
-        @{$embed}{qw(scheme host port path params query frag)};
+    my($scheme, $host, $path, $params, $query, $frag) =
+        @{$embed}{qw(scheme host path params query frag)};
 
     # just use base if we are empty             (2a)
-    {
-        my @u = grep(defined($_) && $_ ne '',
-                     $scheme,$host,$port,$path,$params,$query,$frag);
-        return $base->clone unless @u;
-    }
+    return $base->clone
+      unless grep(defined($_) && $_ ne '',
+		  $scheme,$host,$port,$path,$params,$query,$frag);
 
     # if we have a scheme we must already be absolute   (2b)
     return $embed if $scheme;
@@ -313,36 +363,35 @@ sub abs
     my $relpath  = $embed->{'path'};
 
     $basepath =~ s!^/!!;
-    $basepath =~ s!/$!/.!;              # prevent empty segment
-    my @path = split('/', $basepath);   # base path into segments
-    pop(@path);                         # remove last segment
+    $basepath =~ s!/$!/.!;                # prevent empty segment
+    my @path = split('/', $basepath);     # base path into segments
+    pop(@path);                           # remove last segment
 
-    $relpath =~ s!/$!/.!;               # prevent empty segment
+    $relpath =~ s!/$!/.!;                 # prevent empty segment
 
-    push(@path, split('/', $relpath));  # append relative segments
+    push(@path, split('/', $relpath));    # append relative segments
 
     my @newpath = ();
     my $isdir = 0;
     my $segment;
 
-    foreach $segment (@path) {  # left to right
-        if ($segment eq '.') {  # ignore "same" directory
+    foreach $segment (@path) {            # left to right
+        if ($segment eq '.') {            # ignore "same" directory
             $isdir = 1;
         }
         elsif ($segment eq '..') {
             $isdir = 1;
             my $last = pop(@newpath);
-            if (!defined $last) { # nothing to pop
+            if (!defined $last) {         # nothing to pop
                 push(@newpath, $segment); # so must append
             }
-            elsif ($last eq '..') { # '..' cannot match '..'
+            elsif ($last eq '..') {       # '..' cannot match '..'
                 # so put back again, and append
                 push(@newpath, $last, $segment);
             }
-            else {
+            #else 
                 # it was a component, 
                 # keep popped
-            }
         } else {
             $isdir = 0;
             push(@newpath, $segment);
@@ -354,12 +403,5 @@ sub abs
 
     $embed;
 }
-
-
-# default_port()
-#
-# subclasses will usually want to override this
-#
-sub default_port { 0; }
 
 1;

@@ -1,3 +1,26 @@
+2000-01-12   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.50
+
+    Fix for test cases that failed because of URI-1.10 now encode
+    space as '+' instead of '%20. Patch by Christian Gilmore
+    <cgilmore@tivoli.com>.
+
+    Makefile.PL: Require URI-1.10.
+
+    HTTP::Daemon now accepts any non-space character as method name
+    on the request line.  It used to fail on methods like "M-POST"
+    because it only allowed \w-chars.
+
+    HTTP::Date now allow fractional seconds in ISO date formats.
+    Based on patch from Mark D. Anderson <mda@discerning.com>
+
+    HTTP::Request::Common will now calculate Content-length
+    even if $DYNAMIC_FILE_UPLOAD is set.  Patch provided by
+    Lindley, Lee T <Lee.Lindley@viasystems.com>.
+
+
+
 2000-12-31   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.49

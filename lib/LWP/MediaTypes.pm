@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.13 1996/04/09 15:44:27 aas Exp $
+# $Id: MediaTypes.pm,v 1.14 1996/05/08 16:28:55 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -43,6 +43,7 @@ my %suffixEncoding = (
     'z'   => 'x-pack'
 );
 
+local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
 
 # Try to locate "media.types" file, and initialize %suffixType from it
 for $typefile ((map {"$_/LWP/media.types"} @INC),

@@ -38,10 +38,10 @@ lib/LWP/Protocol/data.pm        Access to data URLs
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
-lib/LWP/Protocol/http.pm	Access with HTTP/1.0 protocol
-lib/LWP/Protocol/http11.pm	Access with HTTP/1.1 protocol
-lib/LWP/Protocol/https.pm	Access with HTTP/1.0 protocol over SSL
-lib/LWP/Protocol/https11.pm	Access with HTTP/1.1 protocol over SSL
+lib/LWP/Protocol/http.pm	Access with HTTP/1.1 protocol
+lib/LWP/Protocol/http10.pm	Access with HTTP/1.0 protocol
+lib/LWP/Protocol/https.pm	Access with HTTP/1.1 protocol over SSL
+lib/LWP/Protocol/https10.pm	Access with HTTP/1.0 protocol over SSL
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Protocol/nntp.pm	Handles access to news: and nntp: URLs
 lib/LWP/Protocol/nogo.pm	Denies all requests.

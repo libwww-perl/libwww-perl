@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.97 2001/10/13 01:38:21 gisle Exp $
+# $Id: UserAgent.pm,v 1.98 2001/10/26 17:27:18 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -103,7 +103,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.97 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.98 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -115,17 +115,12 @@ use LWP::Protocol ();
 
 use Carp ();
 
-unless ($ENV{LWP_USE_HTTP1}) {
-    # XXX Try to force the experimental HTTP/1.1 implementations as
-    # XXX the default for http and https.  This should give it more
-    # XXX test exposure I hope.  This block will go away in the
-    # XXX real release.
-
-    require LWP::Protocol::http11;
-    LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
+if ($ENV{PERL_LWP_USE_HTTP_10}) {
+    require LWP::Protocol::http10;
+    LWP::Protocol::implementor('http', 'LWP::Protocol::http10');
     eval {
-        require LWP::Protocol::https11;
-        LWP::Protocol::implementor('https', 'LWP::Protocol::https11');
+        require LWP::Protocol::https10;
+        LWP::Protocol::implementor('https', 'LWP::Protocol::https10');
     };
 }
 

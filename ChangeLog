@@ -7,6 +7,8 @@ Wed Apr  3 1996   Gisle Aas <aas@sn.no>
 
  o  More documentation
 
+ o  Don't look at the URI header for redirects
+
  o  New $res->base() method for HTTP::Responses
 
  o  Graham Barr's patch to File::Listing to make it more OO internally
@@ -31,7 +33,7 @@ Wed Apr  3 1996   Gisle Aas <aas@sn.no>
 
  o  Added prototypes to the MIME:: encoding/decoding functions
 
- o  Always print scheme for mailto and news URLs
+ o  Always return scheme for mailto and news URLs (as_string)
 
  o  RobotRules patches from Henry A Rowley.
 

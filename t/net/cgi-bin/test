@@ -16,3 +16,13 @@ if (@ARGV) {
 while (($key,$val) = each %ENV) {
    print "$key=$val\n";
 }
+
+if ($ENV{CONTENT_LENGTH}) {
+    $len = $ENV{CONTENT_LENGTH};
+    while ($len) {
+	$n = sysread(STDIN, $content, $len, length $content);
+	last unless defined $n;
+	$len -= $n;
+    }
+    print "\nContent\n-------\n$content";
+}

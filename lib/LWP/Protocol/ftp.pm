@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.2 1995/07/23 20:44:40 aas Exp $
+# $Id: ftp.pm,v 1.3 1995/07/24 21:20:05 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959)
 #
@@ -20,7 +20,7 @@ use Carp;
 
 sub request
 {
-    my($self, $request, $proxy, $arg, $size) = @_;
+    my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
     LWP::Debug::trace('ftp-request(' . 
                       (defined $request ? $request : '<undef>') . ', ' .
@@ -178,7 +178,54 @@ Path   = $path;
 
 EOT
 
+    my $cmd_sock = new LWP::Socket;
+    alarm($timeout) if $self->useAlarm and defined $timeout;
+    $cmd_sock->open($host, $port);
+
+    eval {
+	expect($cmd_sock, '2');
+	$cmd_sock->write("user $user\r\n");
+	expect($cmd_sock, '3');
+	$cmd_sock->write("pass $password\r\n");
+	expect($cmd_sock, '2');
+	$cmd_sock->write("type i\r\n");
+	expect($cmd_sock, '2');
+	if ($method eq 'GET') {
+	    $cmd_sock->write("retr $path\r\n");
+	    $resp = expect($cmd_sock, '2', 1);
+	    if ($resp =~ /^550/) {
+		# 550 not a plain file, try to list instead
+		$cmd_sock->write("list $path\r\n");
+		expect($cmd_sock, '2');
+	    } else {
+		die "$resp\n";
+	    }
+	} elsif ($method eq 'PUT') {
+	    $cmd_sock->write("stor $path\r\n");
+	    $resp = expect($cmd_sock, '2', 1);
+	} else {
+	    die "This should not happen\n";
+	}
+
+	$cmd_sock->write("quit\r\n");
+	expect($cmd_sock, '2');
+    };
+    if ($@) {
+	return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST, $@;
+    }
+
     $response;
 }
-                
+
+sub expect
+{
+    my($sock, $digit, $dont_die) = @_;
+    my $response;
+    $sock->readUntil("\r?\n", \$response, undef);
+    my($code, $string) = $response =~ m/^(\d+)\s+(.*)/;
+    die "$response\n" if substr($code,0,1) ne $digit && !$dont_die;
+    print "$response\n";
+    $response;
+}
+
 1;

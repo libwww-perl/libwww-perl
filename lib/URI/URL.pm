@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.04";   # $Date: 1996/05/16 03:43:53 $
+$VERSION = "4.05";   # $Date: 1996/07/17 09:11:42 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -236,6 +236,7 @@ sub base;
 sub scheme;
 sub abs;
 sub as_string;
+sub eq;
 sub print_on;
 sub unsafe;
 sub escape;
@@ -309,6 +310,15 @@ sub abs {
 # This method should always be overridden in subclasses
 sub as_string {
     "";
+}
+
+# Compare two URLs, subclasses will provide a more correct implementation
+sub eq {
+    my($self, $other) = @_;
+    $other = URI::URL->new($other, $self) unless ref $other;
+    ref($self) eq ref($other) &&
+      $self->scheme eq $other->scheme &&
+      $self->as_string eq $other->as_string;  # Case-sensitive
 }
 
 # This is set up as an alias for various methods
@@ -418,7 +428,10 @@ URI::URL - Uniform Resource Locators (absolute and relative)
 
  # File methods
  $url = new URI::URL "file:/foo/bar";
- open(F, $url->local_path) || die;
+ open(F, $url->local_path) or die;
+
+ # Compare URLs
+ if ($url->eq("http://www.sn.no")) or die;
 
 =head1 DESCRIPTION
 
@@ -648,6 +661,13 @@ Get/set the URL parameters in escaped form.
 =item $url->epath (*)
 
 Get/set the URL path in escaped form.
+
+=item $url->eq($other_url)
+
+Compare two URLs to decide if they match or not.  The rules for how
+comparison is made varies for different parts of the URLs; scheme and
+netloc comparison is case-insensitive, and escaped chars match their
+%XX encoding unless they are "reserved" or "unsafe".
 
 =item $url->equery (*)
 

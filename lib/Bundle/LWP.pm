@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -34,7 +34,7 @@ LWP                - The reason why you need the modules above
 
 =head1 DESCRIPTION
 
-This bundle defines all reqreq modules for libwww-perl.  Bundles have
+This bundle defines all prereq modules for libwww-perl.  Bundles have
 special meaning for the CPAN module.  When you install the bundle
 module all modules mentioned in L</CONTENTS> will be installed instead.
 

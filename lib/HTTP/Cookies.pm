@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -80,7 +80,7 @@ parameters are recognized:
   file:            name of the file to restore cookies from and save cookies to
   autosave:        save during destruction (bool)
   ignore_discard:  save even cookies that are requested to be discarded (bool)
-  hide_cookie2:    don't add Cookie2 header to requests
+  hide_cookie2:    do not add Cookie2 header to requests
 
 Future parameters might include (not yet implemented):
 

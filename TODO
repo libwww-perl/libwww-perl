@@ -1,4 +1,4 @@
-$Id: TODO,v 1.4 1995/07/25 08:28:46 aas Exp $
+$Id: TODO,v 1.5 1995/08/09 08:57:14 aas Exp $
 
 Implement more protocol schemes
     1) LWP::Protocol::ftp
@@ -8,7 +8,8 @@ MDA security
 
 Robot protcol as implemented in libwww-perl 0.40
 
-Make it possible to integrate with Tk.  LWP::Socket should let Tk select(2).
+Make it possible to integrate better with Tk.  LWP::Socket should let
+Tk handle select(2) by using Tk->fileevent().
 
 Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 
@@ -17,5 +18,17 @@ Implement more of LWP::MIMEtypes
 Better LWP::Base64??
 
 More tests
+
+Request content from file or provided by a callback routine.
+
+Make information callback from protocol modules so that the UI can
+inform the user of what is going on.
+
+Make it work on systems where the directory separator is not "/", for
+instance with MacPerl.
+
+Use Mail::Send to implement LWP::Protocol::mailto.
+
+Possible reorganization.
 
 Fix bugs, it here are any...

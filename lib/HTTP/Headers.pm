@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.37 1999/10/28 12:09:12 gisle Exp $
+# $Id: Headers.pm,v 1.38 2001/03/16 02:45:44 gisle Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -139,7 +139,7 @@ sub header
 
 sub _header
 {
-    my($self, $field, $val, $push) = @_;
+    my($self, $field, $val, $op) = @_;
     $field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 
     # $push is only used interally sub push_header
@@ -155,8 +155,10 @@ sub _header
     my $h = $self->{$lc_field};
     my @old = ref($h) ? @$h : (defined($h) ? ($h) : ());
 
-    if (defined $val) {
-	my @new = $push ? @old : ();
+    $op ||= "";
+    $val = undef if $op eq 'DEF' && @old;
+    if (defined($val)) {
+	my @new = ($op eq 'PUSH') ? @old : ();
 	if (!ref($val)) {
 	    push(@new, $val);
 	} elsif (ref($val) eq 'ARRAY') {
@@ -264,6 +266,11 @@ value. Previous values for the same field are retained.  The argument
 may be a scalar or a reference to a list of scalars.
 
  $header->push_header(Accept => 'image/jpeg');
+
+=item $h->def_header($field, $val)
+
+Set the specified header to the given value unless it already has a
+value.  The header field name is not case sensitive.
 
 =item $h->remove_header($field,...)
 
@@ -447,6 +454,12 @@ sub push_header
 {
     Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
     shift->_header(@_, 'PUSH');
+}
+
+sub def_header
+{
+    Carp::croak('Usage: $h->def_header($field, $val)') if @_ != 3;
+    shift->_header(@_, 'DEF');
 }
 
 

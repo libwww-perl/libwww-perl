@@ -8,8 +8,8 @@ This document contain some examples that show typical usage of the
 libwww-perl library.  You should consult the documentation for the
 individual modules for more extensive documentation.
 
-All examples should be runnable programs. You can in most cases
-test the code sections by just piping the program text to perl.
+All examples should be runnable programs. You can in most cases test
+the code sections by piping the program text directly to perl.
 
 
 
@@ -33,7 +33,7 @@ or how about fetching the latest perl by running this:
              "perl.tar.gz"'
 
 You will probably first want to find a CPAN site closer to you by
-running this command:
+running something like the following command:
 
   perl -MLWP::Simple -e 'getprint "http://www.perl.com/perl/CPAN/CPAN.html"'
 
@@ -44,10 +44,10 @@ handle the the response returned.
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
-  $ua->agent("$0/0.1");
-  # $ua->agent("Mozilla/3.0") # pretend you are some new Netscape browser
+  $ua->agent("$0/0.1 " . $ua->agent);
+  # $ua->agent("Mozilla/5.0") # pretend you are some very new Netscape browser
 
-  $req = new HTTP::Request 'GET', 'http://www.sn.no/libwww-perl';
+  $req = new HTTP::Request 'GET' => 'http://www.sn.no/libwww-perl';
   $req->header('Accept' => 'text/html');
 
   # send request

@@ -1,3 +1,36 @@
+Thu Nov  6 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.15
+
+ o  New module URI::Heuristic
+
+ o  lwp-request use URI::Heuristic for it's URL arguments.  It means
+    that 'lwp-request perl' will not get a file called ./perl but
+    will fetch the page http://www.perl.com or something similar.  If
+    you want to get the file you have to prefix it with "./".  Full
+    URLs are never affected by this.
+
+ o  LWP::Simple::get() will bypass LWP for simple HTTP requests.  This
+    should make it somewhat faster.
+
+ o  LWP::RobotUA has a new method called $ua->use_sleep() that
+    controls how niceness are implemented.  Previously $ua->use_alarm()
+    used to control this, but this did not work well on Win32 systems.
+
+ o  URI::URL::rel() will handle URLs to a fragment within the same
+    document better.
+
+ o  HTML::Element don't consider </th>, </tr> and </td> optional any
+    more.  I wonder how Netscape managed to not implement this
+    correctly.
+
+ o  Added lots of modern tags to HTML::AsSubs.
+
+ o  HTTP::Request::Common will read uploaded files in binmode().
+    This should be better for Win32 systems.
+
+
+
 Sun Oct 12 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.14

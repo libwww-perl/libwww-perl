@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.20 1996/07/16 10:15:13 aas Exp $
+# $Id: Response.pm,v 1.21 1996/07/17 09:10:05 aas Exp $
 
 package HTTP::Response;
 
@@ -109,7 +109,8 @@ sub request   { shift->_elem('_request', @_); }
 Returns the base URL for this response.  The return value will be a
 reference to a URI::URL object.
 
-The base URL can have been obtained from the following 3 sources:
+The base URL is obtained from one the following sources (in priority
+order):
 
 =over 4
 
@@ -120,25 +121,35 @@ in HTML documents.
 
 =item 2.
 
-A "Base:" header in the response
+A "Content-Base:" or a "Content-Location:" header in the response.
+
+For backwards compatability with older HTTP implementations we will
+also look for the "Base:" header.
 
 
 =item 3.
 
-The URL used to request this response
+The URL used to request this response. This might not be the original
+URL that was passed to $ua->request() method, because we might have
+received some redirect responses first.
 
 =back
 
-A base URL embedded in the document will initialize the "Base:" header
-in the response object, which means that only the last 2 sources are
-checked by this method.
+When the LWP protocol modules produce the HTTP::Response object, then
+any base URL embedded in the document (step 1) will already have
+initialized the "Content-Base:" header. This means that this method
+only perform the last 2 steps (the content is not always available
+either).
 
 =cut
 
 sub base
 {
     my $self = shift;
-    my $base = $self->header('Base') ||  $self->request->url;
+    my $base = $self->header('Content-Base')     ||  # HTTP/1.1
+               $self->header('Content-Location') ||  # HTTP/1.1
+               $self->header('Base')             ||  # backwards compatability HTTP/1.0
+               $self->request->url;
     $base = URI::URL->new($base) unless ref $base;
     $base;
 }

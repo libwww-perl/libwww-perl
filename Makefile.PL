@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.43 1997/08/06 08:18:45 aas Exp $
+# $Id: Makefile.PL,v 1.44 1997/12/03 21:36:08 aas Exp $
 
 #--- Configuration section ---
 
@@ -103,8 +103,11 @@ WriteMakefile(
 );
 
 
-# Some code to install programs the way we want
-sub MY::postamble {
+
+package MY;
+
+sub postamble
+{
     my @m;
     if (@request_aliases && grep($_ eq 'lwp-request', @programs_to_install)) {
 	push @m, "all ::\n";
@@ -128,7 +131,8 @@ EOT
 }
 
 # What happens when we say 'make test'
-sub MY::test {
+sub test
+{
     q(
 TEST_VERBOSE=0
 
@@ -140,10 +144,21 @@ test: all
 
 
 # Determine things that should *not* be installed
-sub MY::libscan {
+sub libscan
+{
     my($self, $path) = @_;
     return '' if $path =~ m/.(pl|dtd|sgml)$/;
     return '' if $path =~ m:\bCVS/:;
     return '' if $path =~ m/~$/;
     $path;
+}
+
+# Pass libwww-perl version number to pod2man
+sub manifypods
+{
+    my $self = shift;
+    my $ver = $self->{VERSION} || "";
+    local($_) = $self->SUPER::manifypods(@_);
+    s/pod2man\s*$/pod2man --release libwww-perl-$ver/m;
+    $_;
 }

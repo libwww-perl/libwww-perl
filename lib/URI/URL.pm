@@ -1,18 +1,20 @@
 #
-# $Id: URL.pm,v 4.3 1996/02/27 13:51:21 aas Exp $
+# $Id: URL.pm,v 4.4 1996/03/05 10:40:17 aas Exp $
 #
 package URI::URL;
-
-require 5.002;
-
-require AutoLoader;
-@ISA = qw(AutoLoader);
-
-use Carp ();
 
 # Make the version number available
 $VERSION = "4.02";
 sub Version { $VERSION; }
+
+require 5.002;
+
+require Exporter;
+require AutoLoader;
+@ISA = qw(Exporter AutoLoader);
+@EXPORT = qw(url);
+
+use Carp ();
 
 # Basic lexical elements, taken from RFC 1738:
 #
@@ -54,6 +56,12 @@ $StrictSchemes = 1;     # see new()
 my %ImplementedBy = ( '_generic' => 'URI::URL::_generic' );
 my %Implementors  = (); # clases we have initialised:
 
+
+# Easy to use constructor
+sub url ($;$)
+{
+    URI::URL->new(@_);
+}
 
 
 # URI::URL objects are implemented as blessed hashes:
@@ -326,14 +334,15 @@ URI::URL - Uniform Resource Locators (absolute and relative)
 
 =head1 SYNOPSIS
 
- require URI::URL;
+ use URI::URL;
 
  # Constructors
  $url1 = new URI::URL 'http://www.perl.com/%7Euser/gisle.gif';
  $url2 = new URI::URL 'gisle.gif', 'http://www.com/%7Euser';
- $url3 = $url2->abs;       # get absolute url using base
- $url4 = $url2->abs('http:/other/path');
- $url5 = newlocal URI::URL 'test';
+ $url3 = url 'http://www.sn.no/'; # handy constructor
+ $url4 = $url2->abs;       # get absolute url using base
+ $url5 = $url2->abs('http:/other/path');
+ $url6 = newlocal URI::URL 'test';
 
  # Stringify URL
  $str1 = $url->as_string;  # complete escaped URL string
@@ -522,6 +531,16 @@ Returns an URL object that denotes a path within the local filesystem.
 Paths not starting with '/' are interpreted relative to the current
 working directory.  This constructor always return an absolute 'file'
 URL.
+
+=item url($url_string, [, $base_url])
+
+Alternative constructor function.  The url() function is exported by
+the URI::URL module and is easier both to type and read than calling
+URI::URL->new directly.  Useful for constructs like this:
+
+   $h = url($str)->host;
+
+This function is just a wrapper for URI::URL->new.
 
 =item URI::URL::strict($bool)
 

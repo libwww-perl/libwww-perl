@@ -4,15 +4,13 @@
 # via a HTTP proxy.
 #
 
-use lib '..';
+print "1..1\n";
 
 require LWP::Debug;
 require LWP::Protocol::http;
 require LWP::UserAgent;
 
-LWP::Debug::level('+');
-
-$me = 'get proxy';      # test name for reporting
+#LWP::Debug::level('+');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
@@ -27,8 +25,7 @@ my $response = $ua->request($request, undef, undef);
 my $str = $response->asString;
 
 if ($response->isSuccess and $str =~ /This is the NEXOR public archive/) {
-    print "'$me' ok\n";
-}
-else {
-    print "'$me' failed: " . $response->errorAsHTML . "\n";
+    print "ok 1\n";
+} else {
+    print "not ok 1\n";
 }

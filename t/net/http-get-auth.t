@@ -4,7 +4,7 @@
 # with Basic Authentication
 #
 
-use lib '..';
+print "1..1\n";
 
 package LWP::askUA;
 
@@ -38,8 +38,6 @@ use LWP::Debug;
 
 require LWP::Protocol::http;
 
-$me = 'get-http-basic-auth.pl';       # test name for reporting
-
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $url = new URI::URL('http://web.nexor.co.uk:9999/' .
@@ -54,9 +52,7 @@ my $request = new LWP::Request('GET', $url);
 my $response = $ua->request($request);
 
 if ($response->isSuccess) {
-    print "'$me' ok\n";
-}
-else {
-    print "'$me' failed: " .  $response->code . "\n" .
-        $response->errorAsHTML . "\n";
+    print "ok 1\n";
+} else {
+    print "not ok 1\n";
 }

@@ -3,12 +3,10 @@
 # Check POST via HTTP.
 #
 
-use lib '..';
+print "1..1\n";
 
 require LWP::Protocol::http;
 require LWP::UserAgent;
-
-$me = 'post-http';      # test name for reporting
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
@@ -25,8 +23,8 @@ my $response = $ua->request($request, undef, undef);
 my $str = $response->asString;
 
 if ($response->isSuccess and $str =~ /REQUEST_METHOD = 'POST'/) {
-    print "'$me' ok\n";
+    print "ok 1\n";
 }
 else {
-    print "'$me' failed: " . $response->errorAsHTML . "\n";
+    print "not ok 1\n";
 }

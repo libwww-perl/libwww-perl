@@ -1,4 +1,4 @@
-print "1..14\n";
+print "1..15\n";
 
 require HTTP::Request;
 require HTTP::Response;
@@ -96,3 +96,9 @@ $res->header('Base', 'http://www.sn.no/xxx/');
 $res->base eq "http://www.sn.no/xxx/" || print "not ";
 print "ok 14\n";
 
+# Check the AUTLOAD delegate method with regular expressions
+"This string contains text/html" =~ /(\w+\/\w+)/;
+$res->content_type($1);
+
+$res->content_type eq "text/html" || print "not ";
+print "ok 15\n";

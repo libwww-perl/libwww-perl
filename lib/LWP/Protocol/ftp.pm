@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.4 1995/08/09 11:31:33 aas Exp $
+# $Id: ftp.pm,v 1.5 1995/09/04 18:39:12 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959).  This file does not
 # work yet, so you may want to delete it.
@@ -181,7 +181,7 @@ EOT
 
     my $cmd_sock = new LWP::Socket;
     alarm($timeout) if $self->useAlarm and defined $timeout;
-    $cmd_sock->open($host, $port);
+    $cmd_sock->connect($host, $port);
 
     eval {
 	expect($cmd_sock, '2');

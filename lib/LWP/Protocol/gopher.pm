@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.7 1995/08/09 11:31:34 aas Exp $
+# $Id: gopher.pm,v 1.8 1995/09/04 18:39:13 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -119,11 +119,10 @@ sub request
     my $socket = new LWP::Socket;
     alarm($timeout) if $self->useAlarm and defined $timeout;
 
-    $socket->open($host, $port);
+    $socket->connect($host, $port);
     LWP::Debug::debug('connected');
 
-    LWP::Debug::conns("sending request: $requestLine");
-    $socket->write($requestLine);
+    $socket->write($requestLine, $timeout);
     
     my $user_arg = $arg;
 
@@ -136,7 +135,7 @@ sub request
     $response = $self->collect($arg, $response, sub { 
         LWP::Debug::debug('collecting');
 	my $content = '';
-	my $result = $socket->readUntil(undef, \$content, $size, $timeout);
+	my $result = $socket->read(\$content, $size, $timeout);
         LWP::Debug::debug("collected: $content");
 	return \$content;
       } );

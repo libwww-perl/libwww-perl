@@ -1,30 +1,34 @@
 #
-# $Id: ftp.pm,v 1.7 1996/02/26 19:13:41 aas Exp $
+# $Id: ftp.pm,v 1.8 1996/03/05 10:49:25 aas Exp $
 
-# Implementation of the ftp protocol (RFC 959).
+# Implementation of the ftp protocol (RFC 959). We let the Net::FTP
+# package do all the dirty work.
 
 package LWP::Protocol::ftp;
 
-require LWP::Protocol;
-require LWP::Socket;
-require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
-
 require LWP::MediaTypes;
 
-use Carp;
+use Carp ();
 
+require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
+
+eval {
+    require Net::FTP;
+    Net::FTP->require_version('1.10');
+};
+my $init_failed = $@;
 
 
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('()');
+    $size = 4096 unless $size;
 
-    $size = 4096 unless defined $size and $size > 0;
+    LWP::Debug::trace('()');
 
     # check proxy
     if (defined $proxy)
@@ -49,12 +53,167 @@ sub request
                                   "$method for 'ftp:' URLs";
     }
 
+    if ($init_failed) {
+        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                       $init_failed;
+    }
+
     my $host     = $url->host;
     my $port     = $url->port;
     my $user     = $url->user;
     my $password = $url->password;
-    my $path     = $url->full_path;
 
+    # If a basic autorization header is present than we prefer these over
+    # the username/password specified in the URL.
+    {
+	my($u,$p) = $request->authorization_basic;
+	if (defined $u) {
+	    $user = $u;
+	    $password = $p;
+	}
+    }
+    
+    # We allow the account to be specified in the "Account" header
+    my $acct     = $request->header('Account');
+
+    # Create an initial response object
+    my $response = new HTTP::Response &HTTP::Status::RC_OK, "Document follows";
+
+    my $ftp = new Net::FTP $host, Port => $port;
+    my $mess = $ftp->message;  # welcome message
+    LWP::Debug::debug($mess);
+    $mess =~ s|\n.*||s; # only first line left
+    $mess =~ s|\s*ready\.?$||;
+    # Make the version number more HTTP like
+    $mess =~ s|\s*\(Version\s*|/|;
+    $mess =~ s|\)$||;
+    $response->header("Server", $mess);
+
+    $ftp->timeout($timeout) if $timeout;
+
+    LWP::Debug::debug("Logging in as $user (password $password)...");
+    unless ($ftp->login($user, $password, $acct)) {
+        # Unauthorized.  Let's fake a RC_UNAUTHORIZED response
+        my $res =  new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $@;
+        $res->header("WWW-Authenticate", qq(Basic Realm="FTP login"));
+	return $res;
+    }
+    LWP::Debug::debug($ftp->message);
+    
+    # Go to the right spot
+    my @path =  $url->path_components;
+    shift(@path);  # There will always be an empty
+    pop(@path) while @path && $path[-1] eq '';
+    my $remote_file = pop(@path);
+
+    $ftp->binary; # XXX should check for ;type=a parameter
+    
+    for (@path) {
+	LWP::Debug::debug("CWD $_");
+	unless ($ftp->cwd($_)) {
+	    return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
+	               "Can't chdir to $_";
+	}
+    }
+
+    if ($method eq 'GET' || $method eq 'HEAD') {
+	my $data;  # the data handle
+	LWP::Debug::debug("retrieve file?");
+	if (length($remote_file) and $data = $ftp->retr($remote_file)) {
+	    $response->header('Content-Type',
+			      LWP::MediaTypes::guess_media_type($remote_file));
+	    my $mess = $ftp->message;
+	    LWP::Debug::debug($mess);
+	    if ($mess =~ /\((\d+)\s+bytes\)/) {
+		$response->header('Content-Length', "$1");
+	    }
+
+	    $response = $self->collect($arg, $response, sub { 
+		my $content = '';
+		my $result = $data->read($content, $size);
+		return \$content;
+	    } );
+	    my $resp = $data->close;
+	    if ($resp < 200 || $resp >= 300) {
+		# Something did not work too well
+		$response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
+		$response->message("FTP response code $resp");
+	    }
+	} elsif (!length($remote_file) || $ftp->code == 550) {
+	    # 550 not a plain file, try to list instead
+	    if (length($remote_file) && !$ftp->cwd($remote_file)) {
+		LWP::Debug::debug("chdir before listing failed");
+		return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
+		       "File '$remote_file' not found";
+	    }
+	    # XXX should use HTTP::Negotiate and by default prefer to
+	    # make text/html using the File::Listing module.
+	    $response->header('Content-Type', 'text/ftp-dir-listing');
+	    LWP::Debug::debug("lsl");
+	    # XXX should collect
+	    $response->content(join "\n", $ftp->lsl) if $method ne 'HEAD';
+	} else {
+	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+	                  "FTP return code " . $ftp->code;
+	    $res->content_type("text/plain");
+	    $res->content($ftp->message);
+	    return $res;
+	}
+    } elsif ($method eq 'PUT') {
+	# method must be PUT
+	unless (length($remote_file)) {
+	    return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+	                              "Must have a file name to PUT to";
+	}
+	my $data;
+	if ($data = $ftp->stor($remote_file)) {
+	    LWP::Debug::debug($ftp->message);
+	    LWP::Debug::debug("$data");
+	    my $content = $request->content;
+	    my $bytes = 0;
+	    if (defined $content) {
+		if (ref($content) eq 'SCALAR') {
+		    $bytes = $data->write($$content);
+		} elsif (ref($content) eq 'CODE') {
+		    my($buf, $n);
+		    while (length($buf = &$content)) {
+			$n = $data->write($content);
+			last unless $n;
+			$bytes += $n;
+		    }
+		} elsif (!ref($content)) {
+		    if (defined $content && length($content)) {
+			$bytes = $data->write($content, length($content));
+		    }
+		} else {
+		    die "Bad content";
+		}
+	    }
+	    $data->close;
+	    LWP::Debug::debug($ftp->message);
+
+	    $response->code(&HTTP::Status::RC_CREATED);
+	    $response->header('Content-Type', 'text/plain');
+	    $response->content("$bytes bytes stored as $remote_file on $host\n")
+	    
+	} else {
+	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+	                  "FTP return code " . $ftp->code;
+	    $res->content_type("text/plain");
+	    $res->content($ftp->message);
+	    return $res;
+	}
+    } else {
+	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
+	       "Illegal method $method"
+    }
+
+    $response;
+}
+
+1;
+
+__END__
 
 # This is what RFC 1738 has to say about FTP access:
 # --------------------------------------------------
@@ -159,113 +318,3 @@ sub request
 #    sequence should be given to navigate to another directory for a
 #    second retrieval, if the paths are different.  The only reliable
 #    algorithm is to disconnect and reestablish the control connection.
-# 
-
-    my $response;
-
-    my $cmd_sock = new LWP::Socket;
-    alarm($timeout) if $self->use_alarm and defined $timeout;
-    $cmd_sock->connect($host, $port);
-
-    eval {
-	expect($cmd_sock, '2');
-	$cmd_sock->write("user $user\r\n");
-	expect($cmd_sock, '3');
-	$cmd_sock->write("pass $password\r\n");
-	expect($cmd_sock, '2');
-    };
-    if ($@) {
-	return new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $@;
-    }
-    eval {
-	$cmd_sock->write("type i\r\n");
-	expect($cmd_sock, '2');
-
-	# establish a data socket
-	$listen = new LWP::Socket;
-	$listen->listen(1);
-	my $localhost = ($cmd_sock->getsockname)[0];
-	$localhost =~ s/\./,/g;
-	my $port = ($listen->getsockname)[1];
-	$port = join(',', $port >> 8, $port & 0xFF);
-	
-	$cmd_sock->write("port $localhost,$port\r\n");
-	$resp = expect($cmd_sock, '2');
-
-	if ($method eq 'GET') {
-	    $cmd_sock->write("retr $path\r\n");
-	    $resp = expect($cmd_sock, '1', 1);
-	    $response = new HTTP::Response &HTTP::Status::RC_OK,
-	                                   'Document follows';
-	    if ($resp =~ /\((\d+)\s+bytes\)/) {
-		$response->header('Content-Length', $1);
-	    }
-
-	    my($type, @enc) = LWP::MediaTypes::guess_media_type($url);
-	    $response->header('Content-Type',   $type) if $type;
-	    for (@enc) {
-		$response->push_header('Content-Encoding', $_);
-	    }
-	    
-	    if ($resp =~ /^550/) {
-		# 550 not a plain file, try to list instead
-		$cmd_sock->write("list $path\r\n");
-		expect($cmd_sock, '1');
-		$response->header('Content-Type', # should be text/html
-				  'text/x-dir-listing');
-	    } elsif ($resp !~ /^1/) {
-		die "$resp";
-	    }
-	    my $data = $listen->accept;
-	    
-	    $response = $self->collect($arg, $response, sub { 
-		LWP::Debug::debug('collecting');
-		my $content = '';
-		my $result = $data->read(\$content, $size, $timeout);
-		LWP::Debug::debug("collected: $content");
-		return \$content;
-	    } );
-
-	} elsif ($method eq 'PUT') {
-	    $cmd_sock->write("stor $path\r\n");
-	    $resp = expect($cmd_sock, '1');
-	    $response = new HTTP::Response &HTTP::Status::RC_CREATED,
-	                                   'File updated';
-	    my $data = $listen->accept;
-	    my $content = $request->content;
-	    my $bytes = 0;
-	    if (defined $content) {
-		if (ref($content) && ref($content) eq 'SCALAR') {
-		    $bytes = $data->write($$content, $timeout);
-		} else {
-		    $bytes = $data->write($content, $timeout);
-		}
-	    }
-	    $response->header('Content-Type', 'text/plain');
-	    $response->content("$bytes stored as $path on $host\n")
-	} else {
-	    die "This should not happen\n";
-	}
-
-	$cmd_sock->write("quit\r\n");
-	expect($cmd_sock, '2');
-    };
-    if ($@) {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST, $@;
-    }
-
-    $response;
-}
-
-sub expect
-{
-    my($sock, $digit, $dont_die) = @_;
-    my $response;
-    $sock->read_until("\r?\n", \$response, undef);
-    my($code, $string) = $response =~ m/^(\d+)\s+(.*)/;
-    die "$response\n" if substr($code,0,1) ne $digit && !$dont_die;
-    LWP::Debug::debug($response);
-    $response;
-}
-
-1;

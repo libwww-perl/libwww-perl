@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.23 1998/07/06 09:28:42 aas Exp $
+# $Id: ftp.pm,v 1.24 1998/07/17 10:37:29 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -138,7 +138,7 @@ sub request
 	if (my $mod_time = $ftp->mdtm($remote_file)) {
 	    $response->last_modified($mod_time);
 	    if (my $ims = $request->if_modified_since) {
-		if ($mod_time > $ims) {
+		if ($mod_time <= $ims) {
 		    $response->code(&HTTP::Status::RC_NOT_MODIFIED);
 		    $response->message("Not modified");
 		    return $response;

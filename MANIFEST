@@ -27,7 +27,7 @@ lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
-lib/URI/Escape.pm               General URI escaping functions
+lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/file.pm		Implements file URLs
 lib/URI/URL/finger.pm		Implements finger URLs
@@ -45,6 +45,7 @@ lib/URI/URL/tn3270.pm		Implements tn3270 URLs
 lib/URI/URL/wais.pm		Implements wais URLs
 lib/URI/URL/webster.pm		Implements webster URLs
 lib/URI/URL/whois.pm		Implements whois URLs
+lib/WWW/RobotRules.pm           Parse robot.txt files
 t/autoload.t			Testing autoloading of protocols
 t/cgi-bin/lwp-test.html
 t/cgi-bin/lwp-test.pl
@@ -59,6 +60,7 @@ t/mirror.t
 t/moved.t
 t/proxy.t
 t/receiveHeaders-http.pl
+t/robot-rules.t			Test WWW::RobotRules module
 t/sendHeaders-http.pl
 t/uri.t				Test URI::URL module
 upgrade_from_v02		Script that does most of the upgrade job

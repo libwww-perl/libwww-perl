@@ -1,3 +1,39 @@
+2000-12-31   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.49
+
+    HTML::Form: Use croak() instead of die.  Implement
+    $f->possible_values.  Avoid use of undef value warnings.
+
+    HTTP::Cookies: fix epath issue.  Make it work for URI::http
+    as the uri-attribute of HTTP::Request object
+
+    HTTP::Date: Allow ignored timezone info in parenthesis. Patch
+    by Sander van Zoest <sander@covalent.net>.
+    Fix calculation of non-GMT timezones (wrong sign).  Patch by
+    KONISHI Katsuhiro <konishi@din.or.jp>.
+
+    HTTP::Response: Let $res->base() absolutize the URI.  Based on
+    bug report from Hans de Graaff <hans@degraaff.org>.
+
+    Fixed minor doc typos in HTTP::Headers::Util and LWP::UserAgent.
+
+    HTTP::Request::Common: Support boundary spec from client.
+
+    LWP::Simple: Avoid trivial_http_get when @ appears in authority
+    part of URI
+
+    LWP::Authen::Digest: Need to have query in URI param. 
+    Spotted by <ronald@innovation.ch>.
+
+    LWP::Protocol::http: unescape username/password if they are
+    specified in the URI.
+
+    Added LWP::Protocol::GHTTP.  This allow LWP to use the HTTP::GHTTP
+    module as the low level HTTP driver.
+
+
+
 2000-04-09   Gisle Aas <gisle@aas.no>
 
     Release 5.48

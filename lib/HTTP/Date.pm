@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 11:22:30 $
+package HTTP::Date;  # $Date: 1999/05/03 11:38:26 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -13,7 +13,7 @@ use strict;
 use vars qw(@DoW @MoY %MoY);
 @DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-@MoY{map lc, @MoY} = (1..12);
+@MoY{@MoY} = (1..12);
 
 my %GMT_ZONE = (GMT => 1, UTC => 1, UT => 1, Z => 1);
 
@@ -171,13 +171,10 @@ sub parse_date ($)
     return;  # unrecognized format
 
     # Translate month name to number
-    if ($mon =~ /^\d+$/) {
-	# numeric month
-	return if $mon < 1 || $mon > 12;
-    }
-    else {
-	$mon = $MoY{lc $mon} || return;
-    }
+    $mon = $MoY{$mon} ||
+           $MoY{"\u\L$mon"} ||
+	   ($mon >= 1 && $mon <= 12 && int($mon)) ||
+           return;
 
     # If the year is missing, we assume first date before the current,
     # because of the formats we support such dates are mostly present

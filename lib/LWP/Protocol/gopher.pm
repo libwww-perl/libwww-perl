@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.17.2.1 1998/09/11 12:21:51 aas Exp $
+# $Id: gopher.pm,v 1.17.2.2 1998/10/12 11:21:25 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -68,7 +68,7 @@ sub request
 				   "$method for 'gopher:' URLs");
     }
 
-    my $gophertype = $url->gtype;
+    my $gophertype = $url->gopher_type;
     unless (exists $gopher2mimetype{$gophertype}) {
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
 				   'Library does not support gophertype ' .

@@ -126,3 +126,4 @@ t/net/moved.t
 t/net/proxy.t
 t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
+t/robot/ua.t			Test LWP::RobotUA

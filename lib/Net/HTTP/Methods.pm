@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.8 2002/09/04 17:15:15 gisle Exp $
+# $Id: Methods.pm,v 1.9 2002/12/20 08:10:10 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -296,7 +296,7 @@ sub read_response_headers {
     my $laxed = $opt{laxed};
 
     my($status, $eol) = my_readline($self);
-    die "EOF instead of reponse status line" unless defined $status;
+    die "EOF instead of response status line" unless defined $status;
 
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
     if (!$peer_ver || $peer_ver !~ s,^HTTP/,,) {

@@ -36,7 +36,6 @@ libwww-perl:
 
   URI
   MIME-Base64
-  URI
   HTML-Parser
   libnet
   Digest::MD5

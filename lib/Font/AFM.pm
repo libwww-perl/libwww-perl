@@ -2,7 +2,7 @@ package AFM;
 
 # This package is a simple parser for Adobe Font Metrics files.
 #
-# $Id: AFM.pm,v 1.1 1995/05/12 14:45:15 aas Exp $
+# $Id: AFM.pm,v 1.2 1995/05/12 16:21:57 aas Exp $
 #
 # Author: Gisle Aas <aas@oslonett.no>
 
@@ -18,8 +18,6 @@ $metrics_path = $ENV{METRICS} || "/usr/openwin/lib/fonts/afm/:.";
 @metrics_path = split(/:/, $metrics_path);
 foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 
-# This encoding vector is not needed here, but it's "Kjekt å ha!"
-#
 @ISOLatin1Encoding = qw(
  .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
  .notdef .notdef .notdef .notdef .notdef .notdef .notdef .notdef
@@ -100,7 +98,16 @@ sub new
        }
    }
    close(AFM);
+   $this->{wx}->{'.notdef'} = 0;
+   $this->{bbox}{'.notdef'} = "0 0 0 0";
    $this;
+}
+
+# Returns an 256 element array that maps from characters to width
+
+sub latin1_wx_table
+{
+    map {$_[0]->{wx}->{$ISOLatin1Encoding[$_]}} 0..255;
 }
 
 sub FontName;

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.45 2004/11/12 12:54:04 gisle Exp $
+# $Id: Message.pm,v 1.46 2004/11/30 08:55:04 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -153,6 +153,73 @@ sub content_ref
     }
     $old = $$old if $old_cref;
     return $old;
+}
+
+
+sub decoded_content
+{
+    my($self, %opt) = @_;
+
+    require HTTP::Headers::Util;
+    my($ct, %ct_param);
+    if (my @ct = HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
+	($ct, undef, %ct_param) = @{$ct[0]};
+	$ct = lc($ct);
+
+	Carp::croak("Can't decode multipart content")
+	    if $ct =~ m,^multipart/,;
+    }
+
+    my $content = $self->content;
+    Carp::croak("Can't decode ref content") if ref($content);
+
+    if (my $h = $self->header("Content-Encoding")) {
+	$h =~ s/^\s+//;
+	$h =~ s/\s+$//;
+	for my $ce (reverse split(/\s*,\s*/, lc($h))) {
+	    next unless $ce || $ce eq "identity";
+	    if ($ce eq "gzip" || $ce eq "x-gzip") {
+		require Compress::Zlib;
+		$content = Compress::Zlib::memGunzip($content);
+		Carp::croak("Can't gunzip content") unless defined $content;
+	    }
+	    elsif ($ce eq "bzip2") {
+		require Compress::Bzip2;
+		$content = Compress::Bzip2::decompress($content);
+		Carp::croak("Can't bunzip content") unless defined $content;
+	    }
+	    elsif ($ce eq "deflate") {
+		require Compress::Zlib;
+		$content = Compress::Zlib::uncompress($content);
+		Carp::croak("Can't inflate content") unless defined $content;
+	    }
+	    elsif ($ce eq "compress") {
+		Carp::croak("Can't uncompress compress");
+	    }
+	    elsif ($ce eq "base64") {
+		require MIME::Base64;
+		$content = MIME::Base64::decode($content);
+	    }
+	    elsif ($ce eq "quoted-printable") {
+		require MIME::QuotedPrint;
+		$content = MIME::QuotedPrint::decode($content);
+	    }
+	    else {
+		Carp::croak("Don't know how to decode Content-Encoding '$ce'");
+	    }
+	}
+    }
+
+    if ($ct && $ct =~ m,^text/,,) {
+	my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || "ISO-8859-1";
+	$charset = lc($charset);
+	if ($charset ne "none") {
+	    require Encode;
+	    $content = Encode::decode($charset, $content, Encode::FB_CROAK());
+	}
+    }
+
+    return $content;
 }
 
 
@@ -419,9 +486,9 @@ but it will make your program a whole character shorter :-)
 
 =item $mess->content( $content )
 
-The content() method sets the content if an argument is given.  If no
+The content() method sets the raw content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
-original content is returned.
+original raw content is returned.
 
 Note that the content should be a string of bytes.  Strings in perl
 can contain characters outside the range of a byte.  The C<Encode>
@@ -450,6 +517,26 @@ external source.  The content() and add_content() methods
 will automatically dereference scalar references passed this way.  For
 other references content() will return the reference itself and
 add_content() will refuse to do anything.
+
+=item $mess->decoded_content( %options )
+
+Returns the content with any C<Content-Encoding> undone and strings
+mapped to perl's Unicode strings.  If the C<Content-Encoding> or
+C<charset> of the message is unknown this method will croak.
+
+The following options can be specified.
+
+=over
+
+=item C<charset>
+
+This override the charset parameter for text content.
+
+=item C<default_charset>
+
+This override the default charset of "ISO-8859-1".
+
+=back
 
 =item $mess->parts
 

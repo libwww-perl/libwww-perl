@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 80;
+plan tests => 84;
 
 require HTTP::Message;
 
@@ -305,3 +305,17 @@ ok($m->content("bar"), "foo");
 ok($foo, "bar");
 ok($m->content, "bar");
 ok($m->content_ref, \$foo);
+
+$m = HTTP::Message->new;
+$m->content("fo=6F");
+ok($m->decoded_content, "fo=6F");
+$m->header("Content-Encoding", "quoted-printable");
+ok($m->decoded_content, "foo");
+
+$m = HTTP::Message->new;
+$m->header("Content-Encoding", "gzip, base64");
+$m->content_type("text/plain; charset=UTF-8");
+$m->content("H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
+
+ok(eval { $m->decoded_content }, "\x{FEFF}Hi there \x{263A}\n");
+ok($@ || "", "");

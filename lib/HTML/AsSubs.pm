@@ -76,6 +76,7 @@ require Exporter;
 	   b i u tt
 	   table tr td th caption
 	   form input select option textarea
+           center font
 	  );
 
 for (@TAGS) {

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.16 1996/03/18 17:46:14 aas Exp $
+# $Id: Headers.pm,v 1.17 1996/04/03 13:22:48 aas Exp $
 
 package HTTP::Headers;
 
@@ -408,7 +408,13 @@ sub last_modified     { shift->_date_header('Last-Modified',     @_); }
 # addressed.
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
-sub content_type      { (shift->_header('Content-Type',     @_))[0] }
+sub content_type      {
+  my $ct = (shift->_header('Content-Type', @_))[0];
+  return '' unless defined $ct;
+  my @ct = split(/\s*;\s*/, lc($ct));
+  wantarray ? @ct : $ct[0];
+}
+
 sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
 sub content_length    { (shift->_header('Content-Length',   @_))[0] }
 

@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.16 1998/04/15 13:09:59 aas Exp $
+# $Id: Daemon.pm,v 1.17 1998/04/15 13:51:54 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -166,6 +166,8 @@ use LWP::MediaTypes qw(guess_media_type);
 use Carp ();
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
+my $HTTP_1_0 = _http_version("HTTP/1.0");
+my $HTTP_1_1 = _http_version("HTTP/1.1");
 
 =back
 
@@ -200,7 +202,7 @@ sub get_request
     $buf = "" unless defined $buf;
     
     my $timeout = $ {*$self}{'io_socket_timeout'};
-    my  $fdset = "";
+    my $fdset = "";
     vec($fdset, $self->fileno, 1) = 1;
     local($_);
 
@@ -234,11 +236,11 @@ sub get_request
 	return;
     }
     my $proto = $3 || "HTTP/0.9";
-    ${*$self}{'httpd_client_proto'} = $proto;
     my $r = HTTP::Request->new($1, url($2, $self->daemon->url));
     $r->protocol($proto);
+    ${*$self}{'httpd_client_proto'} = $proto = _http_version($proto);
 
-    if ($proto ne "HTTP/0.9") {
+    if ($proto >= $HTTP_1_0) {
 	# we expect to find some headers
 	my($key, $val);
       HEADER:
@@ -258,9 +260,9 @@ sub get_request
     }
 
     my $conn = $r->header('Connection');
-    if (_http_version($proto) >= _http_version("HTTP/1.1")) {
+    if ($proto >= $HTTP_1_1) {
 	${*$self}{'httpd_nomore'}++ if $conn && lc($conn) =~ /\bclose\b/;
-   } else {
+    } else {
 	${*$self}{'httpd_nomore'}++ unless $conn &&
                                            lc($conn) =~ /\bkeep-alive\b/;
     }
@@ -374,19 +376,12 @@ sub get_request
     $r;
 }
 
-sub _http_version
-{
-    local($_) = shift;
-    return 0 unless m,^(?:HTTP/)?(\d+)\.(\d+)$,i;
-    $1 * 1000 + $2;
-}
-
 sub _need_more
 {
     my $self = shift;
     #my($buf,$timeout,$fdset) = @_;
     if ($_[1]) {
-	my($timeout, $fdset) = @_[2,3];
+	my($timeout, $fdset) = @_[1,2];
 	print STDERR "select(,,,$timeout)\n" if $DEBUG;
 	my $n = select($fdset,undef,undef,$timeout);
 	unless ($n) {
@@ -428,7 +423,27 @@ status code or headers should be returned.
 sub antique_client
 {
     my $self = shift;
-    ${*$self}{'httpd_client_proto'} eq 'HTTP/0.9';
+    ${*$self}{'httpd_client_proto'} < $HTTP_1_0;
+}
+
+=item $c->atleast($proto)
+
+Returns TRUE if the client speak a protocol with version number equal
+or greater than what specified as the argument.
+
+=cut
+
+sub atleast
+{
+    my $self = shift;
+    ${*$self}{'httpd_client_proto'} >= _http_version(shift);
+}
+
+sub _http_version
+{
+    local($_) = shift;
+    return 0 unless m,^(?:HTTP/)?(\d+)\.(\d+)$,i;
+    $1 * 1000 + $2;
 }
 
 

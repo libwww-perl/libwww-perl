@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.29 1996/03/15 16:37:00 aas Exp $
+# $Id: UserAgent.pm,v 1.30 1996/03/18 17:49:58 aas Exp $
 
 package LWP::UserAgent;
 
@@ -237,6 +237,7 @@ sub request
     LWP::Debug::trace('()');
 
     my $response = $self->simple_request($request, $arg, $size);
+
     my $code = $response->code;
     $response->previous($previous) if defined $previous;
 
@@ -248,6 +249,9 @@ sub request
         # Make a copy of the request and initialize it with the new URI
         my $referral = $request->clone;
         my $referral_uri = URI::URL->new($response->header('Location'));
+	# some servers erroneously return a relative URL for redirects,
+	# so make it absolute.
+	$referral_uri = $referral_uri->abs($response->base);
         $referral->url($referral_uri);
 
 	return $response unless $self->redirect_ok($referral);

@@ -12,13 +12,10 @@ There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
 Library of Common Code.
 
-The Perl4 version is maintained by Roy Fielding, and was the basis for
-tools such as MOMSpider. This version and much more information about
-its libraries can be found at:
-
-     http://www.ics.uci.edu/pub/websoft/libwww-perl/
-      ftp://www.ics.uci.edu/pub/websoft/libwww-perl/
-
+The Perl4 version is still maintained by Roy Fielding, and was the
+basis for tools such as MOMSpider. This version and much more
+information about its libraries can be found at:
+http://www.ics.uci.edu/pub/websoft/libwww-perl/
 
 The Perl5 version (this package) is a complete rewrite for Perl5: the
 code is organized in Modules, provides an Object Oriented API, is
@@ -28,27 +25,29 @@ extended functionality.
 
 AVAILABILITY
 
-The Perl5 version of libwww-perl is currently in beta, and the latest
-version should always be available from:
+The latest version of libwww-perl should always be available from:
 
      http://www.sn.no/libwww-perl/
 
 The library is also available from the Comprehensive Perl Archive
-Network (CPAN). Visit <URL:http://www.perl.com/> to find a CPAN site
-near you.
+Network (CPAN). Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
+site near you.
 
 
 INSTALLATION
 
 In order to use this package you will need Perl version 5.002 or
-better.
-
-As usual, you install the library by running these commands:
+better.  As usual, you install the library by running these commands:
 
    perl Makefile.PL
    make
    make test
    make install
+
+The Makefile.PL program will start out by checking your perl
+installation for a few packages that you are recommended to install
+together with libwww-perl.  These packages should be available on CPAN
+(described above).
 
 You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
@@ -56,17 +55,26 @@ want to install any programs then make the initial Makefile with:
 
    perl Makefile.PL -n
 
-Network tests are not enabled automatically when you unpack this
-package.  Consult the t/README file for instructions on how to enable
-these tests.
+Optional network tests are not enabled automatically when you unpack
+the package.  Consult the t/README file for instructions on how to
+enable these tests.
 
 
 DOCUMENTATION
 
-See lib/LWP.pm for details of the library. See ChangeLog for recent
-changes.  POD style documentation is included in all modules and scripts.
-You should be able to use the 'perldoc' utility to extract documentation
-from these files.
+See lib/LWP.pm for an overview of the library. See ChangeLog for
+recent changes.  POD style documentation is included in all modules
+and scripts.  These are normally converted to manual pages and
+installed as part of the "make install" process.  You should also be
+able to use the 'perldoc' utility to extract documentation from these
+files.
+
+
+ABOUT THE HTML MODULES
+
+The HTML::* modules should still be regarded as being in some kind of
+alpha state.  The interfaces provided by these modules might change in
+future releases of this library.  You are warned!
 
 
 MAILING LIST
@@ -84,5 +92,6 @@ COPYRIGHT
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
 
 Enjoy!

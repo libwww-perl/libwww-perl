@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -16,13 +16,17 @@ Bundle::LWP - A bundle to install all libwww-perl related modules
 
 =head1 CONTENTS
 
-URI 0.10           - There are URIs everywhere
+URI 1.10           - There are URIs everywhere
 
 Net::FTP 2.00      - If you want ftp://-support
 
 MIME::Base64       - Used in authentication headers
 
 Digest::MD5        - Needed to do Digest authentication
+
+HTML::Tagset       - Needed by HTML::Parser
+
+HTML::Parser       - Need by HTML::HeadParser
 
 HTML::HeadParser   - To get the correct $res->base
 
@@ -35,6 +39,6 @@ This bundle defines all reqreq modules for libwww-perl.
 
 =head1 AUTHOR
 
-Gisle Aas E<lt>aas@sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut

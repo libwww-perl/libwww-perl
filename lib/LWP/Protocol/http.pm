@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.66 2003/10/23 19:11:33 uid39246 Exp $
+# $Id: http.pm,v 1.67 2004/03/10 20:10:18 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -147,7 +147,7 @@ sub request
 	$host = $url->host;
 	$port = $url->port;
 	$fullpath = $url->path_query;
-	$fullpath = "/" unless length $fullpath;
+	$fullpath = "/$fullpath" unless $fullpath =~ m,^/,;
     }
 
     # connect to remote site

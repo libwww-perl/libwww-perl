@@ -1,5 +1,7 @@
 Wed Apr  3 1996   Gisle Aas <aas@sn.no>
 
+ o  Release 5b11
+
  o  Implemented a NNTP protocol module.  The library can now fetch and
     post news articles.
 

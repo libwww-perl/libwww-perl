@@ -58,7 +58,9 @@ $h = HTTP::Headers->new(
 	a => "foo\n\n",
 	b => "foo\nbar",
 	c => "foo\n\nbar\n\n",
-	d => "foo\n\tbar"
+	d => "foo\n\tbar",
+	e => "foo\n  bar  ",
+	f => "foo\n bar\n  baz\nbaz",
      );
 ok($h->as_string("<<\n"), <<EOT);
 A: foo<<
@@ -68,6 +70,12 @@ C: foo<<
  bar<<
 D: foo<<
 \tbar<<
+E: foo<<
+  bar<<
+F: foo<<
+ bar<<
+  baz<<
+ baz<<
 EOT
 
 

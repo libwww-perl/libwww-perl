@@ -53,9 +53,11 @@ The default is to put all files in the current directory.
 
 =item --referer=I<URI>
 
-Set the value of the referer header for the initial request.  The
-special value C<"NONE"> can be used to suppress the referer header in
-any of subsequent requests.
+Set the value of the Referer header for the initial request.  The
+special value C<"NONE"> can be used to suppress the Referer header in
+any of subsequent requests.  The Referer header will always be suppressed
+in all normal C<http> requests if the referring page was transmitted over
+C<https> as recommended in RFC 2616.
 
 =item --iis
 
@@ -150,7 +152,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -240,7 +242,7 @@ sub fetch
     # Fix backslashes (\) in URL if $IIS defined
     $url = fix_backslashes($url) if (defined $IIS);
 
-    $url = url($url) unless ref($url);
+    $url = url($url);
     $type  ||= 'a';
     # Might be the background attribute
     $type = 'img' if ($type eq 'body' || $type eq 'td');
@@ -297,7 +299,14 @@ sub fetch
     # See: http://ftp.sunet.se/pub/NT/mirror-microsoft/kb/Q163/7/74.TXT
     $req->header ('Accept', '*/*') if (defined $IIS);  # GIF/JPG from IIS 2.0
     $req->authorization_basic(split (/:/, $AUTH)) if (defined $AUTH);
-    $req->referer($referer) if $referer && !$SUPPRESS_REFERER;
+    if ($referer && !$SUPPRESS_REFERER) {
+	if ($req->url->scheme eq 'http') {
+	    # RFC 2616, section 15.1.3
+	    $referer = url($referer) unless ref($referer);
+	    undef $referer if ($referer->scheme || '') eq 'https';
+	}
+	$req->referer($referer) if $referer;
+    }
     my $res = $ua->request($req);
 
     # Check outcome

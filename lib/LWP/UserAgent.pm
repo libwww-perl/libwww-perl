@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.29 2004/04/09 20:21:45 gisle Exp $
+# $Id: UserAgent.pm,v 2.30 2004/04/10 11:22:47 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.30 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -325,6 +325,14 @@ sub request
 		return $response;
 	    }
 	    $r = $r->previous;
+	}
+
+	if ($referral->header('Referer') &&
+	    $request->url->scheme eq 'https' &&
+	    $referral->url->scheme eq 'http') {
+	    # RFC 2616, section 15.1.3.
+	    LWP::Debug::trace("https -> http redirect, suppressing Referer");
+	    $referral->remove_header('Referer');
 	}
 
 	return $response unless $self->redirect_ok($referral, $response);

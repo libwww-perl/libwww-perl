@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.44 2004/06/09 11:23:14 gisle Exp $
+# $Id: Message.pm,v 1.45 2004/11/12 12:54:04 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -89,8 +89,8 @@ sub content  {
     if (defined(wantarray)) {
 	$self->_content unless exists $self->{_content};
 	my $old = $self->{_content};
-	&_set_content if @_ > 1;
 	$old = $$old if ref($old) eq "SCALAR";
+	&_set_content if @_ > 1;
 	return $old;
     }
 
@@ -104,11 +104,13 @@ sub content  {
 
 sub _set_content {
     my $self = $_[0];
-    if (ref($self->{_content}) eq "SCALAR") {
+    if (!ref($_[1]) && ref($self->{_content}) eq "SCALAR") {
 	${$self->{_content}} = $_[1];
     }
     else {
+	die "Can't set content to be a scalar reference" if ref($_[1]) eq "SCALAR";
 	$self->{_content} = $_[1];
+	delete $self->{_content_ref};
     }
     delete $self->{_parts} unless $_[2];
 }
@@ -141,13 +143,15 @@ sub content_ref
     $self->_content unless exists $self->{_content};
     delete $self->{_parts};
     my $old = \$self->{_content};
-    $old = $$old if ref($$old);
+    my $old_cref = $self->{_content_ref};
     if (@_) {
 	my $new = shift;
 	Carp::croak("Setting content_ref to a non-ref") unless ref($new);
+	delete $self->{_content};  # avoid modifying $$old
 	$self->{_content} = $new;
-	delete $self->{_parts};
+	$self->{_content_ref}++;
     }
+    $old = $$old if $old_cref;
     return $old;
 }
 
@@ -224,6 +228,7 @@ sub _stale_content {
     else {
 	# just invalidate cache
 	delete $self->{_content};
+	delete $self->{_content_ref};
     }
 }
 

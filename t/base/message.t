@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 74;
+plan tests => 80;
 
 require HTTP::Message;
 
@@ -277,20 +277,31 @@ $m = HTTP::Message->new;
 $foo = [];
 $m->content($foo);
 ok($m->content, $foo);
-ok($m->content_ref([]), $foo);
+ok(${$m->content_ref}, $foo);
+ok(${$m->content_ref([])}, $foo);
 ok($m->content_ref != $foo);
 eval {$m->add_content("x")};
 ok($@ && $@ =~ /^Can't append to ARRAY content/);
 
-$foo = sub {};
+$foo = sub { "foo" };
 $m->content($foo);
+ok($m->content, $foo);
+ok(${$m->content_ref}, $foo);
+
+$m->content_ref($foo);
 ok($m->content, $foo);
 ok($m->content_ref, $foo);
 
-$foo = "foo";
-$m->content(\$foo);
-ok($m->content, "foo");
-ok($m->content_ref, \$foo);
-
 eval {$m->content_ref("foo")};
 ok($@ && $@ =~ /^Setting content_ref to a non-ref/);
+
+$m->content_ref(\"foo");
+eval {$m->content("bar")};
+ok($@ && $@ =~ /^Modification of a read-only value/);
+
+$foo = "foo";
+$m->content_ref(\$foo);
+ok($m->content("bar"), "foo");
+ok($foo, "bar");
+ok($m->content, "bar");
+ok($m->content_ref, \$foo);

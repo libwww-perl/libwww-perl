@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.36 1997/10/16 09:08:37 aas Exp $
+# $Id: Element.pm,v 1.37 1997/12/02 12:48:09 aas Exp $
 
 =head1 NAME
 
@@ -31,6 +31,8 @@ for a HTML document.
 
 The following methods are available:
 
+=over 4
+
 =cut
 
 
@@ -42,7 +44,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -86,7 +88,7 @@ sub Version { $VERSION; }
  ul     => 'compact',
 );
 
-=head2 $h = HTML::Element->new('tag', 'attrname' => 'value',...)
+=item $h = HTML::Element->new('tag', 'attrname' => 'value',...)
 
 The object constructor.  Takes a tag name as argument. Optionally,
 allows you to specify initial attributes at object creation time.
@@ -131,7 +133,7 @@ sub new
 
 
 
-=head2 $h->tag()
+=item $h->tag()
 
 Returns (optionally sets) the tag name for the element.  The tag is
 always converted to lower case.
@@ -150,7 +152,7 @@ sub tag
 
 
 
-=head2 $h->starttag()
+=item $h->starttag()
 
 Returns the complete start tag for the element.  Including leading
 "<", trailing ">" and attributes.
@@ -188,7 +190,7 @@ sub starttag
 
 
 
-=head2 $h->endtag()
+=item $h->endtag()
 
 Returns the complete end tag.  Includes leading "</" and the trailing
 ">".
@@ -202,7 +204,7 @@ sub endtag
 
 
 
-=head2 $h->parent([$newparent])
+=item $h->parent([$newparent])
 
 Returns (optionally sets) the parent for this element.
 
@@ -220,7 +222,7 @@ sub parent
 
 
 
-=head2 $h->implicit([$bool])
+=item $h->implicit([$bool])
 
 Returns (optionally sets) the implicit attribute.  This attribute is
 used to indicate that the element was not originally present in the
@@ -235,7 +237,7 @@ sub implicit
 
 
 
-=head2 $h->is_inside('tag',...)
+=item $h->is_inside('tag',...)
 
 Returns true if this tag is contained inside one of the specified tags.
 
@@ -257,7 +259,7 @@ sub is_inside
 
 
 
-=head2 $h->pos()
+=item $h->pos()
 
 Returns (and optionally sets) the current position.  The position is a
 reference to a HTML::Element object that is part of the tree that has
@@ -281,7 +283,7 @@ sub pos
 
 
 
-=head2 $h->attr('attr', [$value])
+=item $h->attr('attr', [$value])
 
 Returns (and optionally sets) the value of some attribute.
 
@@ -300,7 +302,7 @@ sub attr
 
 
 
-=head2 $h->content()
+=item $h->content()
 
 Returns the content of this element.  The content is represented as a
 reference to an array of text segments and references to other
@@ -315,7 +317,7 @@ sub content
 
 
 
-=head2 $h->is_empty()
+=item $h->is_empty()
 
 Returns true if there is no content.
 
@@ -329,7 +331,7 @@ sub is_empty
 
 
 
-=head2 $h->insert_element($element, $implicit)
+=item $h->insert_element($element, $implicit)
 
 Inserts a new element at current position and updates pos() to point
 to the inserted element.  Returns $element.
@@ -358,7 +360,7 @@ sub insert_element
 }
 
 
-=head2 $h->push_content($element_or_text,...)
+=item $h->push_content($element_or_text,...)
 
 Adds to the content of the element.  The content should be a text
 segment (scalar) or a reference to a HTML::Element object.
@@ -389,7 +391,7 @@ sub push_content
 
 
 
-=head2 $h->delete_content()
+=item $h->delete_content()
 
 Clears the content.
 
@@ -407,7 +409,7 @@ sub delete_content
 
 
 
-=head2 $h->delete()
+=item $h->delete()
 
 Frees memory associated with the element and all children.  This is
 needed because perl's reference counting does not work since we use
@@ -426,7 +428,7 @@ sub delete
 
 
 
-=head2 $h->traverse(\&callback, [$ignoretext])
+=item $h->traverse(\&callback, [$ignoretext])
 
 Traverse the element and all of its children.  For each node visited, the
 callback routine is called with the node, a startflag and the depth as
@@ -459,7 +461,7 @@ sub traverse
 
 
 
-=head2 $h->extract_links([@wantedTypes])
+=item $h->extract_links([@wantedTypes])
 
 Returns links found by traversing the element and all of its children.
 The return value is a reference to an array.  Each element of the
@@ -503,7 +505,7 @@ sub extract_links
 
 
 
-=head2 $h->dump()
+=item $h->dump()
 
 Prints the element and all its children to STDOUT.  Mainly useful for
 debugging.  The structure of the document is shown by indentation (no
@@ -529,7 +531,7 @@ sub dump
 
 
 
-=head2 $h->as_HTML()
+=item $h->as_HTML()
 
 Returns a string (the HTML document) that represents the element and
 its children.
@@ -575,6 +577,7 @@ sub format
 
 __END__
 
+=back
 
 =head1 BUGS
 
@@ -592,13 +595,9 @@ L<HTML::AsSubs>
 
 =head1 COPYRIGHT
 
-Copyright 1995,1996 Gisle Aas.  All rights reserved.
+Copyright 1995-1997 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Gisle Aas <aas@sn.no>
 
 =cut

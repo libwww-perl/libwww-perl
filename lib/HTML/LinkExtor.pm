@@ -51,7 +51,9 @@ use vars qw(%LINK_ELEMENT);
  embed  => 'src',   # used in Netscape 2.0 for Shockwave and things like that
 );
 
-=head2 $p = HTML::LinkExtor->new([$callback[, $base]])
+=over 4
+
+=item $p = HTML::LinkExtor->new([$callback[, $base]])
 
 The constructor takes two optional argument. The first is a reference
 to a callback routine. It will be called as links are found. If a
@@ -99,7 +101,7 @@ sub start
     }
 }
 
-=head2 $p->links
+=item $p->links
 
 Returns a list of all links found in the document.  The returned
 values will be anonymous arrays with the follwing elements:
@@ -129,6 +131,8 @@ sub parse_file
     delete $self->{'links'};
     $self->SUPER::parse_file(@_);
 }
+
+=back
 
 =head1 EXAMPLE
 
@@ -168,9 +172,12 @@ is received using LWP:
 
 L<HTML::Parser>
 
-=head1 AUTHOR
+=head1 COPYRIGHT
 
-Gisle Aas E<lt>aas@sn.no>
+Copyright 1996-1997 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
 

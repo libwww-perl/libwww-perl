@@ -32,6 +32,17 @@ sub format
 
 sub begin
 {
+    my $formatter = shift;
+    # Flags
+    $formatter->{anchor} = 0;
+    $formatter->{underline} = 0;
+    $formatter->{bold} = 0;
+    $formatter->{italic} = 0;
+    $formatter->{center} = 0;
+
+    $formatter->{makers} = [];
+    $formatter->{vspace} = undef;
+    $formatter->{eat_leading_space} = 0;
 }
 
 sub end
@@ -353,7 +364,7 @@ sub dd_end
 
 # Things not formated at all
 sub table_start { shift->out('[TABLE NOT SHOWN]'); 0; }
-sub form_start  { 0; }
+sub form_start  { shift->out('[FORM NOT SHOWN]');  0; }
 sub font_start  { 1; }  sub font_end {}
 
 

@@ -1,11 +1,13 @@
-This is the README file for libwww-perl version 5b6.
+README file for libwww-perl version 5b7
+---------------------------------------
 
-libwww-perl is a library of Perl packages which provides a simple and
-consistent programming interface (API) to the World-Wide Web.
+Libwww-perl is a collection of Perl modules which provides a simple
+and consistent programming interface (API) to the World-Wide Web.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
 Library of Common Code.
+
 
 The Perl4 version is maintained by Roy Fielding, and was the basis for
 tools such as MOMSpider. This version and much more information about
@@ -14,25 +16,29 @@ its libraries can be found at:
      http://www.ics.uci.edu/pub/websoft/libwww-perl/
       ftp://www.ics.uci.edu/pub/websoft/libwww-perl/
 
+
 The Perl5 version (this package) is a complete rewrite for Perl5: the
 code is organized in Modules, provides an Object Oriented API, is
 updated for the latest HTTP and URL specification, and offers some
 extended functionality.
 
-The Perl5 version is currently in beta, and the latest version should
-always be available from:
 
-     http://www.oslonett.no/home/aas/perl/www/
+AVAILABILITY
 
+The Perl5 version of libwww-perl is currently in beta, and the latest
+version should always be available from:
+
+     http://www.sn.no/~aas/perl/www/
+
+The library is also available from the Comprehensive Perl Archive
+Network (CPAN). Visit http://www.perl.com/ to find a CPAN site near
+you.
+
+
+INSTALLATION
 
 In order to use this package you will need Perl version 5.001m or
 better.
-
-See lib/LWP.pm for details of the library. See ChangeLog for recent
-changes.  POD style documentation is included in all modules and scripts.
-You should be able to use the 'perldoc' utility to extract documentation
-from these files.
-
 
 You install the library by running these commands:
 
@@ -43,18 +49,31 @@ You install the library by running these commands:
 
 You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
-want to install any programs at all then make the initial Makefile with:
+want to install any programs then make the initial Makefile with:
 
    perl Makefile.PL -l
 
-Consult t/README for instructions on how to enable the network tests.
+Consult the t/README file for instructions on how to enable the
+network tests.
 
+
+DOCUMENTATION
+
+See lib/LWP.pm for details of the library. See ChangeLog for recent
+changes.  POD style documentation is included in all modules and scripts.
+You should be able to use the 'perldoc' utility to extract documentation
+from these files.
+
+
+MAILING LIST
 
 The best place to report bugs and discuss this package is on the
 <libwww-perl@ics.uci.edu> mailing list.  You can join the mailing list
 by sending a message to <libwww-perl-request@ics.uci.edu> with
 "Subscribe" as subject.             ^^^^^^^^
 
+
+COPYRIGHT
 
 Copyright 1995 Martijn Koster and Gisle Aas. All rights reserved.
 

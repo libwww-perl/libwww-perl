@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.4 1995/07/24 21:19:15 aas Exp $
+# $Id: gopher.pm,v 1.5 1995/07/25 08:12:44 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -154,6 +154,8 @@ sub request
 		}
 		return \ "";
 	    });
+	} else {
+	    $response->content($content);
 	}
     }
     

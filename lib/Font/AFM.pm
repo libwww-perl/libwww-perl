@@ -2,13 +2,9 @@ package AFM;
 
 # This package is a simple parser for Adobe Font Metrics files.
 #
-# $Id: AFM.pm,v 1.2 1995/05/12 16:21:57 aas Exp $
+# $Id: AFM.pm,v 1.3 1995/05/14 13:56:04 aas Exp $
 #
 # Author: Gisle Aas <aas@oslonett.no>
-
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(@ISOLatin1Encoding);
 
 use Carp;
 
@@ -104,10 +100,25 @@ sub new
 }
 
 # Returns an 256 element array that maps from characters to width
-
 sub latin1_wx_table
 {
-    map {$_[0]->{wx}->{$ISOLatin1Encoding[$_]}} 0..255;
+    my($this) = @_;
+    unless ($this->{'_wx_table'}) {
+	$this->{'_wx_table'} =
+	    [ map {$this->{wx}->{$ISOLatin1Encoding[$_]}} 0..255 ];
+    }
+    @{ $this->{'_wx_table'} };
+}
+
+sub stringwidth
+{
+    my($this, $string, $pointsize) = @_;
+    my @wx = $this->latin1_wx_table;
+    my $width = 0.0;
+    while ($string =~ /./g) {
+	$width += $wx[ord $&];
+    }
+    $width;
 }
 
 sub FontName;

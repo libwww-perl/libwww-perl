@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.7 1995/07/15 07:58:45 aas Exp $
+# $Id: Response.pm,v 1.8 1995/08/07 15:58:58 aas Exp $
 
 package LWP::Response;
 
@@ -67,20 +67,37 @@ sub clone
     my $clone = bless $self->LWP::Message::clone;
     $clone->code($self->code);
     $clone->message($self->message);
+    $clone->request($self->request->clone) if $self->request;
+    # we don't clone previous
     $clone;
 }
 
 =head2 code([$code])
 
-=head2 message([$message]}
+=head2 message([$message])
 
-These methods provide public access to the member variables containing
-respectively the response code and the message of the response
+=head2 request([$request])
+
+=head2 previous([$previousResponse])
+
+These methods provide public access to the member variables.  The
+first two containing respectively the response code and the message
+of the response.
+
+The request attribute is used to record the request that gave this
+response. You should for instance access the base URL of an document
+like this: C<$response->request->url;>.
+
+The previous attribute is used to link together chains of responses.
+You get chains of responses if the first response is redirect or
+unauthorized.
 
 =cut
 
-sub code      { shift->_elem('_rc',  @_); }
-sub message   { shift->_elem('_msg', @_); }
+sub code      { shift->_elem('_rc',      @_); }
+sub message   { shift->_elem('_msg',     @_); }
+sub previous  { shift->_elem('_previous',@_); }
+sub request   { shift->_elem('_request', @_); }
 
 
 =head2 asString()

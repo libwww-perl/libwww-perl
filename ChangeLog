@@ -1,3 +1,36 @@
+Thu May  9 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5b13
+
+ o  Made URI::URL::strict(0) the default.  I got tiered of all this
+    eval { } stuff just to recover.  The URI::URL::strict'ness also
+    determine if calling some standard method that happens to be
+    illegal for some protocol scheme will croak or just be ignored.
+
+ o  Ensure correct $INPUT_RECORD_SEPARATOR and $OUTPUT_RECORD_SEPARATOR
+    at places where we <> or print.
+
+ o  Always localize $_ before any 'while(<FILE>) {}'-loops
+
+ o  Implemented $protocol->collect_once() and simplified several
+    of the protocol implementations by using it.
+
+ o  The HTML parser used to get it wrong if you were unlucky about the
+    breakup of the text. An example of broken behaviour was this:
+
+        $html = parse_html "<!-- A comment -";
+        $html = parse_html "-> and some text.";
+
+ o  The HTML parser does not ignore whitespace-only text any more.
+
+ o  HTML::Parse warnings are now optional and turned off by default.
+
+ o  New start for $html->as_HTML().
+
+ o  Fixed some typos
+
+
+
 Wed Apr 24 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b12

@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.12 1995/09/04 18:40:50 aas Exp $
+# $Id: Socket.pm,v 1.13 1995/09/06 16:18:52 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -56,22 +56,24 @@ Constructs a socket object.
 
 sub new
 {
-    my($class) = @_;
+    my($class, $socket, $host, $port) = @_;
 
     LWP::Debug::trace("($class)");
 
-    my $socket = _gensym();
-    LWP::Debug::debug("Socket $socket");
+    unless ($socket) {
+	$socket = _gensym();
+	LWP::Debug::debug("Socket $socket");
 
-    socket($socket, PF_INET, SOCK_STREAM, $tcp_proto) or
-        croak "socket: $!";
+	socket($socket, PF_INET, SOCK_STREAM, $tcp_proto) or
+	  croak "socket: $!";
+    }
 
     my $self = bless {
         'socket' => $socket,
-        'host' => undef,
-        'port' => undef,
+        'host'   => $host,
+        'port'   => $port,
         'buffer' => '',
-        'size' => 4096,
+        'size'   => 4096,
     }, $class;
 
     $self;
@@ -83,6 +85,9 @@ sub DESTROY
     close($socket);
     _ungensym($socket);
 }
+
+sub host { shift->{'host'}; }
+sub port { shift->{'port'}; }
 
 
 =head2 connect($host, $port)
@@ -126,6 +131,65 @@ sub shutdown
     shutdown($self->{'socket'}, $how);
     delete $self->{'host'};
     delete $self->{'port'};
+}
+
+=head2 bind($host, $port)
+
+Binds a name to the socket.
+
+=cut
+
+sub bind
+{
+    my($self, $host, $port) = @_;
+    my $name = $self->_getaddress($host, $port);
+    bind($self->{'socket'}, $name);
+}
+
+=head2 listen($queuesize)
+
+Set up listen queue for socket.
+
+=cut
+
+sub listen
+{
+    listen(shift->{'socket'}, @_);
+}
+
+=head2 accept($timeout)
+
+Accepts a new connection.  Returns a new LWP::Socket object if successful.
+Timeout not implemented yet.
+
+=cut
+
+sub accept
+{
+    my $self = shift;
+    my $timeout = shift;
+    my $ns = _gensym();
+    my $addr = accept($ns, $self->{'socket'});
+    if ($addr) {
+	my($family, $port, @addr) = unpack('S n C4 x8', $addr);
+	return new LWP::Socket $ns, join('.', @addr), $port;
+    } else {
+	_ungensym($ns);
+	croak "Can't accept: $!";
+    }
+}
+
+=head2 getsockname()
+
+Returns a 2 element array ($host, $port)
+
+=cut
+
+sub getsockname
+{
+    my($family, $port, @addr) =
+      unpack('S n C4 x8', getsockname(shift->{'socket'}));
+    (join('.', @addr), $port);
 }
 
 =head2 readUntil($delim, $data_ref, $size, $timeout)
@@ -263,7 +327,11 @@ sub _getaddress
     my($self, $host, $port) = @_;
 
     my(@addr);
-    if ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
+    if (!defined $host) {
+	# INADDR_ANY
+	$addr[0] = [0,0,0,0];
+    }
+    elsif ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
         # numeric IP address
         $addr[0] = [$1, $2, $3, $4];
     } else {

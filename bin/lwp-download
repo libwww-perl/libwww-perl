@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.5 2003/10/26 14:39:18 gisle Exp $
+# $Id: lwp-download,v 2.6 2004/04/09 21:31:29 gisle Exp $
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ Fetch the newest and greatest perl version:
 
  $ lwp-download http://www.perl.com/CPAN/src/latest.tar.gz
  Saving to 'latest.tar.gz'...
- 1.47 MB received in 22 seconds (68.7 KB/sec)
+ 11.4 MB received in 8 seconds (1.43 MB/sec)
 
 =head1 AUTHOR
 
@@ -62,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.5 $;
+my $version = q$Revision: 2.6 $;
 
 my $ua = new LWP::UserAgent;
 

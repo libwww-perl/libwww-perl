@@ -14,6 +14,8 @@ lib/HTTP/Cookies.pm             Cookie storage and management
 lib/HTTP/Daemon.pm		A simple httpd
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
+lib/HTTP/Headers/Auth.pm	Some methods that deal with authorization.
+lib/HTTP/Headers/ETag.pm	Some methods that deal with entity tags
 lib/HTTP/Headers/Util.pm        Some utility functions for header values.
 lib/HTTP/Message.pm		Class encapsulating HTTP messages
 lib/HTTP/Negotiate.pm		Evaluate HTTP content negotiation algoritm
@@ -70,6 +72,8 @@ t/base/common-req.t		Test HTTP::Request::Common module
 t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
+t/base/headers-auth.t		Test HTTP::Headers::Auth module
+t/base/headers-etag.t		Test HTTP::Headers::ETag module
 t/base/headers-util.t		Test HTTP::Headers::Util module
 t/base/listing.t		Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module

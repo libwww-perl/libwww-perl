@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.15 1996/05/26 10:39:23 aas Exp $
+# $Id: Message.pm,v 1.16 1996/09/18 12:14:39 aas Exp $
 
 package HTTP::Message;
 
@@ -10,8 +10,9 @@ HTTP::Message - Class encapsulating HTTP messages
 =head1 DESCRIPTION
 
 A C<HTTP::Message> object contains some headers and a content (body).
-The class is only used as a base class for C<HTTP::Request> and
-C<HTTP::Response>, and are never instantiated alone.
+The class is abstract, i.e. it only used as a base class for
+C<HTTP::Request> and C<HTTP::Response> and should never instantiated
+as itself.
 
 =head1 METHODS
 
@@ -21,11 +22,13 @@ C<HTTP::Response>, and are never instantiated alone.
 
 require HTTP::Headers;
 require Carp;
+use strict;
+use vars qw($AUTOLOAD);
 
 =head2 $mess = new HTTP::Message;
 
-Object constructor.  It should only be called internally by this
-library.  External code should construct C<HTTP::Request> or
+This is the object constructor.  It should only be called internally
+by this library.  External code should construct C<HTTP::Request> or
 C<HTTP::Response> objects.
 
 =cut
@@ -62,14 +65,14 @@ sub clone
 
 =head2 $mess->content([$content])
 
+The content() method sets the content if an argument is given.  If no
+argument is given the content is not touched.  In either case the
+previous content is returned.
+
 =head2 $mess->add_content($data)
 
-These methods manages the content of the message.  The content()
-method sets the content if an argument is given.  If no argument is
-given the content is not touched.  In either case the previous content
-is returned.
-
-The add_content() methods appends data to the content.
+The add_content() methods appends more data to the end of the previous
+content.
 
 =cut
 
@@ -83,6 +86,23 @@ sub add_content
     } else {
 	$self->{'_content'} .= $_[0];
     }
+}
+
+=head2 $mess->content_ref
+
+The content_ref() method will return a reference to content string.
+It can be more efficient to access the content this way if the content
+is huge, and it can be used for direct manipulation of the content,
+for instance:
+
+  ${$res->content_ref} =~ s/\bfoo\b/bar/g;
+
+=cut
+
+sub content_ref
+{
+    my $self = shift;
+    \$self->{'_content'};
 }
 
 sub as_string

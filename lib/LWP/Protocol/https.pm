@@ -1,5 +1,5 @@
 #
-# $Id: https.pm,v 1.9 2001/10/26 17:27:19 gisle Exp $
+# $Id: https.pm,v 1.10 2001/10/26 18:29:27 gisle Exp $
 
 use strict;
 
@@ -10,8 +10,8 @@ use vars qw(@ISA);
 require LWP::Protocol::http;
 require LWP::Protocol::https10;
 
-@ISA = qw(LWP::Protocol::http10);
-my $SSL_CLASS = $LWP::Protocol::https::SSL_CLASS;
+@ISA = qw(LWP::Protocol::http);
+my $SSL_CLASS = $LWP::Protocol::https10::SSL_CLASS;
 
 #we need this to setup a proper @ISA tree
 {
@@ -36,6 +36,11 @@ my $SSL_CLASS = $LWP::Protocol::https::SSL_CLASS;
     sub _http_socket_configure {
 	$_[0];
     }
+
+    # The underlying SSLeay classes fails to work if the socket is
+    # placed in non-blocking mode.  This override of the blocking
+    # method makes sure it stays the way it was created.
+    sub blocking { }  # noop
 }
 
 sub _conn_class {
@@ -43,11 +48,11 @@ sub _conn_class {
 }
 
 {
-    #if we inherit from LWP::Protocol::https we inherit from
-    #LWP::Protocol::http, so just setup aliases for these two
+    #if we inherit from LWP::Protocol::https10 we inherit from
+    #LWP::Protocol::http10, so just setup aliases for these two
     no strict 'refs';
     for (qw(_check_sock _get_sock_info)) {
-        *{"$_"} = \&{"LWP::Protocol::https::$_"};
+        *{"$_"} = \&{"LWP::Protocol::https10::$_"};
     }
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.11 1996/02/27 20:05:50 aas Exp $
+# $Id: Message.pm,v 1.12 1996/03/05 10:45:33 aas Exp $
 
 package HTTP::Message;
 
@@ -73,9 +73,9 @@ The add_content() methods appends data to the content.
 
 =cut
 
-sub $mess->content   { shift->_elem('_content',  @_); }
+sub content   { shift->_elem('_content',  @_); }
 
-sub $mess->add_content
+sub add_content
 {
     my $self = shift;
     if (ref($_[0])) {

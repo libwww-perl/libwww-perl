@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.2 1996/03/05 13:35:29 aas Exp $
+# $Id: Negotiate.pm,v 1.3 1996/03/18 17:45:34 aas Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -70,9 +70,9 @@ sub choose ($;$)
 	}
     });
 
-    # Check if any of the variants specify a language, because this
-    # influence how we treat those without (they default to 0.5
-    # istead of 1).
+    # Check if any of the variants specify a language.  We do this
+    # because it influence how we treat those without (they default to
+    # 0.5 instead of 1).
     my $any_lang = 0;
     for $var (@$variants) {
 	if ($var->[5]) {
@@ -290,7 +290,7 @@ choose - choose a variant of a document to serve (HTTP content negotiation)
   [['var1',  1.000, 'text/html',   undef,   'iso-8859-1',   'en',   3000],
    ['var2',  0.950, 'text/plain',  'gzip',  'us-ascii',     'no',    400],
    ['var3',  0.3,   'image/gif',   undef,   undef,          undef, 43555],
- ]
+  ];
 
  @prefered = choose($variants, $request_headers);
  $the_one  = choose($variants);
@@ -299,20 +299,21 @@ choose - choose a variant of a document to serve (HTTP content negotiation)
 
 This module provide a complete implementation of the HTTP content
 negotiation algorithm specified in draft-ietf-http-v11-spec-00.ps
-chapter 12.  Content negotiation allows for selection of a preferred
-content representation based upon attributes of the negotiable
-variants and the value of Accept* header fields in the request.
+chapter 12.  Content negotiation allows for the selection of a
+preferred content representation based upon attributes of the
+negotiable variants and the value of the various Accept* header fields
+in the request.
 
 The variants are ordered by preference by calling the function
 choose().
 
-The first parameter is the variants that we can choose among.  The
-variants are represented by a reference to an array.  Each element in
-this array is an array with the values [$id, $qs, $content_type,
-$content_encoding, $charset, $content_language, $content_length].
-The meaning of these values are described below. The
-$content_encoding and $content_language can be either a single scalar
-value or an array reference if there are many values.
+The first parameter is a description of the variants that we can
+choose among.  The variants are described by a reference to an array.
+Each element in this array is an array with the values [$id, $qs,
+$content_type, $content_encoding, $charset, $content_language,
+$content_length].  The meaning of these values are described
+below. The $content_encoding and $content_language can be either a
+single scalar value or an array reference if there are several values.
 
 The second optional parameter is a reference to the request headers.
 This is used to look for "Accept*" headers.  You can pass a reference
@@ -321,25 +322,25 @@ parameter is missing, then the accept specification is initialized
 from the CGI environment variables HTTP_ACCEPT, HTTP_ACCEPT_CHARSET,
 HTTP_ACCEPT_ENCODING and HTTP_ACCEPT_LANGUAGE.
 
-In array context choose() returns a list of variant identifier,
-calculated quality pairs.  The values are sorted by quality, highest
-quality first.  If the calculated quality is the same for two
-variants, then they are sorted by size (smallest first). E.g.:
+In array context choose() returns a list of variant
+identifier/calculated quality pairs.  The values are sorted by
+quality, highest quality first.  If the calculated quality is the same
+for two variants, then they are sorted by size (smallest first). E.g.:
 
   (['var1' => 1], ['var2', 0.3], ['var3' => 0]);
 
-Note that any zero quality variants are included in the list even if
-these should never be served to the client.
+Note that also zero quality variants are included in the return list
+even if these should never be served to the client.
 
 In scalar context it returns the identifier of the variant with the
 highest score or undef in none have non-zero quality.
 
 If the $HTTP::Negotiate::DEBUG variable is set to TRUE, then a lot of
-noise on STDOUT is generated during evaluation of choose().
+noise is generated on STDOUT during evaluation of choose().
 
 =head1 VARIANTS
 
-A variant is described by and list of the following values.  If the
+A variant is described by a list of the following values.  If the
 attribute does not make sense or is unknown for a variant, then use
 undef instead.
 
@@ -403,7 +404,8 @@ content.  The charset value should generally be undef or one of these:
 
 =item content-language
 
-This describes one or more languages that are used in the variant.  A
+This describes one or more languages that are used in the variant.
+Language is described like this in draft-ietf-http-v11-spec-00.ps: A
 language is in this context a natural language spoken, written, or
 otherwise conveyed by human beings for communication of information to
 other human beings.  Computer languages are explicitly excluded.
@@ -425,8 +427,8 @@ This is the number of bytes used to represent the content.
 =head1 ACCEPT HEADERS
 
 The following Accept* headers can be used for describing content
-preferences in a request (This description is just an edited extract
-from draft-ietf-http-v11-spec-00.ps):
+preferences in a request (This description is an edited extract from
+draft-ietf-http-v11-spec-00.ps):
 
 =over 3
 

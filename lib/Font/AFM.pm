@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.15 1997/08/16 10:32:37 aas Exp $
+# $Id: AFM.pm,v 1.16 1997/09/20 10:42:56 aas Exp $
 
 package Font::AFM;
 
@@ -187,7 +187,7 @@ use Carp;
 use strict;
 use vars qw($VERSION @ISOLatin1Encoding);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 
 # The metrics_path is used to locate metrics files
@@ -237,14 +237,19 @@ foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 sub new
 {
    my($class, $fontname) = @_;
+   my $file;
    $fontname =~ s/.amf$//;
-   my $file = "$fontname.afm";
-   unless ($file =~ m,^/,) {
-       # not absolute, search the metrics path for the file
-       foreach (@metrics_path) {
-	   if (-f "$_/$file") {
-	       $file = "$_/$file";
-	       last;
+   if ($^O eq 'VMS') {
+       $file = "sys\$ps_font_metrics:$fontname.afm";
+   } else {
+       $file = "$fontname.afm";
+       unless ($file =~ m,^/,) {
+	   # not absolute, search the metrics path for the file
+	   foreach (@metrics_path) {
+	       if (-f "$_/$file") {
+		   $file = "$_/$file";
+		   last;
+	       }
 	   }
        }
    }

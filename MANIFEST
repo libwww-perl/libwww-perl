@@ -112,4 +112,3 @@ t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
-META.yml                                 Module meta-data (added by MakeMaker)

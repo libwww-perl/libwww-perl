@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.2 1997/10/13 23:10:01 aas Exp $
+# $Id: Heuristic.pm,v 4.3 1997/10/13 23:28:02 aas Exp $
 
 =head1 NAME
 
@@ -102,7 +102,7 @@ sub friendly_url ($)
 	if (s/^(\w+(?:\.\w+)*)([\/:\?\#]|$)/$2/) {
 	    my $host = $1;
 
-	    if ($host !~ /\./) {
+	    if ($host !~ /\./ && $host ne "localhost") {
 		my @guess;
 
 		if ($my_country) {

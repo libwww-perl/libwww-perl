@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.38 1996/10/08 14:30:43 aas Exp $
+# $Id: UserAgent.pm,v 1.39 1996/12/04 15:24:29 aas Exp $
 
 package LWP::UserAgent;
 
@@ -176,6 +176,7 @@ object itself.
 sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
+    local($SIG{__DIE__});  # protect agains user defined die handlers
 
     my($method, $url) = ($request->method, $request->url);
 

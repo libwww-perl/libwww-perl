@@ -1,5 +1,5 @@
-#!/local/bin/perl -w
-# $Id: html2text,v 1.1 1995/09/11 10:31:37 aas Exp $
+#!/local/bin/perl
+# $Id: html2text,v 1.2 1995/09/12 08:06:32 aas Exp $
 
 
 use HTML::Parse;
@@ -11,10 +11,10 @@ $h = parse_htmlfile $file;
 
 package HTML::Format;
 
-$lm  =  3;  # left margin
-$rm  = 70;  # right margin
-$pos = 0;   # current output position.
-$maxpos = 0;
+$lm  =    3;  # left margin
+$rm  =   70;  # right margin
+$pos =    0;  # current output position.
+$maxpos = 0;  # highest value of $pos
 
 @ignore = ();
 
@@ -33,13 +33,12 @@ sub visit
 	    return 0;
 	}
     } else {
-	text($node);
+	textflow($node);
     }
     1;
 }
 
-sub nl;
-sub lm;
+sub vspace;
 sub out;
 
 sub html_start { 1; }  sub html_end {}
@@ -49,22 +48,23 @@ sub body_start { 1; }  sub body_end {}
 sub header_start
 {
     my($level, $node) = @_;
-    nl; nl; lm;
+    vspace(2);
     $maxpos = 0;
+    $eat_leading_space = 1;
     1;
 }
 
 sub header_end
 {
     my($level, $node) = @_;
-    nl;
     if ($level <= 2) {
+	my $line;
 	$line = '=' if $level == 1;
 	$line = '-' if $level == 2;
-	lm;
-	print $line x ($maxpos - $lm)
+	vspace(0);
+	out $line x ($maxpos - $lm);
     }
-    nl;
+    vspace 1;
     1;
 }
 
@@ -82,53 +82,89 @@ sub h4_end   { header_end(4, @_) }
 sub h5_end   { header_end(5, @_) }
 sub h6_end   { header_end(6, @_) }
 
+sub br_start
+{
+    vspace(0);
+}
+
+sub hr_start
+{
+    vspace(1);
+    out '-' x ($rm - $lm);
+    vspace(1);
+}
+
 sub img_start
 {
-    text(shift->attr('alt') || "[IMAGE]");
-    0;
+    out(shift->attr('alt') || "[IMAGE]");
+}
+
+sub a_start
+{
+    $anchor++;
+    1;
+}
+
+sub a_end
+{
+    $anchor--;
 }
 
 sub u_start
 {
-    $underline = 1;
+    $underline++;
     1;
 }
 
 sub u_end
 {
-    $underline = 0;
+    $underline--;
 }
 
 sub b_start
 {
-    $bold = 1;
+    $bold++;
     1;
 }
 
 sub b_end
 {
-    $bold = 0;
+    $bold--;
 }
 
 sub tt_start
 {
+    $teletype++;
     1;
 }
 
 sub tt_end
 {
+    $teletype--;
 }
 
 sub i_start
 {
-    u_start();
+    $italic++;
+    1;
 }
 
 sub i_end
 {
-    u_end();
+    $italic--;
 }
 
+sub center_start
+{
+    $center++;
+}
+
+sub center_end
+{
+    $center--;
+}
+
+# Logical markup
 BEGIN {
     *cite_start   = \&i_start;
     *cite_end     = \&i_end;
@@ -146,38 +182,225 @@ BEGIN {
     *var_end      = \&tt_end;
 }
 
-
-sub text
-{
-    for (split(' ', $_[0])) {
-	out ' ' if $pos > $lm;
-	out $_;
-    }
-}
-
 sub p_start
 {
-    nl();
-    lm();
+    vspace(1);
+    $eat_leading_space = 1;
     1;
 }
 
 sub p_end
 {
-    nl();
+    vspace(1);
+}
+
+sub pre_start
+{
+    $pre++;
     1;
+}
+
+sub pre_end
+{
+    $pre--;
+}
+
+sub blockquote_start
+{
+    vspace(1);
+    $eat_leading_space = 1;
+    $lm += 2;
+    $rm -= 2;
+    1;
+}
+
+sub blockquote_end
+{
+    $lm -= 2;
+    $rm += 2;
+    vspace(1);
+}
+
+sub address_start
+{
+    vspace(1);
+    $eat_leading_space = 1;
+    $italic++;
+    1;
+}
+
+sub address_end
+{
+    $italic--;
+    vspace(1);
+}
+
+
+# Handling of list elements
+BEGIN {
+    @markers = ();
+}
+
+sub ul_start
+{
+    vspace(1);
+    push(@markers, "*");
+    $lm += 2;
+    1;
+}
+
+sub ul_end
+{
+    pop(@markers);
+    $lm -= 2;
+    vspace(1);
+}
+
+sub li_start
+{
+    out "$markers[-1] ";
+    $lm += 2;
+    $eat_leading_space = 1;
+    1;
+}
+
+sub li_end
+{
+    vspace 1;
+    $lm -= 2;
+    if ($markers[-1] =~ /^\d+/) {
+	# increment ordered markers
+	$markers[-1]++;
+    }
+}
+
+sub ol_start
+{
+    vspace 1;
+    push(@markers, 1);
+    $lm += 2;
+    1;
+}
+
+sub ol_end
+{
+    $lm -= 2;
+    pop(@markers);
+    vspace 1;
+}
+
+
+sub dl_start
+{
+    vspace 1;
+    $lm += 2;
+    1;
+}
+
+sub dl_end
+{
+    vspace 1;
+    $lm -= 2;
+}
+
+sub dt_start
+{
+    vspace(1);
+    $eat_leading_space = 1;
+    1;
+}
+
+sub dt_end
+{
+}
+
+sub dd_start
+{
+    $lm += 6;
+    vspace(0);
+    $eat_leading_space = 1;
+    1;
+}
+
+sub dd_end
+{
+    $lm -= 6;
+}
+
+
+# Things not formated at all
+sub table_start { out "[TABLE NOT SHOWN]"; 0; }
+sub form_start  { 0; }
+sub font_start  { 1; }  sub font_end {}
+
+
+
+sub textflow
+{
+    if ($pre) {
+	pre_out($_[0]);
+    } else {
+	for (split(/(\s+)/, $_[0])) {
+	    out $_ if length $_;
+	}
+    }
+}
+
+
+sub pre_out
+{
+    # should really handle bold/italic etc.
+    print $_[0];
 }
 
 sub out
 {
-    if ($pos > $rm) {
-	nl; lm;
-	return if $_[0] =~ /^\s*$/;
+    my $text = shift;
+
+    if (defined $vspace) {
+	if ($out) {
+	    nl();
+	    nl() while $vspace-- > 0;
+	    lm();
+	} else {
+	    lm();
+	}
+	$vspace = undef;
     }
-    print $_[0];
-    $pos += length $_[0];
+
+    if ($eat_leading_space) {
+	$text =~ s/^\s+//;
+	$eat_leading_space = 0;
+    }
+
+    if ($pos > $rm) {  # line is long enogh, break it
+	return if $text =~ /^\s*$/;  # white space at eol is ok
+	nl(); lm();
+    }
+    
+    if ($pending_space) {
+	$pending_space = 0;
+	print '·';
+	$pos++;
+	$maxpos = $pos if $maxpos < $pos;
+    }
+
+    $pending_space = 1 if $text =~ s/\s+$//;
+    return unless length $text;
+
+    print $text;
+    $pos += length $text;
     $maxpos = $pos if $maxpos < $pos;
+    $out++;
 }
+
+sub vspace
+{
+    my $new = shift;
+    return if defined $vspace and $vspace > $new;
+    $vspace = $new;
+}
+
 
 sub lm
 {
@@ -190,6 +413,8 @@ sub lm
 sub nl
 {
     print "\n";
+    $out++;
+    $pending_space = 0;
     $pos = 0;
 }
 

@@ -1,6 +1,6 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.43 2001/11/15 06:19:22 gisle Exp $
+# $Id: Headers.pm,v 1.44 2002/06/29 00:41:29 gisle Exp $
 
 =head1 NAME
 
@@ -35,7 +35,7 @@ use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -220,7 +220,7 @@ sub remove_header
     foreach $field (@fields) {
 	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 	my $v = delete $self->{lc $field};
-	push(@values, ref($v) ? @$v : $v) if defined $v;
+	push(@values, ref($v) eq 'ARRAY' ? @$v : $v) if defined $v;
     }
     return @values;
 }
@@ -242,18 +242,17 @@ sub _header
     }
 
     my $h = $self->{$lc_field};
-    my @old = ref($h) ? @$h : (defined($h) ? ($h) : ());
+    my @old = ref($h) eq 'ARRAY' ? @$h : (defined($h) ? ($h) : ());
 
     $op ||= "";
     $val = undef if $op eq 'INIT' && @old;
     if (defined($val)) {
 	my @new = ($op eq 'PUSH') ? @old : ();
-	if (!ref($val)) {
+	if (ref($val) ne 'ARRAY') {
 	    push(@new, $val);
-	} elsif (ref($val) eq 'ARRAY') {
+	}
+	else {
 	    push(@new, @$val);
-	} else {
-	    Carp::croak("Unexpected field value $val");
 	}
 	$self->{$lc_field} = @new > 1 ? \@new : $new[0];
     }
@@ -290,7 +289,7 @@ sub scan
     foreach $key (sort _header_cmp keys %$self) {
         next if $key =~ /^_/;
 	my $vals = $self->{$key};
-	if (ref($vals)) {
+	if (ref($vals) eq 'ARRAY') {
 	    my $val;
 	    for $val (@$vals) {
 		&$sub($standard_case{$key} || $key, $val);
@@ -605,7 +604,7 @@ sub _basic_auth {
 
 =head1 COPYRIGHT
 
-Copyright 1995-2001 Gisle Aas.
+Copyright 1995-2002 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

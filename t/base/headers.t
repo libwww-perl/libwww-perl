@@ -1,8 +1,10 @@
+use strict;
+
 require HTTP::Headers;
 
-print "1..11\n";
+print "1..13\n";
 
-$h = new HTTP::Headers
+my $h = new HTTP::Headers
 	mime_version  => "1.0",
 	content_type  => "text/html";
 
@@ -31,7 +33,7 @@ if ($h->header("date") eq "somedate") {
      print "ok 3\n";
 }
 
-@accept = $h->header("accept");
+my @accept = $h->header("accept");
 if (@accept == 3) {
     print "ok 4\n";
 }
@@ -39,10 +41,10 @@ if (@accept == 3) {
 $h->remove_header("uri", "date");
 
 
-$str = $h->as_string;
+my $str = $h->as_string;
 print "\nHeader looks like this now:\n$str\n";
 
-$lines = ($str =~ tr/\n/\n/);
+my $lines = ($str =~ tr/\n/\n/);
 
 if ($lines == 6) {
     print "ok 5\n";
@@ -51,7 +53,7 @@ if ($lines == 6) {
     print "not ok 5\n";
 }
 
-$h2 = $h->clone;
+my $h2 = $h->clone;
 
 $h->header("accept", "*/*");
 $h->remove_header("my-header");
@@ -72,11 +74,11 @@ $h2->remove_header('mime_version');
 # and add this general header
 $h2->header(Connection => 'close');
 
-@x = ();
+my @x = ();
 $h2->scan(sub {push(@x, shift);});
 
 $str = join(";", @x);
-$expected = "Connection;Accept;Accept;Accept;Content-Type;MY-Header";
+my $expected = "Connection;Accept;Accept;Accept;Content-Type;MY-Header";
 
 if ($str eq $expected) {
     print "ok 8\n";
@@ -126,4 +128,17 @@ print "not " unless $h->remove_header("Abc_Abc") &&
                     !defined($h->header("abc_abc")) &&
                     $h->header("ABC-ABC") eq "bar";
 print "ok 11\n";
+
+# Check if objects as header values works
+require URI;
+$h->header(URI => URI->new("http://www.perl.org"));
+
+print "not " unless $h->header("URI")->scheme eq "http";
+print "ok 12\n";
+
+#$h->push_header("URI", "http://www.perl.com");
+
+print "not " unless $h->header("URI");
+print "ok 13\n";
+
 

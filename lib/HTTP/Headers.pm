@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.31 1998/01/06 09:54:14 aas Exp $
+# $Id: Headers.pm,v 1.32 1998/03/12 12:44:11 aas Exp $
 
 package HTTP::Headers;
 
@@ -29,8 +29,8 @@ The following methods are available:
 =cut
 
 use strict;
-use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+use vars qw($VERSION $TRANSLATE_UNDERSCORE);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -73,6 +73,8 @@ for (@header_order) {
     $standard_case{$lc} = $_;
 }
 
+$TRANSLATE_UNDERSCORE = 1 unless defined $TRANSLATE_UNDERSCORE;
+
 
 
 =item $h = new HTTP::Headers
@@ -104,7 +106,8 @@ sub new
 Get or set the value of a header.  The header field name is not case
 sensitive.  To make the life easier for perl users who wants to avoid
 quoting before the => operator, you can use '_' as a synonym for '-'
-in header names.
+in header names (this behaviour can be suppressed by setting
+$HTTP::Headers::TRANSLATE_UNDERSCORE to a FALSE value).
 
 The value argument may be a scalar or a reference to a list of
 scalars. If the value argument is not defined, then the header is not
@@ -136,7 +139,7 @@ sub header
 sub _header
 {
     my($self, $field, $val, $push) = @_;
-    $field =~ tr/_/-/;  # allow use of '_' as alternative to '-' in fields
+    $field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 
     # $push is only used interally sub push_header
 
@@ -454,7 +457,7 @@ sub remove_header
     my($self, @fields) = @_;
     my $field;
     foreach $field (@fields) {
-	$field =~ tr/_/-/;
+	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 	delete $self->{'_header'}{lc $field};
     }
 }

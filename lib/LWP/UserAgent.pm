@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.25 1996/02/27 13:46:45 aas Exp $
+# $Id: UserAgent.pm,v 1.26 1996/03/05 10:52:52 aas Exp $
 
 package LWP::UserAgent;
 
@@ -216,6 +216,7 @@ sub simple_request
         }
     }
     $response->request($request);  # record request for reference
+    $response->header("Client-Date", HTTP::Date::time2str(time));
     return $response;
 }
 

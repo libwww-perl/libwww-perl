@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.34 2003/10/16 10:30:36 gisle Exp $
+# $Id: ftp.pm,v 1.35 2003/10/16 11:06:07 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -335,13 +335,7 @@ sub request
 		}
 	    }
 	} elsif (!length($remote_file) || ( $ftp->code >= 400 && $ftp->code < 600 )) {
-	# be open minded and treat 4xx and 5xx treated equally - the next cwd will fail anyway if we were too broadminded
-	# see ftp://ftp.rfc-editor.org/in-notes/std/std9.txt
-	# chapter "4.2.  FTP REPLIES" and chapter "6. STATE DIAGRAMS", RETR
-	# 4yz   Transient Negative Completion reply, 450 Requested file action not taken.  File unavailable (e.g., file busy).
-	# 5yz   Permanent Negative Completion reply, 550 Requested action not taken.  File unavailable (e.g., file not found, no access).
-	# the risk applying this patch is the incompatiblity that we now return the status of the CWD and not the RETR
-	    # 550 not a plain file, try to list instead
+	    # not a plain file, try to list instead
 	    if (length($remote_file) && !$ftp->cwd($remote_file)) {
 		LWP::Debug::debug("chdir before listing failed");
 		return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,

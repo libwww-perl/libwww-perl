@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.1 1996/02/26 19:08:57 aas Exp $
+# $Id: RobotUA.pm,v 1.2 1996/02/26 20:27:17 aas Exp $
 
 package LWP::RobotUA;
 
@@ -33,6 +33,9 @@ This class implements a user agent that is suitable for robot
 applications.  Robots should be nice to the servers they visit.  They
 should consult the /robots.txt file to ensure that they are welcomed
 and they should not send too frequent requests.
+
+But, before you consider writing a robot take a look at
+<URL:http://info.webcrawler.com/mak/projects/robots/robots.html>.
 
 When you use a LWP::RobotUA as your user agent, then you do not have
 to think about these things.  Just send requests as you do when you

@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -15,6 +15,8 @@ Bundle::LWP - A bundle to install all libwww-perl related modules
  perl -MCPAN -e 'install Bundle::LWP'
 
 =head1 CONTENTS
+
+URI 0.10           - There are URIs everywhere
 
 Net::FTP 2.00      - If you want ftp://-support
 

@@ -109,6 +109,7 @@ t/base/negotiate.t		Test HTTP::Negotiation module
 t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
+t/base/uri-extra.t		Test URI::URL module some more
 t/html/entities.t		Test HTML::Entities module
 t/html/oldparse.t		Test HTML::Parse compatability module
 t/html/parser.t			Test HTML::Parser module

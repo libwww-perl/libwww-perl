@@ -53,6 +53,7 @@ lib/LWP/IO.pm			Low level IO routines
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
+lib/LWP/Protocol/data.pm        Access to data URLs
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
@@ -71,6 +72,7 @@ lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/_generic.pm		Implements generic hierarchical RL (RFC 1808)
 lib/URI/URL/_login.pm		Base class for telnet, tn3270 and rlogin
+lib/URI/URL/data.pm             Implements data URLs
 lib/URI/URL/file.pm		Implements file URLs
 lib/URI/URL/finger.pm		Implements finger URLs
 lib/URI/URL/ftp.pm		Implements ftp URLs

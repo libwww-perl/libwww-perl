@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.14 1995/09/04 18:43:38 aas Exp $
+# $Id: LWP.pm,v 1.15 1995/09/12 06:15:44 aas Exp $
 
 package LWP;
 
@@ -94,6 +94,6 @@ The latest version of this library is likly to be available from:
 
 The best place to discuss this code is on the
 <libwww-perl@ics.uci.edu> mailing list.  The email addresses of the
-principal authors are <m.koster@nexor.co.uk> and <aas@oslonett.no>.
+principal authors are <m.koster@webcrawler.com> and <aas@oslonett.no>.
 
 =cut

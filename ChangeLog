@@ -16,7 +16,7 @@ Wed Aug  6 1997   Gisle Aas <aas@sn.no>
 
  o  Better HTML::HeadParser documentation
 
- o  Fixed HTML::LinkExtor documentation typo.
+ o  Fixed HTML::LinkExtor documentation typo spotted by Martijn.
 
  o  HTTP::Request::Common now use CRLF for multipart/form-data
 

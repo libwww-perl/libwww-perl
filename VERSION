@@ -76,6 +76,9 @@ sub rewrite
 }
 
 __END__
+HTML::Element 1.05
+HTML::Entities 1.01
+HTML::Parse 1.05
 HTTP::Date 1.10
 LWP 0.04
 LWP::Socket 1.12

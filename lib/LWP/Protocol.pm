@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.19 1996/04/09 15:44:28 aas Exp $
+# $Id: Protocol.pm,v 1.20 1996/04/24 07:56:51 aas Exp $
 
 package LWP::Protocol;
 
@@ -201,7 +201,14 @@ sub collect
 	while ($content = &$collector, length $$content) {
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
-	    &$arg($$content, $response, $self);
+            eval {
+		&$arg($$content, $response, $self);
+	    };
+	    if ($@) {
+	        chomp($@);
+		$response->header('X-Died' => $@);
+		last;
+	    }
 	    alarm($timeout) if $use_alarm
 	}
     }

@@ -27,9 +27,12 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/StatusCode.pm		HTTP Status code processing
 lib/LWP/UserAgent.pm		A WWW UserAgent class
+lib/URI/URL.pm			Class encapsulating URLs
 t/autoload.t
 t/cgi-bin/lwp-test.html
 t/cgi-bin/lwp-test.pl
+t/cgi-bin/moved
+t/cgi-bin/timeout
 t/http-get-auth.t
 t/http-get.t
 t/http-post.t

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.6 1995/07/18 07:33:57 aas Exp $
+# $Id: lwp-request.PL,v 1.7 1995/07/18 20:58:44 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -11,8 +11,9 @@ get - Simple WWW user agent
 
 =head1 SYNOPSIS
 
- get [-eEdvh] [-m method] [-b <base URL>] [-t <timeout>]
-     [-i <if-modified-since>] [-c <content-type>] <url>...
+ get [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
+     [-i <if-modified-since>] [-c <content-type>] 
+     [-p <proxy-url>] <url>...
 
 =head1 DESCRIPTION
 
@@ -64,6 +65,10 @@ requests that take a content, i.e. POST, PUT and CHECKIN.  The default
 Content-Type for POST is C<application/x-www-form-urlencoded>.  The
 default Content-type for the others are C<text/plain>.
 
+=item -p <proxy-url>
+
+Set the proxy to be used for the request(s).
+
 =back
 
 The following options controls what is displayed by the program:
@@ -98,6 +103,10 @@ Print the version number of the program and quit.
 
 Print usage message and quit.
 
+=item -x
+
+Extra debugging output.
+
 =back
 
 Because this program is implemented using the LWP library, it will
@@ -115,15 +124,14 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
 require LWP::Date;
 require URI::URL;
 
-#require LWP::Debug;
-#LWP::Debug::level('+trace');
+require LWP::Debug;
 
 
 # This table lists the methods that are allowed.  It should really be
@@ -166,7 +174,10 @@ $opt_d = undef;  # don't display content
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
 
-unless (getopts("hvuUsedb:t:i:c:m:f")) {
+$opt_x = undef;  # extra debugging info
+$opt_p = undef;  # proxy URL
+
+unless (getopts("xhvuUsedp:b:t:i:c:m:f")) {
     usage();
 }
 
@@ -184,6 +195,7 @@ EOT
 
 usage() if $opt_h || !@ARGV;
 
+LWP::Debug::level('+') if $opt_x;
 
 # Create the user agent object
 $ua = new LWP::UserAgent;
@@ -264,12 +276,17 @@ $errors = 0;
 
 # Ok, now we perform the requests, one URL at a time
 while ($url = shift) {
-    $request->url(new URI::URL $url, $opt_b);
+
+    $url = new URI::URL $url;
+
+    $ua->proxy($url->scheme, $opt_p) if $opt_p;
+
+    $request->url($url, $opt_b);
 
     $response = $ua->request($request);
 
     if ($opt_u || $opt_U) {
-        my $url = $request->url->as_string;
+        my $url = $url->as_string;
         print "$method $url\n";
         print $request->headerAsString, "\n" if $opt_U;
     }
@@ -310,6 +327,7 @@ Usage: $0 [-options] <url>...
     -t <timeout>  Set timeout value
     -i <time>     Set the If-Modified-Since header on the request
     -c <conttype> use this content-type for POST, PUT, CHECKIN
+    -p <proxyurl> use this as a proxy
 
     -u            Display method and URL before any response
     -U            Display request headers after method and URL
@@ -319,5 +337,7 @@ Usage: $0 [-options] <url>...
 
     -v            Show program version
     -h            Print this message
+
+    -x            Extra debugging output
 EOT
 }

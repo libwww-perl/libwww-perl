@@ -1,5 +1,5 @@
 #
-# $Id: Mailcap.pm,v 1.2 1995/08/21 19:17:49 aas Exp $
+# $Id: Mailcap.pm,v 1.3 1995/08/22 08:53:06 aas Exp $
 
 package LWP::Mailcap;
 
@@ -63,9 +63,9 @@ sub new
 		$_ .= <MAILCAP>;
 	    }
 	    chomp;
-	    s/\t/ /g;  # ensure no tabs in line
-	    s/([^\\]);/$1\t/g;
-	    my @parts = split(/ *\t */, $_);
+	    s/\0//g;            # ensure no NULs in the line
+	    s/([^\\]);/$1\0/g;  # make field separator NUL
+	    my @parts = split(/\s*\0\s*/, $_);
 	    my $type = shift(@parts);
 	    $type .= "/*" unless $type =~ m,/,;
 	    my $view = shift(@parts);
@@ -114,7 +114,8 @@ sub new
 
 These methods invoke a suitable progam presenting or manipulating the
 media object in the specified file.  They all return C<1> if a command
-was found, and C<0> otherwise.
+was found, and C<0> otherwise.  You might test C<$?" for the outcome
+of the command.
 
 =cut
 
@@ -149,16 +150,7 @@ sub _createCommand
     my $entry = $self->getEntry($type, $file);
     return undef unless $entry;
     if (exists $entry->{$method}) {
-	$cmd = $entry->{$method};
-	$cmd =~ s/\\%/\t/g;  # hide all escaped %'s
-	$cmd =~ s/%t/$type/g;
-	$cmd =~ s/%s/$file/g;
-	{
-	    local($^W) = 0;  # avoid warnings when expanding %params
-	    $cmd =~ s/%\{\s*(.*?)\s*\}/$params{$1}/g;
-	}
-	$cmd =~ s/\t/%/g;
-	return $cmd;    
+	return $self->expandPercentMacros($entry->{$method}, $type, $file);
     } else {
 	return undef;
     }
@@ -222,33 +214,20 @@ sub getEntry
 
     if ($useCache) {
 	if (exists $self->{'_cache'}{$origtype}) {
-	    print "Using cache for $origtype\n";
 	    return $self->{'_cache'}{$origtype};
 	}
     }
 
-    $file = "" unless defined $file;
     my($fulltype, @params) = split(/\s*;\s*/, $origtype);
     my($type, $subtype) = split(/\//, $fulltype, 2);
-    my %params;
-    for (@params) {
-	my($key,$val) = split(/\s*=\s*/, $_, 2);
-	$params{$key} = $val;
-    }
+    $subtype = "" unless defined $subtype;
 
     my $entry;
     for (@{$self->{"$type/$subtype"}}, @{$self->{"$type/*"}}) {
 	if (exists $_->{'test'}) {
 	    # must run test to see if it applies
-	    my $test = $_->{'test'};
-	    $test =~ s/\\%/\t/g;  # hide all escaped %'s
-	    $test =~ s/%t/$fulltype/g;
-	    $test =~ s/%s/$file/g;
-	    {
-		local($^W) = 0;  # avoid warnings when expanding %params
-		$test =~ s/%\{\s*(.*?)\s*\}/$params{$1}/g;
-	    }
-	    $test =~ s/\t/%/g;
+	    my $test = $self->expandPercentMacros($_->{'test'},
+						  $origtype, $file);
 	    system $test;
 	    next if $?;
 	}
@@ -259,6 +238,29 @@ sub getEntry
     $entry;
 }
 
+
+sub expandPercentMacros
+{
+    my($self,$text,$type,$file) = @_;
+    return $text unless defined $type;
+    $file = "" unless defined $file;
+    my($fulltype, @params) = split(/\s*;\s*/, $type);
+    my($type, $subtype) = split(/\//, $fulltype, 2);
+    my %params;
+    for (@params) {
+	my($key,$val) = split(/\s*=\s*/, $_, 2);
+	$params{$key} = $val;
+    }
+    $text =~ s/\\%/\0/g;  # hide all escaped %'s
+    $text =~ s/%t/$fulltype/g;  # expand %t
+    $text =~ s/%s/$file/g;      # expand %s
+    {                           # expand %{field}
+	local($^W) = 0;  # avoid warnings when expanding %params
+	$text =~ s/%\{\s*(.*?)\s*\}/$params{$1}/g;
+    }
+    $text =~ s/\0/%/g;
+    $text;
+}
 
 # This following procedures can be useful for debugging purposes
 

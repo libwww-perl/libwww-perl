@@ -2,6 +2,24 @@ This code has not been released yet, but here's a change log detailing
 changes as I make them. This will be tidied up in future once the first
 alpha release has been made.
 
+
+Wed Jun 14 1995
+
+Removed lot of rendundant & before function calls.
+
+$this --> $self
+
+&collector passes content as a reference, don't want to copy so much
+
+parameterlist to collect callback has been rearranged
+
+Response::addContent gets a reference to the data
+
+Added some callback documentation to UserAgent.pm
+
+Protocol::file now uses the collector
+
+
 Sun Jun 11 1995
 
 Added basic authentication support
@@ -12,14 +30,17 @@ Change Protocol construction from
 whacky URL.pm (constructor returns
 subclass) to more normal C++'ish way.
 
+
 Wed June 7 ??? 1995
 
 Minor cleanups from printed code inspection
+
 
 Wed May 24 ??? 1995
 
 Added redirection resolution
 Added optional autoloading of protocols
+
 
 Tue May 23 ??? 1995
 
@@ -37,6 +58,7 @@ Renamed LWP::MIME to LWP::MIMEtype
 Changed the tests to cope with all this
 
 It's getting there...
+
 
 Mon, May 22 10:38:15 BST 1995
 

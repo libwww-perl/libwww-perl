@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.4 1995/07/11 13:21:06 aas Exp $
+# $Id: UserAgent.pm,v 1.5 1995/07/11 22:37:03 aas Exp $
 
 package LWP::UserAgent;
 
@@ -50,14 +50,6 @@ routine and optional chuck size, and can be used to construct
 begin before the complete data has arrived.  The callback is called with
 3 arguments:  a reference to the data, a reference to the response
 object and a reference to the protocol object.
-
-A few convenience methods cover frequent uses: the C<getAndPrint>
-and C<getAndStore> methods print and save the results of a GET
-request.  The message is printed on STDERR unless succesful response.
-Both routines returns a C<LWP::Reponse> object.
-
-The C<get> method returns the content of a ducument. It returns undef
-in case of errors.
 
 Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
@@ -384,18 +376,18 @@ and checking of the content-length.  Returns response.
 
 =cut
 
-sub mirror {
+sub mirror
+{
     my($self, $url, $file) = @_;
 
     LWP::Debug::trace('()');
     my $request = new LWP::Request('GET', $url);
 
-    my($ST_SIZE, $ST_MTIME) = (7, 9);
     if (-e $file) {
-	my($mtime) = (stat($file))[$ST_MTIME];
+	my($mtime) = (stat($file))[9];
 	if($mtime) {
 	    $request->header('If-Modified-Since',
-			     &LWP::Date::time2str($mtime));
+			     LWP::Date::time2str($mtime));
 	}
     }
     my $tmpfile = "$file-$$";
@@ -403,7 +395,7 @@ sub mirror {
     my $response = $self->request($request, $tmpfile);
     if ($response->isSuccess) {
 	
-	my $file_length = (stat($tmpfile))[$ST_MTIME];
+	my $file_length = (stat($tmpfile))[7];
 	my($content_length) = $response->header('Content-length');
     
 	if (defined $content_length and $file_length < $content_length) {
@@ -419,6 +411,8 @@ sub mirror {
 	    rename($tmpfile, $file) or
 		die "Cannot rename '$tmpfile' to '$file': $!\n";
 	}
+    } else {
+	unlink($tmpfile);
     }
     return $response;
 }

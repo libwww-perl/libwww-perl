@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.1 1995/09/05 23:03:51 aas Exp $
+# $Id: Entities.pm,v 1.2 1996/02/05 18:01:07 aas Exp $
 
 =head1 NAME
 
@@ -10,33 +10,46 @@ encode - Encode chars in a string using HTML entities
 
 =head1 SYNOPSIS
 
- require HTML::Entities;
+ use HTML::Entities;
 
  $a = "V&aring;re norske tegn b&oslash;r &#230res";
- HTML::Entities::decode($a);
- HTML::Entities::encode($a, "\200-\377");
+ decode_entities($a);
+ encode_entities($a, "\200-\377");
 
 =head1 DESCRIPTION
 
-The HTML::Entities::decode() routine replace valid HTML entities found
-in the string with the corresponding character.  The
-HTML::Entities::encode() routine replace the characters specified by the
-second argument with their entity representation.  The default set of
-characters to expand are control chars, high bit chars and '<', '&', '>'
-and '"'.
+The decode_entities() routine replace valid HTML entities found
+in the string with the corresponding character.
 
-Both routines modify the string and return it.
+The encode_entities() routine replace the characters specified by the
+second argument with their entity representation.  The default set of
+characters to expand are control chars, high-bit chars and the '<',
+'&', '>' and '"' character.
+
+Both routines modify the string passed in as the first argument and
+return it.
+
+If you prefer not to import these routines into your namespace you can
+call them as:
+
+  require HTML::Entities;;
+  $encoded = HTML::Entities::encode($a);
+  $decoded = HTML::Entities::decode($a);
+
+The module can also export the %char2entity and the %entity2char
+hashes which contains the mapping from all characters to the
+corresponding entities.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@a.sn.no>
 
 =cut
 
@@ -44,9 +57,10 @@ Gisle Aas <aas@oslonett.no>
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT_OK = qw(encode decode);
+@EXPORT = qw(encode_entities decode_entities);
+@EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -139,7 +153,7 @@ for (0 .. 255) {
 }
 
 
-sub decode
+sub decode_entities
 {
     for (@_) {
 	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
@@ -148,15 +162,25 @@ sub decode
     $_[0];
 }
 
-sub encode
+sub encode_entities
 {
     if (defined $_[1]) {
-	$_[0] =~ s/([$_[1]])/$char2entity{$1}/g;
+	unless (exists $subst{$_[1]}) {
+            # Because we can't compile regex we fake it with a cached sub
+	    $subst{$_[1]} =
+	      eval "sub {\$_[0] =~ s/([$_[1]])/\$char2entity{\$1}/g; }";
+	    die $@ if $@;
+        }
+        &{$subst{$_[1]}}($_[0]);
     } else {
 	# Encode control chars, high bit chars and '<', '&', '>', '"'
 	$_[0] =~ s/([^\n\t !#$%'-;=?-~])/$char2entity{$1}/g;
     }
     $_[0];
 }
+
+# Set up aliases
+*encode = \&encode_entities;
+*decode = \&decode_entities;
 
 1;

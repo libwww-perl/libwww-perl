@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.68 1999/08/02 22:57:09 gisle Exp $
+# $Id: UserAgent.pm,v 1.69 1999/09/21 05:53:30 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.68 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.69 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -329,7 +329,7 @@ sub request
 	    if ($@) {
 		if ($@ =~ /^Can\'t locate/) {
 		    $response->header("Client-Warning" =>
-				      "Unsupport authentication scheme '$scheme'");
+				      "Unsupported authentication scheme '$scheme'");
 		} else {
 		    $response->header("Client-Warning" => $@);
 		}
@@ -512,7 +512,7 @@ sub is_protocol_supported
 	# assume we got a reference to an URI object
 	$scheme = $scheme->scheme;
     } else {
-	Carp::croak("Illeal scheme '$scheme' passed to is_protocol_supported")
+	Carp::croak("Illegal scheme '$scheme' passed to is_protocol_supported")
 	    if $scheme =~ /\W/;
 	$scheme = lc $scheme;
     }
@@ -621,11 +621,11 @@ specify proxies like this (sh-syntax):
 
   gopher_proxy=http://proxy.my.place/
   wais_proxy=http://proxy.my.place/
-  no_proxy="my.place"
+  no_proxy="localhost,my.domain"
   export gopher_proxy wais_proxy no_proxy
 
 Csh or tcsh users should use the C<setenv> command to define these
-envirionment variables.
+environment variables.
 
 =cut
 

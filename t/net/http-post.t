@@ -19,6 +19,7 @@ $url = new URI::URL("http://$netloc$script");
 my $form = 'searchtype=Substring';
 
 my $request = new HTTP::Request('POST', $url, undef, $form);
+$request->header('Content-Type', 'application/x-www-form-urlencoded');
 
 my $response = $ua->request($request, undef, undef);
 

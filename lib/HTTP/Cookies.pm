@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -36,7 +36,7 @@ to both store and retrieve information on the client side of the
 connection.  For more information about cookies refer to
 <URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
 <URL:http://www.cookiecentral.com/>.  This module also implements the
-new style cookies described in I<draft-ietf-http-state-man-mec-08.txt>.
+new style cookies described in I<RFC 2965>.
 The two variants of cookies are supposed to be able to coexist happily.
 
 Instances of the class I<HTTP::Cookies> are able to store a collection
@@ -65,6 +65,7 @@ parameters are recognized:
   file:            name of the file to restore cookies from and save cookies to
   autosave:        save during destruction (bool)
   ignore_discard:  save even cookies that are requested to be discarded (bool)
+  hide_cookie2:    don't add Cookie2 header to requests
 
 Future parameters might include (not yet implemented):
 
@@ -116,9 +117,7 @@ sub add_cookie_header
     my $set_ver;
     my $netscape_only = 0; # An exact domain match applies to any cookie
 
-    while (($domain =~ tr/././) >= 2 || # must be at least 2 dots
-           $domain =~ /\.local$/)
-    {
+    while ($domain =~ /\./) {
 
         LWP::Debug::debug("Checking $domain for cookies");
 	my $cookies = $self->{COOKIES}{$domain};
@@ -168,7 +167,7 @@ sub add_cookie_header
 				      "Netscape-style cookies only");
 		    next;
 		}
-		
+
 	        LWP::Debug::debug("   it's a match");
 
 		# set version number of cookie header.
@@ -177,8 +176,8 @@ sub add_cookie_header
 		if (!$set_ver++) {
 		    if ($version >= 1) {
 			push(@cval, "\$Version=$version");
-		    } else {
-			$request->header(Cookie2 => "\$Version=1");
+		    } elsif (!$self->{hide_cookie2}) {
+			$request->header(Cookie2 => '$Version="1"');
 		    }
 		}
 
@@ -208,7 +207,7 @@ sub add_cookie_header
 	# leading name components and leading dots.  When this
 	# results in a domain with no leading dot, it is for
 	# Netscape cookie compatibility only:
-	#   
+	#
 	# a.b.c.net	Any cookie
 	# .b.c.net	Any cookie
 	# b.c.net	Netscape cookie only
@@ -410,10 +409,6 @@ sub set_cookie
     my($version,
        $key, $val, $path, $domain, $port,
        $path_spec, $secure, $maxage, $discard, $rest) = @_;
-
-    # there must always be at least 2 dots in a domain
-    return $self if ($domain =~ tr/././) < 2 &&
-                     $domain !~ /\.local$/;
 
     # path and key can not be empty (key can't start with '$')
     return $self if !defined($path) || $path !~ m,^/, ||

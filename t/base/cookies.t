@@ -57,7 +57,7 @@ $req = HTTP::Request->new(GET => "http://www.acme.com/");
 $c->add_cookie_header($req);
 
 print "not " unless $req->header("Cookie") eq "CUSTOMER=WILE_E_COYOTE" &&
-                    $req->header("Cookie2") eq "\$Version=1";
+                    $req->header("Cookie2") eq "\$Version=\"1\"";
 print "ok 1\n";
 
 $res->request($req);
@@ -518,7 +518,7 @@ $c->add_cookie_header($req);
 #print $req->as_string;
 
 print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
-                    $req->header("Cookie2") eq "\$Version=1";
+                    $req->header("Cookie2") eq "\$Version=\"1\"";
 print "ok 33\n";
 
 
@@ -528,7 +528,7 @@ $c->add_cookie_header($req);
 #print $req->as_string;
 
 print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
-                    $req->header("Cookie2") eq "\$Version=1";
+                    $req->header("Cookie2") eq "\$Version=\"1\"";
 print "ok 34\n";
 
 

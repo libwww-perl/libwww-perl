@@ -1,5 +1,4 @@
-#
-# $Id: RobotRules.pm,v 1.3 1995/10/16 15:40:06 aas Exp $
+# $Id: RobotRules.pm,v 1.4 1996/02/26 18:39:34 aas Exp $
 
 =head1 NAME
 
@@ -31,12 +30,12 @@ Note that the same RobotRules object can parse multiple files.
 
 =cut
 
-package RobotRules;
+package WWW::RobotRules;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-use URI::URL;
+use URI::URL ();
 use strict;
 
 
@@ -77,7 +76,7 @@ sub parse {
     $txt =~ s/\015\012/\n/mg;	# fix weird line endings
 
     my $ua;
-    my $isMe = 0;		# 1 iff this record is for me
+    my $is_me = 0;		# 1 iff this record is for me
     my $isAnon = 0;		# 1 iff this record is for *
     my @meDisallowed = ();	# rules disallowed for me
     my @anonDisallowed = ();	# rules disallowed for *
@@ -86,21 +85,21 @@ sub parse {
 	s/\s*\#.*//;
 
 	if (/^\s*$/) {		# blank line
-	    if ($isMe) {
+	    if ($is_me) {
 		# That was our record. No need to read the rest.
 		last;
 	    }
-	    $isMe = $isAnon = 0;
+	    $is_me = $isAnon = 0;
 	    @meDisallowed = ();
 	}
 	elsif (/^User-agent:\s*(.*)\s*$/i) {
 	    $ua = $1;
-	    if ($isMe) {
+	    if ($is_me) {
 		# This record already had a User-agent that
 		# we matched, so just continue.
 	    }
-	    elsif($self->isMe($ua)) {
-		$isMe = 1;
+	    elsif($self->is_me($ua)) {
+		$is_me = 1;
 	    }
 	    elsif ($ua eq '*') {
 		$isAnon = 1;
@@ -119,7 +118,7 @@ sub parse {
 		$full_path = $abs->full_path();
 	    }
 
-	    if ($isMe) {
+	    if ($is_me) {
 		push(@meDisallowed, $full_path);
 	    }
 	    elsif ($isAnon) {
@@ -131,7 +130,7 @@ sub parse {
 	}
     }
 
-    if ($isMe) {
+    if ($is_me) {
 	$self->{'rules'}{$hostport} = \@meDisallowed;
     }
     elsif (@anonDisallowed) {
@@ -139,12 +138,12 @@ sub parse {
     }
 }
 
-# isMe()
+# is_me()
 #
 # Returns TRUE if the given name matches the
 # name of this robot
 #
-sub isMe {
+sub is_me {
     my($self, $ua) = @_;
 
     my $me = $self->{'ua'};

@@ -6,10 +6,6 @@ sub default_port { 80 }
 
 require Carp;
 
-*user     = \&URI::URL::bad_method;
-*password = \&URI::URL::bad_method;
-
-
 # @ISA = qw(AutoLoader)      # This comment is needed by AutoSplit.
 sub keywords;
 sub query_form;

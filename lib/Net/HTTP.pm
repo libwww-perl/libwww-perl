@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.10 2001/04/10 05:50:28 gisle Exp $
+# $Id: HTTP.pm,v 1.11 2001/04/10 06:21:48 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -83,7 +83,8 @@ sub write_request {
     my $self = shift;
     my $method = shift;
     my $uri = shift;
-    my $content = (@_ && @_ % 2) ? pop : "";
+
+    my $content = (@_ % 2) ? pop : "";
     my @headers = @_;
 
     for ($method, $uri) {
@@ -111,7 +112,7 @@ sub write_request {
 	print $self "Connection: close$CRLF" if $ver ge "1.1";
     }
 
-    my %given = (host => 0, "content-type" => 0);
+    my %given = (host => 0, "content-length" => 0);
     while (@headers) {
 	my($k, $v) = splice(@headers, 0, 2);
 	my $lc_k = lc($k);
@@ -124,9 +125,10 @@ sub write_request {
 	print $self "$k: $v$CRLF";
     }
 
-    if (length($content) && !$given{'content-type'}) {
+    if (length($content) && !$given{'content-length'}) {
 	print $self "Content-length: " . length($content) . $CRLF;
     }
+
     print $self "Host: ${*$self}{'http_host'}$CRLF"
 	unless $given{host};
 
@@ -220,7 +222,7 @@ sub read_response_headers {
     ${*$self}{'http_te'} = join("", @te);
     ${*$self}{'http_content_length'} = $content_length;
     ${*$self}{'http_first_body'}++;
-
+    delete ${*$self}{'http_trailers'};
     ($peer_ver, $code, $message, @headers);
 }
 
@@ -262,14 +264,7 @@ sub read_entity_body {
     }
 
     if (defined $chunked) {
-	if ($chunked > 0) {
-	    my $n = $chunked;
-	    $n = $size if $size && $size < $n;
-	    $n = my_read($self, $$buf_ref, $n);
-	    ${*$self}{'http_chunked'} = $chunked - $n;
-	    return $n;
-	}
-	else {
+	if ($chunked <= 0) {
 	    my $line = my_readline($self);
 	    if ($chunked == 0) {
 		die "Not empty: '$line'" unless $line eq "";
@@ -277,19 +272,19 @@ sub read_entity_body {
 	    }
 	    $line =~ s/;.*//;  # ignore potential chunk parameters
 	    $line =~ s/\s+$//; # avoid warnings from hex()
-	    my $n = hex($line);
-	    if ($n) {
-		${*$self}{'http_chunked'} = $n;
-		$$buf_ref = "";
-		return "0E0";
-	    }
-	    else {
-		# XXX read trailers
+	    $chunked = hex($line);
+	    if ($chunked == 0) {
 		${*$self}{'http_trailers'} = [$self->read_header_lines];
 		$$buf_ref = "";
 		return 0;
 	    }
 	}
+
+	my $n = $chunked;
+	$n = $size if $size && $size < $n;
+	$n = my_read($self, $$buf_ref, $n);
+	${*$self}{'http_chunked'} = $chunked - $n;
+	return $n;
     }
     elsif (defined $bytes) {
 	return 0 unless $bytes;
@@ -301,7 +296,7 @@ sub read_entity_body {
     }
     else {
 	# read until eof
-	$size ||= 1024;
+	$size ||= 8*1024;
 	return my_read($self, $$buf_ref, $size);
     }
 }

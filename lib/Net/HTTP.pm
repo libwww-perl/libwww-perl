@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.23 2001/04/21 03:40:30 gisle Exp $
+# $Id: HTTP.pm,v 1.24 2001/04/21 03:53:53 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -453,13 +453,21 @@ format_request().  Returns true if successful.
 
 =item $s->write_chunk($data)
 
-Will write a new chunk of data.
+Will write a new chunk of request entity body data.  This method
+should only be used if the C<Transfer-Encoding> header with a value of
+C<chunked> was sent in the request.  Note, writing zero-length data is
+a no-op.  Use the write_chunk_eof() method to signal end of entity
+body data.
+
+Returns true if successful.
 
 =item $s->write_chunk_eof(%trailers)
 
 Will write eof marker for chunked data and optional trailers.  Note
-that trailers should not really be used unless the header signaled it
+that trailers should not really be used unless is was signaled
 with a C<Trailer> header.
+
+Returns true if successful.
 
 =item ($code, $mess, %headers) = $s->read_response_headers
 

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.27 2001/04/29 06:14:10 gisle Exp $
+# $Id: HTTP.pm,v 1.28 2001/04/29 07:22:04 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -12,6 +12,22 @@ require IO::Socket::INET;
 @ISA=qw(IO::Socket::INET);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
+
+my $zlib_ok;
+{
+    # Try to load Compress::Zlib.
+    # It might be a better idea to load this on demand the first time
+    # the 'send_te' option is turned on.
+    local $@;
+    local $SIG{__DIE__};
+
+    eval {
+	require Compress::Zlib;
+	Compress::Zlib->VERSION(1.10);
+	$zlib_ok++;
+    };
+    warn $@ if $@ && $^W;
+}
 
 sub configure {
     my($self, $cnf) = @_;
@@ -33,6 +49,7 @@ sub configure {
     $http_version = "1.1" unless defined $http_version;
     my $peer_http_version = delete $cnf->{PeerHTTPVersion};
     $peer_http_version = "1.0" unless defined $peer_http_version;
+    my $send_te = delete $cnf->{SendTE};
 
     my $sock = $self->SUPER::configure($cnf);
     if ($sock) {
@@ -42,6 +59,7 @@ sub configure {
 	}
 	$sock->host($host);
 	$sock->keep_alive($keep_alive);
+	$sock->send_te($send_te);
 	$sock->http_version($http_version);
 	$sock->peer_http_version($peer_http_version);
 
@@ -61,6 +79,13 @@ sub keep_alive {
     my $self = shift;
     my $old = ${*$self}{'http_keep_alive'};
     ${*$self}{'http_keep_alive'} = shift if @_;
+    $old;
+}
+
+sub send_te {
+    my $self = shift;
+    my $old = ${*$self}{'http_send_te'};
+    ${*$self}{'http_send_te'} = shift if @_;
     $old;
 }
 
@@ -105,7 +130,7 @@ sub format_request {
 
     my @h;
     my @connection;
-    my %given = (host => 0, "content-length" => 0);
+    my %given = (host => 0, "content-length" => 0, "te" => 0);
     while (@_) {
 	my($k, $v) = splice(@_, 0, 2);
 	my $lc_k = lc($k);
@@ -124,6 +149,16 @@ sub format_request {
     }
 
     my @h2;
+    if ($given{te}) {
+	push(@connection, "TE") unless grep lc($_) eq "te", @connection;
+    }
+    elsif ($self->send_te && $zlib_ok) {
+	# gzip is less wanted since the Compress::Zlib interface for
+	# it does not really allow chunked decoding to take place easily.
+	push(@h2, "TE: deflate,gzip;q=0.3");
+	push(@connection, "TE");
+    }
+
     unless (grep lc($_) eq "close", @connection) {
 	if ($self->keep_alive) {
 	    if ($peer_ver eq "1.0") {
@@ -297,14 +332,14 @@ sub read_entity_body {
 	    die "Chunked must be last Transfer-Encoding '$te'" unless pop(@te) eq "chunked";
 
 	    for (@te) {
-		if ($_ eq "deflate") {
-		    require Compress::Zlib;
+		if ($_ eq "deflate" && $zlib_ok) {
+		    #require Compress::Zlib;
 		    my $i = Compress::Zlib::inflateInit();
 		    die "Can't make inflator" unless $i;
 		    $_ = sub { scalar($i->inflate($_[0])) }
 		}
-		elsif ($_ eq "gzip") {
-		    require Compress::Zlib;
+		elsif ($_ eq "gzip" && $zlib_ok) {
+		    #require Compress::Zlib;
 		    my @buf;
 		    $_ = sub {
 			push(@buf, $_[0]);
@@ -355,7 +390,7 @@ sub read_entity_body {
 		$$buf_ref = "";
 
 		my $n = 0;
-		if (my $transforms = ${*$self}{'http_te2'}) {
+		if (my $transforms = delete ${*$self}{'http_te2'}) {
 		    for (@$transforms) {
 			$$buf_ref = &$_($$buf_ref, 1);
 		    }
@@ -460,6 +495,7 @@ C<IO::Socket::INET> as well as these:
 
   Host:            Initial host attribute value
   KeepAlive:       Initial keep_alive attribute value
+  SendTE:          Initial send_te attribute_value
   HTTPVersion:     Initial http_version attribute value
   PeerHTTPVersion: Initial peer_http_version attribute value
 
@@ -471,11 +507,19 @@ should not be set to an empty string (or C<undef>).
 =item $s->keep_alive
 
 Get/set the I<keep-alive> value.  If this value is TRUE then the
-request will sendt with headers indicating that the server should try
+request will be sent with headers indicating that the server should try
 to keep the connection open so that multiple requests can be sent.
 
 The actual headers set will depend on the value of the C<http_version>
 and C<peer_http_version> attributes.
+
+=item $s->send_te
+
+Get/set the a value indicating if the request will be sent with a "TE"
+header to indicate the transfer encodings that the server chose to
+use.  If the C<Compress::Zlib> module is installed then this will
+annouce that this client accept both the I<deflate> and I<gzip>
+encodings.
 
 =item $s->http_version
 

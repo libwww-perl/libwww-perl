@@ -41,7 +41,7 @@ else {
     use Config;
     my $perl = $Config{'perlpath'};
     $perl = $^X if $^O eq 'VMS';
-    open(DAEMON, "$perl local/http.t daemon |") or die "Can't exec daemon: $!";
+    open(DAEMON, "$perl local/http-get.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..19\n";
@@ -105,8 +105,6 @@ more than one line.',
 );
 #print $res->as_string;
 
-undef $req;
-
 print "not " unless $res->is_success
                and  $res->code == 200 && $res->message eq "OK";
 print "ok 3\n";
@@ -151,12 +149,12 @@ sub httpd_get_file
     my %form = $r->url->query_form;
     my $file = $form{'name'};
     $c->send_file_response($file);
-    unlink($file) if $file =~ /^test-/;
 }
 
 _write_file();
 
 $res = $ua->get( url("/file?name=$file", $base) );
+
 #print $res->as_string;
 
 print "not " unless $res->is_success
@@ -167,9 +165,6 @@ print "not " unless $res->is_success
 print "ok 5\n";		
 
 
-
-
-_write_file();
 
 {
 
@@ -190,6 +185,8 @@ print "not " unless $res->is_success
 print "ok 6\n";		
 
 }
+
+unlink($file);
 
 
 

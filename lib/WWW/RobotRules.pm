@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.16 1998/06/09 12:14:43 aas Exp $
+# $Id: RobotRules.pm,v 1.16.2.1 1998/09/11 12:27:19 aas Exp $
 
 package WWW::RobotRules;
 
@@ -32,7 +32,7 @@ WWW::RobotsRules - Parse robots.txt files
 
 This module parses a F<robots.txt> file as specified in
 "A Standard for Robot Exclusion", described in
-<URL:http://info.webcrawler.com/mak/projects/robots/norobots.html>
+<http://info.webcrawler.com/mak/projects/robots/norobots.html>
 Webmasters can use the F<robots.txt> file to disallow conforming
 robots access to parts of their WWW server.
 
@@ -46,12 +46,11 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16.2.1 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-
-use URI::URL ();
 use strict;
+use URI ();
 
 
 =item $rules = new WWW::RobotRules 'MOMspider/1.0'
@@ -83,9 +82,8 @@ retrieve the F</robots.txt> file, and the contents of the file.
 
 sub parse {
     my($self, $url, $txt, $fresh_until) = @_;
-
-    $url = new URI::URL $url unless ref($url);	# make it URL
-    my $netloc = $url->netloc;
+    $url = URI->new($url) unless ref($url);
+    my $netloc = $url->authority;
 
     $self->clear_rules($netloc);
     $self->fresh_until($netloc, $fresh_until || (time + 365*24*3600));
@@ -135,7 +133,7 @@ sub parse {
 	    my $disallow = $1;
 	    $disallow =~ s/\s+$//;
 	    if (length $disallow) {
-		$disallow = URI::URL->new($disallow, $url)->full_path;
+		$disallow = URI->new($disallow, $url)->path_query;
 	    }
 
 	    if ($is_me) {
@@ -176,14 +174,13 @@ Returns TRUE if this robot is allowed to retrieve this URL.
 
 sub allowed {
     my($self, $url) = @_;
-    $url = URI::URL->new($url) unless ref $url;	# make it URL
-
-    my $netloc = $url->netloc;
+    $url = URI->new($url) unless ref $url;	# make it URI
+    my $netloc = $url->authority;
 
     my $fresh_until = $self->fresh_until($netloc);
     return -1 if !defined($fresh_until) || $fresh_until < time;
 
-    my $str = $url->full_path;
+    my $str = $url->path_query;
     my $rule;
     for $rule ($self->rules($netloc)) {
 	return 1 unless length $rule;
@@ -301,7 +298,7 @@ __END__
 
 The format and semantics of the "/robots.txt" file are as follows
 (this is an edited abstract of
-<URL:http://info.webcrawler.com/mak/projects/robots/norobots.html>):
+<http://info.webcrawler.com/mak/projects/robots/norobots.html>):
 
 The file consists of one or more records separated by one or more
 blank lines. Each record contains lines of the form

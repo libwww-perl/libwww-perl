@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.26 1997/09/01 08:39:23 aas Exp $
+# $Id: Date.pm,v 1.27 1997/12/01 10:05:55 aas Exp $
 #
 package HTTP::Date;
 
@@ -99,7 +99,7 @@ modify it under the same terms as Perl itself.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -189,7 +189,7 @@ sub str2time ($;$)
 	  and last PARSEDATE;
 
       # Then the Unix 'ls -l' date format
-      ($mon, $day, $yr, $hr, $min) =
+      ($mon, $day, $yr, $hr, $min, $sec) =
 	/^\s*
 	 (\w{3})               # month
 	    \s+
@@ -198,6 +198,7 @@ sub str2time ($;$)
 	 (?:
 	    (\d\d\d\d) |       # year
 	    (\d{1,2}):(\d{2})  # hour:min
+            (?::(\d\d))?       # optional seconds
 	 )
 	 \s*$
        /x

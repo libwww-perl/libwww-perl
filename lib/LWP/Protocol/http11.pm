@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.24 2001/09/12 23:03:05 gisle Exp $
+# $Id: http11.pm,v 1.25 2001/10/10 22:17:00 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -327,6 +327,8 @@ sub request
 
     ($code, $mess, @h) = $socket->read_response_headers
 	unless $code;
+    ($code, $mess, @h) = $socket->read_response_headers
+	if $code eq "100";
 
     my $response = HTTP::Response->new($code, $mess);
     my $peer_http_version = $socket->peer_http_version;

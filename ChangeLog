@@ -11,7 +11,7 @@ Wed Apr  3 1996   Gisle Aas <aas@sn.no>
 
  o  Graham Barr's patch to File::Listing to make it more OO internally
 
- o  content_type() return value is canonialized
+ o  content_type() return value is canonicalized
 
  o  $ua->request() does not die on bad URLs any more
 

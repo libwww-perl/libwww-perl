@@ -1,5 +1,7 @@
 Mon Feb  5 1996   Gisle Aas <aas@sn.no>
 
+ o  Release 5b7
+
  o  Perl5.002 is required now
 
  o  Rewrite of the URI::URL module (version 4.00)
@@ -54,6 +56,9 @@ Mon Feb  5 1996   Gisle Aas <aas@sn.no>
  o  Updated the LWP::Socket module to use the new Socket.pm interface.
 
  o  LWP::Protocol::http sends the new HTTP/1.1 'Host' header.
+
+ o  LWP::Protocol::file use $url->local_path to get a file to open.
+    It also inserts a <BASE> tag in directories instead of a redirect.
 
  o  MIME::Base64 routines can be called as MIME::Base64::encode() and
     MIME::Base64::decode().  Same kind of thing for QuotedPrint.

@@ -51,12 +51,12 @@ use vars qw(%LINK_ELEMENT);
  embed  => 'src',   # used in Netscape 2.0 for Shockwave and things like that
 );
 
-=head2 $p = HTML::LinkExtor->new($callback, $base)
+=head2 $p = HTML::LinkExtor->new([$callback[, $base]])
 
-The constructor takes two argument.  The first is a reference to a
-callback routine.  It will be called as links are found.  If a
+The constructor takes two optional argument. The first is a reference
+to a callback routine. It will be called as links are found. If a
 callback is not provided, then links are just accumulated internally
-and can be retrieved by calling the $p->links() method.  The $base is
+and can be retrieved by calling the $p->links() method. The $base is
 an optional base URL used to absolutize all URLs found.
 
 The callback is called with the lowercase tag name as first argument,
@@ -104,7 +104,7 @@ sub start
 Return links found in the document as an array.  Each array element
 contains an anonymous array with the follwing values:
 
-  [$tag, $attr1, $url1, $attr2, $url2,...]
+  [$tag, $attr => $url1, $attr2 => $url2,...]
 
 Note that $p->links will always be empty if a callback routine was
 provided when the L<HTML::LinkExtor> was created.
@@ -126,6 +126,39 @@ sub parse_file
     $self->SUPER::parse_file(@_);
 }
 
+=head1 EXAMPLE
+
+This is an example showing how you can extract links as a document
+is received using LWP:
+
+  use LWP::UserAgent;
+  use HTML::LinkExtor;
+  use URI::URL;
+
+  $url = "http://www.sn.no/";  # for instance
+  $ua = new LWP::UserAgent;
+
+  # Set up a callback that collect image links
+  my @imgs = ();
+  sub callback {
+     my($tag, %attr) = @_;
+     return if $tag ne 'img';  # we only look closer at <img ...>
+     push(@imgs, values %attr);
+  }
+
+  # Make the parser.  Unfortunately, we don't know the base yet (it might
+  # be diffent from $url)
+  $p = HTML::LinkExtor->new(\&callback);
+
+  # Request document and parse it as it arrives
+  $res = $ua->request(HTTP::Request->new(GET => $url), sub {$p->parse($_[0])});
+
+  # Expand all image URLs to absolute ones
+  my $base = $res->base;
+  @imgs = map { $_ = url($_, $base)->abs; } @imgs;
+
+  # Print them out
+  print join("\n", @imgs), "\n";
 
 =head1 SEE ALSO
 

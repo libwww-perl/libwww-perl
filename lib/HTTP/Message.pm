@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.16 1996/09/18 12:14:39 aas Exp $
+# $Id: Message.pm,v 1.17 1996/10/17 11:42:43 aas Exp $
 
 package HTTP::Message;
 
@@ -62,6 +62,15 @@ sub clone
     my $clone = new HTTP::Message $self->{'_headers'}, $self->{'_content'};
     $clone;
 }
+
+=head2 $mess->protocol([$proto])
+
+Sets the HTTP protocol used for the message.  The protocol() is a string
+like "HTTP/1.0" or "HTTP/1.1".
+
+=cut
+
+sub protocol { shift->_elem('_protocol',  @_); }
 
 =head2 $mess->content([$content])
 

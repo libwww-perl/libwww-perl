@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.5 1995/07/14 00:23:03 aas Exp $
+# $Id: Headers.pm,v 1.6 1995/07/15 07:55:08 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -83,7 +83,7 @@ sub new
 
     my($field, $val);
     while (($field, $val) = splice(@_, 0, 2)) {
-	$self->header($field, $val);
+        $self->header($field, $val);
     }
     $self;
 }
@@ -106,8 +106,9 @@ sub clone
 =head2 header($field [, $val])
 
 Get/Set the value of a request header.  The header field name is not
-case sensitive.  The value argument may be undefined (header is not
-modified), a scalar or a reference to a list of scalars.
+case sensitive.  The value argument may be a scalar or a reference to
+a list of scalars. If the value argument is not defined the header is
+not modified.
 
 The list of previous values is returned.  Only the first header value
 is returned in scalar context.
@@ -122,6 +123,8 @@ sub header
 {
     my($self, $field, $val, $push) = @_;
 
+    # $push is only used interally sub pushHeader
+
     croak('need a field name') unless defined $field;
     croak('to many parameters') if @_ > 4;
 
@@ -132,12 +135,12 @@ sub header
         @old = @$thisHeader;  # save it so we can return it
     }
     if (defined $val) {
-	@$thisHeader = () unless $push;
+        @$thisHeader = () unless $push;
         if (!ref($val)) {
-	    # scalar: create list with single value
+            # scalar: create list with single value
             push(@$thisHeader, $val);
         } elsif (ref($val) eq 'ARRAY') {
-	    # list: copy list            
+            # list: copy list            
             push(@$thisHeader, @$val);
         } else {
             croak("Unexpected field value $val");
@@ -161,14 +164,14 @@ reference to a list of scalars.
 
 sub pushHeader
 {
-    croak 'Usage: $h->pushHeader($field, $val)'	if @_ != 3;
-    shift->header(@_, "PUSH");
+    croak 'Usage: $h->pushHeader($field, $val)' if @_ != 3;
+    shift->header(@_, 'PUSH');
 }
 
 
 =head2 removeHeader($field)
 
-This function removes the header with the spesified name.
+This function removes the header with the specified name.
 
 =cut
 
@@ -209,27 +212,27 @@ sub scan
     my($self, $sub) = @_;
     my $field;
     foreach $field (sort _headerCmp keys %{$self->{'_header'}} ) {
-	my $list = $self->{'_header'}{$field};
-	if (defined $list) {
-	    my $val;
-	    my $std_field = $standard_case{$field};
-	    unless (defined $std_field) {
-		# unknown header, determine suitable "casing" for it
-		$std_field = $field;
-		$std_field =~ s/\b(\w)/\u$1/g;
-		$standard_case{$field} = $std_field; # remeber it
-	    }
-	    for $val (@$list) {
-		&$sub($std_field, $val);
-	    }
-	}
+        my $list = $self->{'_header'}{$field};
+        if (defined $list) {
+            my $val;
+            my $std_field = $standard_case{$field};
+            unless (defined $std_field) {
+                # unknown header, determine suitable "casing" for it
+                $std_field = $field;
+                $std_field =~ s/\b(\w)/\u$1/g;
+                $standard_case{$field} = $std_field; # remember it
+            }
+            for $val (@$list) {
+                &$sub($std_field, $val);
+            }
+        }
     }
 }
 
 
 =head2 asString([$endl])
 
-Return the header fields as a formatted MIME header.  Since it use
+Return the header fields as a formatted MIME header.  Since it uses
 C<scan()> to build the string, the result will use case as suggested
 by HTTP Spec, and it will follow recommended "Good Practice" of
 ordering the header fieds.
@@ -242,19 +245,19 @@ sub asString
     $endl = "\n" unless defined $endl;
 
     my @result = ();
-    my $last_field = "";
+    my $last_field = '';
 
     $self->scan(sub {
-	my($field, $val) = @_;
-	if ($field eq $last_field) {
-	    push(@result, " $val");  # continuation line
-	} else {
-	    push(@result, "$field: $val");
-	}
-	$last_field = $field;
+        my($field, $val) = @_;
+        if ($field eq $last_field) {
+            push(@result, " $val");  # continuation line
+        } else {
+            push(@result, "$field: $val");
+        }
+        $last_field = $field;
     } );
 
-    join($endl, @result, "");
+    join($endl, @result, '');
 }
 
 1;

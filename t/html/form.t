@@ -90,7 +90,7 @@ EOT
 #print $f->dump;
 #print $f->click->as_string;
 
-print "not " unless $f->click->as_string . "\n" eq <<'EOT'; print "ok 10\n";
+print "not " unless $f->click->as_string eq <<'EOT'; print "ok 10\n";
 POST http://localhost/
 Content-Length: 76
 Content-Type: application/x-www-form-urlencoded

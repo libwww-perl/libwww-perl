@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.16 1995/09/04 20:43:19 aas Exp $
+# $Id: http.pm,v 1.17 1995/12/29 14:15:04 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -123,7 +123,7 @@ sub request
     if ($line =~ /^HTTP\/(\d+\.\d+)\s+(\d+)\s+(.*)/) { # HTTP/1.0 or better
 
 	my $ver = $1;
-        LWP::Debug::debug('HTTP/$ver server');
+        LWP::Debug::debug("HTTP/$ver server");
 
         $response = new HTTP::Response($2, $3);
         

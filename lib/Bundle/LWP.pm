@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -16,13 +16,13 @@ Bundle::LWP - A bundle to install all libwww-perl related modules
 
 =head1 CONTENTS
 
-URI 1.10           - There are URIs everywhere
-
-Net::FTP 2.00      - If you want ftp://-support
-
 MIME::Base64       - Used in authentication headers
 
 Digest::MD5        - Needed to do Digest authentication
+
+URI 1.10           - There are URIs everywhere
+
+Net::FTP 2.4       - If you want ftp://-support
 
 HTML::Tagset       - Needed by HTML::Parser
 

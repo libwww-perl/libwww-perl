@@ -1,3 +1,19 @@
+Fri Nov 21 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.16
+
+ o  LWP::Simple::head() would die in array context because str2time
+    was not imported any more.
+
+ o  HTTP::Daemon->accept now takes an optional package argument like
+    IO::Socket->accept does.
+
+ o  Made HTTP::Request and HTTP::Response subclassable.
+
+ o  Added Proxy-Authorization example to lwpcook.
+
+
+
 Thu Nov  6 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.15

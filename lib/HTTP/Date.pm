@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.5 1995/07/14 00:14:03 aas Exp $
+# $Id: Date.pm,v 1.6 1995/07/17 10:01:05 aas Exp $
 #
 package LWP::Date;
 
@@ -50,18 +50,22 @@ module.
 ####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 require 5.001;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(time2str str2time);
+@EXPORT = qw(time2str str2time);
 
 use Time::Local;
 
 @DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
 
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+# Build %MoY
+my $i = 0;
+foreach(@MoY) { $MoY{$_} = $i++; }
+undef($i);
 
 
 ####################################################################
@@ -76,7 +80,7 @@ for a given time such as returned by time().
 =cut
 sub time2str
 {
-    my $time = shift;
+    my $time = shift || time;
 
     my ($sec, $min, $hour, $mday, $mon, $year,
         $wday, $yday, $isdst) = gmtime($time);
@@ -181,29 +185,13 @@ sub str2time
     # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
 
     # Translate month name to number
-    my $mon = _mon2num($mn);
+    my $mon = $MoY{$mn};
     return undef unless defined $mon;
 
     # Translate to seconds since Epoch
     return (timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
 }
 
-
-# _mon2num($month)
-#
-# Given a three-letter abbreviation for a month,
-# return monthnumber (Jan == 0), or undef on error
-#
-sub _mon2num
-{
-    my $mon = shift;
-    my $i = 0;
-    for(@MoY) {
-        return $i if (/^$mon$/i);
-        $i++;
-    }
-    return undef;
-}
 
 
 ####################################################################

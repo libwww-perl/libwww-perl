@@ -17,11 +17,11 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.1 1996/11/25 14:52:09 aas Exp $
+# $Id: lwp-download.PL,v 1.2 1996/12/04 14:48:59 aas Exp $
 
 =head1 NAME
 
-lwp-download - download to local file
+lwp-download - fetch large files from the net
 
 =head1 SYNOPSIS
 
@@ -29,12 +29,24 @@ lwp-download - download to local file
 
 =head1 DESCRIPTION
 
-The I<lwp-download> program will download the document specified by the URL
+The I<lwp-download> program will down load the document specified by the URL
 given as the first command line argument to a local file.  The local
 filename used to save the document is guessed from the URL unless
 specified as the second command line argument.
 
-The I<lwp-download> program is implemented using the I<libwww-perl> library.
+The I<lwp-download> program is implemented using the I<libwww-perl>
+library.  It is better suited to down load big files than the
+I<lwp-request> program because it does not store the file in memory.
+Another benefit is that it will keep you updated about it's progress
+and that you don't have any options to worry about.
+
+=head1 EXAMPLE
+
+Fetch the newest and greatest perl version:
+
+ $ lwp-download http://www.perl.com/CPAN/src/latest.tar.gz
+ Saving to 'latest.tar.gz'...
+ 1.47 MB received in 22 seconds (68.7 KB/sec)
 
 =head1 AUTHOR
 

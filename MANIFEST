@@ -47,6 +47,7 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/Net/HTTP.pm			Lower level HTTP/1.1 protocol
+lib/Net/HTTP/NB.pm		Non-blocking HTTP
 lib/WWW/RobotRules.pm		Parse robot.txt files
 lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
 t/README			How to run and set up tests

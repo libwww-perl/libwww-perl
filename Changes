@@ -22,6 +22,11 @@
     header that can be used to differentiate these responses from
     real server responses.
 
+    LWP::UserAgent now deals with 303 and 307 redirects.  The behaviour
+    of 302 redirects has also changed to be like 303; i.e. change the
+    method to be "GET".  This is what most browsers do.  Based on
+    a patch contributed by Tom Hughes <thh@cyberscience.com>.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

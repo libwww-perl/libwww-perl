@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.9 2003/10/15 12:47:37 gisle Exp $
+# $Id: UserAgent.pm,v 2.10 2003/10/15 13:16:10 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.10 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -468,7 +468,10 @@ sub request
 		       "Unknown code $code"));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
-	$code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
+	$code == &HTTP::Status::RC_FOUND or
+	$code == &HTTP::Status::RC_SEE_OTHER or
+	$code == &HTTP::Status::RC_TEMPORARY_REDIRECT)
+    {
 
 	# Make a copy of the request and initialize it with the new URI
 	my $referral = $request->clone;
@@ -483,6 +486,11 @@ sub request
 	    $referral_uri = $HTTP::URI_CLASS->new($referral_uri, $base)
 		            ->abs($base);
 	}
+
+	$referral->method("GET")
+	    if ($code == &HTTP::Status::RC_SEE_OTHER ||
+		$code == &HTTP::Status::RC_FOUND) &&
+		    $referral->method ne "HEAD";
 
 	$referral->url($referral_uri);
 	$referral->remove_header('Host', 'Cookie');

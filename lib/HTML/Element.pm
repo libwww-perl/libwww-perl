@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.35 1996/09/30 14:29:28 aas Exp $
+# $Id: Element.pm,v 1.36 1997/10/16 09:08:37 aas Exp $
 
 =head1 NAME
 
@@ -42,7 +42,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -50,7 +50,7 @@ sub Version { $VERSION; }
 			             img br hr wbr
 			             input area param
 			            );
-%optionalEndTag = map { $_ => 1 } qw(p li dt dd option th tr td);
+%optionalEndTag = map { $_ => 1 } qw(p li dt dd option); # th tr td);
 
 # Elements that might contain links and the name of the link attribute
 %linkElements =

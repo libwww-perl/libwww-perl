@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.86 2001/04/20 18:25:03 gisle Exp $
+# $Id: UserAgent.pm,v 1.87 2001/04/20 22:00:03 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.86 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.87 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -118,12 +118,7 @@ sub new
     LWP::Debug::trace('()');
 
     my $agent = delete $cnf{agent};
-    if (!defined $agent) {
-	$agent = $class->_agent;
-    }
-    elsif ($agent =~ /\s+$/) {
-	$agent .= $class->_agent;
-    }
+    $agent = $class->_agent unless defined $agent;
 
     my $from  = delete $cnf{from};
     my $timeout = delete $cnf{timeout};
@@ -145,7 +140,6 @@ sub new
     }
 
     my $self = bless {
-		      agent       => $agent,
 		      from        => $from,
 		      timeout     => $timeout,
 		      proxy       => undef,
@@ -155,6 +149,7 @@ sub new
 		      no_proxy    => [],
 		     }, $class;
 
+    $self->agent($agent) if $agent;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
 
     if ($keep_alive) {
@@ -445,40 +440,80 @@ sub get_basic_credentials
 
 Get/set the product token that is used to identify the user agent on
 the network.  The agent value is sent as the "User-Agent" header in
-the requests. The default agent name is "libwww-perl/#.##", where
-"#.##" is substitued with the version numer of this library.
+the requests.  The default is the string returned by the _agent()
+method (see below).
+
+If the $product_id ends with space then the C<_agent> string is
+appended to it.
 
 The user agent string should be one or more simple product identifiers
 with an optional version number separated by the "/" character.
 Examples are:
 
-  $ua->agent('Checkbot/0.4 ' . $ua->agent);
+  $ua->agent('Checkbot/0.4 ' . $ua->_agent);
+  $ua->agent('Checkbot/0.4 ');    # same as above
   $ua->agent('Mozilla/5.0');
+  $ua->agent("");                 # don't identify
 
 =item $ua->_agent
 
 Returns the default agent identifier.  This is a string of the form
-"libwww-perl/#.##".
+"libwww-perl/#.##", where "#.##" is substitued with the version numer
+of this library.
+
+=cut
+
+sub agent {
+    my $self = shift;
+    my $old = $self->{agent};
+    if (@_) {
+	my $agent = shift;
+	$agent .= $self->_agent if $agent && $agent =~ /\s+$/;
+	$self->{agent} = $agent;
+    }
+    $old;
+}
+
+sub _agent     { "libwww-perl/$LWP::VERSION" }
+
 
 =item $ua->from([$email_address])
 
 Get/set the Internet e-mail address for the human user who controls
 the requesting user agent.  The address should be machine-usable, as
 defined in RFC 822.  The from value is send as the "From" header in
-the requests.  There is no default.  Example:
+the requests.  Example:
 
   $ua->from('gaas@cpan.org');
+
+The default is to not send a "From" header.
 
 =item $ua->timeout([$secs])
 
 Get/set the timeout value in seconds. The default timeout() value is
 180 seconds, i.e. 3 minutes.
 
-=item $ua->cookie_jar([$cookies_obj])
+=item $ua->cookie_jar([$cookie_jar_obj])
 
-Get/set the I<HTTP::Cookies> object to use.  The default is to have no
-cookie_jar, i.e. never automatically add "Cookie" headers to the
-requests.
+Get/set the cookie jar object to use.  The only requirement is that
+the cookie jar object must implement the extract_cookies($request) and
+add_cookie_header($response) methods.  Normally this will be a
+C<HTTP::Cookies> object or some subclass.
+
+The default is to have no cookie_jar, i.e. never automatically add
+"Cookie" headers to the requests.
+
+Shortcut: If a reference to a plain hash is passed in as the
+$cookie_jar_object, then it is replaced with an instance of
+C<HTTP::Cookies> that is initalized based on the hash.  This form also
+automatically loads the C<HTTP::Cookies> module.  It means that:
+
+  $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
+
+is really just a shorthand for:
+
+  require HTTP::Cookies;
+  $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
 
 =item $ua->conn_cache([$cache_obj])
 
@@ -500,8 +535,6 @@ is only partial, because the size limit was exceeded, then a
 =cut
 
 sub timeout    { shift->_elem('timeout',   @_); }
-sub agent      { shift->_elem('agent',     @_); }
-sub _agent     { "libwww-perl/$LWP::VERSION" }
 sub from       { shift->_elem('from',      @_); }
 sub parse_head { shift->_elem('parse_head',@_); }
 sub max_size   { shift->_elem('max_size',  @_); }

@@ -101,23 +101,16 @@ operation is to access a WWW form application:
   my $res = $ua->request($req);
   print $res->as_string;
 
-If your application has the key/value pairs to be posted in an
-associative array, then we can exploit the URI::URL module to create
-the content for the POST request message (it handles all the escaping
-issues):
+You can also use the HTTP::Request::Common module to set up a suitable
+POST request message (it handles all the escaping issues) and has a
+suitable default for the content_type:
 
-  %form = ( search => 'www', errors => 0 );
-
-  use URI::URL;
+  use HTTP::Request::Common qw(POST);
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
 
-  my $req = new HTTP::Request 'POST', 'http://www.perl.com/cgi-bin/BugGlimpse';
-  $req->content_type('application/x-www-form-urlencoded');
-
-  my $curl = url("http:");      # create an empty HTTP URL object
-  $curl->query_form(%form);
-  $req->content($curl->equery); # %form content as escaped query string
+  my $req = POST 'http://www.perl.com/cgi-bin/BugGlimpse',
+                [ search => 'www', errors => 0 ];
 
   print $ua->request($req)->as_string;
 

@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.18 1998/10/14 21:23:19 aas Exp $
+# $Id: gopher.pm,v 1.19 1998/11/19 20:28:40 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -68,7 +68,7 @@ sub request
 				   "$method for 'gopher:' URLs");
     }
 
-    my $gophertype = $url->gtype;
+    my $gophertype = $url->gopher_type;
     unless (exists $gopher2mimetype{$gophertype}) {
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
 				   'Library does not support gophertype ' .
@@ -176,11 +176,11 @@ sub gopher2url
 
     if ($gophertype eq '8' || $gophertype eq 'T') {
 	# telnet session
-	$url = URI::URL->new($gophertype eq '8' ? 'telnet:' : 'tn3270:');
+	$url = $HTTP::URI_CLASS->new($gophertype eq '8' ? 'telnet:':'tn3270:');
 	$url->user($path) if defined $path;
     } else {
 	$path = URI::Escape::uri_escape($path);
-	$url = URI::URL->new("gopher:/$gophertype$path");
+	$url = $HTTP::URI_CLASS->new("gopher:/$gophertype$path");
     }
     $url->host($host);
     $url->port($port);

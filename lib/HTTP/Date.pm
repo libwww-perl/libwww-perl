@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 11:38:26 $
+package HTTP::Date;  # $Date: 1999/05/03 12:04:49 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -32,7 +32,7 @@ sub time2str (;$)
 
 sub str2time ($;$)
 {
-    my @d = &parse_date;
+    my @d = &parse_date;  # rely on one element shifted off @_
     return unless @d;
     $d[0] -= 1900;  # year
     $d[1]--;        # month
@@ -74,8 +74,13 @@ sub parse_date ($)
 
     return unless defined;
 
+    # fast exit for strictly conforming string
+    return($3, $MoY{$2}, $1, $4, $5, $6, "GMT")
+	if /^[SMTWF][a-z][a-z], (\d\d) ([JFMAJSOND][a-z][a-z]) (\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$/;
+
+    # More lax parsing below
     s/^\s+//;  # kill leading space
-    s/^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*,?\s*//i; # Useless weekday
+    s/^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)[a-z]*,?\s*//i; # Useless weekday
 
     my($day, $mon, $yr, $hr, $min, $sec, $tz, $ampm);
 

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.19 1999/12/01 11:54:08 gisle Exp $
+# $Id: RobotRules.pm,v 1.20 2000/04/07 12:51:21 gisle Exp $
 
 package WWW::RobotRules;
 
@@ -46,7 +46,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -133,7 +133,8 @@ sub parse {
 	    my $disallow = $1;
 	    $disallow =~ s/\s+$//;
 	    if (length $disallow) {
-		$disallow = eval { URI->new($disallow, $url)->path_query };
+		$disallow = eval { URI->new_abs($disallow, $url)->path_query };
+		next unless defined $disallow;
 	    }
 
 	    if ($is_me) {

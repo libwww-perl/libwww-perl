@@ -30,6 +30,8 @@ lib/HTML/FormatPS.pm		Postscript formatter
 lib/HTML/FormatText.pm		Text only formatter
 lib/HTML/Formatter.pm		Generic formatter base class
 lib/HTML/Parse.pm		Parse text to build HTML syntax tree
+lib/HTML/HTML3.2.dtd		The SGML DTD
+lib/HTML/dtd2pm.pl		Writes a perl module
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
 lib/HTTP/Message.pm		Class encapsulating HTTP messages
@@ -84,7 +86,6 @@ t/TEST				Run tests
 t/base/afm.t			Test Font::AFM module
 t/base/base64.t			Test MIME::Base64 module
 t/base/date.t			Test HTTP::Date module
-t/base/entities.t		Test HTML::Entities module
 t/base/headers.t		Test HTTP::Headers module
 t/base/listing.t                Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
@@ -94,6 +95,7 @@ t/base/quoted-print.t		Test MIME::QuotedPrint module
 t/base/robot-rules.t		Test WWW::RobotRules module
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
+t/html/entities.t		Test HTML::Entities module
 t/html/parse.t                  Test HTML::Parse module
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file

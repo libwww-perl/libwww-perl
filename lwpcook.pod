@@ -308,21 +308,8 @@ tree that we then traverse:
 =head1 BASE URL
 
 If you want to resolve relative links in a page you will have to
-determine which base URL to use.  This shows the things (and the
-sequence) to look for:
+determine which base URL to use.  The HTTP::Response objects now has a
+base() method.
 
-  $BASE = undef;
-  # 1) The base URL can be contained in the document
-  if ($res->content_type eq 'text/html') {
-      # Look for the <BASE HREF='...'> tag
-      ...
-  }
-  # 2) There could be a Base header
-  $BASE = $res->header('Base') unless $BASE;
-  # 3) The URL used in the request
-  $BASE = $res->request->url unless $BASE;
-
-(There should of course be some LWP method that does all of this so
-everybody get it right.)
-
+  $BASE = $res->base;
 

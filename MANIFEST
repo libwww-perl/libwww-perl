@@ -3,7 +3,6 @@ MANIFEST			This file
 Makefile.PL			Makefile generator
 README				Get you started with this package
 README.SSL			When you need SSL support
-TODO				The To-Do list for the library
 bin/lwp-download             	Writes bin/lwp-download script
 bin/lwp-mirror			Writes bin/lwp-mirror script
 bin/lwp-request			Writes bin/lwp-request script

@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 1.9 1996/04/09 15:44:42 aas Exp $
+# $Id: QuotedPrint.pm,v 1.10 1997/04/05 13:58:25 aas Exp $
 
 package MIME::QuotedPrint;
 
@@ -19,7 +19,7 @@ decode_qp - Decode quoted-printable string
 =head1 DESCRIPTION
 
 This module provides functions to encode and decode strings into the
-Quoted-Printable encoding specified in RFC 1521 - I<MIME (Multipurpose
+Quoted-Printable encoding specified in RFC 2045 - I<MIME (Multipurpose
 Internet Mail Extensions)>.  The Quoted-Printable encoding is intended
 to represent data that largely consists of bytes that correspond to
 printable characters in the ASCII character set.  Non-printable
@@ -40,7 +40,7 @@ call them as:
 
 =head1 COPYRIGHT
 
-Copyright 1995, 1996 Gisle Aas.
+Copyright 1995-1997 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -56,7 +56,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 sub encode_qp ($)
@@ -71,7 +71,7 @@ sub encode_qp ($)
     # rule #5 (lines must be shorter than 76 chars, but we are not allowed
     # to break =XX escapes.  This makes things complicated :-( )
     my $brokenlines = "";
-    $brokenlines .= "$1=\n" while $res =~ s/^(.{74}([^=]{2})?)//;
+    $brokenlines .= "$1=\n" while $res =~ s/^(.{73}[^=]{0,2})//;
     # unnessesary to make a break at the last char
     $brokenlines =~ s/=\n$// unless length $res;
 

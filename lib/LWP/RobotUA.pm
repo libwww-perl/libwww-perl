@@ -1,10 +1,10 @@
-# $Id: RobotUA.pm,v 1.15 1999/03/20 07:37:36 gisle Exp $
+# $Id: RobotUA.pm,v 1.16 2000/04/07 13:09:10 gisle Exp $
 
 package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -206,9 +206,16 @@ sub simple_request
 	my $robot_res = $self->request($robot_req);
 	my $fresh_until = $robot_res->fresh_until;
 	if ($robot_res->is_success) {
-	    LWP::Debug::debug("Parsing robot rules");
-	    $self->{'rules'}->parse($robot_url, $robot_res->content, 
-				    $fresh_until);
+	    my $c = $robot_res->content;
+	    if ($robot_res->content_type =~ m,^text/, && $c =~ /Disallow/) {
+		LWP::Debug::debug("Parsing robot rules");
+		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
+	    }
+	    else {
+		LWP::Debug::debug("Ignoring robots.txt");
+		$self->{'rules'}->parse($robot_url, "", $fresh_until);
+	    }
+
 	} else {
 	    LWP::Debug::debug("No robots.txt file found");
 	    $self->{'rules'}->parse($robot_url, "", $fresh_until);

@@ -1,5 +1,4 @@
-#
-# $Id: Protocol.pm,v 1.15 1995/12/29 15:35:07 aas Exp $
+# $Id: Protocol.pm,v 1.16 1996/02/26 19:16:43 aas Exp $
 
 package LWP::Protocol;
 
@@ -27,25 +26,20 @@ chunks of data received.
 Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files
 for examples of usage.
 
+=head1 METHODS AND FUNCTIONS
+
 =cut
 
 #####################################################################
 
-use Carp;
-
-require HTTP::Status;
 require LWP::MemberMixin;
-
 @ISA = qw(LWP::MemberMixin);
 
-$autoload = 1;
+use Carp ();
+use HTTP::Status 'RC_INTERNAL_SERVER_ERROR';
 
 my %ImplementedBy = (); # scheme => classname
 
-
-#####################################################################
-
-=head1 METHODS AND FUNCTIONS
 
 =head2 new
 
@@ -62,7 +56,7 @@ sub new
 
     my $self = bless {  
         'timeout' => 0,
-        'useAlarm' => 1,
+        'use_alarm' => 1,
     }, $class;
     $self;
 }
@@ -81,7 +75,7 @@ sub create
 {
     my $scheme = shift;
     my $impclass = LWP::Protocol::implementor($scheme) or
-        croak "Protocol scheme '$scheme' is not supported";
+        Carp::croak("Protocol scheme '$scheme' is not supported");
 
     # hand-off to scheme specific implementation sub-class
     my $prot = new $impclass, $scheme;
@@ -114,18 +108,14 @@ sub implementor
     no strict qw(refs);
     # check we actually have one for the scheme:
     unless (defined @{"${ic}::ISA"}) {
-        if ($autoload) {
-            my $package = "LWP/Protocol/${scheme}.pm";
-            eval {require "$package"};
-            if ($@) {
-                if ($@ =~ /^Can't locate/) { #' #emacs get confused by '
-                    $ic = '';
-                } else {
-                    die "$@\n";
-                }
-            }
-        } else {
-            $ic = '';
+	my $package = "LWP/Protocol/${scheme}.pm";
+	eval { require "$package" };
+	if ($@) {
+	    if ($@ =~ /^Can't locate/) { #' #emacs get confused by '
+		$ic = '';
+	    } else {
+		die "$@\n";
+	    }
         }
     }
     $ImplementedBy{$scheme} = $ic if $ic;
@@ -147,7 +137,7 @@ object. This method needs to be overridden in subclasses.
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
-    croak 'LWP::Protocol::request() needs to be overridden in subclasses';
+    Carp::croak('LWP::Protocol::request() needs to be overridden in subclasses');
 }
 
 
@@ -156,7 +146,7 @@ sub request
 Get and set the timeout value in seconds
 
 
-=head2 useAlarm($yesno)
+=head2 use_alarm($yesno)
 
 Indicates if the library is allowed to use the core C<alarm()>
 function to implement timeouts.
@@ -164,7 +154,7 @@ function to implement timeouts.
 =cut
 
 sub timeout  { shift->_elem('timeout',  @_); }
-sub useAlarm { shift->_elem('useAlarm', @_); }
+sub use_alarm { shift->_elem('use_alarm', @_); }
 
 
 =head2 collect($arg, $response, $collector)
@@ -172,7 +162,7 @@ sub useAlarm { shift->_elem('useAlarm', @_); }
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.
 
-Note: We will only use the callback if $response->isSuccess().  This
+Note: We will only use the callback if $response->is_success().  This
 avoids sendig content data for redirects and authentization responses
 to the callback which would be confusing.
 
@@ -182,45 +172,46 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
+    my($use_alarm, $timeout) = @{$self}{'use_alarm', 'timeout'};
+
     if (! defined $arg) {
         # scalar
         while ($content = &$collector, length $$content) {
-            alarm(0) if $self->useAlarm;
+            alarm(0) if $use_alarm;
             LWP::Debug::debug("read " . length($$content) . " bytes");
-            $response->addContent($$content);
-            alarm($self->timeout) if $self->useAlarm;
+            $response->add_content($$content);
+            alarm($timeout) if $use_alarm;
         }
     }
     elsif (!ref($arg)) {
         # filename
         open(OUT, ">$arg") or
-            return new HTTP::Response
-                          &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+            return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
                           "Cannot write to '$arg': $!";
 
         while ($content = &$collector, length $$content) {
-            alarm(0) if $self->useAlarm;
+            alarm(0) if $use_alarm;
             LWP::Debug::debug("read " . length($$content) . " bytes");
             print OUT $$content;
-            alarm($self->timeout) if $self->useAlarm;
+            alarm($timeout) if $use_alarm;
         }
         close(OUT);
     }
     elsif (ref($arg) eq 'CODE') {
         # read into callback
         while ($content = &$collector, length $$content) {
-            alarm(0) if $self->useAlarm;
+            alarm(0) if $use_alarm;
             LWP::Debug::debug("read " . length($$content) . " bytes");
-	    if ($response->isSuccess) {
+	    if ($response->is_success) {
 		&$arg($$content, $response, $self);
 	    } else {
-		$response->addContent($$content);
+		$response->add_content($$content);
 	    }
-            alarm($self->timeout) if $self->useAlarm;
+            alarm($timeout) if $use_alarm
         }
     }
     else {
-        return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+        return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
                                   "Unexpected collect argument  '$arg'";
     }
     $response;

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.12 1996/10/01 16:22:50 aas Exp $
+# $Id: RobotRules.pm,v 1.13 1996/10/21 22:02:38 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -221,7 +221,7 @@ sub visit {
     $self->{'loc'}{$netloc}{'last'} = $time;
     
     my $count = \$self->{'loc'}{$netloc}{'count'};
-    if (defined $$count) {
+    if (!defined $$count) {
 	$$count = 1;
     } else {
 	$$count++;

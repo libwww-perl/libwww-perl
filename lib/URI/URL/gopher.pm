@@ -30,7 +30,11 @@ sub epath {
 
 sub _parse_gopherpath {
     my $self = shift;
-    my $p = uri_unescape($self->{'path'});
+    my $p = $self->{'path'};
+    # not according to RFC1738, but many popular browsers accept
+    # gopher URLs with a '?' before the search string.
+    $p =~ s/\?/\t/;
+    $p = uri_unescape($p);
 
     if (defined($p) && $p ne '/' && $p =~ s!^/?(.)!!) {
 	$self->{'gtype'} = $1;

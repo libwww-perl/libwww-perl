@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.22 1996/03/12 13:59:09 aas Exp $
+# $Id: Makefile.PL,v 1.23 1996/03/12 14:41:35 aas Exp $
 
 #--- Configuration section ---
 
@@ -45,7 +45,7 @@ eval {
 };
 if ($@) {
     print " failed\n";
-    print <<"EOT";
+    print <<EOT;
 
 The libwww-perl library normally use the Net::FTP module when
 accessing ftp servers.  You would have to install this package or
@@ -53,6 +53,22 @@ configure your application to use a proxy server for making ftp
 requests work.
 
 $@
+EOT
+} else {
+    print " ok\n";
+}
+
+print "Checking for MD5 .......";
+eval {
+    require MD5;
+};
+if ($@) {
+    print " failed\n";
+    print <<EOT;
+
+The MD5 library is needed if you want to be able use the experimental
+"Digest Access Authentication" scheme.  Since very few servers implement
+this authentication scheme, you should not worry too much about this.
 
 EOT
 } else {

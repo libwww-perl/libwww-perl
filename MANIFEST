@@ -28,6 +28,7 @@ lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
 lib/LWP/Authen/Basic.pm		Basic authentication scheme
 lib/LWP/Authen/Digest.pm	Digest authentication scheme
+lib/LWP/ConnCache.pm		Connection cache
 lib/LWP/Debug.pm		Debugging support
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self

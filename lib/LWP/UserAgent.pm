@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.81 2001/04/11 23:51:38 gisle Exp $
+# $Id: UserAgent.pm,v 1.82 2001/04/19 05:34:03 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.81 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.82 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -129,7 +129,7 @@ sub new
 		'cookie_jar'  => undef,
 		'use_eval'    => 1,
                 'parse_head'  => 1,
-                'max_size'    => undef,
+                'max_size'    => 0,
 		'no_proxy'    => [],
 	}, $class;
     }
@@ -180,30 +180,21 @@ sub simple_request
     } else {
 	$scheme = $url->scheme;
     }
-    my $protocol;
-    eval {
-	$protocol = LWP::Protocol::create($scheme);
-    };
+    my $protocol = eval { LWP::Protocol::create($scheme, $self) };
     if ($@) {
 	$@ =~ s/\s+at\s+\S+\s+line\s+\d+.*//;  # remove file/line number
-	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@)
+	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@);
     }
 
     # Extract fields that will be used below
-    my ($agent, $from, $timeout, $cookie_jar,
-        $use_eval, $parse_head, $max_size) =
-      @{$self}{qw(agent from timeout cookie_jar
-                  use_eval parse_head max_size)};
+    my ($agent, $from, $timeout, $cookie_jar, $use_eval, $max_size) =
+      @{$self}{qw(agent from timeout cookie_jar use_eval max_size)};
 
     # Set User-Agent and From headers if they are defined
     $request->init_header('User-Agent' => $agent) if $agent;
     $request->init_header('From' => $from) if $from;
     $request->init_header('Range' => "bytes=0-$max_size") if $max_size;
     $cookie_jar->add_cookie_header($request) if $cookie_jar;
-
-    # Transfer some attributes to the protocol object
-    $protocol->parse_head($parse_head);
-    $protocol->max_size($max_size);
 
     my $response;
     if ($use_eval) {
@@ -458,7 +449,7 @@ TRUE.  Do not turn this off, unless you know what you are doing.
 
 =item $ua->max_size([$bytes])
 
-Get/set the size limit for response content.  The default is undef,
+Get/set the size limit for response content.  The default is 0,
 which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
 "X-Content-Range" header will be added to the response.
@@ -715,7 +706,7 @@ F<lwp-mirror> for examples of usage.
 
 =head1 COPYRIGHT
 
-Copyright 1995-2000 Gisle Aas.
+Copyright 1995-2001 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

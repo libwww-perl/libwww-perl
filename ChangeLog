@@ -19,7 +19,8 @@ Thu Nov  6 1997   Gisle Aas <aas@sn.no>
     not work well on Win32 systems.
 
  o  URI::URL::rel() will handle URLs to a fragment within the same
-    document better.
+    document better. Initial patch from Nicolai Langfeldt
+    <janl@math.uio.no>.
 
  o  HTML::Element don't consider </th>, </tr> and </td> optional any
     more.  I wonder how Netscape managed to not implement this
@@ -28,7 +29,8 @@ Thu Nov  6 1997   Gisle Aas <aas@sn.no>
  o  Added lots of modern tags to HTML::AsSubs.
 
  o  HTTP::Request::Common will read uploaded files in binmode().
-    This should be better for Win32 systems.
+    This should be better for Win32 systems.  Contributed by
+    <Steve_Kilbane@cegelecproj.co.uk>.
 
 
 

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.25 2001/04/28 07:09:42 gisle Exp $
+# $Id: HTTP.pm,v 1.26 2001/04/29 04:38:47 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -308,7 +308,7 @@ sub read_entity_body {
 		    my @buf;
 		    $_ = sub {
 			push(@buf, $_[0]);
-			return Compress::Zlib::memGunzip(join("", @buf)) if @_[1];
+			return Compress::Zlib::memGunzip(join("", @buf)) if $_[1];
 			return "";
 		    };
 		}

@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.12 1996/11/13 12:43:09 aas Exp $
+# $Id: Daemon.pm,v 1.13 1996/11/13 13:22:21 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -138,13 +138,14 @@ sub url
 }
 
 
-=item $d->server_name
+=item $d->product_tokens
 
-Returns the name that this server will use to identify itself.
+Returns the name that this server will use to identify itself.  This
+is the string that is sent with the I<Server> response header.
 
 =cut
 
-sub server_name
+sub product_tokens
 {
     "libwww-perl-daemon/$HTTP::Daemon::VERSION";
 }
@@ -394,8 +395,8 @@ sub send_basic_header
     return if $self->antique_client;
     $self->send_status_line(@_);
     print $self "Date: ", time2str(time), $CRLF;
-    my $server = $self->daemon->server_name;
-    print $self "Server: $server$CRLF" if $server;
+    my $product = $self->daemon->product_tokens;
+    print $self "Server: $product$CRLF" if $product;
 }
 
 

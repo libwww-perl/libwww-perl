@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: UserAgent.pm,v 1.2 1995/06/14 08:18:25 aas Exp $
+# $Id: UserAgent.pm,v 1.3 1995/07/07 13:37:01 aas Exp $
 #
 package LWP::UserAgent;
 
@@ -22,9 +22,9 @@ LWP::UserAgent -- A WWW UserAgent class
 
  sub callback { my($dataref, $response, $protocol) = @_; .... }
 
- $ua->getAndPrint('http://web.nexor.co.uk/');
- $ua->getAndStore('http://web.nexor.co.uk/', '/tmp/nexor.html');
- $content = $ua->get('http://web.nexor.co.uk/');
+ $ua->getAndPrint('http://www.oslonett.no/');
+ $ua->getAndStore('http://www.oslonett.no/', '/tmp/oslonett.html');
+ $content = $ua->get('http://www.oslonett.no/');
 
 =head1 DESCRIPION
 
@@ -92,7 +92,7 @@ Need MDA security
 
 #####################################################################
 
-$Version = '$Revision: 1.2 $';
+$Version = '$Revision: 1.3 $';
 ($Version) = $Version =~ /(\d+\.\d+)/;
 
 @ISA = qw(LWP::MemberMixin);
@@ -521,8 +521,8 @@ sub useEval   { shift->_elem('useEval',  @_); }
 
 Set/retrieve proxy URL's for schemes:
 
- $ua->proxy(['http', 'ftp'], 'http://web.nexor.co.uk:8001/');
- $ua->proxy('gopher', 'http://web.nexor.co.uk:8001/');
+ $ua->proxy(['http', 'ftp'], 'http://www.oslonett.no:8001/');
+ $ua->proxy('gopher', 'http://web.oslonett.no:8001/');
 
 The first form specifies that the URL is to be used for
 proxying of access methods listed in the list in the first

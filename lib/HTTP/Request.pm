@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Request.pm,v 1.2 1995/06/14 08:18:20 aas Exp $
+# $Id: Request.pm,v 1.3 1995/07/07 13:37:00 aas Exp $
 
 package LWP::Request;
 @ISA = qw(LWP::Message);
@@ -14,7 +14,7 @@ LWP::Request -- Class encapsulating HTTP Requests
 
  require LWP::Request;
 
- $request = new LWP::Request('http://web.nexor.co.uk/');
+ $request = new LWP::Request('http://www.oslonett.no/');
  
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ Instances of this class are usually passed to the
 C<request()> method of an C<LWP::UserAgent> object:
 
  $ua = new LWP::UserAgent;
- $request = new LWP::Request('http://web.nexor.co.uk/');  
+ $request = new LWP::Request('http://www.oslonett.no/');  
  $response = $ua->request($request);
  ...
 
@@ -79,7 +79,7 @@ request on the object C<$url> using method C<$method>.
 The C<$url> argument can be either a string, or a 
 reference to a C<URI::URL> object.
 
- $request = new LWP::Request('GET', 'http://web.nexor.co.uk/');
+ $request = new LWP::Request('GET', 'http://www.oslonett.no/');
 
 =cut
 sub new {

@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.17 2000/09/16 18:24:38 gisle Exp $
+# $Id: Common.pm,v 1.18 2000/09/16 18:25:47 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -400,7 +400,7 @@ L<HTTP::Request>, L<LWP::UserAgent>
 
 =head1 COPYRIGHT
 
-Copyright 1997-1998, Gisle Aas
+Copyright 1997-2000, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

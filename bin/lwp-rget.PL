@@ -1,17 +1,22 @@
-$SCRIPT = "bin/lwp-rget";
+use Config;
+use File::Basename qw(basename dirname);
+chdir(dirname($0));
+($file = basename($0)) =~ s/\.PL$//;
+$file =~ s/\.pl$//
+	if ($Config{'osname'} eq 'VMS' or
+	    $Config{'osname'} eq 'OS2');  # "case-forgiving"
+open OUT,">$file" or die "Can't create $file: $!";
+chmod(0755, $file);
+print "Extracting $file (with variable substitutions)\n";
 
-require "myConfig.out";
-unlink($SCRIPT);
-open SCRIPT, ">$SCRIPT" or die "Can't open for writing $SCRIPT: $!";
+print OUT <<"!GROK!THIS!";
+$Config{'startperl'} -w
+    eval 'exec perl -S \$0 "\$@"'
+	if 0;
 
-print SCRIPT <<"END";
-#!$PERL -w
+!GROK!THIS!
 
-\$DISTNAME = "$NAME-$VERSION";
-END
-
-print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
-
+print OUT <<'!NO!SUBS!';
 =head1 NAME
 
 lwp-rget - Retrieve WWW documents recursively
@@ -96,11 +101,11 @@ use Getopt::Long;
 use URI::URL;
 use LWP::MediaTypes qw(media_suffix);
 
-use vars qw($VERSION $DISTNAME);
+use vars qw($VERSION);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -119,8 +124,10 @@ GetOptions('version'  => \&print_version,
 	  ) || usage();
 
 sub print_version {
+    require LWP;
+    my $DISTNAME = 'libwww-perl-' . LWP::Version();
     print <<"EOT";
-This is $0 version $VERSION ($DISTNAME)
+This is lwp-rget version $VERSION ($DISTNAME)
 
 Copyright 1996, Gisle Aas.
 
@@ -307,4 +314,4 @@ Allowed options are:
   --prefix=PREFIX   Limit URLs to follow to those which begin with PREFIX
 
 }
-END_PROGRAM
+!NO!SUBS!

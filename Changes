@@ -1,3 +1,28 @@
+2001-08-27   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_96
+
+    HTTP/1.1 support also for https.
+    Contributed by Doug MacEachern <dougm@covalent.net>
+
+    The HTTP/1.1 modules are now enabled by default.  Hope that will give
+    them more testing than they otherwise would have gotten.
+
+    HTTP::Daemon's accept now has same behaviour as IO::Socket's
+    accept in list context.  Fixed by Blair Zajac <blair@gps.caltech.edu>.
+
+    More argument sanity checking in HTTP::Request->uri and
+    LWP::UserAgent->simple_request.  Patch by Sean M. Burke.
+
+    HTTP::Protocol::http.  Deal with short writes.
+    Patch by Norton Allen <allen@huarp.harvard.edu>
+
+    HTTP::Protocol::http11:  Deal with newlines in header values.
+
+    Net::HTTP: call sysread (instead of xread) when more data is required.
+
+
+
 2001-08-06   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_95

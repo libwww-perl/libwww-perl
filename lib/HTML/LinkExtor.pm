@@ -114,7 +114,7 @@ provided when the L<HTML::LinkExtor> was created.
 sub links
 {
     my $self = shift;
-    @{$self->{'links'}}
+    exists($self->{'links'}) ? @{$self->{'links'}} : ();
 }
 
 # We override the parse_file() method so that we can clear the links

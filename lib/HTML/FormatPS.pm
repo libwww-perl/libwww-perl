@@ -46,7 +46,7 @@ $DEFAULT_PAGESIZE = "A4";
 );
 
       # size   0   1   2   3   4   5   6   7
-@FontSizes = ( 5,  6,  8, 10, 12, 14, 18, 24);
+@FontSizes = ( 5,  6,  8, 10, 12, 14, 18, 24, 32);
 
 sub BOLD   { 0x01; }
 sub ITALIC { 0x02; }
@@ -77,8 +77,9 @@ sub new
 	mH => mm(30),
 	mW => mm(20),
 	printpageno => 1,
+	fontscale   => 1,
     }, $class;
-    $self->papersize("a4");
+    $self->papersize($DEFAULT_PAGESIZE);
 
     # Parse constructor arguments (might override defaults)
     while (($key, $val) = splice(@_, 0, 2)) {
@@ -116,6 +117,16 @@ sub papersize
 }
 
 
+sub fontsize
+{
+    my $self = shift;
+    my $size = $self->{font_size}[-1];
+    $size = 8 if $size > 8;
+    $size = 3 if $size < 0;
+    $FontSizes[$size] * $self->{fontscale};
+}
+
+
 sub findfont
 {
     my $self = shift;
@@ -125,12 +136,12 @@ sub findfont
     my $family = $self->{teletype} ? 'Courier' : $self->{family};
     $family = "Times" unless defined $family;
     my $font = $FontFamilies{$family}[$index];
-    my $size = $FontSizes[$self->{fsize}];
-    my $fontsize = "$font-$size";
-    if ($self->{currentfont} eq $fontsize) {
+    my $size = $self->fontsize;
+    my $font_with_size = "$font-$size";
+    if ($self->{currentfont} eq $font_with_size) {
 	return "";
     }
-    $self->{currentfont} = $fontsize;
+    $self->{currentfont} = $font_with_size;
     $self->{pointsize} = $size;
     my $fontmod = "HTML::Font::$font";
     $fontmod =~ s/-/_/g;
@@ -138,9 +149,9 @@ sub findfont
     $fontfile =~ s,::,/,g;
     require $fontfile;
     $self->{wx} = \@{ "${fontmod}::wx" };
-    $font = $self->{fonts}{$fontsize} || do {
+    $font = $self->{fonts}{$font_with_size} || do {
 	my $fontID = "F" . ++$self->{fno};
-	$self->{fonts}{$fontsize} = $fontID;
+	$self->{fonts}{$font_with_size} = $fontID;
 	$fontID;
     };
     "$font SF";
@@ -158,10 +169,9 @@ sub begin
     $self->{bm} = $self->{bmH} || $self->{mH};
 
     # Font setup
-    $self->{fsize} = 3;
     $self->{fno} = 0;
     $self->{fonts} = {};
-    $self->{en} = 0.55 * $FontSizes[$self->{fsize}];  # average char width
+    $self->{en} = 0.55 * $self->fontsize(3);
 
     # Initial position
     $self->{xpos} = $self->{lm};  # top of the current line
@@ -180,8 +190,8 @@ sub end
     my $pages = $self->{pageno} - 1;
 
     print "%!PS-Adobe-3.0\n";
-    print "%%Title: No title\n";  # should look for the <title> element
-    print "%%Creator: HTML::FomatPS (libwww-perl)\n";
+    #print "%%Title: No title\n";  # should look for the <title> element
+    print "%%Creator: HTML::FormatPS (libwww-perl)\n";
     print "%%CreationDate: " . localtime() . "\n";
     print "%%Pages: $pages\n";
     print "%%PageOrder: Ascend\n";
@@ -249,10 +259,12 @@ sub collect
 sub header_start
 {
     my($self, $level, $node) = @_;
+    # If we are close enough to be bottom of the page, start a new page
+    # instead of this:
     $self->vspace(1 + (6-$level) * 0.4);
     $self->eat_leading_space;
     $self->{bold}++;
-    $self->{fsize} = 8 - $level;
+    push(@{$self->{font_size}}, 8 - $level);
     1;
 }
 
@@ -261,7 +273,7 @@ sub header_end
     my($self, $level, $node) = @_;
     $self->vspace(1);
     $self->{bold}--;
-    $self->{fsize} = 3;
+    pop(@{$self->{font_size}});
     1;
 }
 
@@ -270,7 +282,12 @@ sub skip_vspace
     my $self = shift;
     if (defined $self->{vspace}) {
 	if ($self->{out}) {
-	    $self->{ypos} -= ($self->{vspace} + 1) * 10;
+	    $self->{ypos} -= ($self->{vspace} + 1) * 10 * $self->{fontscale};
+	    if ($self->{ypos} < $self->{bm}) {
+		$self->show;
+		$self->newpage;
+		return;
+	    }
 	}
 	$self->{xpos} = $self->{lm};
 	$self->show;
@@ -367,8 +384,8 @@ sub newpage
     if ($self->{printpageno}) {
 	my $x = $self->{paperwidth};
 	if ($x) { $x -= 20; } else { $x = 10 };
-	$self->collect("/Helvetica findfont 10 scalefont setfont\n");
-	$self->collect(sprintf "%.1f 10 M($pageno)S\n", $x);
+	$self->collect("/Helvetica findfont 10 scalefont setfont ");
+	$self->collect(sprintf "%.1f 10.0 M($pageno)S\n", $x);
     }
     $self->collect("\n");
 

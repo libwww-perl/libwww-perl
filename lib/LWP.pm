@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.6 1995/07/14 01:17:03 aas Exp $
+# $Id: LWP.pm,v 1.7 1995/07/14 02:04:39 aas Exp $
 
 package LWP;
 
@@ -18,9 +18,20 @@ LWP - Library for the Web in Perl 5
 
 =head1 ARCHITECTURE
 
-The architecture of the library is very heavily object oriented.
+The architecture of the library is heavily object oriented.  The user
+agent, requests sent and responses received from the WWW server are
+all represented by objects.  This makes a simple but yet powerful
+interface to these services.  The interface is easy to extend and
+customize for your needs.
+
+You should first read the documentation for LWP::UserAgent.  Then you
+might want to look at how the scripts C<get> and C<mirror> is
+implemented.  More examples are found in the F<test> directory.
 
 =head2 Overview of classes and packages
+
+This table should give you a quick overview of the classes used by the
+library. Indentation shows class inheritance.
 
  LWP::UserAgent   -- WWW user agent class
 
@@ -28,20 +39,23 @@ The architecture of the library is very heavily object oriented.
    LWP::Request   -- HTTP request
    LWP::Response  -- HTTP response
 
- LWP::Protocol
-  LWP::Protocol::http  -- http:// access
-  LWP::Protocol::file  -- file:// access
+ LWP::Protocol          -- Interface to various protocol schemes
+   LWP::Protocol::http  -- http:// access
+   LWP::Protocol::file  -- file:// access
 
- LWP::MIMEheader  -- MIME/RFC822 style header
+ LWP::MIMEheader  -- MIME/RFC822 style header (used by LWP::Message)
+ LWP::Socket      -- Socket creation and reading (LWP::Protocol::http)
+ LWP::MemberMixin -- Access to member variables of Perl5 classes
+ URI::URL         -- Uniform Resource Locators (separate library)
+
+The following modules provide various functions and definitions.
+
+ LWP              -- This file.  Library version number.
  LWP::MIMEtypes   -- MIME types configuration (text/html etc.)
  LWP::StatusCode  -- HTTP status code (200 OK etc)
-
- LWP::Date        -- Date parsing package
- LWP::Debug       -- Debug logging package
- LWP::MemberMixin -- Access to member variables of Perl5 classes
- LWP::Socket      -- Socket creation and reading
-
- LWP::Simple      -- Simplified interface for common functions
+ LWP::Date        -- Date parsing module
+ LWP::Debug       -- Debug logging module
+ LWP::Simple      -- Simplified procedural interface for common functions
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -65,7 +79,7 @@ Koenig, Jared Rhine, and Jack Shirazi.
 Copyright (c) 1995 Martijn Koster. All rights reserved.
 Copyright (c) 1995 Gisle Aas. All rights reserved.
 
-This program is free software; you can redistribute it and/or
+This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AVAILABILITY
@@ -74,7 +88,8 @@ The latest version of this library is likly to be available from:
 
  http://www.oslonett.no/home/aas/perl/www/
 
-The best place to discuss this code is on the <libwww-perl@ics.uci.edu>
-mailing list.
+The best place to discuss this code is on the
+<libwww-perl@ics.uci.edu> mailing list.  The email addresses of the
+principal authors are <m.koster@nexor.co.uk> and <aas@oslonett.no>.
 
 =cut

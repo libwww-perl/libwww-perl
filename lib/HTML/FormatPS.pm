@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.14 1995/09/14 13:05:20 aas Exp $
+# $Id: FormatPS.pm,v 1.15 1995/09/15 14:10:49 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -442,7 +442,7 @@ sub show
     my $self = shift;
     my $str = $self->{showstring};
     return unless length $str;
-    $str =~ s/([\(\)])/\\$1/g;    # must escape parentesis
+    $str =~ s/([\(\)\\])/\\$1/g;    # must escape parentesis
     $self->{line} .= "($str)S\n";
     $self->{showstring} = "";
 }

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.16 1995/09/13 10:11:38 aas Exp $
+# $Id: Element.pm,v 1.17 1995/09/13 11:47:44 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -518,8 +518,7 @@ sub format
 	require HTML::FormatText;
 	$formatter = new HTML::FormatText;
     }
-    require HTML::Format;
-    HTML::Format::format($self, $formatter);
+    $formatter->format($self);
 }
 
 

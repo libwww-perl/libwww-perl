@@ -2,6 +2,11 @@
 
     Release 5.79
 
+    WWW::RobotRules: a robot should look for the string found in
+    robots.txt as a case insensitive substring from its own User-Agent
+    string, not the other way around.
+    Patch by Ville Skyttä <ville.skytta@iki.fi>.
+
     HTML::Form now exposes the 'readonly' and 'disabled'
     attribute for inputs.
 
@@ -23,6 +28,9 @@
 
     HTML::Headers: Documentation tweaks.  Documented a
     few bugs discovered during testing.
+
+    Typo fixes to the documentation all over the place
+    by Ville Skyttä <ville.skytta@iki.fi>.
 
     Updated tests.
 

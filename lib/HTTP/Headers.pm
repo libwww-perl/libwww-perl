@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.52 2004/04/08 20:20:41 gisle Exp $
+# $Id: Headers.pm,v 1.53 2004/04/08 20:37:48 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -360,6 +360,10 @@ attribute-value pairs as parameters to the constructor.  I<E.g.>:
 The constructor arguments are passed to the C<header> method which is
 described below.
 
+=item $h->clone
+
+Returns a copy of this C<HTTP::Headers> object.
+
 =item $h->header( $field )
 
 =item $h->header( $field => $value, ... )
@@ -484,10 +488,6 @@ values are not folded.
 The optional $endl parameter specifies the line ending sequence to
 use.  The default is "\n".  Embedded "\n" characters in header field
 values will be substitued with this line ending sequence.
-
-=item $h->clone
-
-Returns a copy of this C<HTTP::Headers> object.
 
 =back
 
@@ -660,6 +660,13 @@ Same as authorization_basic() but will set the "Proxy-Authorization"
 header instead.
 
 =back
+
+=head1 BUGS
+
+In the argument list to the constructor or header() method, the same
+field name should not occur multiple times.  The result of doing so,
+it that only the last of these fields will be present in the header
+after the call.  All values ought to be kept.
 
 =head1 COPYRIGHT
 

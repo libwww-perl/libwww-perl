@@ -1,6 +1,6 @@
 package LWP::Debug;
 
-# $Id: Debug.pm,v 1.14 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Debug.pm,v 1.15 2004/04/09 15:07:04 gisle Exp $
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -98,7 +98,7 @@ The following functions are available:
 
 The C<level()> function controls the level of detail being
 logged. Passing '+' or '-' indicates full and no logging
-respectively. Inidividual levels can switched on and of by passing the
+respectively. Individual levels can switched on and of by passing the
 name of the level with a '+' or '-' prepended.  The levels are:
 
   trace   : trace function calls

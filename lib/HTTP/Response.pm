@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.47 2004/04/07 10:44:47 gisle Exp $
+# $Id: Response.pm,v 1.48 2004/04/09 15:07:04 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -350,7 +350,7 @@ in HTML documents.
 
 A "Content-Base:" or a "Content-Location:" header in the response.
 
-For backwards compatability with older HTTP implementations we will
+For backwards compatibility with older HTTP implementations we will
 also look for the "Base:" header.
 
 =item 3.
@@ -381,7 +381,7 @@ Returns a textual representation of the response.
 
 =item $r->is_error
 
-These methods indicate if the response was informational, sucessful, a
+These methods indicate if the response was informational, successful, a
 redirection, or an error.  See L<HTTP::Status> for the meaning of these.
 
 =item $r->error_as_HTML
@@ -418,7 +418,7 @@ server.
 
 =item $r->fresh_until
 
-Returns the time when this entiy is no longer fresh.
+Returns the time when this entity is no longer fresh.
 
 =back
 

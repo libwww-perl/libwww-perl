@@ -1,6 +1,6 @@
 package LWP::MemberMixin;
 
-# $Id: MemberMixin.pm,v 1.7 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: MemberMixin.pm,v 1.8 2004/04/09 15:07:04 gisle Exp $
 
 sub _elem
 {
@@ -29,7 +29,7 @@ LWP::MemberMixin - Member access mixin class
 
 A mixin class to get methods that provide easy access to member
 variables in the %$self.
-Ideally there should be better Perl langauge support for this.
+Ideally there should be better Perl language support for this.
 
 There is only one method provided:
 

@@ -1,6 +1,6 @@
 package LWP::Simple;
 
-# $Id: Simple.pm,v 1.39 2004/04/06 11:46:44 gisle Exp $
+# $Id: Simple.pm,v 1.40 2004/04/09 15:07:04 gisle Exp $
 
 use strict;
 use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
@@ -16,7 +16,7 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -321,7 +321,7 @@ True if response code indicated a successful request.
 
 =item is_error($rc)
 
-True if response code indicated that an error occured.
+True if response code indicated that an error occurred.
 
 =back
 

@@ -1,6 +1,6 @@
 package LWP::ConnCache;
 
-# $Id: ConnCache.pm,v 1.5 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: ConnCache.pm,v 1.6 2004/04/09 15:07:04 gisle Exp $
 
 use strict;
 use vars qw($VERSION $DEBUG);
@@ -197,7 +197,7 @@ The following basic methods are provided:
 
 This method constructs a new C<LWP::ConnCache> object.  The only
 option currently accepted is 'total_capacity'.  If specified it
-initalize the total_capacity option.  It defaults to the value 1.
+initialize the total_capacity option.  It defaults to the value 1.
 
 =item $cache->total_capacity( [$num_connections] )
 
@@ -208,7 +208,7 @@ then there is no limit.
 
 =item $cache->capacity($type, [$num_connections] )
 
-Get/set a limit for the number of connections of the specifed type
+Get/set a limit for the number of connections of the specified type
 that can be cached.  The $type will typically be a short string like
 "http" or "ftp".
 

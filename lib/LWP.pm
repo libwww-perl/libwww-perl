@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.139 2004/04/09 14:37:43 gisle Exp $
+# $Id: LWP.pm,v 1.140 2004/04/09 15:06:46 gisle Exp $
 
 package LWP;
 
@@ -596,7 +596,7 @@ better.
 =item PERL_HTTP_URI_CLASS
 
 Used to decide what URI objects to instantiate.  The default is C<URI>.
-You might want to set it to C<URI::URL> for compatiblity with old times.
+You might want to set it to C<URI::URL> for compatibility with old times.
 
 =back
 

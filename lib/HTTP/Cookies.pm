@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -689,7 +689,7 @@ various other attributes like "Comment" and "CommentURL".
 This method file saves the state of the $cookie_jar to a file.
 The state can then be restored later using the load() method.  If a
 filename is not specified we will use the name specified during
-construction.  If the attribute I<ignore_discared> is set, then we
+construction.  If the attribute I<ignore_discard> is set, then we
 will even save cookies that are marked to be discarded.
 
 The default is to save a sequence of "Set-Cookie3" lines.

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.43 2002/12/26 09:13:53 gisle Exp $
+# $Id: HTTP.pm,v 1.44 2004/04/09 15:07:04 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -103,7 +103,7 @@ and C<peer_http_version> attributes.
 Get/set the a value indicating if the request will be sent with a "TE"
 header to indicate the transfer encodings that the server can chose to
 use.  If the C<Compress::Zlib> module is installed then this will
-annouce that this client accept both the I<deflate> and I<gzip>
+announce that this client accept both the I<deflate> and I<gzip>
 encodings.
 
 =item $s->http_version
@@ -214,7 +214,7 @@ supported yet.  This method should only be called after a successful
 read_response_headers() call.
 
 The return value will be C<undef> on read errors, 0 on EOF, -1 if no data
-could be returned this time, otherwise the number of bytes assgined
+could be returned this time, otherwise the number of bytes assigned
 to $buf.  The $buf set to "" when the return value is -1.
 
 This method will raise exceptions (die) if the server does not speak
@@ -247,7 +247,7 @@ but might be more efficient.
 
 The read_response_headers() and read_entity_body() will invoke the
 sysread() method when they need more data.  Subclasses might want to
-override this method to contol how reading takes place.
+override this method to control how reading takes place.
 
 The object itself is a glob.  Subclasses should avoid using hash key
 names prefixed with C<http_> and C<io_>.

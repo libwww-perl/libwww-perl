@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.56 2004/04/09 09:06:04 gisle Exp $
+# $Id: Headers.pm,v 1.57 2004/04/09 15:07:04 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.56 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -390,7 +390,7 @@ given, then that header field will remain unchanged.
 The old value (or values) of the last of the header fields is returned.
 If no such field exists C<undef> will be returned.
 
-A multi-valued field will be retuned as separate values in list
+A multi-valued field will be returned as separate values in list
 context and will be concatenated with ", " as separator in scalar
 context.  The HTTP spec (RFC 2616) promise that joining multiple
 values in this way will not change the semantic of a header field, but
@@ -434,7 +434,7 @@ scalars.
 
 =item $h->remove_header( $field, ... )
 
-This function removes the headers fields with the specified names.
+This function removes the header fields with the specified names.
 
 The header field names ($field) are not case sensitive and '_'
 can be used as a replacement for '-'.
@@ -488,12 +488,12 @@ would have to trap the exception itself.
 Return the header fields as a formatted MIME header.  Since it
 internally uses the C<scan> method to build the string, the result
 will use case as suggested by HTTP spec, and it will follow
-recommended "Good Practice" of ordering the header fieds.  Long header
+recommended "Good Practice" of ordering the header fields.  Long header
 values are not folded.
 
 The optional $eol parameter specifies the line ending sequence to
 use.  The default is "\n".  Embedded "\n" characters in header field
-values will be substitued with this line ending sequence.
+values will be substituted with this line ending sequence.
 
 =back
 
@@ -611,7 +611,7 @@ I<This header is no longer part of the HTTP standard.>
 =item $h->referer
 
 Used to specify the address (URI) of the document from which the
-requested resouce address was obtained.
+requested resource address was obtained.
 
 The "Free On-line Dictionary of Computing" as this to say about the
 word I<referer>:

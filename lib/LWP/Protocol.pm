@@ -1,10 +1,10 @@
 package LWP::Protocol;
 
-# $Id: Protocol.pm,v 1.41 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Protocol.pm,v 1.42 2004/04/09 15:07:04 gisle Exp $
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -244,8 +244,8 @@ specified scheme is not supported.
  $response = $protocol->request($request, $proxy, '/tmp/sss');
  $response = $protocol->request($request, $proxy, \&callback, 1024);
 
-Dispactches a request over the protocol, and returns a response
-object. This method needs to be overridden in subclasses.  Referer to
+Dispatches a request over the protocol, and returns a response
+object. This method needs to be overridden in subclasses.  Refer to
 L<LWP::UserAgent> for description of the arguments.
 
 =item $prot->collect($arg, $response, $collector)
@@ -258,15 +258,15 @@ the content is written to this file.  If $arg is a reference to a
 routine, then content is passed to this routine.
 
 The $collector is a routine that will be called and which is
-reponsible for returning pieces (as ref to scalar) of the content to
+responsible for returning pieces (as ref to scalar) of the content to
 process.  The $collector signals EOF by returning a reference to an
 empty sting.
 
 The return value from collect() is the $response object reference.
 
 B<Note:> We will only use the callback or file argument if
-$response->is_success().  This avoids sendig content data for
-redirects and authentization responses to the callback which would be
+$response->is_success().  This avoids sending content data for
+redirects and authentication responses to the callback which would be
 confusing.
 
 =item $prot->collect_once($arg, $response, $content)

@@ -1,10 +1,10 @@
-# $Id: DB_File.pm,v 1.4 2003/10/23 19:11:33 uid39246 Exp $
+# $Id: DB_File.pm,v 1.5 2004/04/09 15:07:05 gisle Exp $
 
 package WWW::RobotRules::DB_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 use DB_File;
@@ -12,14 +12,14 @@ use Fcntl;
 
 =head1 NAME
 
-WWW::RobotRules::DB_File - Parse robots.txt files using a diskcache
+WWW::RobotRules::DB_File - Parse robots.txt files using a disk cache
 
 =head1 SYNOPSIS
 
  require WWW::RobotRules::DB_File;
  require LWP::RobotUA;
 
- #Create a robot useragent that uses a diskcaching RobotRules
+ #Create a robot useragent that uses a disk caching RobotRules
  $ua = new WWW::RobotUA 'my-robot/1.0', 'me@foo.com', 
        new WWW::RobotRules::DB_File 'my-robot/1.0', '/path/cachefile'
 
@@ -29,7 +29,7 @@ WWW::RobotRules::DB_File - Parse robots.txt files using a diskcache
 =head1 DESCRIPTION
 
 This is a subclass of L<WWW::RobotRules> that uses the DB_File package to
-implement diskcaching of robots.txt.
+implement disk caching of robots.txt.
 
 =head1 METHODS
 
@@ -39,8 +39,8 @@ This is a subclass of L<WWW::RobotRules>, so it implements the same methods
 
 =item $rules new WWW::RobotRules::DB_File 'my-robot/1.0', /path/cachefile
 
-This is the constructor. The only diffrence from the original constructor 
-from L<WWW::RobotRules> is that you here has to specify a cachfile as well.
+This is the constructor. The only difference from the original constructor
+from L<WWW::RobotRules> is that you here has to specify a cache file as well.
 
 =back
 
@@ -49,7 +49,7 @@ from L<WWW::RobotRules> is that you here has to specify a cachfile as well.
 sub new 
 { 
   my ($class, $name, $file) = @_;
-  Carp::croak('WWW::RobotRules::DB_File cachfile required') unless $file;
+  Carp::croak('WWW::RobotRules::DB_File cache file required') unless $file;
 
   my $self = new WWW::RobotRules $name;
   $self = bless $self, $class;

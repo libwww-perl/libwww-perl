@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.21 1999/03/20 07:37:35 gisle Exp $
+# $Id: Daemon.pm,v 1.22 2001/01/04 21:43:10 gisle Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -246,9 +246,10 @@ sub get_request
 	print STDERR "Need more data for complete header\n" if $DEBUG;
 	return unless $self->_need_more($buf, $timeout, $fdset);
     }
-    if ($buf !~ s/^(\w+)[ \t]+(\S+)(?:[ \t]+(HTTP\/\d+\.\d+))?[^\012]*\012//) {
+    if ($buf !~ s/^(\S+)[ \t]+(\S+)(?:[ \t]+(HTTP\/\d+\.\d+))?[^\012]*\012//) {
+	${*$self}{'httpd_client_proto'} = _http_version("HTTP/1.0");
 	$self->send_error(400);  # BAD_REQUEST
-	$self->reason("Bad request line");
+	$self->reason("Bad request line: $buf");
 	return;
     }
     my $proto = $3 || "HTTP/0.9";

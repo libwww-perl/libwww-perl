@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.2 2003/10/10 15:50:16 gisle Exp $
+# $Id: lwp-request,v 2.3 2003/10/14 11:09:12 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -178,7 +178,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -426,55 +426,52 @@ while ($url = shift) {
         print "\n";  # separate headers and content
     }
 
-    if ($response->is_success) {
-	unless ($options{'d'}) {
-	    if ($options{'o'} &&
-		$response->content_type eq 'text/html') {
-		require HTML::Parse;
-		my $html = HTML::Parse::parse_html($response->content);
-		{
-		    $options{'o'} eq 'ps' && do {
-			require HTML::FormatPS;
-			my $f = HTML::FormatPS->new;
-			print $f->format($html);
-			last;
-		    };
-		    $options{'o'} eq 'text' && do {
-			require HTML::FormatText;
-			my $f = HTML::FormatText->new;
-			print $f->format($html);
-			last;
-		    };
-		    $options{'o'} eq 'html' && do {
-			print $html->as_HTML;
-			last;
-		    };
-		    $options{'o'} eq 'links' && do {
-			my $base = $response->base;
-			for ( @{ $html->extract_links } ) {
-			    my($link, $elem) = @$_;
-			    my $tag = uc $elem->tag;
-			    $link = URI->new($link)->abs($base)->as_string;
-			    print "$tag\t$link\n";
-			}
-			last;
-		    };
-		    $options{'o'} eq 'dump' && do {
-			$html->dump;
-			last;
-		    };
-		    # It is bad to not notice this before now :-(
-		    die "Illegal -o option value ($options{'o'})\n";
-		}
-	    } else {
-                binmode STDOUT unless $options{'a'};
-		print $response->content;
+    unless ($options{'d'}) {
+	if ($options{'o'} &&
+	    $response->content_type eq 'text/html') {
+	    require HTML::Parse;
+	    my $html = HTML::Parse::parse_html($response->content);
+	    {
+		$options{'o'} eq 'ps' && do {
+		    require HTML::FormatPS;
+		    my $f = HTML::FormatPS->new;
+		    print $f->format($html);
+		    last;
+		};
+		$options{'o'} eq 'text' && do {
+		    require HTML::FormatText;
+		    my $f = HTML::FormatText->new;
+		    print $f->format($html);
+		    last;
+		};
+		$options{'o'} eq 'html' && do {
+		    print $html->as_HTML;
+		    last;
+		};
+		$options{'o'} eq 'links' && do {
+		    my $base = $response->base;
+		    for ( @{ $html->extract_links } ) {
+			my($link, $elem) = @$_;
+			my $tag = uc $elem->tag;
+			$link = URI->new($link)->abs($base)->as_string;
+			print "$tag\t$link\n";
+		    }
+		    last;
+		};
+		$options{'o'} eq 'dump' && do {
+		    $html->dump;
+		    last;
+		};
+		# It is bad to not notice this before now :-(
+		die "Illegal -o option value ($options{'o'})\n";
 	    }
+	} else {
+	    binmode STDOUT unless $options{'a'};
+	    print $response->content;
 	}
-    } else {
-        print STDERR $response->error_as_HTML unless $options{'d'};
-        $errors++;
     }
+
+    $errors++ unless $response->is_success;
 }
 
 exit $errors;

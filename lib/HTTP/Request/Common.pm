@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.15 1999/03/20 07:37:36 gisle Exp $
+# $Id: Common.pm,v 1.16 1999/10/28 11:49:02 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -189,9 +189,8 @@ sub form_data   # RFC1867
       CHECK_BOUNDARY:
 	{
 	    for (@parts) {
-		if (index($_, "--$boundary") >= 0) {
+		if (index($_, $boundary) >= 0) {
 		    # must have a better boundary
-		    #warn "Need something better that '$boundary' as boundary\n";
 		    $boundary = boundary(++$bno);
 		    redo CHECK_BOUNDARY;
 		}
@@ -209,7 +208,7 @@ sub form_data   # RFC1867
 
 sub boundary
 {
-    my $size = shift || return "000";
+    my $size = shift || return "xYzZY";
     require MIME::Base64;
     my $b = MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
     $b =~ s/[\W]/X/g;  # ensure alnum only

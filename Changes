@@ -25,7 +25,7 @@
     Makefile.PL will try to discover misconfigured systems that
     can't talk to themselves and disable tests that depend on this.
 
-    Makefile.PL will not default to 'n' when asking about whether
+    Makefile.PL will now default to 'n' when asking about whether
     to install the "GET", "HEAD", "POST" programs.  There has been
     too many name clashes with these common names.
 

@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.10 1995/09/14 13:05:22 aas Exp $
+# $Id: Formatter.pm,v 1.11 1996/01/05 11:31:17 aas Exp $
 
 =head1 NAME
 
@@ -397,6 +397,13 @@ sub li_end
 	# increment ordered markers
 	$markers->[-1]++;
     }
+}
+
+BEGIN {
+    *menu_start = \&ul_start;
+    *menu_end   = \&ul_end;
+    *dir_start  = \&ul_start;
+    *dir_end    = \&ul_end;
 }
 
 sub ol_start

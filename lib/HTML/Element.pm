@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.14 1995/09/12 16:08:06 aas Exp $
+# $Id: Element.pm,v 1.15 1995/09/13 07:36:18 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -211,7 +211,10 @@ Returns (and optionally sets) the current position.
 sub pos
 {
     my $self = shift;
-    my $pos = $self->attr('_pos', @_);
+    my $pos = $self->{_pos};
+    if (@_) {
+	$self->{_pos} = $_[0];
+    }
     return $pos if defined($pos);
     $self;
 }
@@ -263,6 +266,35 @@ sub isEmpty
     !exists($self->{'_content'}) || !@{$self->{'_content'}};
 }
 
+
+
+=item ->insertElement($element, $implicit)
+
+Inserts a new element at current position and sets the pos.
+
+=cut
+
+sub insertElement
+{
+    my($self, $tag, $implicit) = @_;
+    my $e;
+    if (ref $tag) {
+	$e = $tag;
+	$tag = $e->tag;
+    } else {
+	$e = new HTML::Element $tag;
+    }
+    $e->{_implicit} = 1 if $implicit;
+    my $pos = $self->{_pos};
+    $pos = $self unless defined $pos;
+    $e->{_parent} = $pos;
+    $pos->pushContent($e);
+    unless ($noEndTag{$tag}) {
+	$self->{_pos} = $e;
+	$pos = $e;
+    }
+    $pos;
+}
 
 
 =item ->pushContent($element)

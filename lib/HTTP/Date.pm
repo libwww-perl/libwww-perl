@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.21 1996/11/19 11:29:12 aas Exp $
+# $Id: Date.pm,v 1.22 1996/11/25 08:18:32 aas Exp $
 #
 package HTTP::Date;
 
@@ -89,7 +89,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -268,10 +268,6 @@ sub str2time ($;$)
        $hr = 0 if $hr == 12 && $aorp eq 'AM';
        $hr += 12 if $aorp eq 'PM';
    }
-
-   # Check the hour and day
-   return undef if $hr  < 0 || $hr  > 23;
-   return undef if $day < 1 || $day > 31;
 
    # Make sure things are defined
    for ($sec, $min, $hr) {  $_ = 0 unless defined   }

@@ -17,7 +17,7 @@ lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Message.pm		Class encapsulating HTTP messages
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
 lib/LWP/Protocol/file.pm	Access local files
-lib/LWP/Protocol/ftp.pm         Access with the FTP protocol
+lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP protocol
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
@@ -28,7 +28,23 @@ lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/StatusCode.pm		HTTP Status code processing
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/URI/URL.pm			Class encapsulating URLs
-t/autoload.t
+lib/URI/URL/file.pm		Implements file URLs
+lib/URI/URL/finger.pm		Implements finger URLs
+lib/URI/URL/ftp.pm		Implements ftp URLs
+lib/URI/URL/gopher.pm		Implements gopher URLs
+lib/URI/URL/http.pm		Dummy
+lib/URI/URL/https.pm		Implements https URLs
+lib/URI/URL/mailto.pm		Implements mailto URLs
+lib/URI/URL/news.pm		Implements news URLs
+lib/URI/URL/nntp.pm		Implements nntp URLs
+lib/URI/URL/prospero.pm		Implements prospero URLs
+lib/URI/URL/rlogin.pm		Implements rlogin URLs
+lib/URI/URL/telnet.pm		Implements telnet URLs
+lib/URI/URL/tn3270.pm		Implements tn3270 URLs
+lib/URI/URL/wais.pm		Implements wais URLs
+lib/URI/URL/webster.pm		Implements webster URLs
+lib/URI/URL/whois.pm		Implements whois URLs
+t/autoload.t			Testing autoloading of protocols
 t/cgi-bin/lwp-test.html
 t/cgi-bin/lwp-test.pl
 t/cgi-bin/moved
@@ -43,3 +59,4 @@ t/moved.t
 t/proxy.t
 t/receiveHeaders-http.pl
 t/sendHeaders-http.pl
+t/uri.t				Test URI::URL module

@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -253,7 +253,7 @@ sub extract_cookies
 		    push(@cur, $k => $v);
 		}
 	    }
-	    push(@cur, "Port" => $req_port);
+#	    push(@cur, "Port" => $req_port);
 	    push(@cur, "Discard" => undef) unless $expires;
 	    push(@cur, "Version" => 0);
 	    push(@set, \@cur);

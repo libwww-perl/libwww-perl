@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.39 1996/11/25 14:50:20 aas Exp $
+# $Id: Makefile.PL,v 1.40 1996/12/08 15:26:33 aas Exp $
 
 #--- Configuration section ---
 
@@ -109,10 +109,10 @@ sub MY::postamble {
     my @m;
     if (@request_aliases && grep($_ eq 'lwp-request', @programs_to_install)) {
 	push @m, "all ::\n";
-	push @m, "\t\$(FULLPERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
+	push @m, "\t\$(FULLPERL) -e 'use Config; chdir q{\$(INST_EXE)}; foreach (qw(@request_aliases)) {' \\\n";
 	push @m, <<'EOT';
-	-e 'unlink "$(INST_EXE)/$$_";' \
-	-e 'system("$$Config{\"lns\"} lwp-request $(INST_EXE)/$$_") && die; }'
+	-e 'unlink "$$_";' \
+	-e 'system("$$Config{\"lns\"} lwp-request $$_") && die; }'
 EOT
     }
     join "", @m;
@@ -123,7 +123,7 @@ sub MY::test {
     q(
 TEST_VERBOSE=0
 
-test:
+test: all
 	$(FULLPERL) t/TEST $(TEST_VERBOSE)
 
 );

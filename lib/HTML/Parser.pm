@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.9 1997/12/11 22:44:39 aas Exp $
+# $Id: Parser.pm,v 2.10 1997/12/11 23:13:57 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.10 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -222,7 +222,7 @@ sub parse_file
 	$file = \*F;
     }
     my $chunk = '';
-    while(read($file, $chunk, 2048)) {
+    while(read($file, $chunk, 1024)) {
 	$self->parse($chunk);
     }
     close($file);
@@ -398,6 +398,15 @@ There is really nothing in the basic parser that is HTML specific, so
 it is likely that the parser can parse other kinds of SGML documents.
 SGML has many obscure features (not implemented by this module) that
 prevent us from renaming this module as C<SGML::Parser>.
+
+=head1 EFFICIENCY
+
+The parser is fairly inefficient if the chunks passed to $p->parse()
+are too big.  The reason is probably that perl ends up with a lot of
+character copying when tokens are removed from the beginning of the
+strings.  A chunck size of about 256-512 bytes was optimal in a test I
+made with some real world HTML documents.  (The parser was about 3
+times slower with a chunck size of 20K).
 
 =head1 SEE ALSO
 

@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.14 1996/04/09 15:44:37 aas Exp $
+# $Id: gopher.pm,v 1.15 1996/04/24 08:16:07 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -30,7 +30,7 @@ use Carp;
     '4' => 'application/mac-binhex40',  # 4 BinHexed Macintosh file
     '5' => 'application/zip',           # 5 DOS binary archive of some sort
     '6' => 'application/octet-stream',  # 6 UNIX uuencoded file.
-					# 7 Index-Search server
+    '7' => 'text/html',                 # 7 Index-Search server
 					# 8 telnet session
     '9' => 'application/octet-stream',  # 9 binary file
     'h' => 'text/html',                 # html
@@ -93,6 +93,20 @@ sub request
 	$response->header('X-Warning' => 'Client answer only');
 	return $response;
     }
+    
+    if ($gophertype eq '7' && ! $url->search) {
+      # the url is the prompt for a gopher search; supply boiler-plate
+      my @text;
+      my $ust = $url->as_string;
+      @tmp = ("<TITLE>Gopher Index $ust</TITLE>",
+	      "<H1>$ust <BR> Gopher Search</H1>\n",
+	      "This is a searchable Gopher index. ",
+	      "Use the search function of your browser to enter search terms.",
+	      "<ISINDEX>\n");
+      $response = $self->collect($arg, $response,
+				 sub {$_ = shift @tmp; \$_});
+      return $response;
+    }
 
     my $host = $url->host;
     my $port = $url->port;
@@ -110,7 +124,6 @@ sub request
 		$requestLine .= "\t$string";
 	    }
 	}
-
     }
     $requestLine .= "\015\012";
 
@@ -130,7 +143,7 @@ sub request
     # must handle menus in a special way since they are to be
     # converted to HTML.  Undefing $arg ensures that the user does
     # not see the data before we get a change to convert it.
-    $arg = undef if $gophertype eq '1';
+    $arg = undef if $gophertype eq '1' || $gophertype eq '7';
 
     # collect response
     $response = $self->collect($arg, $response, sub {
@@ -142,7 +155,7 @@ sub request
       } );
 
     # Convert menu to HTML and return data to user.
-    if ($gophertype eq '1') {
+    if ($gophertype eq '1' || $gophertype eq '7') {
 	my $content = menu2html($response->content);
 	if (defined $user_arg) {
 	    # let's collect once
@@ -189,6 +202,7 @@ sub menu2html {
 <HTML>
 <HEAD>
    <TITLE>Gopher menu</TITLE>
+   <H1>Gopher menu</H1>
 </HEAD>
 <BODY>
 EOT

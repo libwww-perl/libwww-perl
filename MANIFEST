@@ -98,7 +98,7 @@ t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/negotiate.t		Test HTTP::Negotiation module
 t/base/quoted-print.t		Test MIME::QuotedPrint module
-t/base/robot-rules.t		Test WWW::RobotRules module
+t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
 t/html/entities.t		Test HTML::Entities module
@@ -122,3 +122,5 @@ t/net/http-timeout.t
 t/net/mirror.t
 t/net/moved.t
 t/net/proxy.t
+t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
+t/robot/rules.t			Test WWW::RobotRules

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.22 1996/02/26 18:37:53 aas Exp $
+# $Id: Element.pm,v 1.23 1996/03/04 11:23:05 aas Exp $
 
 =head1 NAME
 
@@ -38,13 +38,13 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
 (
    '""'     => 'as_HTML',
-   fallback => 0
+   fallback => 1
 );
 
 # Elements that does not have corresponding end tags

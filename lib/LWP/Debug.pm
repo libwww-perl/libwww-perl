@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.9 1996/02/26 20:14:25 aas Exp $
+# $Id: Debug.pm,v 1.10 1996/04/07 20:37:27 aas Exp $
 #
 package LWP::Debug;
 
@@ -10,10 +10,7 @@ LWP::Debug - debug routines for the libwww-perl library
 
 =head1 SYNOPSIS
 
- use LWP::Debug qw(level);
-
- level('+');
- level('-conns');
+ use LWP::Debug qw(+ -conns);
 
  # Used internally in the library
  LWP::Debug::trace('send()');
@@ -22,11 +19,10 @@ LWP::Debug - debug routines for the libwww-perl library
 
 =head1 DESCRIPTION
 
-LWP::Debug provides tracing facilities. The trace(),
-debug() and conns() function log information at 
-increasing levels of detail. Which level of detail is
-actually printed is controlled with the C<level()>
-function.
+LWP::Debug provides tracing facilities. The trace(), debug() and
+conns() function are called within the library and they log
+information at increasing levels of detail. Which level of detail is
+actually printed is controlled with the C<level()> function.
 
 =head1 FUNCTIONS
 
@@ -40,6 +36,16 @@ name of the level with a '+' or '-' prepended.  The levels are:
   trace   : trace function calls
   debug   : print debug messages
   conns   : show all data transfered over the connections
+
+The LWP::Debug module provide a special import() method that allows
+you to pass the level() arguments with initial use statement.  If a
+use argument start with '+' or '-' then it is passed to the level
+function, else the name is exported as usual.  The following two
+statements are thus equivalent (if you ignore that the second pollutes
+your namespace):
+
+  use LWP::Debug qw(+);
+  use LWP::Debug qw(level); level('+');
 
 =head2 trace($msg)
 
@@ -70,6 +76,22 @@ use Carp ();
 my @levels = qw(trace debug conns);
 %current_level = ();
 
+sub import
+{
+    my $pack = shift;
+    my $callpkg = caller(0);
+    my @symbols = ();
+    my @levels = ();
+    for (@_) {
+	if (/^[-+]/) {
+	    push(@levels, $_);
+	} else {
+	    push(@symbols, $_);
+	}
+    }
+    Exporter::export($pack, $callpkg, @symbols);
+    level(@levels);
+}
 
 sub level
 {

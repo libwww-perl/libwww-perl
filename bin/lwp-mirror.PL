@@ -4,7 +4,7 @@ open MIR, ">bin/mirror" or die "open for writing bin/mirror: $!";
 print MIR "#!$Config{'scriptdir'}/perl -w\n";
 print MIR <<'END'; chmod(0755, "bin/mirror");
 
-# $Id: lwp-mirror.PL,v 1.9 1995/08/09 11:09:54 aas Exp $
+# $Id: lwp-mirror.PL,v 1.10 1995/09/07 17:46:53 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -27,15 +27,15 @@ Use the C<-v> option to print the version number of this program.
 The timeout value specified with the C<-t> option.  The timeout value
 is the time that the program will wait for response from the remote
 server before it fails.  The default unit for the timeout value is
-seconds.  You might append "m" to the timeout value to make it
-minutes.
+seconds.  You might append "m" or "h" to the timeout value to make it
+minutes or hours, repectively.
 
 Because this program is implemented using the LWP library, it only
 supports the protocols that LWP supports.
 
 =head1 SEE ALSO
 
-L<get>, L<LWP>
+L<request>, L<LWP>
 
 =head1 AUTHOR
 
@@ -49,13 +49,13 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
 $opt_t = undef;  # timeout
 
-unless (getopts("hvb:t:")) {
+unless (getopts("hvt:")) {
     usage();
 }
 

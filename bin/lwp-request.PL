@@ -4,14 +4,14 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.17 1995/09/04 19:40:54 aas Exp $
+# $Id: lwp-request.PL,v 1.18 1995/09/07 17:46:54 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
 
 =head1 NAME
 
-request - Simple WWW user agent
+request, GET, HEAD, POST - Simple WWW user agent
 
 =head1 SYNOPSIS
 
@@ -54,8 +54,8 @@ applied to.  The base URL only takes effect for relative URLs.
 Set the timeout value for the requests.  The timeout is the amount of
 time that the program will wait for a response from the remote server
 before it fails.  The default unit for the timeout value is seconds.
-You might append "m" to the timeout value to make it minutes.  The
-default timeout is '3m', i.e. 3 minutes.
+You might append "m" or "h" to the timeout value to make it minutes or
+hours, respectively.  The default timeout is '3m', i.e. 3 minutes.
 
 =item -i <time>
 
@@ -139,7 +139,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

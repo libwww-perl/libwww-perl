@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.15 1995/09/15 14:10:49 aas Exp $
+# $Id: FormatPS.pm,v 1.16 1996/01/05 11:32:07 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -254,7 +254,7 @@ sub findfont
     }
     $self->{currentfont} = $font_with_size;
     $self->{pointsize} = $size;
-    my $fontmod = "Font::$font";
+    my $fontmod = "Font::Metrics::$font";
     $fontmod =~ s/-//g;
     my $fontfile = $fontmod . ".pm";
     $fontfile =~ s,::,/,g;

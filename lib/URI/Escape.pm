@@ -1,5 +1,5 @@
 #
-# $Id: Escape.pm,v 3.4 1996/02/05 17:46:10 aas Exp $
+# $Id: Escape.pm,v 3.5 1996/02/26 18:40:30 aas Exp $
 #
 
 package URI::Escape;
@@ -52,7 +52,7 @@ require Exporter;
 @EXPORT = qw(uri_escape uri_unescape);
 @EXPORT_OK = qw(%escapes);
 
-use Carp;
+use Carp ();
 
 # Build a char->hex map
 for (0..255) {
@@ -68,7 +68,7 @@ sub uri_escape
 	    # Because we can't compile regex we fake it with a cached sub
 	    $subst{$patn} =
 	      eval "sub {\$_[0] =~ s/([$patn])/\$escapes{\$1}/g; }";
-	    croak "uri_escape: $@" if $@;
+	    Carp::croak("uri_escape: $@") if $@;
 	}
 	&{$subst{$patn}}($text);
     } else {

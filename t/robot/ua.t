@@ -3,15 +3,15 @@ $| = 1; # autoflush
 require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon
 
 # First we make ourself a daemon in another process
-
-unless (open(DAEMON, "-|")) {
+my $D = shift || '';
+if ($D eq 'daemon') {
 
     require HTTP::Daemon;
 
     my $d = new HTTP::Daemon Timeout => 10;
 
     print "Please to meet you at: <URL:", $d->url, ">\n";
-    open(STDOUT, ">/dev/null");
+    open(STDOUT, $^O eq 'MSWin32' ? ">nul" : ">/dev/null");
 
     while ($c = $d->accept) {
 	$r = $c->get_request;
@@ -31,6 +31,9 @@ unless (open(DAEMON, "-|")) {
     print STDERR "HTTP Server terminated\n";
     exit;
 }
+else {
+    open(DAEMON , "perl robot/ua.t daemon |") or die "Can't exec daemon: $!";
+}
 
 print "1..7\n";
 
@@ -47,7 +50,8 @@ print "Will access HTTP server at $base\n";
 require LWP::RobotUA;
 require HTTP::Request;
 $ua = new LWP::RobotUA 'lwp-spider/0.1', 'gisle@aas.no';
-$ua->delay(0.05);  # rather quick robot
+# 0.05 is too slow for Win32, since we won't use_alarm()
+$ua->delay($^O eq 'MSWin32' ? 0.001 : 0.05);  # rather quick robot
 
 #----------------------------------------------------------------
 sub httpd_get_robotstxt

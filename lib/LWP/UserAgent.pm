@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.43 1997/06/20 10:09:43 aas Exp $
+# $Id: UserAgent.pm,v 1.44 1997/08/05 13:59:21 aas Exp $
 
 package LWP::UserAgent;
 
@@ -147,7 +147,9 @@ sub new
 		'timeout'     => 3*60,
 		'proxy'       => undef,
 		'use_eval'    => 1,
-		'use_alarm'   => ($Config::Config{d_alarm} eq 'define'),
+		'use_alarm'   => ($Config::Config{d_alarm} ?
+				  $Config::Config{d_alarm} eq 'define' :
+				  0),
                 'parse_head'  => 1,
                 'max_size'    => undef,
 		'no_proxy'    => [],

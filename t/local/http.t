@@ -3,8 +3,8 @@ $| = 1; # autoflush
 require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon
 
 # First we make ourself a daemon in another process
-
-unless (open(DAEMON, "-|")) {
+my $D = shift || '';
+if ($D eq 'daemon') {
 
     require HTTP::Daemon;
 
@@ -28,6 +28,9 @@ unless (open(DAEMON, "-|")) {
     }
     print STDERR "HTTP Server terminated\n";
     exit;
+}
+else {
+    open(DAEMON, "perl local/http.t daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..18\n";

@@ -12,13 +12,14 @@ for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
 	last;
     }
 }
+$TMPDIR ||= $ENV{TEMP} if $^O eq 'MSWin32';
 unless ($TMPDIR) {
    # Can't run any tests
    print "1..0\n";
    print "ok 1\n";
    exit;
 }
-
+$TMPDIR =~ tr|\\|/|;
 print "1..2\n";
 
 use LWP::Simple;
@@ -40,7 +41,7 @@ open (OUT, ">$copy") or die "Cannot open $copy: $!";
 select(OUT);
 
 # do the retrieval
-getprint("file://localhost$orig");
+getprint("file://localhost" . ($orig =~ m|^/| ? $orig : "/$orig"));
 
 close(OUT);
 select(STDOUT);

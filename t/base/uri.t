@@ -26,9 +26,9 @@ package main;
 
 # Must ensure that there is no relative paths in @INC because we will
 # chdir in the newlocal tests.
-chomp($pwd = `pwd`);
+chomp($pwd = ($^O =~ /mswin32/i ? `cd` : `pwd`));
 for (@INC) {
-    next if m|^/| or $^O eq 'os2' and m|^\w:/|;
+    next if m|^/| or $^O =~ /os2|mswin32/i and m|^\w:[\\/]|;
     print "Turn lib path $_ into $pwd/$_\n";
     $_ = "$pwd/$_";
 
@@ -620,16 +620,18 @@ sub escape_test {
 
 sub newlocal_test {
     print "newlocal_test:\n";
-    my $pwd = -e '/bin/pwd' ? '/bin/pwd' : 'pwd' ;
+    my $pwd = ($^O eq 'MSWin32' ? 'cd' : (-e '/bin/pwd' ? '/bin/pwd' : 'pwd'));
+    my $tmpdir = ($^O eq 'MSWin32' ? $ENV{TEMP} : '/tmp');
+    $tmpdir =~ tr|\\|/|;
 
     my $savedir = `$pwd`;     # we don't use Cwd.pm because we want to check
 			      # that it get require'd corretly by URL.pm
     chomp $savedir;
 
     # cwd
-    chdir('/tmp') or die $!;
-    my $dir = `$pwd`;
-    chomp $dir;
+    chdir($tmpdir) or die $!;
+    my $dir = `$pwd`; $dir =~ tr|\\|/|;
+    chomp $dir; $dir = uri_escape($dir, ':');
     $url = newlocal URI::URL;
     $url->_expect('as_string', URI::URL->new("file:$dir/")->as_string);
 
@@ -645,23 +647,25 @@ sub newlocal_test {
     $url->_expect('as_string', 'file:/vmunix');
 
     # relative file
-    chdir('/tmp') or die $!;
-    $dir = `$pwd`;
-    chomp $dir;
+    chdir($tmpdir) or die $!;
+    $dir = `$pwd`; $dir =~ tr|\\|/|;
+    chomp $dir; $dir = uri_escape($dir, ':');
     $url = newlocal URI::URL 'foo';
     $url->_expect('as_string', "file:$dir/foo");
 
     # relative dir
-    chdir('/tmp') or die $!;
-    $dir = `$pwd`;
-    chomp $dir;
+    chdir($tmpdir) or die $!;
+    $dir = `$pwd`; $dir =~ tr|\\|/|;
+    chomp $dir; $dir = uri_escape($dir, ':');
     $url = newlocal URI::URL 'bar/';
     $url->_expect('as_string', "file:$dir/bar/");
 
     # 0
     chdir('/') or die $!;
+    $dir = `$pwd`; $dir =~ tr|\\|/|;
+    chomp $dir; $dir = uri_escape($dir, ':');
     $url = newlocal URI::URL '0';
-    $url->_expect('as_string', 'file:/0');
+    $url->_expect('as_string', "file:${dir}0");
 
     # Test access methods for file URLs
     $url = new URI::URL 'file:/c:/dos';

@@ -42,9 +42,10 @@ sub password
 		}
 	    }
 	    unless (defined $whoami) {
-		$whoami = $ENV{USER} || $ENV{LOGNAME};
+		$whoami = $ENV{USER} || $ENV{LOGNAME} || $ENV{USERNAME};
 		unless ($whoami) {
-		    chomp($whoami = `whoami`);
+		    if ($^O eq 'MSWin32') { $whoami = Win32::LoginName() }
+		    else                  { chomp($whoami = `whoami`) }
 		}
 	    }
 	    $old = "$whoami\@$fqdn";

@@ -16,7 +16,6 @@ lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
 lib/LWP/Base64.pm		Base 64 encoding/decoding routines
 lib/LWP/Debug.pm		Debugging support
-lib/LWP/Mailcap.pm              Parse mailcap files
 lib/LWP/MediaTypes.pm		Library for MIME types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
@@ -29,6 +28,7 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/mime.types		Mapping from file extentions mime types
+lib/Mail/Cap.pm                 Parse mailcap files
 lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/file.pm		Implements file URLs
@@ -53,7 +53,7 @@ t/TEST				Run tests
 t/base/base64.t			Test LWP::Base64 module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
-t/base/mailcap.t                Test LWP::Mailcap module
+t/base/mailcap.t                Test Mail::Cap module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/robot-rules.t		Test WWW::RobotRules module

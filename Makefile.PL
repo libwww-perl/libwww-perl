@@ -1,8 +1,10 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.55 2001/01/12 20:41:51 gisle Exp $
+# $Id: Makefile.PL,v 1.56 2001/04/29 06:14:51 gisle Exp $
 
 require 5.004;
 use strict;
+use ExtUtils::MakeMaker;
+use Config;
 
 #--- Configuration section ---
 
@@ -22,12 +24,87 @@ unless (getopts("n")) {
 }
 @programs_to_install = () if $opt_n || grep /^LIB=/, @ARGV;
 
+# Check if we should try to run the live tests
+open(CHANGES, "Changes") || die "Can't open Changes: $!";
+my $release_date;
+while (<CHANGES>) {
+    if (/^(\d{4}-\d{2}-\d{2})\D/) {
+        $release_date = $1;
+	last;
+    }
+}
+close(CHANGES);
+die "Can't figure out release date" unless $release_date;
+#print "Release date: $release_date\n";
+
+my $some_time_ago = sprintf "%04d-%02d-%02d",
+                            sub { ($_[5]+1900, $_[4]+1, $_[3])}->(localtime(time - 45 * 24*60*60));
+if ($some_time_ago lt $release_date) {
+    # Check if we have internet connection
+    require IO::Socket::INET;
+    my $s = IO::Socket::INET->new(PeerAddr => "www.google.com:80",
+				  Timeout  => 10,
+				 );
+    if ($s) {
+	# XXX could try to send a GET to it???
+	close($s);
+
+	print <<EOT;
+You appear to be directly connected to the Internet.  I have some tests
+that tries to access some sites on the net to verify that the new HTTP/1.1
+support works as it should.
+
+EOT
+
+        if (prompt("Do you want to enable these tests?", "y") =~ /^y/i) {
+	    open(ENABLED, ">t/live/ENABLED") || die "Can't enable: $!";
+	    close(ENABLED);
+	}
+	else {
+	    unlink("t/live/ENABLED");
+	}
+    }
+}
+
+if (@programs_to_install) {
+    print <<EOT;
+
+This package comes with some sample programs that I can try
+to install in $Config{sitebin}.
+
+EOT
+    my @tmp;
+    for (@programs_to_install) {
+	if (prompt("Do you want to install $_?", "y") =~ /^y/) {
+	    push(@tmp, $_);
+	}
+    }
+    @programs_to_install = @tmp;
+
+    if (grep($_ eq 'lwp-request', @programs_to_install) && @request_aliases) {
+	print <<EOT;
+
+The lwp-request program will use the name it is invoked with to
+determine what HTTP method to use.  I can set up alias for the most
+common HTTP methods.  These alias are also installed in
+$Config{sitebin}.
+
+EOT
+	@tmp = ();
+	for (@request_aliases) {
+	    if (prompt("Do you want to install the $_ alias?", "y") =~ /^y/) {
+		push(@tmp, $_);
+	    }
+	}
+	@request_aliases = @tmp;
+    }
+}
 
 # Check for non-standard modules that are used by this library.
 $| = 1;
 my $missing_modules = 0;
 
-print "Checking for URI...........";
+print "\nChecking for URI...........";
 eval {
     require URI;
     URI->VERSION(1.10);
@@ -129,9 +206,10 @@ The missing modules can be obtained from CPAN.  Visit
 
 EOT
 
+print "\n";
+
 
 # Ok, now it is time to really generate the Makefile
-use ExtUtils::MakeMaker;
 
 WriteMakefile(
    NAME          => 'libwww-perl',

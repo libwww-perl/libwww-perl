@@ -15,7 +15,7 @@ require WWW::RobotRules;
 use Carp;
 use strict;
 
-print "1..26\n"; # for Test::Harness
+print "1..31\n"; # for Test::Harness
 
 # We test a number of different /robots.txt files,
 #
@@ -52,6 +52,16 @@ Disallow: /this
 
 User-agent: Another
 Disallow: /that
+
+
+User-agent: SvartEnke1
+Disallow: http://fOO
+Disallow: http://bar
+
+User-Agent: SvartEnke2
+Disallow: ftp://foo
+Disallow: http://foo:8080/
+Disallow: http://bar/
 EOM
 
 # and a number of different robots:
@@ -111,6 +121,18 @@ my @tests1 = (
 	    24 => 'http://foo/private' => 1,
 	    25 => 'http://foo/this' => 1,
 	    26 => 'http://foo/that' => 0,
+	   ],
+
+	   [$content4, "SvartEnke1" =>
+	    27 => "http://foo/" => 0,
+	    28 => "http://foo/this" => 0,
+	    28 => "http://bar/" => 1,
+	   ],
+
+	   [$content4, "SvartEnke2" =>
+	    29 => "http://foo/" => 1,
+	    30 => "http://foo/this" => 1,
+	    31 => "http://bar/" => 1,
 	   ],
 
 	   # when adding tests, remember to increase

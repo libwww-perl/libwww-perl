@@ -11,17 +11,65 @@ sub HTTP::Message::parent {
 
 sub HTTP::Message::_content {
     my $self = shift;
-    my $ct = $self->content_type;
-    if ($ct =~ m,^message/,) {
+    my $ct = $self->header("Content-Type") || "multipart/mixed";
+    if ($ct =~ m,^\s*message/,i) {
 	$self->{_content} = $self->{_parts}[0]->as_string($CRLF);
 	return;
     }
 
+    require HTTP::Headers::Util;
+    my @v = HTTP::Headers::Util::split_header_words($ct);
+    Carp::carp("Multiple Content-Type headers") if @v > 1;
+    @v = @{$v[0]};
+
+    my $boundary;
+    my $boundary_index;
+    for (my @tmp = @v; @tmp;) {
+	my($k, $v) = splice(@tmp, 0, 2);
+	if (lc($k) eq "boundary") {
+	    $boundary = $v;
+	    $boundary_index = @v - @tmp - 1;
+	    last;
+	}
+    }
+
     my @parts = map $_->as_string($CRLF), @{$self->{_parts}};
-    my $boundary = "XXXXXXXX";  # XXX
-    $self->{_content} = "--$boundary\n" .
-	                join("\n--$boundary\n", @parts) .
-			"\n--$boundary--\n";
+
+    my $bno = 0;
+    $boundary = boundary() unless defined $boundary;
+ CHECK_BOUNDARY:
+    {
+	for (@parts) {
+	    if (index($_, $boundary) >= 0) {
+		# must have a better boundary
+		$boundary = boundary(++$bno);
+		redo CHECK_BOUNDARY;
+	    }
+	}
+    }
+
+    if ($boundary_index) {
+	$v[$boundary_index] = $boundary;
+    }
+    else {
+	push(@v, boundary => $boundary);
+    }
+
+    $ct = HTTP::Headers::Util::join_header_words(@v);
+    $self->header("Content-Type", $ct);
+
+    $self->{_content} = "--$boundary$CRLF" .
+	                join("$CRLF--$boundary$CRLF", @parts) .
+			"$CRLF--$boundary--$CRLF";
+}
+
+sub boundary
+{
+    my $size = shift || return "xYzZY";
+    require MIME::Base64;
+    my $b = MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
+    $b =~ s/[\W]/X/g;  # ensure alnum only
+    $b;
 }
 
 sub HTTP::Message::_parts {

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.12 1996/02/26 19:12:55 aas Exp $
+# $Id: Simple.pm,v 1.13 1996/03/05 10:51:11 aas Exp $
 
 =head1 NAME
 
@@ -139,6 +139,7 @@ use Carp;
 
 $ua = new LWP::UserAgent;  # we create a global UserAgent object
 $ua->agent("LWP::Simple/$LWP::VERSION");
+$ua->env_proxy;
 
 
 sub get

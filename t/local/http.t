@@ -37,8 +37,8 @@ else {
 print "1..18\n";
 
 
-$greating = <DAEMON>;
-$greating =~ /(<[^>]+>)/;
+my $greeting = <DAEMON>;
+$greeting =~ /(<[^>]+>)/;
 
 require URI::URL;
 URI::URL->import;
@@ -189,7 +189,7 @@ $req->url(url("/redirect2", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->is_redirect
-                and $res->message =~ /loop detected/i;
+                and $res->header("Client-Warning") =~ /loop detected/i;
 print "ok 10\n";
 $i = 1;
 while ($res->previous) {

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.56 2004/12/08 14:16:45 gisle Exp $
+# $Id: Message.pm,v 1.57 2005/02/18 20:29:01 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.56 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -45,7 +45,7 @@ sub parse
 
     my @hdr;
     while (1) {
-	if ($str =~ s/^([^ \t:]+)[ \t]*: ?(.*)\n?//) {
+	if ($str =~ s/^([^\s:]+)[ \t]*: ?(.*)\n?//) {
 	    push(@hdr, $1, $2);
 	    $hdr[-1] =~ s/\r\z//;
 	}

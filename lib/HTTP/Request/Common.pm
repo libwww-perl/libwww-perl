@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.23 2004/06/03 13:38:40 gisle Exp $
+# $Id: Common.pm,v 1.24 2004/11/12 13:51:30 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -138,7 +138,6 @@ sub form_data   # RFC1867
 	    $disp .= qq(; filename="$usename") if $usename;
 	    my $content = "";
 	    my $h = HTTP::Headers->new(@headers);
-	    my $ct = $h->header("Content-Type");
 	    if ($file) {
 		require Symbol;
 		my $fh = Symbol::gensym();
@@ -153,9 +152,9 @@ sub form_data   # RFC1867
 		    $content = <$fh>;
 		    close($fh);
 		}
-		unless ($ct) {
+		unless ($h->header("Content-Type")) {
 		    require LWP::MediaTypes;
-		    $ct = LWP::MediaTypes::guess_media_type($file, $h);
+		    LWP::MediaTypes::guess_media_type($file, $h);
 		}
 	    }
 	    if ($h->header("Content-Disposition")) {

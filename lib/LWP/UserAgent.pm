@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.15 1995/08/09 12:15:07 aas Exp $
+# $Id: UserAgent.pm,v 1.16 1995/08/17 14:27:08 aas Exp $
 
 package LWP::UserAgent;
 
@@ -298,13 +298,15 @@ sub request
 
         my $referral = $request->clone;
         $referral->url($referral_uri);
+	return $response unless $self->redirectOK($referral);
 
 	# Check for loop in redirects
 	my $r = $response;
 	while ($r) {
 	    if ($r->request->url->as_string eq $referral_uri->as_string) {
 		# loop detected
-		die "Loop detected";
+		$response->message("Loop detected");
+		return $response;
 	    }
 	    $r = $r->previous;
 	}
@@ -362,6 +364,29 @@ sub request
             'not yet implemented';
     }
     $response;
+}
+
+
+=head2 redirectOK
+
+This method is called by request() before it tries to do any
+redirects.  It should return a true value if the redirect is allowed
+to be performed. Subclasses might want to override this.
+
+=cut
+
+sub redirectOK
+{
+    # draft-ietf-http-v10-spec-02.ps from www.ics.uci.edu, specify:
+    # 
+    # If the 30[12] status code is received in response to a request using
+    # the POST method, the user agent must not automatically redirect the
+    # request unless it can be confirmed by the user, since this might change
+    # the conditions under which the request was issued.
+
+    my($self, $request) = @_;
+    return 0 if $request->method eq "POST";
+    1;
 }
 
 

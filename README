@@ -48,6 +48,9 @@ the following packages installed before you install libwww-perl:
 
 These packages should be available on CPAN (described above).
 
+If you want to access sites using the https protocol, then you need to
+install SSLeay.pm first.
+
 
 INSTALLATION
 
@@ -70,7 +73,7 @@ If you want to install a private copy of libwww-perl in your home
 directory, then you should try to produce the initial Makefile with
 something like this command:
 
-  perl Makefile.PL PREFIX=~/perl
+  perl Makefile.PL LIB=~/perl
 
 The Makefile.PL program will start out by checking your perl
 installation for a few packages that are recommended to be installed

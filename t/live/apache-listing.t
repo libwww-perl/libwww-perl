@@ -1,20 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
-use Getopt::Long;
 use File::Listing;
 use LWP::Simple;
 
-my $force;
 my $ok = 1;
-if (!GetOptions("f" => \$force)) {
-    die "usage";
-}
-
-if (!$force) {
-    print "1..0 # run this test with -f and a running internet connection\n";
-    exit 0;
-}
 
 # some sample URLs
 my @urls = (

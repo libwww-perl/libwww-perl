@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.14 1996/02/26 19:08:16 aas Exp $
+# $Id: Headers.pm,v 1.15 1996/02/27 19:37:01 aas Exp $
 
 package HTTP::Headers;
 
@@ -39,19 +39,21 @@ require Carp;
 #    - Request-Headers
 #    - Response-Headers
 #    - Entity-Headers
-# (From draft-ietf-http-v10-spec-01.ps)
+# (From draft-ietf-http-v11-spec-00.ps, Nov 22, 1995) 
 
 my @header_order = qw( 
-   Date Forwarded Message-ID MIME-Version Pragma
+   Cache-Control Connection Date Forwarded Message-ID MIME-Version
+   Pragma Upgrade
 
-   Host Accept Accept-Charset Accept-Encoding Accept-Language
-   Authorization From If-Modified-Since Orig-URI Referer User-Agent
+   Accept Accept-Charset Accept-Encoding Accept-Language Authorization
+   From Host If-Modified-Since Proxy-Authorization Orig-URI
+   Range Referer Unless User-Agent
 
-   Location Public Retry-After Server WWW-Authenticate
+   Location Proxy-Authenticate Public Retry-After Server WWW-Authenticate
 
    Allow Content-Encoding Content-Language Content-Length
-   Content-Transfer-Encoding Content-Type
-   Expires Last-Modified Link Title URI Version
+   Content-MD5 Content-Range Content-Type
+   Expires Last-Modified Link Title Transfer-Encoding URI Version
 );
 
 # Make alternative representations of @header_order.  This is used

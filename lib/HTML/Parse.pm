@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.15 1996/03/09 10:31:22 aas Exp $
+# $Id: Parse.pm,v 1.16 1996/03/14 12:00:24 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -131,7 +131,8 @@ for (qw(wbr nobr center blink font basefont)) {
 
 for (qw(cite code em kbd samp strong var b i u tt
 	a img br hr
-	wbr nobr center blink font basefont
+	wbr nobr center blink
+        small big font basefont
 	table
        )
     ) {

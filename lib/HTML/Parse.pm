@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 2.0 1996/05/19 11:53:06 aas Exp $
+# $Id: Parse.pm,v 2.1 1996/05/19 15:16:49 aas Exp $
 
 =head1 NAME
 
@@ -20,22 +20,89 @@ parse_htmlfile - Parse HTML text from file
 
 =head1 DESCRIPTION
 
-This module provides functions to parse HTML documents.  The result of
-the parsing is a HTML syntax tree with HTML::Element objects as nodes.
-Check out L<HTML::Element> for details of methods available to access
-the syntax tree.
+The C<HTML::Parse> module provides functions to parse HTML documents.
+There are two functions exported by this module:
 
-The parser currently understands HTML 2.0 markup + tables + some
-Netscape extentions.
+=over 4
 
-Entites in all text content and attribute values will be expanded by
-the parser.
+=item parse_html($html, [$obj])
 
-The parser is able to parse HTML text incrementally.  The document can
-be given to parse_html() in arbitrary pieces.  The result should be
-the same.
+This function will tokenize the HTML text given as the first argument
+and then call various methods on the $obj object as the HTML tokens
+are recognized.  The $obj object is also storage for unprocessed HTML
+text, so that the you can parse text incrementally, i.e. the document
+can be given to parse_html() in arbitrary pieces.  The $obj object
+should be subclassed from C<HTML::Parse::base), see description below.
 
-The following variables control how parsing takes place:
+For backwards compatibility with ealier versions of this library, the
+$obj will default to a internally created C<HTML::Parse::tree> object.
+This class implements a HTML syntax tree with HTML::Element objects as
+nodes.
+
+The return value from parse_html() is $obj.
+
+=item parse_htmlfile($file, [$obj])
+
+Same as parse_html(), but obtain HTML text from the named file. This
+function is implemented by repeated calls to parse_html().
+
+Returns UNDEF if the file could not be opened, or $obj otherwise.
+
+=back
+
+The basic parser only tokenize the HTML document for you.  In order to
+do anything interesting you must provide an C<HTML::Parse::base>
+object with the following methods overridden as appropriate:
+
+=over 4
+
+=item $obj->declaration($decl)
+
+This method is called when a I<markup declaration> has been
+recognized.  For typical HTML documents, the only declaration you are
+likely to find is <!DOCTYPE ...>.  The initial "<!" and ending ">" is
+not part of the string passed as argument.  Entities has not been
+expanded.
+
+=item $obj->start($tag, $attr)
+
+This method is called when a complete start tag has been recognized.
+The first argument is the tag name (in lower case) and the second
+argument is a reference to a hash that contain all attributes found
+within the start tag.  The attribute keys are converted to lower case.
+Entities found in the attribute values are already expanded for you.
+
+
+=item $obj->end($tag)
+
+This method is called when a end tag has been recognized.  The
+argument is the lower case tag name.
+
+=item $obj->text($text)
+
+This method is called as plain text in the document is recognized.
+The text is passed on unmodified.  Note that for efficiency reasons
+entities in the text is B<not> expanded.  You should call
+HTML::Entities::decode($text) before you process the text any further.
+
+=item $obj->comment($comment)
+
+This method is called as comments are recognized.
+
+=back
+
+The module also provide the C<HTML::Parse::tree> class (which is a
+subclass of both C<HTML::Element> and C<HTML::Parse::base>) which
+provide methods for building up a HTML syntax tree and for insertion
+of various implicit HTML tags.
+
+The C<HTML::Parse::tree> parser currently understands HTML 2.0 markup
++ tables + some Netscape extentions.
+
+The following variables control how parsing takes place (note that the
+package name of these variables have changed from ealier versions of
+this library, and they will soon be replaced by real attributes of the
+HTML::Parse::tree object):
 
 =over 4
 
@@ -65,7 +132,6 @@ Call warn() with an apropriate message for syntax errors.  Default is
 false.
 
 =back
-
 
 =head1 SEE ALSO
 
@@ -97,7 +163,7 @@ use vars qw($VERSION);
 require HTML::Element;
 use HTML::Entities ();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -143,7 +209,7 @@ sub parse_html ($;$)
 	    } else {
 		$p->text($1);
 	    }
-	# Then, special tags (usually either <!DOCTYPE...> or a comment)
+	# Then, markup declarations (usually either <!DOCTYPE...> or a comment)
 	} elsif ($$buf =~ s|^(<!)||) {
 	    my $eaten = $1;
 	    my $text = '';
@@ -166,11 +232,14 @@ sub parse_html ($;$)
 	    # Can we finish the tag
 	    if ($$buf =~ s|^([^>]*)>||) {
 		$text .= $1;
-		$p->special($text) if $text =~ /\S/;
+		$p->declaration($text) if $text =~ /\S/;
 	    } else {
 		$$buf = $eaten . $$buf;  # must start with it all next time
 		return $p;
 	    }
+        # Should we look for 'processing instructions' <? ...> ??
+	#} elsif ($$buf =~ s|<\?||) {
+	    # ...
 	# Then, look for a end tag
 	} elsif ($$buf =~ s|^</||) {
 	    # end tag
@@ -272,9 +341,9 @@ sub text
     # my($self, $text) = @_;
 }
 
-sub special
+sub declaration
 {
-    # my($self, $special) = @_;
+    # my($self, $decl) = @_;
 }
 
 sub comment

@@ -1,9 +1,20 @@
+Wed Dec  4 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5.05
+
+ o  LWP::UserAgent::simple_request: local($SIG{__DIE__}) protects us
+    against user defined die handlers.
+ 	
+ o  Use Net::Domain (instead of Sys::Hostname) to determine FQDN.  It
+    is used by URI::URL when it determines anonymous ftp login address.
+	
+ o  lwp-download: New program in the bin directory
 
  o  HTML::Parser: Allow '_' in attribute names.  This makes it possible
     to parse Netscape's bookmarks.html file.
 
  o  HTTP::Daemon: Fixed chunked transfer encoding and multipart content
-    in get_request()
+    in get_request().  Support HTTP/0.9 clients.
 
  o  Don't clobber regex variables when HTTP::Message delegates methods
     to the header.
@@ -12,6 +23,16 @@
     decode is a multiple of 4.
 
  o  t/robot/rules-dbm.t clean up better and will use AnyDBM for dumping
+
+ o  File::CounterFile: $/ strikes again by Andreas König
+
+ o  File::Listing updates from William York <william@mathworks.com>. We
+    can now parse the MS-Windows ftp server listings.
+
+ o  HTTP::Date now supports the MS-Windows 'dir' date format.  Patch by
+    William York.
+
+ o  LWP::MediaTypes::media_suffix will return first type in scalar context.
 
 
 

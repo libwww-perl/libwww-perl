@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.3 1995/07/24 13:38:50 aas Exp $
+# $Id: gopher.pm,v 1.4 1995/07/24 21:19:15 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -44,7 +44,7 @@ use Carp;
 
 sub request
 {
-    my($self, $request, $proxy, $arg, $size) = @_;
+    my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
     LWP::Debug::trace('gopher::request(' . 
                       (defined $request ? $request : '<undef>') . ', ' .

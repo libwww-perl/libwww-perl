@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..6\n";
+print "1..8\n";
 
 use strict;
 #use Data::Dump ();
@@ -14,6 +14,7 @@ use strict;
     my %servers = (
       a => { "/" => "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 6\r\n\r\nHello\n",
 	     "/bad1" => "HTTP/1.0 200 OK\nServer: foo\nHTTP/1.0 200 OK\nContent-type: text/foo\n\nabc\n",
+	     "/09" => "Hello\r\nWorld!\r\n",
 	   },
     );
 
@@ -144,3 +145,17 @@ $res = $h->request(GET => "/bad1");
 print "not " unless $res->{error} =~ /Bad header/ && !$res->{code};
 print "ok 6\n";
 $h = undef;  # it is in a bad state now
+
+$h = HTTP->new(Host => "a") || die;  # reconnect
+$res = $h->request(GET => "/09", [], {laxed => 1});
+print "not " unless $res->{code} eq "200" && $res->{message} eq "Assumed OK" &&
+                    $res->{content} eq "Hello\r\nWorld!\r\n" &&
+                    $h->peer_http_version eq "0.9";
+print "ok 7\n";
+
+$res = $h->request(GET => "/09");
+print "not " unless $res->{error} =~ /^Bad response status line: 'Hello'/;
+print "ok 8\n";
+$h = undef;  # it's in a bad state again
+
+

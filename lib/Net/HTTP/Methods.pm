@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.6 2001/12/05 06:58:01 gisle Exp $
+# $Id: Methods.pm,v 1.7 2001/12/05 16:58:05 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -233,8 +233,8 @@ sub my_readline {
 	    if $max_line_length && $pos > $max_line_length;
 
 	my $line = substr($_, 0, $pos+1, "");
-	$line =~ s/\015?\012\z//;
-	return $line;
+	$line =~ s/(\015?\012)\z// || die "Assert";
+	return wantarray ? ($line, $1) : $line;
     }
 }
 
@@ -295,7 +295,7 @@ sub read_response_headers {
     my($self, %opt) = @_;
     my $laxed = $opt{laxed};
 
-    my $status = my_readline($self);
+    my($status, $eol) = my_readline($self);
     die "EOF instead of reponse status line" unless defined $status;
 
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
@@ -304,8 +304,7 @@ sub read_response_headers {
 	# assume HTTP/0.9
 	${*$self}{'http_peer_http_version'} = "0.9";
 	${*$self}{'http_status'} = "200";
-	# XXX but we have lost the line ending by now.
-	substr(${*$self}{'http_buf'}, 0, 0) = "$status\n";
+	substr(${*$self}{'http_buf'}, 0, 0) = $status . $eol;
 	return (200, "Assumed OK");
     };
 

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.5 2003/10/14 13:42:03 gisle Exp $
+# $Id: UserAgent.pm,v 2.6 2003/10/14 18:20:17 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.6 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -267,7 +267,7 @@ sub _request_sanity_check {
 }
 
 
-=item $ua->send_request($request, $arg [, $size])
+=item $ua->send_request($request, [$arg [, $size]])
 
 This method dispatches a single WWW request on behalf of a user, and
 returns the response received.  The request is sent off unmodified,

@@ -1,6 +1,9 @@
-#!/usr/local/bin/perl -w
+use Config;
+open MIR, ">bin/mirror" or die "open for writing bin/mirror: $!";
+print MIR "#!$Config{'scriptdir'}/perl -w\n";
+print MIR <<'END';
 
-# $Id: lwp-mirror.PL,v 1.4 1995/07/16 07:16:43 aas Exp $
+# $Id: lwp-mirror.PL,v 1.5 1995/07/23 23:59:54 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -45,7 +48,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -100,3 +103,4 @@ Usage: $0 [-options] <url> <file>
     -t <timeout> Set timeout value
 EOT
 }
+END

@@ -20,6 +20,7 @@ my $f = HTML::Form->parse($res->content, $res->base);
 my $file = <<'EOT';
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Hi</title>
 <h1>Heading</h1>
 Some text.
@@ -37,7 +38,7 @@ $req->header(Connection => "close");
 $res = $ua->request($req);
 #print $res->as_string;
 
-unless ($res->content =~ /No errors found!/) {
+unless ($res->content =~ /found to be valid/) {
     print $res->as_string;
     print "\nnot ";
 }

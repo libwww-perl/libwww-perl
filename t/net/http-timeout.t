@@ -20,15 +20,15 @@ $url = new URI::URL("http://$netloc$script");
 
 my $request = new HTTP::Request('GET', $url);
 
-print $request->asString;
+print $request->as_string;
 
 my $response = $ua->request($request, undef);
 
-my $str = $response->asString;
+my $str = $response->as_string;
 
 print "$str\n";
 
-if ($response->isError and 
+if ($response->is_error and 
     $response->code == &HTTP::Status::RC_REQUEST_TIMEOUT and 
     $str =~ /timeout/) {
     print "ok 1\n";

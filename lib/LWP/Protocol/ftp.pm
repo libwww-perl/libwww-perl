@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.6 1995/09/06 16:22:30 aas Exp $
+# $Id: ftp.pm,v 1.7 1996/02/26 19:13:41 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959).
 
@@ -22,10 +22,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('ftp-request(' . 
-                      (defined $request ? $request : '<undef>') . ', ' .
-                      (defined $arg ? $arg : '<undef>') . ', ' .
-                      (defined $size ? $size : '<undef>') .')');
+    LWP::Debug::trace('()');
 
     $size = 4096 unless defined $size and $size > 0;
 
@@ -167,7 +164,7 @@ sub request
     my $response;
 
     my $cmd_sock = new LWP::Socket;
-    alarm($timeout) if $self->useAlarm and defined $timeout;
+    alarm($timeout) if $self->use_alarm and defined $timeout;
     $cmd_sock->connect($host, $port);
 
     eval {
@@ -204,10 +201,10 @@ sub request
 		$response->header('Content-Length', $1);
 	    }
 
-	    my($type, @enc) = LWP::MediaTypes::guessMediaType($url);
+	    my($type, @enc) = LWP::MediaTypes::guess_media_type($url);
 	    $response->header('Content-Type',   $type) if $type;
 	    for (@enc) {
-		$response->pushHeader('Content-Encoding', $_);
+		$response->push_header('Content-Encoding', $_);
 	    }
 	    
 	    if ($resp =~ /^550/) {
@@ -264,7 +261,7 @@ sub expect
 {
     my($sock, $digit, $dont_die) = @_;
     my $response;
-    $sock->readUntil("\r?\n", \$response, undef);
+    $sock->read_until("\r?\n", \$response, undef);
     my($code, $string) = $response =~ m/^(\d+)\s+(.*)/;
     die "$response\n" if substr($code,0,1) ne $digit && !$dont_die;
     LWP::Debug::debug($response);

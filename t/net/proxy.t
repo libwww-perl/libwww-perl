@@ -27,9 +27,9 @@ my $request = new HTTP::Request('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->asString;
+my $str = $response->as_string;
 
-if ($response->isSuccess and $str =~ /This is the NEXOR public archive/) {
+if ($response->is_success and $str =~ /This is the NEXOR public archive/) {
     print "ok 1\n";
 } else {
     print "not ok 1\n";

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.11 1996/02/05 18:05:42 aas Exp $
+# $Id: Simple.pm,v 1.12 1996/02/26 19:12:55 aas Exp $
 
 =head1 NAME
 
@@ -14,7 +14,7 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
  if (mirror("http://www.sn.no/", "foo") == RC_NOT_MODIFIED) {
      ...
  }
- if (isSuccess(getprint("http://www.sn.no/"))) {
+ if (is_success(getprint("http://www.sn.no/"))) {
      ...
  }
 
@@ -101,11 +101,11 @@ The HTTP::Status procedures are:
 
 =over 3
 
-=item isSuccess($rc)
+=item is_success($rc)
 
 Check if response code indicated successfull request.
 
-=item isError($rc)
+=item is_error($rc)
 
 Check if response code indicated that an error occured.
 
@@ -148,7 +148,7 @@ sub get
     my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request);
 
-    return $response->content if $response->isSuccess;
+    return $response->content if $response->is_success;
     return undef;
 }
 
@@ -160,7 +160,7 @@ sub head
     my $request = new HTTP::Request('HEAD', $url);
     my $response = $ua->request($request);
 
-    if ($response->isSuccess) {
+    if ($response->is_success) {
         return ($response->header('Content-Type'),
                 $response->header('Content-Length'),
                 str2time($response->header('Last-Modified')),
@@ -179,10 +179,10 @@ sub getprint
 
     my $request = new HTTP::Request('GET', $url);
     my $response = $ua->request($request);
-    if ($response->isSuccess) {
+    if ($response->is_success) {
         print $response->content;
     } else {
-        print STDERR $response->errorAsHTML;
+        print STDERR $response->error_as_HTML;
     }
     $response->code;
 }

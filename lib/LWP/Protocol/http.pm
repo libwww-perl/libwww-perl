@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.18 1996/02/05 18:03:41 aas Exp $
+# $Id: http.pm,v 1.19 1996/02/26 19:14:42 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -10,8 +10,7 @@ require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
 
-use Carp;
-use FileHandle;
+use Carp ();
 
 @ISA = qw(LWP::Protocol);
 
@@ -39,10 +38,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('LWP::http::request(' . 
-                      (defined $request ? $request : '<undef>') . ', ' .
-                      (defined $arg ? $arg : '<undef>') . ', ' .
-                      (defined $size ? $size : '<undef>') .')');
+    LWP::Debug::trace('()');
 
     $size = 4096 unless defined $size and $size > 0;
 
@@ -74,12 +70,11 @@ sub request
     # connect to remote site
     my $socket = new LWP::Socket;
 
-    alarm($timeout) if $self->useAlarm and defined $timeout;
+    alarm($timeout) if $self->use_alarm and defined $timeout;
 
     $socket->connect($host, $port);
 
     my $request_line = "$method $fullpath $httpversion$endl";
-    LWP::Debug::debug("request line: $request_line");
 
     # If we're sending content we *have* to specify a content length
     # otherwise the server won't know a messagebody is coming.
@@ -92,12 +87,13 @@ sub request
     if (defined $content){
 	$contRef = ref($content) ? $content : \$content;
 	if (ref($contRef) eq 'SCALAR') {
-	    $request->header('Content-Length', length $$contRef);
+	    $request->header('Content-Length', length $$contRef)
+	      if length $$contRef;
 	} elsif (ref($contRef) eq 'CODE') {
-	    croak('No Content-Length header for request with content')
+	    Carp::croak('No Content-Length header for request with content')
 	      unless $request->header('Content-Length');
 	} else {
-	    croak "Illegal content in request ($content)";
+	    Carp::croak("Illegal content in request ($content)");
 	}
     }
 
@@ -108,7 +104,7 @@ sub request
        $request->header('Host', $url->host);
     }
 
-    $socket->write($request_line . $request->headerAsString($endl) . $endl);
+    $socket->write($request_line . $request->headers_as_string($endl) . $endl);
     if (defined $content) { 
 	if (ref($contRef) eq 'CODE') {
 	    $socket->write($contRef, $timeout);
@@ -118,11 +114,11 @@ sub request
       }
 
     # read response line from server
-    LWP::Debug::debugl('reading response');
+    LWP::Debug::debug('reading response');
 
     my $line;
     my $delim = "\015?\012";
-    my $result = $socket->readUntil($delim, \$line, undef, $timeout);
+    my $result = $socket->read_until($delim, \$line, undef, $timeout);
 
     my $response;
     
@@ -137,7 +133,7 @@ sub request
         LWP::Debug::debug('reading rest of response header');
         my $header = '';
         my $delim = "\015?\012\015?\012";
-        my $result = $socket->readUntil($delim, \$header, undef, $timeout);
+        my $result = $socket->read_until($delim, \$header, undef, $timeout);
 
         @headerlines = split(/\015?\012/, $header);
 
@@ -150,7 +146,7 @@ sub request
             if (/^(\S+?):\s*(.*)$/) {
                 my ($key, $val) = ($1, $2);
                 if (length $lastkey and length $lastval) {
-                    $response->pushHeader($lastkey, $lastval);
+                    $response->push_header($lastkey, $lastval);
                 }
                 $lastkey = $key;
                 $lastval = $val;
@@ -161,7 +157,7 @@ sub request
             }
         }
         if (length $lastkey and length $lastval) {
-            $response->pushHeader($lastkey, $lastval);
+            $response->push_header($lastkey, $lastval);
         }
     } else {
         # HTTP/0.9 or worse. Assume OK
@@ -172,14 +168,13 @@ sub request
     }
 
     # need to read content
-    alarm($timeout) if $self->useAlarm and defined $timeout;
+    alarm($timeout) if $self->use_alarm and defined $timeout;
      
     LWP::Debug::debug('Reading content');
     $response = $self->collect($arg, $response, sub { 
         LWP::Debug::debug('collecting');
         my $content = '';
         my $result = $socket->read(\$content, $size, $timeout);
-        LWP::Debug::debug("collected: $content");
         return \$content;
         } );
 
@@ -187,6 +182,5 @@ sub request
 
     $response;
 }
-
 
 1;

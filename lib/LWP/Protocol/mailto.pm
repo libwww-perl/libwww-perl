@@ -1,5 +1,5 @@
 #
-# $Id: mailto.pm,v 1.5 1995/09/04 17:43:55 aas Exp $
+# $Id: mailto.pm,v 1.6 1996/02/26 19:13:59 aas Exp $
 #
 # This module implements the mailto protocol.  It is just a simple 
 # frontend to the Unix sendmail program.  In the long run this module
@@ -59,7 +59,7 @@ sub request
     my $addr = $url->encoded822addr;
 
     $request->header('To', $addr);
-    print SENDMAIL $request->headerAsString;
+    print SENDMAIL $request->headers_as_string;
     print SENDMAIL "\n";
     my $content = $request->content;
     if (defined $content) {

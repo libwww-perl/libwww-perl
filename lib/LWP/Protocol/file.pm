@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.11 1996/02/05 19:42:34 aas Exp $
+# $Id: file.pm,v 1.12 1996/02/26 19:13:27 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -19,10 +19,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size) = @_;
 
-    LWP::Debug::trace('LWP::file::request(' . 
-                      (defined $request ? $request : '<undef>') . ', ' .
-                      (defined $arg ? $arg : '<undef>') . ', ' .
-                      (defined $size ? $size : '<undef>') .')');
+    LWP::Debug::trace('()');
 
     $size = 4096 unless defined $size and $size > 0;
 
@@ -58,7 +55,6 @@ sub request
     }
 
     # URL OK, look at file
-    my $upath = $url->full_path;
     my $path  = $url->local_path;
 
     # test file exists and is readable
@@ -109,8 +105,8 @@ sub request
         }
 	# Ensure that the base URL is "/" terminated
 	my $base = $url->clone;
-	unless ($base->full_path =~ m|/$|) {
-	    $base->epath($base->full_path . "/");
+	unless ($base->epath =~ m|/$|) {
+	    $base->epath($base->epath . "/");
 	}
         my $html = join("\n",
                         "<HTML>\n<HEAD>",
@@ -134,11 +130,11 @@ sub request
         });
         
     } else {            # path is a regular file
-        my($type, @enc) = LWP::MediaTypes::guessMediaType($path);
+        my($type, @enc) = LWP::MediaTypes::guess_media_type($path);
         $response->header('Content-Type',   $type) if $type;
         $response->header('Content-Length', $size);
 	for (@enc) {
-	    $response->pushHeader('Content-Encoding', $_);
+	    $response->push_header('Content-Encoding', $_);
 	}
 
         # read the file

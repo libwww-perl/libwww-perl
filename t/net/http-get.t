@@ -22,11 +22,11 @@ print "GET $url\n\n";
 
 my $response = $ua->request($request, undef, undef);
 
-my $str = $response->asString;
+my $str = $response->as_string;
 
 print "$str\n";
 
-if ($response->isSuccess and $str =~ /^REQUEST_METHOD=GET$/m) {
+if ($response->is_success and $str =~ /^REQUEST_METHOD=GET$/m) {
     print "ok 1\n";
 } else {
     print "not ok 1\n";

@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.10 1995/12/05 13:55:54 aas Exp $
+# $Id: gopher.pm,v 1.11 1996/02/26 19:14:15 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -46,10 +46,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace('gopher::request(' . 
-                      (defined $request ? $request : '<undef>') . ', ' .
-                      (defined $arg ? $arg : '<undef>') . ', ' .
-                      (defined $size ? $size : '<undef>') .')');
+    LWP::Debug::trace('()');
 
     $size = 4096 unless defined $size and $size > 0;
 
@@ -85,13 +82,17 @@ sub request
 
     my $response = new HTTP::Response &HTTP::Status::RC_OK,
                                       'Document follows';
-    $response->header('MIME-Version', '1.0');
-    $response->header('Content-type', $gopher2mimetype{$gophertype}
-                                      || 'text/plain');
-    $response->header('Content-Encoding', $gopher2encoding{$gophertype})
+    $response->header('MIME-Version' => '1.0');
+    $response->header('Content-type' => $gopher2mimetype{$gophertype}
+                                        || 'text/plain');
+    $response->header('Content-Encoding' => $gopher2encoding{$gophertype})
         if exists $gopher2encoding{$gophertype};
 
-    return $response if $method eq 'HEAD';  # XXX: don't even try it
+    if ($method eq 'HEAD') {
+	# XXX: don't even try it so we set this header
+	$response->header('X-Warning' => 'Client answer only');
+	return $response;
+    }
     
     my $host = $url->host;
     my $port = $url->port;
@@ -117,7 +118,7 @@ sub request
 
     # Ok, lets make the request
     my $socket = new LWP::Socket;
-    alarm($timeout) if $self->useAlarm and defined $timeout;
+    alarm($timeout) if $self->use_alarm and defined $timeout;
 
     $socket->connect($host, $port);
     LWP::Debug::debug('connected');

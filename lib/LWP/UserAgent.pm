@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.21 2003/10/26 14:44:19 gisle Exp $
+# $Id: UserAgent.pm,v 2.22 2003/10/26 15:22:12 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.22 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -966,10 +966,10 @@ will normally not be the same as C<< length($res->content) >>.
 This reads or sets the object's limit of how many times it will obey
 redirection responses in a given request cycle.
 
-By default, the value is 7. This means that if you call C<<
-$ua->get($url) >> and the response is a redirect elsewhere which is in
-turn a redirect, and so on seven times, then LWP gives up after that
-seventh request.
+By default, the value is 7. This means that if you call request()
+method and the response is a redirect elsewhere which is in turn a
+redirect, and so on seven times, then LWP gives up after that seventh
+request.
 
 =item $ua->parse_head
 
@@ -1115,7 +1115,7 @@ content is treated.  The following special field names are recognized:
     :content_file   => $filename
     :content_cb     => \&callback
     :read_size_hint => $bytes
-    
+
 If a $filename is provided with the C<:content_file> option, then the
 response content will be saved here instead of in the response
 object.  If a callback is provided with the C<:content_cb> option then

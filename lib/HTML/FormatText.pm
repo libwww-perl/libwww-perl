@@ -9,11 +9,11 @@ use strict;
 sub begin
 {
     my $self = shift;
-    
+    $self->HTML::Format::begin;
     $self->{lm}  =    3;  # left margin
     $self->{rm}  =   70;  # right margin
     $self->{pos} =    0;  # current output position.
-    $self->{maxpos} = 0;  # highest value of $pos
+    $self->{maxpos} = 0;  # highest value of $pos (used by header underliner)
 }
 
 sub end
@@ -77,10 +77,10 @@ sub out
 
     if (defined $formatter->{vspace}) {
 	if ($formatter->{out}) {
-	    $formatter->nl() while $formatter->{vspace}-- > 0;
-	    $formatter->lm();
+	    $formatter->nl while $formatter->{vspace}-- > 0;
+	    $formatter->lm;
 	} else {
-	    $formatter->lm();
+	    $formatter->lm;
 	}
 	$formatter->{vspace} = undef;
     }
@@ -90,35 +90,36 @@ sub out
 	$formatter->{eat_leading_space} = 0;
     }
 
-    if ($formatter->{pos} > $formatter->{rm}) {  # line is long enogh, break it
+    if ($formatter->{pos} > $formatter->{rm}) {  # line is too long, break it
 	return if $text =~ /^\s*$/;  # white space at eol is ok
-	$formatter->nl();
-	$formatter->lm();
+	$formatter->nl;
+	$formatter->lm;
     }
     
     if ($formatter->{pending_space}) {
 	$formatter->{pending_space} = 0;
 	print ' ';
-	$formatter->{pos}++;
-	$formatter->{maxpos} = $formatter->{pos}
-	   if $formatter->{maxpos} < $formatter->{pos};
+	my $pos = ++$formatter->{pos};
+	$formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
     }
 
     $formatter->{pending_space} = 1 if $text =~ s/\s+$//;
     return unless length $text;
 
     print $text;
-    $formatter->{pos} += length $text;
-    $formatter->{maxpos} = $formatter->{pos}
-       if $formatter->{maxpos} < $formatter->{pos};
+    my $pos = $formatter->{pos} += length $text;
+    $formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
     $formatter->{out}++;
 }
+
 sub lm
 {
     my $formatter = shift;
-    if ($formatter->{pos} < $formatter->{lm}) {
-	print " " x ($formatter->{lm} - $formatter->{pos});
-	$formatter->{pos} = $formatter->{lm};
+    my $pos = $formatter->{pos};
+    my $lm  = $formatter->{lm};
+    if ($pos < $lm) {
+	$formatter->{pos} = $lm;
+	print " " x ($lm - $pos);
     }
 }
 

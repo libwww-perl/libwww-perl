@@ -2,7 +2,7 @@ package AFM;
 
 # This package is a simple parser for Adobe Font Metrics files.
 #
-# $Id: AFM.pm,v 1.3 1995/05/14 13:56:04 aas Exp $
+# $Id: AFM.pm,v 1.4 1995/05/14 14:35:57 aas Exp $
 #
 # Author: Gisle Aas <aas@oslonett.no>
 
@@ -113,10 +113,16 @@ sub latin1_wx_table
 sub stringwidth
 {
     my($this, $string, $pointsize) = @_;
+    return 0.0 unless defined $string;
+    return 0.0 unless length $string;
+
     my @wx = $this->latin1_wx_table;
     my $width = 0.0;
     while ($string =~ /./g) {
 	$width += $wx[ord $&];
+    }
+    if ($pointsize) {
+	$width *= $pointsize / 1000;
     }
     $width;
 }

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.12 1995/09/18 14:21:14 aas Exp $
+# $Id: Parse.pm,v 1.13 1995/09/26 10:50:58 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -196,7 +196,7 @@ sub parse_html
 	    endtag($html, lc $1);
 	} elsif (m/^<\s*\w+/) {
 	    starttag($html, $_);
-	} elsif (m/^<!\s*DOCTYPE\b/) {
+	} elsif (m/^<!\s*DOCTYPE\b/i) {
 	    # just ignore it
 	} else {
 	    text($html, $_);

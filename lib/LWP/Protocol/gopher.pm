@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.1 1995/07/18 11:48:57 aas Exp $
+# $Id: gopher.pm,v 1.2 1995/07/18 12:50:39 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -8,7 +8,6 @@
 # dated 28/3/94 in <ftp://cui.unige.ch/PUBLIC/oscar/scripts/http.pl>
 # including contributions from Marc van Heyningen and Martijn Koster.
 #
-
 
 package LWP::Protocol::gopher;
 
@@ -23,15 +22,25 @@ use Carp;
 @ISA = qw(LWP::Protocol);
 
 
-%gopher2mime = (
-    '0' => 'text/plain',                # file
-    '1' => 'text/html',                 # menu
-    '9'	=> 'application/octet-stream',  # binary
+%gopher2mimetype = (
+    '0' => 'text/plain',                # 0 file
+    '1' => 'text/html',                 # 1 menu
+                                        # 2 CSO phone-book server
+                                        # 3 Error
+    '4' => 'application/mac-binhex40',  # 4 BinHexed Macintosh file
+    '5' => 'application/zip',           # 5 DOS binary archive of some sort
+    '6' => 'application/octet-stream',  # 6 UNIX uuencoded file.
+                                        # 7 Index-Search server
+                                        # 8 telnet session
+    '9' => 'application/octet-stream',  # 9 binary file
     'h' => 'text/html',                 # html
     'g' => 'image/gif',                 # gif
-    'I'	=> 'image/*',                   # some kind of image
+    'I' => 'image/*',                   # some kind of image
 );
 
+%gopher2encoding = (
+    '6' => 'x_uuencode',                # 6 UNIX uuencoded file.
+);
 
 sub request
 {
@@ -53,7 +62,7 @@ sub request
 
     my $url = $request->url;
     if ($url->scheme ne 'gopher') {
-	my $scheme = $url->scheme;
+        my $scheme = $url->scheme;
         return new LWP::Response &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
                        "LWP::Protocol::gopher::request called for '$scheme'";
     }
@@ -68,7 +77,7 @@ sub request
     }
 
     my $gophertype = $url->gtype;
-    unless (exists $gopher2mime{$gophertype}) {
+    unless (exists $gopher2mimetype{$gophertype}) {
         return new LWP::Response &LWP::StatusCode::RC_NOT_IMPLEMENTED,
                                  'Library does not support gophertype ' .
                                  $gophertype;
@@ -77,8 +86,10 @@ sub request
     my $response = new LWP::Response &LWP::StatusCode::RC_OK,
                                      'Document follows';
     $response->header('MIME-Version', '1.0');
-    $response->header('Content-type', $gopher2mime{$gophertype}
-		                      || 'text/plain');
+    $response->header('Content-type', $gopher2mimetype{$gophertype}
+                                      || 'text/plain');
+    $response->header('Content-Encoding', $gopher2encoding{$gophertype})
+        if exists $gopher2encoding{$gophertype};
 
     return $response if $method eq 'HEAD';  # XXX: don't even try it
     
@@ -89,16 +100,16 @@ sub request
 
     my $selector = $url->selector;
     if (defined $selector) {
-	$requestLine .= $selector;
-	my $search = $url->search;
-	if (defined $search) {
-	    $requestLine .= "\t$search";
-	    my $string = $url->string;
-	    if (defined $string) {
-		$requestLine .= "\t$string";
-	    }
-	}
-	
+        $requestLine .= $selector;
+        my $search = $url->search;
+        if (defined $search) {
+            $requestLine .= "\t$search";
+            my $string = $url->string;
+            if (defined $string) {
+                $requestLine .= "\t$string";
+            }
+        }
+        
     }
     $requestLine .= "\r\n";
 
@@ -123,7 +134,8 @@ sub request
         LWP::Debug::debug("collected: $content");
         return \$content;
         } );
-    $response->content(menu2html($response->content)) if ($gophertype eq '1');
+
+    $response->content(menu2html($response->content)) if $gophertype eq '1';
     
     $response;
 }
@@ -136,12 +148,12 @@ sub gopher2url
     my $url;
 
     if ($gophertype eq '8' || $gophertype eq 'T') {
-	# telnet session
-	$url = new URI::URL ($gophertype eq '8' ? 'telnet:' : 'tn3270:');
-	$url->user($path) if defined $path;
+        # telnet session
+        $url = new URI::URL ($gophertype eq '8' ? 'telnet:' : 'tn3270:');
+        $url->user($path) if defined $path;
     } else {
-	$path = URI::URL::uri_escape($path);
-	$url = new URI::URL "gopher:/$gophertype$path";
+        $path = URI::URL::uri_escape($path);
+        $url = new URI::URL "gopher:/$gophertype$path";
     }
     $url->host($host);
     $url->port($port);
@@ -160,17 +172,17 @@ sub menu2html {
 <BODY>
 EOT
     for (split("\n", $menu)) {
-	last if /^\./;
-	my($pretty, $path, $host, $port) = split("\t");
+        last if /^\./;
+        my($pretty, $path, $host, $port) = split("\t");
 
-	$pretty =~ s/^(.)//;
-	my $type = $1;
-	
-	my $url = gopher2url($type, $path, $host, $port)->as_string;
-	$tmp .= qq{<A HREF="$url">$pretty</A><BR>\n};
+        $pretty =~ s/^(.)//;
+        my $type = $1;
+        
+        my $url = gopher2url($type, $path, $host, $port)->as_string;
+        $tmp .= qq{<A HREF="$url">$pretty</A><BR>\n};
     }
     $tmp .= "</BODY>\n</HTML>\n";
     $tmp
 }
-		
+                
 1;

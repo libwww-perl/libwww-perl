@@ -1,20 +1,20 @@
 #
-# $Id: QuotedPrint.pm,v 1.3 1995/08/23 12:27:55 aas Exp $
+# $Id: QuotedPrint.pm,v 1.4 1995/08/23 15:27:07 aas Exp $
 
-package MIME::QuotedPrintable;
+package MIME::QuotedPrint;
 
 =head1 NAME
 
-qp_encode - Encode string using quoted-printable encoding
+encode_qp - Encode string using quoted-printable encoding
 
-qp_decode - Decode quoted-printable string
+decode_qp - Decode quoted-printable string
 
 =head1 SYNOPSIS
 
- use MIME::QuotedPrintable;
+ use MIME::QuotedPrint;
  
- $encoded = qp_encode($decoded);
- $decoded = qp_decode($encoded);
+ $encoded = encode_qp($decoded);
+ $decoded = decode_qp($encoded);
 
 =head1 DESCRIPTION
 
@@ -22,7 +22,7 @@ This module provides functions to encode and decode strings into the
 Quoted-Printable encoding specified in RFC 1521 - I<MIME (Multipurpose
 Internet Mail Extensions)>.
 
-Note that these routines does not change C<\n> to CRLF.
+Note that these routines does not change C<"\n"> to CRLF.
 
 =head1 COPYRIGHT
 
@@ -39,12 +39,12 @@ Gisle Aas <aas@oslonett.no>
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(qp_encode qp_decode);
+@EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-sub qp_encode
+sub encode_qp
 {
     $res = shift;
     $res =~ s/([^ \t\n!-<>-~])/sprintf("=%02X", ord($1))/eg;  # rule #2,#3
@@ -64,7 +64,7 @@ sub qp_encode
 }
 
 
-sub qp_decode
+sub decode_qp
 {
     $res = shift;
     $res =~ s/\s+(\r?\n)/$1/g; # rule #3 (trailing white space must be deleted)

@@ -1,20 +1,20 @@
 #
-# $Id: Base64.pm,v 1.2 1995/08/23 10:37:00 aas Exp $
+# $Id: Base64.pm,v 1.3 1995/08/23 15:27:05 aas Exp $
 
 package MIME::Base64;
 
 =head1 NAME
 
-base64_encode - Encode string using base64 encoding
+encode_base64 - Encode string using base64 encoding
 
-base64_decode - Decode base64 string
+decode_base64 - Decode base64 string
 
 =head1 SYNOPSIS
 
  use MIME::Base64;
  
- $encoded = base64_encode('Aladdin:open sesame');
- $decoded = base64_decode($encoded);
+ $encoded = encode_base64('Aladdin:open sesame');
+ $decoded = decode_base64($encoded);
 
 =head1 DESCRIPTION
 
@@ -23,8 +23,8 @@ Base64 encoding specified in RFC 1521 - I<MIME (Multipurpose Internet
 Mail Extensions)>.
 
 RFC 1521 says that the encoded bytes must be represented in lines of
-no more than 76 characters each. The second argument to
-base64_encode() is the line ending sequence to use. It defaults to
+no more than 76 characters each.  The second argument to
+encode_base64() is the line ending sequence to use. It defaults to
 C<"\n">.  Use C<''> if you do not want the encoded string broken into
 lines.
 
@@ -48,14 +48,14 @@ comp.lang.perl <3pd2lp$6gf@wsinti07.win.tue.nl> by Hans Mulder
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(base64_encode base64_decode);
+@EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
 
-sub base64_encode
+sub encode_base64
 {
     my $res = "";
     my $eol = $_[1];
@@ -76,7 +76,7 @@ sub base64_encode
 }
 
 
-sub base64_decode
+sub decode_base64
 {
     local($^W) = 0; # unpack("u",...) gives bogus warning in 5.001m
 

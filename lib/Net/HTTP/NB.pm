@@ -1,6 +1,6 @@
 package Net::HTTP::NB;
 
-# $Id: NB.pm,v 1.3 2001/04/14 06:03:42 gisle Exp $
+# $Id: NB.pm,v 1.4 2001/05/02 04:40:41 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -38,10 +38,12 @@ sub read_entity_body {
     my $self = shift;
     ${*$self}{'httpnb_read_count'} = 0;
     ${*$self}{'httpnb_save'} = ${*$self}{'http_buf'};
+    # XXX I'm not so sure this does the correct thing in case of
+    # transfer-encoding tranforms
     my $n = eval { $self->SUPER::read_entity_body(@_); };
     if ($@) {
 	$_[0] = "";
-	return "0E0";
+	return -1;
     }
     return $n;
 }
@@ -88,9 +90,7 @@ If read_response_headers() did not see enough data to complete the
 headers an empty list is returned.
 
 If read_entity_body() did not see new entity data in its read
-the value "0E0" is returned.  This must be treated differently from a
-return value of "0" which means end-of-entity.  Both are zero
-numerically, but only the last one is FALSE.
+the value -1 is returned.
 
 =head1 SEE ALSO
 

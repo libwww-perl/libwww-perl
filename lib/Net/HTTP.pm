@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.28 2001/04/29 07:22:04 gisle Exp $
+# $Id: HTTP.pm,v 1.29 2001/05/02 04:40:41 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -376,6 +376,11 @@ sub read_entity_body {
     }
 
     if (defined $chunked) {
+	# The state encoded in $chunked is:
+	#   $chunked == 0:   read CRLF after chunk, then chunk header
+        #   $chunked == -1:  read chunk header
+	#   $chunked > 0:    bytes left in current chunk to read
+
 	if ($chunked <= 0) {
 	    my $line = my_readline($self);
 	    if ($chunked == 0) {
@@ -397,12 +402,12 @@ sub read_entity_body {
 		    $n = length($$buf_ref);
 		}
 
-		# in case somebody tries to read more
+		# in case somebody tries to read more, make sure we continue
+		# to return EOF
 		delete ${*$self}{'http_chunked'};
 		${*$self}{'http_bytes'} = 0;
 
 		return $n;
-
 	    }
 	}
 
@@ -413,14 +418,15 @@ sub read_entity_body {
 
 	${*$self}{'http_chunked'} = $chunked - $n;
 
-	if (my $transforms = ${*$self}{'http_te2'}) {
-	    for (@$transforms) {
-		$$buf_ref = &$_($$buf_ref, 0);
+	if ($n > 0) {
+	    if (my $transforms = ${*$self}{'http_te2'}) {
+		for (@$transforms) {
+		    $$buf_ref = &$_($$buf_ref, 0);
+		}
+		$n = length($$buf_ref);
+		$n = -1 if $n == 0;
 	    }
-	    $n = length($$buf_ref);
-	    $n = "0E0" if $n == 0;
 	}
-
 	return $n;
     }
     elsif (defined $bytes) {
@@ -576,6 +582,10 @@ Reads chunks of the entity body content.  Basically the same interface
 as for read() and sysread(), but buffer offset is not supported yet.
 This method should only be called after a successful
 read_response_headers() call.
+
+The return value will be C<undef> on errors, 0 on EOF, -1 if no data
+could be returned this time, and otherwise the number of bytes added
+to $buf.
 
 =item %headers = $s->get_trailers
 

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.3 1995/07/24 12:48:10 aas Exp $
+$Id: TODO,v 1.4 1995/07/25 08:28:46 aas Exp $
 
 Implement more protocol schemes
     1) LWP::Protocol::ftp
@@ -15,5 +15,7 @@ Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 Implement more of LWP::MIMEtypes
 
 Better LWP::Base64??
+
+More tests
 
 Fix bugs, it here are any...

@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.4 1996/05/08 16:32:10 aas Exp $
+# $Id: Entities.pm,v 1.5 1996/05/19 11:35:24 aas Exp $
 
 =head1 NAME
 
@@ -19,7 +19,7 @@ encode - Encode chars in a string using HTML entities
 =head1 DESCRIPTION
 
 The decode_entities() routine replace valid HTML entities found
-in the string with the corresponding character.
+in the string with the corresponding ISO-8859/1 character.
 
 The encode_entities() routine replace the characters specified by the
 second argument with their entity representation.  The default set of
@@ -32,7 +32,7 @@ return it.
 If you prefer not to import these routines into your namespace you can
 call them as:
 
-  require HTML::Entities;;
+  use HTML::Entities ();
   $encoded = HTML::Entities::encode($a);
   $decoded = HTML::Entities::decode($a);
 
@@ -49,7 +49,7 @@ modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@a.sn.no>
+Gisle Aas <aas@sn.no>
 
 =cut
 
@@ -60,85 +60,85 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
 %entity2char = (
+ # Some normal chars that have special meaning in SGML context
+ amp    => '&',
+ 'gt'   => '>',
+ 'lt'   => '<',
+ quot   => '"',
 
- 'lt'     => '<',
- 'gt'     => '>',
- 'amp'    => '&',
- 'quot'   => '"',
- 'nbsp'   => "\240",
+ # PUBLIC ISO 8879-1986//ENTITIES Added Latin 1//EN//HTML
+ Aacute => 'Á',
+ Acirc  => 'Â',
+ Agrave => 'À',
+ Aring  => 'Å',
+ Atilde => 'Ã',
+ Auml   => 'Ä',
+ Ccedil => 'Ç',
+ ETH    => 'Ð',
+ Eacute => 'É',
+ Ecirc  => 'Ê',
+ Egrave => 'È',
+ Euml   => 'Ë',
+ Iacute => 'Í',
+ Icirc  => 'Î',
+ Igrave => 'Ì',
+ Iuml   => 'Ï',
+ Ntilde => 'Ñ',
+ AElig  => 'Æ',
+ Oacute => 'Ó',
+ Ocirc  => 'Ô',
+ Ograve => 'Ò',
+ Oslash => 'Ø',
+ Otilde => 'Õ',
+ Ouml   => 'Ö',
+ THORN  => 'Þ',
+ Uacute => 'Ú',
+ Ucirc  => 'Û',
+ Ugrave => 'Ù',
+ Uuml   => 'Ü',
+ Yacute => 'Ý',
+ aelig  => 'æ',
+ aacute => 'á',
+ acirc  => 'â',
+ agrave => 'à',
+ aring  => 'å',
+ atilde => 'ã',
+ auml   => 'ä',
+ ccedil => 'ç',
+ eacute => 'é',
+ ecirc  => 'ê',
+ egrave => 'è',
+ eth    => 'ð',
+ euml   => 'ë',
+ iacute => 'í',
+ icirc  => 'î',
+ igrave => 'ì',
+ iuml   => 'ï',
+ ntilde => 'ñ',
+ oacute => 'ó',
+ ocirc  => 'ô',
+ ograve => 'ò',
+ oslash => 'ø',
+ otilde => 'õ',
+ ouml   => 'ö',
+ szlig  => 'ß',
+ thorn  => 'þ',
+ uacute => 'ú',
+ ucirc  => 'û',
+ ugrave => 'ù',
+ uuml   => 'ü',
+ yacute => 'ý',
+ yuml   => 'ÿ',
 
- 'Aacute' => 'Á',
- 'Acirc'  => 'Â',
- 'Agrave' => 'À',
- 'Aring'  => 'Å',
- 'Atilde' => 'Ã',
- 'Auml'   => 'Ä',
- 'Ccedil' => 'Ç',
- 'ETH'    => 'Ð',
- 'Eacute' => 'É',
- 'Ecirc'  => 'Ê',
- 'Egrave' => 'È',
- 'Euml'   => 'Ë',
- 'Iacute' => 'Í',
- 'Icirc'  => 'Î',
- 'Igrave' => 'Ì',
- 'Iuml'   => 'Ï',
- 'Ntilde' => 'Ñ',
- 'AElig'  => 'Æ',
- 'Oacute' => 'Ó',
- 'Ocirc'  => 'Ô',
- 'Ograve' => 'Ò',
- 'Oslash' => 'Ø',
- 'Otilde' => 'Õ',
- 'Ouml'   => 'Ö',
- 'THORN'  => 'Þ',
- 'Uacute' => 'Ú',
- 'Ucirc'  => 'Û',
- 'Ugrave' => 'Ù',
- 'Uuml'   => 'Ü',
- 'Yacute' => 'Ý',
- 'aelig'  => 'æ',
- 'aacute' => 'á',
- 'acirc'  => 'â',
- 'agrave' => 'à',
- 'aring'  => 'å',
- 'atilde' => 'ã',
- 'auml'   => 'ä',
- 'ccedil' => 'ç',
- 'eacute' => 'é',
- 'ecirc'  => 'ê',
- 'egrave' => 'è',
- 'eth'    => 'ð',
- 'euml'   => 'ë',
- 'iacute' => 'í',
- 'icirc'  => 'î',
- 'igrave' => 'ì',
- 'iuml'   => 'ï',
- 'ntilde' => 'ñ',
- 'oacute' => 'ó',
- 'ocirc'  => 'ô',
- 'ograve' => 'ò',
- 'oslash' => 'ø',
- 'otilde' => 'õ',
- 'ouml'   => 'ö',
- 'szlig'  => 'ß',
- 'thorn'  => 'þ',
- 'uacute' => 'ú',
- 'ucirc'  => 'û',
- 'ugrave' => 'ù',
- 'uuml'   => 'ü',
- 'yacute' => 'ý',
- 'yuml'   => 'ÿ',
-
- # Netscape extentions
- 'reg'    => '®',
- 'copy'   => '©',
-
+ # Some extra Latin 1 chars that are listed in the HTML3.2 draft (23-Apr-96)
+ reg    => '®',
+ copy   => '©',
+ nbsp   => "\240",
 );
 
 # Make the oposite mapping

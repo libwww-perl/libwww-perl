@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: URL.pm,v 2.10 1995/07/12 13:37:57 aas Exp $'
+# $Id: URL.pm,v 2.11 1995/07/12 13:40:43 aas Exp $'
 #
 package URI::URL;
 require 5.001;
@@ -289,8 +289,8 @@ require Exporter;
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-$Version = '$Revision: 2.10 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 2.11 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 # Define default unsafe characters.
 # Note that you cannot reliably change this at runtime
@@ -563,6 +563,11 @@ my %netloc_fields = qw(user 1 password 1 host 1 port 1);
 sub elem {
     my($self, $element, @val) = @_;
     my $old = $self->{$element};
+
+    # see comments in _parse 2.4.6
+    # XXX maybe this should really be in &path itself
+    $old =~ s!^/!! if ($element eq 'path' and defined $old);
+
     return $old unless @val;
 
     $self->{$element} = $val[0]; # general case
@@ -733,6 +738,23 @@ sub _parse {
     # 2.4.5
     $self->{params} = $self->unescape($1) if $u =~ s/;(.*)//;
     # 2.4.6
+    #
+    # RFC 1738 says: 
+    #
+    #     Note that the "/" between the host (or port) and the 
+    #     url-path is NOT part of the url-path.
+    #
+    # however, RFC 1808, 2.4.6. says:
+    #
+    #    Even though the initial slash is not part of the URL path,
+    #    the parser must remember whether or not it was present so 
+    #    that later processes can differentiate between relative 
+    #    and absolute paths.  Often this is done by simply storing
+    #    he preceding slash along with the path.
+    # 
+    # so we'll store it in $self->{path}, and strip it when asked
+    # for $self->path()
+
     $self->{path}   = $self->unescape($u);
     # read netloc components: "<user>:<password>@<host>:<port>"
     $self->_read_netloc;
@@ -780,11 +802,12 @@ sub as_string
     my @unsafe = shift || $self->unsafe || ();
     my($scheme, $netloc, $port) = @{$self}{qw(scheme netloc port)};
 
-    # full_path() -> path+query+params+frag (escaped)
-    my $path  = $self->full_path(@unsafe);
+    # full_path() -> /path+query+params (escaped)
+    my $path = $self->full_path(@unsafe);
+    my $frag = $self->{frag};
+    $path .= "#".$self->_esc_frag($frag,    @unsafe) if $frag;    
 
     if ($netloc){
-        $path = "/$path" unless $path =~ m:^/:;
         $path = "//".$self->_esc_netloc($netloc, @unsafe).$path;
     }
     my $urlstr = ($scheme) ? "$scheme:$path" : $path;
@@ -804,9 +827,18 @@ sub full_path
         = @{$self}{qw(path params query frag) };
     my $u = '';
     $u .=     $self->_esc_path($path,    @unsafe) if $path;
+    $u = "/$u" unless $u =~ m:^/:; # see comment in _parse 2.4.6
     $u .= ";".$self->_esc_params($params,@unsafe) if $params;
     $u .= "?".$self->_esc_query($query,  @unsafe) if $query;
-    $u .= "#".$self->_esc_frag($frag,    @unsafe) if $frag;
+
+    # rfc 1808 says:
+    #    Note that the fragment identifier (and the "#" that precedes 
+    #    it) is not considered part of the URL.  However, since it is
+    #    commonly used within the same string context as a URL, a parser
+    #    must be able to recognize the fragment when it is present and 
+    #    set it aside as part of the parsing process.
+    # so we'll leave the fragment off
+
     return $u;
 }
 
@@ -1172,28 +1204,36 @@ sub scheme_parse_test {
     $tests = {
         'hTTp://web1.net/a/b/c/welcome#intro'
         => {    'scheme'=>'http', 'host'=>'web1.net', 'port'=>undef,
-                'path'=>'/a/b/c/welcome', 'frag'=>'intro',
+                'path'=>'a/b/c/welcome', 'frag'=>'intro',
                 'query'=>undef,
-                'as_string'=>'http://web1.net/a/b/c/welcome#intro' },
+                'as_string'=>'http://web1.net/a/b/c/welcome#intro',
+                'full_path' => '/a/b/c/welcome' },
 
         'http://web:1/a?query+text'
         => {    'scheme'=>'http', 'host'=>'web', 'port'=>1,
-                'path'=>'/a', 'frag'=>undef, 'query'=>'query text' },
+                'path'=>'a', 'frag'=>undef, 'query'=>'query text' },
+
+        'http://web.net/'
+        => {    'scheme'=>'http', 'host'=>'web.net', 'port'=>undef,
+                'path'=>'', 'frag'=>undef, 'query'=>undef,
+                'user'=>undef,
+                'full_path' => '/' },
 
         'http://web.net'
         => {    'scheme'=>'http', 'host'=>'web.net', 'port'=>undef,
                 'path'=>'', 'frag'=>undef, 'query'=>undef,
-                'user'=>undef },
+                'user'=>undef,
+                'full_path' => '/' },
 
         'ftp://usr:pswd@web:1234/a/b;type=i'
-        => {    'host'=>'web', 'port'=>1234, 'path'=>'/a/b',
+        => {    'host'=>'web', 'port'=>1234, 'path'=>'a/b',
                 'user'=>'usr', 'password'=>'pswd',
                 'params'=>'type=i',
                 'as_string'=>'ftp://usr:pswd@web:1234/a/b;type=i' },
 
         'file://host/fseg/fs?g/fseg'
         # don't escape ? for file: scheme
-        => {    'host'=>'host', 'path'=>'/fseg/fs?g/fseg',
+        => {    'host'=>'host', 'path'=>'fseg/fs?g/fseg',
                 'as_string'=>'file://host/fseg/fs?g/fseg' },
 
         'gopher://web/2a_selector'
@@ -1231,8 +1271,10 @@ sub scheme_parse_test {
         my $tests = $tests->{$url_str};
         while( ($method, $exp) = each %$tests ){
             $exp = 'UNDEF' unless defined $exp;
-            if ($method eq 'as_string'){
-                $url->_expect('as_string', $exp);
+            # XXX if we had a $obj->can('method') then we
+            # would not have to hardcode these
+            if ($method eq 'as_string' or $method eq 'full_path'){
+                $url->_expect($method, $exp);
             } else {
                 $url->_expect('elem', $exp, $method);
             }
@@ -1266,7 +1308,6 @@ sub parts_test {
                   
     $url->query(undef);
     $url->_expect('query', undef);
-#    $url->print_on;
 }
 
 #
@@ -1347,7 +1388,7 @@ sub escape_test {
     # supply escaped URL
     $url = new URI::URL 'http://web/this%20has%20spaces';
     # check component is unescaped
-    $url->_expect('path', '/this has spaces');
+    $url->_expect('path', 'this has spaces');
 
     # modify the unescaped form
     $url->path('this ALSO has spaces');
@@ -1379,7 +1420,7 @@ sub escape_test {
 
 ##  XXX is this '?' allowed to be unescaped
     $url = new URI::URL 'file://h/test?ing';
-    $url->_expect('path', '/test?ing');
+    $url->_expect('path', 'test?ing');
 
     $url = new URI::URL 'file://h/';
     $url->path('question?mark');
@@ -1556,7 +1597,7 @@ EOM
         $got->_expect('as_string', $abs_str);
     }
 
-    # bug found & fixed in 1.9 by "J.E. Fritz" <FRITZ@gems.vcu.edu>
+    # bug found and fixed in 1.9 by "J.E. Fritz" <FRITZ@gems.vcu.edu>
 
     my $base = new URI::URL 'http://host/directory/file';
     my $relative = new URI::URL 'file', $base;

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.16 1996/04/09 15:44:30 aas Exp $
+# $Id: Simple.pm,v 1.17 1996/05/08 16:29:26 aas Exp $
 
 =head1 NAME
 
@@ -186,6 +186,7 @@ sub getprint ($)
 
     my $request = new HTTP::Request 'GET', $url;
     my $response = $ua->request($request);
+    local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
     if ($response->is_success) {
 	print $response->content;
     } else {

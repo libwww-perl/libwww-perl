@@ -12,11 +12,7 @@ $url = "http://$net::httpserver$net::cgidir/moved";
 #LWP::Debug::level('+trace');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
-
 $ua->timeout(30);               # timeout in seconds
-$ua->use_alarm(1);               # don't use alarms
-#$ua->use_eval(0);               # don't eval, just die when thing go wrong
-				# (easier to read while debugging)
 
 my $request = new HTTP::Request('GET', $url);
 

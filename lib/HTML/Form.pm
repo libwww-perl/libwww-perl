@@ -48,7 +48,8 @@ Objects of the C<HTML::Form> class represents a single HTML
 C<E<lt>formE<gt> ... E<lt>/formE<gt>> instance.  A form consists of a
 sequence of inputs that usually have names, and which can take on
 various values.  The state of a form can be tweaked and it can then be
-asked to provide HTTP::Request objects that can be passed to LWP.
+asked to provide C<HTTP::Request> objects that can be passed to the
+request() method of C<LWP::UserAgent>.
 
 The following constructor methods are available:
 
@@ -61,9 +62,15 @@ C<HTML::Form> objects for each <form> element found.  If called in scalar
 context only returns the first <form>.  Returns an empty list if there
 are no forms to be found.
 
-The $base_uri is (usually) the URI used to retrieve the $html_document.
-It is needed to resolve relative action URIs.  For LWP this parameter
-is obtained from the $response->base() method.
+The $base_uri is the URI used to retrieve the $html_document.  It is
+needed to resolve relative action URIs.  If the document was retrieved
+with LWP then this this parameter is obtained from the
+$response->base() method, as shown by the following example:
+
+    my $ua = LWP::UserAgent->new;
+    my $response = $ua->get("http://www.example.com/form.html");
+    my @forms = HTML::Form->parse( $response->content,
+				   $response->base);
 
 =cut
 
@@ -133,6 +140,8 @@ sub parse
     wantarray ? @forms : $forms[0];
 }
 
+=item $form = HTML::Form->new( $method, $action_uri )
+
 =item $form = HTML::Form->new( $method, $action_uri, $enctype )
 
 This constructs a new empty HTML::Form object.  The arguments are the
@@ -140,8 +149,9 @@ initial value for which method the form should use to invoke a
 request, which URI to apply the method to, and what encoding type to
 use for the form data.
 
-The $method defaults to "GET" if not provided.  The $enctype defaults
-to "application/x-www-form-urlencoded" if not provided.
+The $method is assumed to be "GET" if C<undef> is passed.  The
+$enctype defaults to "application/x-www-form-urlencoded" if not
+provided.
 
 You will normally use HTML::Form->parse() to create new HTML::Form
 objects.
@@ -940,7 +950,7 @@ __END__
 
 =head1 SEE ALSO
 
-L<LWP>, L<HTML::Parser>
+L<LWP>, L<LWP::UserAgent>, L<HTML::Parser>
 
 =head1 COPYRIGHT
 

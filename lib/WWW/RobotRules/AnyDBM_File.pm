@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.3 1996/09/17 14:50:43 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.4 1996/09/19 11:44:35 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -12,7 +12,7 @@ use strict;
 
 =head1 NAME
 
-WWW::RobotRules::AnyDBM_File - Persistent Robot Rules
+WWW::RobotRules::AnyDBM_File - Persistent RobotRules
 
 =head1 SYNOPSIS
 
@@ -28,25 +28,38 @@ WWW::RobotRules::AnyDBM_File - Persistent Robot Rules
 
 =head1 DESCRIPTION
 
-This is a subclass of L<WWW::RobotRules> that uses the AnyDBM_File
-package to implement diskcaching of robots.txt.  The constructor takes
-an extra argument specifying the name of the DBM file to use.
+This is a subclass of I<WWW::RobotRules> that uses the AnyDBM_File
+package to implement persistent diskcaching of F<robots.txt> and host
+visit information.
+
+The constructor (the new() method) takes an extra argument specifying
+the name of the DBM file to use.  If the DBM file already exists, then
+you can specify undef as agent name as the name can be obtained from
+the DBM database.
 
 =head1 SE ALSO
 
-L<WWW::RobotRules>
+L<WWW::RobotRules>, L<LWP::RobotUA>
 
 =cut
 
 sub new 
 { 
   my ($class, $ua, $file) = @_;
-  Carp::croak('WWW::RobotRules::AnyDBM_File cachfile required') unless $file;
+  Carp::croak('WWW::RobotRules::AnyDBM_File filename required') unless $file;
 
   my $self = bless { }, $class;
   $self->{'filename'} = $file;
-  tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_CREAT|O_RDWR, 0640;
-  $self->agent($ua);
+  tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_CREAT|O_RDWR, 0640
+    or Carp::croak("Can't open $file: $!");
+  
+  if ($ua) {
+      $self->agent($ua);
+  } else {
+      # Try to obtain name from DBM file
+      $ua = $self->{'dbm'}{"|ua-name|"};
+      Carp::croak("No agent name specified") unless $ua;
+  }
 
   $self;
 }

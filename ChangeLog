@@ -3,6 +3,10 @@
 
  o  Release 5.06
 
+
+
+
+
  o  URI::URL is now compatible with perl5.004 overloading.
 
  o  HTML::HeadParser makes X-Meta-Foo headers.
@@ -23,6 +27,8 @@
  o  Relative locations in redirects did not work with URI::URL::strict.
 
  o  OS/2 portability patches from Ilya Zakharevich
+
+ o  LWP::Authen::* patch from Doug MacEachern
 
  o  Support experimental data:- URLs
 

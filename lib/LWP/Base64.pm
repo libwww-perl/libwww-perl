@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Base64.pm,v 1.2 1995/06/12 18:16:57 aas Exp $
 #
 
 #####################################################################
@@ -18,7 +18,7 @@ LWP::Base64 - Base 64 encoding/decoding routines
  
  $encoded = Base64encode('Aladdin:open sesame');
 
- $decoded = Base64decode ($encoded);
+ $decoded = Base64decode($encoded);
 
 =head1 DESCRIPTION
 
@@ -65,8 +65,8 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(Base64encode Base64decode);
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);
@@ -79,12 +79,12 @@ Encode a string using Base64.
 
 sub Base64encode {
     my $str = shift;
-    $str =~ s/(.{1,3})/&Base64encode_aux($1)/ge;    
+    $str =~ s/(.{1,3})/_Base64encode_aux($1)/ge;    
 #   $str =~ s/(.{76})/$1\n/g; # rfc 1521 dictates maximum of 76 chars
     $str;
 }
 
-# Base64encode_aux()
+# _Base64encode_aux()
 #
 # Private helper function for Base64encode.
 #
@@ -92,7 +92,7 @@ sub Base64encode {
 # it into four characters by taking 6 bits at a
 # time, and using a dictionary @chars
 #
-sub Base64encode_aux {
+sub _Base64encode_aux {
     my $threes = shift;
     @threes = split('', $threes);
 
@@ -147,11 +147,11 @@ The routine will die on illegal characters.
 sub Base64decode {
     my $str = shift;
     $str =~ s/\s+//g;
-    $str =~ s/(.{2,4})/&Base64decode_aux($1)/ge;
+    $str =~ s/(.{2,4})/_Base64decode_aux($1)/ge;
     $str;
 }
 
-sub Base64decode_aux {
+sub _Base64decode_aux {
     my $encoded = shift;
     my $result = '';
     my @encoded = split('', $encoded);

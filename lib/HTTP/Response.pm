@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.25 1996/10/17 11:42:18 aas Exp $
+# $Id: Response.pm,v 1.26 1997/05/20 20:56:50 aas Exp $
 
 package HTTP::Response;
 
@@ -104,6 +104,14 @@ sub code      { shift->_elem('_rc',      @_); }
 sub message   { shift->_elem('_msg',     @_); }
 sub previous  { shift->_elem('_previous',@_); }
 sub request   { shift->_elem('_request', @_); }
+
+sub status_line
+{
+    my $self = shift;
+    my $code = $self->{'_rc'}  || "000";
+    my $mess = $self->{'_msg'} || "?";
+    return "$code $mess";
+}
 
 =head2 $r->base
 

@@ -16,6 +16,7 @@ lib/HTTP/Status.pm		HTTP Status code processing
 lib/LWP.pm			Includes what you need
 lib/LWP/Base64.pm		Base 64 encoding/decoding routines
 lib/LWP/Debug.pm		Debugging support
+lib/LWP/Mailcap.pm              Parse mailcap files
 lib/LWP/MediaTypes.pm		Library for MIME types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
@@ -52,12 +53,13 @@ t/TEST				Run tests
 t/base/base64.t			Test LWP::Base64 module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
+t/base/mailcap.t                Test LWP::Mailcap module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/robot-rules.t		Test WWW::RobotRules module
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
-t/local/autoload.t		
+t/local/autoload.t
 t/local/get.t			Try to get a local file
 t/net/cgi-bin/moved
 t/net/cgi-bin/test

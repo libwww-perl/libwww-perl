@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.31 2001/10/26 20:13:20 gisle Exp $
+# $Id: ftp.pm,v 1.32 2003/07/23 18:34:54 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -315,9 +315,13 @@ sub request
 		    return \$content;
 		} );
 	    }
-	    unless ($data->close) {
-		# Something did not work too well
-		if ($method ne 'HEAD') {
+	    # abort is needed for HEAD, it's == close if the transfer has
+	    # already completed.
+	    unless ($data->abort) {
+		# Something did not work too well.  Note that we treat
+		# responses to abort() with code 0 in case of HEAD as ok
+		# (at least wu-ftpd 2.6.1(1) does that).
+		if ($method ne 'HEAD' || $ftp->code != 0) {
 		    $response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
 		    $response->message("FTP close response: " . $ftp->code .
 				       " " . $ftp->message);

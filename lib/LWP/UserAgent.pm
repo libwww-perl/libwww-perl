@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.31 1996/03/21 09:25:39 aas Exp $
+# $Id: UserAgent.pm,v 1.32 1996/03/21 14:35:36 aas Exp $
 
 package LWP::UserAgent;
 
@@ -174,7 +174,14 @@ sub simple_request
     } else {
         $scheme = $url->scheme;
     }
-    my $protocol = LWP::Protocol::create($scheme);
+    my $protocol;
+    eval {
+	$protocol = LWP::Protocol::create($scheme);
+    };
+    if ($@) {
+	$@ =~ s/\s+at\s+\S+\s+line\s+\d+//;  # remove file/line number
+	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@)
+    }
 
     # Extract fields that will be used below
     my ($agent, $timeout, $use_alarm, $use_eval) =

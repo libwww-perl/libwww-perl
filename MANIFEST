@@ -14,13 +14,13 @@ lib/Font/CourierBoldOblique.pm	Generated from the corresponding AFM file
 lib/Font/CourierOblique.pm	Generated from the corresponding AFM file
 lib/Font/Helvetica.pm		Generated from the corresponding AFM file
 lib/Font/HelveticaBold.pm	Generated from the corresponding AFM file
-lib/Font/HelveticaBoldOblique.pm Generated from the corresponding AFM file
+lib/Font/HelveticaBoldOblique.pm	Same :-)
 lib/Font/HelveticaOblique.pm	Generated from the corresponding AFM file
 lib/Font/TimesBold.pm		Generated from the corresponding AFM file
 lib/Font/TimesBoldItalic.pm	Generated from the corresponding AFM file
 lib/Font/TimesItalic.pm		Generated from the corresponding AFM file
 lib/Font/TimesRoman.pm		Generated from the corresponding AFM file
-lib/Font/makefont.pl            Writes font metric modules
+lib/Font/makefont.pl		Writes font metric modules
 lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element
 lib/HTML/Entities.pm		Entities encoding/decoding routines
@@ -74,6 +74,7 @@ lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
 t/README			How to run and set up tests
 t/TEST				Run tests
+t/base/afm.t			Test Font::AFM module
 t/base/base64.t			Test MIME::Base64 module
 t/base/date.t			Test HTTP::Date module
 t/base/entities.t		Test HTML::Entities module

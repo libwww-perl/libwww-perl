@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.17 1995/09/13 11:47:44 aas Exp $
+# $Id: Element.pm,v 1.18 1995/09/15 17:04:16 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -420,14 +420,16 @@ sub extractLinks
     my @links;
     $self->traverse(
 	sub {
-	    my $self = shift;
+	    my($self, $start, $depth) = @_;
+	    return 1 unless $start;
 	    my $tag = $self->{'_tag'};
-	    return unless !$wantType || $wantType{$tag};
+	    return 1 if $wantType && !$wantType{$tag};
 	    my $attr = $linkElements{$tag};
-	    return unless defined $attr;
+	    return 1 unless defined $attr;
 	    $attr = $self->attr($attr);
-	    return unless defined $attr;
+	    return 1 unless defined $attr;
 	    push(@links, [$attr, $self]);
+	    1;
 	}, 1);
     \@links;
 }

@@ -1,5 +1,7 @@
 Mon Feb 26 1996   Gisle Aas <aas@sn.no>
 
+ o  Release 5b8
+
  o  Renamed functions using thisStyleOfNames to this_style_of_names.
     Provided a script called 'update_from_5b7'
 

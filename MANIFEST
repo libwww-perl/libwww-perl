@@ -34,6 +34,7 @@ lib/HTML/FormatText.pm		Text only formatter
 lib/HTML/Formatter.pm		Generic formatter base class
 lib/HTML/HeadParser.pm		Specialized parser for HTML <HEAD> content
 lib/HTML/LinkExtor.pm		Extract links from an HTML document
+lib/HTML/Parse.pm               Depreciated TreeBuilder interface
 lib/HTML/Parser.pm		Parse SGML text
 lib/HTML/TreeBuilder.pm		Builds a HTML syntax tree
 lib/HTML/HTML32.dtd		The SGML DTD

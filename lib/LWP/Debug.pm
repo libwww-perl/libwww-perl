@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.5 1995/07/14 00:15:03 aas Exp $
+# $Id: Debug.pm,v 1.6 1995/12/29 14:14:30 aas Exp $
 #
 package LWP::Debug;
 
@@ -10,7 +10,7 @@ LWP::Debug - debug routines
 
 =head1 SYNOPSIS
 
- use LWP::Debug;
+ use LWP::Debug qw(level trace debug debugl);
 
  level('+');
  level('-conns');
@@ -37,10 +37,6 @@ C<debug> and C<conns> function log information at
 increasing levels of detail. Which level of detail is
 actually printed is controlled with the C<level()>
 function.
-
-=head1 SEE ALSO
-
-See L<LWP> for a complete overview of libwww-perl5.
 
 =cut
 

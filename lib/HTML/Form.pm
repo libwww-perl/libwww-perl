@@ -698,8 +698,11 @@ __END__
 
 L<webtestpp>, L<LWP>
 
-=head1 AUTHOR
+=head1 COPYRIGHT
 
-Gisle Aas, Aas Software
+Copyright 1998 Gisle Aas.
+
+This script is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut

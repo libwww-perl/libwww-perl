@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-mirror.PL,v 1.18 1997/12/03 21:21:00 aas Exp $
+# $Id: lwp-mirror.PL,v 1.19 1999/09/15 19:42:19 gisle Exp $
 #
 # Simple mirror utility using LWP
 
@@ -50,19 +50,19 @@ L<lwp-request>, L<LWP>
 
 =head1 AUTHOR
 
-Gisle Aas <aas@a.sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut
 
 
-use LWP::Simple;
+use LWP::Simple qw(mirror is_success status_message $ua);
 use Getopt::Std;
 
 $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -78,7 +78,7 @@ if ($opt_v) {
     die <<"EOT";
 This is lwp-mirror version $VERSION ($DISTNAME)
 
-Copyright 1995-1996, Gisle Aas.
+Copyright 1995-1999, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -95,7 +95,7 @@ if (defined $opt_t) {
     $timeout = $1;
     $timeout *= 60   if ($2 eq "m");
     $timeout *= 3600 if ($2 eq "h");
-    $LWP::Simple::ua->timeout($timeout);
+    $ua->timeout($timeout);
 }
 
 $rc = mirror($url, $file);

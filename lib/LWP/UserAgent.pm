@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.26 2004/04/06 13:14:38 gisle Exp $
+# $Id: UserAgent.pm,v 2.27 2004/04/06 21:52:05 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.27 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -297,15 +297,8 @@ sub request
 	    my $method = uc($referral->method);
 	    unless ($method eq "GET" || $method eq "HEAD") {
 		$referral->method("GET");
-
-		# Clean content and all content related headers
 		$referral->content("");
-		my %content_headers;
-		$referral->headers->scan(sub {
-		    my $h = shift;
-		    $content_headers{lc($h)}++ if $h =~ /^Content-/i;
-		});
-		$referral->remove_header(keys %content_headers);
+		$referral->remove_content_headers;
 	    }
 	}
 

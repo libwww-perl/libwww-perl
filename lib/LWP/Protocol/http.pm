@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.10 1995/08/09 11:31:34 aas Exp $
+# $Id: http.pm,v 1.11 1995/09/02 13:16:45 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -77,8 +77,7 @@ sub request
 
     alarm($timeout) if $self->useAlarm and defined $timeout;
 
-    $socket->open($host, $port);
-    LWP::Debug::debug('connected');
+    $socket->connect($host, $port);
 
     my $request_line = "$method $fullpath $httpversion$endl";
     LWP::Debug::debug("request line: $request_line");
@@ -104,24 +103,24 @@ sub request
 
     my $line;
     my $delim = "\015?\012";
-    my $result = $socket->readUntil($delim, \$line, $size, $timeout);
+    my $result = $socket->readUntil($delim, \$line, undef, $timeout);
 
     LWP::Debug::conns("Received response: $line");
 
-    # parse response header
     my $response;
     
-    if ($line =~ m:^HTTP/(\d+\.\d+)\s+(\d+)\s(.*)$:) # HTTP/1.0 or better
-    {
-        # XXX need to check protocol version
-        LWP::Debug::debug('HTTP/1.0 server');
+    # parse response header
+    if ($line =~ /^HTTP\/(\d+\.\d+)\s+(\d+)\s+(.*)/) { # HTTP/1.0 or better
+
+	my $ver = $1;
+        LWP::Debug::debug('HTTP/$ver server');
 
         $response = new HTTP::Response($2, $3);
         
-        LWP::Debug::debug('reading response header');
+        LWP::Debug::debug('reading rest of response header');
         my $header = '';
         my $delim = "\015?\012\015?\012";
-        my $result = $socket->readUntil($delim, \$header, $size, $timeout);
+        my $result = $socket->readUntil($delim, \$header, undef, $timeout);
 
         @headerlines = split(/\015?\012/, $header);
 
@@ -133,47 +132,41 @@ sub request
         for (@headerlines) {
             if (/^(\S+?):\s*(.*)$/) {
                 my ($key, $val) = ($1, $2);
-                if ($lastkey and $lastval) {
-                    LWP::Debug::debug("  $lastkey => $lastval");
+                if (length $lastkey and length $lastval) {
                     $response->pushHeader($lastkey, $lastval);
                 }
                 $lastkey = $key;
                 $lastval = $val;
             } elsif (/\s+(.*)/) {
-                croak('Unexpected header continuation')
-                    unless defined $lastval;
                 $lastval .= " $1";
             } else {
-                croak("Illegal header '$_'");
+                warn("Illegal header '$_'");
             }
         }
-        if ($lastkey and $lastval) {
-            LWP::Debug::debug("  $lastkey => $lastval");
+        if (length $lastkey and length $lastval) {
             $response->pushHeader($lastkey, $lastval);
         }
     } else {
         # HTTP/0.9 or worse. Assume OK
         LWP::Debug::debug('HTTP/0.9 server');
-
         $response = new HTTP::Response &HTTP::Status::RC_OK,
                                       'HTTP 0.9 server';
-        $response->addContent(\$line);
+	$socket->pushback("$line\n");  #XXX: '\n' is not always correct
     }
 
     # need to read content
-    LWP::Debug::debug('Reading content');
-
     alarm($timeout) if $self->useAlarm and defined $timeout;
      
+    LWP::Debug::debug('Reading content');
     $response = $self->collect($arg, $response, sub { 
         LWP::Debug::debug('collecting');
         my $content = '';
-        my $result = $socket->readUntil(undef, \$content, $size, $timeout);
+        my $result = $socket->read(\$content, $size, $timeout);
         LWP::Debug::debug("collected: $content");
         return \$content;
         } );
 
-    $socket->close;
+    $socket = undef;  # close it
 
     $response;
 }

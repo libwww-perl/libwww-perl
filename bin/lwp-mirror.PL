@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-mirror.PL,v 1.13 1996/02/26 19:23:06 aas Exp $
+# $Id: lwp-mirror.PL,v 1.14 1996/03/05 15:27:56 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -57,7 +57,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -71,7 +71,7 @@ if ($opt_v) {
     die <<"EOT";
 This is $0 version $VERSION ($DISTNAME)
 
-Copyright (C) 1995,1996 Gisle Aas. All rights reserved.
+Copyright 1995-1996, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

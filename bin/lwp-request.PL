@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-request.PL,v 1.22 1996/02/26 19:23:22 aas Exp $
+# $Id: lwp-request.PL,v 1.23 1996/03/05 15:27:58 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -176,7 +176,7 @@ Gisle Aas <aas@a.sn.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -282,7 +282,7 @@ if ($opt_v) {
     die <<"EOT";
 This is $0 version $VERSION ($DISTNAME)
 
-Copyright (C) 1995,1996 Gisle Aas. All rights reserved.
+Copyright 1995-1996, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

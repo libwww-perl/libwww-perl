@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.4 1996/01/04 14:51:39 aas Exp $
+# $Id: Base64.pm,v 1.5 1996/02/05 18:02:45 aas Exp $
 
 package MIME::Base64;
 
@@ -20,7 +20,10 @@ decode_base64 - Decode base64 string
 
 This module provides functions to encode and decode strings into the
 Base64 encoding specified in RFC 1521 - I<MIME (Multipurpose Internet
-Mail Extensions)>.
+Mail Extensions)>. The Base64 encoding is designed to represent
+arbitrary sequences of octets in a form that need not be humanly
+readable. A 65-character subset ([A-Za-z0-9+/=]) of US-ASCII is used,
+enabling 6 bits to be represented per printable character.
 
 RFC 1521 says that the encoded bytes must be represented in lines of
 no more than 76 characters each.  The second argument to
@@ -28,8 +31,8 @@ encode_base64() is the line ending sequence to use. It defaults to
 C<"\n">.  Use C<''> if you do not want the encoded string broken into
 lines.
 
-Instead of importing these routines into your namespace you might also
-call the as:
+If you prefer not to import these routines into your namespace you can
+call them as:
 
   require MIME::Base64;
   $encoded = MIME::Base64::encode('Aladdin:open sesame');
@@ -38,14 +41,14 @@ call the as:
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@a.sn.no>
 
 Based on LWP::Base64 written by Martijn Koster <m.koster@nexor.co.uk>
 and Joerg Reichelt <j.reichelt@nexor.co.uk> and code posted to
@@ -58,7 +61,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
@@ -86,7 +89,7 @@ sub encode_base64
 
 sub decode_base64
 {
-    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.001m
+    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.001m, 5.002beta2
 
     my $str = shift;
     my $res = "";
@@ -102,8 +105,8 @@ sub decode_base64
 
 # Set up aliases so that these functions also can be called as
 #
-# MIME::Base64::encode();
-# MIME::Base64::decode();
+#    MIME::Base64::encode();
+#    MIME::Base64::decode();
 
 *encode = \&encode_base64;
 *decode = \&decode_base64;

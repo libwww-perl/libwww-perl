@@ -1,9 +1,20 @@
 Tue Sep 30 1996   Gisle Aas <aas@sn.no>
 
+ o  Release 5.03
+
  o  Hakan Ardo's persistent robot rules is now part of the standard
     distribution.  This is still experimental and might change in the
     future.  It includes the new WWW::RobotRules::AnyDBM_File class
     and updates to LWP::RobotUA.
+
+ o  HTML::Parser now supports buggy Netscape comment parsing.  Enable
+    it by calling $p->netscape_buggy_comment(1).  The previous version
+    of the parser could also (under very unlucky and unlikely
+    circumstances) call the $self->comment() method several times for
+    the same comment text.
+
+ o  HTML::Parser: Use new $p->eof to signal end of document instead of
+    $p->parse(undef).
 
  o  New HTTP::Response methods: current_age(), freshness_lifetime(),
     is_fresh(), fresh_until().

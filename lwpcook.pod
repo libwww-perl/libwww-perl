@@ -149,15 +149,12 @@ order to let requests through.  You should be able to add the
 required header, with something like this:
 
  use LWP::UserAgent;
- use MIME::Base64 qw(encode_base64);
 
  $ua = new LWP::UserAgent;
  $ua->proxy(['http', 'ftp'] => 'http://proxy.myorg.com');
 
- $proxy_auth = "Basic " . encode_base64("proxy_user:proxy_password");
-
  $req = new HTTP::Request 'GET',"http://www.perl.com";
- $req->header("Proxy-Authorization" => $proxy_auth);  # This is the key!
+ $req->proxy_authorization_basic("proxy_user", "proxy_password");
 
  $res = $ua->request($req);
  print $res->content if $res->is_success;

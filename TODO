@@ -1,4 +1,4 @@
-                                            $Date: 1996/09/26 08:54:38 $
+                                            $Date: 1997/10/12 21:23:44 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
@@ -11,8 +11,6 @@ This is a list over things that we plan to implement in libwww-perl-5
        Use HTTP/1.1 in the request line when we support it all.
 
   o  Proxy authentication
-
-  o  Support Cookie management
 
   o  Support PICS??
 
@@ -45,8 +43,6 @@ This is a list over things that we plan to implement in libwww-perl-5
 
   o  Use Mail::Send to implement LWP::Protocol::mailto.  Today we just
      invoke sendmail directly, which is not very portable.
-
-  o  Investigate the Net::SSL module and implement support for https.
 
   o  Make the parser ignore insignificat whitespace (at the start and end
      of all block level elements)

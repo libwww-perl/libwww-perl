@@ -2,8 +2,6 @@
 
     Release 5.48
 
-    Makefile.PL: Make sure we have HTML::TokeParser
-
     README.SSL update by Marko Asplund <aspa@hip.fi>
 
     Added cookie example to lwpcook.pod
@@ -15,8 +13,8 @@
 
     HTTP::Status: Added status codes from RFC 2616 and RFC 2518 (WebDAV)
 
-    LWP::RobotUA don't parse robots.txt unless content type and content
-    sample looks right.
+    LWP::RobotUA will not parse robots.txt unless content type and
+    content sample looks right.
 
     LWP::UserAgent: Deal with multiple WWW-Authenticate headers.
     Patch by Hugo <hv@crypt.compulink.co.uk>
@@ -34,6 +32,8 @@
 
    WWW::RobotRules deal with various absolute URIs in the
    disallow lines.
+
+   Makefile.PL: Make sure we have HTML::TokeParser
 
    Clean test on VMS.
    Patch by Charles Lane <lane@ DUPHY4.Physics.Drexel.Edu>.

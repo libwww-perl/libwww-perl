@@ -82,4 +82,3 @@ t/net/http-timeout.t
 t/net/mirror.t
 t/net/moved.t
 t/net/proxy.t
-upgrade_from_v02		Script that does most of the upgrade job

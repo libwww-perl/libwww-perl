@@ -12,7 +12,7 @@ sub _parse {
     delete $self->{'path'};
     delete $self->{'query'};
 
-    my @parts = split(/\//, $path, 2);
+    my @parts = split(/\//, $path, 3);
 
     $self->{'group'} = $self->unescape($parts[1]);
     $self->{'digits'}= $self->unescape($parts[2]);

@@ -1,3 +1,25 @@
+2003-11-21   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.76
+    
+    Revised handling of redirects.
+       - clear our content and content headers if we
+         rewrite request as GET
+       - pass $response to redirect_ok()
+
+    Fix test failure in 't/html/form.t' for perl5.005.
+
+
+
+2003-10-26   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.75
+    
+    Reworked LWP::UserAgent, HTTP::Request and HTTP::Response
+    documentation.  Also other documentation tweaks.
+
+
+
 2003-10-23   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.74

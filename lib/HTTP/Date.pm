@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 14:04:48 $
+package HTTP::Date;  # $Date: 2000/02/14 15:37:48 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -34,7 +34,7 @@ sub time2str (;$)
 sub str2time ($;$)
 {
     my $str = shift;
-    return unless defined $str;
+    return undef unless defined $str;
 
     # fast exit for strictly conforming string
     if ($str =~ /^[SMTWF][a-z][a-z], (\d\d) ([JFMAJSOND][a-z][a-z]) (\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$/) {
@@ -45,7 +45,7 @@ sub str2time ($;$)
     }
 
     my @d = parse_date($str);
-    return unless @d;
+    return undef unless @d;
     $d[0] -= 1900;  # year
     $d[1]--;        # month
 
@@ -68,11 +68,11 @@ sub str2time ($;$)
 	$offset *= -1 if $1 && $1 ne '-';
     }
     else {
-	eval { require Time::Zone } || return;
+	eval { require Time::Zone } || return undef;
 	$offset = Time::Zone::tz_offset($tz);
-	return unless defined $offset;
+	return undef unless defined $offset;
     }
-    
+
     return eval { my $t = Time::Local::timegm(reverse @d);
 		  $t < 0 ? undef : $t + $offset;
 		};
@@ -222,7 +222,7 @@ sub parse_date ($)
 
     return($yr, $mon, $day, $hr, $min, $sec, $tz)
 	if wantarray;
-    
+
     if (defined $tz) {
 	$tz = "Z" if $tz =~ /^(GMT|UTC?|[-+]?0+)$/;
     } else {

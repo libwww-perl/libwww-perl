@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.18 1996/04/09 15:44:21 aas Exp $
+# $Id: Response.pm,v 1.19 1996/05/26 10:40:27 aas Exp $
 
 package HTTP::Response;
 
@@ -14,12 +14,12 @@ HTTP::Response - Class encapsulating HTTP Responses
 
 =head1 DESCRIPTION
 
-C<HTTP::Response> is a class encapsulating HTTP style responses,
-consisting of a response line, a MIME header, and usually
-content. Note that the LWP library also uses this HTTP style responses
-for non-HTTP protocols.
+The C<HTTP::Response> class encapsulate HTTP style responses.  A
+response consist of a response line, some headers, and a (potential
+empty) content. Note that the LWP library will use HTTP style
+responses also for non-HTTP protocol schemes.
 
-Instances of this class are usually created by calling the
+Instances of this class are usually created and returned by the
 C<request()> method of an C<LWP::UserAgent> object:
 
  ...
@@ -34,7 +34,8 @@ C<request()> method of an C<LWP::UserAgent> object:
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are header(),
-push_header(), remove_header() headers_as_string() and content().  See
+push_header(), remove_header(), headers_as_string(), and content().
+The header convenience methods are also available.  See
 L<HTTP::Message> for details.
 
 =cut
@@ -87,9 +88,9 @@ first two containing respectively the response code and the message
 of the response.
 
 The request attribute is a reference the request that gave this
-response.  It might not be the same request that was passed to the
+response.  It does not have to be the same request as passed to the
 $ua->request() method, because there might have been redirects and
-authorization retries.
+authorization retries in between.
 
 The previous attribute is used to link together chains of responses.
 You get chains of responses if the first response is redirect or
@@ -107,30 +108,34 @@ sub request   { shift->_elem('_request', @_); }
 Returns the base URL for this response.  The base URL can come from 3
 sources:
 
-  1.  Embedded in the document content, for instance <BASE HREF="...">
-  2.  A "Base:" header in the response
-  3.  The URL used to request this response
+=over 4
+
+=item 1.
+
+Embedded in the document content, for instance <BASE HREF="...">
+in HTML documents.
+
+=item 2.
+
+A "Base:" header in the response
+
+
+=item 3.
+
+The URL used to request this response
+
+=back
+
+A base URL embedded in the document will initialize the "Base:" header
+in the response object, which means that only the last 2 sources are
+checked by this method.
 
 =cut
 
 sub base
 {
     my $self = shift;
-    my $base = undef;
-    if ($self->content_type eq 'text/html') {
-	# Look for the <BASE HREF='...'> tag
-	# XXX: Should really use the HTML::Parse module to get this
-	# right. The <BASE> tag could be commented out, which we are
-	# not able to handle with this simple regexp.
-	if ($self->{'_content'} =~ /<\s*base\s+href=([^\s>]+)/i) {
-	    $base = $1;
-	    $base =~ s/^(["'])(.*)\1$/$2/;  #" get rid of any quoting
-	    return $base;
-	}
-    }
-    $base = $self->header('Base') unless $base;
-    $base = $self->request->url unless $base;
-    $base;
+    $self->header('Base') ||  $self->request->url;
 }
 
 
@@ -178,10 +183,11 @@ sub is_redirect { HTTP::Status::is_redirect (shift->{'_rc'}); }
 sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 
-=head2 error_as_HTML()
+=head2 $r->error_as_HTML()
 
-Return string with a complete HTML document indicating
-what error occurred
+Return a string containing a complete HTML document indicating what
+error occurred.  This method should only be called when $r->is_error
+is TRUE.
 
 =cut
 

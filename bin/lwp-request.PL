@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.18 1995/09/07 17:46:54 aas Exp $
+# $Id: lwp-request.PL,v 1.19 1995/09/15 17:02:34 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -16,23 +16,20 @@ request, GET, HEAD, POST - Simple WWW user agent
 =head1 SYNOPSIS
 
  request [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
-         [-i <if-modified-since>] [-c <content-type>] 
-         [-p <proxy-url>] <url>...
+         [-i <if-modified-since>] [-c <content-type>] [-C <credentials>]
+         [-p <proxy-url>] [-o <format>] <url>...
 
 =head1 DESCRIPTION
 
-This program can be used to send requests to WWW servers. The content
-for POST, PUT and CHECKIN methods is read from stdin.  The content of
-the response is printed on stdout.  Error messages are printed on
-stderr.  The program returns a status value indicating the number of
-URLs that failed.
-
-The program will ask for username and password if the document is
-protected by authorization.
+This program can be used to send requests to WWW servers and your
+local file system. The request content for POST, PUT and CHECKIN
+methods is read from stdin.  The content of the response is printed on
+stdout.  Error messages are printed on stderr.  The program returns a
+status value indicating the number of URLs that failed.
 
 The options are:
 
-=over 3
+=over 4
 
 =item -m <method>
 
@@ -42,12 +39,14 @@ then the method is derived from the name of the program.
 =item -f
 
 Force request through, even if the program believes that the method is
-illegal.
+illegal.  The server will probably reject the request.
 
 =item -b <url>
 
 This URL will be used as the base URL for the URLs that the method is
-applied to.  The base URL only takes effect for relative URLs.
+applied to.  The base URL only takes effect for relative URLs.  If you
+do not provide this option and the URLs are relative, then they will
+be treated as files in the local file system.
 
 =item -t <timeout>
 
@@ -71,19 +70,26 @@ requests that take a content, i.e. POST, PUT and CHECKIN.  You can
 force methods to take content by using the C<-f> option together with
 C<-c>.  The default Content-Type for POST is
 C<application/x-www-form-urlencoded>.  The default Content-type for
-the others are C<text/plain>.
+the others is C<text/plain>.
 
 =item -p <proxy-url>
 
-Set the proxy to be used for the request(s).  The program also loads
+Set the proxy to be used for the requests.  The program also loads
 proxy settings from the environment.  You can disable this with the
 C<-P> option.
+
+=item -C <username>:<password>
+
+Provide credentials for documents that are protected by Basic
+Authentication.  If the document is protected and you did not specify
+the username and password with this option, then you will be prompted
+to provide these values.
 
 =back
 
 The following options controls what is displayed by the program:
 
-=over 3
+=over 4
 
 =item -u
 
@@ -95,7 +101,7 @@ Print requeset headers in addition to request method and absolute URL.
 
 =item -s
 
-Print response status code.
+Print response status code.  This option is always on for HEAD requests.
 
 =item -S
 
@@ -109,6 +115,23 @@ Print response headers.  This option is always on for HEAD requests.
 =item -d
 
 Do B<not> print the content of the response.
+
+=item -o <format>
+
+Process HTML content in various ways before printing it.  If the
+content type of the response is not HTML, then this option has no
+effect.  The legal format values are; I<text>, I<ps>, I<links>,
+I<html> and I<dump>.
+
+If you specify the I<text> format then the HTML will be formatted as
+plain latin1 text.  If you specify the I<ps> format then it will be
+formatted as Postscript.
+
+The I<links> format will output all links found in the HTML document.
+Relative links will be expanded to absolute ones.
+
+The I<html> format will reformat the HTML code and the I<dump> format
+will just dump the HTML syntax tree.
 
 =item -v
 
@@ -131,6 +154,13 @@ only support the protocols that LWP supports.
 
 L<mirror>, L<LWP>
 
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
 =head1 AUTHOR
 
 Gisle Aas <aas@oslonett.no>
@@ -139,7 +169,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -189,7 +219,9 @@ require URI::URL;
     sub getBasicCredentials
     {
 	my($self, $realm, $uri) = @_;
-	if (-t) {
+	if ($main::opt_C) {
+	    return split(':', $main::opt_C, 2);
+	} elsif (-t) {
 	    my $netloc = $uri->netloc;
 	    print "Enter username for $realm at $netloc: ";
 	    my $user = <STDIN>;
@@ -219,6 +251,7 @@ $opt_b = undef;  # base url
 $opt_t = undef;  # timeout
 $opt_i = undef;  # if-modified-since
 $opt_c = undef;  # content type for POST
+$opt_C = undef;  # credidentials for basic authorization
 
 $opt_u = undef;  # display method, URL and headers of request
 $opt_U = undef;  # display request headers also
@@ -234,7 +267,9 @@ $opt_x = undef;  # extra debugging info
 $opt_p = undef;  # proxy URL
 $opt_P = undef;  # don't load proxy setting from environment
 
-unless (getopts("xhvuUsSedPp:b:t:i:c:m:f")) {
+$opt_o = undef;  # output format
+
+unless (getopts("xhvuUsSedPp:b:t:i:c:C:m:fo:")) {
     usage();
 }
 
@@ -273,6 +308,7 @@ if ($opt_f) {
 }
 
 if ($method eq "HEAD") {
+    $opt_s = 1;
     $opt_e = 1 unless $opt_d;
     $opt_d = 1;
 }
@@ -295,10 +331,6 @@ if (defined $opt_i) {
             unless defined $time;
     }
     $opt_i = time2str($time);
-}
-
-if (defined $opt_b) {
-    $opt_b = new URI::URL $opt_b;
 }
 
 $content = undef;
@@ -336,12 +368,25 @@ $errors = 0;
 
 # Ok, now we perform the requests, one URL at a time
 while ($url = shift) {
-
-    $url = new URI::URL $url;
+    # Create the URL object
+    eval {
+	if ($url =~ /^\w+:/ || $opt_b) {  # is there any scheme specification
+	    $url = new URI::URL $url, $opt_b;
+	} else {
+	    # No scheme specified for the URL (treat it as a file)
+	    $url = newlocal URI::URL $url;
+	}
+    };
+    if ($@) {
+	$@ =~ s/at\s+\S+\s+line\s\d+//;
+	print STDERR $@;
+	$errors++;
+	next;
+    }
 
     $ua->proxy($url->scheme, $opt_p) if $opt_p;
 
-    $request->url($url, $opt_b);
+    $request->url($url);
     $response = $ua->request($request);
 
     if ($opt_u || $opt_U) {
@@ -366,7 +411,48 @@ while ($url = shift) {
     }
 
     if ($response->isSuccess) {
-        print $response->content unless $opt_d;
+	unless ($opt_d) {
+	    if ($opt_o &&
+		lc($response->header('Content-Type')) eq 'text/html') {
+		require HTML::Parse;
+		my $html = HTML::Parse::parse_html($response->content);
+		{
+		    $opt_o eq 'ps' && do {
+			require HTML::FormatPS;
+			my $f = new HTML::FormatPS;
+			print $f->format($html);
+			last;
+		    };
+		    $opt_o eq 'text' && do {
+			require HTML::FormatText;
+			my $f = new HTML::FormatText;
+			print $f->format($html);
+			last;
+		    };
+		    $opt_o eq 'html' && do {
+			print $html->asHTML;
+			last;
+		    };
+		    $opt_o eq 'links' && do {
+			my $base = $response->request->url;
+			for ( @{ $html->extractLinks } ) {
+			    my($link, $elem) = @$_;
+			    my $tag = uc $elem->tag;
+			    $link = new URI::URL $link, $base;
+			    print "$tag\t", $link->abs->as_string, "\n";
+			}
+			last;
+		    };
+		    $opt_o eq 'dump' && do {
+			$html->dump;
+			last;
+		    };
+		    die "Illegal -o option value ($opt_o)\n";
+		}
+	    } else {
+		print $response->content;
+	    }
+	}
     } else {
         print STDERR $response->errorAsHTML unless $opt_d;
         $errors++;
@@ -407,6 +493,7 @@ Usage: $0 [-options] <url>...
     -S            Display response status chain
     -e            Display response headers
     -d            Do not display content
+    -o <format>   Process HTML content in various ways
 
     -v            Show program version
     -h            Print this message

@@ -34,7 +34,6 @@ lib/HTML/FormatText.pm		Text only formatter
 lib/HTML/Formatter.pm		Generic formatter base class
 lib/HTML/HeadParser.pm		Specialized parser for HTML <HEAD> content
 lib/HTML/LinkExtor.pm		Extract links from an HTML document
-lib/HTML/Parse.pm		Backwards compatability
 lib/HTML/Parser.pm		Parse SGML text
 lib/HTML/TreeBuilder.pm		Builds a HTML syntax tree
 lib/HTML/HTML32.dtd		The SGML DTD
@@ -56,7 +55,6 @@ lib/LWP.pm			Includes what you need
 lib/LWP/Authen/Basic.pm		Basic authentication scheme
 lib/LWP/Authen/Digest.pm	Digest authentication scheme
 lib/LWP/Debug.pm		Debugging support
-lib/LWP/IO.pm			Low level IO routines
 lib/LWP/MediaTypes.pm		Library for guessing media types
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
@@ -69,10 +67,7 @@ lib/LWP/Protocol/https.pm	Access with HTTP protocol over SSL
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Protocol/nntp.pm	Handles access to news: and nntp: URLs
 lib/LWP/RobotUA.pm		Easy creation of conforming robots
-lib/LWP/SecureSocket.pm		SSLeay socket interface
 lib/LWP/Simple.pm		Procedural LWP interface
-lib/LWP/Socket.pm		TCP/IP socket interface
-lib/LWP/TkIO.pm			LWP::IO replacement for Tk
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/URI/Escape.pm		General URI escaping functions
@@ -114,7 +109,6 @@ t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/html/entities.t		Test HTML::Entities module
 t/html/filter.t			Test HTML::Filter module
-t/html/oldparse.t		Test HTML::Parse compatability module
 t/html/parser.t			Test HTML::Parser module
 t/html/parsefile.t              Test parsing from file
 t/html/headparser.t             Test HTML::HeadParser module

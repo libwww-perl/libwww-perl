@@ -1,3 +1,11 @@
+Wed Sep  6 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Release 0.04
+
+ o  Implemented modules to parse HTML.
+
+
+
 Mon Sep  4 1995   Gisle Aas <aas@oslonett.no>
 
  o  Implemented Mail::Cap which will become part of the MailTools

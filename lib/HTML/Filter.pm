@@ -3,7 +3,7 @@ package HTML::Filter;
 require HTML::Parser;
 @ISA=qw(HTML::Parser);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 sub declaration { $_[0]->output("<!$_[1]>")     }
 sub comment     { $_[0]->output("<!--$_[1]-->") }
@@ -65,8 +65,8 @@ table.
   sub end
   {
      my $self = shift;
-     $self->{table_seen}-- if $_[0] eq "table";
      $self->SUPER::end(@_);
+     $self->{table_seen}-- if $_[0] eq "table";
   }
 
   sub output

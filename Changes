@@ -37,7 +37,7 @@
 
     LWP::UserAgent: New methods default_header() and
     default_headers().  These can be used to set up headers that
-    area automatically added to requests as they are sent.  This
+    are automatically added to requests as they are sent.  This
     can for instance be used to initialize various Accept headers.
 
     Various typo fixes by Ville Skyttä <ville.skytta@iki.fi>.

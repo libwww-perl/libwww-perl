@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Debug.pm,v 1.1.1.1 1995/06/11 23:29:44 aas Exp $
 #
 package LWP::Debug;
 
@@ -48,7 +48,7 @@ See L<lwp> for a complete overview of libwww-perl5.
 
 #####################################################################
 
-$Version = '$Revision: 1.1 $';
+$Version = '$Revision: 1.1.1.1 $';
 ($Version = $Version) =~ /(\d+\.\d+)/;
 
 require Exporter;

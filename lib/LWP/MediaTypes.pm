@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: MediaTypes.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: MediaTypes.pm,v 1.1.1.1 1995/06/11 23:29:44 aas Exp $
 
 package LWP::MIMEtypes;
 

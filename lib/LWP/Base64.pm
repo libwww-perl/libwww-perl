@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Base64.pm,v 1.1.1.1 1995/06/11 23:29:44 aas Exp $
 #
 
 #####################################################################
@@ -65,7 +65,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(Base64encode Base64decode);
 
-$Version = '$Revision: 1.1 $';
+$Version = '$Revision: 1.1.1.1 $';
 ($Version = $Version) =~ /(\d+\.\d+)/;
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');

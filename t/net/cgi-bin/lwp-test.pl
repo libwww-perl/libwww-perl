@@ -2,7 +2,7 @@
 #
 # Test script for the libwww-perl5 test suite.
 #
-# $Id: lwp-test.pl,v 1.1 1995/06/11 23:29:45 aas Exp $
+# $Id: lwp-test.pl,v 1.1.1.1 1995/06/11 23:29:46 aas Exp $
 
 use CGI::Base qw(:DEFAULT :CGI);
 use CGI::Request;

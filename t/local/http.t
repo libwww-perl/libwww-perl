@@ -194,6 +194,7 @@ sub httpd_get_redirect2 { shift->send_redirect("/redirect3/") }
 sub httpd_get_redirect3 { shift->send_redirect("/redirect2/") }
 
 $req->url(url("/redirect2", $base));
+$ua->max_redirect(5);
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->is_redirect
@@ -205,7 +206,7 @@ while ($res->previous) {
    $res = $res->previous;
 }
 
-print "not " unless $i == 7;
+print "not " unless $i == 5;
 print "ok 11\n";
 
 #----------------------------------------------------------------

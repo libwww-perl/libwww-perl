@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.13 2003/10/15 14:00:21 gisle Exp $
+# $Id: UserAgent.pm,v 2.14 2003/10/16 07:15:19 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.14 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1020,7 +1020,7 @@ sub timeout      { shift->_elem('timeout',      @_); }
 sub from         { shift->_elem('from',         @_); }
 sub parse_head   { shift->_elem('parse_head',   @_); }
 sub max_size     { shift->_elem('max_size',     @_); }
-sub max_redirect { shfit->_elem('max_redirect', @_); }
+sub max_redirect { shift->_elem('max_redirect', @_); }
 
 sub cookie_jar {
     my $self = shift;

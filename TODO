@@ -1,4 +1,4 @@
-$Id: TODO,v 1.14 1995/12/29 13:20:38 aas Exp $
+$Id: TODO,v 1.15 1996/02/05 18:14:53 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -38,13 +38,13 @@ Investigate the Net::SSL module and implement support for https.
 Formatters should support tables.  The postscript formatter should
 inline images.
 
+Make HTML parser warnings optional.
+
 The HTML::Parse module should make meta information (<HEAD>) easier
 to access.  Parse HTML 3.0 markup.
 
 The HTML::Element->asHTML() method should not introduce whitespace
 where it was not present before.
-
-HTTP::Date: remove the reason for BUGS section in the documentation.
 
 The request -o processing should check for Content-Encoding as well as
 Content-Type.
@@ -57,18 +57,15 @@ data as it is received.
 
 The mirror script should be able to work recursively.
 
-Make it work on systems where the directory separator is not "/", for
-instance with MacPerl.  Fix URI::URL handling of "/" inside path
-components.  URI::URL unescaping behaviour is broken.
+Make handcoded autoloading work on systems where the directory
+separator is not "/".
 
 More autoloading.
-
-More tests
 
 Include more useful programs
 
 Implement a fabulous graphical UA based on Tk !!!!  HotPerl :-)
 
-Fix bugs, it here are any...
+More tests
 
-Make HTML parser warnings optional.
+Fix bugs, it here are any...

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.20 1996/02/27 14:34:03 aas Exp $
+# $Id: Makefile.PL,v 1.21 1996/03/05 11:03:00 aas Exp $
 
 #--- Configuration section ---
 
@@ -13,11 +13,11 @@ require 5.002;  # LWP needs this perl version
 # Allow us to suppress of all program installation with the -l (library only)
 # option.  This is for those that don't want to mess with this file.
 use Getopt::Std;
-$opt_l = undef;   # avoid -w typo waring
-unless (getopts("l")) {
-    die "Usage: $0 [-l]\n";
+$opt_n = undef;   # avoid -w typo waring
+unless (getopts("n")) {
+    die "Usage: $0 [-n]\n";
 }
-@programs_to_install = () if $opt_l;
+@programs_to_install = () if $opt_n;
 
 # Find the perl executable
 $PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
@@ -36,6 +36,29 @@ print OUT <<"EOT";
 EOT
 close(OUT);
 
+# Check for Net::FTP library
+$| = 1;
+print "Checking for Net::FTP...";
+eval {
+    require Net::FTP;
+    Net::FTP->require_version('1.10');
+};
+if ($@) {
+    print " failed\n";
+    print <<"EOT";
+
+The libwww-perl library normally use the Net::FTP module when
+accessing ftp servers.  You would have to install this package or
+configure your application to use a proxy server for making ftp
+requests work.
+
+$@
+
+EOT
+} else {
+    print " ok\n";
+}
+
 # Generate Makefile
 use ExtUtils::MakeMaker;
 
@@ -43,19 +66,13 @@ WriteMakefile(
    NAME          => $NAME,
    VERSION       => $VERSION,
    #VERSION_FROM  => 'lib/LWP.pm', # Can be enabled when the real thing is out
-   SKIP          => [qw(static dynamic)],
    PL_FILES      => {
                       'bin/lwp-request.PL' => 'bin/lwp-request',
 	              'bin/lwp-mirror.PL'  => 'bin/lwp-mirror',
 	            },
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
    'clean'       => { FILES => '$(EXE_FILES)' },
-   'linkext'     => { LINKTYPE => '' },
-   'dist'        => {
-                      COMPRESS     => 'gzip -9f',
-	              SUFFIX       => 'gz', 
-                      DIST_DEFAULT => 'all tardist'
-                    },
+   'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
 
 # Some code to install programs the way we want

@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.8 2001/08/07 00:09:01 gisle Exp $
+# $Id: Negotiate.pm,v 1.9 2001/08/07 00:10:45 gisle Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -502,13 +502,13 @@ would mean: "I prefer Norwegian, but will accept British English (with
 
 =head1 COPYRIGHT
 
-Copyright 1996, Gisle Aas.
+Copyright 1996,2001 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut

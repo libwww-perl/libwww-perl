@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.37 1997/12/17 09:55:38 aas Exp $
+# $Id: http.pm,v 1.38 1998/01/20 14:22:44 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -35,6 +35,20 @@ sub _new_socket
     $sock;
 }
 
+
+sub _check_sock
+{
+    #my($self, $req, $sock) = @_;
+}
+
+sub _get_sock_info
+{
+    my($self, $res, $sock) = @_;
+    $res->header("Client-Peer" =>
+		 $sock->peerhost . ":" . $sock->peerport);
+}
+
+
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
@@ -44,7 +58,7 @@ sub request
 
     # check method
     my $method = $request->method;
-    unless ($method =~ /^[A-Za-z0-9_!#\$%&'*+\-.^`|~]+$/) {     # HTTP token
+    unless ($method =~ /^[A-Za-z0-9_!\#\$%&\'*+\-.^\`|~]+$/) {  # HTTP token
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
 				  'Library does not allow method ' .
 				  "$method for 'http:' URLs";
@@ -68,6 +82,8 @@ sub request
 
     # connect to remote site
     my $socket = $self->_new_socket($host, $port, $timeout);
+    $self->_check_sock($request, $socket);
+	    
     my $sel = IO::Select->new($socket) if $timeout;
 
     my $request_line = "$method $fullpath HTTP/1.0$CRLF";
@@ -217,10 +233,11 @@ sub request
 	    LWP::Debug::debug("need more status line data");
 	}
     };
-
     $response->request($request);
-    my $usebuf = length($buf) > 0;
+    $self->_get_sock_info($response, $socket);
 
+
+    my $usebuf = length($buf) > 0;
     $response = $self->collect($arg, $response, sub {
         if ($usebuf) {
 	    $usebuf = 0;

@@ -1,10 +1,10 @@
-# $Id: RobotUA.pm,v 1.16 2000/04/07 13:09:10 gisle Exp $
+# $Id: RobotUA.pm,v 1.17 2000/04/09 11:21:11 gisle Exp $
 
 package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -283,7 +283,7 @@ L<LWP::UserAgent>, L<WWW::RobotRules>
 
 =head1 COPYRIGHT
 
-Copyright 1996-1997 Gisle Aas.
+Copyright 1996-2000 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

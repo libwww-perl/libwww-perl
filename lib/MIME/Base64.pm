@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.3 1995/08/23 15:27:05 aas Exp $
+# $Id: Base64.pm,v 1.4 1996/01/04 14:51:39 aas Exp $
 
 package MIME::Base64;
 
@@ -28,6 +28,14 @@ encode_base64() is the line ending sequence to use. It defaults to
 C<"\n">.  Use C<''> if you do not want the encoded string broken into
 lines.
 
+Instead of importing these routines into your namespace you might also
+call the as:
+
+  require MIME::Base64;
+  $encoded = MIME::Base64::encode('Aladdin:open sesame');
+  $decoded = MIME::Base64::decode($encoded);
+
+
 =head1 COPYRIGHT
 
 Copyright (c) 1995 Gisle Aas. All rights reserved.
@@ -50,7 +58,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
@@ -91,5 +99,13 @@ sub decode_base64
     }
     $res;
 }
+
+# Set up aliases so that these functions also can be called as
+#
+# MIME::Base64::encode();
+# MIME::Base64::decode();
+
+*encode = \&encode_base64;
+*decode = \&decode_base64;
 
 1;

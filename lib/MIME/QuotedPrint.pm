@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 1.5 1995/10/31 09:11:26 aas Exp $
+# $Id: QuotedPrint.pm,v 1.6 1996/01/04 14:51:40 aas Exp $
 
 package MIME::QuotedPrint;
 
@@ -41,7 +41,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 sub encode_qp
@@ -72,5 +72,13 @@ sub decode_qp
     $res =~ s/=([\da-fA-F]{2})/pack("C", hex($1))/ge;
     $res;
 }
+
+# Set up aliases so that these functions also can be called as
+#
+# MIME::QuotedPrint::encode();
+# MIME::QuotedPrint::decode();
+
+*encode = \&encode_qp;
+*decode = \&decode_qp;
 
 1;

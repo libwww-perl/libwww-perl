@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.1 1996/03/05 10:45:52 aas Exp $
+# $Id: Negotiate.pm,v 1.2 1996/03/05 13:35:29 aas Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -307,7 +307,7 @@ The variants are ordered by preference by calling the function
 choose().
 
 The first parameter is the variants that we can choose among.  The
-variants are prepresented by a reference to an array.  Each element in
+variants are represented by a reference to an array.  Each element in
 this array is an array with the values [$id, $qs, $content_type,
 $content_encoding, $charset, $content_language, $content_length].
 The meaning of these values are described below. The
@@ -318,7 +318,7 @@ The second optional parameter is a reference to the request headers.
 This is used to look for "Accept*" headers.  You can pass a reference
 to either a HTTP::Request or a HTTP::Headers object.  If this
 parameter is missing, then the accept specification is initialized
-from the CGI envirionment variables HTTP_ACCEPT, HTTP_ACCEPT_CHARSET,
+from the CGI environment variables HTTP_ACCEPT, HTTP_ACCEPT_CHARSET,
 HTTP_ACCEPT_ENCODING and HTTP_ACCEPT_LANGUAGE.
 
 In array context choose() returns a list of variant identifier,
@@ -340,7 +340,7 @@ noise on STDOUT is generated during evaluation of choose().
 =head1 VARIANTS
 
 A variant is described by and list of the following values.  If the
-attribute does not make sence or is unknown for a variant, then use
+attribute does not make sense or is unknown for a variant, then use
 undef instead.
 
 =over 3
@@ -362,7 +362,7 @@ picture in JPEG from would have a lower qs when translated to the XBM
 format, and much lower qs when translated to an ASCII-art
 representation.  Note, however, that this is a function of the source
 - an original piece of ASCII-art may degrade in quality if it is
-captured in JPEG form.  The eq values should be assigned to each
+captured in JPEG form.  The qs values should be assigned to each
 variant by the content provider; if no qs value has been assigned, the
 default is generally "qs=1".
 
@@ -389,7 +389,7 @@ content media type.  The most common content encodings are:
 
 =item content-charset
 
-This is the charater set used when the variant contains textual
+This is the character set used when the variant contains textual
 content.  The charset value should generally be undef or one of these:
 
   us-ascii
@@ -412,8 +412,8 @@ The language tags are the same as those defined by RFC-1766.  Examples
 are:
 
   no               Norwegian
-  en               International english
-  en-US            US english
+  en               International English
+  en-US            US English
   en-cockney
 
 =item content-length
@@ -424,7 +424,7 @@ This is the number of bytes used to represent the content.
 
 =head1 ACCEPT HEADERS
 
-The following Accept* headers can be used for descibing content
+The following Accept* headers can be used for describing content
 preferences in a request (This description is just an edited extract
 from draft-ietf-http-v11-spec-00.ps):
 
@@ -435,20 +435,21 @@ from draft-ietf-http-v11-spec-00.ps):
 This header can be used to indicate a list of media ranges which are
 acceptable as a repose to the request.  The "*" character is used to
 group media types into ranges, with "*/*" indicating all media types
-and "type/*" indicating all sybtypes of that type.
+and "type/*" indicating all subtypes of that type.
 
 The parameter q is used to indicate the quality factor, which
 represents the user's preference for that range of media types.  The
-parameter mxb gives the maximum acceptable size of the response
+parameter mbx gives the maximum acceptable size of the response
 content. The default values are: q=1 and mbx=infinity. If no Accept
 header is present, then the client accepts all media types with q=1.
 
 For example:
 
-  Accept: audio/*;q=0.2, audio/basic
+  Accept: audio/*;q=0.2;mbx=200000, audio/basic
 
-would mean: "I prefer audio/basic, but send me any audio type if it is
-the best available after en 80% mark-down in quality"
+would mean: "I prefer audio/basic (of any size), but send me any audio
+type if it is the best available after en 80% mark-down in quality and
+its size is less than 200000 bytes"
 
 
 =item Accept-Charset
@@ -464,7 +465,7 @@ charset is acceptable.  Example:
 =item Accept-Encoding
 
 Restricts the Content-Encoding values which are acceptable in the
-repsponse.  If no Accept-Encoding field is present, the server may
+response.  If no Accept-Encoding field is present, the server may
 assume that the client will accept any content encoding.  An empty
 Accept-Encoding means that no content encoding is acceptable.  Example:
 
@@ -473,10 +474,10 @@ Accept-Encoding means that no content encoding is acceptable.  Example:
 
 =item Accept-Language
 
-This field is similiar to Accept, but restrict the set of natural
+This field is similar to Accept, but restrict the set of natural
 languages that are preferred as a response.  Each language may be
-given an assosiated quality value which represents an estimate of the
-user's comprehension of that langugage.  For example:
+given an associated quality value which represents an estimate of the
+user's comprehension of that language.  For example:
 
   Accept-Language: no, en-gb;q=0.8, de;q=0.55
 
@@ -485,6 +486,13 @@ would mean: "I prefer Norwegian, but will accept British English (with
 
 =back
 
+
+=head1 COPYRIGHT
+
+Copyright 1996, Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 

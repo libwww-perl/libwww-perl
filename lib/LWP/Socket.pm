@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.7 1995/09/02 13:21:59 aas Exp $
+# $Id: Socket.pm,v 1.8 1995/09/03 07:18:27 aas Exp $
 
 package LWP::Socket;
 
@@ -15,6 +15,7 @@ LWP::Socket - TCP/IP socket interface
  $quote = 'I dunno, I dream in Perl sometimes...';
  $socket->write("$quote\n");
  $socket->readUntil("\n", \$buffer);
+ $socket->read(\$buffer);
  $socket = undef;  # close
 
 =head1 DESCRIPTION
@@ -33,7 +34,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -131,7 +132,8 @@ sub shutdown
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
-defined, data will be read in chunks of $size bytes.
+defined, data will be read in chunks of $size bytes.  This does not
+mean that we will return the data when size bytes are read.
 
 Note that $delim is discarded from the data returned.
 
@@ -154,19 +156,14 @@ sub readUntil
     $self->{'buffer'} = '';
 
     until (length $delim and $totalbuffer =~ /$delim/) {
-
         my $rin = '';
         vec($rin, fileno($socket), 1) = 1;
-
-        LWP::Debug::debug('selecting');
-
         my $nfound = select($rin, undef, undef, $timeout);
         if ($nfound == 0) {
             return 0;  # timeout
         } elsif ($nfound < 0) {
             die "Select failed: $!";
         } else {
-            LWP::Debug::debug('reading');
             my $buffer = '';
             my $read = sysread($socket, $buffer, $size);
 	    last if $read <= 0;
@@ -181,19 +178,14 @@ sub readUntil
         $$bufferref = $totalbuffer;
     }
 
-    LWP::Debug::debug("\nResult: " .
-                      (defined $$bufferref ? "'$$bufferref'" : 'undef') .
-                      "\nBuffered: " . 
-                      (defined $self->{'buffer'} ?
-                       "'$self->{'buffer'}'" : 'undef') );
-
     1;
 }
 
-=head2 read($bufref, $size, $timeout)
+=head2 read($bufref, [$size, $timeout])
 
 Reads data of the socket.  Not more than $size bytes.  Might return
-less if the data is available.
+less if the data is available.  Returns 0 if timeout occured, 1
+otherwise.
 
 =cut
 
@@ -205,7 +197,7 @@ sub read
     LWP::Debug::trace('(...)');
     if (length $self->{'buffer'}) {
 	# return data from buffer until it is empty
-	print "Returning data from buffer...$self->{'buffer'}\n";
+	#print "Returning data from buffer...$self->{'buffer'}\n";
 	$$bufferref = substr($self->{'buffer'}, 0, $size);
 	substr($self->{'buffer'}, 0, $size) = '';
 	return 1;
@@ -234,16 +226,12 @@ sub read
 
     my $rin = '';
     vec($rin, fileno($socket), 1) = 1;
-
-    LWP::Debug::debug('selecting');
-
     my $nfound = select($rin, undef, undef, $timeout);
     if ($nfound == 0) {
 	return 0;  # timeout
     } elsif ($nfound < 0) {
 	die "Select failed: $!";
     } else {
-	LWP::Debug::debug('reading');
 	my $n = sysread($socket, $$bufferref, $size);
 	LWP::Debug::conns("Read $n bytes: '$$bufferref'");
 	return 1;
@@ -259,23 +247,70 @@ read().  Can be used if you find out that you have read too much.
 
 sub pushback
 {
+    LWP::Debug::trace('(...)');
     substr(shift->{'buffer'}, 0, 0) = shift;
 }
 
-=head2 write($data)
+=head2 write($data, [$timeout])
 
-Write data to socket
+Write data to socket.  The $data argument might be a scalar or code.
+
+If data is a reference to a subroutine, then we will call this routine
+to obtain the data to be written.  The routine will be called until it
+returns undef or empty data.  Data might be returned from the callback
+as a scalar or as a reference to a scalar.
+
+Write returns the number of bytes written to the socket.
 
 =cut
 
 sub write
 {
     my $self = shift;
+    my $timeout = $_[1];  # we don't want to copy data in $_[0]
     LWP::Debug::trace('()');
-    # XXX I guess should we time these out too?
-    LWP::Debug::conns(">>>$_[0]<<<");
     $socket = $self->{'socket'};
-    syswrite($socket, $_[0], length $_[0]);
+    my $bytes_written = 0;
+    if (!ref $_[0]) {
+	# write data to socket
+	#XXX: Should do something special if Tk is present
+	my $len = length $_[0];
+	my $offset = 0;
+	while ($offset < $len) {
+	    my $win = '';
+	    vec($win, fileno($socket), 1) = 1;
+	    my $nfound = select(undef, $win, undef, $timeout);
+	    if ($nfound == 0) {
+		# timeout
+		return $bytes_written;
+	    } elsif ($nfound < 0) {
+		die "Select failed: $!";
+	    } else {
+		my $n = syswrite($socket, $_[0], $len-$offset, $offset);
+		return $bytes_written if $n <= 0;
+		LWP::Debug::conns("Write $n bytes: '" .
+				  substr($_[0], $offset, $n) .
+				  "'");
+		$offset += $n;
+	    }
+	}
+    } elsif (ref($_[0]) eq 'CODE') {
+	# write data until $callback returns empty data '';
+	my $callback = shift;
+	while (1) {
+	    my $data = &$callback;
+	    last unless defined $data;
+	    $data = \$data unless ref($data);  # make it a reference
+	    my $len = length $$data;
+	    last unless length $len;
+	    my $n = $socket->write($$data, $timeout);
+	    $bytes_written += $n;
+	    last if $n != $len;
+	}
+    } else {
+	croak 'Illegal LWP::Socket->write() argument';
+    }
+    $bytes_written;
 }
 
 
@@ -339,6 +374,7 @@ sub _ungensym
     delete $LWP::Socket::{$x};  # delete from package symbol table
 }
 
+
 #####################################################################
 
 package main;
@@ -378,12 +414,9 @@ sub echo
 {
     $socket = new LWP::Socket;
     $socket->connect('localhost', 7); # echo
-    $quote = 'I dunno, I dream in Perl sometimes...'; 
-    #--Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
+    $quote = 'I dunno, I dream in Perl sometimes...';
+             # --Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
     $socket->write("$quote\n");
     $socket->readUntil("\n", \$buffer);
     die 'Read Error' unless $buffer eq $quote;
 }
-
-
-1;

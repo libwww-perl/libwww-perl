@@ -78,7 +78,6 @@ Gisle Aas <aas@sn.no>
 =cut
 
 use strict;
-use blib;
 
 use Getopt::Long;
 use URI::URL;
@@ -88,10 +87,14 @@ use vars qw($VERSION $DISTNAME);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
+
+# Defaults
+$MAX_DEPTH = 10;
+$MAX_DOCS  = 100;
 
 GetOptions('version'  => \&print_version,
 	   'help'     => \&usage,
@@ -122,10 +125,6 @@ my $ua = new LWP::UserAgent;
 $ua->agent("$0/$VERSION " . $ua->agent);
 
 print $ua->agent, "\n";
-
-# Defaults
-$MAX_DEPTH ||= 10;
-$MAX_DOCS  ||= 100;
 
 unless (defined $PREFIX) {
     $PREFIX = url($start_url);   # limit to URLs below this one
@@ -167,7 +166,7 @@ sub fetch
     print STDERR $out . " ";
 
     # Too much or too deep
-    if ($depth > $MAX_DEPTH) {
+    if ($depth > $MAX_DEPTH and $type ne 'img') {
 	print STDERR "*too deep*\n";
 	return $url;
     }
@@ -212,7 +211,7 @@ sub fetch
 	    save($name, $doc);
 	    my $base = $res->base;
 	    # Follow and substitute links...
-	    $doc =~ s/(<\s*(img|a)\b[^>]+\b(?:src|href)=)(["']?)([^>]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
+	    $doc =~ s/(<\s*(img|a)\b[^>]+\b(?:src|href)=)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
 	}
 	save($name, $doc);
 	return $name;					  

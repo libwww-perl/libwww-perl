@@ -119,7 +119,7 @@ use vars qw($VERSION);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -321,8 +321,8 @@ sub usage
     die <<"";
 Usage: $0 [options] <URL>
 Allowed options are:
-  --depth=N         Maximum depth to traverse (default is 10)
-  --limit=N         A limit on the number documents to get (default is 100)
+  --depth=N         Maximum depth to traverse (default is $MAX_DEPTH)
+  --limit=N         A limit on the number documents to get (default is $MAX_DOCS)
   --version         Print version number and quit
   --verbose         More output
   --quiet           No output

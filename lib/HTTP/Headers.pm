@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.32 1998/03/12 12:44:11 aas Exp $
+# $Id: Headers.pm,v 1.33 1998/03/30 20:11:00 aas Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -307,7 +307,7 @@ considered stale.
 =item $h->if_unmodified_since
 
 This header is used to make a request conditional.  If the requested
-resource has not been modified since the time specified in this field,
+resource has (not) been modified since the time specified in this field,
 then the server will return a C<"304 Not Modified"> response instead of
 the document itself.
 
@@ -426,7 +426,7 @@ header instead.
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-1998 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -509,7 +509,6 @@ sub server            { (shift->_header('Server',           @_))[0] }
 
 sub from              { (shift->_header('From',             @_))[0] }
 sub referer           { (shift->_header('Referer',          @_))[0] }
-sub etag              { (shift->_header('ETag',             @_))[0] }
 sub warning           { (shift->_header('Warning',          @_))[0] }
 
 sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
@@ -537,7 +536,7 @@ sub _basic_auth {
 	return $val unless wantarray;
 	return split(/:/, $val, 2);
     }
-    undef;
+    return;
 }
 
 1;

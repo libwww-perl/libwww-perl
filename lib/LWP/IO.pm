@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.3 1995/11/05 10:40:43 aas Exp $
+# $Id: IO.pm,v 1.4 1995/11/05 11:16:03 aas Exp $
 
 require LWP::Debug;
 
@@ -40,8 +40,8 @@ sub read
 	die "Timeout";
     } elsif ($nfound < 0) {
 	die "Select failed: $!";
-    } elsif ($err) {
-	die "Exception on socket handle";
+    } elsif ($err =~ /[^\0]/) {
+	die "Exception while reading on socket handle";
     } else {
 	my $n = sysread($fd, $_[0], $size, $offset);
 	LWP::Debug::conns("Read $n bytes: '$_[0]'") if defined $n;
@@ -69,8 +69,8 @@ sub write
 	    die "Timeout";
 	} elsif ($nfound < 0) {
 	    die "Select failed: $!";
-	} elsif ($err) {
-	    die "Exception on socket handle";
+	} elsif ($err =~ /[^\0]/) {
+	    die "Exception while writing on socket handle";
 	} else {
 	    my $n = syswrite($fd, $_[0], $len-$offset, $offset);
 	    return $bytes_written unless defined $n;

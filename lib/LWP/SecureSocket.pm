@@ -1,4 +1,4 @@
-# $Id: SecureSocket.pm,v 1.2 1997/12/02 13:22:52 aas Exp $
+# $Id: SecureSocket.pm,v 1.3 1998/01/26 11:13:29 aas Exp $
 #
 # Derived by Joshua Kronengold from Socket.pm and SSLeay
 #
@@ -26,6 +26,8 @@ LWP::SecureSocket - SSL TCP/IP socket interface
 
 =head1 DESCRIPTION
 
+B<Beware:> New code should not use this depreciated module.
+
 This class implements SSL TCP/IP sockets.  It groups socket
 generation, TCP address manipulation and buffered reading. Errors are
 handled by dying (throws exceptions).
@@ -37,7 +39,7 @@ The following methods are provided:
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in

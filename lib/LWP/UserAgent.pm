@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.57 1998/01/06 10:20:38 aas Exp $
+# $Id: UserAgent.pm,v 1.58 1998/01/21 12:53:21 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.58 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -460,9 +460,14 @@ sub cookie_jar { shift->_elem('cookie_jar',@_); }
 sub parse_head { shift->_elem('parse_head',@_); }
 sub max_size   { shift->_elem('max_size',  @_); }
 
-# depepreciated
-sub use_alarm  { shift->_elem('use_alarm', @_); }
+# depreciated
 sub use_eval   { shift->_elem('use_eval',  @_); }
+sub use_alarm
+{
+    Carp::carp("LWP::UserAgent->use_alarm(BOOL) is a no-op")
+	if @_ > 1 && $^W;
+    "";
+}
 
 
 # Declarations of AutoLoaded methods

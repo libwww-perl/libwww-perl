@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.67 1999/06/25 08:54:50 gisle Exp $
+# $Id: UserAgent.pm,v 1.68 1999/08/02 22:57:09 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.67 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.68 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -323,7 +323,7 @@ sub request
 	$class =~ s/-/_/g;
 	
 	no strict 'refs';
-	unless (defined %{"$class\::"}) {
+	unless (%{"$class\::"}) {
 	    # try to load it
 	    eval "require $class";
 	    if ($@) {

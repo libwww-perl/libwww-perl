@@ -127,6 +127,11 @@ for (undef, '', 'Garbage',
 
 print "Testing AM/PM gruff...\n";
 
+# Test the str2iso routines
+use HTTP::Date qw(time2iso time2isoz);
+
+print "Testing time2iso functions\n";
+
 $t = time2iso(str2time("11-12-96  0:00AM"));print "$t\n";
 ok($t ne "1996-11-12 00:00:00");
 
@@ -153,11 +158,6 @@ $t = time2iso(str2time("11-12-96 12:05PM"));print "$t\n";
 ok($t ne "1996-11-12 12:05:00");
 
 
-
-# Test the str2iso routines
-use HTTP::Date qw(time2iso time2isoz);
-
-print "Testing time2iso functions\n";
 
 $a = time2iso;
 $b = time2iso(500000);

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.34 1999/06/18 23:05:14 gisle Exp $
+# $Id: Protocol.pm,v 1.35 1999/08/02 22:57:09 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,7 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -114,7 +114,7 @@ sub implementor
     $ic = "LWP::Protocol::nntp" if $scheme eq 'news'; #XXX ugly hack
     no strict 'refs';
     # check we actually have one for the scheme:
-    unless (defined @{"${ic}::ISA"}) {
+    unless (@{"${ic}::ISA"}) {
 	# try to autoload it
 	eval "require $ic";
 	if ($@) {

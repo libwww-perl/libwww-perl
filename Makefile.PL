@@ -1,12 +1,26 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.11 1995/09/20 10:12:05 aas Exp $
+# $Id: Makefile.PL,v 1.12 1995/09/20 14:41:02 aas Exp $
 
-# Configuration section
+#--- Configuration section ---
 
 @programs_to_install = qw(request mirror);
 @request_aliases     = qw(GET HEAD POST);
 
-# End Configuration - You should not have to change anything below this line
+#--- End Configuration - You should not have to change anything below this line
+
+
+# Allow us to suppress of all program installation with the -l (library only)
+# option.
+use Getopt::Std;
+$opt_l = undef;   # avoid -w typo waring
+unless (getopts("l")) {
+    die "Usage: $0 [-l]\n";
+}
+@programs_to_install = () if $opt_l;
+
+# Find the perl executable
+$PERL = find_perl(5.001, [ $^X, "perl", "perl5", "perl$]" ],
+                         [split ":", $ENV{PATH}], 0);
 
 use ExtUtils::MakeMaker;
 
@@ -35,7 +49,7 @@ sub initialize
     }
 
     use lib ".";
-    chop($hash{VERSION} = `perl VERSION`);
+    chop($hash{VERSION} = `$PERL VERSION`);
     \%hash;
 }
 
@@ -63,7 +77,7 @@ config ::
 	@\$(PERL) VERSION > /dev/null
 
 ";
-    if (@request_aliases) {
+    if (@request_aliases && grep($_ eq 'request', @programs_to_install)) {
 	push @m, "all ::\n";
 	push @m, "\t\$(FULLPERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
 	push @m, <<'EOT';
@@ -91,3 +105,35 @@ sub MY::libscan {
     $_;
 }
 
+
+# Borrowed from MakeMaker
+sub find_perl {
+    my($ver, $names, $dirs, $trace) = @_;
+    my($name, $dir);
+    if ($trace >= 2){
+	print "Looking for perl $ver by these names: ";
+	print "@$names, ";
+	print "in these dirs:";
+	print "@$dirs";
+    }
+    foreach $dir (@$dirs){
+	next unless defined $dir; # $att{PERL_SRC} may be undefined
+	foreach $name (@$names){
+	    my $abs;
+	    if ($name =~ m|^/|) {
+		$abs = $name;
+	    } else {
+		$abs = "$dir/$name";
+	    }
+	    print "Checking $abs " if ($trace >= 2);
+	    next unless -x "$abs";
+	    print "Executing $abs" if ($trace >= 2);
+	    if (`$abs -e 'require $ver; print "VER_OK\n" ' 2>&1` =~ /VER_OK/) {
+	        print "Using PERL=$abs" if $trace;
+	        return $abs;
+	    }
+
+	}
+    }
+    die "Unable to find a perl $ver (by these names: @$names, in these dirs: @$dirs)\n";
+}

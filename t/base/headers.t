@@ -25,7 +25,7 @@ $h->header("MY-header" => "foo",
 	   "Date" => "somedate",
 	   "Accept" => ["text/plain", "image/*"],
 	  );
-$h->pushHeader("accept" => "audio/basic");
+$h->push_header("accept" => "audio/basic");
 
 if ($h->header("date") eq "somedate") {
      print "ok 3\n";
@@ -36,10 +36,10 @@ if (@accept == 3) {
     print "ok 4\n";
 }
 
-$h->removeHeader("uri", "date");
+$h->remove_header("uri", "date");
 
 
-$str = $h->asString;
+$str = $h->as_string;
 print "\nHeader looks like this now:\n$str\n";
 
 $lines = ($str =~ tr/\n/\n/);
@@ -54,7 +54,7 @@ if ($lines == 6) {
 $h2 = $h->clone;
 
 $h->header("accept", "*/*");
-$h->removeHeader("my-header");
+$h->remove_header("my-header");
 
 @accept = $h2->header("accept");
 if (@accept == 3) {

@@ -26,10 +26,10 @@ print "1..$notests\n";
 $testno = 1;
 for (@tests) {
     ($file, $expectedtype, @expectedEnc) = @$_;
-    $type1 = guessMediaType($file);
-    ($type, @enc) = guessMediaType($file);
+    $type1 = guess_media_type($file);
+    ($type, @enc) = guess_media_type($file);
     if ($type1 ne $type) {
-       print "guessMediaType does not return same content-type in scalar and array conext.\n";
+       print "guess_media_type does not return same content-type in scalar and array conext.\n";
 	next;       
     }
     $type = "undef" unless defined $type;
@@ -44,5 +44,5 @@ for (@tests) {
     $testno++;
 }
 
-@imgSuffix = mediaSuffix('image/*');
+@imgSuffix = media_suffix('image/*');
 print "Image suffixes: @imgSuffix\n";

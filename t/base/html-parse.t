@@ -28,7 +28,7 @@ open(STDERR, '>&STDOUT');  # Redirect STDERR to STDOUT
 print STDERR "\n";
 $h->dump;
 
-$html = $h->asHTML;
+$html = $h->as_HTML;
 
 print "ok 1\n" if $html =~ /<BODY>/ && $html =~ /www\.oslonett\.no/
 	       && $html !~ /comment/;

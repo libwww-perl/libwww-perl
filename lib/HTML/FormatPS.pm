@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.18 1996/06/09 14:49:58 aas Exp $
+# $Id: FormatPS.pm,v 1.19 1996/10/22 08:57:22 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -211,6 +211,7 @@ sub new
 	    $self->{$key} = lc $val;
 	}
     }
+    $self->{title} = "";
     $self;
 }
 
@@ -240,14 +241,17 @@ sub fontsize
 
 sub findfont
 {
-    my $self = shift;
+    my($self, $plain_with_size) = @_;
     my $index = 0;
-    $index |= BOLD   if $self->{bold};
-    $index |= ITALIC if $self->{italic} || $self->{underline};
-    my $family = $self->{teletype} ? 'Courier' : $self->{family};
-    $family = "Times" unless defined $family;
+    my $family = $self->{family} || 'Times';
+    my $size = $plain_with_size;
+    unless ($plain_with_size) {
+	$index |= BOLD   if $self->{bold};
+	$index |= ITALIC if $self->{italic} || $self->{underline};
+	$family = 'Courier' if $self->{teletype};
+	$size = $self->fontsize;
+    }
     my $font = $FontFamilies{$family}[$index];
-    my $size = $self->fontsize;
     my $font_with_size = "$font-$size";
     if ($self->{currentfont} eq $font_with_size) {
 	return "";
@@ -368,9 +372,8 @@ sub end
 EOT
 
     push(@prolog, "\n%%BeginSetup\n");
-    my($full,$short);
     for $full (sort keys %{$self->{fonts}}) {
-	$short = $self->{fonts}{$full};
+	my $short = $self->{fonts}{$full};
 	$full =~ s/-(\d+)$//;
 	my $size = $1;
 	push(@prolog, "ISOLatin1Encoding/$full-ISO/$full NE\n");
@@ -539,10 +542,14 @@ sub newpage
 
     # Print page number
     if ($self->{printpageno}) {
-	my $x = $self->{paperwidth};
-	if ($x) { $x -= 30; } else { $x = 30 };
-	$self->collect("/Helvetica findfont 10 scalefont setfont ");
-	$self->collect(sprintf "%.1f 30.0 M($pageno)S\n", $x);
+	$self->collect("%% Title and pageno\n");
+	my $f = $self->findfont(8);
+	$self->collect("$f\n") if $f;
+        my $x = $self->{paperwidth};
+        if ($x) { $x -= 30; } else { $x = 30; }
+        $self->collect(sprintf "%.1f 30.0 M($pageno)S\n", $x);
+	$x = $self->{lm};
+	$self->collect(sprintf "%.1f 30.0 M($self->{title})S\n", $x);
     }
     $self->collect("\n");
 
@@ -554,7 +561,12 @@ sub newpage
 sub out
 {
     my($self, $text) = @_;
-
+    if ($self->{collectingTheTitle}) {
+        # Both collect and print the title
+    	$text =~ s/([\(\)\\])/\\$1/g; # Escape parens.
+        $self->{title} .= $text;
+	return;
+    }
     $self->skip_vspace;
 
     my $font = $self->findfont();
@@ -586,6 +598,7 @@ sub pre_out
 	$self->{line} .= "$font\n";
     }
     while ($text =~ s/(.*)\n//) {
+    	$self->{'out'}++;
 	$self->{showstring} .= $1;
 	$self->showline;
     }
@@ -613,6 +626,26 @@ sub adjust_rm
     my $self = shift;
     $self->showline;
     $self->{rm} += $_[0] * $self->{en};
+}
+
+sub head_start {
+    1;
+}
+
+sub head_end {
+    1;
+}
+
+sub title_start {
+    my($self) = @_;
+    $self->{collectingTheTitle} = 1;
+    1;
+}
+
+sub title_end {
+    my($self) = @_;
+    $self->{collectingTheTitle} = 0;
+    1;
 }
 
 1;

@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.12 1997/08/08 09:13:50 aas Exp $
+# $Id: AFM.pm,v 1.13 1997/08/08 09:30:24 aas Exp $
 
 package Font::AFM;
 
@@ -31,55 +31,55 @@ The following methods are available:
 
 =over 3
 
-=item new($fontname)
+=item $afm = Font::AFM->new($fontname)
 
 Object constructor. Takes the name of the font as argument. It will
 croak if the font can not be found.
 
-=item latin1_wx_table()
+=item $afm->latin1_wx_table()
 
 Returns a 256 element array, where each element contains the width
 of the corresponding character in the iso-8859-1 character set.
 
-=item stringwidth($string, [$fontsize])
+=item $afm->stringwidth($string, [$fontsize])
 
 Returns the width of the string passed as argument. The string is
 assumed to be encoded in the iso-8859-1 character set.  A second
 argument can be used to scale the width according to the font size.
 
-=item FontName
+=item $afm->FontName
 
 The name of the font as presented to the PostScript language
 C<findfont> operator, for instance "Times-Roman".
 
-=item FullName
+=item $afm->FullName
 
 Unique, human-readable name for an individual font, for instance
 "Times Roman".
 
-=item FamilyName
+=item $afm->FamilyName
 
 Human-readable name for a group of fonts that are stylistic variants
 of a single design. All fonts that are member of such a group should
 have exactly the same C<FamilyName>. Example of a family name is
 "Times".
 
-=item Weight
+=item $afm->Weight
 
 Human-readable name for the weight, or "boldness", attribute of a font.
 Exampes are C<Roman>, C<Bold>, C<Light>.
 
-=item ItalicAngle
+=item $afm->ItalicAngle
 
 Angle in degrees counterclockwise from the vertical of the dominant
 vertical strokes of the font.
 
-=item IsFixedPitch
+=item $afm->IsFixedPitch
 
 If the value is C<true>, it indicated that the font is a fixed-pitch
 (monospaced) font.
 
-=item FontBBox
+=item $afm->FontBBox
 
 A string of four numbers giving the lower-left x, lower-left y,
 upper-right x, and upper-right y of the font bounding box. The font
@@ -87,59 +87,59 @@ bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
 origins coincident, and then painted.
 
-=item UnderlinePosition
+=item $afm->UnderlinePosition
 
 Recommended distance from the baseline for positioning underline
 stokes. This number is the y coordinate of the center of the stroke.
 
-=item UnderlineThickness
+=item $afm->UnderlineThickness
 
 Recommended stroke width for underlining.
 
-=item Version
+=item $afm->Version
 
 Version number of the font.
 
-=item Notice
+=item $afm->Notice
 
 Trademark or copyright notice, if applicable.
 
-=item Comment
+=item $afm->Comment
 
 Comments found in the AFM file.
 
-=item EncodingScheme
+=item $afm->EncodingScheme
 
 The name of the standard encoding scheme for the font. Most Adobe
 fonts use the C<AdobeStandardEncoding>. Special fonts might state
 C<FontSpecific>.
 
-=item CapHeight
+=item $afm->CapHeight
 
 Usually the y-value of the top of the capital H.
 
-=item XHeight
+=item $afm->XHeight
 
 Typically the y-value of the top of the lowercase x.
 
-=item Ascender
+=item $afm->Ascender
 
 Typically the y-value of the top of the lowercase d.
 
-=item Descender
+=item $afm->Descender
 
 Typically the y-value of the bottom of the lowercase p.
 
-=item Wx
+=item $afm->Wx
 
 Returns a hash table that maps from glyph names to the width of that glyph.
 
-=item BBox
+=item $afm->BBox
 
 Returns a hash table that maps from glyph names to bounding box information.
 The bounding box consist of 4 numbers: llx, lly, urx, ury.
 
-=item dump
+=item $afm->dump
 
 Dumps the content of the Font::AFM object to STDOUT.  Might sometimes
 be useful for debugging.
@@ -174,7 +174,7 @@ Ligature data is not parsed.
 
 =head1 COPYRIGHT
 
-Copyright 1995 Gisle Aas. All rights reserved.
+Copyright 1995-1997 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -184,16 +184,17 @@ it under the same terms as Perl itself.
 #-------perl resumes here--------------------------------------------
 
 use Carp;
+use strict;
+use vars qw($VERSION @ISOLatin1Encoding);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
-sub ModuleVersion { $VERSION; }
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 
 # The metrics_path is used to locate metrics files
 #
-$metrics_path = $ENV{METRICS} ||
+my $metrics_path = $ENV{METRICS} ||
     "/usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.";
-@metrics_path = split(/:/, $metrics_path);
+my @metrics_path = split(/:/, $metrics_path);
 foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 
 @ISOLatin1Encoding = qw(
@@ -248,7 +249,7 @@ sub new
        }
    }
    open(AFM, $file) or croak "Can't find the AFM file for $fontname";
-   my $this = bless { }, $class;
+   my $self = bless { }, $class;
    local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
    while (<AFM>) {
        next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
@@ -261,50 +262,50 @@ sub new
 	   my($bbox)    = /\bB\s+([^;]+);/;
 	   $bbox =~ s/\s+$//;
 	   # Should also parse lingature data (format: L successor lignature)
-	   $this->{'wx'}{$name} = $wx;
-	   $this->{'bbox'}{$name} = $bbox;
+	   $self->{'wx'}{$name} = $wx;
+	   $self->{'bbox'}{$name} = $bbox;
 	   next;
        }
        last if /^EndFontMetrics/;
        if (/(^\w+)\s+(.*)/) {
 	   my($key,$val) = ($1, $2);
 	   $key = lc $key;
-	   if (defined $this->{$key}) {
-	       $this->{$key} = [ $this->{$key} ] unless ref $this->{$key};
-	       push(@{$this->{$key}}, $val);
+	   if (defined $self->{$key}) {
+	       $self->{$key} = [ $self->{$key} ] unless ref $self->{$key};
+	       push(@{$self->{$key}}, $val);
 	   } else {
-	       $this->{$key} = $val;
+	       $self->{$key} = $val;
 	   }
        } else {
 	   print STDERR "Can't parse: $_";
        }
    }
    close(AFM);
-   unless (exists $this->{wx}->{'.notdef'}) {
-       $this->{wx}->{'.notdef'} = 0;
-       $this->{bbox}{'.notdef'} = "0 0 0 0";
+   unless (exists $self->{wx}->{'.notdef'}) {
+       $self->{wx}->{'.notdef'} = 0;
+       $self->{bbox}{'.notdef'} = "0 0 0 0";
    }
-   $this;
+   $self;
 }
 
 # Returns an 256 element array that maps from characters to width
 sub latin1_wx_table
 {
-    my($this) = @_;
-    unless ($this->{'_wx_table'}) {
-	$this->{'_wx_table'} =
-	    [ map {$this->{wx}->{$ISOLatin1Encoding[$_]}} 0..255 ];
+    my($self) = @_;
+    unless ($self->{'_wx_table'}) {
+	$self->{'_wx_table'} =
+	    [ map {$self->{wx}->{$ISOLatin1Encoding[$_]}} 0..255 ];
     }
-    @{ $this->{'_wx_table'} };
+    @{ $self->{'_wx_table'} };
 }
 
 sub stringwidth
 {
-    my($this, $string, $pointsize) = @_;
+    my($self, $string, $pointsize) = @_;
     return 0.0 unless defined $string;
     return 0.0 unless length $string;
 
-    my @wx = $this->latin1_wx_table;
+    my @wx = $self->latin1_wx_table;
     my $width = 0.0;
     while ($string =~ /./g) {
 	$width += $wx[ord $&];
@@ -340,6 +341,8 @@ sub BBox;
 
 sub AUTOLOAD
 {
+    no strict 'vars';  # don't want to declare $AUTOLOAD
+
     #print "AUTOLOAD: $AUTOLOAD\n";
     if ($AUTOLOAD =~ /::DESTROY$/) {
 	eval "sub $AUTOLOAD {}";
@@ -358,24 +361,24 @@ sub AUTOLOAD
 
 sub dump
 {
-    my($this) = @_;
+    my($self) = @_;
     my($key, $val);
-    foreach $key (sort keys %$this) {
-	if (ref $this->{$key}) {
-	    if (ref $this->{$key} eq "ARRAY") {
-		print "$key = [\n\t", join("\n\t", @{$this->{$key}}), "\n]\n";
-	    } elsif (ref $this->{$key} eq "HASH") {
+    foreach $key (sort keys %$self) {
+	if (ref $self->{$key}) {
+	    if (ref $self->{$key} eq "ARRAY") {
+		print "$key = [\n\t", join("\n\t", @{$self->{$key}}), "\n]\n";
+	    } elsif (ref $self->{$key} eq "HASH") {
 		print "$key = {\n";
 		my $key2;
-		foreach $key2 (sort keys %{$this->{$key}}) {
-		    print "\t$key2 => $this->{$key}{$key2},\n";
+		foreach $key2 (sort keys %{$self->{$key}}) {
+		    print "\t$key2 => $self->{$key}{$key2},\n";
 		}
 		print "}\n";
 	    } else {
-		print "$key = $this->{$key}\n";
+		print "$key = $self->{$key}\n";
 	    }
 	} else {
-	    print "$key = $this->{$key}\n";
+	    print "$key = $self->{$key}\n";
 	}
     }
 }

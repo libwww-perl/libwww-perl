@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.22 2001/04/20 20:52:31 gisle Exp $
+# $Id: HTTP.pm,v 1.23 2001/04/21 03:40:30 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -247,8 +247,9 @@ sub read_response_headers {
     my $self = shift;
     my $status = my_readline($self);
     die "EOF instead of reponse status line" unless defined $status;
-    my($peer_ver, $code, $message) = split(' ', $status, 3);
-    die "Bad response status line: $status" unless $peer_ver =~ s,^HTTP/,,;
+    my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
+    die "Bad response status line: '$status'"
+	if !$peer_ver || $peer_ver !~ s,^HTTP/,,;
     ${*$self}{'http_peer_version'} = $peer_ver;
     ${*$self}{'http_status'} = $code;
     my @headers = $self->read_header_lines;

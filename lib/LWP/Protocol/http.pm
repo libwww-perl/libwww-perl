@@ -1,6 +1,5 @@
-#!/usr/local/bin/perl
 #
-# $Id: http.pm,v 1.2 1995/06/14 08:18:27 aas Exp $
+# $Id: http.pm,v 1.3 1995/07/11 13:21:07 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -71,9 +70,7 @@ sub request {
     my ($host, $port, $fullpath);
 
     if (defined $proxy) {
-        # $proxy is an HTTP server which
-        # will proxy this request
-
+        # $proxy is an HTTP server which will proxy this request
         $host = $proxy->host;
         $port = $proxy->port;
         $fullpath = $url->as_string;
@@ -82,16 +79,10 @@ sub request {
         $host = $url->host;
         $port = $url->port;
         $fullpath = $url->full_path;
-        # $fullpath might be empty (i.e. http://host),
-        # XXX: perhaps we should fix URI::URL instead
-        $fullpath = "/" unless length $fullpath;
-        # XXX: The fullpath contains the #frag part.  Is this correct?
     }
 
-    # create socket
-    $socket = new LWP::Socket;
-
     # connect to remote site
+    $socket = new LWP::Socket;
 
     alarm($timeout) if $self->useAlarm and defined $timeout;
 
@@ -122,10 +113,9 @@ sub request {
     LWP::Debug::debugl('reading response');
 
     my $line;
-    my $delim = "\n";
+    my $delim = "\r?\n";
     my $result = $socket->readUntil($delim, \$line, $size, $timeout);
 
-    $line =~ s/\r$//;
     LWP::Debug::conns("Received response: $line");
 
     # parse response header
@@ -151,22 +141,20 @@ sub request {
 
         my %parsedheaders;
         my($lastkey, $lastval) = ('', '');
-        for(@headerlines) {
+        for (@headerlines) {
             if (/^(\S+?):\s*(.*)$/) {
                 my ($key, $val) = ($1, $2);
                 if ($lastkey and $lastval) {
-                    &LWP::Debug::debug("  $lastkey => $lastval");
+                    LWP::Debug::debug("  $lastkey => $lastval");
                     $response->header($lastkey, $lastval);
                 }
                 $lastkey = $key;
                 $lastval = $val;
-            }
-            elsif(/\s+(.*)/) {
+            } elsif (/\s+(.*)/) {
                 croak('Unexpected header continuation')
                     unless defined $lastval;
                 $lastval .= " $1";
-            }
-            else {
+            } else {
                 croak("Illegal header '$_'");
             }
         }
@@ -174,8 +162,7 @@ sub request {
             LWP::Debug::debug("  $lastkey => $lastval");
             $response->header($lastkey, $lastval);
         }
-    }
-    else {
+    } else {
         # HTTP/0.9 or worse. Assume OK
         LWP::Debug::debug('HTTP/0.9 server');
 

@@ -1,13 +1,12 @@
-#!/usr/local/bin/perl -w
 #
-# $Id: UserAgent.pm,v 1.3 1995/07/07 13:37:01 aas Exp $
-#
+# $Id: UserAgent.pm,v 1.4 1995/07/11 13:21:06 aas Exp $
+
 package LWP::UserAgent;
 
-# included pod file
+
 =head1 NAME
 
-LWP::UserAgent -- A WWW UserAgent class
+LWP::UserAgent - A WWW UserAgent class
 
 =head1 SYNOPSIS
 
@@ -22,11 +21,7 @@ LWP::UserAgent -- A WWW UserAgent class
 
  sub callback { my($dataref, $response, $protocol) = @_; .... }
 
- $ua->getAndPrint('http://www.oslonett.no/');
- $ua->getAndStore('http://www.oslonett.no/', '/tmp/oslonett.html');
- $content = $ua->get('http://www.oslonett.no/');
-
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
 C<LWP::UserAgent> is a class implementing a simple World-Wide Web user
 agent in Perl. It brings together the Request/Response classes and the
@@ -68,16 +63,16 @@ Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
 
 By default the library uses alarm() to implement timeouts, dying if
-the timeout occurs. If this isn't required or interferes with other
+the timeout occurs. If this is not required or interferes with other
 parts of the application one can disable the use alarms. When alarms
 are disabled timeouts can still occur for example when reading data,
-but other cases like name lookups etc will not be timed out by the 
+but other cases like name lookups etc will not be timed out by the
 library itself.
 
 The library catches catches errors (such as internal errors and
 timeouts) and present them as HTTP error responses. Alternatively
 one can switch off this behaviour, and let the application handle
-die's.
+dies.
 
 =head1 SEE ALSO
 
@@ -88,15 +83,13 @@ See L<lwp> for a complete overview of libwww-perl5.
 Need MDA security
 
 =cut
-# perl resumes here
+
 
 #####################################################################
 
-$Version = '$Revision: 1.3 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
 
-@ISA = qw(LWP::MemberMixin);
 require LWP::MemberMixin;
+@ISA = qw(LWP::MemberMixin);
 
 require URI::URL;
 
@@ -134,8 +127,7 @@ sub new {
     my $self;
     if (ref $init) {
         $self = $init->clone;
-    }
-    else {
+    } else {
         $self = bless {
                 'agent'       => undef,
                 'timeout'     => 3*60,
@@ -147,28 +139,31 @@ sub new {
     }
 }
 
+
 =head1 clone
 
-Copy constructor. You need not call
-this yourself, see the constructor.
+Copy constructor. You need not call this yourself, see the
+constructor.
 
 =cut
 
 sub clone
 {
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     my $self = shift;
     bless { %$self }, ref $self;
 }
 
+
 =head1 simple_request($request, $arg [, $size])
 
-This method dispatches WWW requests on behalf of a user,
-and returns the response received. See the description
-above for the use of the method arguments.
+This method dispatches WWW requests on behalf of a user, and returns
+the response received. See the description above for the use of the
+method arguments.
 
 =cut
+
 sub simple_request {
     my($self, $request, $arg, $size) = @_;
 
@@ -180,19 +175,17 @@ sub simple_request {
     my $proxy = $self->_needProxy($url);
     if (defined $proxy) {
         $scheme = $proxy->scheme;
-    }
-    else {
+    } else {
         $scheme = $url->scheme;
     }
     my $protocol = LWP::Protocol::create($scheme);
 
     # Set User-Agent header if there is one
     my $agent = $self->agent;
-    $request->header('User-Agent', $agent) if
-        defined $agent and $agent;
+    $request->header('User-Agent', $agent)
+	if defined $agent and $agent;
 
-    # If a timeout value has been set we pass it
-    # on to the protocol
+    # If a timeout value has been set we pass it on to the protocol
     my $timeout = $self->timeout;
 
     # Inform the protocol if we need to use alarm()
@@ -214,12 +207,11 @@ sub simple_request {
 
     if ($self->useEval) {
         # we eval, and turn dies into responses below
-        eval { 
+        eval {
             $response = $protocol->request($request, $proturl, 
                                            $arg, $size, $timeout);
         };
-    }
-    else {
+    } else {
         # user has to handle any dies, usually timeouts
         $response = $protocol->request($request, $proturl,
                                        $arg, $size, $timeout);
@@ -243,6 +235,7 @@ sub simple_request {
     return $response;
 }
 
+
 =head1 request(...)
 
 Process a request, including redirects and security.
@@ -261,8 +254,7 @@ sub request {
     if (defined $depth) {
         die "Maximum number of redirects exceeded" if
             $depth > $self->{'maxRedirect'};
-    }
-    else {
+    } else {
         $depth = 0;
     }
 
@@ -290,8 +282,8 @@ sub request {
         # it for now in the interest of simplicity
 
         return $self->request($referral, $arg, $size, $depth+1);
-    }
-    elsif ($code == &LWP::StatusCode::RC_UNAUTHORIZED) {
+
+    } elsif ($code == &LWP::StatusCode::RC_UNAUTHORIZED) {
 
 	my $challenge = $response->header('WWW-Authenticate');
 	die "RC_UNAUTHORIZED without WWW-Authenticate\n" unless
@@ -310,15 +302,13 @@ sub request {
 		    my $header = $scheme . ' ' . &Base64encode($uidpwd);
 
 		    # Need to check this isn't a repeated fail!
-		    
 		    if (defined $seenref) {
 			if (exists $seenref->{"$realm $header"}) {
 			    # here we know this failed before
 			    $response->message('Invalid Credentials');
 			    return $response;
 			}
-		    }
-		    else {
+		    } else {
 			$seenref = \%;
 		    }
 		    $seenref->{"$realm $header"} = 1;
@@ -328,21 +318,18 @@ sub request {
 
 		    return $self->request($referral, $arg, $size, 
 					  $depth+1, $seenref);
-		}
-		else {
+		} else {
 		    return $response; # no password found
 		}
-	    }
-	    else {
+	    } else {
 		die "Authentication scheme '$scheme' not supported\n";
 	    }
-        }
-	else {
+        } else {
             die "Unknown challenge '$challenge'";
 	}
-    }
-    elsif ($code == &LWP::StatusCode::RC_PAYMENT_REQUIRED or
-           $code == &LWP::StatusCode::RC_PROXY_AUTHENTICATION_REQUIRED) {
+
+    } elsif ($code == &LWP::StatusCode::RC_PAYMENT_REQUIRED or
+             $code == &LWP::StatusCode::RC_PROXY_AUTHENTICATION_REQUIRED) {
 
         die 'Resolution of' . LWP::StatusCode::message($code) .
             'not yet implemented';
@@ -351,7 +338,8 @@ sub request {
 }
 
 
-sub credentials  { 
+sub credentials
+{ 
     my($self, $realm, $uid, $pwd) = @_;
     @{ $self->{'basic_authentication'}{$realm} } = ($uid, $pwd);
 }
@@ -359,18 +347,19 @@ sub credentials  {
 
 =head1 getBasicCredentials
 
-This is called by request() to retrieve credentials
-for a Realm protected by Basic Authentication.
+This is called by request() to retrieve credentials for a Realm
+protected by Basic Authentication.
 
 Should return username and password in a list.
 
-This implementation simply checks a set of pre-stored
-member variables. Subclasses can override this method
-to e.g. ask the user for a username/password.
+This implementation simply checks a set of pre-stored member
+variables. Subclasses can override this method to e.g. ask the user
+for a username/password.
 
 =cut
 
-sub getBasicCredentials {
+sub getBasicCredentials
+{
     my($self, $realm) = @_;
 
     if (exists $self->{'basic_authentication'}{$realm}) {
@@ -388,66 +377,10 @@ sub getBasicCredentials {
 #
 #####################################################################
 
-=head1 get($url)
-
-Get a document
-
-=cut
-
-sub get {
-    my($self, $url) = @_;
-    LWP::Debug::trace('()');
-
-    my $request = new LWP::Request('GET', $url);
-    my $response = $self->request($request);
-
-    return $response->content if $response->isSuccess;
-    return undef;
-}
-
-=head1 getAndPrint($url)
-
-Get and print a document identified by a URL
-
-=cut
-
-sub getAndPrint {
-    my($self, $url) = @_;
-    LWP::Debug::trace('()');
-
-    my $request = new LWP::Request('GET', $url);
-    my $response = $self->request($request);
-
-    if ($response->isSuccess) {
-        print $response->content;
-    }
-    else {
-        print STDERR $response->errorAsHTML;
-    }
-    $response;
-}
-
-=head1 getAndStore($url, $file)
-
-Get and store a document identified by a URL
-
-=cut
-
-sub getAndStore {
-    my($self, $url, $file) = @_;
-    LWP::Debug::trace('()');
-
-    my $request = new LWP::Request('GET', $url);
-    my $response = $self->request($request, $file);
-
-    $response;
-}
-
 =head1 mirror($url, $file)
 
-Get and store a document identified by a URL,
-using If-modified-since, and checking of the content-length.
-Returns response.
+Get and store a document identified by a URL, using If-Modified-Since,
+and checking of the content-length.  Returns response.
 
 =cut
 
@@ -455,7 +388,6 @@ sub mirror {
     my($self, $url, $file) = @_;
 
     LWP::Debug::trace('()');
-
     my $request = new LWP::Request('GET', $url);
 
     my($ST_SIZE, $ST_MTIME) = (7, 9);
@@ -478,16 +410,14 @@ sub mirror {
 	    unlink($tmpfile);
 	    die "Transfer truncated: " .
 		"only $file_length out of $content_length bytes received\n";
-	}
-	elsif (defined $content_length and $file_length > $content_length) {
+	} elsif (defined $content_length and $file_length > $content_length) {
 	    unlink($tmpfile);
 	    die "Content-length mismatch: " .
 		"expected $content_length bytes, got $file_length\n";
-	}
-	else {
+	} else {
 	    # OK
-	    rename($tmpfile, $file) or die
-		"Cannot rename '$tmpfile' to '$file': $!\n";
+	    rename($tmpfile, $file) or
+		die "Cannot rename '$tmpfile' to '$file': $!\n";
 	}
     }
     return $response;
@@ -499,15 +429,17 @@ sub mirror {
 #
 #####################################################################
 
-=head timeout()
-=heade agent()
-=heade useAlarm()
-=heade useEval()
+=head2 timeout()
 
-Get/set member variables, respectively the timeout
-value in seconds, the name of the agent, wether to
-use C<alarm()> or not, and wether to use handle internal
-errors internally by trapping with eval.
+=head2 agent()
+
+=head2 useAlarm()
+
+=head2 useEval()
+
+Get/set member variables, respectively the timeout value in seconds,
+the name of the agent, wether to use C<alarm()> or not, and wether to
+use handle internal errors internally by trapping with eval.
 
 =cut
 
@@ -517,33 +449,32 @@ sub useAlarm  { shift->_elem('useAlarm', @_); }
 sub useEval   { shift->_elem('useEval',  @_); }
 
 
-=head1 proxy(...)
+=head2 proxy(...)
 
-Set/retrieve proxy URL's for schemes:
+Set/retrieve proxy URL for a scheme:
 
  $ua->proxy(['http', 'ftp'], 'http://www.oslonett.no:8001/');
  $ua->proxy('gopher', 'http://web.oslonett.no:8001/');
 
-The first form specifies that the URL is to be used for
-proxying of access methods listed in the list in the first
-method argument, i.e. 'http' and 'ftp'. 
+The first form specifies that the URL is to be used for proxying of
+access methods listed in the list in the first method argument,
+i.e. 'http' and 'ftp'.
 
 The second form shows a shorthand form for specifying
-proxy URL's for a single access scheme.
+proxy URL for a single access scheme.
 
 =cut
 
 sub proxy {
     my($self, $key, $proxy) = @_;
 
-    &LWP::Debug::trace("$key, $proxy");
+    LWP::Debug::trace("$key, $proxy");
 
     if (!ref($key)) {   # single scalar passed
         my $old = $self->{'proxy'}{$key};
         $self->{'proxy'}{$key} = $proxy;
         return $old;    
-    }
-    elsif (ref($key) eq 'ARRAY') {
+    } elsif (ref($key) eq 'ARRAY') {
         for(@$key) {    # array passed
             $self->{'proxy'}{$_} = $proxy;
         }
@@ -561,8 +492,8 @@ sub proxy {
 
 =head1 _needProxy()
 
-Private method which returns the URL of the Proxy configured
-for this URL, or undefined if none is configured.
+Private method which returns the URL of the Proxy configured for this
+URL, or undefined if none is configured.
 
 =cut
 
@@ -571,7 +502,7 @@ sub _needProxy {
 
     $url = new URI::URL($url) unless ref $url;
 
-    &LWP::Debug::trace("($url)");
+    LWP::Debug::trace("($url)");
 
     # Currently configured per scheme.
     # XXX Need to support exclusion domains for
@@ -581,14 +512,12 @@ sub _needProxy {
     my $scheme = $url->scheme;
     if (exists $self->{'proxy'}{$scheme}) {
 
-        &LWP::Debug::debug('Proxied');
-
+        LWP::Debug::debug('Proxied');
         return new URI::URL($self->{'proxy'}{$scheme});
     }
 
-    &LWP::Debug::debug('Not proxied');
-
-    return undef;
+    LWP::Debug::debug('Not proxied');
+    undef;
 }
 
 1;

@@ -1,23 +1,19 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.2 1995/06/12 18:16:57 aas Exp $
-#
+# $Id: Base64.pm,v 1.3 1995/07/11 13:20:56 aas Exp $
 
-#####################################################################
 
 package LWP::Base64;
 
 =head1 NAME
 
 LWP::Base64 - Base 64 encoding/decoding routines
-              for HTTP Basic Authentication
 
 =head1 SYNOPSIS
 
  use LWP::Base64 qw(Base64encode Base64decode);
  
  $encoded = Base64encode('Aladdin:open sesame');
-
  $decoded = Base64decode($encoded);
 
 =head1 DESCRIPTION
@@ -44,7 +40,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 =head1 BUGS
 
-Didn't someone else write one of these?
+Did not someone else write one of these?
 
 This is basically C code; can clever use of pack/unpack not
 reduce this code?
@@ -53,9 +49,9 @@ No performance analysis done on this at all. The index in
 Base64decode_aux might be faster with a hash table or 
 indexable array.
 
-Doesn't honour the "The output stream (encoded bytes) must be
+Does not honour the "The output stream (encoded bytes) must be
 represented in lines of no more than 76 characters each" yet,
-as I'm not at all sure what WWW servers expect...
+as I am not at all sure what WWW servers expect...
 
 =head1 FUNCTIONS
 
@@ -65,11 +61,12 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(Base64encode Base64decode);
 
-$Version = '$Revision: 1.2 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
+$VERSION = $VERSION = # shut up -w
+    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);
+
 
 =head2 Base64encode()
 
@@ -135,6 +132,7 @@ sub _Base64encode_aux {
 
     $result;
 }
+
 
 =head2 Base64decode()
 
@@ -223,7 +221,7 @@ __END__
 
 &encode_test;
 &decode_test;
-print "LWP::Base64 ", $LWP::Base64::Version, " ok\n";
+print "LWP::Base64 ", $LWP::Base64::VERSION, " ok\n";
 
 sub encode_test {
 

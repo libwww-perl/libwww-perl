@@ -1,6 +1,5 @@
-#!/usr/local/bin/perl
 #
-# $Id: file.pm,v 1.2 1995/06/14 08:18:26 aas Exp $
+# $Id: file.pm,v 1.3 1995/07/11 13:21:07 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -39,13 +38,13 @@ sub request {
     if (defined $proxy)
     {
         return new LWP::Response(&LWP::StatusCode::RC_BAD_REQUEST,
-                                 q!You can't proxy through the filesystem!);
+                                 "You can not proxy through the filesystem");
     }
 
     # check method
     $method = $request->method;
 
-     unless (exists $AllowedMethods{$method} and
+    unless (exists $AllowedMethods{$method} and
             defined $AllowedMethods{$method} and
             $AllowedMethods{$method} != 0 )
     {
@@ -64,8 +63,7 @@ sub request {
     }
 
     my $host = $url->host();
-    if ($host and $host !~ /^localhost$/i)
-    {
+    if ($host and $host !~ /^localhost$/i) {
         return new LWP::Response(&LWP::StatusCode::RC_BAD_REQUEST_CLIENT,
                                  'Only file://localhost/ allowed');
     }
@@ -75,13 +73,11 @@ sub request {
     $path = "/" unless length $path;
 
     # test file exists and is readable
-    if (!(-e $path))
-    {
+    unless (-e $path) {
         return new LWP::Response(&LWP::StatusCode::RC_NOT_FOUND,
                                  "File `$path' does not exist");
     }
-    if (!(-r _))
-    {
+    unless (-r _) {
         return new LWP::Response(&LWP::StatusCode::RC_FORBIDDEN,
                                  'User does not have read permission');
     }
@@ -100,12 +96,10 @@ sub request {
         if (defined $time and $time >= $mtime) {
             $response = new LWP::file::Response(
                 &LWP::StatusCode::RC_NOT_MODIFIED, $method, $path);         
-        }
-        else {
+        } else {
             $response = new LWP::Response(&LWP::StatusCode::RC_OK);
         }
-    }
-    else {
+    } else {
         $response = new LWP::Response(&LWP::StatusCode::RC_OK);
     }
 
@@ -120,8 +114,9 @@ sub request {
                     "Cannot read directory '$path': $!");
         my(@files) = sort readdir(D);
         closedir(D);
-
-        my $html = join("\n", @files);  # directory listing could more fancy
+ 
+	# XXX directory listing could have been more fancy
+	my $html = join("\n", @files);
 
         $response->header('Content-Type',   'text/html');
         $response->header('Content-Length', length $html);
@@ -133,7 +128,7 @@ sub request {
                $first = 0;
                return \$html;
             }
-            return \"";
+            return \ "";
         });
         
     }
@@ -150,7 +145,7 @@ sub request {
             my $content;
             my $bytes = sysread(F, $content, $size);
             return \$content if $bytes > 0;
-            return \"";
+            return \ "";
         });
         close(F);
     }

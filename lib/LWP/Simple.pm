@@ -1,6 +1,6 @@
 #
-# $Id: Simple.pm,v 1.1 1995/06/14 10:58:06 aas Exp $
-#
+# $Id: Simple.pm,v 1.2 1995/07/11 13:21:03 aas Exp $
+
 
 package LWP::Simple;
 
@@ -16,13 +16,12 @@ use LWP::Date qw(str2time);
 use Carp;
 
 
-=head1 get($url)
+=head2 get($url)
 
 Get a document.  Returns the document is successful.  Returns 'undef' if it
 fails.
 
 =cut
-
 
 sub get {
     my($url) = @_;
@@ -35,7 +34,7 @@ sub get {
     return undef;
 }
 
-=head1 head($url)
+=head2 head($url)
 
 Get document headers. Returns the following values if successful:
 ($content_type, $document_length, $modified_time, $expires, $server)
@@ -43,6 +42,7 @@ Get document headers. Returns the following values if successful:
 Returns 'undef' if it fails.
 
 =cut
+
 sub head {
     my($url) = @_;
     LWP::Debug::trace('()');
@@ -62,7 +62,7 @@ sub head {
     }
 }
 
-=head1 getprint($url)
+=head2 getprint($url)
 
 Get and print a document identified by a URL. The document is printet
 on STDOUT. The error message is printed on STDERR if it fails. The
@@ -85,7 +85,8 @@ sub getprint {
     $response;
 }
 
-=head1 getstore($url, $file)
+
+=head2 getstore($url, $file)
 
 Get and store a document identified by a URL. The return value is a
 reference to the LWP::Response object. You should check this for
@@ -105,7 +106,8 @@ sub getstore {
     $response;
 }
 
-=head1 mirror($url, $file)
+
+=head2 mirror($url, $file)
 
 Get and store a document identified by a URL,
 using If-modified-since, and checking of the content-length.

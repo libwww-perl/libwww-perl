@@ -1,10 +1,12 @@
-#!/usr/local/bin/perl
+#!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.2 1995/06/14 08:18:24 aas Exp $
+# $Id: Socket.pm,v 1.3 1995/07/11 13:21:04 aas Exp $
 
 package LWP::Socket;
 
-=head1 NAME LWP::Socket
+=head1 NAME
+
+LWP::Socket - TCP/IP socket interface
 
 =head1 SYNOPSIS
 
@@ -17,26 +19,22 @@ package LWP::Socket;
 
 =head1 DESCRIPTION
 
-This class implements TCP/IP sockets.
+This class implements TCP/IP sockets.  It groups socket generation,
+TCP address manipulation, and reading using select and sysread, with
+internal buffering.
 
-It groups socket generation, TCP address
-manipulation, and reading using select and
-sysread, with internal buffering.
+This class should really not be required, something like this should
+be part of the standard Perl5 library.
 
-This class shouldn't be required, something
-like this should be part of the standard Perl5
-library.
-
-Running this module standalone executes a self
-test which requires localhost to serve chargen
-and echo protocols.
+Running this module standalone executes a self test which requires
+localhost to serve chargen and echo protocols.
 
 =cut
 
 #####################################################################
 
-$Version = '$Revision: 1.2 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
+$VERSION = $VERSION = # shut up -w
+    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 use Socket;
 use Carp;
@@ -51,7 +49,7 @@ my $tcp_proto = (getprotobyname('tcp'))[2];
 
 =head2 new()
 
-Constructs a socket.
+Constructs a socket object.
 
 =cut
 
@@ -60,8 +58,7 @@ sub new {
 
     LWP::Debug::trace("($class)");
 
-    my $socket = &_gensym;
-
+    my $socket = _gensym();
     LWP::Debug::debug("Socket $socket");
 
     socket($socket, PF_INET, SOCK_STREAM, $tcp_proto) or
@@ -82,6 +79,7 @@ sub DESTROY {
     my($self) = @_;
     _ungensym($self->{'socket'});
 }
+
 
 =head2 open($host, $port)
 
@@ -107,7 +105,6 @@ sub open {
         "Couldn't connect to host '$host' on port '$port': $!";
 
     # flush output on every write
-
     local($old) = select($socket);
     $| = 1;
     select($old);
@@ -115,16 +112,14 @@ sub open {
 
 =head2 readUntil($delim, $bufferref, $size)
 
-Reads data from the socket, up to a delimiter specified by
-a regular expression.
-If $delim is undefined all data is read.
-If $size is defined, data will be read in 
-chunks of $size bytes.
+Reads data from the socket, up to a delimiter specified by a regular
+expression.  If $delim is undefined all data is read.  If $size is
+defined, data will be read in chunks of $size bytes.
 
 Note that $delim is discarded.
 
-Uses select() to allow timeouts.
-Uses sysread() and internal buffering for safety.
+Uses select() to allow timeouts.  Uses sysread() and internal
+buffering for safety.
 
 =cut
 
@@ -156,11 +151,9 @@ sub readUntil {
         if ($nfound == 0) {
             # die "Timeout";
             return 0;
-        }
-        elsif ($nfound < 0) {
+        } elsif ($nfound < 0) {
             die "Select failed: $!";
-        }
-        else {
+        } else {
             LWP::Debug::debug('reading');
 
             my $buffer = '';
@@ -174,8 +167,7 @@ sub readUntil {
 
     if (defined $delim) {
         ($$bufferref, $self->{'buffer'}) = split($delim, $totalbuffer, 2);
-    }
-    else {
+    } else {
         $$bufferref = $totalbuffer;
     }
 
@@ -185,8 +177,9 @@ sub readUntil {
                       (defined $self->{'buffer'} ?
                        ">>>$self->{'buffer'}<<<" : 'undef') );
 
-    return 1;
+    1;
 }
+
 
 =head2 write($data)
 
@@ -203,6 +196,7 @@ sub write {
     print $socket $buffer;
 }
 
+
 =head2 close()
 
 Close the connection
@@ -216,13 +210,16 @@ sub close {
     close($self->{'socket'});
 }
 
+
 #####################################################################
+#
+# Private methods
+#
 
 =head2 _getaddress($h, $p)
 
-Private method. Return address to connect a socket to,
-given a host and port. If host or port are omitted the
-internal values are used.
+Return address to connect a socket to, given a host and port. If host
+or port are omitted the internal values are used.
 
 =cut
 
@@ -243,8 +240,7 @@ sub _getaddress {
     if ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
         # just IP address
         $thataddr = pack('c4', $1, $2, $3, $4);
-    }
-    else {
+    } else {
         # hostname
         LWP::Debug::debugl("resolving host '$host'...");
 
@@ -255,8 +251,6 @@ sub _getaddress {
     return pack($sockaddr, PF_INET, $port, $thataddr);
 }
 
-
-#####################################################################
 
 # Borrowed from POSIX.pm
 # It should actually be in FileHandle.pm,
@@ -282,10 +276,9 @@ eval join('',<DATA>) || die $@ unless caller();
 
 =head1 SELF TEST
 
-This self test is only executed when this file is run
-standalone. It tests its functions against some standard
-TCP services implemented by inetd. If you don't have
-them around the tests will fail.
+This self test is only executed when this file is run standalone. It
+tests its functions against some standard TCP services implemented by
+inetd. If you do not have them around the tests will fail.
 
 =cut
 
@@ -295,7 +288,7 @@ __END__
 
 &chargen;
 &echo;
-print "Socket.pm $LWP::Socket::Version ok\n";
+print "Socket.pm $LWP::Socket::VERSION ok\n";
 
 sub chargen {
     my $socket = new LWP::Socket;
@@ -313,7 +306,7 @@ sub echo {
     $socket = new LWP::Socket;
     $socket->open('localhost', 7); # echo
     $quote = 'I dunno, I dream in Perl sometimes...'; 
-#--Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
+    #--Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
     $socket->write("$quote\n");
     $socket->readUntil("\n", \$buffer);
     die 'Read Error' unless $buffer eq $quote;

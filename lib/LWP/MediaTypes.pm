@@ -1,28 +1,29 @@
-#!/usr/local/bin/perl
 #
-# $Id: MediaTypes.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: MediaTypes.pm,v 1.2 1995/07/11 13:20:58 aas Exp $
 
 package LWP::MIMEtypes;
 
 =head1 NAME
 
-LWP::MIMEtypes
+LWP::MIMEtypes - Library for MIME types
 
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
-Library for MIME types
+Not yet.
 
 =head1 TO DO
 
 Read mailcap
+
 Read types from server config files.
 
 =cut
 
 ####################################################################
 
+require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw( guessType );
+@EXPORT_OK = qw(guessType);
 
 my %types = (
    'txt'  => 'text/plain',
@@ -65,7 +66,5 @@ sub guessType {
     return $types{$ext};
 }
     
-
-####################################################################
 
 1;

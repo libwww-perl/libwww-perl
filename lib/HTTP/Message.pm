@@ -1,12 +1,11 @@
-#!/usr/local/bin/perl -w
 #
-# $Id: Message.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Message.pm,v 1.2 1995/07/11 13:21:00 aas Exp $
 
 package LWP::Message;
 
 =head1 NAME
 
-LWP::Message -- Class encapsulating HTTP messages
+LWP::Message - Class encapsulating HTTP messages
 
 =head1 DESCRIPTION
 
@@ -22,8 +21,8 @@ Talk about minimal class :-)
 
 #####################################################################
 
-@ISA = qw(LWP::MemberMixin);
 require LWP::MemberMixin;
+@ISA = qw(LWP::MemberMixin);
 
 #####################################################################
 

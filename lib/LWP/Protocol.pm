@@ -1,17 +1,16 @@
-#!/usr/local/bin/perl -w
 #
-# $Id: Protocol.pm,v 1.2 1995/06/14 08:18:18 aas Exp $
+# $Id: Protocol.pm,v 1.3 1995/07/11 13:21:01 aas Exp $
 
 package LWP::Protocol;
 
 =head1 NAME
 
-LWP::Protocol -- Virtual base class for LWP protocols
+LWP::Protocol - Virtual base class for LWP protocols
 
 =head1 DESCRIPTION
 
-This class is the parent for all access method supported
-by the LWP library. It is used internally in the library.
+This class is the parent for all access method supported by the LWP
+library. It is used internally in the library.
 
 When creating an instance of this class using C<LWP::Protocol::new()>
 you pass a URL, and you get a initialised subclass appropriate for
@@ -31,15 +30,17 @@ Inspect the LWP/file.pm and LWP/http.pm files for examples of usage.
 
 #####################################################################
 
-@ISA = qw(LWP::MemberMixin);
-require LWP::MemberMixin;
-require LWP::StatusCode;
-
 use Carp;
+
+require LWP::StatusCode;
+require LWP::MemberMixin;
+
+@ISA = qw(LWP::MemberMixin);
 
 $autoload = 1;
 
 my %ImplementedBy = (); # scheme => classname
+
 
 #####################################################################
 
@@ -48,7 +49,7 @@ my %ImplementedBy = (); # scheme => classname
 =head2 LWP::Protocol Constructor
 
 Inherited by subclasses. As this is a virtual base class this method
-should _not_ be called like:
+should B<not> be called like:
 
  $prot = new LWP::Protocol()
 
@@ -64,12 +65,13 @@ sub new {
     $self;
 }
 
+
 =head1 LWP::Protocol::create
 
  $prot = LWP::Protocol::create($url);
 
 Create an object of the class implementing the protocol to handle the
-given scheme. This is a function, not a method. It's more an object
+given scheme. This is a function, not a method. It is more an object
 factory than a constructor. This is the function user agents should
 use to access protocols.
 
@@ -86,14 +88,15 @@ sub create
     return $prot;
 }
 
+
 =head2 LWP::Protocol::implementor
 
  LWP::Protocol::implementor;
  LWP::Protocol::implementor($scheme);
  LWP::Protocol::implementor($scheme, $class);
 
-Get and/or set implementor class for a scheme.
-Returns '' if the specified scheme is not supported.
+Get and/or set implementor class for a scheme.  Returns '' if the
+specified scheme is not supported.
 
 =cut
 
@@ -145,13 +148,15 @@ sub request {
     croak('LWP::Protocol::request() needs to be overridden in subclasses');
 }
 
+
 =head2 timeout($seconds)
 
 Get and set the timeout value in seconds
 
+
 =head2 useAlarm($yesno)
 
-Indicates if the library is allowed to use Perl's C<alarm()>
+Indicates if the library is allowed to use the core C<alarm()>
 function to implement timeouts.
 
 =cut
@@ -159,13 +164,14 @@ function to implement timeouts.
 sub timeout  { my $self = shift; $self->_elem('timeout',  @_); }
 sub useAlarm { my $self = shift; $self->_elem('useAlarm', @_); }
 
+
 =head2 collect($arg, $response, $collector
 
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.
-Caller can make use of Perl 5.001e's closure mechanism.
 
 =cut
+
 sub collect {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
@@ -212,7 +218,5 @@ sub collect {
     }
     $response;
 }
-
-#####################################################################
 
 1;

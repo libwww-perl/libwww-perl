@@ -1,37 +1,26 @@
-#!/usr/local/bin/perl -w
 #
-# $Id: Headers.pm,v 1.2 1995/06/12 18:25:21 aas Exp $
+# $Id: Headers.pm,v 1.3 1995/07/11 13:20:57 aas Exp $
 
 package LWP::MIMEheader;
 
 =head1 NAME
 
-LWP::MIMEheader -- Class encapsulating HTTP Message headers
+LWP::MIMEheader - Class encapsulating HTTP Message headers
 
 =head1 SYNOPSIS
 
  require LWP::MIMEheader;
-
  $request = new LWP::MIMEheader;
  
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
-C<LWP::MIMEheader> is a class encapsulating HTTP style
-message headers: attribute value pairs which may be
-repeated, and are printed in a particular order.
+C<LWP::MIMEheader> is a class encapsulating HTTP style message
+headers: attribute value pairs which may be repeated, and are printed
+in a particular order.
 
-Instances of this class are usually created as member
-variables of the C<LWP::Request> and C<LWP::Response>
-classes, internally to the library.
-
-=cut
-
-#####################################################################
-
-require LWP::Debug;
-use Carp;
-
-#####################################################################
+Instances of this class are usually created as member variables of the
+C<LWP::Request> and C<LWP::Response> classes, internally to the
+library.
 
 =head1 METHODS and FUNCTIONS
 
@@ -49,10 +38,9 @@ sub new {
 
 =head2 header($field [, $val])
 
-Get/Set the value of a request header.
-Note that case of the header field name isn't touched.
-The argument may be undefined (header is not modified),
-a scalar or a reference to a list of scalars.
+Get/Set the value of a request header.  Note that case of the header
+field name is not touched.  The argument may be undefined (header is
+not modified), a scalar or a reference to a list of scalars.
 
 The list of previous values is returned
 
@@ -61,6 +49,10 @@ The list of previous values is returned
  @accepts = $header->header('Accept');
 
 =cut
+
+require LWP::Debug;
+use Carp;
+
 sub header  {
     my($self, $field, $val) = @_;
 
@@ -87,26 +79,21 @@ sub header  {
         }
     }
 
-    if (wantarray) {
-        return @old;
-    }
-    else {
-        return $old[0];
-    }
+    wantarray ? @old : $old[0];
 }
 
 
 =head2 pushHeader($field, $val)
 
-Add a new value to a field of the request header.
-Note that case of the header field name isn't touched.
-The field need not already have a value. Duplicates 
-are retained.
-The argument may be a scalar or a reference to a list of scalars.
+Add a new value to a field of the request header.  Note that case of
+the header field name is not touched.  The field need not already have
+a value. Duplicates are retained.  The argument may be a scalar or a
+reference to a list of scalars.
 
  $header->pushHeader('Accept', 'image/jpeg');
 
 =cut
+
 sub pushHeader {
     my($self, $field, $val) = @_;
 
@@ -133,10 +120,10 @@ sub pushHeader {
 
 =head2 asMIME()
 
-Return the header fields as a formatted MIME header,
-delimited with CRLF.
+Return the header fields as a formatted MIME header, delimited with
+CRLF.
 
-See as_string for details.
+See as_string() for details.
 
 =cut
 
@@ -146,13 +133,15 @@ sub asMIME {
     shift->as_string("\r\n");
 }
 
+
 =head2 as_string()
 
-Return the header fields as a formatted MIME header.
-Uses case as suggested by HTTP Spec, and follows 
-recommended "Good Practice" of ordering the header fieds.
+Return the header fields as a formatted MIME header.  Uses case as
+suggested by HTTP Spec, and follows recommended "Good Practice" of
+ordering the header fieds.
 
 =cut
+
 sub as_string {
     my($self, $endl, $orderref) = shift;
 
@@ -161,8 +150,7 @@ sub as_string {
     $endl = "\n" unless defined $endl;
 
     # to do efficient case-insensitive association,
-    # build up a second hash indexed by lowercase
-    # keys
+    # build up a second hash indexed by lowercase keys
     my %lcs = ();
     for(keys %{ $self->{'_header'} }) {
         @{ $lcs{lc($_)} } = @{ $self->{'_header'}{$_} };
@@ -196,7 +184,7 @@ sub as_string {
     }
 
     LWP::Debug::debug("result: $result\n");
-    return $result;
+    $result;
 }
 
 1;

@@ -1,25 +1,20 @@
-#!/usr/local/bin/perl -w
 #
-# $Id: MemberMixin.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
-#
+# $Id: MemberMixin.pm,v 1.2 1995/07/11 13:20:59 aas Exp $
+
 package LWP::MemberMixin;
 
 =head1 NAME
 
-LWP::MemberMixin -- Member access mixin class
+LWP::MemberMixin - Member access mixin class
 
 =head1 DESCRIPTION
 
-A mixin class to get methods that provide easy access
-to member variables in the %$self.
+A mixin class to get methods that provide easy access to member
+variables in the %$self.
 
 =head1 BUGS
 
-Ideally there'd be better Perl langauge support for this.
-
-=cut
-
-#####################################################################
+Ideally there should be better Perl langauge support for this.
 
 =head1 METHODS
 
@@ -41,6 +36,7 @@ sub _elem
     return $old;
 }
 
+
 =head2 _strElem($elem)
 
 Internal method to return a textual representation of
@@ -55,7 +51,5 @@ sub _strElem
     my $result = $self->_elem($elem);
     return (defined $result ? $result : 'undef');
 }
-
-#####################################################################
 
 1;

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.7 1995/07/17 10:05:38 aas Exp $
+# $Id: http.pm,v 1.8 1995/07/18 11:51:48 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -71,7 +71,7 @@ sub request
     }
 
     # connect to remote site
-    $socket = new LWP::Socket;
+    my $socket = new LWP::Socket;
 
     alarm($timeout) if $self->useAlarm and defined $timeout;
 

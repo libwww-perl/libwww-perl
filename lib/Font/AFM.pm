@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.7 1995/09/14 13:43:53 aas Exp $
+# $Id: AFM.pm,v 1.8 1995/10/18 10:17:40 aas Exp $
 
 package Font::AFM;
 
@@ -39,12 +39,13 @@ croak if the font can not be found.
 =item latin1_wx_table()
 
 Returns an 256 elements array, where each element contains the width
-of the corresponding character.
+of the corresponding character in the iso-8859-1 character set.
 
 =item stringwidth($string, [$fontsize])
 
-Returns the width of the string passed as argument. A second argument
-can be used to scale the width according to the font size.
+Returns the width of the string passed as argument. The string is
+assumed to be encoded in the iso-8859-1 character set.  A second
+argument can be used to scale the width according to the font size.
 
 =item FontName
 
@@ -140,7 +141,8 @@ The bounding box consist of 4 numbers: llx, lly, urx, ury.
 
 =item dump
 
-Dumps the content of the Font::AFM object to STDOUT.  Useful for debugging.
+Dumps the content of the Font::AFM object to STDOUT.  Might sometimes
+be useful for debugging.
 
 =back
 
@@ -154,7 +156,7 @@ Dumps the content of the Font::AFM object to STDOUT.  Useful for debugging.
 Contains the path to seach for AFM-files.  Format is as for the PATH
 environment variable. The default path built into this library is:
 
- /usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.
+ /usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.
 
 =back
 
@@ -165,13 +167,6 @@ Copyright (c) 1995 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
-
-IN NO EVENT SHALL THE AUTHORS BE LIABLE TO ANY PARTY FOR DIRECT,
-INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
-OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION (INCLUDING, BUT NOT
-LIMITED TO, LOST PROFITS) EVEN IF THE AUTHORS HAVE BEEN ADVISED OF
-THE POSSIBILITY OF SUCH DAMAGE. 
-
 
 =head1 AUTHOR
 
@@ -199,13 +194,14 @@ Lingature data is not parsed.
 
 use Carp;
 
-$VERSION = $VERSION =  # shut up -w
-   sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+sub ModuleVersion { $VERSION; }
+
 
 # The metrics_path is used to locate metrics files
 #
 $metrics_path = $ENV{METRICS} ||
-    "/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.";
+    "/usr/lib/afm:/usr/local/lib/afm:/usr/openwin/lib/fonts/afm/:.";
 @metrics_path = split(/:/, $metrics_path);
 foreach (@metrics_path) { s,/$,, }    # reove trailing slashes
 
@@ -261,7 +257,7 @@ sub new
        }
    }
    open(AFM, $file) or croak "Can't find the AFM file for $fontname";
-   my $this = bless { };
+   my $this = bless { }, $class;
    while (<AFM>) {
        next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
        next if /^StartComposites/ .. /^EndComposites/; # same for composites

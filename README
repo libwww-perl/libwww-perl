@@ -23,6 +23,9 @@ code is organized in Modules, provides an Object Oriented API, is
 updated for the latest HTTP and URL specification, and offers some
 extended functionality.
 
+Full HTTP/1.1 support is on its way.  Alpha releases of the LWPng
+package is currently available from CPAN.
+
 
 PREREQUISITES
 
@@ -37,7 +40,7 @@ libwww-perl:
   libnet
   MD5
 
-These packages should be available on CPAN (described above).
+These packages should be available on CPAN.
 
 If you want to access sites using the https protocol, then you need to
 install the Crypt-SSLeay modules first.  (The Net::SSLeay module is not

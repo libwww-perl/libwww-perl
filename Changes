@@ -1,3 +1,42 @@
+2004-11-12   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.801
+
+    HTTP::Message improved content/content_ref interaction.  Fixes
+    DYNAMIC_FILE_UPLOAD and other uses of code content in requests.
+
+    HTML::Form:
+      - Handle clicking on nameless image.
+      - Don't let $form->click invoke a disabled submit button.
+
+    HTTP::Cookies could not handle a "old-style" cookie named
+    "Expires".
+
+    HTTP::Headers work-around for thread safety issue in perl <= 5.8.4.
+
+    HTTP::Request::Common improved documentation.
+
+    LWP::Protocol: Check that we can write to the file specified in
+    $ua->request(..., $file) or $ua->mirror.
+
+    LWP::UserAgent clone() dies if proxy was not set.  Patch by
+    Andy Lester <andy@petdance.com>
+
+    HTTP::Methods now avoid "use of uninitialized"-warning when server
+    replies with incomplete status line.
+
+    lwp-download will now actually tell you why it aborts if it runs
+    out of disk space of fails to write some other way.
+
+    WWW::RobotRules: only display warning when running under 'perl -w'
+    and show which robots.txt file they correspond to.  Based on
+    patch by Bill Moseley.
+
+    WWW::RobotRules: Don't empty cache when agent() is called if the
+    agent name does not change.  Patch by Ville Skyttä <ville.skytta@iki.fi>.
+
+
+
 2004-06-16   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.800

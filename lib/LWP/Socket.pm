@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.6 1995/08/03 07:25:12 aas Exp $
+# $Id: Socket.pm,v 1.7 1995/09/02 13:21:59 aas Exp $
 
 package LWP::Socket;
 
@@ -11,11 +11,11 @@ LWP::Socket - TCP/IP socket interface
 =head1 SYNOPSIS
 
  $socket = new LWP::Socket;
- $socket->open('localhost', 7); # echo
+ $socket->connect('localhost', 7); # echo
  $quote = 'I dunno, I dream in Perl sometimes...';
  $socket->write("$quote\n");
  $socket->readUntil("\n", \$buffer);
- $socket->close;
+ $socket = undef;  # close
 
 =head1 DESCRIPTION
 
@@ -33,8 +33,8 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
 
 use Socket;
 use Carp;
@@ -69,52 +69,71 @@ sub new
         'socket' => $socket,
         'host' => undef,
         'port' => undef,
-        'buffer' => undef,
+        'buffer' => '',
         'size' => 4096,
     }, $class;
 
-    return $self;
+    $self;
 }
 
 sub DESTROY
 {
-    my($self) = @_;
-    $self->close;
+    my $socket = shift->{'socket'};
+    close($socket);
+    _ungensym($socket);
 }
 
 
-=head2 open($host, $port)
+=head2 connect($host, $port)
 
-Connect the socket to given host and port
+Connect the socket to given host and port.
 
 =cut
 
-sub open
+sub connect
 {
     my($self, $host, $port) = @_;
-
     LWP::Debug::trace("($host, $port)");
+
+    croak "no host" unless defined $host && length $host;
+    croak "no port" unless defined $port && $port > 0;
 
     $self->{'host'} = $host;
     $self->{'port'} = $port;
 
-    my $socket = $self->{'socket'};
-
-    my $addr = $self->_getaddress($host, $port);
+    my @addr = $self->_getaddress($host, $port);
+    croak "can't resolv address for $host:$port"
+      unless @addr;
 
     LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
-
-    connect($socket, $addr) or die 
-        "Couldn't connect to host '$host' on port '$port': $!\n";
+    for (@addr) {
+	connect($self->{'socket'}, $addr[0]) and return;
+    }
+    croak "Could not connect to $host:$port: $!\n";
 }
 
-=head2 readUntil($delim, $bufferref, $size)
+=head2 shutdown()
+
+Shuts down the connection.
+
+=cut
+
+sub shutdown
+{
+    my($self, $how) = @_;
+    $how = 2 unless defined $how;
+    shutdown($self->{'socket'}, $how);
+    delete $self->{'host'};
+    delete $self->{'port'};
+}
+
+=head2 readUntil($delim, $bufferref, $size, $timeout)
 
 Reads data from the socket, up to a delimiter specified by a regular
 expression.  If $delim is undefined all data is read.  If $size is
 defined, data will be read in chunks of $size bytes.
 
-Note that $delim is discarded.
+Note that $delim is discarded from the data returned.
 
 Uses select() to allow timeouts.  Uses sysread() and internal
 buffering for safety.
@@ -125,60 +144,123 @@ sub readUntil
 {
     my ($self, $delim, $bufferref, $size, $timeout) = @_;
 
-    my($beforeref) = \$self->{'buffer'};
-    my($socket) = $self->{'socket'};
-    my($size) = $self->{'size'};
+    my $socket = $self->{'socket'};
+    $delim = '' unless defined $delim;
+    $size ||= $self->{'size'};
 
     LWP::Debug::trace('(...)');
 
-    my $totalbuffer = '';       # result so far
-    $totalbuffer = $self->{'buffer'} if defined $self->{'buffer'};
+    my $totalbuffer = $self->{'buffer'};       # result so far
     $self->{'buffer'} = '';
 
-    my $read = -1;
-    while(!(defined $delim and $delim and $totalbuffer =~ /$delim/)
-          and $read != 0) {
+    until (length $delim and $totalbuffer =~ /$delim/) {
 
-        my ($rin, $rout, $win, $wout, $ein, $eout) = 
-            ('', '', '', '', '', '');
-        vec($rin,fileno($socket),1) = 1;
+        my $rin = '';
+        vec($rin, fileno($socket), 1) = 1;
 
         LWP::Debug::debug('selecting');
 
-        my($nfound,$timeleft) =
-            select($rout=$rin, $wout=$win, $eout=$ein, $timeout);
+        my $nfound = select($rin, undef, undef, $timeout);
         if ($nfound == 0) {
-            # die "Timeout";
-            return 0;
+            return 0;  # timeout
         } elsif ($nfound < 0) {
             die "Select failed: $!";
         } else {
             LWP::Debug::debug('reading');
-
             my $buffer = '';
-            $read = sysread($socket, $buffer, $size);
+            my $read = sysread($socket, $buffer, $size);
+	    last if $read <= 0;
             $totalbuffer .= $buffer if defined $buffer;
-
-            LWP::Debug::conns("Read $read bytes: >>>$buffer<<<");
+            LWP::Debug::conns("Read $read bytes: '$buffer'");
         }
-        last if (!defined $delim and $read == 0);
     }
 
-    if (defined $delim) {
-        ($$bufferref, $self->{'buffer'}) = split($delim, $totalbuffer, 2);
+    if (length $delim) {
+        ($$bufferref, $self->{'buffer'}) = split(/$delim/, $totalbuffer, 2);
     } else {
         $$bufferref = $totalbuffer;
     }
 
     LWP::Debug::debug("\nResult: " .
-                      (defined $$bufferref ? ">>>$$bufferref<<<" : 'undef') .
+                      (defined $$bufferref ? "'$$bufferref'" : 'undef') .
                       "\nBuffered: " . 
                       (defined $self->{'buffer'} ?
-                       ">>>$self->{'buffer'}<<<" : 'undef') );
+                       "'$self->{'buffer'}'" : 'undef') );
 
     1;
 }
 
+=head2 read($bufref, $size, $timeout)
+
+Reads data of the socket.  Not more than $size bytes.  Might return
+less if the data is available.
+
+=cut
+
+sub read
+{
+    my($self, $bufferref, $size, $timeout) = @_;
+    $size ||= $self->{'size'};
+
+    LWP::Debug::trace('(...)');
+    if (length $self->{'buffer'}) {
+	# return data from buffer until it is empty
+	print "Returning data from buffer...$self->{'buffer'}\n";
+	$$bufferref = substr($self->{'buffer'}, 0, $size);
+	substr($self->{'buffer'}, 0, $size) = '';
+	return 1;
+    }
+
+    my $socket = $self->{'socket'};
+
+    if (defined @Tk::ISA) {
+	# we are running under Tk
+	Tk->fileevent($socket, 'readable',
+		      sub { sysread($socket, $$bufferref, $size); }
+		     );
+	my $timer = Tk->after($timeout*1000, sub {$$bufferref = ''} );
+
+	# Tk->tkwait('variable' => $bufferref);
+	#
+	# This does not work because tkwait needs a real widget as self.
+	# I believe this to be a bug in Tk-b8.  As a workaround assume
+	# that a widget exists with the name $main::main.
+	$main::main->tkwait('variable' => $bufferref);
+
+	Tk->after('cancel', $timer);
+	Tk->fileevent($socket, 'readable', ''); # no more callbacks
+	return 1;
+    }
+
+    my $rin = '';
+    vec($rin, fileno($socket), 1) = 1;
+
+    LWP::Debug::debug('selecting');
+
+    my $nfound = select($rin, undef, undef, $timeout);
+    if ($nfound == 0) {
+	return 0;  # timeout
+    } elsif ($nfound < 0) {
+	die "Select failed: $!";
+    } else {
+	LWP::Debug::debug('reading');
+	my $n = sysread($socket, $$bufferref, $size);
+	LWP::Debug::conns("Read $n bytes: '$$bufferref'");
+	return 1;
+    }
+}
+
+=head2 pushback($data)
+
+Put data back into the socket.  Data will returned next time you
+read().  Can be used if you find out that you have read too much.
+
+=cut
+
+sub pushback
+{
+    substr(shift->{'buffer'}, 0, 0) = shift;
+}
 
 =head2 write($data)
 
@@ -197,25 +279,6 @@ sub write
 }
 
 
-=head2 close()
-
-Close the connection
-
-=cut
-
-sub close
-{
-    my($self) = @_;
-    LWP::Debug::trace('()');
-
-    my $socket = $self->{'socket'};
-    if (defined $socket) {
-        close($socket);
-        _ungensym($socket);
-        delete $self->{'socket'};
-    }
-}
-
 
 #####################################################################
 #
@@ -224,38 +287,37 @@ sub close
 
 =head2 _getaddress($h, $p)
 
-Return address to connect a socket to, given a host and port. If host
-or port are omitted the internal values are used.
+Given a host and a port, it will return the address (sockaddr_in)
+suitable as the C<name> argument for connect() or bind(). Might return
+several addresses in array context if the hostname is bound to several
+IP addresses.
 
 =cut
 
-# TODO: in array context return all addresses
-# for the host, so we can try them in turn.
 
 sub _getaddress
 {
-    my($self, $h, $p) = @_;
+    my($self, $host, $port) = @_;
 
-    LWP::Debug::trace('(' . (defined $h ? $h : 'undef') .
-                      ', '. (defined $p ? $p : 'undef') . ')');
-
-    my($host) = (defined $h ? $h : $self->{'host'});
-    my($port) = (defined $p ? $p : $self->{'port'});
-
-    my($thataddr);
-
+    my(@addr);
     if ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
-        # just IP address
-        $thataddr = pack('c4', $1, $2, $3, $4);
+        # numeric IP address
+        $addr[0] = [$1, $2, $3, $4];
     } else {
         # hostname
         LWP::Debug::debugl("resolving host '$host'...");
-
-        $thataddr = (gethostbyname($host))[4] or
-            die "Cannot find host '$host'\n";
+        (undef,undef,undef,undef,@addr) = gethostbyname($host);
+	return undef unless @addr;
+	for (@addr) {
+	    $_ = [ unpack('C4', $_) ];
+	    LWP::Debug::debugl("   ..." . join(".", @$_));
+	}
     }
-    my $sockaddr = 'S n a4 x8';
-    return pack($sockaddr, PF_INET, $port, $thataddr);
+    if (wantarray) {
+	map(Socket::sockaddr_in(PF_INET, $port, @$_), @addr);
+    } else {
+	Socket::sockaddr_in(PF_INET, $port, @{$addr[0]});
+    }
 }
 
 
@@ -295,6 +357,8 @@ inetd. If you do not have them around the tests will fail.
 
 __END__
 
+LWP::Debug::level('+');
+
 &chargen;
 &echo;
 print "Socket.pm $LWP::Socket::VERSION ok\n";
@@ -302,26 +366,23 @@ print "Socket.pm $LWP::Socket::VERSION ok\n";
 sub chargen
 {
     my $socket = new LWP::Socket;
-    $socket->open('localhost', 19); # chargen
+    $socket->connect('localhost', 19); # chargen
     $socket->readUntil('A', \$buffer, 8);
 
     die 'Read Error' unless $buffer eq ' !"#$%&\'()*+,-./0123456789:;<=>?@';
     $socket->readUntil('Z', \$buffer, 8);
     die 'Read Error' unless $buffer eq 'BCDEFGHIJKLMNOPQRSTUVWXY';
-
-    $socket->close;
 }
 
 sub echo
 {
     $socket = new LWP::Socket;
-    $socket->open('localhost', 7); # echo
+    $socket->connect('localhost', 7); # echo
     $quote = 'I dunno, I dream in Perl sometimes...'; 
     #--Larry Wall in  <8538@jpl-devvax.JPL.NASA.GOV>
     $socket->write("$quote\n");
     $socket->readUntil("\n", \$buffer);
     die 'Read Error' unless $buffer eq $quote;
-    $socket->close;
 }
 
 

@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.57 2001/10/26 18:08:02 gisle Exp $
+# $Id: http.pm,v 1.58 2001/11/15 06:44:25 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -344,8 +344,9 @@ sub request
 	return $response;
     }
 
-    #$response->remove_header('Transfer-Encoding');
-    $response->push_header('Client-Warning', 'LWP HTTP/1.1 support is experimental');
+    if (my @te = $response->remove_header('Transfer-Encoding')) {
+	$response->push_header('Client-Transfer-Encoding', \@te);
+    }
     $response->push_header('Client-Request-Num', ++${*$socket}{'myhttp_req_count'});
 
     my $complete;

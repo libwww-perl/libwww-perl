@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.9 1996/04/09 15:44:07 aas Exp $
+# $Id: AFM.pm,v 1.10 1996/05/08 16:19:52 aas Exp $
 
 package Font::AFM;
 
@@ -20,7 +20,7 @@ Font::AFM - Interface to Adobe Font Metrics files
 
 This module implements the Font::AFM class. Objects of this class are
 initialised from an AFM-file and allows you to obtain information
-about the fonts and the metrics of the various glyphs in the font.
+about the font and the metrics of the various glyphs in the font.
 
 All measurements in AFM files are given in terms of units equal to
 1/1000 of the scale factor of the font being used. To compute actual
@@ -50,7 +50,7 @@ argument can be used to scale the width according to the font size.
 =item FontName
 
 The name of the font as presented to the PostScript language
-c<findfont> operator, for instance "Times-Roman".
+C<findfont> operator, for instance "Times-Roman".
 
 =item FullName
 
@@ -61,13 +61,13 @@ Unique, human-readable name for an individual font, for instance
 
 Human-readable name for a group of fonts that are stylistic variants
 of a single design. All fonts that are member of such a group should
-have exactly the same c<FamilyName>. Example of a family name is
+have exactly the same C<FamilyName>. Example of a family name is
 "Times".
 
 =item Weight
 
 Human-readable name for the weight, or "boldness", attribute of a font.
-Exampes are c<Roman>, c<Bold>, c<Light>.
+Exampes are C<Roman>, C<Bold>, C<Light>.
 
 =item ItalicAngle
 
@@ -76,7 +76,7 @@ vertical strokes of the font.
 
 =item IsFixedPitch
 
-If the value is c<true>, it indicated that the font is a fixed-pitch
+If the value is C<true>, it indicated that the font is a fixed-pitch
 (monospaced) font.
 
 =item FontBBox
@@ -111,8 +111,8 @@ Comments found in the AFM file.
 =item EncodingScheme
 
 The name of the standard encoding scheme for the font. Most Adobe
-fonts use the c<AdobeStandardEncoding>. Special fonts might state
-c<FontSpecific>.
+fonts use the C<AdobeStandardEncoding>. Special fonts might state
+C<FontSpecific>.
 
 =item CapHeight
 
@@ -147,6 +147,11 @@ be useful for debugging.
 =back
 
 
+The AFM specification can be found at:
+
+   ftp://ftp.adobe.com/pub/adobe/DeveloperSupport/TechNotes/PSfiles/5004.AFM_Spec.ps
+
+
 =head1 ENVIRONMENT
 
 =over 10
@@ -161,32 +166,18 @@ environment variable. The default path built into this library is:
 =back
 
 
-=head1 COPYRIGHT
-
-Copyright (c) 1995 Gisle Aas. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Gisle Aas <aas@oslonett.no>
-
-
-=head1 AVAILABILITY
-
-The latest version of this module is likely to be available from:
-
-   http://www.oslonett.no/home/aas/perl/
-
-The AFM specification can be found at:
-
-   ftp://ftp.adobe.com/pub/adobe/DeveloperSupport/TechNotes/PSfiles/5004.AFM_Spec.ps
-
 =head1 BUGS
 
 Kerning data and composite character data is not yet parsed.
 Lingature data is not parsed.
+
+
+=head1 COPYRIGHT
+
+Copyright 1995 Gisle Aas. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 
@@ -194,7 +185,7 @@ Lingature data is not parsed.
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub ModuleVersion { $VERSION; }
 
 
@@ -258,6 +249,7 @@ sub new
    }
    open(AFM, $file) or croak "Can't find the AFM file for $fontname";
    my $this = bless { }, $class;
+   local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
    while (<AFM>) {
        next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
        next if /^StartComposites/ .. /^EndComposites/; # same for composites

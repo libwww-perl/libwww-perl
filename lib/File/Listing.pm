@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.5 1996/04/09 15:44:05 aas Exp $
+# $Id: Listing.pm,v 1.6 1996/05/08 16:19:19 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -135,6 +135,7 @@ sub parse
 	   push(@files, $pkg->line($_, $tz, $error));
        }
    } else {
+       local($_);
        while (<$dir>) {
 	   chomp;
 	   push(@files, $pkg->line($_, $tz, $error));

@@ -1,38 +1,24 @@
-# This -*- perl -*- script makes the Makefile
-# $Id: Makefile.PL,v 1.7 1995/08/17 22:16:32 aas Exp $
+# This -*- perl -*- script writes the Makefile for libwww-perl
+# $Id: Makefile.PL,v 1.8 1995/09/07 06:50:19 aas Exp $
+
+# Configuration section
+
+@programs_to_install = qw(request mirror);
+@request_aliases     = qw(GET HEAD POST);
+
+# End Configuration - You should not have to change anything below this line
 
 use ExtUtils::MakeMaker;
 
 sub initialize
 {
-    ### The URI::URL check will be coverable by PREREQ via MakeMaker
-    # We distribute URI::URL with this package, so we don't need this check.
-    #my $REQ_URIURL = 3.02;
-    #eval {require URI::URL;};
-    #if ($@) {
-    #	die "You need to install the URI::URL module before you install LWP.\n";
-    #} else {
-    #	my $version = $URI::URL::Version || $URI::URL::VERSION;
-    #	$URI::URL::Version = undef;  # avoid typo warning
-    #	print "You have installed URI::URL version $version.\n";
-    #	if ($URI::URL::VERSION < $REQ_URIURL) {
-    #	    die "Please upgrade URI::URL, needs at least version $REQ_URIURL\n";
-    #	} else {
-    #	    # print "That's just what I need!\n";
-    #	}
-    #}
-
     %hash = (
-	NAME => 'lwp',  # will be changed to libwww-perl
+	NAME => 'libwww-perl',
 	SKIP => [qw(static dynamic)],
 	PL_FILES => {
 	    'bin/request.PL' => 'bin/request',
 	    'bin/mirror.PL'  => 'bin/mirror',
 	},
-	EXE_FILES => [
-	   'bin/request',
-	   'bin/mirror',
-	],
 	'clean'   => {FILES => '$(EXE_FILES)'},
 	'linkext' => {LINKTYPE => '' },
 	'dist' => {
@@ -41,6 +27,10 @@ sub initialize
             DIST_DEFAULT => 'all tardist'
         },
     );
+    for (@programs_to_install) {
+	push(@{ $hash{EXE_FILES} }, "bin/$_");
+    }
+
     use lib ".";
     chop($hash{VERSION} = `perl VERSION`);
     \%hash;
@@ -70,13 +60,14 @@ config ::
 	@\$(PERL) VERSION > /dev/null
 
 ";
-        push @m, q{
-all ::
-	$(PERL) -e 'use Config; foreach (qw(GET HEAD POST)) { ' \
+    if (@request_aliases) {
+	push @m, "all ::\n";
+	push @m, "\t\$(PERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
+	push @m, <<'EOT';
 	-e 'unlink "$(INST_EXE)/$$_";' \
 	-e 'system("$$Config{\"lns\"} request $(INST_EXE)/$$_") && die; }'
-
-};
+EOT
+    }
     join "", @m;
 }
 

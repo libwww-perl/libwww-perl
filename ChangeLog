@@ -1,3 +1,27 @@
+Wed Aug  6 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.11
+
+ o  Perl version 5.004 is now required for libwww-perl.
+
+ o  Win32 patches from Gurusamy Sarathy <gsar@engin.umich.edu>.
+    Now passes all tests on that platform.
+
+ o  HTTPS support contributed by Josh Kronengold <mneme@mcny.com>
+
+ o  Support hex entities &#xFF;  HTML::Entities::(en|de)code only
+    modify their argument in void context.
+
+ o  Fixed formatter bug with <font> tags which did not specify size.
+
+ o  Better HTML::HeadParser documentation
+
+ o  Fixed HTML::LinkExtor documentation typo.
+
+ o  HTTP::Request::Common now use CRLF for multipart/form-data
+
+
+
 Fri Jun 20 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.10

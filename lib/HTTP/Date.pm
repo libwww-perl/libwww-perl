@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.6 1995/07/17 10:01:05 aas Exp $
+# $Id: Date.pm,v 1.7 1995/08/09 09:18:46 aas Exp $
 #
-package LWP::Date;
+package HTTP::Date;
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ time2str, str2time - date conversion routines
 
 =head1 SYNOPSIS
 
- use LWP::Date;
+ use HTTP::Date;
 
  $stringGMT = time2str(time);   # Format as GMT time
  $mtime = str2time($stringGMT); # convert ascii date to machine time
@@ -49,8 +49,8 @@ module.
 
 ####################################################################
 
-$VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
 
 require 5.001;
 require Exporter;
@@ -60,7 +60,6 @@ require Exporter;
 use Time::Local;
 
 @DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
-
 @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 # Build %MoY
 my $i = 0;
@@ -101,6 +100,7 @@ C<$date> can be any one of the following formats:
 
  "Wed, 09 Feb 1994 22:23:32 GMT"       -- proposed HTTP format
  "Thu Feb  3 17:03:55 GMT 1994"        -- ctime format
+ 'Thu Feb  3 00:00:00 1994',           -- same as ctime, except no TZ
  "Tuesday, 08-Feb-94 14:15:29 GMT"     -- old rfc850 HTTP format
  "Tuesday, 08-Feb-1994 14:15:29 GMT"   -- broken rfc850 HTTP format
 
@@ -139,7 +139,7 @@ sub str2time
         $mn    = shift(@w);
         $day   = shift(@w);
         $atime = shift(@w);
-        shift(@w);
+        shift(@w) if @w > 1;
         $yr    = shift(@w);
     }
     elsif ($w[0] =~ m#/#) 
@@ -216,12 +216,13 @@ eval join('',<DATA>) || die $@ unless caller();
 
 __END__
 
-import LWP::Date @LWP::Date::EXPORT_OK;
+import HTTP::Date @HTTP::Date::EXPORT_OK;
 
 # test str2time for supported dates
 my(@tests) =
 (
  'Thu Feb  3 00:00:00 GMT 1994',        # ctime format
+ 'Thu Feb  3 00:00:00 1994',            # same as ctime, except no TZ
  'Thu, 03 Feb 1994 00:00:00 GMT',       # proposed new HTTP format
  'Thursday, 03-Feb-94 00:00:00 GMT',    # old rfc850 HTTP format
  'Thursday, 03-Feb-1994 00:00:00 GMT',  # broken rfc850 HTTP format
@@ -237,9 +238,7 @@ my(@tests) =
  '03/Feb/1994',  # common logfile format     (no time, no offset)
 );
 
-my $first = shift @tests;
-my $time = str2time($first);
-
+my $time = 760233600;
 for (@tests) {
     die "str2time('$_') failed" unless str2time($_) == $time;
     print "ok: '$_'\n";
@@ -247,11 +246,11 @@ for (@tests) {
 
 # test time2str
 die "time2str failed"
-    unless time2str($time,'GMT') eq 'Thu, 03 Feb 1994 00:00:00 GMT';
+    unless time2str($time) eq 'Thu, 03 Feb 1994 00:00:00 GMT';
 
 # try some out of bounds dates too.
 for ('03-Feb-1969', '03-Feb-2039') {
     die "str2time('$_') failed" if defined str2time($_);
     print "ok: '$_'\n";
 }
-print "LWP::Date $LWP::Date::VERSION ok\n";
+print "HTTP::Date $HTTP::Date::VERSION ok\n";

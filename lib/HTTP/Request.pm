@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.22 1998/01/06 09:57:15 aas Exp $
+# $Id: Request.pm,v 1.23 1998/04/01 07:00:07 aas Exp $
 
 package HTTP::Request;
 
@@ -39,7 +39,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 use URI::URL ();
 use strict;
@@ -146,9 +146,13 @@ sub as_string
 
 =back
 
+=head1 SEE ALSO
+
+L<HTTP::Headers>, L<HTTP::Message>, L<HTTP::Request::Common>
+
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-1998 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

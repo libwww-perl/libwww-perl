@@ -1,5 +1,4 @@
-#
-# $Id: UserAgent.pm,v 1.23 1996/02/05 18:06:38 aas Exp $
+# $Id: UserAgent.pm,v 1.24 1996/02/26 19:18:08 aas Exp $
 
 package LWP::UserAgent;
 
@@ -87,45 +86,35 @@ L<mirror> for examples of usage.
 =cut
 
 
-#####################################################################
-
 
 require LWP::MemberMixin;
-@ISA = qw(LWP::MemberMixin);
+require AutoLoader;
+@ISA = qw(LWP::MemberMixin AutoLoader);
 
 require URI::URL;
-
-require HTTP::Date;
 require HTTP::Request;
 require HTTP::Response;
 
-require LWP;
-require LWP::Debug;
-require LWP::Protocol;
+use HTTP::Date ();
+
+use LWP ();
+use LWP::Debug ();
+use LWP::Protocol ();
 
 use MIME::Base64 qw(encode_base64);
-use Carp;
+use Carp ();
 
-#####################################################################
-#
-# P U B L I C  M E T H O D S  S E C T I O N
-#
-#####################################################################
 
-=head2 new()
+=head2 new LWP::UserAgent;
 
-Constructor for the UserAgent.
-
- $ua = new LWP::UserAgent;
- $ub = new LWP::UserAgent($ua);  # clone existing UserAgent
+Constructor for the UserAgent.  Returns a reference to a
+LWP::UserAgent object.
 
 =cut
 
 sub new
 {
-    
     my($class, $init) = @_;
-
     LWP::Debug::trace('()');
 
     my $self;
@@ -136,50 +125,15 @@ sub new
                 'agent'       => "libwww-perl/$LWP::VERSION",
                 'timeout'     => 3*60,
                 'proxy'       => undef,
-                'useEval'     => 1,
-                'useAlarm'    => 1,
-                'noProxy'     => [],
+                'use_eval'     => 1,
+                'use_alarm'    => 1,
+                'no_proxy'     => [],
         }, $class;
     }
 }
 
 
-sub clone
-{
-    my $self = shift;
-    my $copy = bless { %$self }, ref $self;  # copy most fields
-
-    # elements that are references must be handled in a special way
-    $copy->{'noProxy'} = [ @{$self->{'noProxy'}} ];  # copy array
-
-    $copy;
-}
-
-
-=head2 isProtocolSupported($scheme)
-
-You can use this method to query if the library currently support the
-specified C<scheme>.  The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI::URL object reference.
-
-=cut
-
-sub isProtocolSupported
-{
-    my($self, $scheme) = @_;
-    if (ref $scheme) {
-        # assume we got a reference to an URI::URL object
-        $scheme = $scheme->abs->scheme;
-    } else {
-        croak "Illeal scheme '$scheme' passed to isProtocolSupported"
-            if $scheme =~ /\W/;
-        $scheme = lc $scheme;
-    }
-    return LWP::Protocol::implementor($scheme);
-}
-
-
-=head2 simpleRequest($request, [$arg [, $size]])
+=head2 $ua->simple_request($request, [$arg [, $size]])
 
 This method dispatches a single WWW request on behalf of a user, and
 returns the response received.  The C<$request> should be a reference
@@ -198,16 +152,16 @@ object.
 
 =cut
 
-sub simpleRequest
+sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
 
-    LWP::Debug::trace('()');
+    LWP::Debug::trace($request->method . ' ' . $request->url);
 
     # Locate protocol to use
     my $url = $request->url;
     my $scheme = '';
-    my $proxy = $self->_needProxy($url);
+    my $proxy = $self->_need_proxy($url);
     if (defined $proxy) {
         $scheme = $proxy->scheme;
     } else {
@@ -215,32 +169,28 @@ sub simpleRequest
     }
     my $protocol = LWP::Protocol::create($scheme);
 
-    # Set User-Agent header if there is one
-    my $agent = $self->agent;
-    $request->header('User-Agent', $agent)
-        if defined $agent and $agent;
+    # Extract fields that will be used below
+    my ($agent, $timeout, $use_alarm, $use_eval) =
+      @{$self}{'agent', 'timeout', 'use_alarm', 'use_eval'};
 
-    # If a timeout value has been set we pass it on to the protocol
-    my $timeout = $self->timeout;
+    # Set User-Agent header if there is one
+    $request->header('User-Agent', $agent) if $agent;
 
     # Inform the protocol if we need to use alarm()
-    $protocol->useAlarm($self->useAlarm);
+    $protocol->use_alarm($use_alarm);
 
     # If we use alarm() we need to register a signal handler
     # and start the timeout
-    if ($self->useAlarm) {
+    if ($use_alarm) {
         $SIG{'ALRM'} = sub {
             LWP::Debug::trace('timeout');
-            my $msg = 'Timeout';
-            if (defined $LWP::Debug::timeoutMessage) {
-                $msg .= ': ' . $LWP::Debug::timeoutMessage;
-            }
-            die $msg;
+            die 'Timeout';
         };
+	$protocol->timeout($timeout);
         alarm($timeout);
     }
 
-    if ($self->useEval) {
+    if ($use_eval) {
         # we eval, and turn dies into responses below
         eval {
             $response = $protocol->request($request, $proxy, 
@@ -251,14 +201,13 @@ sub simpleRequest
         $response = $protocol->request($request, $proxy,
                                        $arg, $size, $timeout);
     }
-    alarm(0) if ($self->useAlarm); # no more timeout
+    alarm(0) if ($use_alarm); # no more timeout
     
     if ($@) {
         if ($@ =~ /^timeout/i) {
             $response = new HTTP::Response
                                  &HTTP::Status::RC_REQUEST_TIMEOUT,
-                                 'User-agent timeout while ' .
-                                          $LWP::Debug::timeoutMessage;
+                                 'User-agent timeout';
         }
         else {
 	    $@ =~ s/\s+at\s+\S+\s+line\s+\d+//;  # remove file/line number
@@ -271,12 +220,12 @@ sub simpleRequest
 }
 
 
-=head2 request($request, $arg [, $size])
+=head2 $ua->request($request, $arg [, $size])
 
 Process a request, including redirects and security.  This method may
 actually send several different simple reqeusts.
 
-The arguments are the same as for C<simpleRequest()>.
+The arguments are the same as for C<simple_request()>.
 
 =cut
 
@@ -286,11 +235,11 @@ sub request
 
     LWP::Debug::trace('()');
 
-    my $response = $self->simpleRequest($request, $arg, $size);
+    my $response = $self->simple_request($request, $arg, $size);
     my $code = $response->code;
     $response->previous($previous) if defined $previous;
 
-    LWP::Debug::debug('Simple result: ' . HTTP::Status::statusMessage($code));
+    LWP::Debug::debug('Simple result: ' . HTTP::Status::status_message($code));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
         $code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
@@ -301,7 +250,7 @@ sub request
 
         my $referral = $request->clone;
         $referral->url($referral_uri);
-	return $response unless $self->redirectOK($referral);
+	return $response unless $self->redirect_ok($referral);
 
 	# Check for loop in redirects
 	my $r = $response;
@@ -329,7 +278,7 @@ sub request
             my($scheme, $realm) = ($1, $2);
             if ($scheme =~ /^Basic$/i) {
 
-                my($uid, $pwd) = $self->getBasicCredentials($realm,
+                my($uid, $pwd) = $self->get_basic_credentials($realm,
 							    $request->url);
 
                 if (defined $uid and defined $pwd) {
@@ -366,7 +315,7 @@ sub request
 
     } elsif ($code == &HTTP::Status::RC_PAYMENT_REQUIRED or
              $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
-        warn 'Resolution of' . HTTP::Status::statusMessage($code) .
+        warn 'Resolution of' . HTTP::Status::status_message($code) .
              'not yet implemented';
 	return $response;
     }
@@ -374,7 +323,7 @@ sub request
 }
 
 
-=head2 redirectOK
+=head2 $ua->redirect_ok
 
 This method is called by request() before it tries to do any
 redirects.  It should return a true value if the redirect is allowed
@@ -382,7 +331,7 @@ to be performed. Subclasses might want to override this.
 
 =cut
 
-sub redirectOK
+sub redirect_ok
 {
     # draft-ietf-http-v10-spec-02.ps from www.ics.uci.edu, specify:
     # 
@@ -397,6 +346,13 @@ sub redirectOK
 }
 
 
+=head2 $ua->credentials($netloc, $realm, $uname, $pass)
+
+Set the user name and password to be used for a realm.  If is often
+more useful to specialize the credentials() method instead.
+
+=cut
+
 sub credentials
 { 
     my($self, $netloc, $realm, $uid, $pass) = @_;
@@ -404,7 +360,7 @@ sub credentials
 }
 
 
-=head2 getBasicCredentials($realm, $uri)
+=head2 get_basic_credentials($realm, $uri)
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication.
@@ -419,7 +375,7 @@ C<request> program distributed with this library.
 
 =cut
 
-sub getBasicCredentials
+sub get_basic_credentials
 {
     my($self, $realm, $uri) = @_;
     my $netloc = $uri->netloc;
@@ -432,14 +388,84 @@ sub getBasicCredentials
 }
 
 
+=head2 timeout()
 
-#####################################################################
-#
-# U T I L I T Y  S E C T I O N
-#
-#####################################################################
+=head2 agent()
 
-=head2 mirror($url, $file)
+=head2 use_alarm()
+
+=head2 use_eval()
+
+Get/set member variables, respectively the timeout value in seconds,
+the name of the agent, wether to use C<alarm()> or not, and wether to
+use handle internal errors internally by trapping with eval.
+
+=cut
+
+sub timeout   { shift->_elem('timeout',  @_); }
+sub agent     { shift->_elem('agent',    @_); }
+sub use_alarm { shift->_elem('use_alarm', @_); }
+sub use_eval  { shift->_elem('use_eval',  @_); }
+
+
+
+# Declarations of AutoLoaded methods
+sub clone;
+sub is_protocol_supported;
+sub mirror;
+sub proxy;
+sub env_proxy;
+sub no_proxy;
+sub _need_proxy;
+
+
+1;
+__END__
+
+
+=head2 $ua->clone;
+
+Returns a copy of the LWP::UserAgent object
+
+=cut
+
+
+sub clone
+{
+    my $self = shift;
+    my $copy = bless { %$self }, ref $self;  # copy most fields
+
+    # elements that are references must be handled in a special way
+    $copy->{'no_proxy'} = [ @{$self->{'no_proxy'}} ];  # copy array
+
+    $copy;
+}
+
+
+=head2 $ua->is_protocol_supported($scheme)
+
+You can use this method to query if the library currently support the
+specified C<scheme>.  The C<scheme> might be a string (like 'http' or
+'ftp') or it might be an URI::URL object reference.
+
+=cut
+
+sub is_protocol_supported
+{
+    my($self, $scheme) = @_;
+    if (ref $scheme) {
+        # assume we got a reference to an URI::URL object
+        $scheme = $scheme->abs->scheme;
+    } else {
+        Carp::croak("Illeal scheme '$scheme' passed to is_protocol_supported")
+            if $scheme =~ /\W/;
+        $scheme = lc $scheme;
+    }
+    return LWP::Protocol::implementor($scheme);
+}
+
+
+=head2 $ua->mirror($url, $file)
 
 Get and store a document identified by a URL, using If-Modified-Since,
 and checking of the content-length.  Returns a reference to the
@@ -464,7 +490,7 @@ sub mirror
     my $tmpfile = "$file-$$";
 
     my $response = $self->request($request, $tmpfile);
-    if ($response->isSuccess) {
+    if ($response->is_success) {
         
         my $file_length = (stat($tmpfile))[7];
         my($content_length) = $response->header('Content-length');
@@ -488,33 +514,7 @@ sub mirror
     return $response;
 }
 
-#####################################################################
-#
-# P R O P E R T I E S  S E C T I O N
-#
-#####################################################################
-
-=head2 timeout()
-
-=head2 agent()
-
-=head2 useAlarm()
-
-=head2 useEval()
-
-Get/set member variables, respectively the timeout value in seconds,
-the name of the agent, wether to use C<alarm()> or not, and wether to
-use handle internal errors internally by trapping with eval.
-
-=cut
-
-sub timeout   { shift->_elem('timeout',  @_); }
-sub agent     { shift->_elem('agent',    @_); }
-sub useAlarm  { shift->_elem('useAlarm', @_); }
-sub useEval   { shift->_elem('useEval',  @_); }
-
-
-=head2 proxy(...)
+=head2 $ua->proxy(...)
 
 Set/retrieve proxy URL for a scheme:
 
@@ -548,21 +548,19 @@ sub proxy
     return undef;
 }
 
-=head2 envProxy()
-
- $ua->envProxy();
+=head2 $ua->env_proxy()
 
 Load proxy settings from *_proxy environment variables.
 
 =cut
 
-sub envProxy {
+sub env_proxy {
     my ($self) = @_;
     while(($k, $v) = each %ENV) {
         $k = lc($k);
         next unless $k =~ /^(.*)_proxy$/;
         if ($1 eq 'no') {
-            $self->noProxy(split(/\s*,\s*/, $v));
+            $self->no_proxy(split(/\s*,\s*/, $v));
         }
         else {
             $self->proxy($1, $v);           
@@ -570,36 +568,32 @@ sub envProxy {
     }
 }
 
-=head2 noProxy($domain)
-
- $ua->noProxy('localhost', 'no', ...);
+=head2 $ua->no_proxy($domain,...)
 
 Do not proxy requests to the given domains.
-Calling noProxy without domains clears the
+Calling no_proxy without domains clears the
 list of domains.
+
+Eg:
+
+ $ua->no_proxy('localhost', 'no', ...);
 
 =cut
 
-sub noProxy {
+sub no_proxy {
     my($self, @no) = @_;
     if (@no) {
-        push(@{ $self->{'noProxy'} }, @no);
+        push(@{ $self->{'no_proxy'} }, @no);
     }
     else {
-        $self->{'noProxy'} = [];
+        $self->{'no_proxy'} = [];
     }
 }
-
-#####################################################################
-#
-# P R I V A T E  S E C T I O N
-#
-#####################################################################
 
 
 # Private method which returns the URL of the Proxy configured for this
 # URL, or undefined if none is configured.
-sub _needProxy
+sub _need_proxy
 {
     my($self, $url) = @_;
 
@@ -609,12 +603,12 @@ sub _needProxy
 
     # check the list of noproxies
 
-    if (@{ $self->{'noProxy'} }) {
+    if (@{ $self->{'no_proxy'} }) {
         my $host = $url->host;
         my $domain;
-        for $domain (@{ $self->{'noProxy'} }) {
+        for $domain (@{ $self->{'no_proxy'} }) {
             if ($host =~ /$domain$/) {
-                LWP::Debug::trace("noProxy configured");
+                LWP::Debug::trace("no_proxy configured");
                 return undef;
             }
         }

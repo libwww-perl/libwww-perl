@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.5 1996/05/19 11:35:24 aas Exp $
+# $Id: Entities.pm,v 1.6 1996/05/26 10:31:40 aas Exp $
 
 =head1 NAME
 
@@ -60,85 +60,118 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
 %entity2char = (
  # Some normal chars that have special meaning in SGML context
- amp    => '&',
- 'gt'   => '>',
- 'lt'   => '<',
- quot   => '"',
+ amp    => '&',  # ampersand 
+'gt'    => '>',  # greater than
+'lt'    => '<',  # less than
+ quot   => '"',  # double quote
 
  # PUBLIC ISO 8879-1986//ENTITIES Added Latin 1//EN//HTML
- Aacute => 'Á',
- Acirc  => 'Â',
- Agrave => 'À',
- Aring  => 'Å',
- Atilde => 'Ã',
- Auml   => 'Ä',
- Ccedil => 'Ç',
- ETH    => 'Ð',
- Eacute => 'É',
- Ecirc  => 'Ê',
- Egrave => 'È',
- Euml   => 'Ë',
- Iacute => 'Í',
- Icirc  => 'Î',
- Igrave => 'Ì',
- Iuml   => 'Ï',
- Ntilde => 'Ñ',
- AElig  => 'Æ',
- Oacute => 'Ó',
- Ocirc  => 'Ô',
- Ograve => 'Ò',
- Oslash => 'Ø',
- Otilde => 'Õ',
- Ouml   => 'Ö',
- THORN  => 'Þ',
- Uacute => 'Ú',
- Ucirc  => 'Û',
- Ugrave => 'Ù',
- Uuml   => 'Ü',
- Yacute => 'Ý',
- aelig  => 'æ',
- aacute => 'á',
- acirc  => 'â',
- agrave => 'à',
- aring  => 'å',
- atilde => 'ã',
- auml   => 'ä',
- ccedil => 'ç',
- eacute => 'é',
- ecirc  => 'ê',
- egrave => 'è',
- eth    => 'ð',
- euml   => 'ë',
- iacute => 'í',
- icirc  => 'î',
- igrave => 'ì',
- iuml   => 'ï',
- ntilde => 'ñ',
- oacute => 'ó',
- ocirc  => 'ô',
- ograve => 'ò',
- oslash => 'ø',
- otilde => 'õ',
- ouml   => 'ö',
- szlig  => 'ß',
- thorn  => 'þ',
- uacute => 'ú',
- ucirc  => 'û',
- ugrave => 'ù',
- uuml   => 'ü',
- yacute => 'ý',
- yuml   => 'ÿ',
+ AElig	=> 'Æ',  # capital AE diphthong (ligature)
+ Aacute	=> 'Á',  # capital A, acute accent
+ Acirc	=> 'Â',  # capital A, circumflex accent
+ Agrave	=> 'À',  # capital A, grave accent
+ Aring	=> 'Å',  # capital A, ring
+ Atilde	=> 'Ã',  # capital A, tilde
+ Auml	=> 'Ä',  # capital A, dieresis or umlaut mark
+ Ccedil	=> 'Ç',  # capital C, cedilla
+ ETH	=> 'Ð',  # capital Eth, Icelandic
+ Eacute	=> 'É',  # capital E, acute accent
+ Ecirc	=> 'Ê',  # capital E, circumflex accent
+ Egrave	=> 'È',  # capital E, grave accent
+ Euml	=> 'Ë',  # capital E, dieresis or umlaut mark
+ Iacute	=> 'Í',  # capital I, acute accent
+ Icirc	=> 'Î',  # capital I, circumflex accent
+ Igrave	=> 'Ì',  # capital I, grave accent
+ Iuml	=> 'Ï',  # capital I, dieresis or umlaut mark
+ Ntilde	=> 'Ñ',  # capital N, tilde
+ Oacute	=> 'Ó',  # capital O, acute accent
+ Ocirc	=> 'Ô',  # capital O, circumflex accent
+ Ograve	=> 'Ò',  # capital O, grave accent
+ Oslash	=> 'Ø',  # capital O, slash
+ Otilde	=> 'Õ',  # capital O, tilde
+ Ouml	=> 'Ö',  # capital O, dieresis or umlaut mark
+ THORN	=> 'Þ',  # capital THORN, Icelandic
+ Uacute	=> 'Ú',  # capital U, acute accent
+ Ucirc	=> 'Û',  # capital U, circumflex accent
+ Ugrave	=> 'Ù',  # capital U, grave accent
+ Uuml	=> 'Ü',  # capital U, dieresis or umlaut mark
+ Yacute	=> 'Ý',  # capital Y, acute accent
+ aacute	=> 'á',  # small a, acute accent
+ acirc	=> 'â',  # small a, circumflex accent
+ aelig	=> 'æ',  # small ae diphthong (ligature)
+ agrave	=> 'à',  # small a, grave accent
+ aring	=> 'å',  # small a, ring
+ atilde	=> 'ã',  # small a, tilde
+ auml	=> 'ä',  # small a, dieresis or umlaut mark
+ ccedil	=> 'ç',  # small c, cedilla
+ eacute	=> 'é',  # small e, acute accent
+ ecirc	=> 'ê',  # small e, circumflex accent
+ egrave	=> 'è',  # small e, grave accent
+ eth	=> 'ð',  # small eth, Icelandic
+ euml	=> 'ë',  # small e, dieresis or umlaut mark
+ iacute	=> 'í',  # small i, acute accent
+ icirc	=> 'î',  # small i, circumflex accent
+ igrave	=> 'ì',  # small i, grave accent
+ iuml	=> 'ï',  # small i, dieresis or umlaut mark
+ ntilde	=> 'ñ',  # small n, tilde
+ oacute	=> 'ó',  # small o, acute accent
+ ocirc	=> 'ô',  # small o, circumflex accent
+ ograve	=> 'ò',  # small o, grave accent
+ oslash	=> 'ø',  # small o, slash
+ otilde	=> 'õ',  # small o, tilde
+ ouml	=> 'ö',  # small o, dieresis or umlaut mark
+ szlig	=> 'ß',  # small sharp s, German (sz ligature)
+ thorn	=> 'þ',  # small thorn, Icelandic
+ uacute	=> 'ú',  # small u, acute accent
+ ucirc	=> 'û',  # small u, circumflex accent
+ ugrave	=> 'ù',  # small u, grave accent
+ uuml	=> 'ü',  # small u, dieresis or umlaut mark
+ yacute	=> 'ý',  # small y, acute accent
+ yuml	=> 'ÿ',  # small y, dieresis or umlaut mark
 
- # Some extra Latin 1 chars that are listed in the HTML3.2 draft (23-Apr-96)
- reg    => '®',
- copy   => '©',
- nbsp   => "\240",
+ # Some extra Latin 1 chars that are listed in the HTML3.2 draft (21-May-96)
+ copy   => '©',  # copyright sign
+ reg    => '®',  # registered sign
+ nbsp   => "\240", # non breaking space
+
+ # Additional ISO-8859/1 entities listed in rfc1866 (section 14)
+ iexcl  => '¡',
+ cent   => '¢',
+ pound  => '£',
+ curren => '¤',
+ yen    => '¥',
+ brvbar => '¦',
+ sect   => '§',
+ uml    => '¨',
+ ordf   => 'ª',
+ laquo  => '«',
+'not'   => '¬',    # not is a keyword in perl
+ shy    => '­',
+ macr   => '¯',
+ deg    => '°',
+ plusmn => '±',
+ sup1   => '¹',
+ sup2   => '²',
+ sup3   => '³',
+ acute  => '´',
+ micro  => 'µ',
+ para   => '¶',
+ middot => '·',
+ cedil  => '¸',
+ ordm   => 'º',
+ raquo  => '»',
+ frac14 => '¼',
+ frac12 => '½',
+ frac34 => '¾',
+ iquest => '¿',
+'times' => '×',    # times is a keyword in perl
+ divide => '÷',
 );
 
 # Make the oposite mapping

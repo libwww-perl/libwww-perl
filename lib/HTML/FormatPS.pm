@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.12 1995/09/14 10:45:06 aas Exp $
+# $Id: FormatPS.pm,v 1.13 1995/09/14 11:38:22 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -198,7 +198,6 @@ sub begin
     $self->{xpos} = $self->{lm};  # top of the current line
     $self->{ypos} = $self->{tm};
 
-    $self->{output} = ();
     $self->{pageno} = 1;
 
     $self->{line} = "";
@@ -218,26 +217,27 @@ sub end
     $self->endpage if $self->{out};
     my $pages = $self->{pageno} - 1;
 
-    print "%!PS-Adobe-3.0\n";
-    #print "%%Title: No title\n";  # should look for the <title> element
-    print "%%Creator: HTML::FormatPS (libwww-perl)\n";
-    print "%%CreationDate: " . localtime() . "\n";
-    print "%%Pages: $pages\n";
-    print "%%PageOrder: Ascend\n";
-    print "%%Orientation: Portrait\n";
+    my @prolog = ();
+    push(@prolog, "%!PS-Adobe-3.0\n");
+    #push(@prolog,"%%Title: No title\n"); # should look for the <title> element
+    push(@prolog, "%%Creator: HTML::FormatPS (libwww-perl)\n");
+    push(@prolog, "%%CreationDate: " . localtime() . "\n");
+    push(@prolog, "%%Pages: $pages\n");
+    push(@prolog, "%%PageOrder: Ascend\n");
+    push(@prolog, "%%Orientation: Portrait\n");
     my($pw, $ph) = map { int($_); } @{$self}{qw(paperwidth paperheight)};
     
-    print "%%DocumentMedia: Plain $pw $ph 0 white ()\n";
-    print "%%DocumentNeededResources: encoding ISOLatin1Encoding\n";
+    push(@prolog, "%%DocumentMedia: Plain $pw $ph 0 white ()\n");
+    push(@prolog, "%%DocumentNeededResources: encoding ISOLatin1Encoding\n");
     my($full, %seenfont);
     for $full (sort keys %{$self->{fonts}}) {
 	$full =~ s/-\d+$//;
 	next if $seenfont{$full}++;
-	print "%%+ font $full\n";
+	push(@prolog, "%%+ font $full\n");
     }    
-    print "%%DocumentSuppliedResources: procset newencode 1.0 0\n";
-    print "%%EndComments\n";
-    print <<'EOT';
+    push(@prolog, "%%DocumentSuppliedResources: procset newencode 1.0 0\n");
+    push(@prolog, "%%EndComments\n");
+    push(@prolog, <<'EOT');
 
 %%BeginProlog
 /S/show load def
@@ -263,27 +263,19 @@ sub end
 %%EndProlog
 EOT
 
-    print "\n%%BeginSetup\n";
+    push(@prolog, "\n%%BeginSetup\n");
     my($full,$short);
     for $full (sort keys %{$self->{fonts}}) {
 	$short = $self->{fonts}{$full};
 	$full =~ s/-(\d+)$//;
 	my $size = $1;
-	print "ISOLatin1Encoding/$full-ISO/$full NE\n";
-	print "/$short/$full-ISO findfont $size scalefont def\n";
+	push(@prolog, "ISOLatin1Encoding/$full-ISO/$full NE\n");
+	push(@prolog, "/$short/$full-ISO findfont $size scalefont def\n");
     }
-    print "%%EndSetup\n";
+    push(@prolog, "%%EndSetup\n");
 
-    for (@{$self->{output}}) {
-	print;
-    }
-    print "\n%%Trailer\n%%EOF\n";
-}
-
-
-sub collect
-{
-    push(@{shift->{output}}, @_);
+    $self->collect("\n%%Trailer\n%%EOF\n");
+    unshift(@{$self->{output}}, @prolog);
 }
 
 
@@ -307,6 +299,20 @@ sub header_end
     $self->{bold}--;
     pop(@{$self->{font_size}});
     1;
+}
+
+sub hr_start
+{
+    my $self = shift;
+    $self->showline;
+    $self->vspace(0.5);
+    $self->skip_vspace;
+    my $lm = $self->{lm};
+    my $rm = $self->{rm};
+    my $y = $self->{ypos};
+    $self->collect(sprintf "newpath %.1f %.1f M %.1f %.1f lineto stroke\n",
+		   $lm, $y, $rm, $y);
+    $self->vspace(0.5);
 }
 
 

@@ -1,3 +1,15 @@
+Tue Feb 11 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.07
+
+ o  Can limit the size of the response content with $ua->max_size()
+
+ o  Added time2iso() functions to HTTP::Date.
+
+ o  Made LWP::Protocol::http more portable to the MacPerl. /./ match
+    different things on MacPerl.
+
+
 
 Mon Jan 27 1997   Gisle Aas <aas@sn.no>
 

@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.7 1998/08/04 09:03:35 aas Exp $
+# $Id: lwp-download.PL,v 1.7.2.1 1998/10/12 12:23:48 aas Exp $
 
 =head1 NAME
 
@@ -57,7 +57,7 @@ Gisle Aas <gisle@aas.no>
 
 use LWP::UserAgent;
 use LWP::MediaTypes;
-use URI::URL;
+use URI;
 use strict;
 
 my $progname = $0;
@@ -70,9 +70,9 @@ my %opts;
 unless (getopts('a', \%opts)) {
     usage();
 }
-my $opt_a = $opts{a}; # save in binary mode
+my $opt_a = $opts{a}; # save in ascii mode, i.e. not binmode()
 
-my $url = url(shift || usage());
+my $url = URI->new(shift || usage());
 my $argfile = shift;
 
 my $ua = new LWP::UserAgent;
@@ -116,7 +116,7 @@ my $res = $ua->request($req,
 		  my $req = $res->request;  # now always there
 		  my $rurl = $req ? $req->url : $url;
 		  
-		  $file = ($rurl->path_components)[-1];
+		  $file = ($rurl->path_segments)[-1];
 		  unless (length $file) {
 		      $file = "index";
 		      my $suffix = media_suffix($res->content_type);
@@ -199,7 +199,7 @@ if ($res->is_success || $res->message =~ /^Interrupted/) {
     }
 } else {
     print "\n" if $shown;
-    print "$progname: Can't download: ", $res->code, " ", $res->message, "\n";
+    print "$progname: ", $res->status_line, "\n";
     exit 1;
 }
 

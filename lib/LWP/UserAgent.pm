@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.47 1997/11/26 11:26:17 aas Exp $
+# $Id: UserAgent.pm,v 1.48 1997/12/01 15:30:38 aas Exp $
 
 package LWP::UserAgent;
 
@@ -110,6 +110,7 @@ require LWP::MemberMixin;
 require URI::URL;
 require HTTP::Request;
 require HTTP::Response;
+require HTTP::Headers::Util;
 
 use HTTP::Date ();
 
@@ -117,7 +118,6 @@ use LWP ();
 use LWP::Debug ();
 use LWP::Protocol ();
 
-use MIME::Base64 qw(encode_base64);
 use Carp ();
 use Config ();
 
@@ -308,8 +308,8 @@ sub request
 	my $r = $response;
 	while ($r) {
 	    if ($r->request->url->as_string eq $referral_uri->as_string) {
-		# loop detected
-		$response->message("Loop detected");
+		$response->header("Client-Warning" =>
+				  "Redirect loop detected");
 		return $response;
 	    }
 	    $r = $r->previous;
@@ -317,138 +317,48 @@ sub request
 
 	return $self->request($referral, $arg, $size, $response);
 
-    } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED) {
-
-	my $challenge = $response->header('WWW-Authenticate');
+    } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED ||
+	     $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED
+	    )
+    {
+	my $proxy = ($code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED);
+	my $ch_header = $proxy ?  "Proxy-Authenticate" : "WWW-Authenticate";
+	my $challenge = $response->header($ch_header);
 	unless (defined $challenge) {
-	    warn "RC_UNAUTHORIZED without WWW-Authenticate\n";
+	    $response->header("Client-Warning" => 
+			      "Missing Authenticate header");
 	    return $response;
 	}
-	if (($challenge =~ /^(\S+)\s+Realm\s*=\s*"(.*?)"/i) or
-	    ($challenge =~ /^(\S+)\s+Realm\s*=\s*<([^<>]*)>/i) or
-	    ($challenge =~ /^(\S+)$/)
-	    ) {
+	($challenge) = HTTP::Headers::Util::split_header_words($challenge);
+	my $scheme = lc(shift(@$challenge));
+	shift(@$challenge); # no value
 
-	    my($scheme, $realm) = (lc($1), $2);
-	    if ($scheme eq "basic") {
-
-		my($uid, $pwd) = $self->get_basic_credentials($realm,
-							    $request->url);
-
-		if (defined $uid and defined $pwd) {
-		    my $uidpwd = "$uid:$pwd";
-		    my $header = "Basic " . encode_base64($uidpwd, '');
-
-		    # Need to check this isn't a repeated fail!
-		    my $r = $response;
-		    while ($r) {
-			my $auth = $r->request->header('Authorization');
-			if ($auth && $auth eq $header) {
-			    # here we know this failed before
-			    $response->message('Invalid Credentials');
-			    return $response;
-			}
-			$r = $r->previous;
-		    }
-
-		    my $referral = $request->clone;
-		    $referral->header('Authorization' => $header);
-
-		    return $self->request($referral, $arg, $size, $response);
-		} else {
-		    return $response; # no password found
-		}
-	    } elsif ($scheme eq "digest") {
-		# http://hopf.math.nwu.edu/digestauth/draft.rfc
-		require MD5;
-		my $md5 = new MD5;
-		my($uid, $pwd) = $self->get_basic_credentials($realm,
-							      $request->url);
-		my $string = $challenge;
-		$string =~ s/^$scheme\s+//i;
-		$string =~ s/"//g;                       #" unconfuse emacs
-		my %mda = map { split(/,?\s+|=/) } $string;
-
-		my(@digest);
-		$md5->add(join(":", $uid, $mda{realm}, $pwd));
-		push(@digest, $md5->hexdigest);
-		$md5->reset;
-
-		push(@digest, $mda{nonce});
-
-		$md5->add(join(":", $request->method, $request->url->path));
-		push(@digest, $md5->hexdigest);
-		$md5->reset;
-
-		$md5->add(join(":", @digest));
-		my($digest) = $md5->hexdigest;
-		$md5->reset;
-
-		my %resp = map { $_ => $mda{$_} } qw(realm nonce opaque);
-		@resp{qw(username uri response)} =
-		  ($uid, $request->url->path, $digest);
-
-		if (defined $uid and defined $pwd) {
-		    my(@order) = qw(username realm nonce uri response);
-		    if($request->method =~ /^(?:POST|PUT)$/) {
-			$md5->add($request->content);
-			my($content) = $md5->hexdigest;
-			$md5->reset;
-			$md5->add(join(":", @digest[0..1], $content));
-			$md5->reset;
-			$resp{"message-digest"} = $md5->hexdigest;
-			push(@order, "message-digest");
-		    }
-		    push(@order, "opaque");
-		    my @pairs;
-		    for (@order) {
-			next unless defined $resp{$_};
-			push(@pairs, "$_=" . qq("$resp{$_}"));
-		    }
-		    my $header = "Digest " . join(", ", @pairs);
-
-		    # Need to check this isn't a repeated fail!
-		    my $r = $response;
-		    while ($r) {
-			my $auth = $r->request->header('Authorization');
-			if ($auth && $auth eq $header) {
-			    # here we know this failed before
-			    $response->message('Invalid Credentials');
-			    return $response;
-			}
-			$r = $r->previous;
-		    }
-
-		    my $referral = $request->clone;
-		    #$referral->header('Extension' => "Security/Digest");
-		    $referral->header('Authorization' => $header);
-		    return $self->request($referral, $arg, $size, $response);
-		} else {
-		    return $response; # no password found
-		}
-	    } else {
-		my $class = "LWP::Authen::$scheme";
-		$class =~ s/-/_/g; # Some schemes have hyphens in their names
-		eval "use $class ()";
-		if($@) {
-		    warn $@;
-		    warn "Authentication scheme '$scheme' not supported\n";
-		    return $response;
-		}
-		return $class->authenticate($self, $response, $request, $arg, $size, $scheme, $realm);
-	    } 
-	} else {
-	    warn "Unknown challenge '$challenge'";
+	unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
+	    $response->header("Client-Warning" => 
+			      "Bad authentication scheme '$scheme'");
 	    return $response;
 	}
-
-    } elsif ($code == &HTTP::Status::RC_PAYMENT_REQUIRED or
-	     $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED) {
-	warn 'Resolution of' . HTTP::Status::status_message($code) .
-	     'not yet implemented';
-	return $response;
+	$scheme = $1;  # untainted now
+	my $class = "LWP::Authen::\u$scheme";
+	$class =~ s/-/_/g;
+	
+	unless (defined %{"$class\::"}) {
+	    # try to load it
+	    eval "require $class";
+	    if ($@) {
+		if ($@ =~ /^Can\'t locate/) {
+		    $response->header("Client-Warning" =>
+				      "Unsupport authentication scheme '$scheme'");
+		} else {
+		    $response->header("Client-Warning" => $@);
+		}
+		return $response;
+	    }
+	}
+	return $class->authenticate($self, $proxy, $challenge, $response,
+				    $request, $arg, $size);
     }
-    $response;
+    return $response;
 }
 
 
@@ -492,7 +402,7 @@ sub credentials
 }
 
 
-=head2 $ua->get_basic_credentials($realm, $uri)
+=head2 $ua->get_basic_credentials($realm, $uri, [$proxy])
 
 This is called by request() to retrieve credentials for a Realm
 protected by Basic Authentication or Digest Authentication.
@@ -509,9 +419,10 @@ C<lwp-request> program distributed with this library.
 
 sub get_basic_credentials
 {
-    my($self, $realm, $uri) = @_;
-    my $netloc = $uri->netloc;
+    my($self, $realm, $uri, $proxy) = @_;
+    return if $proxy;
 
+    my $netloc = $uri->netloc;
     if (exists $self->{'basic_authentication'}{$netloc}{$realm}) {
 	return @{ $self->{'basic_authentication'}{$netloc}{$realm} };
     }

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Debug.pm,v 1.2 1995/06/12 18:25:19 aas Exp $
 #
 package LWP::Debug;
 
@@ -12,14 +12,14 @@ LWP::Debug -- debug routines
 
  use LWP::Debug;
 
- &level('+');
- &level('-conns');
+ level('+');
+ level('-conns');
 
- &trace('send()');
- &debug('url ok');
- &conns("read $n bytes: $data");
+ trace('send()');
+ debug('url ok');
+ conns("read $n bytes: $data");
 
- &debugl("Resolving hostname '$host'");
+ debugl("Resolving hostname '$host'");
 
  $SIG{'ALRM'} = 't';
  alarm(1);
@@ -38,8 +38,6 @@ increasing levels of detail. Which level of detail is
 actually printed is controlled with the C<level()>
 function.
 
-Running this module standalone will execute a self test.
-
 =head1 SEE ALSO
 
 See L<lwp> for a complete overview of libwww-perl5.
@@ -48,8 +46,8 @@ See L<lwp> for a complete overview of libwww-perl5.
 
 #####################################################################
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -97,7 +95,7 @@ considerable output.
 
 =head2 debugl($msg)
 
-The C<&debugl> function is meant for operations which
+The C<debugl> function is meant for operations which
 take long time; The message is processed by C<debug()>,
 and stored for later use by for example an SIGALRM
 signal handler. 

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Headers.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Headers.pm,v 1.2 1995/06/12 18:25:21 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -64,9 +64,9 @@ The list of previous values is returned
 sub header  {
     my($self, $field, $val) = @_;
 
-    &croak('need a field name') unless defined $field;
+    croak('need a field name') unless defined $field;
 
-    &LWP::Debug::trace("('$field', " .
+    LWP::Debug::trace("('$field', " .
                (defined $val ? "'$val'" : 'undef') . ')');
 
     my @old = ();
@@ -83,7 +83,7 @@ sub header  {
             @{ $self->{'_header'}{$field} } = @{ $val };
         }
         else {
-            &croak("Unexpected field value $val");
+            croak("Unexpected field value $val");
         }
     }
 
@@ -99,7 +99,7 @@ sub header  {
 =head2 pushHeader($field, $val)
 
 Add a new value to a field of the request header.
-Note that case of the header field name isn't touched,
+Note that case of the header field name isn't touched.
 The field need not already have a value. Duplicates 
 are retained.
 The argument may be a scalar or a reference to a list of scalars.
@@ -110,7 +110,7 @@ The argument may be a scalar or a reference to a list of scalars.
 sub pushHeader {
     my($self, $field, $val) = @_;
 
-    &LWP::Debug::trace("('$field', " .
+    LWP::Debug::trace("('$field', " .
                (defined $val ? "'$val'" : 'undef') . ')');
 
     # as per LWP::field()
@@ -122,7 +122,7 @@ sub pushHeader {
             push( @{ $self->{'_header'}{$field} }, @{ $val });
         }
         else {
-            &croak("Unexpected field value $val");
+            croak("Unexpected field value $val");
         }
     }
     else {
@@ -141,7 +141,7 @@ See as_string for details.
 =cut
 
 sub asMIME {
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     shift->as_string("\r\n");
 }
@@ -156,7 +156,7 @@ recommended "Good Practice" of ordering the header fieds.
 sub as_string {
     my($self, $endl, $orderref) = shift;
 
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     $endl = "\n" unless defined $endl;
 
@@ -195,7 +195,7 @@ sub as_string {
         }
     }
 
-    &LWP::Debug::debug("result: $result\n");
+    LWP::Debug::debug("result: $result\n");
     return $result;
 }
 

@@ -1,3 +1,17 @@
+Thu Aug 10 1995   Gisle Aas <aas@oslonett.no>
+
+ o  New module URI::Escape (URI::URL use this module for default
+    escaping) that provide the uri_escape() and uri_unescape()
+    functions.
+
+ o  Setting $url->scheme now changes the class of the object.
+
+ o  Made $httpurl->user() and $httpurl->password() illegal.
+    Likewise for other URL schemes.
+
+
+
+
 Wed Aug  9 1995   Gisle Aas <aas@oslonett.no>
 
  o  Reorganisation as discussed on <libwww-perl@ics.uci.edu>

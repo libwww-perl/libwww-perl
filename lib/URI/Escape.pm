@@ -1,8 +1,9 @@
 #
-# $Id: Escape.pm,v 3.7 1997/12/02 12:39:48 aas Exp $
+# $Id: Escape.pm,v 3.8 1998/01/06 10:04:55 aas Exp $
 #
 
 package URI::Escape;
+use strict;
 
 =head1 NAME
 
@@ -68,10 +69,14 @@ it under the same terms as Perl itself.
 
 =cut
 
+use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
+use vars qw(%escapes);
+
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(uri_escape uri_unescape);
 @EXPORT_OK = qw(%escapes);
+$VERSION = sprintf("%d.%02d", q$Revision: 3.8 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -79,6 +84,8 @@ use Carp ();
 for (0..255) {
     $escapes{chr($_)} = sprintf("%%%02X", $_);
 }
+
+my %subst;  # compiled patternes
 
 sub uri_escape
 {

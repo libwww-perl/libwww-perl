@@ -134,7 +134,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -276,7 +276,7 @@ sub fetch
 	    save($name, $doc);
 	    my $base = $res->base;
 	    # Follow and substitute links...
-	    $doc =~ s/(<\s*(img|a|body|frame)\b[^>]+\b(?:src|href|background)\s*=\s*)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $name, $depth+1)/gie;       #"; # help emacs
+	    $doc =~ s/(<\s*(img|a|body|area|frame)\b[^>]+\b(?:src|href|background)\s*=\s*)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $name, $depth+1)/gie;       #"; # help emacs
 	}
 	save($name, $doc);
 	return $name;

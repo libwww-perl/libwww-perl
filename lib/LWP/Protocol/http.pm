@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.54 2001/08/07 20:50:55 gisle Exp $
+# $Id: http.pm,v 1.55 2001/09/12 21:24:05 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -226,10 +226,11 @@ sub request
 		# must read more if we can...
 		LWP::Debug::debug("need more header data");
 		die "read timeout" if $timeout && !$sel->can_read($timeout);
-		$n = $socket->sysread($buf, $size, length($buf));
+		my $old_len = length($buf);
+		$n = $socket->sysread($buf, $size, $old_len);
 		die $! unless defined($n);
 		die "unexpected EOF before all headers seen" unless $n;
-		#LWP::Debug::conns($buf);
+		LWP::Debug::conns(substr($buf, $old_len));
 	    }
 
 	    # now we start parsing the headers.  The strategy is to

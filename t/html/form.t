@@ -1,6 +1,6 @@
 #!perl -w
 
-print "1..20\n";
+print "1..22\n";
 
 use strict;
 use HTML::Form;
@@ -198,6 +198,20 @@ GET http://www.example.com
 
 EOT
 
+$f->value("x", "I like it!");
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 18\n";
+GET http://www.example.com?x=on
+
+
+EOT
+
+$f->value("x", "I LIKE IT!");
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 19\n";
+GET http://www.example.com?x=on
+
+
+EOT
+
 $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 <form>
 <select name=x>
@@ -209,18 +223,18 @@ $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 EOT
 
 $f->value("x", "one");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 18\n";
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 20\n";
 GET http://www.example.com?x=1
 
 
 EOT
 
 $f->value("x", "TWO");
-print "not " unless $f->click->as_string eq <<"EOT"; print "ok 19\n";
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 21\n";
 GET http://www.example.com?x=2
 
 
 EOT
 
 print "not " unless join(":", $f->find_input("x")->value_names) eq "one:two:3";
-print "ok 20\n";
+print "ok 22\n";

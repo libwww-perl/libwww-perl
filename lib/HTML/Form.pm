@@ -6,7 +6,7 @@ use Carp ();
 
 use vars qw($VERSION);
 
-$VERSION='1.01';
+$VERSION='1.01';  # $Date: 2003/10/14 11:39:31 $
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -124,6 +124,7 @@ sub parse
 		last if $tag eq "/form";
 		if ($tag eq "input") {
 		    my $type = delete $attr->{type} || "text";
+		    $attr->{value_name} = $p->get_phrase;
 		    $f->push_input($type, $attr);
 		} elsif ($tag eq "textarea") {
 		    $attr->{textarea_value} = $attr->{value}

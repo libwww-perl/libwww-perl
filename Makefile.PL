@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.67 2003/01/24 06:13:42 gisle Exp $
+# $Id: Makefile.PL,v 1.68 2003/10/14 11:39:30 gisle Exp $
 
 require 5.005;
 use strict;
@@ -161,7 +161,7 @@ EOT
 print "Checking for HTML::Parser..";
 eval {
     require HTML::HeadParser;
-    HTML::Parser->VERSION(2.20);
+    HTML::Parser->VERSION(3.33);
 };
 if ($@) {
     print " failed\n";
@@ -263,7 +263,7 @@ WriteMakefile(
    PREREQ_PM     => { 'URI'              => "1.10",
                       'MIME::Base64'     => "2.1",
                       'Net::FTP'         => "2.58",
-                      'HTML::HeadParser' => 0,
+                      'HTML::Parser'     => "3.33",
                       'Digest::MD5'      => 0,
                      },
    'clean'       => { FILES => join(" ", map "bin/$_", @request_aliases) },

@@ -15,16 +15,16 @@ $DEFAULT_PAGESIZE = "A4";
  A3        => [mm(297), mm(420)],
  A4        => [mm(210), mm(297)],
  A5        => [mm(148), mm(210)],
- B4        => [729, 1032],
- B5        => [516,  729],
- Letter    => [in(8.5), in(11)],
- Legal     => [in(8.5), in(14)],
- Executive => [in(7.5), in(10)],
- Tabloid   => [792, 1224],
- Statement => [396,  612],
- Folio     => [612,  936],
- Quarto    => [610,  780],
- "10x14"   => [in(720), in(14)],
+ B4        => [729,     1032   ],
+ B5        => [516,     729    ],
+ Letter    => [in(8.5), in(11) ],
+ Legal     => [in(8.5), in(14) ],
+ Executive => [in(7.5), in(10) ],
+ Tabloid   => [in(11),  in(17) ],
+ Statement => [in(5.5), in(8.5)],
+ Folio     => [in(8.5), in(13) ],
+ "10x14"   => [in(10),  in(14) ],
+ Quarto    => [610,     780    ],
 );
 
 %FontFamilies =
@@ -138,9 +138,6 @@ sub findfont
     $fontfile =~ s,::,/,g;
     require $fontfile;
     $self->{wx} = \@{ "${fontmod}::wx" };
-
-    return "/$font findfont $size scalefont SF";  #ok for now
-
     $font = $self->{fonts}{$fontsize} || do {
 	my $fontID = "F" . ++$self->{fno};
 	$self->{fonts}{$fontsize} = $fontID;
@@ -170,25 +167,44 @@ sub begin
     $self->{xpos} = $self->{lm};  # top of the current line
     $self->{ypos} = $self->{tm};
 
+    $self->{output} = ();
     $self->{pageno} = 1;
+    $self->newpage;
+}
+
+sub end
+{
+    my $self = shift;
+    $self->show;
+    $self->endpage if $self->{out};
+    my $pages = $self->{pageno} - 1;
 
     print "%!PS-Adobe-3.0\n";
     print "%%Title: No title\n";  # should look for the <title> element
     print "%%Creator: HTML::FomatPS (libwww-perl)\n";
     print "%%CreationDate: " . localtime() . "\n";
-    print "%%Pages: (atend)\n";
+    print "%%Pages: $pages\n";
     print "%%PageOrder: Ascend\n";
     print "%%Orientation: Portrait\n";
     my($pw, $ph) = map { int($_); } @{$self}{qw(paperwidth paperheight)};
     
     print "%%DocumentMedia: Plain $pw $ph 0 white ()\n";
+    print "%%DocumentNeededResources: encoding ISOLatin1Encoding\n";
+    my($full, %seenfont);
+    for $full (sort keys %{$self->{fonts}}) {
+	$full =~ s/-\d+$//;
+	next if $seenfont{$full}++;
+	print "%%+ font $full\n";
+    }    
     print "%%DocumentSuppliedResources: procset newencode 1.0 0\n";
-    print "%%EndComments\n\n";
-    print "%%BeginProlog\n";
-    print "/S/show load def\n";
-    print "/M/moveto load def\n";
-    print "/SF/setfont load def\n";
+    print "%%EndComments\n";
     print <<'EOT';
+
+%%BeginProlog
+/S/show load def
+/M/moveto load def
+/SF/setfont load def
+
 %%IncludeResource: encoding ISOLatin1Encoding
 %%BeginResource: procset newencode 1.0 0
 /NE { %def
@@ -205,28 +221,29 @@ sub begin
    /FontName get exch definefont pop
 } bind def
 %%EndResource
+%%EndProlog
 EOT
-    print "%%EndProlog\n";
-    $self->newpage;
-}
 
-sub end
-{
-    my $self = shift;
-    $self->show;
+    print "\n%%BeginSetup\n";
     my($full,$short);
-    while (($full, $short) = each %{$self->{fonts}}) {
+    for $full (sort keys %{$self->{fonts}}) {
+	$short = $self->{fonts}{$full};
 	$full =~ s/-(\d+)$//;
 	my $size = $1;
-	print "% /$short/$full findfont $size scalefont def\n";
+	print "ISOLatin1Encoding/$full-ISO/$full NE\n";
+	print "/$short/$full-ISO findfont $size scalefont def\n";
     }
-    if ($self->{out}) {
-	$self->endpage;
-	print "\n%%Trailer\n";
-	my $pages = $self->{pageno} - 1;
-	print "%%Pages: $pages\n";
-	print "%%EOF\n";
+    print "%%EndSetup\n";
+
+    for (@{$self->{output}}) {
+	print;
     }
+    print "\n%%Trailer\n%%EOF\n";
+}
+
+sub collect
+{
+    push(@{shift->{output}}, @_);
 }
 
 sub header_start
@@ -270,7 +287,7 @@ sub pre_out
     my $font = $self->findfont();
     if (length $font) {
 	$self->show;
-	print "$font\n"
+	$self->collect("$font\n");
     }
     while ($text =~ s/(.*)\n//) {
 	$self->{line} .= $1;
@@ -290,7 +307,7 @@ sub newline
 	$self->newpage;
 	$font = $self->findfont();
 	die "This should not happen" unless length $font;
-	print "$font\n";
+	$self->collect("$font\n");
     }
     $self->moveto;
 }
@@ -305,7 +322,7 @@ sub out
     my $font = $self->findfont();
     if (length $font) {
 	$self->show;
-	print "$font\n";
+	$self->collect("$font\n");
     }
     my $w = $self->width($text);
     my $xpos = $self->{xpos};
@@ -324,7 +341,7 @@ sub endpage
 {
     my $self = shift;
     # End previous page
-    print "showpage\n";
+    $self->collect("showpage\n");
     $self->{pageno}++;
 }
 
@@ -336,23 +353,24 @@ sub newpage
     }
     $self->{out} = 0;
     my $pageno = $self->{pageno};
-    print "\n%%Page: $pageno $pageno\n";
+    $self->collect("\n%%Page: $pageno $pageno\n");
 
     # Print area marker (just for debugging)
-    my($llx, $lly, $urx, $ury) = @{$self}{qw(lm bm rm tm)};
-    print "gsave 0.1 setlinewidth\n";
-    print "clippath 0.9 setgray fill 1 setgray\n";
-    print "$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n";
-    print "grestore\n";
+    my($llx, $lly, $urx, $ury) = map { sprintf "%.1f", $_}
+                                 @{$self}{qw(lm bm rm tm)};
+    $self->collect("gsave 0.1 setlinewidth\n");
+    $self->collect("clippath 0.9 setgray fill 1 setgray\n");
+    $self->collect("$llx $lly moveto $urx $lly lineto $urx $ury lineto $llx $ury lineto closepath fill\n");
+    $self->collect("grestore\n");
 
     # Print page number
     if ($self->{printpageno}) {
 	my $x = $self->{paperwidth};
 	if ($x) { $x -= 20; } else { $x = 10 };
-	print "/Helvetica findfont 10 scalefont setfont\n";
-	printf "%.1f 10 M($pageno)S\n", $x;
+	$self->collect("/Helvetica findfont 10 scalefont setfont\n");
+	$self->collect(sprintf "%.1f 10 M($pageno)S\n", $x);
     }
-    print "\n";
+    $self->collect("\n");
 
     $self->{xpos} = $llx;
     $self->{ypos} = $ury;
@@ -362,7 +380,7 @@ sub newpage
 sub moveto
 {
     my $self = shift;
-    printf "%.1f %.1f M\n", $self->{xpos}, $self->{ypos};
+    $self->collect(sprintf "%.1f %.1f M\n", $self->{xpos}, $self->{ypos});
 }
 
 sub show
@@ -371,7 +389,7 @@ sub show
     my $line = $self->{line};
     return unless length $line;
     $line =~ s/([\(\)])/\\$1/g;
-    print "($line)S\n";
+    $self->collect("($line)S\n");
     $self->{line} = "";
 }
 

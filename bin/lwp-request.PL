@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.15 1995/08/09 18:43:54 aas Exp $
+# $Id: lwp-request.PL,v 1.16 1995/08/10 14:09:18 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -139,7 +139,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -323,7 +323,7 @@ if ($allowed_methods{$method} eq "C") {
 # Set up a request.  We use the same request for all URLs.
 $request = new HTTP::Request $method;
 $request->header('If-Modified-Since', $opt_i) if defined $opt_i;
-$request->header('Accept', '*/*');
+#$request->header('Accept', '*/*');
 if ($opt_c) { # will always be set for request that wants content
     $request->header('Content-Type', $opt_c);
     $request->header('Content-Length', length $content);

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 142;
+plan tests => 144;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -32,6 +32,8 @@ ok($h->header("foo-bar"), 3);
 ok($h->header("foo_bar"), 3);
 ok($h->header("Not-There"), undef);
 ok(j($h->header("Not-There")), "");
+ok(eval { $h->header }, undef);
+ok($@);
 
 ok($h->header("Foo", 11), 1);
 ok($h->header("Foo", [1, 1]), 11);

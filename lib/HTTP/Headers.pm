@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.55 2004/04/08 21:26:00 gisle Exp $
+# $Id: Headers.pm,v 1.56 2004/04/09 09:06:04 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.55 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.56 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -69,7 +69,7 @@ sub new
 {
     my($class) = shift;
     my $self = bless {}, $class;
-    $self->header(@_); # set up initial headers
+    $self->header(@_) if @_; # set up initial headers
     $self;
 }
 
@@ -77,6 +77,7 @@ sub new
 sub header
 {
     my $self = shift;
+    Carp::croak('Usage: $h->header($field, ...)') unless @_;
     my(@old);
     while (my($field, $val) = splice(@_, 0, 2)) {
 	@old = $self->_header($field, $val);

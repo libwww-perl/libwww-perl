@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1989 Adobe Systems Incorporated. All rights reserved.
 
-package Font::CourierOblique;
+package Font::Metrics::CourierOblique;
 
 # Character width table (iso-8859-1)
 @wx = (

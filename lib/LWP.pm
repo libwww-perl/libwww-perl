@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.29 1996/04/24 16:42:45 aas Exp $
+# $Id: LWP.pm,v 1.30 1996/05/08 16:18:27 aas Exp $
 
 package LWP;
 
@@ -72,11 +72,11 @@ URL handling (both absolute and relative URLs are supported).
 
 =item *
 
-A parser for robots.txt files and a framework for constructing robots.
+A parser for F<robots.txt> files and a framework for constructing robots.
 
 =item *
 
-An experimental HTML parser and formatter (for PostScript and plain
+An experimental HTML parser and formatters (for PostScript and plain
 text).
 
 =item *
@@ -205,10 +205,10 @@ The B<content> is an arbitrary amount of data.
 
 =back
 
-Since we don't want to handle all possible <em>code</em> values
-directly in our programs, the libwww-perl response object have methods
-that can be used to query what kind of response this is.  The most
-commonly used response classification methods are:
+Since we don't want to handle all possible I<code> values directly in
+our programs, the libwww-perl response object have methods that can be
+used to query what kind of response this is.  The most commonly used
+response classification methods are:
 
 =over 3
 
@@ -226,16 +226,15 @@ have failed for some reason.
 
 =head2 The User Agent
 
-Let us assume that we have created this nice looking and handy
-I<request> object. What do we actually do with it in order to receive
-a I<response>?
+Let us assume that we have created a I<request> object. What do we
+actually do with it in order to receive a I<response>?
 
-The answer to this question is that you pass it on to a I<user agent>
-object and this object will take care of all the things that need to
-be done (low-level communcation and error handling). The user agent
-will give you back a I<response> object. The user agent represents
-your application on the network and it provides you with an interface
-that can accept I<requests> and will return I<responses>.
+The answer is that you pass it on to a I<user agent> object and this
+object will take care of all the things that need to be done
+(low-level communcation and error handling). The user agent will give
+you back a I<response> object. The user agent represents your
+application on the network and it provides you with an interface that
+can accept I<requests> and will return I<responses>.
 
 You should think about the user agent as an interface layer between
 your application code and the network.  Through this interface you are
@@ -264,6 +263,12 @@ internal I<timeout> response.
 
 The B<agent> specify the name that your application should use when it
 presents itself on the network.
+
+=item *
+
+The B<from> attribute can be set to the e-mail address of the person
+reponsible for running the application.  If this is set, then the
+address will be sent to the servers with every request.
 
 =item *
 
@@ -302,7 +307,7 @@ represented in actual perl code:
   $ua->agent("AgentName/0.1");
 
   # Create a request
-  my $req = new HTTP::Request 'POST','http://www.perl.com/cgi-bin/BugGlimpse';
+  my $req = new HTTP::Request POST => 'http://www.perl.com/cgi-bin/BugGlimpse';
   $req->content_type('application/x-www-form-urlencoded');
   $req->content('match=www&errors=0');
 
@@ -319,13 +324,14 @@ represented in actual perl code:
 
 =head1 NETWORK SUPPORT
 
-This section goes through the various protocol schemes that are
-supported by the library and explains what methods are supported and
-the headers that might have any effect.
+This section goes through the various protocol schemes and describe
+the HTTP style methods that are supported and the headers that might
+have any effect.
 
 For all requests, a "User-Agent" header is added and initialized from
 the $ua->agent value before the request is handed to the network
-layer.
+layer.  In the same way, a "From" header is initialized from the
+$ua->from value.
 
 For all responses, the library will add a header called "Client-Date".
 This format and semantics of the header is just like the server
@@ -374,7 +380,7 @@ header in the request.
 
 Username/password can be specified using basic authorization or be
 encoded in the URL.  Bad logins return an UNAUTHORIZED response with
-"WWW-Authenticate: Basic" and can be handled as basic authorization
+"WWW-Authenticate: Basic" and can be treated as basic authorization
 for HTTP.
 
 The library support ftp ascii transfer mode by specifying the "type=a"
@@ -417,8 +423,8 @@ Examples:
   $req = HTTP::Request->new('GET', 'news:abc1234@a.sn.no');
 
   $req = HTTP::Request->new('POST', 'news:comp.lang.perl.test');
-  $req->header("Subject", "This is a test");
-  $req->header("From", 'me@some.where.org');
+  $req->header(Subject => 'This is a test',
+               From    => 'me@some.where.org');
   $req->content(<<EOT);
   This is the content of the message that we are sending to
   the world.
@@ -439,6 +445,8 @@ encoded (as the first letter) in the request URL path itself.
 Example:
 
   $req = HTTP::Request->new('GET', 'gopher://gopher.sn.no/');
+
+
 
 =head2 File Request
 

@@ -11,13 +11,11 @@ print "Extracting $file (with variable substitutions)\n";
 
 print OUT <<"!GROK!THIS!";
 $Config{'startperl'} -w
-    eval 'exec perl -S \$0 "\$@"'
-	if 0;
 
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.4 1997/09/26 12:11:13 aas Exp $
+# $Id: lwp-download.PL,v 1.5 1997/12/03 21:21:00 aas Exp $
 
 =head1 NAME
 

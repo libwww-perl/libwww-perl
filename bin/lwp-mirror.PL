@@ -11,13 +11,11 @@ print "Extracting $file (with variable substitutions)\n";
 
 print OUT <<"!GROK!THIS!";
 $Config{'startperl'} -w
-    eval 'exec perl -S \$0 "\$@"'
-	if 0;
 
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-mirror.PL,v 1.17 1997/09/20 11:04:34 aas Exp $
+# $Id: lwp-mirror.PL,v 1.18 1997/12/03 21:21:00 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -64,7 +62,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version

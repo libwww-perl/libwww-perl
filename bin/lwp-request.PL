@@ -11,13 +11,11 @@ print "Extracting $file (with variable substitutions)\n";
 
 print OUT <<"!GROK!THIS!";
 $Config{'startperl'} -w
-    eval 'exec perl -S \$0 "\$@"'
-	if 0;
 
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.29 1997/10/17 07:41:25 aas Exp $
+# $Id: lwp-request.PL,v 1.30 1997/12/03 21:21:00 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -188,7 +186,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

@@ -20,7 +20,7 @@ HTML::AsSubs - functions that construct a HTML syntax tree
 
 =head1 DESCRIPTION
 
-This module export functions that can be used to construct various
+This module exports functions that can be used to construct various
 HTML elements. The functions are named after the tags of the
 correponding HTML element and are all written in lower case. If the
 first argument is a I<hash> then it will be used to initialize the

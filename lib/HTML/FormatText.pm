@@ -1,6 +1,6 @@
 package HTML::FormatText;
 
-# $Id: FormatText.pm,v 1.11 1996/04/09 15:44:12 aas Exp $
+# $Id: FormatText.pm,v 1.12 1996/06/09 14:49:58 aas Exp $
 
 =head1 NAME
 
@@ -15,7 +15,7 @@ HTML::FormatText - Format HTML as text
 
 =head1 DESCRIPTION
 
-The HTML::FormatText is a formatter that output plain latin1 text.
+The HTML::FormatText is a formatter that outputs plain latin1 text.
 All character attributes (bold/italic/underline) are ignored.
 Formatting of HTML tables and forms is not implemented.
 

@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.32 1996/05/26 10:29:48 aas Exp $
+# $Id: Element.pm,v 1.33 1996/06/09 14:49:56 aas Exp $
 
 =head1 NAME
 
@@ -24,8 +24,8 @@ HTML::Element - Class for objects that represent HTML elements
 =head1 DESCRIPTION
 
 Objects of the HTML::Element class can be used to represent elements
-of HTML.  These objects have attributes and content.  The content is a
-sequence of text segments and other HTML::Element objects.  Thus a
+of HTML.  These objects have attributes and content.  The content is an
+array of text segments and other HTML::Element objects.  Thus a
 tree of HTML::Element objects as nodes can represent the syntax tree
 for a HTML document.
 
@@ -42,7 +42,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -88,20 +88,20 @@ sub Version { $VERSION; }
 
 =head2 $h = HTML::Element->new('tag', 'attrname' => 'value',...)
 
-The object constructor.  Takes an tag name as argument. Optionally
+The object constructor.  Takes a tag name as argument. Optionally,
 allows you to specify initial attributes at object creation time.
 
 =cut
 
 #
 # An HTML::Element is represented by blessed hash reference.  Key-names
-# not starting with '_' is reserved for the SGML attributes of the element.
+# not starting with '_' are reserved for the SGML attributes of the element.
 # The following special keys are used:
 #
 #    '_tag':    The tag name
 #    '_parent': A reference to the HTML::Element above (when forming a tree)
-#    '_pos':    The current position (a reference to a HTML::Element), is
-#               where inserts will placed (look at the insert_element method)
+#    '_pos':    The current position (a reference to a HTML::Element) is
+#               where inserts will be placed (look at the insert_element method)
 #
 # Example: <img src="gisle.jpg" alt="Gisle's photo"> is represented like this:
 #
@@ -181,7 +181,7 @@ sub starttag
 
 =head2 $h->endtag()
 
-Returns the complete end tag.  Including leading "</" and the trailing
+Returns the complete end tag.  Includes leading "</" and the trailing
 ">".
 
 =cut
@@ -293,7 +293,7 @@ sub attr
 
 =head2 $h->content()
 
-Returns the content of this element.  The content is represented as a
+Returns the content of this element.  The content is represented as an
 array of text segments and references to other HTML::Element objects.
 
 =cut
@@ -399,7 +399,7 @@ sub delete_content
 
 =head2 $h->delete()
 
-Frees memory assosiated with the element an all children.  This is
+Frees memory associated with the element and all children.  This is
 needed because perl's reference counting does not work since we use
 circular references.
 
@@ -418,13 +418,13 @@ sub delete
 
 =head2 $h->traverse(\&callback, [$ignoretext])
 
-Traverse the element and all its children.  For each node visited, the
+Traverse the element and all of its children.  For each node visited, the
 callback routine is called with the node, a startflag and the depth as
 arguments.  If the $ignoretext parameter is true, then the callback
 will not be called for text content.  The flag is 1 when we enter a
 node and 0 when we leave the node.
 
-If the return value from the callback is false then we will not
+If the returned value from the callback is false then we will not
 traverse the children.
 
 =cut
@@ -451,7 +451,7 @@ sub traverse
 
 =head2 $h->extract_links([@wantedTypes])
 
-Returns links found by traversing the element and all its children.
+Returns links found by traversing the element and all of its children.
 The return value is a reference to an array.  Each element of the
 array is an array with 2 values; the link value and a reference to the
 corresponding element.

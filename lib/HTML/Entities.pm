@@ -1,10 +1,10 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.6 1996/05/26 10:31:40 aas Exp $
+# $Id: Entities.pm,v 1.7 1996/06/09 14:49:57 aas Exp $
 
 =head1 NAME
 
-decode - Expand HTML entites in a string
+decode - Expand HTML entities in a string
 
 encode - Encode chars in a string using HTML entities
 
@@ -18,10 +18,10 @@ encode - Encode chars in a string using HTML entities
 
 =head1 DESCRIPTION
 
-The decode_entities() routine replace valid HTML entities found
+The decode_entities() routine replaces valid HTML entities found
 in the string with the corresponding ISO-8859/1 character.
 
-The encode_entities() routine replace the characters specified by the
+The encode_entities() routine replaces the characters specified by the
 second argument with their entity representation.  The default set of
 characters to expand are control chars, high-bit chars and the '<',
 '&', '>' and '"' character.
@@ -60,7 +60,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 

@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.17 1996/04/09 15:44:11 aas Exp $
+# $Id: FormatPS.pm,v 1.18 1996/06/09 14:49:58 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -19,7 +19,7 @@ HTML::FormatPS - Format HTML as postscript
 
 =head1 DESCRIPTION
 
-The HTML::FormatPS is a formatter that output PostScript code.
+The HTML::FormatPS is a formatter that outputs PostScript code.
 Formatting of HTML tables and forms is not implemented.
 
 You might specify the following parameters when constructing the formatter:
@@ -70,13 +70,13 @@ Both top and bottom margin at the same time.  The default value is 2 cm.
 
 =item PageNo
 
-The parameter determine if we should put page numbers on the pages.
+The parameter determines if we should put page numbers on the pages.
 The default is yes, so you have to set this value to 0 in order to
 suppress page numbers.
 
 =item FontFamily
 
-The parameter specify which family of fonts to use for the formatting.
+The parameter specifies which family of fonts to use for the formatting.
 Legal values are "Courier", "Helvetica" and "Times".  The default is
 "Times".
 

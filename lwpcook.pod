@@ -6,9 +6,9 @@ lwpcook - libwww-perl cookbook
 
 This document contain some examples that show typical usage of the
 libwww-perl library.  You should consult the documentation for the
-individual modules for more extensive documentation.
+individual modules for more detail.
 
-All examples should be runnable programs. You can in most cases test
+All examples should be runnable programs. You can, in most cases, test
 the code sections by piping the program text directly to perl.
 
 
@@ -17,16 +17,16 @@ the code sections by piping the program text directly to perl.
 
 It is very easy to use this library to just fetch documents from the
 net.  The LWP::Simple module provides the get() function that return
-the document specified by URL argument:
+the document specified by its URL argument:
 
   use LWP::Simple;
   $doc = get 'http://www.sn.no/libwww-perl/';
 
-or as a perl one-liner using the getprint() function:
+or, as a perl one-liner using the getprint() function:
 
   perl -MLWP::Simple -e 'getprint "http://www.sn.no/libwww-perl/"'
 
-or how about fetching the latest perl by running this:
+or, how about fetching the latest perl by running this:
 
   perl -MLWP::Simple -e '
     getstore "ftp://ftp.sunet.se/pub/lang/perl/CPAN/src/latest.tar.gz",
@@ -40,7 +40,7 @@ running something like the following command:
 Enough of this simple stuff!  The LWP object oriented interface gives
 you more control over the request sent to the server.  Using this
 interface you have full control over headers sent and how you want to
-handle the the response returned.
+handle the response returned.
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
@@ -101,7 +101,7 @@ operation is to access a WWW form application:
   my $res = $ua->request($req);
   print $res->as_string;
 
-If your application have the key/value pairs to be posted in an
+If your application has the key/value pairs to be posted in an
 associative array, then we can exploit the URI::URL module to create
 the content for the POST request message (it handles all the escaping
 issues):
@@ -121,7 +121,7 @@ issues):
   print $ua->request($req)->as_string;
 
 The lwp-request program (alias POST) that is distributed with the
-library can also be used to posting data.
+library can also be used for posting data.
 
 
 
@@ -132,7 +132,7 @@ cache in order to improve performance.  Proxies can also be used for
 accessing resources through protocols not supported directly (or
 supported badly :-) by the libwww-perl library.
 
-You should initialize you proxy setting before you start sending
+You should initialize your proxy setting before you start sending
 requests:
 
   use LWP::UserAgent;
@@ -160,7 +160,7 @@ like this:
   print $ua->request($req)->as_string;
 
 The other alternative is to provide a subclass of LWP::UserAgent that
-override the get_basic_credentials() method. Study the lwp-request
+overrides the get_basic_credentials() method. Study the lwp-request
 program for an example of this.
 
 
@@ -182,7 +182,7 @@ code similar to this at regular intervals:
      mirror($url, $localfile);
   }
 
-Or as a perl one-liner:
+Or, as a perl one-liner:
 
   perl -MLWP::Simple -e 'mirror("http://www.perl.com/", "perl.html")';
 
@@ -247,7 +247,7 @@ It is easy to convert HTML code to "readable" text.
 
 =head1 PARSE URLS
 
-To access individual elements of a try this:
+To access individual elements of a URL, try this:
 
   use URI::URL;
   $host = url("http://www.sn.no/")->host;
@@ -312,3 +312,4 @@ base() method.
 
   $BASE = $res->base;
 
+=cut

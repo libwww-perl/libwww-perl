@@ -36,7 +36,7 @@ Implicit elements have the implicit() attribute set.
 
 =item $p->ignore_unknown
 
-This attribute contols whether unknow tags should be represented as
+This attribute controls whether unknown tags should be represented as
 elements in the parse tree.  Default is true.
 
 =item $p->ignore_text
@@ -47,7 +47,7 @@ false.
 
 =item $p->warn
 
-Call warn() with an apropriate message for syntax errors.  Default is
+Call warn() with an appropriate message for syntax errors.  Default is
 false.
 
 =back

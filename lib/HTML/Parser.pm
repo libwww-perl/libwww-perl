@@ -1,6 +1,6 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.1 1996/05/26 10:25:34 aas Exp $
+# $Id: Parser.pm,v 2.2 1996/06/09 14:50:00 aas Exp $
 
 =head1 NAME
 
@@ -23,7 +23,7 @@ HTML::Parser - SGML parser class
 
 =head1 DESCRIPTION
 
-The C<HTML::Parser> will tokenize an HTML document when the
+The C<HTML::Parser> will tokenize a HTML document when the
 $p->parse() method is called.  The document to parse can be supplied
 in arbitrary chunks.  Call $p->parse(undef) at the end of the document
 to flush any remaining text.  The return value from parse() is a
@@ -33,7 +33,7 @@ The $p->parse_file() method can be called to parse text from a file.
 The argument can be a filename or an already opened file handle. The
 return value from parse_file() is a reference to the parser object.
 
-In order to make the parser do anything interesting you must make a
+In order to make the parser do anything interesting, you must make a
 subclass where you override one or more of the following methods as
 appropriate:
 
@@ -58,12 +58,12 @@ Entities found in the attribute values are already expanded.
 
 =item $self->end($tag)
 
-This method is called when a end tag has been recognized.  The
+This method is called when an end tag has been recognized.  The
 argument is the lower case tag name.
 
 =item $self->text($text)
 
-This method is called as plain text in the document is recognized.
+This method is called when plain text in the document is recognized.
 The text is passed on unmodified and might contain multiple lines.
 Note that for efficiency reasons entities in the text are B<not>
 expanded.  You should call HTML::Entities::decode($text) before you
@@ -72,17 +72,17 @@ process the text any further.
 =item $self->comment($comment)
 
 This method is called as comments are recognized.  The leading and
-trailing "--" sequences has been stripped off the comment text.
+trailing "--" sequences have been stripped off the comment text.
 
 =back
 
-The default implementation of these methods does nothing, i.e. the
+The default implementation of these methods does nothing, I<i.e.,> the
 tokens are just ignored.
 
 There is really nothing in the basic parser that is HTML specific, so
 it is likely that the parser can parse many kinds of SGML documents,
-but SGML have many obscure features (not implemented by this module)
-that prevents us from renaming this module as C<SGML::Parse>.
+but SGML has many obscure features (not implemented by this module)
+that prevent us from renaming this module as C<SGML::Parse>.
 
 =head1 SEE ALSO
 
@@ -106,7 +106,7 @@ use strict;
 
 use HTML::Entities ();
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new

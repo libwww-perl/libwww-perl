@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.3 1995/07/11 11:57:07 aas Exp $
+# $Id: Debug.pm,v 1.4 1995/07/13 14:57:11 aas Exp $
 #
 package LWP::Debug;
 
@@ -24,7 +24,7 @@ LWP::Debug - debug routines
  $SIG{'ALRM'} = 't';
  alarm(1);
  sub t {
-     my $long = $LWP::Debug::long_msg();
+     my $long = $LWP::Debug::longMsg();
      my $msg = 'Timeout';
      $msg .= ": $long" if defined $long;
      die $msg;
@@ -40,7 +40,7 @@ function.
 
 =head1 SEE ALSO
 
-See L<lwp> for a complete overview of libwww-perl5.
+See L<LWP> for a complete overview of libwww-perl5.
 
 =cut
 
@@ -66,7 +66,7 @@ my $bit_debug  = 4;      # debug messages
            'debug' => $bit_debug,
            );
 
-# timeout message, stored by _long_msg()
+# timeout message, stored by _longMsg()
 $timeoutMessage = undef;
 
 #####################################################################
@@ -104,7 +104,7 @@ sub trace  { _log($bit_trace, @_); }
 sub conns  { _log($bit_conns, @_); }
 sub debug  { _log($bit_debug, @_); }
 sub debugl { _log($bit_debug, @_);
-             _long_msg(@_);
+             _longMsg(@_);
            }
 
 =head2 level(...)
@@ -140,12 +140,12 @@ sub level {
     }
 }
 
-=head2 long_msg($msg)
+=head2 longMsg($msg)
 
-Retrieve message set by &debugl()
+Retrieve message set by debugl()
 
 =cut
-sub long_msg {
+sub longMsg {
     $LWP::Debug::timeoutMessage;
 }
 
@@ -171,13 +171,13 @@ sub _log {
     }
 }
 
-# _long_msg($msg)
+# _longMsg($msg)
 #
 # Store message in a variable for later reference.
 # This is intended for long operations
 # which are likely to be timed out.
 #
-sub _long_msg {
+sub _longMsg {
     my $msg = shift;
 
     $LWP::Debug::timeoutMessage = $msg;

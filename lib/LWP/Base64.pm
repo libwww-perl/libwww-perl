@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.3 1995/07/11 13:20:56 aas Exp $
+# $Id: Base64.pm,v 1.4 1995/07/13 14:54:47 aas Exp $
 
 
 package LWP::Base64;
@@ -46,7 +46,7 @@ This is basically C code; can clever use of pack/unpack not
 reduce this code?
 
 No performance analysis done on this at all. The index in 
-Base64decode_aux might be faster with a hash table or 
+Base64decodeAux might be faster with a hash table or 
 indexable array.
 
 Does not honour the "The output stream (encoded bytes) must be
@@ -62,7 +62,7 @@ require Exporter;
 @EXPORT_OK = qw(Base64encode Base64decode);
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);
@@ -76,12 +76,12 @@ Encode a string using Base64.
 
 sub Base64encode {
     my $str = shift;
-    $str =~ s/(.{1,3})/_Base64encode_aux($1)/ge;    
+    $str =~ s/(.{1,3})/_Base64encodeAux($1)/ge;    
 #   $str =~ s/(.{76})/$1\n/g; # rfc 1521 dictates maximum of 76 chars
     $str;
 }
 
-# _Base64encode_aux()
+# _Base64encodeAux()
 #
 # Private helper function for Base64encode.
 #
@@ -89,7 +89,7 @@ sub Base64encode {
 # it into four characters by taking 6 bits at a
 # time, and using a dictionary @chars
 #
-sub _Base64encode_aux {
+sub _Base64encodeAux {
     my $threes = shift;
     @threes = split('', $threes);
 
@@ -145,11 +145,11 @@ The routine will die on illegal characters.
 sub Base64decode {
     my $str = shift;
     $str =~ s/\s+//g;
-    $str =~ s/(.{2,4})/_Base64decode_aux($1)/ge;
+    $str =~ s/(.{2,4})/_Base64decodeAux($1)/ge;
     $str;
 }
 
-sub _Base64decode_aux {
+sub _Base64decodeAux {
     my $encoded = shift;
     my $result = '';
     my @encoded = split('', $encoded);
@@ -219,11 +219,11 @@ eval join('',<DATA>) || die $@ unless caller();
 
 __END__
 
-&encode_test;
-&decode_test;
+&encodeTest;
+&decodeTest;
 print "LWP::Base64 ", $LWP::Base64::VERSION, " ok\n";
 
-sub encode_test {
+sub encodeTest {
 
     print "encode test\n";
 
@@ -260,7 +260,7 @@ sub encode_test {
     }
 }
 
-sub decode_test {
+sub decodeTest {
 
     print "decode test:\n";
 

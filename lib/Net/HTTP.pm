@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.38 2001/11/17 01:42:46 gisle Exp $
+# $Id: HTTP.pm,v 1.39 2001/12/03 22:04:54 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -162,7 +162,7 @@ Returns true if successful.
 
 Returns the string to be written for signaling EOF.
 
-=item ($code, $mess, %headers) = $s->read_response_headers
+=item ($code, $mess, %headers) = $s->read_response_headers( %opts )
 
 Read response headers from server.  The $code is the 3 digit HTTP
 status code (see L<HTTP::Status>) and $mess is the textual message
@@ -176,6 +176,16 @@ attribute.
 
 The method will raise exceptions (die) if the server does not speak
 proper HTTP.
+
+Options might be passed in as key/value pairs.  There are currently
+only two options supported; C<laxed> and C<junk_out>.
+
+The C<laxed> option will make C<read_response_headers> more forgiving
+towards servers that have not learned how to speak HTTP properly.  The
+<laxed> option is a boolean flag, and is enabled by passing in a TRUE
+value.  The C<junk_out> option can be used to capture bad header lines
+when C<laxed> is enabled.  The value should be an array reference.
+Bad header lines will be pushed onto the array.
 
 =item $n = $s->read_entity_body($buf, $size);
 

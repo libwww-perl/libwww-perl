@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.4 2001/11/20 20:46:11 gisle Exp $
+# $Id: Methods.pm,v 1.5 2001/12/03 22:04:56 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -260,8 +260,10 @@ sub _rbuf_length {
 }
 
 
-sub read_header_lines {
+sub _read_header_lines {
     my $self = shift;
+    my $junk_out = shift;
+
     my @headers;
     my $line_count = 0;
     my $max_header_lines = ${*$self}{'http_max_header_lines'};
@@ -272,8 +274,11 @@ sub read_header_lines {
 	elsif (@headers && $line =~ s/^\s+//) {
 	    $headers[-1] .= " " . $line;
 	}
+	elsif ($junk_out) {
+	    push(@$junk_out, $line);
+	}
 	else {
-	    die "Bad header: $line\n";
+	    die "Bad header: '$line'\n";
 	}
 	if ($max_header_lines) {
 	    $line_count++;
@@ -287,15 +292,35 @@ sub read_header_lines {
 
 
 sub read_response_headers {
-    my $self = shift;
+    my($self, %opt) = @_;
+    my $laxed = $opt{laxed};
+
     my $status = my_readline($self);
     die "EOF instead of reponse status line" unless defined $status;
+
     my($peer_ver, $code, $message) = split(/\s+/, $status, 3);
-    die "Bad response status line: '$status'"
-	if !$peer_ver || $peer_ver !~ s,^HTTP/,,;
+    if (!$peer_ver || $peer_ver !~ s,^HTTP/,,) {
+	die "Bad response status line: '$status'" unless $laxed;
+	# assume HTTP/0.9
+	${*$self}{'http_peer_http_version'} = "0.9";
+	${*$self}{'http_status'} = "200";
+	# XXX but we have lost the line ending by now.
+	substr(${*$self}{'http_buf'}, 0, 0) = "$status\n";
+	return (200, "Assumed OK");
+    };
+
     ${*$self}{'http_peer_http_version'} = $peer_ver;
+
+    unless ($code =~ /^[1-9]\d\d$/) {
+	die "Bad response code: '$status'";
+    }
     ${*$self}{'http_status'} = $code;
-    my @headers = $self->read_header_lines;
+
+    my $junk_out;
+    if ($laxed) {
+	$junk_out = $opt{junk_out} || [];
+    }
+    my @headers = $self->_read_header_lines($junk_out);
 
     # pick out headers that read_entity_body might need
     my @te;
@@ -402,7 +427,7 @@ sub read_entity_body {
 	    $line =~ s/\s+$//; # avoid warnings from hex()
 	    $chunked = hex($line);
 	    if ($chunked == 0) {
-		${*$self}{'http_trailers'} = [$self->read_header_lines];
+		${*$self}{'http_trailers'} = [$self->_read_header_lines];
 		$$buf_ref = "";
 
 		my $n = 0;

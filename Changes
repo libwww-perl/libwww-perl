@@ -13,6 +13,10 @@
     is able to verify the peer certificate.   Patch contributed by
     Joshua Chamas <joshua@chamas.com>.
 
+    HTTP::Request::Common::POST did not add a 'Content-Length' header
+    when the content ended up empty.  Fixed by a patch contributed
+    by Brian J. Murrell.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

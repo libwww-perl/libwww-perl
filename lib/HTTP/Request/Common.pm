@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.19 2001/01/05 18:53:11 gisle Exp $
+# $Id: Common.pm,v 1.20 2003/10/15 11:03:16 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -86,6 +86,9 @@ sub POST
 	$req->header('Content-Length' =>
 		     length($content)) unless ref($content);
 	$req->content($content);
+    }
+    else {
+        $req->header('Content-Length' => 0);
     }
     $req;
 }

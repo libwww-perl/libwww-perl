@@ -1,4 +1,4 @@
-print "1..19\n";
+print "1..20\n";
 
 use HTTP::Request::Common;
 
@@ -197,3 +197,11 @@ print "not " unless abs(@chunks - 15 < 3) and
                     abs(length($_) - 26589) < 20;
 print "ok 19\n";
 
+$r = POST 'http://www.example.com';
+print "not " unless $r->as_string eq <<EOT; print "ok 20\n";
+POST http://www.example.com
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+
+EOT

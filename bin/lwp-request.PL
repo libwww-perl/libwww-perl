@@ -12,7 +12,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.37 1999/03/21 21:56:18 gisle Exp $
+# $Id: lwp-request.PL,v 1.38 1999/06/01 10:40:51 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -190,7 +190,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -383,6 +383,7 @@ $request->header('If-Modified-Since', $options{'i'}) if defined $options{'i'};
 for my $user_header (@{ $options{'H'} || [] }) {
     my ($header_name, $header_value) = split /:\s*/, $user_header, 2;
     $request->header($header_name, $header_value);
+    $ua->agent($header_value) if lc($header_name) eq "user-agent"; # Ugh!
 }
 #$request->header('Accept', '*/*');
 if ($options{'c'}) { # will always be set for request that wants content

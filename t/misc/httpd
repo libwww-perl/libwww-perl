@@ -19,8 +19,13 @@ my $abs = $req->url->abs;
 
 print $req->as_string;
 
-$c->send_response(200);
-$c->print("Gisle Aas\n");
+$c->send_file_response("/etc");
 
+#$c->send_redirect("http://www.sn.no/aas", 301, "<title>Piss off</title>");
 
+#my $res = HTTP::Response->new(400, undef,
+#			      HTTP::Headers->new(Foo => 'bar'),
+#			      "Gisle\n"
+#			     );
+#$c->send_response($res);
 

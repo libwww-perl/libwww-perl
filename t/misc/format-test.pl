@@ -1,9 +1,13 @@
 use HTML::Parse;
 require HTML::FormatText;
+require HTML::FormatPS;
+
+$formatter = "HTML::FormatText";
+$formatter = "HTML::FormatPS",shift if @ARGV && $ARGV[0] eq "-ps";
 
 sub test_it {
     $html = parse_html(shift);
-    $formatter = new HTML::FormatText;
+    $formatter = $formatter->new(@ARGV);
     print $formatter->format($html);
 }
 

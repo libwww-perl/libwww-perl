@@ -1,6 +1,6 @@
 #!perl -w
 
-print "1..15\n";
+print "1..16\n";
 
 use strict;
 use HTML::Form;
@@ -173,6 +173,20 @@ $f = HTML::Form->parse($response);
 
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 15\n";
 GET http://www.example.com?x=42
+
+
+EOT
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form>
+   <input type=checkbox name=x>
+</form>
+EOT
+
+$f->find_input("x")->check;
+
+print "not " unless $f->click->as_string eq <<"EOT"; print "ok 16\n";
+GET http://www.example.com?x=on
 
 
 EOT

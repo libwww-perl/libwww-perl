@@ -808,6 +808,7 @@ package HTML::Form::ListInput;
 #select/option   (val1, val2, ....)
 #input/radio     (undef, val1, val2,...)
 #input/checkbox  (undef, value)
+#select-multiple/option (undef, value)
 
 sub new
 {
@@ -884,6 +885,30 @@ sub value
 	$self->{seen}[$cur] = 1;
     }
     $old;
+}
+
+=item $input->check
+
+Some input types represent toggles that can be turned on/off.  This
+includes "checkbox" and "option" inputs.  Calling this method turns
+this input on without having to know the value name.  If the input is
+already on, then nothing happens.
+
+This has the same effect as:
+
+    $input->value($input->possible_values[1]);
+
+The input can be turned off with:
+
+    $input->value(undef);
+
+=cut
+
+sub check
+{
+    my $self = shift;
+    $self->{current} = 1;
+    $self->{seen}[1] = 1;
 }
 
 sub possible_values

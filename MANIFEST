@@ -68,6 +68,8 @@ t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/base/ua.t			Basic LWP::UserAgent tests
 t/html/form.t			Test HTML::Form module
+t/live/google.t
+t/live/validator.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/local/http.t			Test http to local server

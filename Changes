@@ -1,11 +1,17 @@
-2003-10-30   Gisle Aas <gisle@ActiveState.com>
+2003-10-23   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.74
 
-    Improved lwp-download:
+    Improved lwp-download program:
       - set mtime if Last-Modified header reported by server
       - better prompts
       - avoid warnings when aborted at the wrong time
+
+    Collected all contributions in the AUTHORS file and
+    also added an AUTHORS section to the LWP manpage.
+
+    Style tweaks to all modules.  Move POD after __END__
+    and uncuddled elses.
 
 
 

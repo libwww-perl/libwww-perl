@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.56 2001/10/26 17:27:19 gisle Exp $
+# $Id: http.pm,v 1.57 2001/10/26 18:08:02 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -74,7 +74,10 @@ sub _new_socket
 	$@ =~ s/^.*?: //;
 	die "Can't connect to $host:$port ($@)";
     }
-    $sock->blocking(0);
+
+    # perl 5.005's IO::Socket does not have the blocking method.
+    eval { $sock->blocking(0); };
+
     $sock;
 }
 

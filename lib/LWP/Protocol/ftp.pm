@@ -1,10 +1,7 @@
 #
-# $Id: ftp.pm,v 1.5 1995/09/04 18:39:12 aas Exp $
+# $Id: ftp.pm,v 1.6 1995/09/06 16:22:30 aas Exp $
 
-# Implementation of the ftp protocol (RFC 959).  This file does not
-# work yet, so you may want to delete it.
-#
-#
+# Implementation of the ftp protocol (RFC 959).
 
 package LWP::Protocol::ftp;
 
@@ -13,6 +10,8 @@ require LWP::Socket;
 require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
+
+require LWP::MediaTypes;
 
 use Carp;
 
@@ -52,9 +51,6 @@ sub request
                                   'Library does not allow method ' .
                                   "$method for 'ftp:' URLs";
     }
-
-    my $response = new HTTP::Response &HTTP::Status::RC_OK,
-                                      'Document follows';
 
     my $host     = $url->host;
     my $port     = $url->port;
@@ -168,16 +164,7 @@ sub request
 #    algorithm is to disconnect and reestablish the control connection.
 # 
 
-    $response->header('Content-Type', 'text/plain');
-    $response->content(<<"EOT");
-FTP is not working yet.  These are the parameters:
-
-Method = $method
-Host   = $host, Port = $port,
-User   = $user, Password = $password
-Path   = $path;
-
-EOT
+    my $response;
 
     my $cmd_sock = new LWP::Socket;
     alarm($timeout) if $self->useAlarm and defined $timeout;
@@ -189,21 +176,76 @@ EOT
 	expect($cmd_sock, '3');
 	$cmd_sock->write("pass $password\r\n");
 	expect($cmd_sock, '2');
+    };
+    if ($@) {
+	return new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $@;
+    }
+    eval {
 	$cmd_sock->write("type i\r\n");
 	expect($cmd_sock, '2');
+
+	# establish a data socket
+	$listen = new LWP::Socket;
+	$listen->listen(1);
+	my $localhost = ($cmd_sock->getsockname)[0];
+	$localhost =~ s/\./,/g;
+	my $port = ($listen->getsockname)[1];
+	$port = join(',', $port >> 8, $port & 0xFF);
+	
+	$cmd_sock->write("port $localhost,$port\r\n");
+	$resp = expect($cmd_sock, '2');
+
 	if ($method eq 'GET') {
 	    $cmd_sock->write("retr $path\r\n");
-	    $resp = expect($cmd_sock, '2', 1);
+	    $resp = expect($cmd_sock, '1', 1);
+	    $response = new HTTP::Response &HTTP::Status::RC_OK,
+	                                   'Document follows';
+	    if ($resp =~ /\((\d+)\s+bytes\)/) {
+		$response->header('Content-Length', $1);
+	    }
+
+	    my($type, @enc) = LWP::MediaTypes::guessMediaType($url);
+	    $response->header('Content-Type',   $type) if $type;
+	    for (@enc) {
+		$response->pushHeader('Content-Encoding', $_);
+	    }
+	    
 	    if ($resp =~ /^550/) {
 		# 550 not a plain file, try to list instead
 		$cmd_sock->write("list $path\r\n");
-		expect($cmd_sock, '2');
-	    } else {
-		die "$resp\n";
+		expect($cmd_sock, '1');
+		$response->header('Content-Type', # should be text/html
+				  'text/x-dir-listing');
+	    } elsif ($resp !~ /^1/) {
+		die "$resp";
 	    }
+	    my $data = $listen->accept;
+	    
+	    $response = $self->collect($arg, $response, sub { 
+		LWP::Debug::debug('collecting');
+		my $content = '';
+		my $result = $data->read(\$content, $size, $timeout);
+		LWP::Debug::debug("collected: $content");
+		return \$content;
+	    } );
+
 	} elsif ($method eq 'PUT') {
 	    $cmd_sock->write("stor $path\r\n");
-	    $resp = expect($cmd_sock, '2', 1);
+	    $resp = expect($cmd_sock, '1');
+	    $response = new HTTP::Response &HTTP::Status::RC_CREATED,
+	                                   'File updated';
+	    my $data = $listen->accept;
+	    my $content = $request->content;
+	    my $bytes = 0;
+	    if (defined $content) {
+		if (ref($content) && ref($content) eq 'SCALAR') {
+		    $bytes = $data->write($$content, $timeout);
+		} else {
+		    $bytes = $data->write($content, $timeout);
+		}
+	    }
+	    $response->header('Content-Type', 'text/plain');
+	    $response->content("$bytes stored as $path on $host\n")
 	} else {
 	    die "This should not happen\n";
 	}
@@ -225,7 +267,7 @@ sub expect
     $sock->readUntil("\r?\n", \$response, undef);
     my($code, $string) = $response =~ m/^(\d+)\s+(.*)/;
     die "$response\n" if substr($code,0,1) ne $digit && !$dont_die;
-    print "$response\n";
+    LWP::Debug::debug($response);
     $response;
 }
 

@@ -1,11 +1,51 @@
 # This -*-perl -*- module implements a persistent counter class.
-# It should work if flock(2) works.
 #
-# Author: Gisle Aas, Oslonett AS
+# $Id: CounterFile.pm,v 0.2 1995/07/07 11:29:37 aas Exp $
 #
-# $Id: CounterFile.pm,v 0.1 1995/07/07 10:56:47 aas Exp $
 
 package Counter;
+
+=head1 NAME
+
+Counter - Persistent counter class
+
+=head1 SYNOPSIS
+
+ use Counter;
+ $c = new Counter "COUNTER", "aa00";
+
+ $id = $c->inc;
+ open(F, ">F$id");
+
+=head1 DESCRIPTION
+
+This module implements a persistent counter class.  Each counter is
+represented by a separate file in the file system.  You give the file
+name as a parameter to the object constructor.  The file is created if
+it does not exist.
+
+If the file name does not start with "/" or ".", then it is
+interpreted as a file relative to C<$Counter::DEFAULT_DIR>.  You might
+pass a second parameter to the constructor, that sets the initial
+value for a new counter.  This parameter only takes effect when the
+file is created (i.e. it does not exist before the call).
+
+Each time you call the C<inc> method, you increment the counter value.
+The new value is returned.
+
+=head1 BUGS
+
+It uses flock(2) to lock the counter file.  This does not always
+work.
+
+=head1 AUTHOR
+
+Gisle Aas <aas@oslonett.no>
+
+=cut
+
+
+use Carp;
 
 $VERSION = '1.0';
 
@@ -13,7 +53,6 @@ $MAGIC           = "#COUNTER-$VERSION\n";
 $DEFAULT_DIR     = "/usr/tmp";
 $DEFAULT_INITIAL = 0;
 
-use Carp;
 
 sub new
 {
@@ -41,7 +80,7 @@ sub new
 }
 
 
-sub next
+sub inc
 {
     # Get a new identifier by incrementing the $count file
     my($this) = @_;

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.83 2001/04/20 16:50:34 gisle Exp $
+# $Id: UserAgent.pm,v 1.84 2001/04/20 16:59:31 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.83 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.84 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -493,6 +493,10 @@ sub clone
     # elements that are references must be handled in a special way
     $copy->{'proxy'} = { %{$self->{'proxy'}} };
     $copy->{'no_proxy'} = [ @{$self->{'no_proxy'}} ];  # copy array
+
+    # remove reference to objects for now
+    delete $copy->{cookie_jar};
+    delete $copy->{conn_cache};
 
     $copy;
 }

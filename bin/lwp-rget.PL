@@ -100,7 +100,7 @@ use vars qw($VERSION $DISTNAME);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -227,8 +227,8 @@ sub fetch
 
 	# If the file is HTML, then we look for internal links
 	if ($ct eq "text/html") {
-	    # Save a unprosessed version of the HTML document.  This
-	    # both reserve the name used, and it also ensures that we
+	    # Save an unprosessed version of the HTML document.  This
+	    # both reserves the name used, and it also ensures that we
 	    # don't loose everything if this program is killed before
 	    # we finish.
 	    save($name, $doc);

@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.04";   # $Date: 1996/05/08 16:22:43 $
+$VERSION = "4.04";   # $Date: 1996/05/16 03:43:53 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -424,7 +424,7 @@ URI::URL - Uniform Resource Locators (absolute and relative)
 
 This module implements the URI::URL class representing Uniform
 Resource Locators (URL). URLs provide a compact string representation
-for resouces available via the Internet. Both absolute (RFC 1738) and
+for resources available via the Internet. Both absolute (RFC 1738) and
 relative (RFC 1808) URLs are supported.
 
 URI::URL objects are created by calling new(), which takes as argument
@@ -459,7 +459,7 @@ you want to override this.
 
 =item This is an edited extract from a URI specification:
 
-The printability requirement has been met by specifing a safe set of
+The printability requirement has been met by specifying a safe set of
 characters, and a general escaping scheme for encoding "unsafe"
 characters. This "safe" set is suitable, for example, for use in
 electronic mail.  This is the canonical form of a URI.
@@ -501,7 +501,7 @@ form. The following methods return/accept unescaped strings:
     host                    frag
     port
 
-The following methods return/accept partical I<escaped> strings:
+The following methods return/accept partial I<escaped> strings:
 
     netloc                  eparams
     epath                   equery
@@ -528,7 +528,7 @@ like:
 
 The 'URI::URL::implementor()' function call with no parameters returns
 the name of the class which implements the generic URL scheme
-behaviour (typically C<URI::URL::_generic>). All hierarchial schemes
+behaviour (typically C<URI::URL::_generic>). All hierarchical schemes
 should be derived from this class.
 
 Your class can then define overriding methods (e.g., new(), _parse()
@@ -623,13 +623,13 @@ difference is demonstrated by the following examples:
 =item $url->as_string
 
 Returns a string representing the URL in its canonical form.  All
-usafe characters will be escaped.  This method is overloaded as the
+unsafe characters will be escaped.  This method is overloaded as the
 perl "stringify" operator, which means that URLs can be used as
 strings in many contexts.
 
 =item $url->base (*)
 
-Get/set the base URL assosiated with the current URI::URL object.  The
+Get/set the base URL associated with the current URI::URL object.  The
 base URL matters when you call the abs() method.
 
 =item $url->clone
@@ -753,7 +753,7 @@ This method can also be used to set the query sting of the URL like this:
 =head1 FILE METHODS
 
 The I<file> URLs implement the local_path() method that returns a path
-suitable for access to files withing the current filesystem.  These
+suitable for access to files within the current filesystem.  These
 methods can B<not> be used to set the path of the URL.
 
 =over 3
@@ -766,7 +766,7 @@ depending on what system you run on.
 =item $url->unix_path
 
 Returns a path suitable for use on a Unix system.  This method will
-croak if any of the path segments contains a "/" or a NUL character.
+croak if any of the path segments contains a "/" or a NULL character.
 
 =item $url->dos_path
 
@@ -774,7 +774,7 @@ Returns a path suitable for use on a MS-DOS or MS-Windows system.
 
 =item $url->mac_path
 
-Returns a path suitable for use on a Machintosh system.
+Returns a path suitable for use on a Macintosh system.
 
 =item $url->vms_path
 
@@ -847,7 +847,7 @@ not be a subclass of it.
 
 =head1 COMPATIBILITY
 
-This is a listing incompatabilites with URI::URL version 3.x:
+This is a listing incompatibilities with URI::URL version 3.x:
 
 =over 3
 
@@ -899,7 +899,7 @@ Cutter.
 
 Gisle Aas <aas@sn.no>, Tim Bunce <Tim.Bunce@ig.co.uk>, Roy Fielding
 <fielding@ics.uci.edu> and Martijn Koster <m.koster@webcrawler.com>
-(in english alphabetical order) have collaborated on the complete
+(in English alphabetical order) have collaborated on the complete
 rewrite for Perl 5, with input from other people on the libwww-perl
 mailing list.
 

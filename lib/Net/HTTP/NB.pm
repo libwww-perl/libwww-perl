@@ -1,6 +1,6 @@
 package Net::HTTP::NB;
 
-# $Id: NB.pm,v 1.2 2001/04/13 06:41:19 gisle Exp $
+# $Id: NB.pm,v 1.3 2001/04/14 06:03:42 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -11,21 +11,21 @@ require Net::HTTP;
 
 sub xread {
     my $self = $_[0];
-    if (${*$self}{'myhttp_read_count'}++) {
-	${*$self}{'http_buf'} = ${*$self}{'myhttp_save'};
+    if (${*$self}{'httpnb_read_count'}++) {
+	${*$self}{'http_buf'} = ${*$self}{'httpnb_save'};
 	die "Multi-read\n";
     }
     my $buf;
     my $offset = $_[3] || 0;
     my $n = sysread($self, $_[1], $_[2], $offset);
-    ${*$self}{'myhttp_save'} .= substr($_[1], $offset);
+    ${*$self}{'httpnb_save'} .= substr($_[1], $offset);
     return $n;
 }
 
 sub read_response_headers {
     my $self = shift;
-    ${*$self}{'myhttp_read_count'} = 0;
-    ${*$self}{'myhttp_save'} = ${*$self}{'http_buf'};
+    ${*$self}{'httpnb_read_count'} = 0;
+    ${*$self}{'httpnb_save'} = ${*$self}{'http_buf'};
     my @h = eval { $self->SUPER::read_response_headers(@_) };
     if ($@) {
 	return if $@ eq "Multi-read\n";
@@ -36,8 +36,8 @@ sub read_response_headers {
 
 sub read_entity_body {
     my $self = shift;
-    ${*$self}{'myhttp_read_count'} = 0;
-    ${*$self}{'myhttp_save'} = ${*$self}{'http_buf'};
+    ${*$self}{'httpnb_read_count'} = 0;
+    ${*$self}{'httpnb_save'} = ${*$self}{'http_buf'};
     my $n = eval { $self->SUPER::read_entity_body(@_); };
     if ($@) {
 	$_[0] = "";

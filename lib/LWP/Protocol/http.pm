@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.58 2001/11/15 06:44:25 gisle Exp $
+# $Id: http.pm,v 1.59 2001/11/15 07:22:40 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -111,7 +111,7 @@ sub _fixup_header
     # Extract 'Host' header
     my $hhost = $url->authority;
     $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
-    $h->header('Host' => $hhost) unless defined $h->header('Host');
+    $h->init_header('Host' => $hhost);
 
     # add authorization header if we need them.  HTTP URLs do
     # not really support specification of user and password, but
@@ -182,7 +182,9 @@ sub request
     $self->_check_sock($request, $socket);
 
     my @h;
-    my $request_headers = $request->headers;
+    my $request_headers = $request->headers->clone;
+    $self->_fixup_header($request_headers, $url, $proxy);
+
     $request_headers->scan(sub {
 			       my($k, $v) = @_;
 			       $v =~ s/\n/ /g;

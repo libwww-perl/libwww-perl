@@ -1,8 +1,12 @@
 #
-# $Id: URL.pm,v 3.4 1995/08/09 19:58:16 aas Exp $
+# $Id: URL.pm,v 3.5 1995/08/09 20:37:43 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
+
+# Make the version number available
+$VERSION = "3.03";
+sub Version { $VERSION; }
 
 #####################################################################
 
@@ -268,10 +272,6 @@ use Carp;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(uri_escape uri_unescape);
-
-# Make the version number available
-$VERSION = sprintf("%d.%02d", q$Revision: 3.4 $ =~ /(\d+)\.(\d+)/);
-sub Version { $VERSION; }
 
 # Define default unsafe characters. (RFC1738 section 2.2)
 # Note that you cannot reliably change this at runtime
@@ -761,7 +761,7 @@ sub full_path
 # Use $url->scheme(undef) to set the value to undefined.
 
 # Generic-RL components:
-sub scheme   { shift->_elem('scheme',  @_); }
+sub scheme;  # defined below
 sub netloc;  # defined below
 sub path;    # defined below
 sub params   { shift->_elem('params',  @_); }
@@ -776,6 +776,25 @@ sub port;    # defined below
 
 
 # Field that need special treatment
+sub scheme {
+    my $self = shift;
+    my $old = $self->{'scheme'};
+    return $old unless @_;
+    my $newscheme = shift;
+
+    if (defined($newscheme) && length($newscheme)) {
+	# reparse URL with new scheme
+	my $str = $self->as_string;
+	$str =~ s/^[\w+\-.]+://;
+	my $newself = new URI::URL "$newscheme:$str";
+	%$self = %$newself;
+	bless $self, ref($newself);
+    } else {
+	$self->{'scheme'} = $newscheme;
+    }
+    $old;
+}
+
 sub netloc {
     my $self = shift;
     my $old = $self->_elem('netloc', @_);

@@ -1,6 +1,8 @@
 use strict;
 use HTTP::Headers::Util qw(split_header_words join_header_words);
 
+my $extra_tests = 2;
+
 my @tests = (
 
    ["foo"                     => "foo"],
@@ -24,7 +26,7 @@ my @tests = (
     'Basic; realm="\"foo\\\\bar\""'],
 );
 
-print "1.." .  @tests . "\n";
+print "1..", @tests + $extra_tests, "\n";
 
 my $testno = 1;
 
@@ -46,3 +48,12 @@ for (@tests) {
    }
    print "ok ", $testno++, "\n";
 }
+
+
+# some extra tests
+print "not " unless join_header_words("foo" => undef, "bar" => "baz")
+                    eq "foo; bar=baz";
+print "ok ", $testno++, "\n";
+
+print "not " unless join_header_words() eq "";
+print "ok ", $testno++, "\n";

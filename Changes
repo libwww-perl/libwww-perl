@@ -1,3 +1,21 @@
+2003-10-10   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.70
+
+    File::Listing::apache by Slaven Rezic <slaven@rezic.de>
+
+    HTML::Form's dump() method now print the name of the form if
+    present.
+
+    Patch to make HEAD requests work for ftp: URLs.
+    Patch by Ville Skyttä <ville.skytta@iki.fi>.
+
+    LWP::UserAgent: The protocols_allowed() and protocols_forbidden()
+    methods are now case insensitive.  Patch by Ville Skyttä
+    <ville.skytta@iki.fi>.
+
+
+
 2003-01-24   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.69

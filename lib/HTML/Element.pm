@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.12 1995/09/12 11:26:48 aas Exp $
+# $Id: Element.pm,v 1.13 1995/09/12 13:30:57 aas Exp $
 
 =head1 NAME
 
@@ -38,10 +38,12 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-%OVERLOAD = ( '""'=>'asHTML', 'fallback'=>1 );      # EXPERIMENTAL
+# %OVERLOAD = ( '""'=>'asHTML', 'fallback'=>1 );
+# Overloading triggers a bug where content might be lost.  I have not
+# managed to locate this failure.
 
 # Elements that does not have corresponding end tags
 for (qw(base link meta isindex nextid

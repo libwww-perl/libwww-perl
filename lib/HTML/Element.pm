@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.10 1995/09/12 08:48:25 aas Exp $
+# $Id: Element.pm,v 1.11 1995/09/12 10:35:17 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -150,7 +150,12 @@ Returns (optionally sets) the parent for this element.
 
 sub parent
 {
-    shift->attr('_parent', @_);
+    my $self = shift;
+    if (@_) {
+	$self->{'_parent'} = $_[0];
+    } else {
+	$self->{'_parent'};
+    }
 }
 
 
@@ -181,11 +186,11 @@ sub isInside
     my $self = shift;
     my $p = $self;
     while (defined $p) {
-	my $ptag = $p->tag;
+	my $ptag = $p->{'_tag'};
 	for (@_) {
 	    return 1 if $ptag eq $_;
 	}
-	$p = $p->parent;
+	$p = $p->{'_parent'};
     }
     0;
 }
@@ -378,7 +383,7 @@ sub extractLinks
     $self->traverse(
 	sub {
 	    my $self = shift;
-	    my $tag = $self->tag;
+	    my $tag = $self->{'_tag'};
 	    return unless !$wantType || $wantType{$tag};
 	    my $attr = $linkElements{$tag};
 	    return unless defined $attr;
@@ -465,6 +470,17 @@ sub asHTML
     }
     $html .= "\n" if $depth == 0;
     $html;
+}
+
+sub format
+{
+    my($self, $formatter) = @_;
+    unless (defined $formatter) {
+	require HTML::FormatText;
+	$formatter = new HTML::FormatText;
+    }
+    require HTML::Format;
+    HTML::Format::format($self, $formatter);
 }
 
 

@@ -1,4 +1,4 @@
-print "1..29\n";
+print "1..32\n";
 
 #use LWP::Debug '+';
 
@@ -379,10 +379,15 @@ $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90
 print "not " if count_cookies($c) != 4;
 print "ok 22\n";
 
-# encoded path
-$cookie = interact($c, "http://www.sol.no/foo/", 'foo8=bar; path="/%66oo"');
+# port attribute without any value (current port)
+$cookie = interact($c, "http://www.sol.no", 'foo9=bar; domain=".sol.no"; port; max-age=100;');
 print "not " if count_cookies($c) != 5;
 print "ok 23\n";
+
+# encoded path
+$cookie = interact($c, "http://www.sol.no/foo/", 'foo8=bar; path="/%66oo"');
+print "not " if count_cookies($c) != 6;
+print "ok 24\n";
 
 my $file = "lwp-cookies-$$.txt";
 $c->save($file);
@@ -394,7 +399,7 @@ $c->load($file);
 unlink($file) || warn "Can't unlink $file: $!";
 
 print "not " unless $old eq $c->as_string;
-print "ok 24\n";
+print "ok 25\n";
 
 undef($c);
 
@@ -407,11 +412,11 @@ print $c->as_string;
 
 $cookie = interact($c, "http://www.acme.com/foo%2f%25/@@%0anewå/æøå", "bar=baz; path=\"/foo/\"; version=1");
 print "not " unless $cookie =~ /foo=bar/ && $cookie =~ /^\$version=\"?1\"?/i;
-print "ok 25\n";
+print "ok 26\n";
 
 $cookie = interact($c, "http://www.acme.com/foo/%25/@@%0anewå/æøå");
 print "not " if $cookie;
-print "ok 26\n";
+print "ok 27\n";
 
 undef($c);
 
@@ -428,10 +433,10 @@ undef($c);
 
 $c = HTTP::Cookies::Netscape->new(file => $file);
 print "not " unless count_cookies($c) == 1;     # 2 of them discarded on save
-print "ok 27\n";
+print "ok 28\n";
 
 print "not " unless $c->as_string =~ /foo1=bar/;
-print "ok 28\n";
+print "ok 29\n";
 undef($c);
 unlink($file);
 
@@ -463,8 +468,27 @@ $c->add_cookie_header($req);
 #print $req->as_string;
 print "not " unless $req->header("Cookie") =~ /PART_NUMBER=3,4/ &&
 	            $req->header("Cookie") =~ /Customer=WILE_E_COYOTE/;
-print "ok 29\n";
+print "ok 30\n";
 
+
+
+# Test handling of local intranet hostnames without a dot
+$c->clear;
+print "---\n";
+#require LWP::Debug;
+#LWP::Debug::level('+');
+
+interact($c, "http://example/", "foo1=bar; PORT; Discard;");
+$_=interact($c, "http://example/", 'foo2=bar; domain=".local"');
+print "not " unless /foo1=bar/;
+print "ok 31\n";
+
+$_=interact($c, "http://example/", 'foo3=bar');
+$_=interact($c, "http://example/");
+print "Cookie: $_\n";
+print "not " unless /foo2=bar/ && count_cookies($c) == 3;
+print "ok 32\n";
+print $c->as_string;
 
 #-------------------------------------------------------------------
 

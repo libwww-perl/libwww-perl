@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.53 1997/12/12 20:18:24 aas Exp $
+# $Id: UserAgent.pm,v 1.54 1997/12/15 20:29:33 aas Exp $
 
 package LWP::UserAgent;
 
@@ -117,7 +117,6 @@ use LWP::Debug ();
 use LWP::Protocol ();
 
 use Carp ();
-use Config ();
 
 use AutoLoader ();
 *AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
@@ -146,9 +145,7 @@ sub new
 		'proxy'       => undef,
 		'cookie_jar'  => undef,
 		'use_eval'    => 1,
-		'use_alarm'   => ($Config::Config{d_alarm} ?
-				  $Config::Config{d_alarm} eq 'define' :
-				  0),
+		'use_alarm'   => 0,
                 'parse_head'  => 1,
                 'max_size'    => undef,
 		'no_proxy'    => [],
@@ -210,9 +207,9 @@ sub simple_request
 
     # Extract fields that will be used below
     my ($agent, $from, $timeout, $cookie_jar,
-        $use_alarm, $use_eval, $parse_head, $max_size) =
+        $use_eval, $parse_head, $max_size) =
       @{$self}{qw(agent from timeout cookie_jar
-                  use_alarm use_eval parse_head max_size)};
+                  use_eval parse_head max_size)};
 
     # Set User-Agent and From headers if they are defined
     $request->header('User-Agent' => $agent) if $agent;
@@ -220,24 +217,14 @@ sub simple_request
     $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
     # Inform the protocol if we need to use alarm() and parse_head()
-    $protocol->use_alarm($use_alarm);
     $protocol->parse_head($parse_head);
     $protocol->max_size($max_size);
     
-    # If we use alarm() we need to register a signal handler
-    # and start the timeout
-    if ($use_alarm) {
-	$SIG{'ALRM'} = sub { die 'Timeout'; };
-	$protocol->timeout($timeout);
-	alarm($timeout);
-    }
-
     if ($use_eval) {
 	# we eval, and turn dies into responses below
 	eval {
 	    $response = $protocol->request($request, $proxy,
 					   $arg, $size, $timeout);
-	    alarm(0) if $use_alarm;
 	};
 	if ($@) {
 	    if ($@ =~ /^timeout/i) {
@@ -255,7 +242,6 @@ sub simple_request
 	# user has to handle any dies, usually timeouts
 	$response = $protocol->request($request, $proxy,
 				       $arg, $size, $timeout);
-	alarm(0) if $use_alarm;
 	# XXX: Should we die unless $response->is_success ???
     }
 

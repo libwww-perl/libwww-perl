@@ -43,6 +43,11 @@
 
     HTTP::Cookies::Netscape documentation fix by Sean M. Burke.
 
+    The code that tries to avoid installing 'HEAD' on top of
+    'head' on systems like Mac OS was further improved to look
+    in $Config{installscript} instead of $Config{sitebin}.
+    Patch provided by Ken Williams <ken@mathforum.org>.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

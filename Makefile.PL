@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.68 2003/10/14 11:39:30 gisle Exp $
+# $Id: Makefile.PL,v 1.69 2003/10/15 18:52:22 gisle Exp $
 
 require 5.005;
 use strict;
@@ -87,7 +87,7 @@ if (@programs_to_install) {
     print <<EOT;
 
 This package comes with some sample programs that I can try
-to install in $Config{sitebin}.
+to install in $Config{installscript}.
 
    Note that you can avoid these questions by passing
    the '-n' option to 'Makefile.PL'.
@@ -108,7 +108,7 @@ if (grep($_ eq 'lwp-request', @programs_to_install) && @request_aliases) {
 The lwp-request program will use the name it is invoked with to
 determine what HTTP method to use.  I can set up alias for the most
 common HTTP methods.  These alias are also installed in
-$Config{sitebin}.
+$Config{installscript}.
 
 EOT
     my @tmp;
@@ -116,7 +116,7 @@ EOT
 	my $default = "y";
 	# check that we don't overwrite something unrelated with
 	# the current defaults.
-	if (open(PROG, "<$Config{sitebin}/$alias")) {
+	if (open(PROG, "<$Config{installscript}/$alias")) {
 	    $default = "n";
 	    while (<PROG>) {
 		if (/lwp-request/) {

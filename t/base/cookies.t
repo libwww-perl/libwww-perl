@@ -563,8 +563,8 @@ $c = HTTP::Cookies->new;  # clear it
 $c->extract_cookies($res);
 print $c->as_string;
 print "not " unless $c->as_string eq <<'EOT'; print "ok 35\n";
-Set-Cookie3: trip.appServer="1111-0000-x-024"; path="/"; domain=".trip.com"; path_spec; discard; version=0
-Set-Cookie3: JSESSIONID="fkumjm7nt1.JS24"; path="/trs"; domain="www.trip.com"; path_spec; discard; version=1
+Set-Cookie3: trip.appServer=1111-0000-x-024; path="/"; domain=.trip.com; path_spec; discard; version=0
+Set-Cookie3: JSESSIONID=fkumjm7nt1.JS24; path="/trs"; domain=www.trip.com; path_spec; discard; version=1
 EOT
 
 #-------------------------------------------------------------------

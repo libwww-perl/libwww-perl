@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -150,11 +150,12 @@ sub join_header_words
 	    my $k = shift @cur;
 	    my $v = shift @cur;
 	    if (defined $v) {
-		if ($v =~ /^\w+$/) {
-		    $k .= "=$v";
-		} else {
+		if ($v =~ /[\x00-\x20()<>@,;:\\\"\/\[\]?={}\x7F-\xFF]/ || !length($v)) {
 		    $v =~ s/([\"\\])/\\$1/g;  # escape " and \
 		    $k .= qq(="$v");
+		} else {
+		    # token
+		    $k .= "=$v";
 		}
 	    }
 	    push(@attr, $k);

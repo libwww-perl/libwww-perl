@@ -17,7 +17,7 @@ my @s_tests = (
    ['foo=bar,bar=baz'         => 'foo=bar, bar=baz'],
 
    ['text/html; charset=iso-8859-1' =>
-    'text/html; charset="iso-8859-1"'],
+    'text/html; charset=iso-8859-1'],
 
    ['foo="bar"; port="80,81"; discard, bar=baz' =>
     'foo=bar; port="80,81"; discard, bar=baz'],

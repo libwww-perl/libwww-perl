@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.45 2004/05/21 08:56:16 gisle Exp $
+# $Id: HTTP.pm,v 1.46 2004/12/30 12:17:03 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -32,7 +32,7 @@ Net::HTTP - Low-level HTTP connection (client)
 =head1 SYNOPSIS
 
  use Net::HTTP;
- my $s = Net::HTTP->new(Host => "www.perl.com) || die $@;
+ my $s = Net::HTTP->new(Host => "www.perl.com") || die $@;
  $s->write_request(GET => "/", 'User-Agent' => "Mozilla/5.0");
  my($code, $mess, %h) = $s->read_response_headers;
 

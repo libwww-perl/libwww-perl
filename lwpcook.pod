@@ -334,4 +334,13 @@ base() method.
 
   $BASE = $res->base;
 
-=cut
+
+
+=head1 COPYRIGHT
+
+Copyright 1996-1997, Gisle Aas
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+

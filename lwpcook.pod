@@ -178,6 +178,27 @@ The other alternative is to provide a subclass of I<LWP::UserAgent> that
 overrides the get_basic_credentials() method. Study the I<lwp-request>
 program for an example of this.
 
+=head1 HTTPS
+
+URLs with https scheme are accessed in exactly the same way as with
+http scheme, provided that an SSL interface module for LWP has been
+properly installed (see the F<README.SSL> file found in the
+libwww-perl distribution for more details).  If no SSL interface is
+installed for LWP to use, then you will get "501 Protocol scheme
+'https' is not supported" errors when accessing such URLs.
+
+Here's an example of fetching and printing a WWW page using SSL:
+
+  use LWP::UserAgent;
+
+  my $ua = LWP::UserAgent->new;
+  my $req = HTTP::Request->new(GET => 'https://www.helsinki.fi/');
+  my $res = $ua->request($req);
+  if ($res->is_success) {
+      print $res->as_string;
+  } else {
+      print "Failed: ", $res->status_line, "\n";
+  }
 
 =head1 MIRRORING
 
@@ -252,7 +273,7 @@ argument is a code reference):
 
 =head1 COPYRIGHT
 
-Copyright 1996-1998, Gisle Aas
+Copyright 1996-1999, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -31,7 +31,7 @@ connection.  For more information about cookies referrer to
 <URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
 <URL:http://www.cookiecentral.com/>.  This module also implements the
 new style cookies as described in I<draft-ietf-http-state-man-mec-03.txt>.
-The two variants of cookies can coexist happily.
+The two variants of cookies is supposed to be able to coexist happily.
 
 Instances of the class I<HTTP::Cookies> are able to store a collection
 of Set-Cookie2: and Set-Cookie:-headers and is able to use this
@@ -162,7 +162,7 @@ sub add_cookie_header
 		}
 
 		# do we need to quote the value
-		if ($val =~ /\W/) { 
+		if ($val =~ /\W/ && $version) {
 		    $val =~ s/([\\\"])/\\$1/g;
 		    $val = qq("$val");
 		}
@@ -281,7 +281,7 @@ sub extract_cookies
 
 	# Check domain
 	my $domain  = delete $hash{domain};
-	if (defined $domain) {
+	if (defined($domain) && $domain ne $req_host) {
 	    unless ($domain =~ /\./) {
 	        LWP::Debug::debug("Domain $domain contains no dot");
 		next SET_COOKIE;
@@ -297,7 +297,7 @@ sub extract_cookies
 		next SET_COOKIE;
 	    }
 	    my $hostpre = substr($req_host, 0, length($req_host) - $len);
-	    if ($hostpre =~ /\./) {
+	    if ($hostpre =~ /\./ && !$netscape_cookies) {
 	        LWP::Debug::debug("Host prefix contain a dot: $hostpre => $domain");
 		next SET_COOKIE;
 	    }

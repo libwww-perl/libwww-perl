@@ -1,3 +1,49 @@
+Mon Feb 26 1996   Gisle Aas <aas@sn.no>
+
+ o  Renamed functions using thisStyleOfNames to this_style_of_names.
+    Provided a script called 'update_from_5b7'
+
+ o  Renamed the 'request' and 'mirror' scripts to 'lwp-request' and
+    'lwp-mirror'.  The GET, POST, HEAD aliases for 'lwp-request' are
+    the same.
+
+ o  Implemented LWP::RobotUA
+
+ o  Class name for RobotRules did not match the file name
+
+ o  URI::URL
+      - perl5.002gamma is required (because use vars).
+      - The leading slash in now part of the path if it is present.
+      - More documentation
+      - Use AutoLoader to speed things up.
+      - New class URI::URL::_login and made telnet, rlogin, tn3270
+        subclasses from this one.
+      - URI::URL::wais is better supported.
+      - URI::URL::news is better supported.
+      - New URI::URL::mailto methods: user/host
+
+ o  HTTP::Date::time2str now works correctly with '0' as argument
+
+ o  HTTP::Message delegates unknown methods to the headers.
+
+ o  HTTP::Request::uri is an alias for HTTP::Request::url.  Can set
+    the URL to undef.
+
+ o  Added convenience methods to HTTP::Headers for easy access to
+    frequently used headers.
+
+ o  Simplified LWP::Debug
+
+ o  Use standard AutoLoader for LWP::IO functions.
+
+ o  Played with the profiler (Devel::DProf) and made some things
+    go quicker.
+
+ o  Included the File::CounterFile module.  Excluded Mail::Cap module
+    as it is also part of the MailTools package.
+
+
+
 Mon Feb  5 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b7

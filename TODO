@@ -1,4 +1,4 @@
-                                            $Date: 1996/05/19 11:18:06 $
+                                            $Date: 1996/05/26 10:43:02 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
@@ -43,26 +43,8 @@ This is a list over things that we plan to implement in libwww-perl-5
 
   o  Investigate the Net::SSL module and implement support for https.
 
-  o  Make the HTML parser more correct: for instance <tag attr="val>ue">
-     and things like that.
-
-  o  Make the parser ignore insignificat whitespace.
-
-  o  $h->as_HTML has trouble with this: <input name="name">, i.e. when
-     the attribute name and value are the same.
-
-  o  Make the HTML parser much faster.  Perhaps we need to reimplement it
-     as C code to make it acceptable.
-
-  o  Make traverse style callbacks during parsing (this should allow
-     us to do formatting as data arrives).
-
-  o  The HTML::Parse module should make meta information (<HEAD>) easier to
-     access.  The interface should allow us to stop parsing as soon as the
-     <HEAD> section is done.
-
-  o  Parse full HTML 3.0 markup and new ad-hoc (Netscape) extentions as
-     they turn up.
+  o  Make the parser ignore insignificat whitespace (at the start and end
+     of all block level elements)
 
   o  Make the $html->as_HTML() output look nicely formatted.
 

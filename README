@@ -19,8 +19,9 @@ and much more information about its libraries can be found at:
 http://www.ics.uci.edu/pub/websoft/libwww-perl/
 
 The Perl5 version (this package) is a complete rewrite for Perl5: the
-code is organized in Modules, provides an Object Oriented API, and
-offers some extended functionality.
+code is organized in Modules, provides an Object Oriented API, is
+updated for the latest HTTP and URL specification, and offers some
+extended functionality.
 
 Full HTTP/1.1 support is on its way.  Alpha releases of the LWPng
 package is currently available from CPAN.
@@ -34,8 +35,8 @@ packages that are distributed separately from Perl.  We recommend that
 you have the following packages installed before you install
 libwww-perl:
 
-  URI
   MIME-Base64
+  URI
   HTML-Parser
   libnet
   MD5

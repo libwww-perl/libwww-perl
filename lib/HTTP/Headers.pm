@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.39 2001/03/16 03:30:51 gisle Exp $
+# $Id: Headers.pm,v 1.40 2001/03/19 19:30:16 gisle Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -155,17 +155,17 @@ sub push_header
     shift->_header(@_, 'PUSH');
 }
 
-=item $h->def_header($field, $val)
+=item $h->init_header($field, $val)
 
 Set the specified header to the given value unless it already has a
 value.  The header field name is not case sensitive.
 
 =cut
 
-sub def_header
+sub init_header
 {
-    Carp::croak('Usage: $h->def_header($field, $val)') if @_ != 3;
-    shift->_header(@_, 'DEF');
+    Carp::croak('Usage: $h->init_header($field, $val)') if @_ != 3;
+    shift->_header(@_, 'INIT');
 }
 
 
@@ -205,7 +205,7 @@ sub _header
     my @old = ref($h) ? @$h : (defined($h) ? ($h) : ());
 
     $op ||= "";
-    $val = undef if $op eq 'DEF' && @old;
+    $val = undef if $op eq 'INIT' && @old;
     if (defined($val)) {
 	my @new = ($op eq 'PUSH') ? @old : ();
 	if (!ref($val)) {

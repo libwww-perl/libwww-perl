@@ -1,33 +1,33 @@
-print "1..1\n";
+print "1..4\n";
 
 use strict;
 use LWP::UserAgent;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
 
-my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/TE/foo.txt");
-$req->header("TE", "deflate");
-#$req->header(TE => "chunked");
-#$req->header("TE", "gzip");
 
-my $res = $ua->request($req);
+my $content;
+my $testno = 1;
 
-my $c = $res->content;
-$res->content("");
+for my $te (undef, "", "deflate", "gzip", "trailers, deflate;q=0.4, identity;q=0.1") {
+    my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/TE/foo.txt");
+    if (defined $te) {
+	$req->header(TE => $te);
+	$req->header(Connection => "TE");
+    }
+    print $req->as_string;
 
-print $res->as_string;
-
-require Data::Dump;
-print Data::Dump::dump($c), "\n";
-
-print "not " unless $res->is_success;
-print "ok 1\n";
-
-$req->header("TE", "gzip");
-#$req->remove_header("TE");
-$res = $ua->request($req);
-$res->content("");
-
-print $res->as_string;
+    my $res = $ua->request($req);
+    if (defined $content) {
+	print "not " unless $content eq $res->content;
+	print "ok $testno\n\n";
+	$testno++;
+    }
+    else {
+	$content = $res->content;
+    }
+    $res->content("");
+    print $res->as_string;
+}
 
 

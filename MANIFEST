@@ -27,6 +27,7 @@ lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
+lib/URI/Escape.pm               General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/file.pm		Implements file URLs
 lib/URI/URL/finger.pm		Implements finger URLs

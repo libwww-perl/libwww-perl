@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.17 1996/07/17 08:50:52 aas Exp $
+# $Id: Status.pm,v 1.18 1996/07/17 11:39:25 aas Exp $
 
 package HTTP::Status;
 
@@ -26,7 +26,7 @@ HTTP::Status - HTTP Status code processing
 HTTP::Status is a library of routines for defining and classification
 of HTTP status codes for libwww-perl.  Status codes are used to encode
 the overall outcome of a HTTP response message.  Codes correspond to
-those defined in E<lt>draft-ietf-http-v11-spec-05>.
+those defined in E<lt>draft-ietf-http-v11-spec-06>.
 
 The following functions can be used as mnemonic status code names:
 
@@ -123,7 +123,7 @@ my %StatusCode = (
     502 => 'Bad Gateway',
     503 => 'Service Unavailable',
     504 => 'Gateway Timeout',
-    505 => 'HTTP Version not supported',
+    505 => 'HTTP Version Not Supported',
 );
 
 my $mnemonicCode = '';

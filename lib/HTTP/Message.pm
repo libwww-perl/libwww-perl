@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.47 2004/11/30 10:10:53 gisle Exp $
+# $Id: Message.pm,v 1.48 2004/11/30 10:12:30 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -183,7 +183,7 @@ sub decoded_content
 		$content = Compress::Zlib::memGunzip($content);
 		Carp::croak("Can't gunzip content") unless defined $content;
 	    }
-	    elsif ($ce eq "bzip2") {
+	    elsif ($ce eq "x-bzip2") {
 		require Compress::Bzip2;
 		$content = Compress::Bzip2::decompress($content);
 		Carp::croak("Can't bunzip content") unless defined $content;

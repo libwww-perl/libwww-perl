@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.51 1999/08/02 22:54:10 gisle Exp $
+# $Id: Makefile.PL,v 1.52 2000/04/07 11:54:17 gisle Exp $
 
 require 5.004;
 use strict;
@@ -30,10 +30,7 @@ my $missing_modules = 0;
 print "Checking for URI...........";
 eval {
     require URI;
-    my $ver = $URI::VERSION;
-    $ver =~ s/_//;
-    die "URI version 1.03 needed, installed module is only $URI::VERSION\n"
-	unless $ver >= 1.03;
+    URI->VERSION(1.03);
 };
 if ($@) {
     print " failed\n";
@@ -51,6 +48,7 @@ EOT
 print "Checking for HTML::Parser..";
 eval {
     require HTML::HeadParser;
+    HTML::Parser->VERSION(2.20);
 };
 if ($@) {
     print " failed\n";
@@ -69,7 +67,7 @@ EOT
 print "Checking for MIME::Base64..";
 eval {
     require MIME::Base64;
-    #MIME::Base64->require_version('2.00');
+    #MIME::Base64->VERSION('2.00');
 };
 if ($@) {
     print " failed\n";
@@ -87,7 +85,7 @@ EOT
 print "Checking for Net::FTP......";
 eval {
     require Net::FTP;
-    Net::FTP->require_version('2.00');
+    Net::FTP->VERSION('2.00');
 };
 if ($@) {
     print " failed\n";

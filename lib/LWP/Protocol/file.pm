@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.3 1995/07/11 13:21:07 aas Exp $
+# $Id: file.pm,v 1.4 1995/07/11 22:38:44 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -69,8 +69,7 @@ sub request {
     }
 
     # URL OK, look at file
-    my $path = $url->path();
-    $path = "/" unless length $path;
+    my $path = $url->full_path;
 
     # test file exists and is readable
     unless (-e $path) {
@@ -90,21 +89,19 @@ sub request {
     # XXX should check Accept headers?
 
     # check if-modified-since
-    my $ims = $request->header('If-modified-since');
+    my $ims = $request->header('If-Modified-Since');
     if (defined $ims) {
         my $time = LWP::Date::str2time($ims);
         if (defined $time and $time >= $mtime) {
-            $response = new LWP::file::Response(
-                &LWP::StatusCode::RC_NOT_MODIFIED, $method, $path);         
-        } else {
-            $response = new LWP::Response(&LWP::StatusCode::RC_OK);
-        }
-    } else {
-        $response = new LWP::Response(&LWP::StatusCode::RC_OK);
+            return new LWP::Response(
+		   &LWP::StatusCode::RC_NOT_MODIFIED, "$method $path");
+	}
     }
-
+    $response = new LWP::Response(&LWP::StatusCode::RC_OK);
+    
     # fill in response headers
     $response->header('Last-Modified', LWP::Date::time2str($mtime));
+
 
     if (-d _)           # If the path is a directory, process it
     {
@@ -115,8 +112,17 @@ sub request {
         my(@files) = sort readdir(D);
         closedir(D);
  
-	# XXX directory listing could have been more fancy
-	my $html = join("\n", @files);
+	# Make directory listing
+	for (@files) {
+	    $_ .= "/" if -d "$path/$_";
+	    $_ = qq{<LI> <a href="$_">$_</a>};
+	}
+	my $html = join("\n",
+			"<HTML><HEADER>",
+			"<TITLE>Directory $path</TITLE>",
+			"</HEADER>\n<BODY>",
+			"<UL>", @files, "</UL>",
+			"</BODY></HTML>\n");
 
         $response->header('Content-Type',   'text/html');
         $response->header('Content-Length', length $html);

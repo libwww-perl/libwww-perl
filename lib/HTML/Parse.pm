@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.19 1996/05/08 16:33:18 aas Exp $
+# $Id: Parse.pm,v 1.20 1996/05/08 16:55:26 aas Exp $
 
 =head1 NAME
 
@@ -90,7 +90,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -120,7 +120,7 @@ $IGNORE_TEXT    = 0;
 # The following elements must be directly contained in some other
 # element than body.
 
-%isPharseMarkup = map { $_ => 1 } qw(cite code em kbd samp strong var b i u tt
+%isPhraseMarkup = map { $_ => 1 } qw(cite code em kbd samp strong var b i u tt
 				     a img br hr
 				     wbr nobr center blink
 				     small big font basefont

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.93 2001/08/28 04:53:53 gisle Exp $
+# $Id: UserAgent.pm,v 1.94 2001/08/28 05:20:36 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -99,7 +99,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.93 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.94 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -260,9 +260,25 @@ object itself.
 sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
-    local($SIG{__DIE__});  # protect agains user defined die handlers
 
-    my($method, $url) = ($request->method, $request->url);
+    # some sanity checking
+    if (defined $request) {
+	if (ref $request) {
+	    Carp::croak("You need a request object, not a " . ref($request) . " object")
+	      if ref($request) eq 'ARRAY' or ref($request) eq 'HASH' or
+		 !$request->can('method') or !$request->can('uri');
+	}
+	else {
+	    Carp::croak("You need a request object, not '$request'");
+	}
+    }
+    else {
+        Carp::croak("No request object passed in");
+    }
+
+    my($method, $url) = ($request->method, $request->uri);
+
+    local($SIG{__DIE__});  # protect agains user defined die handlers
 
     # Check that we have a METHOD and a URL first
     return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST, "Method missing")

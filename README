@@ -1,15 +1,15 @@
 This is LWP version 0.01, a set of perl modules for WWW Access.
 
 In order to use this library you will need Perl version 5.001e or
-better.  You will also need to install the and the URI::URL module.
-The URI::URL module should be available from the same place where you
-got this package.
+better.  You will also need to install the standard libraries and the
+URI::URL module.  The URI::URL module should be available from the
+same place where you got this package.
 
 See LWP.pm for details of the library. See ChangeLog for recent
 changes.  POD style documentation is included in all modules and
 scripts.  You should be able to use the 'perldoc' utility to extract
 documentation from these files.  You may also find it easy to extract
-the documentation with the "make html" command.
+the documentation by running the "make html" command.
 
 The easiest way to install this library is to run "make install".
 Installation of the library is simply to copy LWP.pm and the LWP

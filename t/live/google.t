@@ -7,6 +7,10 @@ my $ua = LWP::UserAgent->new(keep_alive => 1,
 			     cookie_jar => {},
 			    );
 
+# Google is confused if we end up sendit it the "Connection: TE"
+# header and will close the connection.  This avoids it.
+push(@LWP::Protocol::http11::EXTRA_SOCK_OPTS, SendTE => 0);
+
 my $req = HTTP::Request->new(GET => "http://www.google.com");
 my $res = $ua->request($req);
 

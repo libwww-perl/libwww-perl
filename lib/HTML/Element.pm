@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.15 1995/09/13 07:36:18 aas Exp $
+# $Id: Element.pm,v 1.16 1995/09/13 10:11:38 aas Exp $
 
 =head1 NAME
 
@@ -38,7 +38,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 %OVERLOAD =
@@ -83,7 +83,7 @@ sub new
     my $self  = bless { _tag => lc $tag }, $class;
     my($attr, $val);
     while (($attr, $val) = splice(@_, 0, 2)) {
-	$val = attr unless defined $val;
+	$val = $attr unless defined $val;
 	$self->{lc $attr} = $val;
     }
     if ($tag eq 'html') {

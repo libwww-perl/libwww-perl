@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.8 1995/07/17 10:08:39 aas Exp $
+# $Id: Protocol.pm,v 1.9 1995/07/18 11:51:13 aas Exp $
 
 package LWP::Protocol;
 
@@ -135,9 +135,9 @@ sub implementor
 
 =head2 request(...)
 
- $response = $protocol->request($request);
- $response = $protocol->request($request, '/tmp/sss');
- $response = $protocol->request($request, \&callback, 1024);
+ $response = $protocol->request($request, $proxy, undef);
+ $response = $protocol->request($request, $proxy, '/tmp/sss');
+ $response = $protocol->request($request, $proxy, \&callback, 1024);
 
 Dispactches a request over the protocol, and returns a response
 object. This method needs to be overridden in subclasses.
@@ -146,7 +146,7 @@ object. This method needs to be overridden in subclasses.
 
 sub request
 {
-    my($self, $request, $arg) = @_;
+    my($self, $request, $proxy, $arg, $size, $timeout) = @_;
     croak 'LWP::Protocol::request() needs to be overridden in subclasses';
 }
 

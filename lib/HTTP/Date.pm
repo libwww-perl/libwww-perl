@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.13 1996/03/05 10:44:42 aas Exp $
+# $Id: Date.pm,v 1.14 1996/03/05 13:36:12 aas Exp $
 #
 package HTTP::Date;
 
@@ -15,7 +15,7 @@ time2str, str2time - date conversion routines
 
 =head1 DESCRIPTION
 
-This module provide two function that deals with the HTTP date format.
+This module provides two function that deals with the HTTP date format.
 
 =head2 time2str([$time])
 
@@ -33,11 +33,11 @@ format is:
 =head2 str2time($str [, $zone])
 
 The str2time() function converts a string to machine time.  It returns
-undef if the format is unrecognised, or the year is not between 1970
+undef if the format is unrecognized, or the year is not between 1970
 and 2038.  The function is able to parse the following formats:
 
- "Wed, 09 Feb 1994 22:23:32 GMT"       -- proposed HTTP format
- "Thu Feb  3 17:03:55 GMT 1994"        -- ctime() format
+ "Wed, 09 Feb 1994 22:23:32 GMT"       -- HTTP format
+ "Thu Feb  3 17:03:55 GMT 1994"        -- ctime(3) format
  'Thu Feb  3 00:00:00 1994',           -- ANSI C asctime() format
  "Tuesday, 08-Feb-94 14:15:29 GMT"     -- old rfc850 HTTP format
  "Tuesday, 08-Feb-1994 14:15:29 GMT"   -- broken rfc850 HTTP format
@@ -47,9 +47,12 @@ and 2038.  The function is able to parse the following formats:
  "08-Feb-94 14:15:29 GMT"       -- rfc850 format (no weekday)
  "08-Feb-1994 14:15:29 GMT"     -- broken rfc850 format (no weekday)
 
- "1994-02-03 14:15:29 -0100"    -- ISO something format??
+ "1994-02-03 14:15:29 -0100"    -- ISO 8601 format
  "1994-02-03 14:15:29"          -- zone is optional
  "1994-02-03"                   -- only date
+ "1994-02-03T14:15:29"          -- Use T as separator
+ "19940203T141529Z"             -- ISO 8601 compact format
+ "19940203"                     -- only date
 
  "08-Feb-94"     -- old rfc850 HTTP format    (no weekday, no time)
  "08-Feb-1994"   -- broken rfc850 HTTP format (no weekday, no time)
@@ -70,21 +73,27 @@ string itself.  It this parameter is missing, and the date string
 format does not contain any zone specification then the local time
 zone is assumed.
 
+If the year is missing, then we assume that the date is the first
+matching date before current time.
+
 =head1 BUGS
 
-Non-numerical timezones are all treated like GMT.
+Non-numerical time zones (like MET, PST) are all treated like GMT.
+Don't use them.
+
+The str2time() function has been told how to parse far too many
+formats.  This makes the module name misleading :-)
 
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(time2str str2time);
-@EXPORT_OK = qw(@DoW @MOY %MoY);
 
 use Time::Local ();
 
@@ -101,6 +110,9 @@ foreach(@MoY) {
 
 my($current_month, $current_year) = (localtime)[4, 5];
 
+
+
+
 sub time2str (;$)
 {
    my $time = shift;
@@ -111,6 +123,8 @@ sub time2str (;$)
 	   $mday, $MoY[$mon], $year+1900,
 	   $hour, $min, $sec);
 }
+
+
 
 
 sub str2time ($;$)
@@ -176,21 +190,22 @@ sub str2time ($;$)
        /x
          and last PARSEDATE;
 
-      # ISO something format '1996-02-29 12:00:00 -0100'
+      # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
       ($yr, $mon, $day, $hr, $min, $sec, $tz) =
         /^\s*
           (\d{4})              # year
-             (?:\s+|[-\/])
+             [-\/]?
           (\d\d?)              # numerical month
-             (?:\s+|[-\/])
+             [-\/]?
 	  (\d\d?)              # day
 	 (?:
-               (?:\s+|:)       # separator before clock
-            (\d\d?):(\d\d)     # hour:min
-	    (?::(\d\d))?       # optional seconds
+               (?:\s+|:|T|-)   # separator before clock
+            (\d\d?):?(\d\d)    # hour:min
+	    (?::?(\d\d))?      # optional seconds
          )?                    # optional clock
             \s*
-	 ([-+]?\d{2,4}|GMT|gmt)? # timezone
+	 ([-+]?\d\d?:?(:?\d\d)?
+          |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
 	    \s*$
 	/x
 	  and last PARSEDATE;
@@ -237,7 +252,7 @@ sub str2time ($;$)
      unless defined $tz;
 
    # We can calculate offset for numerical time zones
-   if ($tz =~ /^([-+])?(\d\d?)(\d\d)?$/) {
+   if ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
        $offset = 3600 * $2;
        $offset += 60 * $3 if $3;
        $offset *= -1 if $1 ne '-';

@@ -6,7 +6,7 @@
 VERSION=`cat VERSION`;
 
 # Updating version number in README file
-echo perl -pi~ -e "s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig" README
+perl -pi~ -e "s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig" README
 
 # Updating version number in LWP.pm file
 perl -pi~ -e "s/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1\"$VERSION\"/" LWP.pm

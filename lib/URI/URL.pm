@@ -1,5 +1,5 @@
 #
-# $Id: URL.pm,v 4.2 1996/02/26 18:55:40 aas Exp $
+# $Id: URL.pm,v 4.3 1996/02/27 13:51:21 aas Exp $
 #
 package URI::URL;
 
@@ -11,7 +11,7 @@ require AutoLoader;
 use Carp ();
 
 # Make the version number available
-$VERSION = "4.01";
+$VERSION = "4.02";
 sub Version { $VERSION; }
 
 # Basic lexical elements, taken from RFC 1738:
@@ -209,6 +209,9 @@ sub print_on;
 sub unsafe;
 sub escape;
 sub unescape;
+
+# Don't need DESTROY but avoid trying to AUTOLOAD it.
+sub DESTROY { }
 
 1;
 __END__

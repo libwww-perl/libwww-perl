@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.27 1997/01/29 13:05:47 aas Exp $
+# $Id: http.pm,v 1.28 1997/05/08 07:01:05 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -21,24 +21,6 @@ my $endl         = "\015\012";     # how lines should be terminated;
 				   # "\r\n" is not correct on all systems, for
 				   # instance MacPerl defines it to "\012\015"
 
-# "" = No content in request, "C" = Needs content in request
-my %allowedMethods = (
-    OPTIONS    => "",
-    GET        => "",
-    HEAD       => "",
-    POST       => "C",
-    PUT        => "C",
-    PATCH      => "C",
-    COPY       => "",
-    MOVE       => "",
-    DELETE     => "",
-    LINK       => "",
-    UNLINK     => "",
-    TRACE      => "",
-    WRAPPED    => "C",
-);
-
-
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
@@ -48,7 +30,7 @@ sub request
 
     # check method
     my $method = $request->method;
-    unless (defined $allowedMethods{$method}) {
+    unless ($method =~ /^[A-Z]+$/) {
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
 				  'Library does not allow method ' .
 				  "$method for 'http:' URLs";

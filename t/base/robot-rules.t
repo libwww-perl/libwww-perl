@@ -126,9 +126,11 @@ for $t (@tests1) {
 
     my ($num, $path, $expected);
     while(($num, $path, $expected) = splice(@$t, 0, 3)) {
-
-	if($robotsrules->allowed($path) != $expected) {
-	    confess "Test Failed: $ua => $path";
+	my $allowed = $robotsrules->allowed($path);
+	$allowed = 1 if $allowed;
+	if($allowed != $expected) {
+	    $robotsrules->dump;
+	    confess "Test Failed: $ua => $path ($allowed != $expected)";
 	}
 	print "ok $num\n";
     }

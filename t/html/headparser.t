@@ -1,12 +1,12 @@
 
 print "1..2\n";
 
-$HTML = <<EOT;
+$HTML = <<'EOT';
 
 <title>&Aring være eller &#229; ikke være</title>
 <meta http-equiv="Expires" content="Soon">
 <meta http-equiv="Foo" content="Bar">
-<link href="xxx">
+<link href="mailto:aas@sn.no" rev=made title="Gisle Aas">
 
 <script>
 
@@ -49,7 +49,8 @@ if ($p->parse($HTML)) {
 
 $p->header('Title') =~ /Å være eller å ikke være/ or $bad++;
 $p->header('Expires') eq 'Soon' or $bad++;
-$p->header('Base') eq 'http://www.sn.no' or $bad++;
+$p->header('Content-Base') eq 'http://www.sn.no' or $bad++;
+$p->header('Link') =~ /<mailto:aas\@sn.no>/ or $bad++;
 
 # This header should not be present because the head ended
 $p->header('Isindex') and $bad++;

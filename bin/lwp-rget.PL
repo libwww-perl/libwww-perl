@@ -30,27 +30,41 @@ This process continues until there are no more unvisited links or the
 process is stopped by the one or more of the limits which can be
 controlled by the command line arguments.
 
+This program is useful if you want to make a local copy of a
+collection of documents or want to do web reading off-line.
+
+All documents are stored as plain files in the current directory. The
+file names choosen are derived from the last component of URL paths.
+
 The options are:
 
 =over 3
 
 =item --depth=I<n>
 
-Limit the recusive level.  Default is 10.
+Limit the recusive level. Embedded images are always loaded, even if
+they fall outside the I<--depth>. This means that one can use
+I<--depth=0> in order to fetch a single document togheter with all
+inline graphics.
+
+The default depth is 5.
 
 =item --limit=I<n>
 
-Limit the number of documents to get.  Default is 100.
+Limit the number of documents to get.  The default limit is 50.
 
 =item --prefix=I<url_prefix>
 
-Limit the links to follow.  Only URLs that start the prefix are
+Limit the links to follow. Only URLs that start the prefix string are
 followed.
+
+The default prefix is set as the "directory" of the initial URL to
+follow.  For instance 'http://www.sn.no/sn'
 
 =item --sleep=I<n>
 
 Sleep I<n> seconds before retrieving each document. This options allows
-you to go slowly, not loading the server you visit too much.
+you to go slowly, not loading the server you visiting too much.
 
 =item --verbose
 
@@ -65,7 +79,6 @@ Print program version number and quit.
 Print the usage message and quit.
 
 =back
-
 
 =head1 SEE ALSO
 
@@ -87,14 +100,14 @@ use vars qw($VERSION $DISTNAME);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
 
 # Defaults
-$MAX_DEPTH = 10;
-$MAX_DOCS  = 100;
+$MAX_DEPTH = 5;
+$MAX_DOCS  = 50;
 
 GetOptions('version'  => \&print_version,
 	   'help'     => \&usage,
@@ -124,12 +137,12 @@ require LWP::UserAgent;
 my $ua = new LWP::UserAgent;
 $ua->agent("$0/$VERSION " . $ua->agent);
 
-print $ua->agent, "\n";
-
 unless (defined $PREFIX) {
     $PREFIX = url($start_url);   # limit to URLs below this one
-    $PREFIX->eparams(undef);
-    $PREFIX->equery(undef);
+    eval {
+	$PREFIX->eparams(undef);
+	$PREFIX->equery(undef);
+    };
 
     $_ = $PREFIX->epath;
     s|[^/]+$||;
@@ -154,38 +167,48 @@ print "$filename\n";
 sub fetch
 {
     my($url, $type, $depth) = @_;
+    $url = url($url) unless ref($url);
     $type  ||= 'a';
+    $type = 'img' if $type eq 'body';  # might be the background attribute
     $depth ||= 0;
-
-    # If we already have it, then there is nothing to be done
-    return $seen{$url} if $seen{$url};
 
     # Print the URL before we start checking...
     my $out = (" " x $depth) . $url . " ";
     $out .= "." x (60 - length($out));
-    print STDERR $out . " ";
-
-    # Too much or too deep
-    if ($depth > $MAX_DEPTH and $type ne 'img') {
-	print STDERR "*too deep*\n";
-	return $url;
-    }
-    if ($no_docs > $MAX_DOCS) {
-	print STDERR "*too many*\n";
-	return $url;
-    }
-
-    $url = url($url) unless ref($url);
+    print STDERR $out . " " if $VERBOSE;
 
     # Can't get mailto things
     if ($url->scheme eq 'mailto') {
-	print STDERR "*skipping mailto*\n";
+	print STDERR "*skipping mailto*\n" if $VERBOSE;
 	return $url->as_string;
+    }
+
+    # The $plain_url is a URL without the fragment part
+    my $plain_url = $url->clone;
+    $plain_url->frag(undef);
+
+    # If we already have it, then there is nothing to be done
+    my $seen = $seen{$plain_url->as_string};
+    if ($seen) {
+	my $frag = $url->frag;
+	$seen .= "#$frag" if defined($frag);
+	print STDERR "$seen (again)\n" if $VERBOSE;
+	return $seen;
+    }
+
+    # Too much or too deep
+    if ($depth > $MAX_DEPTH and $type ne 'img') {
+	print STDERR "*too deep*\n" if $VERBOSE;
+	return $url;
+    }
+    if ($no_docs > $MAX_DOCS) {
+	print STDERR "*too many*\n" if $VERBOSE;
+	return $url;
     }
 
     # Check PREFIX, but not for <IMG ...> links
     if ($type ne 'img' and  $url->as_string !~ /^\Q$PREFIX/o) {
-	print STDERR "*outsider*\n";
+	print STDERR "*outsider*\n" if $VERBOSE;
 	return $url->as_string;
     }
 
@@ -200,7 +223,7 @@ sub fetch
 	my $ct = $res->content_type;
 	my $name = find_name($res->request->url, $ct);
 	print STDERR "$name\n";
-	$seen{$url} = $name;
+	$seen{$plain_url->as_string} = $name;
 
 	# If the file is HTML, then we look for internal links
 	if ($ct eq "text/html") {
@@ -211,13 +234,13 @@ sub fetch
 	    save($name, $doc);
 	    my $base = $res->base;
 	    # Follow and substitute links...
-	    $doc =~ s/(<\s*(img|a)\b[^>]+\b(?:src|href)=)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
+	    $doc =~ s/(<\s*(img|a|body)\b[^>]+\b(?:src|href|background)=)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
 	}
 	save($name, $doc);
 	return $name;					  
     } else {
-	print STDERR $res->code . " " . $res->message . "\n";
-	$seen{$url} = "*BAD*";
+	print STDERR $res->code . " " . $res->message . "\n" if $VERBOSE;
+	$seen{$plain_url->as_string} = "*BAD*";
 	return "*BAD*";
     }
 }

@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.30 2001/08/06 23:47:42 gisle Exp $
+# $Id: ftp.pm,v 1.31 2001/10/26 20:13:20 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -236,6 +236,36 @@ sub request
 	    }
 	}
 
+	# We'll use this later to abort the transfer if necessary. 
+	# if $max_size is defined, we need to abort early. Otherwise, it's
+      # a normal transfer
+	my $max_size = undef;
+
+	# Set resume location, if the client requested it
+	if ($request->header('Range') && $ftp->supported('REST'))
+	{
+		my $range_info = $request->header('Range');
+
+		# Change bytes=2772992-6781209 to just 2772992
+		my ($start_byte,$end_byte) = $range_info =~ /.*=\s*(\d+)-(\d+)/;
+
+		if (!defined $start_byte || !defined $end_byte ||
+		  ($start_byte < 0) || ($start_byte > $end_byte) || ($end_byte < 0))
+		{
+		  return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+		     'Incorrect syntax for Range request');
+		}
+
+		$max_size = $end_byte-$start_byte;
+
+		$ftp->restart($start_byte);
+	}
+	elsif ($request->header('Range') && !$ftp->supported('REST'))
+	{
+		return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
+	         "Server does not support resume.");
+	}
+
 	my $data;  # the data handle
 	LWP::Debug::debug("retrieve file?");
 	if (length($remote_file) and $data = $ftp->retr($remote_file)) {
@@ -255,6 +285,33 @@ sub request
 		$response = $self->collect($arg, $response, sub {
 		    my $content = '';
 		    my $result = $data->read($content, $size);
+
+                    # Stop early if we need to.
+                    if (defined $max_size)
+                    {
+                      # We need an interface to Net::FTP::dataconn for getting
+                      # the number of bytes already read
+                      my $bytes_received = $data->bytes_read();
+
+                      # We were already over the limit. (Should only happen
+                      # once at the end.)
+                      if ($bytes_received - length($content) > $max_size)
+                      {
+                        $content = '';
+                      }
+                      # We just went over the limit
+                      elsif ($bytes_received  > $max_size)
+                      {
+                        # Trim content
+                        $content = substr($content, 0,
+                          $max_size - ($bytes_received - length($content)) );
+                      }
+                      # We're under the limit
+                      else
+                      {
+                      }
+                    }
+
 		    return \$content;
 		} );
 	    }

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.33 2000/05/24 09:40:43 gisle Exp $
+# $Id: Simple.pm,v 1.34 2001/04/10 17:16:34 gisle Exp $
 
 =head1 NAME
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -298,7 +298,7 @@ sub _trivial_http_get
    my $sock = IO::Socket::INET->new(PeerAddr => $host,
                                     PeerPort => $port,
                                     Proto    => 'tcp',
-                                    Timeout  => 60) || return;
+                                    Timeout  => 60) || return undef;
    $sock->autoflush;
    my $netloc = $host;
    $netloc .= ":$port" if $port != 80;

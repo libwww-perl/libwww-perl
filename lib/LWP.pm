@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.19 1996/02/05 17:56:12 aas Exp $
+# $Id: LWP.pm,v 1.20 1996/02/26 19:00:37 aas Exp $
 
 package LWP;
 
-$VERSION = "0.07";
+$VERSION = "0.08";
 
 sub Version { $VERSION; }
 
@@ -32,8 +32,8 @@ interface to these services.  The interface is easy to extend and
 customize for your needs.
 
 You should first read the documentation for LWP::UserAgent.  Then you
-might want to look at how the scripts C<request> and C<mirror> are
-implemented.  More examples are found among the tests in the F<t>
+might want to look at how the scripts C<lwp-request> and C<lwp-mirror>
+are implemented.  More examples are found among the tests in the F<t>
 directory.
 
 =head2 Overview of classes and packages
@@ -43,12 +43,13 @@ library. Indentation shows class inheritance.
 
  LWP::MemberMixin   -- Access to member variables of Perl5 classes
    LWP::UserAgent   -- WWW user agent class
+     LWP::RobotUA   -- When developing a robot applications
    LWP::Protocol          -- Interface to various protocol schemes
      LWP::Protocol::http  -- http:// access
      LWP::Protocol::file  -- file:// access
      ...
 
- LWP::Socket        -- Socket creation and reading (LWP::Protocol::http)
+ LWP::Socket        -- Socket creation and reading
 
  HTTP::Headers      -- MIME/RFC822 style header (used by HTTP::Message)
  HTTP::Message      -- HTTP style message

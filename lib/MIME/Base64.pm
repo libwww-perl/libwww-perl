@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.5 1996/02/05 18:02:45 aas Exp $
+# $Id: Base64.pm,v 1.6 1996/03/18 17:50:21 aas Exp $
 
 package MIME::Base64;
 
@@ -28,27 +28,27 @@ enabling 6 bits to be represented per printable character.
 RFC 1521 says that the encoded bytes must be represented in lines of
 no more than 76 characters each.  The second argument to
 encode_base64() is the line ending sequence to use. It defaults to
-C<"\n">.  Use C<''> if you do not want the encoded string broken into
-lines.
+C<"\n">.  Use an empty string as second argument if you do not want
+the encoded string broken into lines.
 
 If you prefer not to import these routines into your namespace you can
 call them as:
 
-  require MIME::Base64;
+  use MIME::Base64 ();
   $encoded = MIME::Base64::encode('Aladdin:open sesame');
   $decoded = MIME::Base64::decode($encoded);
 
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
+Copyright 1995, 1996 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@a.sn.no>
+Gisle Aas <aas@sn.no>
 
 Based on LWP::Base64 written by Martijn Koster <m.koster@nexor.co.uk>
 and Joerg Reichelt <j.reichelt@nexor.co.uk> and code posted to
@@ -57,16 +57,17 @@ comp.lang.perl <3pd2lp$6gf@wsinti07.win.tue.nl> by Hans Mulder
 
 =cut
 
+require 5.002;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use integer;
 
-sub encode_base64
+sub encode_base64 ($;$)
 {
     my $res = "";
     my $eol = $_[1];
@@ -75,7 +76,7 @@ sub encode_base64
 	$res .= substr(pack('u', $1), 1);
 	chop($res);
     }
-    $res =~ tr|` -_|AA-Za-z0-9+/|;
+    $res =~ tr|` -_|AA-Za-z0-9+/|;               # `# help emacs
     # fix padding at the end
     my $padding = (3 - length($_[0]) % 3) % 3;
     $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
@@ -87,7 +88,7 @@ sub encode_base64
 }
 
 
-sub decode_base64
+sub decode_base64 ($)
 {
     local($^W) = 0; # unpack("u",...) gives bogus warning in 5.001m, 5.002beta2
 

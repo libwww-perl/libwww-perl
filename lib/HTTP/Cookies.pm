@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -107,10 +107,10 @@ sub add_cookie_header
     my $domain = $url->host;
     $domain = "$domain.local" unless $domain =~ /\./;
     my $secure_request = ($url->scheme eq "https");
-    my $req_path = $url->epath;
+    my $req_path = _url_path($url);
     my $req_port = $url->port;
     my $now = time();
-    $self->_normalize_path($req_path) if $req_path =~ /%/;
+    _normalize_path($req_path) if $req_path =~ /%/;
 
     my @cval;    # cookie values for the "Cookie" header
     my $set_ver;
@@ -253,9 +253,9 @@ sub extract_cookies
     my $req_host = $url->host;
     $req_host = "$req_host.local" unless $req_host =~ /\./;
     my $req_port = $url->port;
-    my $req_path = $url->epath;
-    $self->_normalize_path($req_path) if $req_path =~ /%/;
-    
+    my $req_path = _url_path($url);
+    _normalize_path($req_path) if $req_path =~ /%/;
+
     if ($netscape_cookies) {
 	# The old Netscape cookie format for Set-Cookie
         # http://www.netscape.com/newsref/std/cookie_spec.html
@@ -351,7 +351,7 @@ sub extract_cookies
 	my $path_spec;
 	if (defined $path && $path ne '') {
 	    $path_spec++;
-	    $self->_normalize_path($path) if $path =~ /%/;
+	    _normalize_path($path) if $path =~ /%/;
 	    if (!$netscape_cookies &&
                 substr($req_path, 0, length($path)) ne $path) {
 	        LWP::Debug::debug("Path $path is not a prefix of $req_path");
@@ -648,9 +648,16 @@ sub as_string
 }
 
 
+sub _url_path
+{
+    my $url = shift;
+    my $path = eval { $url->epath };    # URI::URL method
+    $path = $url->path if $@;           # URI::_generic method
+    $path;
+}
+
 sub _normalize_path  # so that plain string compare can be used
 {
-    shift;  # $self
     my $x;
     $_[0] =~ s/%([0-9a-fA-F][0-9a-fA-F])/
 	         $x = uc($1);

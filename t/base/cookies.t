@@ -465,7 +465,8 @@ $c->extract_cookies($res);
 
 print $c->as_string;
 
-$req = HTTP::Request->new(POST => "http://foo.bar.acme.com/foo");
+require URI;
+$req = HTTP::Request->new(POST => URI->new("http://foo.bar.acme.com/foo"));
 $c->add_cookie_header($req);
 #print $req->as_string;
 print "not " unless $req->header("Cookie") =~ /PART_NUMBER=3,4/ &&

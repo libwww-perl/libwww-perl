@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.17 2001/04/14 06:03:11 gisle Exp $
+# $Id: HTTP.pm,v 1.18 2001/04/14 06:08:38 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -438,7 +438,7 @@ body, you might call this method to pick up any trailers.
 Get/set the read buffer content.  The read_response_headers() and
 read_entity_body() methods use an internal buffer which they will look
 for data before they actually sysread more from the socket itself.  If
-they read to much, the remainind data will be left in the buffer.
+they read too much, the remaining data will be left in this buffer.
 
 =item $s->_rbuf_length
 

@@ -20,7 +20,11 @@ print "ok 2\n";
 
 $req->content("gisle");
 $req->add_content(" aas");
-$req->add_content(\ " old interface");
+$req->add_content(\ " old interface is depreciated");
+
+${$req->content_ref} =~ s/\s+is\s+depreciated//;
+
+print "Content is: ", $req->content, "\n";
 
 $req->content eq "gisle aas old interface" || print "not ";
 print "ok 3\n";
@@ -91,3 +95,4 @@ $res->header('Base', 'http://www.sn.no/xxx/');
 
 $res->base eq "http://www.sn.no/xxx/" || print "not ";
 print "ok 14\n";
+

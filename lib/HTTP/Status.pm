@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Status.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Status.pm,v 1.2 1995/06/12 18:32:06 aas Exp $
 #
 package LWP::StatusCode;
 
-# included pod file
+
 =head1 NAME
 
 LWP::StatusCode -- HTTP Status code processing
@@ -14,14 +14,14 @@ LWP::StatusCode -- HTTP Status code processing
  use LWP::StatusCode;
 
  if ($rc != &RC_OK) { 
-     print &statusMessage($rc), "\n";
+     print statusMessage($rc), "\n";
  }
 
- if (&isSuccess($rc)) { ... }
- if (&isError($rc)) { ... }
- if (&isRedirect($rc)) { ... }
+ if (isSuccess($rc)) { ... }
+ if (isError($rc)) { ... }
+ if (isRedirect($rc)) { ... }
 
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
 LWP::StatusCode is a library of routines for manipulating
 HTTP Status Codes for libwww-perl5.
@@ -52,8 +52,8 @@ None known
 
 #####################################################################
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 use Carp;
 

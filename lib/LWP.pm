@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.58 1997/12/01 19:39:16 aas Exp $
+# $Id: LWP.pm,v 1.59 1997/12/02 13:31:10 aas Exp $
 
 package LWP;
 
@@ -511,6 +511,8 @@ library. Indentation shows class inheritance.
      ...
 
  LWP::Socket        -- Socket creation and IO
+ LWP::Authen::Basic -- Handle 401 and 407 responses
+ LWP::Authen::Digest
 
  HTTP::Headers      -- MIME/RFC822 style header (used by HTTP::Message)
  HTTP::Message      -- HTTP style message

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.13 1996/02/26 19:06:48 aas Exp $
+# $Id: Response.pm,v 1.14 1996/02/27 19:33:52 aas Exp $
 
 package HTTP::Response;
 
@@ -46,7 +46,7 @@ require HTTP::Message;
 require HTTP::Status;
 
 
-=head2 new($rc [, $msg])
+=head2 $r = new HTTP::Response ($rc [, $msg])
 
 Constructs a new C<HTTP::Response> object describing a response with
 response code C<$rc> and optional message C<$msg>
@@ -74,13 +74,13 @@ sub clone
     $clone;
 }
 
-=head2 code([$code])
+=head2 $r->code([$code])
 
-=head2 message([$message])
+=head2 $r->message([$message])
 
-=head2 request([$request])
+=head2 $r->request([$request])
 
-=head2 previous([$previousResponse])
+=head2 $r->previous([$previousResponse])
 
 These methods provide public access to the member variables.  The
 first two containing respectively the response code and the message
@@ -102,7 +102,7 @@ sub previous  { shift->_elem('_previous',@_); }
 sub request   { shift->_elem('_request', @_); }
 
 
-=head2 as_string()
+=head2 $r->as_string()
 
 Method returning a textual representation of the request.  Mainly
 useful for debugging purposes. It takes no arguments.
@@ -127,19 +127,22 @@ sub as_string
     join("\n", @result, "");
 }
 
-=head2 is_success
+=head2 $r->is_info
 
-=head2 is_redirect
+=head2 $r->is_success
 
-=head2 is_error
+=head2 $r->is_redirect
 
-These methods indicate if the response was sucessful, a redirection,
-or an error.
+=head2 $r->is_error
+
+These methods indicate if the response was informationl, sucessful, a
+redirection, or an error.
 
 =cut
 
-sub is_redirect { HTTP::Status::is_redirect(shift->code); }
+sub is_info     { HTTP::Status::is_info(shift->code);     }
 sub is_success  { HTTP::Status::is_success(shift->code);  }
+sub is_redirect { HTTP::Status::is_redirect(shift->code); }
 sub is_error    { HTTP::Status::is_error(shift->code);    }
 
 

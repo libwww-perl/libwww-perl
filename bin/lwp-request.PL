@@ -4,7 +4,7 @@ open REQ, ">bin/request" or die "open for writing bin/request: $!";
 print REQ "#!$Config{'scriptdir'}/perl -w\n";
 print REQ <<'END'; chmod(0755, "bin/request");
 
-# $Id: lwp-request.PL,v 1.16 1995/08/10 14:09:18 aas Exp $
+# $Id: lwp-request.PL,v 1.17 1995/09/04 19:40:54 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -139,7 +139,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -188,9 +188,10 @@ require URI::URL;
 
     sub getBasicCredentials
     {
-	my($self, $realm) = @_;
+	my($self, $realm, $uri) = @_;
 	if (-t) {
-	    print "Enter username for $realm: ";
+	    my $netloc = $uri->netloc;
+	    print "Enter username for $realm at $netloc: ";
 	    my $user = <STDIN>;
 	    chomp($user);
 	    return (undef, undef) unless length $user;

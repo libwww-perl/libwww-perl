@@ -1,0 +1,125 @@
+<title>libwww-perl-5 examples</title>
+
+<h1>Libwww-perl-5</h1>
+
+<h2>HTTP style communication</h2>
+
+The libwww-perl library is based on HTTP style communication.  This is
+a quote from the <a href="http://www.w3.org/pub/WWW/Protocols/">HTTP
+specification</a> document:
+
+<blockquote>
+<p>The HTTP protocol is based on a request/response paradigm. A client
+establishes a connection with a server and sends a request to the
+server in the form of a request method, URI, and protocol version,
+followed by a MIME-like message containing request modifiers, client
+information, and possible body content. The server responds with a
+status line, including the message's protocol version and a success or
+error code, followed by a MIME-like message containing server
+information, entity metainformation, and possible body content.
+</blockquote>
+
+<p>What this means to libwww-perl is that communcation takes place by
+creating and configuring a <em>request</em> object.  This object is
+then passed to a server and we get a <em>response</em> object in
+return that we can examine.  It is as simple as that!
+
+<h3>Request object</h3>
+
+The request object has the class name <em>HTTP::Request</em> in
+libwww-perl.  The main features of objects of this class are:
+
+<ul>
+
+  <li> The <b>method</b> is a short string that tells what kind of
+       request this is.  The most usual methods are <em>GET</em>,
+       <em>POST</em> and <em>HEAD</em>.
+
+  <li> The <b>url</b> is a string denoting the protocol, server and
+       the name of the "document" we want to access.  The url might
+       also encode various other parameters.
+
+  <li> The <b>headers</b> contain additional information about the
+       request and is also used to describe the content.  The headers
+       is a set of keyword/value pairs.
+
+  <li> The <b>content</b> is an arbitrary amount of binary data.
+
+</ul>
+
+  
+
+<h3>Response object</h3>
+
+The request object has the class name <em>HTTP::Response</em> in
+libwww-perl.  The main features of objects of this class are:
+
+<ul>
+  <li> The <b>code</b> is a numerical value that encode the overall
+       outcome of the request.
+
+  <li> The <b>message</b> is a short (human readable) string that
+       corresponds to the <em>code</em>.
+       
+  <li> The <b>headers</b> describe the content.
+
+  <li> The <b>content</b> is an arbitrary amount of binary data.
+
+</ul>
+
+Since we don't want to handle the <em>code</em> directly in our
+programs the response object have methods that can be used to query
+the kind of code present:
+
+<ul>
+
+  <li> <b>isSuccess</b>
+  <li> <b>isRedirect</b>
+  <li> <b>isError</b>
+  
+</ul>
+  
+
+
+<h3>User Agent</h3>
+
+How do we describe this one????
+
+<p>The "thing" that pass the request to the server and return a response
+object.  The user agent handles transparent redirect handling,
+security and proxying.
+
+
+
+<h2>The OO interface</h2>
+
+<pre>
+#!/local/bin/perl -w
+
+require LWP;
+$ua = new LWP::UserAgent;
+
+$request = new HTTP::Request 'GET', 'http://www.sn.no/';
+$request->header('Accept', 'text/html');
+
+$response = $ua->request($request);
+
+if ($response->isSuccess) {
+   die "This is bad" if $response->header('Content-Type') ne 'text/html';
+   print $response->content;
+} else {
+   die "Request failed: " . $response->code . " " . $response->message . "\n";
+}
+</pre>
+
+<hr>
+
+<h2>A simple as possible</h2>
+
+<pre>
+#!/local/bin/perl -w
+use LWP::Simple;
+getprint $ARGV[0] || die "Usage: $0 &lt;url&gt;\n";
+</pre>
+
+<hr>

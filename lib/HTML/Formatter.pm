@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.16 1997/10/12 13:36:23 aas Exp $
+# $Id: Formatter.pm,v 1.17 1997/10/12 20:27:13 aas Exp $
 
 =head1 NAME
 
@@ -26,7 +26,7 @@ L<HTML::FormatText>, L<HTML::FormatPS>, L<HTML::Element>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995-1997 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -46,8 +46,24 @@ use UNIVERSAL qw(can);
 
 sub new
 {
-    my $class = shift;
-    bless { }, $class;
+    my($class,%arg) = @_;
+    my $self = bless { $class->default_values }, $class;
+    $self->configure(\%arg) if scalar(%arg);
+    $self;
+}
+
+sub default_values
+{
+    ();
+}
+
+sub configure
+{
+    my($self, $arg) = @_;
+    for (keys %$arg) {
+	warn "Unknown configure argument '$_'" if $^W;
+    }
+    $self;
 }
 
 sub format

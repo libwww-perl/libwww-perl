@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.28 2004/04/06 11:10:49 gisle Exp $
+# $Id: RobotRules.pm,v 1.29 2004/04/06 11:37:32 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -54,7 +54,7 @@ sub parse {
 	    last if $is_me; # That was our record. No need to read the rest.
 	    $is_anon = 0;
 	}
-        elsif (/^User-Agent:\s*(.*)/i) {
+        elsif (/^\s*User-Agent\s*:\s*(.*)/i) {
 	    $ua = $1;
 	    $ua =~ s/\s+$//;
 	    if ($is_me) {
@@ -68,7 +68,7 @@ sub parse {
 		$is_me = 1;
 	    }
 	}
-	elsif (/^Disallow\s*:\s*(.*)/i) {
+	elsif (/^\s*Disallow\s*:\s*(.*)/i) {
 	    unless (defined $ua) {
 		warn "RobotRules: Disallow without preceding User-agent\n";
 		$is_anon = 1;  # assume that User-agent: * was intended

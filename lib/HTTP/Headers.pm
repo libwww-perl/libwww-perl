@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.38 2001/03/16 02:45:44 gisle Exp $
+# $Id: Headers.pm,v 1.39 2001/03/16 03:30:51 gisle Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -69,7 +69,7 @@ my %header_order;
 my %standard_case;
 for (@header_order) {
     my $lc = lc $_;
-    $header_order{$lc} = $i++;
+    $header_order{$lc} = ++$i;
     $standard_case{$lc} = $_;
 }
 
@@ -128,14 +128,63 @@ scalar context.
 sub header
 {
     my $self = shift;
-    my($field, $val, @old);
-    while (($field, $val) = splice(@_, 0, 2)) {
+    my(@old);
+    while (my($field, $val) = splice(@_, 0, 2)) {
 	@old = $self->_header($field, $val);
     }
     return @old if wantarray;
     return $old[0] if @old <= 1;
     join(", ", @old);
 }
+
+
+=item $h->push_header($field, $val)
+
+Add a new field value of the specified header.  The header field name
+is not case sensitive.  The field need not already have a
+value. Previous values for the same field are retained.  The argument
+may be a scalar or a reference to a list of scalars.
+
+ $header->push_header(Accept => 'image/jpeg');
+
+=cut
+
+sub push_header
+{
+    Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
+    shift->_header(@_, 'PUSH');
+}
+
+=item $h->def_header($field, $val)
+
+Set the specified header to the given value unless it already has a
+value.  The header field name is not case sensitive.
+
+=cut
+
+sub def_header
+{
+    Carp::croak('Usage: $h->def_header($field, $val)') if @_ != 3;
+    shift->_header(@_, 'DEF');
+}
+
+
+=item $h->remove_header($field,...)
+
+This function removes the headers with the specified names.
+
+=cut
+
+sub remove_header
+{
+    my($self, @fields) = @_;
+    my $field;
+    foreach $field (@fields) {
+	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
+	delete $self->{lc $field};
+    }
+}
+
 
 sub _header
 {
@@ -176,13 +225,7 @@ sub _header
 # recommended "Good Practice" order.
 sub _header_cmp
 {
-    # Unknown headers are assign a large value so that they are
-    # sorted last.  This also helps avoiding a warning from -w
-    # about comparing undefined values.
-    $header_order{$a} = 999 unless defined $header_order{$a};
-    $header_order{$b} = 999 unless defined $header_order{$b};
-
-    $header_order{$a} <=> $header_order{$b} || $a cmp $b;
+    ($header_order{$a} || 999) <=> ($header_order{$b} || 999) || $a cmp $b;
 }
 
 
@@ -252,35 +295,22 @@ sub as_string
 }
 
 
-# The remaining functions should autoloaded only when needed
-
-# A bug in 5.002gamma makes it risky to have POD text inside the
-# autoloaded section of the code, so we keep the documentation before
-# the __DATA__ token.
-
-=item $h->push_header($field, $val)
-
-Add a new field value of the specified header.  The header field name
-is not case sensitive.  The field need not already have a
-value. Previous values for the same field are retained.  The argument
-may be a scalar or a reference to a list of scalars.
-
- $header->push_header(Accept => 'image/jpeg');
-
-=item $h->def_header($field, $val)
-
-Set the specified header to the given value unless it already has a
-value.  The header field name is not case sensitive.
-
-=item $h->remove_header($field,...)
-
-This function removes the headers with the specified names.
-
 =item $h->clone
 
 Returns a copy of this HTTP::Headers object.
 
 =back
+
+=cut
+
+sub clone
+{
+    my $self = shift;
+    my $clone = new HTTP::Headers;
+    $self->scan(sub { $clone->push_header(@_);} );
+    $clone;
+}
+
 
 =head1 CONVENIENCE METHODS
 
@@ -384,7 +414,7 @@ This header should contain an Internet e-mail address for the human
 user who controls the requesting user agent.  The address should be
 machine-usable, as defined by RFC822.  E.g.:
 
-  $h->from('Gisle Aas <aas@sn.no>');
+  $h->from('King Kong <king@kong.com>');
 
 =item $h->referer
 
@@ -429,51 +459,7 @@ header instead.
 
 =back
 
-=head1 COPYRIGHT
-
-Copyright 1995-1998 Gisle Aas.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
 =cut
-
-1;
-
-#__DATA__
-
-sub clone
-{
-    my $self = shift;
-    my $clone = new HTTP::Headers;
-    $self->scan(sub { $clone->push_header(@_);} );
-    $clone;
-}
-
-sub push_header
-{
-    Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
-    shift->_header(@_, 'PUSH');
-}
-
-sub def_header
-{
-    Carp::croak('Usage: $h->def_header($field, $val)') if @_ != 3;
-    shift->_header(@_, 'DEF');
-}
-
-
-sub remove_header
-{
-    my($self, @fields) = @_;
-    my $field;
-    foreach $field (@fields) {
-	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
-	delete $self->{lc $field};
-    }
-}
-
-# Convenience access functions
 
 sub _date_header
 {
@@ -550,5 +536,14 @@ sub _basic_auth {
     }
     return;
 }
+
+=head1 COPYRIGHT
+
+Copyright 1995-2001 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
 
 1;

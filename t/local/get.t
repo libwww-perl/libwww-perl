@@ -36,6 +36,7 @@ my $copy = "$TMPDIR/lwp-copy-$$"; 	    # downloaded copy
 
 # First we create the original
 open(OUT, ">$orig") or die "Cannot open $orig: $!";
+binmode(OUT);
 for (1..100) {
     print OUT "This is line $_ of $orig\n";
 }

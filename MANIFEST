@@ -5,6 +5,7 @@ README				Get you started with this package
 TODO				The To-Do list for the library
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
+lib/File/CounterFile.pm         Persistent counter class
 lib/Font/AFM.pm			Parse Adobe Font Metric files
 lib/Font/Metrics/Courier.pm	Generated from the AFM file by make_metrics.pl
 lib/Font/Metrics/CourierBold.pm	

@@ -1,20 +1,17 @@
-                                            $Date: 1997/12/01 22:11:58 $
+                                            $Date: 1998/01/26 11:39:54 $
 
 This is a list over things that we plan to implement in libwww-perl-5
 (or 6, or 7,...)  The order of items does not reflect priority.
 
   o  Add more HTTP/1.1 features as they stabilize
+       Persistent connections
+       Pipelining
        Transfer-Encoding: chunked
-       Connection: Keep-Alive
        Content-Range
        Multipart mime types
        Use HTTP/1.1 in the request line when we support it all.
 
   o  Support PICS??
-
-  o  Replace LWP::Socket with IO::Socket
-
-  o  HTTP-NG in the future...
 
   o  Make multiple simultaneous requests work.  Make the callback
      request interface event driven.  This will require a major
@@ -60,9 +57,6 @@ This is a list over things that we plan to implement in libwww-perl-5
      prints data as it is received.
 
   o  The lwp-mirror script should be able to work recursively.
-
-  o  Make handcoded autoloading work on systems where the directory
-     separator is not "/".
 
   o  Include more useful programs
 

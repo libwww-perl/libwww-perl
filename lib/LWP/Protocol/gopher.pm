@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.17 1997/12/15 20:22:02 aas Exp $
+# $Id: gopher.pm,v 1.18 1998/10/14 21:23:19 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -126,6 +126,7 @@ EOT
     # Ok, lets make the request
     my $socket = IO::Socket::INET->new(PeerAddr => $host,
 				       PeerPort => $port,
+				       Proto    => 'tcp',
 				       Timeout  => $timeout);
     die "Can't connect to $host:$port" unless $socket;
     my $sel = IO::Select->new($socket);

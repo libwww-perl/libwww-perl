@@ -1,6 +1,6 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.2 1996/06/09 14:50:00 aas Exp $
+# $Id: Parser.pm,v 2.3 1996/09/30 13:07:54 aas Exp $
 
 =head1 NAME
 
@@ -13,7 +13,7 @@ HTML::Parser - SGML parser class
  $p->parse($chunk1);
  $p->parse($chunk2);
  #...
- $p->parse(undef)         # signal EOF
+ $p->eof;                 # signal end of document
 
  # Parse directly from file
  $p->parse_file("foo.html");
@@ -23,11 +23,11 @@ HTML::Parser - SGML parser class
 
 =head1 DESCRIPTION
 
-The C<HTML::Parser> will tokenize a HTML document when the
-$p->parse() method is called.  The document to parse can be supplied
-in arbitrary chunks.  Call $p->parse(undef) at the end of the document
-to flush any remaining text.  The return value from parse() is a
-reference to the parser object.
+The C<HTML::Parser> will tokenize a HTML document when the $p->parse()
+method is called.  The document to parse can be supplied in arbitrary
+chunks.  Call $p->eof() the end of the document to flush any remaining
+text.  The return value from parse() is a reference to the parser
+object.
 
 The $p->parse_file() method can be called to parse text from a file.
 The argument can be a filename or an already opened file handle. The
@@ -84,6 +84,13 @@ it is likely that the parser can parse many kinds of SGML documents,
 but SGML has many obscure features (not implemented by this module)
 that prevent us from renaming this module as C<SGML::Parse>.
 
+=head1 BUGS
+
+You can instruct the parser to parse comments the way Netscape does it
+by calling the netscape_buggy_comment method with a TRUE argument.
+This means that comments will always be terminated by the first
+occurence of "-->".
+
 =head1 SEE ALSO
 
 L<HTML::TreeBuilder>, L<HTML::HeadParser>, L<HTML::Entities>
@@ -106,13 +113,15 @@ use strict;
 
 use HTML::Entities ();
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
 {
     my $class = shift;
-    my $self = bless { '_buf' => '' }, $class;
+    my $self = bless { '_buf'              => '',
+		       '_netscape_comment' => 0,
+		     }, $class;
     $self;
 }
 
@@ -132,6 +141,12 @@ sub new
 #
 # Netscape ignore '<!--' and '-->' within the <SCRIPT> tag.  This is used
 # as a trick to make non-script-aware browsers ignore the scripts.
+
+
+sub eof
+{
+    shift->parse(undef);
+}
 
 
 sub parse
@@ -167,10 +182,18 @@ sub parse
 	    } else {
 		$self->text($1);
 	    }
+	# Netscapes buggy comments are easy to handle
+	} elsif ($self->{'_netscape_comment'} && $$buf =~ m|^(<!--)|) {
+	    if ($$buf =~ s|^<!--(.*?)-->||s) {
+		$self->comment($1);
+	    } else {
+		return $self;  # must wait until we see the end of it
+	    }
 	# Then, markup declarations (usually either <!DOCTYPE...> or a comment)
 	} elsif ($$buf =~ s|^(<!)||) {
 	    my $eaten = $1;
 	    my $text = '';
+	    my @com = ();  # keeps comments until we have seen the end
 	    # Eat text and beginning of comment
 	    while ($$buf =~ s|^(([^>]*?)--)||) {
 		$eaten .= $1;
@@ -178,11 +201,9 @@ sub parse
 		# Look for end of comment
 		if ($$buf =~ s|^((.*?)--)||s) {
 		    $eaten .= $1;
-		    $self->comment($2);
+		    push(@com, $2);
 		} else {
-		    # Need more data to get all comment text.  This might
-		    # result in the comment callback being called more than
-		    # once for the several comment data.
+		    # Need more data to get all comment text.
 		    $$buf = $eaten . $$buf;
 		    return $self;
 		}
@@ -191,6 +212,8 @@ sub parse
 	    if ($$buf =~ s|^([^>]*)>||) {
 		$text .= $1;
 		$self->declaration($text) if $text =~ /\S/;
+		# then tell about all the comments we found
+		for (@com) { $self->comment($_); }
 	    } else {
 		$$buf = $eaten . $$buf;  # must start with it all next time
 		return $self;
@@ -284,6 +307,14 @@ sub parse
     $self;
 }
 
+sub netscape_buggy_comment
+{
+    my $self = shift;
+    my $old = $self->{'_netscape_comment'};
+    $self->{'_netscape_comment'} = shift if @_;
+    return $old;
+}
+
 sub parse_file
 {
     my($self, $file) = @_;
@@ -299,7 +330,7 @@ sub parse_file
 	$self->parse($chunk);
     }
     close($file);
-    $self->parse(undef); #EOF
+    $self->eof;
 }
 
 sub text

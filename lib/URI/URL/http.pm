@@ -42,8 +42,8 @@ sub query_form {
 	    my $val;
 	    for $val (@$vals) {
 		$val = '' unless defined $val;
-		$val = URI::Escape::uri_escape($val, $esc);
-		push(@query, "$key=$val");
+		my $esc = URI::Escape::uri_escape($val, $esc);
+		push(@query, "$key=$esc");
 	    }
 	}
 	$self->equery(join('&', @query));

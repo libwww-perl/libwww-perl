@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.10 1995/09/12 08:49:42 aas Exp $
+# $Id: Parse.pm,v 1.11 1995/09/13 07:40:10 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -257,12 +257,70 @@ sub starttag
 	    $attr{$key} = $val;
         }
 
-	my $pos  = $html->pos;
-	my $ptag = $pos->tag;
+	my $pos  = $html->{_pos};
+	$pos = $html unless defined $pos;
+	my $ptag = $pos->{_tag};
 	my $e = new HTML::Element $tag, %attr;
 
         if (!$IMPLICIT_TAGS) {
 	    # do nothing
+        } elsif ($isBodyElement{$tag}) {
+
+	    # Ensure that we are within <body>
+	    if ($pos->isInside('head')) {
+		endtag($html, 'head');
+		$pos = $html->insertElement('body', 1);
+		$ptag = $pos->tag;
+	    } elsif (!$pos->isInside('body')) {
+		$pos = $html->insertElement('body', 1);
+		$ptag = $pos->tag;
+	    }
+
+	    # Handle implicit endings and insert based on <tag> and position
+	    if ($tag eq 'p' || $tag =~ /^h[1-6]/) {
+		# Can't have <p> or <h#> inside these
+		endtag($html, [qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
+	    } elsif ($tag =~ /^[oud]l$/) {
+		# Can't have lists inside <h#>
+		if ($ptag =~ /^h[1-6]/) {
+		    endtag($html, $ptag);
+		    $pos = $html->insertElement('p', 1);
+		    $ptag = 'p';
+		}
+	    } elsif ($tag eq 'li') {
+		# Fix <li> outside list
+		endtag($html, 'li', keys %isList);
+		$ptag = $html->pos->tag;
+		$pos = $html->insertElement('ul', 1) unless $isList{$ptag};
+	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
+		endtag($html, ['dt', 'dd'], 'dl');
+		$ptag = $html->pos->tag;
+		# Fix <dt> or <dd> outside <dl>
+		$pos = $html->insertElement('dl', 1) unless $ptag eq 'dl';
+	    } elsif ($isFormElement{$tag}) {
+		return unless $pos->isInside('form');
+		if ($tag eq 'option') {
+		    # return unless $ptag eq 'select';
+		    endtag($html, 'option');
+		    $ptag = $html->pos->tag;
+		    $pos = $html->insertElement('select', 1)
+		      unless $ptag eq 'select';
+		}
+	    } elsif ($isTableElement{$tag}) {
+		endtag($html, $tag, 'table');
+		$pos = $html->insertElement('table', 1)
+		  if !$pos->isInside('table');
+	    } elsif ($isPhraseMarkup{$tag}) {
+		if ($ptag eq 'body') {
+		    $pos = $html->insertElement('p', 1);
+		}
+	    }
+	} elsif ($isHeadElement{$tag}) {
+	    if ($pos->isInside('body')) {
+		warn "Header element <$tag> in body\n";
+	    } elsif (!$pos->isInside('head')) {
+		$pos = $html->insertElement('head', 1);
+	    }
 	} elsif ($tag eq 'html') {
 	    if ($ptag eq 'html' && $pos->isEmpty()) {
 		# migrate attributes to origial HTML element
@@ -276,7 +334,6 @@ sub starttag
 	    }
 	} elsif ($tag eq 'head') {
 	    if ($ptag ne 'html' && $pos->isEmpty()) {
-
 		warn "Skipping nested <head> element\n";
 		return;
 	    }
@@ -287,62 +344,6 @@ sub starttag
 		warn "Skipping nested <body> element\n";
 		return;
 	    }
-	} elsif ($isHeadElement{$tag}) {
-	    if ($pos->isInside('body')) {
-		warn "Header element <$tag> in body\n";
-	    } elsif (!$pos->isInside('head')) {
-		$pos = insertTag($html, 'head', 1);
-	    }
-        } elsif ($isBodyElement{$tag}) {
-
-	    # Ensure that we are within <body>
-	    if ($pos->isInside('head')) {
-		endtag($html, 'head');
-		$pos = insertTag($html, 'body');
-		$ptag = $pos->tag;
-	    } elsif (!$pos->isInside('body')) {
-		$pos = insertTag($html, 'body');
-		$ptag = $pos->tag;
-	    }
-
-	    # Handle implicit endings and insert based on <tag> and position
-	    if ($tag eq 'p' || $tag =~ /^h[1-6]/) {
-		# Can't have <p> or <h#> inside these
-		endtag($html, [qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
-	    } elsif ($tag =~ /^[oud]l$/) {
-		# Can't have lists inside <h#>
-		if ($ptag =~ /^h[1-6]/) {
-		    endtag($html, $ptag);
-		    $pos = insertTag($html, 'p');
-		    $ptag = 'p';
-		}
-	    } elsif ($tag eq 'li') {
-		# Fix <li> outside list
-		endtag($html, 'li', keys %isList);
-		$ptag = $html->pos->tag;
-		$pos = insertTag($html, 'ul') unless $isList{$ptag};
-	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
-		endtag($html, ['dt', 'dd'], 'dl');
-		$ptag = $html->pos->tag;
-		# Fix <dt> or <dd> outside <dl>
-		$pos = insertTag($html, 'dl') unless $ptag eq 'dl';
-	    } elsif ($isFormElement{$tag}) {
-		return unless $pos->isInside('form');
-		if ($tag eq 'option') {
-		    # return unless $ptag eq 'select';
-		    endtag($html, 'option');
-		    $ptag = $html->pos->tag;
-		    $pos = insertTag($html, 'select') unless $ptag eq 'select';
-		}
-	    } elsif ($isTableElement{$tag}) {
-		endtag($html, $tag, 'table');
-		$pos = insertTag($html, 'table') if !$pos->isInside('table');
-	    } elsif ($isPhraseMarkup{$tag}) {
-		if ($ptag eq 'body') {
-		    $pos = insertTag($html, 'p');
-		}
-	    }
-
 	} else {
 	    # unknown tag
 	    if ($IGNORE_UNKNOWN) {
@@ -350,27 +351,8 @@ sub starttag
 		return;
 	    }
 	}
-	insertTag($html, $e);
+	$html->insertElement($e);
     }
-}
-
-
-sub insertTag
-{
-    my($html, $tag, $implicit) = @_;
-    my $e;
-    if (ref $tag) {
-	$e = $tag;
-	$tag = $e->tag;
-    } else {
-	$e = new HTML::Element $tag;
-    }
-    $e->implicit(1) if $implicit;
-    my $pos = $html->pos;
-    $e->parent($pos);
-    $pos->pushContent($e);
-    $html->pos($e) unless $HTML::Element::noEndTag{$tag};
-    $html->pos;
 }
 
 
@@ -382,39 +364,41 @@ sub endtag
     # The tag can also be a reference to an array.  Terminate the first
     # tag found.
     
-    my $p = $html->pos;
+    my $p = $html->{_pos};
+    $p = $html unless defined($p);
     if (ref $tag) {
       PARENT:
 	while (defined $p) {
-	    my $ptag = $p->tag;
+	    my $ptag = $p->{_tag};
 	    for (@$tag) {
 		last PARENT if $ptag eq $_;
 	    }
 	    for (@stop) {
 		return if $ptag eq $_;
 	    }
-	    $p = $p->parent;
+	    $p = $p->{_parent};
 	}
     } else {
 	while (defined $p) {
-	    my $ptag = $p->tag;
+	    my $ptag = $p->{_tag};
 	    last if $ptag eq $tag;
 	    for (@stop) {
 		return if $ptag eq $_;
 	    }
-	    $p = $p->parent;
+	    $p = $p->{_parent};
 	}
     }
 
     # Move position if the specified tag was found
-    $html->pos($p->parent) if defined $p;
+    $html->{_pos} = $p->{_parent} if defined $p;
 }
 
 
 sub text
 {
     my $html = shift;
-    my $pos = $html->pos;
+    my $pos = $html->{_pos};
+    $pos = $html unless defined($pos);
 
     my @text = @_;
     HTML::Entities::decode(@text) unless $IGNORE_TEXT;
@@ -429,21 +413,21 @@ sub text
 	}
 	return if $empty;
 
-	my $ptag = $pos->tag;
+	my $ptag = $pos->{_tag};
 	if (!$IMPLICIT_TAGS) {
 	    # don't change anything
 	} elsif ($ptag eq 'head') {
 	    endtag($html, 'head');
-	    insertTag($html, 'body');
-	    $pos = insertTag($html, 'p');
+	    $html->insertElement('body', 1);
+	    $pos = $html->insertElement($html, 'p', 1);
 	} elsif ($ptag eq 'html') {
-	    insertTag($html, 'body');
-	    $pos = insertTag($html, 'p');
+	    $html->insertElement($html, 'body', 1);
+	    $pos = $html->insertElement('p', 1);
 	} elsif ($ptag eq 'body' ||
 	       # $ptag eq 'li'   ||
 	       # $ptag eq 'dd'   ||
 		 $ptag eq 'form') {
-	    $pos = insertTag($html, 'p');
+	    $pos = $html->insertElement('p', 1);
 	}
 	return if $IGNORE_TEXT;
 	for (@text) {

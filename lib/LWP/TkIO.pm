@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: TkIO.pm,v 1.1 1995/09/04 17:41:00 aas Exp $
+# $Id: TkIO.pm,v 1.2 1995/09/04 18:40:17 aas Exp $
 
 require Tk;
 require LWP::Debug;
@@ -37,7 +37,7 @@ sub read
 		      $n = sysread($fd, $$dataRef, $size, $offset);
 		      LWP::Debug::conns("Read $n bytes: '" .
 					substr($$dataRef, $offset, $n) .
-					"'");
+					"'") if defined $n;
 		      $doneFlag = 1;
 		  }
 		 );
@@ -73,16 +73,16 @@ sub write
     Tk->fileevent($fd, 'writable',
 		  sub {
 		      my $n = syswrite($fd, $$dataRef, $len-$offset, $offset);
-		      if ($n <= 0) {
+		      if (!defined $n) {
 			  $done = 1;
 		      } else {
 			  LWP::Debug::conns("Write $n bytes: '" .
 					    substr($$dataRef, $offset, $n) .
 					    "'");
 			  $offset += $n;
+			  $timer = Tk->after($timeout*1000, $timeoutSub )
+			    if $timeout;
 		      }
-		      $timer = Tk->after($timeout*1000, $timeoutSub )
-			if $timeout;
 		  }
 		 );
 

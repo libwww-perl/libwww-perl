@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.5 1995/07/14 00:18:16 aas Exp $
+# $Id: http.pm,v 1.6 1995/07/15 08:03:27 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -44,7 +44,7 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    LWP::Debug::trace("LWP::http::request(" . 
+    LWP::Debug::trace('LWP::http::request(' . 
                       (defined $request ? $request : '<undef>') . ', ' .
                       (defined $arg ? $arg : '<undef>') . ', ' .
                       (defined $size ? $size : '<undef>') .')');

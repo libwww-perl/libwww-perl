@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.11 1997/12/02 11:23:46 aas Exp $
+# $Id: Entities.pm,v 1.12 1998/01/06 10:35:00 aas Exp $
 
 =head1 NAME
 
@@ -62,6 +62,10 @@ modify it under the same terms as Perl itself.
 
 =cut
 
+use strict;
+use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
+use vars qw(%entity2char %char2entity);
+
 require 5.004;
 require Exporter;
 @ISA = qw(Exporter);
@@ -69,7 +73,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -184,7 +188,7 @@ sub Version { $VERSION; }
 );
 
 # Make the oposite mapping
-while (($entity, $char) = each(%entity2char)) {
+while (my($entity, $char) = each(%entity2char)) {
     $char2entity{$char} = "&$entity;";
 }
 
@@ -193,6 +197,8 @@ for (0 .. 255) {
     next if exists $char2entity{chr($_)};
     $char2entity{chr($_)} = "&#$_;";
 }
+
+my %subst;  # compiled encoding regexps
 
 
 sub decode_entities

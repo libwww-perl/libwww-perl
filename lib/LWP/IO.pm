@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.1 1995/09/04 17:41:00 aas Exp $
+# $Id: IO.pm,v 1.2 1995/09/04 18:39:51 aas Exp $
 
 require LWP::Debug;
 
@@ -41,7 +41,7 @@ sub read
 	die "Select failed: $!";
     } else {
 	my $n = sysread($fd, $_[0], $size, $offset);
-	LWP::Debug::conns("Read $n bytes: '$_[0]'");
+	LWP::Debug::conns("Read $n bytes: '$_[0]'") if defined $n;
 	return $n;
     }
 }
@@ -59,7 +59,7 @@ sub write
     my $offset = 0;
     while ($offset < $len) {
 	my $win = '';
-	vec($win, fileno($socket), 1) = 1;
+	vec($win, fileno($fd), 1) = 1;
 	my $nfound = select(undef, $win, undef, $timeout);
 	if ($nfound == 0) {
 	    die "Timeout";
@@ -68,7 +68,7 @@ sub write
 	    die "Select failed: $!";
 	} else {
 	    my $n = syswrite($fd, $_[0], $len-$offset, $offset);
-	    return $bytes_written if $n <= 0;
+	    return $bytes_written unless defined $n;
 	    LWP::Debug::conns("Write $n bytes: '" .
 			      substr($_[0], $offset, $n) .
 			      "'");

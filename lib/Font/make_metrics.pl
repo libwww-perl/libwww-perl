@@ -1,6 +1,9 @@
 #!/usr/local/bin/perl -w
 
-# $Id: makefont.pl,v 1.2 1995/09/14 12:28:30 aas Exp $
+# $Id: make_metrics.pl,v 1.1 1996/01/04 14:13:35 aas Exp $
+#
+# This program creates metrics modules for some fonts and place them
+# under the "Metrics" directory.
 #
 # Author: Gisle Aas
 
@@ -21,10 +24,11 @@
 	   );
 @FONTS = @ARGV if @ARGV;
 	  
-require HTML::FormatPS;
 require Font::AFM;
 
 $0 =~ s,.*/,,;
+
+mkdir("Metrics", 0755);
 
 for $font (@FONTS) {
     eval {
@@ -38,7 +42,7 @@ for $font (@FONTS) {
     
     ($fontmod = $font) =~ s/-//g;
 
-    open(FONTDEF, ">$fontmod.pm") or die "Can't open $fontmod.pm: $!";
+    open(FONTDEF, ">Metrics/$fontmod.pm") or die "Can't open $fontmod.pm: $!";
     select FONTDEF;
     print "# Font metrics for $font\n#\n";
     print "# DO NOT EDIT!!!\n";

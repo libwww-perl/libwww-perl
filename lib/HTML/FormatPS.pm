@@ -1,6 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.19 1996/10/22 08:57:22 aas Exp $
+# $Id: FormatPS.pm,v 1.20 1997/02/25 14:21:34 aas Exp $
 
 $DEFAULT_PAGESIZE = "A4";
 
@@ -336,7 +336,7 @@ sub end
     my($pw, $ph) = map { int($_); } @{$self}{qw(paperwidth paperheight)};
 
     push(@prolog, "%%DocumentMedia: Plain $pw $ph 0 white ()\n");
-    push(@prolog, "%%DocumentNeededResources: encoding ISOLatin1Encoding\n");
+    push(@prolog, "%%DocumentNeededResources: \n");
     my($full, %seenfont);
     for $full (sort keys %{$self->{fonts}}) {
 	$full =~ s/-\d+$//;
@@ -344,6 +344,7 @@ sub end
 	push(@prolog, "%%+ font $full\n");
     }
     push(@prolog, "%%DocumentSuppliedResources: procset newencode 1.0 0\n");
+    push(@prolog, "%%+ encoding ISOLatin1Encoding\n");
     push(@prolog, "%%EndComments\n");
     push(@prolog, <<'EOT');
 
@@ -352,7 +353,52 @@ sub end
 /M/moveto load def
 /SF/setfont load def
 
-%%IncludeResource: encoding ISOLatin1Encoding
+%%BeginResource: encoding ISOLatin1Encoding
+systemdict /ISOLatin1Encoding known not {
+    /ISOLatin1Encoding [
+	/space /space /space /space /space /space /space /space
+	/space /space /space /space /space /space /space /space
+	/space /space /space /space /space /space /space /space
+	/space /space /space /space /space /space /space /space
+	/space /exclam /quotedbl /numbersign /dollar /percent /ampersand
+	    /quoteright
+	/parenleft /parenright /asterisk /plus /comma /minus /period /slash
+	/zero /one /two /three /four /five /six /seven
+	/eight /nine /colon /semicolon /less /equal /greater /question
+	/at /A /B /C /D /E /F /G
+	/H /I /J /K /L /M /N /O
+	/P /Q /R /S /T /U /V /W
+	/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+	/quoteleft /a /b /c /d /e /f /g
+	/h /i /j /k /l /m /n /o
+	/p /q /r /s /t /u /v /w
+	/x /y /z /braceleft /bar /braceright /asciitilde /space
+	/space /space /space /space /space /space /space /space
+	/space /space /space /space /space /space /space /space
+	/dotlessi /grave /acute /circumflex /tilde /macron /breve /dotaccent
+	/dieresis /space /ring /cedilla /space /hungarumlaut /ogonek /caron
+	/space /exclamdown /cent /sterling /currency /yen /brokenbar /section
+	/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen
+	    /registered /macron
+	/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph
+	    /periodcentered
+	/cedillar /onesuperior /ordmasculine /guillemotright /onequarter
+	    /onehalf /threequarters /questiondown
+	/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+	/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex
+	    /Idieresis
+	/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply
+	/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn
+	    /germandbls
+	/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla
+	/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex
+	    /idieresis
+	/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide
+	/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn
+	    /ydieresis
+    ] def
+} if
+%%EndResource
 %%BeginResource: procset newencode 1.0 0
 /NE { %def
    findfont begin

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.11 2001/04/10 06:21:48 gisle Exp $
+# $Id: HTTP.pm,v 1.12 2001/04/10 06:50:09 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -85,7 +85,6 @@ sub write_request {
     my $uri = shift;
 
     my $content = (@_ % 2) ? pop : "";
-    my @headers = @_;
 
     for ($method, $uri) {
 	require Carp;
@@ -98,28 +97,17 @@ sub write_request {
     $self->autoflush(0);
 
     my $peer_ver = ${*$self}{'peer_http_version'} || "1.0";
-    my $keep_alive = ${*$self}{'http_keep_alive'};
 
     print $self "$method $uri HTTP/$ver$CRLF";
-    if ($keep_alive) {
-	if ($peer_ver eq "1.0") {
-	    # XXX from looking at Netscape's headers
-	    print $self "Keep-Alive: 300$CRLF";
-	    print $self "Connection: Keep-Alive$CRLF";
-	}
-    }
-    else {
-	print $self "Connection: close$CRLF" if $ver ge "1.1";
-    }
 
-    my %given = (host => 0, "content-length" => 0);
-    while (@headers) {
-	my($k, $v) = splice(@headers, 0, 2);
+    my %given = (host => 0,
+		 "content-length" => 0,
+		 "connection" => 0,
+		);
+    while (@_) {
+	my($k, $v) = splice(@_, 0, 2);
 	my $lc_k = lc($k);
-	if ($lc_k eq "connection" || $lc_k eq "te") {
-	    next;  # always ignore these
-	}
-	elsif (exists $given{$lc_k}) {
+	if (exists $given{$lc_k}) {
 	    $given{$lc_k}++;
 	}
 	print $self "$k: $v$CRLF";
@@ -127,6 +115,19 @@ sub write_request {
 
     if (length($content) && !$given{'content-length'}) {
 	print $self "Content-length: " . length($content) . $CRLF;
+    }
+
+    unless ($given{'connection'}) {
+	if ($self->keep_alive) {
+	    if ($peer_ver eq "1.0") {
+		# XXX from looking at Netscape's headers
+		print $self "Keep-Alive: 300$CRLF";
+		print $self "Connection: Keep-Alive$CRLF";
+	    }
+	}
+	else {
+	    print $self "Connection: close$CRLF" if $ver ge "1.1";
+	}
     }
 
     print $self "Host: ${*$self}{'http_host'}$CRLF"

@@ -15,6 +15,12 @@
     HTTP::Daemon's send_file() method did not work when given
     a file name.  Patch by Dave W. Smith <dws@postcognitive.com>.
 
+    HTTP::Daemon is less strict about field names in the request
+    headers is received.  The Norton Internet Security firewall
+    apparently likes to send requests with a header called
+    '~~~~~~~~~~~~~~~'.   Further details in
+    <http://rt.cpan.org/Ticket/Display.html?id=2531>.
+
     LWP::Protocol::http assumed $1 would be meaningful without
     testing the outcome of the match.  This sometimes produced
     an extra garbage Authentication header.

@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.27 2003/10/14 14:17:30 gisle Exp $
+# $Id: Daemon.pm,v 1.28 2003/10/14 18:17:08 gisle Exp $
 #
 
 use strict;
@@ -64,7 +64,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -279,7 +279,7 @@ sub get_request
 	while ($buf =~ s/^([^\012]*)\012//) {
 	    $_ = $1;
 	    s/\015$//;
-	    if (/^([\w\-]+)\s*:\s*(.*)/) {
+	    if (/^([^:\s]+)\s*:\s*(.*)/) {
 		$r->push_header($key, $val) if $key;
 		($key, $val) = ($1, $2);
 	    } elsif (/^\s+(.*)/) {

@@ -45,7 +45,9 @@ sub password
 		$whoami = $ENV{USER} || $ENV{LOGNAME} || $ENV{USERNAME};
 		unless ($whoami) {
 		    if ($^O eq 'MSWin32') { $whoami = Win32::LoginName() }
-		    else                  { chomp($whoami = `whoami`) }
+		    else {
+		        $whoami = getlogin || getpwuid($<) || 'unknown';
+		    }
 		}
 	    }
 	    $old = "$whoami\@$fqdn";

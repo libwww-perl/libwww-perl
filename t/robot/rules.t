@@ -45,6 +45,7 @@ my $content4 = <<EOM;
 # http://foo/robots.txt
 User-agent: *
 Disallow: /private
+Disallow: mailto:foo
 
 User-agent: MOMspider
 Disallow: /this

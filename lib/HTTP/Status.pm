@@ -1,7 +1,9 @@
 #
-# $Id: Status.pm,v 1.10 1995/08/09 11:29:32 aas Exp $
+# $Id: Status.pm,v 1.11 1996/02/05 17:59:07 aas Exp $
 
 package HTTP::Status;
+
+require 5.002;   # becase we use prototypes
 
 =head1 NAME
 
@@ -107,7 +109,7 @@ my ($code, $message);
 while (($code, $message) = each %StatusCode) {
     # create mnemonic subroutines
     $message =~ tr/a-z \-/A-Z__/;
-    $mnemonicCode .= "sub RC_$message { $code }\t";
+    $mnemonicCode .= "sub RC_$message () { $code }\t";
     # make them exportable
     $mnemonicCode .= "push(\@EXPORT, 'RC_$message');\n";
 }

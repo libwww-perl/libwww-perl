@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.32 1999/03/20 07:37:36 gisle Exp $
+# $Id: Simple.pm,v 1.33 2000/05/24 09:40:43 gisle Exp $
 
 =head1 NAME
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -273,7 +273,7 @@ sub _get
 {
     my $url = shift;
     my $ret;
-    if (!$FULL_LWP && $url =~ m,^http://([^/:]+)(?::(\d+))?(/\S*)?$,) {
+    if (!$FULL_LWP && $url =~ m,^http://([^/:\@]+)(?::(\d+))?(/\S*)?$,) {
 	my $host = $1;
 	my $port = $2 || 80;
 	my $path = $3;

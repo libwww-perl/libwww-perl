@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.10 1995/07/17 10:08:03 aas Exp $
+# $Id: UserAgent.pm,v 1.11 1995/07/18 12:13:55 aas Exp $
 
 package LWP::UserAgent;
 
@@ -216,12 +216,12 @@ sub simpleRequest
     if ($self->useEval) {
         # we eval, and turn dies into responses below
         eval {
-            $response = $protocol->request($request, $proturl, 
+            $response = $protocol->request($request, $proxy, 
                                            $arg, $size, $timeout);
         };
     } else {
         # user has to handle any dies, usually timeouts
-        $response = $protocol->request($request, $proturl,
+        $response = $protocol->request($request, $proxy,
                                        $arg, $size, $timeout);
     }
     alarm(0) if ($self->useAlarm); # no more timeout

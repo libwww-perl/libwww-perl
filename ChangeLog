@@ -1,3 +1,23 @@
+Mon Jul 24 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Incorporated Makemake.PL and VERSION from Andreas Koenig <koenig@mind.de>
+    As a result of this the following things have changed:
+       - programs in "bin" are extracted from .PL-files
+       - reintroduced "lib"
+       - "test" has been renamed as "t"
+       - test programs in "t" has been made Test::Harness compatible
+       - we now have a MANIFEST file
+       - no more need fro update_version, make-dist, lwp-install
+
+ o  Renamed bin/get to bin/request.  Links to it are now all upper case.
+
+ o  Proxy support in bin/request (provided by Martijn Koster)
+
+ o  UserAgent can now load proxy settings from environment
+
+ o  LWP::Protocol::ftp is under way but not really finished
+
+
 
 Tue Jul 18 1995   Gisle Aas <aas@oslonett.no>
 

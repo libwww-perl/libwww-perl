@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.42 1997/02/11 13:47:41 aas Exp $
+# $Id: UserAgent.pm,v 1.43 1997/06/20 10:09:43 aas Exp $
 
 package LWP::UserAgent;
 
@@ -119,6 +119,7 @@ use LWP::Protocol ();
 
 use MIME::Base64 qw(encode_base64);
 use Carp ();
+use Config ();
 
 use AutoLoader ();
 *AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
@@ -146,7 +147,7 @@ sub new
 		'timeout'     => 3*60,
 		'proxy'       => undef,
 		'use_eval'    => 1,
-		'use_alarm'   => 1,
+		'use_alarm'   => ($Config::Config{d_alarm} eq 'define'),
                 'parse_head'  => 1,
                 'max_size'    => undef,
 		'no_proxy'    => [],
@@ -542,9 +543,8 @@ Get/set the timeout value in seconds. The default timeout() value is
 =head2 $ua->use_alarm([$boolean])
 
 Get/set a value indicating wether to use alarm() when implementing
-timeouts.  The default is TRUE, i.e. to use alarm.  Disable this on
-systems that does not implement alarm, or if this interfers with other
-uses of alarm in your application.
+timeouts.  The default is TRUE, if your system supports it.  You can
+disable it if it interfers with other uses of alarm in your application.
 
 =head2 $ua->use_eval([$boolean])
 

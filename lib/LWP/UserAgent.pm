@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.28 1996/03/12 15:28:09 aas Exp $
+# $Id: UserAgent.pm,v 1.29 1996/03/15 16:37:00 aas Exp $
 
 package LWP::UserAgent;
 
@@ -245,15 +245,14 @@ sub request
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
         $code == &HTTP::Status::RC_MOVED_TEMPORARILY) {
 
-        my $referral_uri =
-	  new URI::URL $response->header('URI') || 
-                       $response->header('Location');
-
+        # Make a copy of the request and initialize it with the new URI
         my $referral = $request->clone;
+        my $referral_uri = URI::URL->new($response->header('Location'));
         $referral->url($referral_uri);
+
 	return $response unless $self->redirect_ok($referral);
 
-	# Check for loop in redirects
+	# Check for loop in the redirects
 	my $r = $response;
 	while ($r) {
 	    if ($r->request->url->as_string eq $referral_uri->as_string) {

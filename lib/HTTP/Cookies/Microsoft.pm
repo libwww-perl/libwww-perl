@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);
@@ -264,8 +264,10 @@ __END__
 
 HTTP::Cookies::Microsoft - access to Microsoft cookies files
 
-=head1 SYNPSIS
+=head1 SYNOPSIS
 
+ use LWP;
+ use HTTP::Cookies::Microsoft;
  use Win32::TieRegistry(Delimiter => "/");
  my $cookies_dir = $Registry->
       {"CUser/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/Cookies"};
@@ -274,22 +276,18 @@ HTTP::Cookies::Microsoft - access to Microsoft cookies files
                    File     => "$cookies_dir\\index.dat",
                    'delayload' => 1,
                );
+ my $browser = LWP::UserAgent->new;
+ $browser->cookie_jar( $cookie_jar );
 
 =head1 DESCRIPTION
 
 This is a subclass of C<HTTP::Cookies> which
 loads Microsoft Internet Explorer 5.x and 6.x for Windows (MSIE)
-cookie files.  You should be able to have LWP share Internet Explorer's
-cookies by constructing your $cookie_jar like this:
+cookie files.
 
- use Win32::TieRegistry(Delimiter => "/");
- my $cookies_dir = $Registry->
-      {"CUser/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/Cookies"};
+See the documentation for L<HTTP::Cookies>.
 
- $cookie_jar = HTTP::Cookies::Microsoft->new(
-                   File     => "$cookies_dir\\index.dat",
-                   'delayload' => 1,
-               );
+=head1 CAVEATS
 
 Please note that the code DOESN'T support saving to the MSIE
 cookie file format.

@@ -646,16 +646,16 @@ print "not " if $req->header("Cookie");
 print "ok 41\n";
 
 
-# Test cookie called 'exipre'
+# Test cookie called 'exipres' <https://rt.cpan.org/Ticket/Display.html?id=8108>
 $c = HTTP::Cookies->new;
 $req = HTTP::Request->new("GET" => "http://example.com");
 $res = HTTP::Response->new(200, "OK");
 $res->request($req);
-$res->header("Set-Cookie" => "Expire=10101");
+$res->header("Set-Cookie" => "Expires=10101");
 $c->extract_cookies($res);
 #print $c->as_string;
 print "not " unless $c->as_string eq <<'EOT';  print "ok 42\n";
-Set-Cookie3: Expire=10101; path="/"; domain=example.com; discard; version=0
+Set-Cookie3: Expires=10101; path="/"; domain=example.com; discard; version=0
 EOT
 
 

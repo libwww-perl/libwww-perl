@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.23 2001/03/08 18:13:37 gisle Exp $
+# $Id: Daemon.pm,v 1.24 2001/03/14 20:59:32 gisle Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -250,8 +250,12 @@ sub get_request
 	$self->reason("Bad request line: $buf");
 	return;
     }
+    my $method = $1;
+    my $uri = $2;
     my $proto = $3 || "HTTP/0.9";
-    my $r = HTTP::Request->new($1, $HTTP::URI_CLASS->new($2, $self->daemon->url));
+    $uri = "http://$uri" if $method eq "CONNECT";
+    $uri = $HTTP::URI_CLASS->new($uri, $self->daemon->url);
+    my $r = HTTP::Request->new($method, $uri);
     $r->protocol($proto);
     ${*$self}{'httpd_client_proto'} = $proto = _http_version($proto);
 

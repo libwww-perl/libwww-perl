@@ -1,12 +1,12 @@
 #
-# $Id: LWP.pm,v 1.127 2003/10/15 19:00:24 gisle Exp $
+# $Id: LWP.pm,v 1.128 2003/10/15 19:42:03 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.71";
+$VERSION = "5.72";
 sub Version { $VERSION; }
 
-require 5.004;
+require 5.005;
 require LWP::UserAgent;  # this should load everything you need
 
 1;

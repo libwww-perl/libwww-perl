@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.1 1997/05/24 19:41:54 aas Exp $
+# $Id: Common.pm,v 1.2 1997/05/24 22:08:32 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 sub GET  { _simple_req('GET',  @_); }
 sub HEAD { _simple_req('HEAD', @_); }
@@ -92,7 +92,7 @@ sub form_data   # RFC1867
 	    my $usename = shift(@$v);
 	    unless (defined $usename) {
 		$usename = $file;
-		$usename =~ s,.*/,,;
+		$usename =~ s,.*/,, if defined($usename);
 	    }
 	    my $disp = qq(form-data; name="$k");
 	    $disp .= qq(; filename="$usename") if $usename;
@@ -108,7 +108,7 @@ sub form_data   # RFC1867
 		unless ($ct) {
 		    require LWP::MediaTypes;
 		    $ct = LWP::MediaTypes::guess_media_type($file);
-		    $h->header("Content-Type" => $ct);
+		    $h->header("Content-Type" => $ct); # XXX: content-encoding
 		}
 	    }
 	    if ($h->header("Content-Disposition")) {
@@ -230,7 +230,7 @@ you can emulate a HTML E<lt>form> POSTing like this:
          gender => 'm',
          born   => '1964',
          trust  => '3%',
-       ]
+	];
 
 This will create a HTTP::Request object that looks like this:
 
@@ -246,7 +246,7 @@ this content format by specifying a content type of C<'form-data'>.
 If one of the values in the $form_ref is an array reference, then it
 is treated as a file part specification with the following values:
 
-  [ $file, $filename, [Header => Value...] ]
+  [ $file, $filename, Header => Value... ]
 
 The first value in the array ($file) is the name of a file to open.
 This file will be read an its content placed in the request.  The
@@ -268,7 +268,9 @@ achieved by this:
                          init   => ["$ENV{HOME}/.profile"],
                        ]
 
-This will create a HTTP::Request object that looks this:
+This will create a HTTP::Request object that almost looks this (the
+boundary and the content of your F<~/.profile> is likely to be
+different):
 
   POST http://www.perl.org/survey.cgi
   Content-Length: 388

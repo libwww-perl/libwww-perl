@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.23 1996/04/09 15:44:38 aas Exp $
+# $Id: http.pm,v 1.24 1996/07/23 19:53:16 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -99,12 +99,9 @@ sub request
 	}
     }
 
-    # HTTP/1.1 will probably say that we should send the 'Host' header.
-    # Since Netscape 2.0 has already started to use this header we might
-    # do so as well.
-    unless ($request->header('Host')) {
-       $request->header('Host', $url->netloc);
-    }
+    # HTTP/1.1 will require us to send the 'Host' header, so we might
+    # as well start now.
+    $request->header('Host', $url->netloc);
 
     $socket->write($request_line . $request->headers_as_string($endl) . $endl);
     if (defined $content) {

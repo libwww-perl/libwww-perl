@@ -349,11 +349,12 @@ sub abs
     if ($path eq '') {                          # (5)
         $embed->{'path'} = $base->{'path'};     # (5)
 
-        return $embed if $embed->params;        # (5a)
-        $embed->{'params'} = $base->{'params'}; # (5a)
+        return $embed if defined $embed->{'params'}; # (5a)
+        $embed->{'params'} = $base->{'params'};      # (5a)
 
-        return $embed if $embed->query;         # (5b)
-        $embed->{'query'} = $base->{'query'};   # (5b)
+        return $embed if defined $embed->{'query'};  # (5b)
+        $embed->{'query'} = $base->{'query'};        # (5b)
+
         return $embed;
     }
 

@@ -25,8 +25,8 @@
     file as suggested by Craig Macdonald <craig@freeasphost.co.uk>.
     We now also allow space before the colon.
 
-    WWW::RobotRules did not handle User-Agent names that use version
-    numbers not .  Patch by Liam Quinn <liam@htmlhelp.com>.
+    WWW::RobotRules did not handle User-Agent names that use complex
+    version numbers.  Patch by Liam Quinn <liam@htmlhelp.com>.
 
     Case insensitive handling of hosts and domain names
     in HTTP::Cookies.

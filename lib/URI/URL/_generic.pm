@@ -437,34 +437,44 @@ sub rel {
 	# it is already relative
 	return $rel;
     }
+    $path = "/" if $path eq '';
     
     my($bscheme, $bnetloc, $bpath) = @{$base}{qw(scheme netloc path)};
-    for ($netloc, $bnetloc, $bpath) { $_ = '' unless defined }
-    $bpath = "/" unless length $bpath;  # a slash is default
+    for ($bscheme, $bnetloc, $netloc) { $_ = '' unless defined }
+
     unless ($scheme eq $bscheme && $netloc eq $bnetloc) {
 	# different location, can't make it relative
 	return $rel;
     }
+    $bpath = "/" if $bpath eq '';
 
     # Make it relative by eliminating scheme and netloc
     $rel->{'scheme'} = undef;
     $rel->netloc(undef);
 
     # This loop is based on code from Nicolai Langfeldt <janl@ifi.uio.no>.
-    # It will remove all common initial path components.
+    # First we calculate common initial path components length ($li).
+    my $li = 1;
     while (1) {
-	#print "PATHS: $path $bpath\n";
-	my $i = index($path, '/');
-	last unless $i >=0 && $i == index($bpath, '/') &&
-                    substr($path,0,$i) eq substr($bpath,0,$i);
-	substr($path, 0, $i+1)  = '';
-	substr($bpath, 0, $i+1) = '';
+	my $i = index($path, '/', $li);
+	last if $i < 0 ||
+                $i != index($bpath, '/', $li) ||
+	        substr($path,$li,$i-$li) ne substr($bpath,$li,$i-$li);
+	$li=$i+1;
+    }
+    # then we nuke it from both paths
+    substr($path, 0,$li) = '';
+    substr($bpath,0,$li) = '';
+
+    if ($path eq $bpath && defined($rel->frag) && !defined($rel->equery)) {
+        $rel->epath('');
+    } else {
+        # Add one "../" for each path component left in the base path
+        $path = ('../' x $bpath =~ tr|/|/|) . $path;
+	$path = "./" if $path eq "";
+        $rel->epath($path);
     }
 
-    # Add one "../" for each path component left in the base path
-    $path = ('../' x $bpath =~ tr|/|/|) . $path;
-
-    $rel->epath($path);
     $rel;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: https.pm,v 1.6 1998/01/20 14:23:28 aas Exp $
+# $Id: https.pm,v 1.7 1998/01/21 12:42:23 aas Exp $
 
 use strict;
 
@@ -14,12 +14,17 @@ require LWP::Protocol::http;
 sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
+    local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = Net::SSL->new(PeerAddr => $host,
 			     PeerPort => $port,
 			     Proto    => 'tcp',
 			     Timeout  => $timeout,
 			    );
-    die "Can't connect to $host:$port" unless $sock;
+    unless ($sock) {
+	# IO::Socket::INET leaves additional error messages in $@
+	$@ =~ s/^.*?: //;
+	die "Can't connect to $host:$port ($@)";
+    }
     $sock;
 }
 

@@ -1,0 +1,9 @@
+^blib/
+\.old$
+^Makefile$
+~$
+^bin/get$
+^bin/mirror$
+^find-tab$
+CVS/[^/]+$
+

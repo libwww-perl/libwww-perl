@@ -1,0 +1,46 @@
+ChangeLog			History of this package
+MANIFEST			This file
+MANIFEST.SKIP			For the developer only
+Makefile.PL			Makefile generator
+README				Get you started with this package
+TODO				The To-Do list for the library
+VERSION				Program that determines the current version
+bin/mirror.PL			writes bin/mirror script
+bin/request.PL			writes bin/request script
+lib/LWP.pm			Includes what you need
+lib/LWP/Base64.pm		Base 64 encoding/decoding routines
+lib/LWP/Date.pm			Date conversion routines
+lib/LWP/Debug.pm		Debugging support
+lib/LWP/MIMEheader.pm		Class encapsulating HTTP Message headers
+lib/LWP/MIMEtypes.pm		Library for MIME types
+lib/LWP/MemberMixin.pm		Helps you access %$self
+lib/LWP/Message.pm		Class encapsulating HTTP messages
+lib/LWP/Protocol.pm		Virtual base class for LWP protocols
+lib/LWP/Protocol/file.pm	Access local files
+lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
+lib/LWP/Protocol/http.pm	Access with HTTP protocol
+lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
+lib/LWP/Request.pm		Class encapsulating HTTP Requests
+lib/LWP/Response.pm		Class encapsulating HTTP Responses
+lib/LWP/Simple.pm		Procedural LWP interface
+lib/LWP/Socket.pm		TCP/IP socket interface
+lib/LWP/StatusCode.pm		HTTP Status code processing
+lib/LWP/UserAgent.pm		A WWW UserAgent class
+t/Makefile			Makefile for the test harness
+t/autoload.pl
+t/cgi-bin/lwp-test.html
+t/cgi-bin/lwp-test.pl
+t/get-http-basic-auth.pl
+t/get-http.pl
+t/get-proxy.pl
+t/getAndPrint-http.pl
+t/getAndPrint-local.pl
+t/getAndStore-http.pl
+t/getAndStore-local.pl
+t/mirror-http.pl
+t/moved.pl
+t/post-http.pl
+t/receiveHeaders-http.pl
+t/sendHeaders-http.pl
+t/simple.pl
+t/timeout-http.pl

@@ -17,7 +17,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: dl.PL,v 1.2 1996/11/11 17:49:14 aas Exp $
+# $Id: dl.PL,v 1.3 1996/11/11 18:21:05 aas Exp $
 
 =head1 NAME
 
@@ -76,26 +76,40 @@ my $res = $ua->request($req,
 	unless($file) {
 	    my $res = $_[1];
 	    unless ($argfile) {
-		my $req = $res->request;  # now always there
-		my $rurl = $req ? $req->url : $url;
-		
-		my $base = ($rurl->path_components)[-1];
-		$base = "index" unless length $base;
-
-		# should be smarter about deciding a good file name.
-		#   - get the file extention correct
-		#   - content-disposal
-		#   - ???
-		$file = $base;
-		my @exts;
-	        while ($file =~ s/\.(\w+)$//) {
-		    push(@exts, $1);
+		# must find a suitable name to use.  First thing
+		# to do is to look for the "Content-Disposition"
+		# header defined by RFC1806.  This is also supported
+		# by Netscape
+		my $cd = $res->header("Content-Disposition");
+		if ($cd && $cd =~ /\bfilename\s*=\s*(\S+)/) {
+		    $file = $1;
+		    $file =~ s/;$//;
+		    $file =~ s/^([\"\'])(.*)\1$/$2/;
 		}
-		my $suffix = media_suffix($res->content_type);
-		$file .= ".$suffix" if $suffix;
+		
+		# if this fails we try to make something from the URL
+		unless ($file) {
+		    my $req = $res->request;  # now always there
+		    my $rurl = $req ? $req->url : $url;
+		
+		    $file = ($rurl->path_components)[-1];
+		    unless (length $file) {
+			$file = "index";
+			my $suffix = media_suffix($res->content_type);
+			$file .= ".$suffix" if $suffix;
+		    } elsif ($rurl->scheme eq 'ftp') {
+			# leave the filename as it is
+		    } else {
+			my $ct = guess_media_type($file);
+			unless ($ct eq $res->content_type) {
+			    # need a better suffix for this type
+			    my $suffix = media_suffix($res->content_type);
+			    $file .= ".$suffix" if $suffix;
+			}
+		    }
+		}
 
-		print "SUF $suffix @exts\n";
-
+		# Check if the file is already present
 		if (-f $file && -t) {
 		    print "Overwrite $file? [y] ";
 		    my $ans = <STDIN>;
@@ -130,9 +144,8 @@ my $res = $ua->request($req,
 	} else {
 	    show( fbytes($size) . " received");
 	}
-	select(undef,undef,undef, 0.1); # slow down
-  }, 128);
-
+  }
+);
 
 if ($res->is_success) {
     show("");  # clear text

@@ -2,12 +2,21 @@ Wed Apr  1 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.30
 
- o  Unbundled some modules.
+ o  Unbundled the following modules:
 
        * HTML-Parser  (HTML::Parser, HTML::Entites, HTML::LinkExtor,...)
        * HTML-Tree    (HTML::Element, HTML::TreeBuilder,...)
        * Font-AFM     (Font::AFM, Font::Metrics::*)
        * File-CounterFile
+
+ o  Simplified internal structure of HTML::Headers.  Hopefully,
+    nobody will notice.
+
+ o  New modules HTTP::Headers::Auth,  HTTP::Headers::ETag that adds
+    additional convenience methods to the HTTP::Headers class.
+
+ o  Removed split_etag_list() from HTTP::Headers::Util, in the hope
+    that nobody had starting using it.
 
 
 

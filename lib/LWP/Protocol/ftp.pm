@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.20 1997/12/12 15:49:31 aas Exp $
+# $Id: ftp.pm,v 1.21 1998/07/05 19:22:06 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -8,6 +8,7 @@ package LWP::Protocol::ftp;
 
 use Carp ();
 
+use HTTP::Date();
 use HTTP::Status ();
 use HTTP::Negotiate ();
 use HTTP::Response ();
@@ -134,6 +135,23 @@ sub request
     }
 
     if ($method eq 'GET' || $method eq 'HEAD') {
+	LWP::Debug::debug("MDTM");
+	if($ftp->mdtm($remote_file)) {
+	    my $mess = $ftp->message;
+	    if ($mess =~ /^(\d{8})(\d{6})\d*$/) {
+		my $mod_time = HTTP::Date::str2time("$1T$2Z");
+		$response->last_modified($mod_time);
+		if (my $ims = $request->if_modified_since) {
+		    LWP::Debug::debug("IMS: $ims");
+		    if ($mod_time > $ims) {
+			$response->code(&HTTP::Status::RC_NOT_MODIFIED);
+			$response->message("Not modified");
+			return $response;
+		    }
+		}
+	    }
+	}
+
 	my $data;  # the data handle
 	LWP::Debug::debug("retrieve file?");
 	if (length($remote_file) and $data = $ftp->retr($remote_file)) {

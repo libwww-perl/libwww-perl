@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.11 1996/02/05 17:57:23 aas Exp $
+# $Id: Date.pm,v 1.12 1996/02/26 19:02:08 aas Exp $
 #
 package HTTP::Date;
 
@@ -54,7 +54,7 @@ or the year is not between 1970 and 2038.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.001;
@@ -75,7 +75,9 @@ foreach(@MoY) {
 
 sub time2str
 {
-   my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime(shift || time);
+   my $time = shift;
+   $time = time unless defined $time;
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($time);
    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
 	   substr($DoW[$wday],0,3),
 	   $mday, $MoY[$mon], $year+1900,

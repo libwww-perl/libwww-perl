@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.49 2004/11/30 10:15:16 gisle Exp $
+# $Id: Message.pm,v 1.50 2004/11/30 11:25:07 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -170,8 +170,8 @@ sub decoded_content
 	    if $ct =~ m,^multipart/,;
     }
 
-    my $content = $self->content;
-    Carp::croak("Can't decode ref content") if ref($content);
+    my $content_ref = $self->content_ref;
+    Carp::croak("Can't decode ref content") if ref($content_ref) ne "SCALAR";
 
     if (my $h = $self->header("Content-Encoding")) {
 	$h =~ s/^\s+//;
@@ -180,29 +180,29 @@ sub decoded_content
 	    next unless $ce || $ce eq "identity";
 	    if ($ce eq "gzip" || $ce eq "x-gzip") {
 		require Compress::Zlib;
-		$content = Compress::Zlib::memGunzip($content);
-		Carp::croak("Can't gunzip content") unless defined $content;
+		$content_ref = \Compress::Zlib::memGunzip($$content_ref);
+		Carp::croak("Can't gunzip content") unless defined $$content_ref;
 	    }
 	    elsif ($ce eq "x-bzip2") {
 		require Compress::Bzip2;
-		$content = Compress::Bzip2::decompress($content);
-		Carp::croak("Can't bunzip content") unless defined $content;
+		$content_ref = Compress::Bzip2::decompress($$content_ref);
+		Carp::croak("Can't bunzip content") unless defined $$content_ref;
 	    }
 	    elsif ($ce eq "deflate") {
 		require Compress::Zlib;
-		$content = Compress::Zlib::uncompress($content);
-		Carp::croak("Can't inflate content") unless defined $content;
+		$content_ref = \Compress::Zlib::uncompress($$content_ref);
+		Carp::croak("Can't inflate content") unless defined $$content_ref;
 	    }
 	    elsif ($ce eq "compress" || $ce eq "x-compress") {
 		Carp::croak("Can't uncompress content");
 	    }
 	    elsif ($ce eq "base64") {  # not really C-T-E, but should be harmless
 		require MIME::Base64;
-		$content = MIME::Base64::decode($content);
+		$content_ref = \MIME::Base64::decode($$content_ref);
 	    }
 	    elsif ($ce eq "quoted-printable") { # not really C-T-E, but should be harmless
 		require MIME::QuotedPrint;
-		$content = MIME::QuotedPrint::decode($content);
+		$content_ref = \MIME::QuotedPrint::decode($$content_ref);
 	    }
 	    else {
 		Carp::croak("Don't know how to decode Content-Encoding '$ce'");
@@ -215,11 +215,11 @@ sub decoded_content
 	$charset = lc($charset);
 	if ($charset ne "none") {
 	    require Encode;
-	    $content = Encode::decode($charset, $content, Encode::FB_CROAK());
+	    $content_ref = \Encode::decode($charset, $$content_ref, Encode::FB_CROAK());
 	}
     }
 
-    return $content;
+    return $opt{ref} ? $content_ref : $$content_ref;
 }
 
 

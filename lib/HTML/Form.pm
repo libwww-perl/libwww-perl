@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.47 2004/11/30 09:35:40 gisle Exp $
+# $Id: Form.pm,v 1.48 2004/11/30 11:25:00 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -84,7 +84,7 @@ directly, so the example above can be more conveniently written as:
     my $response = $ua->get("http://www.example.com/form.html");
     my @forms = HTML::Form->parse($response);
 
-Note that any object that implements a content_ref() and base() method
+Note that any object that implements a decoded_content() and base() method
 with similar behaviour as C<HTTP::Response> will do.
 
 =cut
@@ -93,7 +93,7 @@ sub parse
 {
     my($class, $html, $base_uri) = @_;
     require HTML::TokeParser;
-    my $p = HTML::TokeParser->new(ref($html) ? $html->content_ref : \$html);
+    my $p = HTML::TokeParser->new(ref($html) ? $html->decoded_content(ref => 1) : \$html);
     eval {
 	# optimization
 	$p->report_tags(qw(form input textarea select optgroup option keygen));

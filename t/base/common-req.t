@@ -93,7 +93,7 @@ $boundary = $1;
 
 $c = $r->content;
 $c =~ s/\r//g;
-@c = split(/--$boundary/, $c);
+@c = split(/--\Q$boundary/, $c);
 print "$c[5]\n";
 
 print "not " unless @c == 7 and $c[6] =~ /^--\n/;  # 5 parts + header & trailer

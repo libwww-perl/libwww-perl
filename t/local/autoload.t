@@ -21,7 +21,8 @@ my $response = $ua->request($request);
 if ($response->is_success) {
     print "ok 1\n";
     print $response->as_string;
-} else {
+}
+else {
     print "not ok 1\n";
     print $response->error_as_HTML;
 }

@@ -24,7 +24,8 @@ print $response->as_string, "\n";
 
 if ($response->is_success) {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 

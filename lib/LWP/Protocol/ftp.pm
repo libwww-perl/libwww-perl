@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.35 2003/10/16 11:06:07 gisle Exp $
+# $Id: ftp.pm,v 1.36 2003/10/23 19:11:32 uid39246 Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -211,7 +211,8 @@ sub request
 
     if ($type && $type eq 'a') {
 	$ftp->ascii;
-    } else {
+    }
+    else {
 	$ftp->binary;
     }
 
@@ -334,7 +335,8 @@ sub request
 				       " " . $ftp->message);
 		}
 	    }
-	} elsif (!length($remote_file) || ( $ftp->code >= 400 && $ftp->code < 600 )) {
+	}
+	elsif (!length($remote_file) || ( $ftp->code >= 400 && $ftp->code < 600 )) {
 	    # not a plain file, try to list instead
 	    if (length($remote_file) && !$ftp->cwd($remote_file)) {
 		LWP::Debug::debug("chdir before listing failed");
@@ -361,7 +363,8 @@ sub request
 	    if (!defined($prefer)) {
 		return HTTP::Response->new(&HTTP::Status::RC_NOT_ACCEPTABLE,
 			       "Neither HTML nor directory listing wanted");
-	    } elsif ($prefer eq 'html') {
+	    }
+	    elsif ($prefer eq 'html') {
 		$response->header('Content-Type' => 'text/html');
 		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
 		my $base = $request->url->clone;
@@ -376,7 +379,8 @@ sub request
 		    $content .= "\n";
 		}
 		$content .= "</UL></body>\n";
-	    } else {
+	    }
+	    else {
 		$response->header('Content-Type', 'text/ftp-dir-listing');
 		$content = join("\n", @lsl, '');
 	    }
@@ -386,14 +390,16 @@ sub request
 	    if ($method ne 'HEAD') {
 		$response = $self->collect_once($arg, $response, $content);
 	    }
-	} else {
+	}
+	else {
 	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 			  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
 	    return $res;
 	}
-    } elsif ($method eq 'PUT') {
+    }
+    elsif ($method eq 'PUT') {
 	# method must be PUT
 	unless (length($remote_file)) {
 	    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
@@ -408,18 +414,21 @@ sub request
 	    if (defined $content) {
 		if (ref($content) eq 'SCALAR') {
 		    $bytes = $data->write($$content, length($$content));
-		} elsif (ref($content) eq 'CODE') {
+		}
+		elsif (ref($content) eq 'CODE') {
 		    my($buf, $n);
 		    while (length($buf = &$content)) {
 			$n = $data->write($buf, length($buf));
 			last unless $n;
 			$bytes += $n;
 		    }
-		} elsif (!ref($content)) {
+		}
+		elsif (!ref($content)) {
 		    if (defined $content && length($content)) {
 			$bytes = $data->write($content, length($content));
 		    }
-		} else {
+		}
+		else {
 		    die "Bad content";
 		}
 	    }
@@ -430,14 +439,16 @@ sub request
 	    $response->header('Content-Type', 'text/plain');
 	    $response->content("$bytes bytes stored as $remote_file on $host\n")
 
-	} else {
+	}
+	else {
 	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 					  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
 	    return $res;
 	}
-    } else {
+    }
+    else {
 	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 				   "Illegal method $method");
     }

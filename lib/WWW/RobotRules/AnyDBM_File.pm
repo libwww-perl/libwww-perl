@@ -1,10 +1,10 @@
-# $Id: AnyDBM_File.pm,v 1.10 2001/10/26 20:32:28 gisle Exp $
+# $Id: AnyDBM_File.pm,v 1.11 2003/10/23 19:11:33 uid39246 Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 use AnyDBM_File;
@@ -52,7 +52,8 @@ sub new
   
   if ($ua) {
       $self->agent($ua);
-  } else {
+  }
+  else {
       # Try to obtain name from DBM file
       $ua = $self->{'dbm'}{"|ua-name|"};
       Carp::croak("No agent name specified") unless $ua;

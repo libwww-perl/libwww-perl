@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.12 2002/03/17 20:24:24 gisle Exp $
+# $Id: Negotiate.pm,v 1.13 2003/10/23 19:11:32 uid39246 Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -71,7 +71,8 @@ sub choose ($;$)
 	    if (defined $param{'q'}) {
 		$param{'q'} = 1 if $param{'q'} > 1;
 		$param{'q'} = 0 if $param{'q'} < 0;
-	    } else {
+	    }
+	    else {
 		$param{'q'} = $default_q;
 
 		# This makes sure that the first ones are slightly better off
@@ -143,7 +144,8 @@ sub choose ($;$)
 		    print "no\n" if $DEBUG;
 		    $qe = 0;
 		    last;
-		} else {
+		}
+		else {
 		    print "yes\n" if $DEBUG;
 		}
 	    }
@@ -179,7 +181,8 @@ sub choose ($;$)
 	    }
 	    if(defined $q) {
 	        $DEBUG and print " -- Exact language match at q=$q\n";
-	    } else {
+	    }
+	    else {
 		# If there was no exact match and at least one of
 		# the Accept-Language field values is a complete
 		# subtag prefix of the content language tag(s), then
@@ -195,7 +198,8 @@ sub choose ($;$)
 		        $DEBUG and print " -- $lang ISA $al\n";
 			$selected = $al unless defined $selected;
 			$selected = $al if length($al) > length($selected);
-		    } else {
+		    }
+		    else {
 		        $DEBUG and print " -- $lang  isn't a $al\n";
 		    }
 		}
@@ -208,7 +212,8 @@ sub choose ($;$)
 		$q = 0.001 unless defined $q;
 	    }
 	    $ql = $q;
-	} else {
+	}
+	else {
 	    $ql = 0.5 if $any_lang && exists $accept{'language'};
 	}
 
@@ -273,7 +278,8 @@ sub choose ($;$)
 	my $Q;
 	if (!defined($mbx) || $mbx >= $bs) {
 	    $Q = $qs * $qe * $qc * $ql * $q;
-	} else {
+	}
+	else {
 	    $Q = 0;
 	    print "Variant's size is too large ==> Q=0\n" if $DEBUG;
 	}

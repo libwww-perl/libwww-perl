@@ -38,7 +38,8 @@ content; but if there's some error, it'll return undef.
 
   if($content =~ m/jazz/i) {
     print "They're talking about jazz today on Fresh Air!\n";
-  } else {
+  }
+  else {
     print "Fresh Air is apparently jazzless today.\n";
   }
 
@@ -112,7 +113,8 @@ illustrated:
   
   if($response->content =~ m/jazz/i) {
     print "They're talking about jazz today on Fresh Air!\n";
-  } else {
+  }
+  else {
     print "Fresh Air is apparently jazzless today.\n";
   }
 
@@ -312,7 +314,8 @@ the HTML the report of the number of matches:
   if( $response->content =~ m{AltaVista found ([0-9,]+) results} ) {
     # The substring will be like "AltaVista found 2,345 results"
     print "$word: $1\n";
-  } else {
+  }
+  else {
     print "Couldn't find the match-string in the response\n";
   }
 

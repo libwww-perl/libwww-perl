@@ -1,10 +1,10 @@
 package LWP::Protocol;
 
-# $Id: Protocol.pm,v 1.40 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Protocol.pm,v 1.41 2003/10/23 19:11:32 uid39246 Exp $
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -70,7 +70,8 @@ sub implementor
 	if ($@) {
 	    if ($@ =~ /Can't locate/) { #' #emacs get confused by '
 		$ic = '';
-	    } else {
+	    }
+	    else {
 		die "$@\n";
 	    }
 	}

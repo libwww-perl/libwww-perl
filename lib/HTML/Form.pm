@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.37 2003/10/16 07:25:10 gisle Exp $
+# $Id: Form.pm,v 1.38 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -127,13 +127,15 @@ sub parse
 		    my $type = delete $attr->{type} || "text";
 		    $attr->{value_name} = $p->get_phrase;
 		    $f->push_input($type, $attr);
-		} elsif ($tag eq "textarea") {
+		}
+		elsif ($tag eq "textarea") {
 		    $attr->{textarea_value} = $attr->{value}
 		        if exists $attr->{value};
 		    my $text = $p->get_text("/textarea");
 		    $attr->{value} = $text;
 		    $f->push_input("textarea", $attr);
-		} elsif ($tag eq "select") {
+		}
+		elsif ($tag eq "select") {
 		    $attr->{select_value} = $attr->{value}
 		        if exists $attr->{value};
 		    while ($t = $p->get_tag) {
@@ -147,13 +149,15 @@ sub parse
 			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
 			    $f->push_input("option", \%a);
-			} else {
+			}
+			else {
 			    Carp::carp("Bad <select> tag '$tag'") if $^W;
 			}
 		    }
 		}
 	    }
-	} elsif ($form_tags{$tag}) {
+	}
+	elsif ($form_tags{$tag}) {
 	    Carp::carp("<$tag> outside <form>") if $^W;
 	}
     }
@@ -515,11 +519,13 @@ sub make_request
 	$uri = URI->new($uri, "http");
 	$uri->query_form(@form);
 	return HTTP::Request->new(GET => $uri);
-    } elsif ($method eq "POST") {
+    }
+    elsif ($method eq "POST") {
 	require HTTP::Request::Common;
 	return HTTP::Request::Common::POST($uri, \@form,
 					   Content_Type => $enctype);
-    } else {
+    }
+    else {
 	Carp::croak("Unknown method '$method'");
     }
 }
@@ -868,7 +874,8 @@ sub new
 	$self->{value_names} = ["off", $value_name];
 	$self->{current} = (exists $self->{checked}) ? 1 : 0;
 	delete $self->{checked};
-    } else {
+    }
+    else {
 	$self->{menu} = [$value];
 	my $checked = exists $self->{checked} || exists $self->{selected};
 	delete $self->{checked};
@@ -877,7 +884,8 @@ sub new
 	    unshift(@{$self->{menu}}, undef);
 	    $self->{value_names} = ["off", $value_name];
 	    $self->{current} = $checked ? 1 : 0;
-	} else {
+	}
+	else {
 	    $self->{value_names} = [$value_name];
 	    $self->{current} = 0 if $checked;
 	}

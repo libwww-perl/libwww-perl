@@ -12,13 +12,15 @@ $h->header(URI => "http://www.oslonett.no/");
 
 if ($h->header("MIME-Version") eq "1.0") {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 
 if ($h->header('Uri') =~ /^http:/) {
     print "ok 2\n";
-} else {
+}
+else {
     print "not ok 2\n";
 }
 
@@ -48,7 +50,8 @@ my $lines = ($str =~ tr/\n/\n/);
 
 if ($lines == 6) {
     print "ok 5\n";
-} else {
+}
+else {
     print "Header has $lines lines\n";
     print "not ok 5\n";
 }
@@ -82,7 +85,8 @@ my $expected = "Connection;Accept;Accept;Accept;Content-Type;MY-Header";
 
 if ($str eq $expected) {
     print "ok 8\n";
-} else {
+}
+else {
     print "Headers are '$str',\nexpected    '$expected'\n";
     print "not ok 8\n";
 }

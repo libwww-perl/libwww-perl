@@ -56,7 +56,8 @@ handle the response returned.
   # check the outcome
   if ($res->is_success) {
      print $res->content;
-  } else {
+  }
+  else {
      print "Error: " . $res->status_line . "\n";
   }
 
@@ -216,7 +217,8 @@ Here's an example of fetching and printing a WWW page using SSL:
   my $res = $ua->request($req);
   if ($res->is_success) {
       print $res->as_string;
-  } else {
+  }
+  else {
       print "Failed: ", $res->status_line, "\n";
   }
 

@@ -29,13 +29,15 @@ print "$str\n";
 
 if ($response->is_success and $str =~ /^REQUEST_METHOD=POST$/m) {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 
 if ($str =~ /^CONTENT_LENGTH=(\d+)$/m && $1 == length($form)) {
     print "ok 2\n";
-} else {
+}
+else {
     print "not ok 2\n";
 }
 

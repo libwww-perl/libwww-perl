@@ -25,7 +25,8 @@ if ($D eq 'daemon') {
 	    my $func = lc("httpd_" . $r->method . "_$p");
 	    if (defined &$func) {
 		&$func($c, $r);
-	    } else {
+	    }
+	    else {
 		$c->send_error(404);
 	    }
 	}
@@ -222,7 +223,8 @@ sub httpd_get_basic
 	$c->send_crlf;
 	$c->send_crlf;
 	$c->print("$u\n");
-    } else {
+    }
+    else {
         $c->send_basic_header(401);
 	$c->print("WWW-Authenticate: Basic realm=\"libwww-perl\"\015\012");
 	$c->send_crlf;
@@ -235,7 +237,8 @@ sub httpd_get_basic
       my($self, $realm, $uri, $proxy) = @_;
       if ($realm eq "libwww-perl" && $uri->rel($base) eq "basic") {
 	  return ("ok 12", "xyzzy");
-      } else {
+      }
+      else {
           return undef;
       }
    }
@@ -274,7 +277,8 @@ sub httpd_get_proxy
        $r->url->scheme eq "ftp") {
        $c->send_basic_header(200);
        $c->send_crlf;
-   } else {
+   }
+   else {
        $c->send_error;
    }
 }

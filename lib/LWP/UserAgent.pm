@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.16 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: UserAgent.pm,v 2.17 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.17 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -152,7 +152,8 @@ sub send_request
     my $proxy = $self->_need_proxy($url);
     if (defined $proxy) {
 	$scheme = $proxy->scheme;
-    } else {
+    }
+    else {
 	$scheme = $url->scheme;
     }
 
@@ -165,17 +166,20 @@ sub send_request
       if($x       = $self->protocols_allowed) {
         if(grep lc($_) eq $scheme, @$x) {
           LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
-        } else {
+        }
+        else {
           LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
           require LWP::Protocol::nogo;
           $protocol = LWP::Protocol::nogo->new;
         }
-      } elsif ($x = $self->protocols_forbidden) {
+      }
+      elsif ($x = $self->protocols_forbidden) {
         if(grep lc($_) eq $scheme, @$x) {
           LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
           require LWP::Protocol::nogo;
           $protocol = LWP::Protocol::nogo->new;
-        } else {
+        }
+        else {
           LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
         }
       }
@@ -216,7 +220,8 @@ EOT
 				      &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				      $@);
 	}
-    } else {
+    }
+    else {
 	$response = $protocol->request($request, $proxy,
 				       $arg, $size, $timeout);
 	# XXX: Should we die unless $response->is_success ???
@@ -320,7 +325,8 @@ sub request
 
 	return $self->request($referral, $arg, $size, $response);
 
-    } elsif ($code == &HTTP::Status::RC_UNAUTHORIZED ||
+    }
+    elsif ($code == &HTTP::Status::RC_UNAUTHORIZED ||
 	     $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED
 	    )
     {
@@ -361,7 +367,8 @@ sub request
 		    if ($@ =~ /^Can\'t locate/) {
 			$response->header("Client-Warning" =>
 					  "Unsupported authentication scheme '$scheme'");
-		    } else {
+		    }
+		    else {
 			$response->header("Client-Warning" => $@);
 		    }
 		    next CHALLENGE;
@@ -467,7 +474,8 @@ sub is_protocol_supported
     if (ref $scheme) {
 	# assume we got a reference to an URI object
 	$scheme = $scheme->scheme;
-    } else {
+    }
+    else {
 	Carp::croak("Illegal scheme '$scheme' passed to is_protocol_supported")
 	    if $scheme =~ /\W/;
 	$scheme = lc $scheme;
@@ -476,7 +484,8 @@ sub is_protocol_supported
     my $x;
     if(ref($self) and $x       = $self->protocols_allowed) {
       return 0 unless grep lc($_) eq $scheme, @$x;
-    } elsif (ref($self) and $x = $self->protocols_forbidden) {
+    }
+    elsif (ref($self) and $x = $self->protocols_forbidden) {
       return 0 if grep lc($_) eq $scheme, @$x;
     }
 
@@ -643,11 +652,13 @@ sub mirror
 	    unlink($tmpfile);
 	    die "Transfer truncated: " .
 		"only $file_length out of $content_length bytes received\n";
-	} elsif (defined $content_length and $file_length > $content_length) {
+	}
+	elsif (defined $content_length and $file_length > $content_length) {
 	    unlink($tmpfile);
 	    die "Content-length mismatch: " .
 		"expected $content_length bytes, got $file_length\n";
-	} else {
+	}
+	else {
 	    # OK
 	    if (-e $file) {
 		# Some dosish systems fail to rename if the target exists
@@ -662,7 +673,8 @@ sub mirror
 		utime $lm, $lm, $file;
 	    }
 	}
-    } else {
+    }
+    else {
 	unlink($tmpfile);
     }
     return $response;

@@ -42,7 +42,8 @@ $a = choose($variants, $request);
 print "The chosen one is '$a'\n";
 if ($a eq 'var2') {
     ok;
-} else {
+}
+else {
     not_ok;
 }
 

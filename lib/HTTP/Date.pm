@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 2003/10/13 09:15:19 $
+package HTTP::Date;  # $Date: 2003/10/23 19:11:32 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -229,7 +229,8 @@ sub parse_date ($)
 
     if (defined $tz) {
 	$tz = "Z" if $tz =~ /^(GMT|UTC?|[-+]?0+)$/;
-    } else {
+    }
+    else {
 	$tz = "";
     }
     return sprintf("%04d-%02d-%02d %02d:%02d:%02d%s",

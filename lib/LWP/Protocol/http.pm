@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.65 2003/10/14 17:43:47 gisle Exp $
+# $Id: http.pm,v 1.66 2003/10/23 19:11:33 uid39246 Exp $
 #
 
 package LWP::Protocol::http;
@@ -177,7 +177,8 @@ sub request
 	    $has_content++;
 	    $chunked++;
 	}
-    } else {
+    }
+    else {
 	# Set (or override) Content-Length header
 	my $clen = $request_headers->header('Content-Length');
 	if (defined($$content_ref) && length($$content_ref)) {

@@ -28,13 +28,15 @@ print "$str\n";
 
 if ($response->is_success and $str =~ /^REQUEST_METHOD=GET$/m) {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 
 if ($str =~ /^QUERY_STRING=query$/m) {
     print "ok 2\n";
-} else {
+}
+else {
     print "not ok 2\n";
 }
 

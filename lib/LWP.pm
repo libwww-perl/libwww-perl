@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.131 2003/10/23 15:10:09 gisle Exp $
+# $Id: LWP.pm,v 1.132 2003/10/23 19:11:32 uid39246 Exp $
 
 package LWP;
 
@@ -312,7 +312,8 @@ represented in actual perl code:
   # Check the outcome of the response
   if ($res->is_success) {
       print $res->content;
-  } else {
+  }
+  else {
       print $res->status_line, "\n";
   }
 

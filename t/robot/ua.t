@@ -26,7 +26,8 @@ if ($D eq 'daemon') {
 	    #print STDERR "Calling $func...\n";
             if (defined &$func) {
 		&$func($c, $r);
-	    } else {
+	    }
+	    else {
 		$c->send_error(404);
 	    }
 	}

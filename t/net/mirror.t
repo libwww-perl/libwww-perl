@@ -18,7 +18,8 @@ my $response = $ua->mirror($url, $copy);
 
 if ($response->code == &HTTP::Status::RC_OK) {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 
@@ -26,7 +27,8 @@ if ($response->code == &HTTP::Status::RC_OK) {
 $response = $ua->mirror($url, $copy);
 if ($response->code == &HTTP::Status::RC_NOT_MODIFIED) {
     print "ok 2\n";
-} else {
+}
+else {
     print "nok ok 2\n";
 }
 unlink($copy);

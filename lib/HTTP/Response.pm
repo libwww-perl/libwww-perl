@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.39 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Response.pm,v 1.40 2003/10/23 19:11:32 uid39246 Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -171,7 +171,8 @@ sub freshness_lifetime
 	    my $h_exp = ($date - $last_modified) * 0.10;  # 10% since last-mod
 	    if ($h_exp < 60) {
 		return 60;  # minimum
-	    } elsif ($h_exp > 24 * 3600) {
+	    }
+	    elsif ($h_exp > 24 * 3600) {
 		# Should give a warning if more than 24 hours according to
 		# <draft-ietf-http-v11-spec-07> section 13.2.4, but I don't
 		# know how to do it from this function interface, so I just
@@ -179,7 +180,8 @@ sub freshness_lifetime
 		return 24 * 3600;
 	    }
 	    return $h_exp;
-	} else {
+	}
+	else {
 	    return 3600;  # 1 hour is fallback when all else fails
 	}
     }
@@ -227,7 +229,8 @@ C<request()> method of an C<LWP::UserAgent> object:
  $response = $ua->request($request)
  if ($response->is_success) {
      print $response->content;
- } else {
+ }
+ else {
      print $response->error_as_HTML;
  }
 

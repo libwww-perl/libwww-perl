@@ -10,7 +10,8 @@ my $pwd if $^O eq "MacOS";
 unless ($^O eq "MacOS") {
     $file = "/etc/passwd";
     -r $file or $file = "./README";
-} else {
+}
+else {
     require Mac::Files;
     $pwd = `pwd`;
     chomp($pwd);
@@ -64,7 +65,8 @@ for (@tests) {
     $type = "undef" unless defined $type;
     if ($type eq $expectedtype and "@enc" eq "@expectedEnc") {
 	print "ok $testno\n";
-    } else {
+    }
+    else {
 	print "expected '$expectedtype' for '$file', got '$type'\n";
 	print "encoding: expected: '@expectedEnc', got '@enc'\n"
 	  if @expectedEnc || @enc;

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.69 2003/10/15 18:52:22 gisle Exp $
+# $Id: Makefile.PL,v 1.70 2003/10/23 19:11:32 uid39246 Exp $
 
 require 5.005;
 use strict;
@@ -155,7 +155,8 @@ be that great :-)
 
 EOT
     sleep(2);  # Don't hurry too much
-} else {
+}
+else {
     print " ok\n";
 }
 print "Checking for HTML::Parser..";
@@ -174,7 +175,8 @@ module also need HTML::TokeParser to work.
 
 EOT
     sleep(2);  # Don't hurry too much
-} else {
+}
+else {
     print " ok\n";
 }
 
@@ -192,7 +194,8 @@ The Base64 encoding is used in authentication headers in HTTP.
 
 EOT
     sleep(2);  # Don't hurry too much
-} else {
+}
+else {
     print " ok\n";
 }
 
@@ -213,7 +216,8 @@ requests work.  Net::FTP is part of the 'libnet' distribution.
 
 EOT
     sleep(2);  # Don't hurry too much
-} else {
+}
+else {
     print " ok\n";
 }
 
@@ -232,7 +236,8 @@ servers implement this authentication scheme, you should normally not
 worry too much about this.
 
 EOT
-} else {
+}
+else {
     print " ok\n";
 }
 

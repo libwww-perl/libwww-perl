@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.8 1998/11/19 21:45:02 aas Exp $
+# $Id: nntp.pm,v 1.9 2003/10/23 19:11:33 uid39246 Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -111,13 +111,16 @@ sub request
     while ($_ = shift @$art) {
 	if (/^\s+$/) {
 	    last;  # end of headers
-	} elsif (/^(\S+):\s*(.*)/) {
+	}
+	elsif (/^(\S+):\s*(.*)/) {
 	    $response->push_header($key, $val) if $key;
 	    ($key, $val) = ($1, $2);
-	} elsif (/^\s+(.*)/) {
+	}
+	elsif (/^\s+(.*)/) {
 	    next unless $key;
 	    $val .= $1;
-	} else {
+	}
+	else {
 	    unshift(@$art, $_);
 	    last;
 	}

@@ -1,11 +1,11 @@
 package HTTP::Daemon;
 
-# $Id: Daemon.pm,v 1.31 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Daemon.pm,v 1.32 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -30,7 +30,8 @@ sub accept
     if ($sock) {
         ${*$sock}{'httpd_daemon'} = $self;
         return wantarray ? ($sock, $peer) : $sock;
-    } else {
+    }
+    else {
         return;
     }
 }
@@ -106,15 +107,18 @@ sub get_request
 	    if ($buf =~ /^\w+[^\012]+HTTP\/\d+\.\d+\015?\012/) {
 		if ($buf =~ /\015?\012\015?\012/) {
 		    last READ_HEADER;  # we have it
-		} elsif (length($buf) > 16*1024) {
+		}
+		elsif (length($buf) > 16*1024) {
 		    $self->send_error(413); # REQUEST_ENTITY_TOO_LARGE
 		    $self->reason("Very long header");
 		    return;
 		}
-	    } else {
+	    }
+	    else {
 		last READ_HEADER;  # HTTP/0.9 client
 	    }
-	} elsif (length($buf) > 16*1024) {
+	}
+	elsif (length($buf) > 16*1024) {
 	    $self->send_error(414); # REQUEST_URI_TOO_LARGE
 	    $self->reason("Very long first line");
 	    return;
@@ -147,9 +151,11 @@ sub get_request
 	    if (/^([^:\s]+)\s*:\s*(.*)/) {
 		$r->push_header($key, $val) if $key;
 		($key, $val) = ($1, $2);
-	    } elsif (/^\s+(.*)/) {
+	    }
+	    elsif (/^\s+(.*)/) {
 		$val .= " $1";
-	    } else {
+	    }
+	    else {
 		last HEADER;
 	    }
 	}
@@ -159,7 +165,8 @@ sub get_request
     my $conn = $r->header('Connection');
     if ($proto >= $HTTP_1_1) {
 	${*$self}{'httpd_nomore'}++ if $conn && lc($conn) =~ /\bclose\b/;
-    } else {
+    }
+    else {
 	${*$self}{'httpd_nomore'}++ unless $conn &&
                                            lc($conn) =~ /\bkeep-alive\b/;
     }
@@ -201,7 +208,8 @@ sub get_request
 		$body .= substr($buf, 0, $size);
 		substr($buf, 0, $size+2) = '';
 
-	    } else {
+	    }
+	    else {
 		# need more data in order to have a complete chunk header
 		return unless $self->_need_more($buf, $timeout, $fdset);
 	    }
@@ -218,18 +226,22 @@ sub get_request
 	    if ($buf !~ /\012/) {
 		# need at least one line to look at
 		return unless $self->_need_more($buf, $timeout, $fdset);
-	    } else {
+	    }
+	    else {
 		$buf =~ s/^([^\012]*)\012//;
 		$_ = $1;
 		s/\015$//;
 		if (/^([\w\-]+)\s*:\s*(.*)/) {
 		    $r->push_header($key, $val) if $key;
 		    ($key, $val) = ($1, $2);
-		} elsif (/^\s+(.*)/) {
+		}
+		elsif (/^\s+(.*)/) {
 		    $val .= " $1";
-		} elsif (!length) {
+		}
+		elsif (!length) {
 		    last FOOTER;
-		} else {
+		}
+		else {
 		    $self->reason("Bad footer syntax");
 		    return;
 		}
@@ -237,12 +249,14 @@ sub get_request
 	}
 	$r->push_header($key, $val) if $key;
 
-    } elsif ($te) {
+    }
+    elsif ($te) {
 	$self->send_error(501); 	# Unknown transfer encoding
 	$self->reason("Unknown transfer encoding '$te'");
 	return;
 
-    } elsif ($ct && lc($ct) =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*(\w+)/) {
+    }
+    elsif ($ct && lc($ct) =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*(\w+)/) {
 	# Handle multipart content type
 	my $boundary = "$CRLF--$1--$CRLF";
 	my $index;
@@ -256,7 +270,8 @@ sub get_request
 	$r->content(substr($buf, 0, $index));
 	substr($buf, 0, $index) = '';
 
-    } elsif ($len) {
+    }
+    elsif ($len) {
 	# Plain body specified by "Content-Length"
 	my $missing = $len - length($buf);
 	while ($missing > 0) {
@@ -268,7 +283,8 @@ sub get_request
 	if (length($buf) > $len) {
 	    $r->content(substr($buf,0,$len));
 	    substr($buf, 0, $len) = '';
-	} else {
+	}
+	else {
 	    $r->content($buf);
 	    $buf='';
 	}
@@ -396,18 +412,23 @@ sub send_response
 	    # make sure content is empty
 	    $res->remove_header("Content-Length");
 	    $content = "";
-	} elsif ($res->request && $res->request->method eq "HEAD") {
+	}
+	elsif ($res->request && $res->request->method eq "HEAD") {
 	    # probably OK
-	} elsif (ref($content) eq "CODE") {
+	}
+	elsif (ref($content) eq "CODE") {
 	    if ($self->proto_ge("HTTP/1.1")) {
 		$res->push_header("Transfer-Encoding" => "chunked");
 		$chunked++;
-	    } else {
+	    }
+	    else {
 		$self->force_last_request;
 	    }
-	} elsif (length($content)) {
+	}
+	elsif (length($content)) {
 	    $res->header("Content-Length" => length($content));
-	} else {
+	}
+	else {
 	    $self->force_last_request;
 	}
 	print $self $res->headers_as_string($CRLF);
@@ -419,12 +440,14 @@ sub send_response
 	    last unless defined($chunk) && length($chunk);
 	    if ($chunked) {
 		printf $self "%x%s%s%s", length($chunk), $CRLF, $chunk, $CRLF;
-	    } else {
+	    }
+	    else {
 		print $self $chunk;
 	    }
 	}
 	print $self "0$CRLF$CRLF" if $chunked;  # no trailers either
-    } elsif (length $content) {
+    }
+    elsif (length $content) {
 	print $self $content;
     }
 }
@@ -478,7 +501,8 @@ sub send_file_response
     my($self, $file) = @_;
     if (-d $file) {
 	$self->send_dir($file);
-    } elsif (-f _) {
+    }
+    elsif (-f _) {
 	# plain file
 	local(*F);
 	sysopen(F, $file, 0) or 
@@ -496,7 +520,8 @@ sub send_file_response
 	}
 	$self->send_file(\*F);
 	return RC_OK;
-    } else {
+    }
+    else {
 	$self->send_error(RC_NOT_FOUND);
     }
 }
@@ -561,7 +586,8 @@ HTTP::Daemon - a simple http server class
 	  if ($r->method eq 'GET' and $r->url->path eq "/xyzzy") {
               # remember, this is *not* recommened practice :-)
 	      $c->send_file_response("/etc/passwd");
-	  } else {
+	  }
+	  else {
 	      $c->send_error(RC_FORBIDDEN)
 	  }
       }

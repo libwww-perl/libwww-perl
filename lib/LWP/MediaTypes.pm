@@ -1,12 +1,12 @@
 package LWP::MediaTypes;
 
-# $Id: MediaTypes.pm,v 1.28 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: MediaTypes.pm,v 1.29 2003/10/23 19:11:32 uid39246 Exp $
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding read_media_types);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -59,7 +59,8 @@ sub guess_media_type
 	# assume URI object
 	$file = $file->path;
 	#XXX should handle non http:, file: or ftp: URIs differently
-    } else {
+    }
+    else {
 	$fullname = $file;  # enable peek at actual file
     }
 
@@ -93,7 +94,8 @@ sub guess_media_type
 	# Take a look at the file
 	if (defined $fullname) {
 	    $ct = (-T $fullname) ? "text/plain" : "application/octet-stream";
-	} else {
+	}
+	else {
 	    $ct = "application/octet-stream";
 	}
     }
@@ -118,7 +120,8 @@ sub media_suffix {
 	    while(($ext,$type) = each(%suffixType)) {
 		push(@suffix, $ext) if $type =~ /^$_$/;
 	    }
-	} else {
+	}
+	else {
 	    while(($ext,$type) = each(%suffixType)) {
 		push(@suffix, $ext) if $type eq $_;
 	    }
@@ -168,7 +171,8 @@ sub read_media_types
     if($^O eq "MacOS") {
 	push(@priv_files, "$ENV{HOME}:media.types", "$ENV{HOME}:mime.types")
 	    if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
-    } else {
+    }
+    else {
 	push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
 	    if defined $ENV{HOME};  # Some doesn't have a home (for instance Win32)
     }
@@ -178,7 +182,8 @@ sub read_media_types
     unless (@files) {
 	if($^O eq "MacOS") {
 	    @files = map {$_."LWP:media.types"} @INC;
-	} else {
+	}
+	else {
 	    @files = map {"$_/LWP/media.types"} @INC;
 	}
 	push @files, @priv_files;

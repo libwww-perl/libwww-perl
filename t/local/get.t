@@ -67,7 +67,8 @@ unlink($copy);
 
 if ($origtext eq $copytext) {
     print "ok 1\n";
-} else {
+}
+else {
     print "not ok 1\n";
 }
 
@@ -87,6 +88,7 @@ unlink($copy);
 
 if ($origtext eq $copytext) {
     print "ok 2\n";
-} else {
+}
+else {
     print "not ok 2\n";
 }

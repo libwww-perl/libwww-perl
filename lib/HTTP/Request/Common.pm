@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.21 2003/10/15 13:43:01 gisle Exp $
+# $Id: Common.pm,v 1.22 2003/10/23 19:11:32 uid39246 Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -33,14 +33,16 @@ sub POST
     while (($k,$v) = splice(@_, 0, 2)) {
 	if (lc($k) eq 'content') {
 	    $content = $v;
-	} else {
+	}
+	else {
 	    $req->push_header($k, $v);
 	}
     }
     my $ct = $req->header('Content-Type');
     unless ($ct) {
 	$ct = 'application/x-www-form-urlencoded';
-    } elsif ($ct eq 'form-data') {
+    }
+    elsif ($ct eq 'form-data') {
 	$ct = 'multipart/form-data';
     }
 
@@ -66,12 +68,14 @@ sub POST
 
 	    if ($boundary_index) {
 		$v[$boundary_index] = $boundary;
-	    } else {
+	    }
+	    else {
 		push(@v, boundary => $boundary);
 	    }
 
 	    $ct = HTTP::Headers::Util::join_header_words(@v);
-	} else {
+	}
+	else {
 	    # We use a temporary URI object to format
 	    # the application/x-www-form-urlencoded content.
 	    require URI;
@@ -102,7 +106,8 @@ sub _simple_req
     while (($k,$v) = splice(@_, 0, 2)) {
 	if (lc($k) eq 'content') {
 	    $req->add_content($v);
-	} else {
+	}
+	else {
 	    $req->push_header($k, $v);
 	}
     }
@@ -122,7 +127,8 @@ sub form_data   # RFC1867
 	    $k =~ s/([\\\"])/\\$1/g;  # escape quotes and backslashes
 	    push(@parts,
 		 qq(Content-Disposition: form-data; name="$k"$CRLF$CRLF$v));
-	} else {
+	}
+	else {
 	    my($file, $usename, @headers) = @$v;
 	    unless (defined $usename) {
 		$usename = $file;
@@ -141,7 +147,8 @@ sub form_data   # RFC1867
 		if ($DYNAMIC_FILE_UPLOAD) {
 		    # will read file later
 		    $content = $fh;
-		} else {
+		}
+		else {
 		    local($/) = undef; # slurp files
 		    $content = <$fh>;
 		    close($fh);
@@ -167,7 +174,8 @@ sub form_data   # RFC1867
 	    if (ref $content) {
 		push(@parts, [$head, $content]);
 		$fhparts++;
-	    } else {
+	    }
+	    else {
 		push(@parts, $head . $content);
 	    }
 	}
@@ -202,7 +210,8 @@ sub form_data   # RFC1867
 		    last;
 		}
 	    	$length += $file_size + length $head;
-	    } else {
+	    }
+	    else {
 		$length += length;
 	    }
         }
@@ -228,7 +237,8 @@ sub form_data   # RFC1867
 		if ($n) {
 		    $buflength += $n;
 		    unshift(@parts, ["", $fh]);
-		} else {
+		}
+		else {
 		    close($fh);
 		}
 		if ($buflength) {
@@ -238,7 +248,8 @@ sub form_data   # RFC1867
 	    }
 	};
 
-    } else {
+    }
+    else {
 	$boundary = boundary() unless $boundary;
 
 	my $bno = 0;

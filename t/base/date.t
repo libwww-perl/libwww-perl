@@ -65,7 +65,8 @@ for (@tests) {
     my $t;
     if (/GMT/i) {
 	$t = str2time($_);
-    } else {
+    }
+    else {
 	$t = str2time($_, "GMT");
     }
     my $t2 = str2time(lc($_), "GMT");

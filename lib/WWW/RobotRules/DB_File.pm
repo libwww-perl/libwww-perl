@@ -1,10 +1,10 @@
-# $Id: DB_File.pm,v 1.3 1998/01/06 10:07:17 aas Exp $
+# $Id: DB_File.pm,v 1.4 2003/10/23 19:11:33 uid39246 Exp $
 
 package WWW::RobotRules::DB_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 use DB_File;
@@ -100,7 +100,8 @@ sub visit {
     $self->{'rules'}{"$hostport##last"}=$time;
     if (defined $self->{"rules##$hostport##count"}) {
 	$self->{'rules'}{"$hostport##count"}++;
-    } else {
+    }
+    else {
 	$self->{'rules'}{"$hostport##count"}=1;
     }
 }

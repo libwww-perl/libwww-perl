@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.46 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Headers.pm,v 1.47 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -154,7 +154,8 @@ sub scan
 	    for $val (@$vals) {
 		&$sub($standard_case{$key} || $key, $val);
 	    }
-	} else {
+	}
+	else {
 	    &$sub($standard_case{$key} || $key, $vals);
 	}
     }

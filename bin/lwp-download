@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.3 2003/10/23 11:22:05 gisle Exp $
+# $Id: lwp-download,v 2.4 2003/10/23 19:11:32 uid39246 Exp $
 
 =head1 NAME
 
@@ -62,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.3 $;
+my $version = q$Revision: 2.4 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -110,12 +110,14 @@ my $res = $ua->request($req,
 		      $file = "index";
 		      my $suffix = media_suffix($res->content_type);
 		      $file .= ".$suffix" if $suffix;
-		  } elsif ($rurl->scheme eq 'ftp' ||
+		  }
+		  elsif ($rurl->scheme eq 'ftp' ||
 			   $file =~ /\.t[bg]z$/   ||
 			   $file =~ /\.tar(\.(Z|gz|bz2?))?$/
 			  ) {
 		      # leave the filename as it was
-		  } else {
+		  }
+		  else {
 		      my $ct = guess_media_type($file);
 		      unless ($ct eq $res->content_type) {
 			  # need a better suffix for this type
@@ -140,10 +142,12 @@ my $res = $ua->request($req,
 		      exit 1;
 		  }
 		  $shown = 0;
-	      } else {
+	      }
+	      else {
 		  print "Saving to '$file'...\n";
 	      }
-	  } else {
+	  }
+	  else {
 	      $file = $argfile;
 	  }
 	  open(FILE, ">$file") || die "Can't open $file: $!";
@@ -170,7 +174,8 @@ my $res = $ua->request($req,
 	      $show .= " (at $speed, $secs_left remaining)" if $speed;
 	      show($show, 1);
 	  }
-      } else {
+      }
+      else {
 	  show( fbytes($size) . " received");
       }
   }
@@ -209,7 +214,8 @@ if (fileno(FILE)) {
 		print "File kept.\n";
 	    }
             exit 1;
-	} else {
+	}
+	else {
 	    print "Transfer aborted, $file kept\n";
 	}
     }
@@ -232,9 +238,11 @@ sub fbytes
     my $n = int(shift);
     if ($n >= 1024 * 1024) {
 	return sprintf "%.3g MB", $n / (1024.0 * 1024);
-    } elsif ($n >= 1024) {
+    }
+    elsif ($n >= 1024) {
 	return sprintf "%.3g KB", $n / 1024.0;
-    } else {
+    }
+    else {
 	return "$n bytes";
     }
 }
@@ -249,9 +257,11 @@ sub fduration
     $secs %= 60;
     if ($hours) {
 	return "$hours hours $mins minutes";
-    } elsif ($mins >= 2) {
+    }
+    elsif ($mins >= 2) {
 	return "$mins minutes";
-    } else {
+    }
+    else {
 	$secs += $mins * 60;
 	return "$secs seconds";
     }

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.27 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Message.pm,v 1.28 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -20,7 +20,8 @@ sub new
     if (defined $header) {
 	Carp::croak("Bad header argument") unless ref $header;
 	$header = $header->clone;
-    } else {
+    }
+    else {
 	$header = HTTP::Headers->new;
     }
     $content = '' unless defined $content;
@@ -48,7 +49,8 @@ sub add_content
     my $self = shift;
     if (ref($_[0])) {
 	$self->{'_content'} .= ${$_[0]};  # for backwards compatability
-    } else {
+    }
+    else {
 	$self->{'_content'} .= $_[0];
     }
 }

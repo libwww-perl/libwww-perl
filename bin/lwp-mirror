@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-mirror,v 2.0 2002/01/03 01:42:31 gisle Exp $
+# $Id: lwp-mirror,v 2.1 2003/10/23 19:11:32 uid39246 Exp $
 #
 # Simple mirror utility using LWP
 
@@ -47,7 +47,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -87,7 +87,8 @@ $rc = mirror($url, $file);
 
 if ($rc == 304) {
     print STDERR "$progname: $file is up to date\n"
-} elsif (!is_success($rc)) {
+}
+elsif (!is_success($rc)) {
     print STDERR "$progname: $rc ", status_message($rc), "   ($url)\n";
     exit 1;
 }

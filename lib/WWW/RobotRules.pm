@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.25 2003/10/23 18:56:02 uid39246 Exp $
+# $Id: RobotRules.pm,v 1.26 2003/10/23 19:11:33 uid39246 Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -103,7 +103,8 @@ sub parse {
 
     if ($is_me) {
 	$self->push_rules($netloc, @me_disallowed);
-    } else {
+    }
+    else {
 	$self->push_rules($netloc, @anon_disallowed);
     }
 }
@@ -124,7 +125,8 @@ sub is_me {
       LWP::Debug::debug("\"$ua_line\" applies to \"$me\"")
        if defined &LWP::Debug::debug;
       return 1;
-    } else {
+    }
+    else {
       LWP::Debug::debug("\"$ua_line\" does not apply to \"$me\"")
        if defined &LWP::Debug::debug;
       return '';
@@ -200,7 +202,8 @@ sub visit {
     my $count = \$self->{'loc'}{$netloc}{'count'};
     if (!defined $$count) {
 	$$count = 1;
-    } else {
+    }
+    else {
 	$$count++;
     }
 }
@@ -244,7 +247,8 @@ sub rules {
     my($self, $netloc) = @_;
     if (defined $self->{'loc'}{$netloc}{'rules'}) {
 	return @{$self->{'loc'}{$netloc}{'rules'}};
-    } else {
+    }
+    else {
 	return ();
     }
 }

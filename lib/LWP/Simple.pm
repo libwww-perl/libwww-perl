@@ -1,6 +1,6 @@
 package LWP::Simple;
 
-# $Id: Simple.pm,v 1.37 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Simple.pm,v 1.38 2003/10/23 19:11:32 uid39246 Exp $
 
 use strict;
 use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
@@ -16,7 +16,7 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -136,7 +136,8 @@ sub _get
 	my $path = $3;
 	$path = "/" unless defined($path);
 	return _trivial_http_get($host, $port, $path);
-    } else {
+    }
+    else {
         _init_ua() unless $ua;
 	if (@_ && $url !~ /^\w+:/) {
 	    # non-absolute redirect from &_trivial_http_get

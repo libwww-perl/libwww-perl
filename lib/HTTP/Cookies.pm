@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -100,7 +100,8 @@ sub add_cookie_header
 			# The correponding Set-Cookie attribute was empty
 			$found++ if $port eq $req_port;
 			$port = "";
-		    } else {
+		    }
+		    else {
 			my $p;
 			for $p (split(/,/, $port)) {
 			    $found++, last if $p eq $req_port;
@@ -125,7 +126,8 @@ sub add_cookie_header
 		if (!$set_ver++) {
 		    if ($version >= 1) {
 			push(@cval, "\$Version=$version");
-		    } elsif (!$self->{hide_cookie2}) {
+		    }
+		    elsif (!$self->{hide_cookie2}) {
 			$request->header(Cookie2 => '$Version="1"');
 		    }
 		}
@@ -164,7 +166,8 @@ sub add_cookie_header
 
 	if ($domain =~ s/^\.+//) {
 	    $netscape_only = 1;
-	} else {
+	}
+	else {
 	    $domain =~ s/[^.]*//;
 	    $netscape_only = 0;
 	}
@@ -231,7 +234,8 @@ sub extract_cookies
 			push(@cur, "Max-Age" => str2time($v) - $now);
 			$expires++;
 		    }
-		} else {
+		}
+		else {
 		    push(@cur, $k => $v);
 		}
 	    }
@@ -300,7 +304,8 @@ sub extract_cookies
 	        LWP::Debug::debug("Host prefix contain a dot: $hostpre => $domain");
 		next SET_COOKIE;
 	    }
-	} else {
+	}
+	else {
 	    $domain = $req_host;
 	}
 
@@ -314,7 +319,8 @@ sub extract_cookies
 	        LWP::Debug::debug("Path $path is not a prefix of $req_path");
 		next SET_COOKIE;
 	    }
-	} else {
+	}
+	else {
 	    $path = $req_path;
 	    $path =~ s,/[^/]*$,,;
 	    $path = "/" unless length($path);
@@ -337,7 +343,8 @@ sub extract_cookies
 		    LWP::Debug::debug("Request port ($req_port) not found in $port");
 		    next SET_COOKIE;
 		}
-	    } else {
+	    }
+	    else {
 		$port = "_$req_port";
 	    }
 	}
@@ -463,13 +470,17 @@ sub clear
     my $self = shift;
     if (@_ == 0) {
 	$self->{COOKIES} = {};
-    } elsif (@_ == 1) {
+    }
+    elsif (@_ == 1) {
 	delete $self->{COOKIES}{$_[0]};
-    } elsif (@_ == 2) {
+    }
+    elsif (@_ == 2) {
 	delete $self->{COOKIES}{$_[0]}{$_[1]};
-    } elsif (@_ == 3) {
+    }
+    elsif (@_ == 3) {
 	delete $self->{COOKIES}{$_[0]}{$_[1]}{$_[2]};
-    } else {
+    }
+    else {
 	require Carp;
         Carp::carp('Usage: $c->clear([domain [,path [,key]]])');
     }
@@ -559,7 +570,8 @@ sub _url_path
     my $path;
     if($url->can('epath')) {
        $path = $url->epath;    # URI::URL method
-    } else {
+    }
+    else {
        $path = $url->path;           # URI::_generic method
     }
     $path = "/" unless length $path;

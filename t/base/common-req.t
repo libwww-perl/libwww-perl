@@ -117,7 +117,8 @@ if($^O eq "MacOS") {
     print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
 		        $r->content =~ /^\012Content-Type: text\/html/m and
 	        	$r->content =~ /^\012<h1>Hello, world/m;
-} else {
+}
+else {
     print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
 	                $r->content =~ /^Content-Type: text\/html/m and
 	                $r->content =~ /^<h1>Hello, world/m;

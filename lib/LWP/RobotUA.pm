@@ -1,10 +1,10 @@
 package LWP::RobotUA;
 
-# $Id: RobotUA.pm,v 1.21 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: RobotUA.pm,v 1.22 2003/10/23 19:11:32 uid39246 Exp $
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -45,7 +45,8 @@ sub new
     if ($rules) {
 	$rules->agent($name);
 	$self->{'rules'} = $rules;
-    } else {
+    }
+    else {
 	$self->{'rules'} = new WWW::RobotRules $name;
     }
 
@@ -134,7 +135,8 @@ sub simple_request
 		$self->{'rules'}->parse($robot_url, "", $fresh_until);
 	    }
 
-	} else {
+	}
+	else {
 	    LWP::Debug::debug("No robots.txt file found");
 	    $self->{'rules'}->parse($robot_url, "", $fresh_until);
 	}
@@ -158,7 +160,8 @@ sub simple_request
 	LWP::Debug::debug("Must wait $wait seconds");
 	if ($self->{'use_sleep'}) {
 	    sleep($wait)
-	} else {
+	}
+	else {
 	    my $res = new HTTP::Response
 	      &HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down';
 	    $res->header('Retry-After', time2str(time + $wait));

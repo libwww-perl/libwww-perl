@@ -1,10 +1,10 @@
 package HTTP::Request;
 
-# $Id: Request.pm,v 1.32 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Request.pm,v 1.33 2003/10/23 19:11:32 uid39246 Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -44,7 +44,8 @@ sub uri
 	my $uri = shift;
 	if (!defined $uri) {
 	    # that's ok
-	} elsif (ref $uri) {
+	}
+	elsif (ref $uri) {
 	    Carp::croak("A URI can't be a " . ref($uri) . " reference")
 		if ref($uri) eq 'HASH' or ref($uri) eq 'ARRAY';
 	    Carp::croak("Can't use a " . ref($uri) . " object as a URI")
@@ -55,7 +56,8 @@ sub uri
 		eval { local $SIG{__DIE__}; $uri = $uri->abs; };
 		die $@ if $@ && $@ !~ /Missing base argument/;
 	    }
-	} else {
+	}
+	else {
 	    $uri = $HTTP::URI_CLASS->new($uri);
 	}
 	$self->{'_uri'} = $uri;

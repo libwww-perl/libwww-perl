@@ -1,9 +1,9 @@
 package File::Listing;
 
-# $Id: Listing.pm,v 1.13 2003/10/23 18:56:00 uid39246 Exp $
+# $Id: Listing.pm,v 1.14 2003/10/23 19:11:32 uid39246 Exp $
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -76,13 +76,17 @@ sub parse
 
    if (ref($dir) eq 'ARRAY') {
        # Already splitted up
-   } elsif (ref($dir) eq 'GLOB') {
+   }
+   elsif (ref($dir) eq 'GLOB') {
        # A file handle
-   } elsif (ref($dir)) {
+   }
+   elsif (ref($dir)) {
       Carp::croak("Illegal argument to parse_dir()");
-   } elsif ($dir =~ /^\*\w+(::\w+)+$/) {
+   }
+   elsif ($dir =~ /^\*\w+(::\w+)+$/) {
       # This scalar looks like a file handle, so we assume it is
-   } else {
+   }
+   else {
       # A normal scalar listing
       $dir = [ split(/\n/, $dir) ];
    }
@@ -94,7 +98,8 @@ sub parse
        for (@$dir) {
 	   push(@files, $pkg->line($_, $tz, $error));
        }
-   } else {
+   }
+   else {
        local($_);
        while (<$dir>) {
 	   chomp;
@@ -151,23 +156,28 @@ sub line
 	if ($kind =~ /^l/ && $name =~ /(.*) -> (.*)/ ) {
 	    $name = $1;
 	    $type = "l $2";
-	} elsif ($kind =~ /^[\-F]/) { # (hopefully) a regular file
+	}
+	elsif ($kind =~ /^[\-F]/) { # (hopefully) a regular file
 	    $type = 'f';
-	} elsif ($kind =~ /^[dD]/) {
+	}
+	elsif ($kind =~ /^[dD]/) {
 	    $type = 'd';
 	    $size = undef;  # Don't believe the reported size
 	}
 	return [$name, $type, $size, str2time($date, $tz), 
               File::Listing::file_mode($kind)];
 
-    } elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
+    }
+    elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
 	my $dir = $1;
 	return () if $dir eq '.';
 	$curdir = $dir;
 	return ();
-    } elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {
+    }
+    elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {
 	return ();
-    } elsif (/not found/    || # OSF1, HPUX, and SunOS return
+    }
+    elsif (/not found/    || # OSF1, HPUX, and SunOS return
              # "$file not found"
              /No such file/ || # IRIX returns
              # "UX:ls: ERROR: Cannot access $file: No such file or directory"
@@ -180,12 +190,14 @@ sub line
 	&$error($_) if ref($error) eq 'CODE';
 	warn "Error: $_\n" if $error eq 'warn';
 	return ();
-    } elsif ($_ eq '') {       # AIX, and Linux return nothing
+    }
+    elsif ($_ eq '') {       # AIX, and Linux return nothing
 	return () unless defined $error;
 	&$error("No such file or directory") if ref($error) eq 'CODE';
 	warn "Warning: No such file or directory\n" if $error eq 'warn';
 	return ();
-    } else {
+    }
+    else {
         # parse failed, check if the dosftp parse understands it
         return(File::Listing::dosftp->line($_,$tz,$error));
     }
@@ -238,14 +250,16 @@ sub line
 	if ($size_or_dir eq '<DIR>') {
 	    $type = "d";
             $size = ""; # directories have no size in the pc listing
-        } else {
+        }
+        else {
 	    $type = 'f';
             $size = $size_or_dir;
 	}
 	return [$name, $type, $size, str2time($date, $tz),
               File::Listing::file_mode($kind)];
 
-    } else {
+    }
+    else {
 	return () unless defined $error;
 	&$error($_) if ref($error) eq 'CODE';
 	warn "Can't parse: $_\n" if $error eq 'warn';
@@ -284,9 +298,11 @@ sub line {
 	$filesize = 0 if $filesize eq '-';
 	if ($filesize =~ s/k$//i) {
 	    $filesize *= 1024;
-	} elsif ($filesize =~ s/M$//) {
+	}
+	elsif ($filesize =~ s/M$//) {
 	    $filesize *= 1024*1024;
-	} elsif ($filesize =~ s/G$//) {
+	}
+	elsif ($filesize =~ s/G$//) {
 	    $filesize *= 1024*1024*1024;
 	}
 	$filesize = int $filesize;
@@ -305,7 +321,8 @@ sub _guess_year {
     my $y = shift;
     if ($y >= 90) {
 	$y = 1900+$y;
-    } elsif ($y < 100) {
+    }
+    elsif ($y < 100) {
 	$y = 2000+$y;
     }
     $y;

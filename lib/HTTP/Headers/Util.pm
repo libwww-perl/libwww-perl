@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -27,20 +27,25 @@ sub split_header_words
 		    $val =~ s/\\(.)/$1/g;
 		    push(@cur, $val);
 		# some unquoted value
-		} elsif (s/^\s*=\s*([^;,\s]*)//) {
+		}
+		elsif (s/^\s*=\s*([^;,\s]*)//) {
 		    my $val = $1;
 		    $val =~ s/\s+$//;
 		    push(@cur, $val);
 		# no value, a lone token
-		} else {
+		}
+		else {
 		    push(@cur, undef);
 		}
-	    } elsif (s/^\s*,//) {
+	    }
+	    elsif (s/^\s*,//) {
 		push(@res, [@cur]) if @cur;
 		@cur = ();
-	    } elsif (s/^\s*;// || s/^\s+//) {
+	    }
+	    elsif (s/^\s*;// || s/^\s+//) {
 		# continue
-	    } else {
+	    }
+	    else {
 		die "This should not happen: '$_'";
 	    }
 	}
@@ -64,7 +69,8 @@ sub join_header_words
 		if ($v =~ /[\x00-\x20()<>@,;:\\\"\/\[\]?={}\x7F-\xFF]/ || !length($v)) {
 		    $v =~ s/([\"\\])/\\$1/g;  # escape " and \
 		    $k .= qq(="$v");
-		} else {
+		}
+		else {
 		    # token
 		    $k .= "=$v";
 		}

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.20 2001/08/06 23:47:42 gisle Exp $
+# $Id: file.pm,v 1.21 2003/10/23 19:11:32 uid39246 Exp $
 
 package LWP::Protocol::file;
 
@@ -99,7 +99,8 @@ sub request
 	for (@files) {
 	    if($^O eq "MacOS") {
 		$_ .= "/" if -d "$path:$_";
-	    } else {
+	    }
+	    else {
 		$_ .= "/" if -d "$path/$_";
 	    }
 	    my $furl = URI::Escape::uri_escape($_);

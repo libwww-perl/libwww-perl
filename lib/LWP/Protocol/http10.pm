@@ -1,5 +1,5 @@
 #
-# $Id: http10.pm,v 1.2 2003/10/14 17:43:47 gisle Exp $
+# $Id: http10.pm,v 1.3 2003/10/23 19:11:33 uid39246 Exp $
 
 package LWP::Protocol::http10;
 
@@ -250,9 +250,11 @@ sub request
 		if ($line =~ /^([a-zA-Z0-9_\-.]+)\s*:\s*(.*)/) {
 		    $response->push_header($key, $val) if $key;
 		    ($key, $val) = ($1, $2);
-		} elsif ($line =~ /^\s+(.*)/ && $key) {
+		}
+		elsif ($line =~ /^\s+(.*)/ && $key) {
 		    $val .= " $1";
-		} else {
+		}
+		else {
 		    $response->push_header("Client-Bad-Header-Line" => $line);
 		}
 	    }

@@ -1,3 +1,14 @@
+2003-10-30   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.74
+
+    Improved lwp-download:
+      - set mtime if Last-Modified header reported by server
+      - better prompts
+      - avoid warnings when aborted at the wrong time
+
+
+
 2003-10-19   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.73

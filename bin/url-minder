@@ -27,10 +27,12 @@ for $url (keys %urls) {
 	if ($hash ne $urls{$url}) {
            push(@mess, "$url changed");	
 	   $urls{$url} = $hash;
-        } else {
+        }
+        else {
 	   print "  unchanged\n";
         }
-   } elsif ($res->code >= 500) {  # local failure, better luck next time
+   }
+   elsif ($res->code >= 500) {  # local failure, better luck next time
         print "  ", $res->code, " ", $res->message, "\n";
 	my $count = $urls{$url};
 	$count = 5 unless $count =~ /^\d+$/;
@@ -42,7 +44,8 @@ for $url (keys %urls) {
 	print "  giving up\n";
 	push(@mess, "$url: Giving up: " . $res->message);
         delete $urls{$url};	
-   } else {
+   }
+   else {
 	print "  bad\n";
 	push(@mess, "$url: " . $res->code . " " . $res->message);
 	delete $urls{$url};

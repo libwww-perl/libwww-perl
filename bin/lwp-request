@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.4 2003/10/15 13:43:01 gisle Exp $
+# $Id: lwp-request,v 2.5 2003/10/23 19:11:32 uid39246 Exp $
 #
 # Simple user agent using LWP library.
 
@@ -178,7 +178,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.5 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -227,7 +227,8 @@ use HTTP::Date qw(time2str str2time);
 	my($self, $realm, $uri) = @_;
 	if ($main::options{'C'}) {
 	    return split(':', $main::options{'C'}, 2);
-	} elsif (-t) {
+	}
+	elsif (-t) {
 	    my $netloc = $uri->host_port;
 	    print "Enter username for $realm at $netloc: ";
 	    my $user = <STDIN>;
@@ -240,7 +241,8 @@ use HTTP::Date qw(time2str str2time);
 	    print "\n";  # because we disabled echo
 	    chomp($password);
 	    return ($user, $password);
-	} else {
+	}
+	else {
 	    return (undef, undef)
 	}
     }
@@ -311,10 +313,12 @@ $method = uc($options{'m'}) if defined $options{'m'};
 if ($options{'f'}) {
     if ($options{'c'}) {
         $allowed_methods{$method} = "C";  # force content
-    } else {
+    }
+    else {
         $allowed_methods{$method} = "";
     }
-} elsif (!defined $allowed_methods{$method}) {
+}
+elsif (!defined $allowed_methods{$method}) {
     die "$progname: $method is not an allowed method\n";
 }
 
@@ -338,7 +342,8 @@ if (defined $options{'t'}) {
 if (defined $options{'i'}) {
     if (-e $options{'i'}) {
         $time = (stat _)[9];
-    } else {
+    }
+    else {
         $time = str2time($options{'i'});
         die "$progname: Illegal time syntax for -i option\n"
             unless defined $time;
@@ -354,7 +359,8 @@ if ($allowed_methods{$method} eq "C") {
         $options{'c'} = ($method eq "POST") ?
               "application/x-www-form-urlencoded"
             : "text/plain";
-    } else {
+    }
+    else {
         die "$progname: Illegal Content-type format\n"
             unless $options{'c'} =~ m,^[\w\-]+/[\w\-]+(?:\s*;.*)?$,
     }
@@ -362,7 +368,8 @@ if ($allowed_methods{$method} eq "C") {
         if -t;
     binmode STDIN unless -t or $options{'a'};
     $content = join("", <STDIN>);
-} else {
+}
+else {
     die "$progname: Can't set Content-type for $method requests\n"
         if defined $options{'c'};
 }
@@ -391,7 +398,8 @@ while ($url = shift) {
 	if ($url =~ /^\w+:/ || $options{'b'}) {  # is there any scheme specification
 	    $url = URI->new($url, $options{'b'});
 	    $url = $url->abs($options{'b'}) if $options{'b'};
-	} else {
+	}
+	else {
 	    $url = uf_uri($url);
         }
     };
@@ -416,7 +424,8 @@ while ($url = shift) {
 
     if ($options{'S'}) {
 	printResponseChain($response);
-    } elsif ($options{'s'}) {
+    }
+    elsif ($options{'s'}) {
         print $response->status_line, "\n";
     }
 
@@ -465,7 +474,8 @@ while ($url = shift) {
 		# It is bad to not notice this before now :-(
 		die "Illegal -o option value ($options{'o'})\n";
 	    }
-	} else {
+	}
+	else {
 	    binmode STDOUT unless $options{'a'};
 	    print $response->content;
 	}

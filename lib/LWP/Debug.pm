@@ -1,6 +1,6 @@
 package LWP::Debug;
 
-# $Id: Debug.pm,v 1.13 2003/10/23 18:56:01 uid39246 Exp $
+# $Id: Debug.pm,v 1.14 2003/10/23 19:11:32 uid39246 Exp $
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -21,7 +21,8 @@ sub import
     for (@_) {
 	if (/^[-+]/) {
 	    push(@levels, $_);
-	} else {
+	}
+	else {
 	    push(@symbols, $_);
 	}
     }
@@ -36,11 +37,14 @@ sub level
 	if ($_ eq '+') {              # all on
 	    # switch on all levels
 	    %current_level = map { $_ => 1 } @levels;
-	} elsif ($_ eq '-') {           # all off
+	}
+	elsif ($_ eq '-') {           # all off
 	    %current_level = ();
-	} elsif (/^([-+])(\w+)$/) {
+	}
+	elsif (/^([-+])(\w+)$/) {
 	    $current_level{$2} = $1 eq '+';
-	} else {
+	}
+	else {
 	    Carp::croak("Illegal level format $_");
 	}
     }

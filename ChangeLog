@@ -1,3 +1,44 @@
+Wed Apr  3 1996   Gisle Aas <aas@sn.no>
+
+ o  Implemented a NNTP protocol module.  The library can now fetch and
+    post news articles.
+
+ o  More documentation
+
+ o  New $res->base() method for HTTP::Responses
+
+ o  Graham Barr's patch to File::Listing to make it more OO internally
+
+ o  content_type() return value is canonialized
+
+ o  $ua->request() does not die on bad URLs any more
+
+ o  LWP::MediaTypes merge all media.types files that if finds
+
+ o  FTP request with content to file or callback did not work
+
+ o  The value of HTTP Host: header is now $url->netloc;
+
+ o  The URI::URL constructor now accept URLs wrapped up in "<>"
+
+ o  $url->abs() now has a second optional argument that makes it accept
+    that relative URLs can have scheme, i.e. treat "http:img.gif" as a
+    relative URL.
+
+ o  Added prototypes to the HTTP::Status::is_xxx() functions
+
+ o  Added prototypes to the MIME:: encoding/decoding functions
+
+ o  Always print scheme for mailto and news URLs
+
+ o  RobotRules patches from Henry A Rowley.
+
+ o  More tests
+
+ o  <SMALL> and <BIG> again
+
+
+
 Thu Mar 14 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b10

@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.03";   # $Date: 1996/04/09 15:44:46 $
+$VERSION = "4.04";   # $Date: 1996/05/08 16:22:43 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -27,7 +27,7 @@ use Carp ();
 use strict;
 use vars qw($reserved $reserved_no_slash $reserved_no_form $unsafe
 	    $COMPAT_VER_3
-	    $Debug $StrictSchemes
+	    $Debug $Strict_URL
 	    %OVERLOAD
 	   );
 
@@ -41,16 +41,14 @@ $unsafe   = "\x00-\x20{}|\\\\^\\[\\]`<>\"\x7F-\xFF";
 
 $Debug         = 0;     # set to 1 to print URLs on creation
 $COMPAT_VER_3  = 0;     # should we try to behave in the old way
-$StrictSchemes = 1;     # see new()
+$Strict_URL    = 0;     # see new()
 
 # Should really use the new 'use overload' interface, but since
 # we fake inheritance of %OVERLOAD in _init_implementor() we keep
 # it for now.
 %OVERLOAD = ( '""' => 'as_string', 'fallback' => 1 );
 
-# schemes we have initialised are recorded here
-my %ImplementedBy = ( '_generic' => 'URI::URL::_generic' );
-my %Implementors  = (); # clases we have initialised:
+my %Implementor = (); # mapping from scheme to implementation class
 
 
 # Easy to use constructor
@@ -105,14 +103,17 @@ sub new
 	}
 	unless($scheme){
 	    Carp::croak("Unable to determine scheme for '$init'")
-		if $StrictSchemes;
+		if $Strict_URL;
 	    $scheme = 'http';
 	}
 	my $impclass = URI::URL::implementor($scheme);
 	unless ($impclass) {
 	    Carp::croak("URI::URL scheme '$scheme' is not supported")
-		if $StrictSchemes;
-	    $impclass = URI::URL::implementor(); # use generic
+		if $Strict_URL;
+	    # use generic as fallback
+	    require URI::URL::_generic;
+	    URI::URL::implementor($scheme, 'URI::URL::_generic');
+	    $impclass = 'URI::URL::_generic';
 	}
 
 	# hand-off to scheme specific implementation sub-class
@@ -135,14 +136,21 @@ sub clone
 sub implementor
 {
     my($scheme, $impclass) = @_;
-    my $ic;
-    $scheme = (defined $scheme) ? lc($scheme) : '_generic';
+    unless (defined $scheme) {
+	require URI::URL::_generic;
+	return 'URI::URL::_generic';
+    }
 
+    $scheme = lc($scheme);
     if ($impclass) {
 	$impclass->_init_implementor($scheme);
-	$ImplementedBy{$scheme} = $impclass;
+	my $old = $Implementor{$scheme};
+	$Implementor{$scheme} = $impclass;
+	return $old;
     }
-    return $ic if $ic = $ImplementedBy{$scheme};
+
+    my $ic = $Implementor{$scheme};
+    return $ic if $ic;
 
     # scheme not yet known, look for internal or
     # preloaded (with 'use') implementation
@@ -155,8 +163,8 @@ sub implementor
 	$ic = '' unless defined @{"${ic}::ISA"};
     }
     if ($ic) {
-	$ic->_init_implementor;
-	$ImplementedBy{$scheme} = $ic;
+	$ic->_init_implementor($scheme);
+	$Implementor{$scheme} = $ic;
     }
     $ic;
 }
@@ -164,18 +172,14 @@ sub implementor
 
 sub _init_implementor
 {
-    my($class) = @_;
+    my($class, $scheme) = @_;
     # Remember that one implementor class may actually
     # serve to implement several URL schemes.
-
-    # have we already initialised this class?
-    return if $Implementors{$class};
 
     no strict qw(refs);
     # Setup overloading - experimental
     %{"${class}::OVERLOAD"} = %URI::URL::OVERLOAD
 	unless defined %{"${class}::OVERLOAD"};
-    $Implementors{$class} = 1;
 }
 
 
@@ -194,6 +198,30 @@ sub _elem
     $self->{'_str'} = '';        # void cached string
     $old;
 }
+
+
+# Make all standard methods available to all kinds of URLs.  This allow
+# us to call these without to much worry when URI::URL::strict(0);
+
+sub bad_method;
+
+*netloc       = \&bad_method;
+*user         = \&bad_method;
+*password     = \&bad_method;
+*host         = \&bad_method;
+*port         = \&bad_method;
+*default_port = \&bad_method;
+
+*full_path    = \&bad_method;
+*epath        = \&bad_method;
+*eparams      = \&bad_method;
+*equery       = \&bad_method;
+
+*path         = \&bad_method;
+*path_components = \&bad_method;
+*params       = \&bad_method;
+*query        = \&bad_method;
+*frag         = \&bad_method;
 
 
 #
@@ -228,9 +256,9 @@ sub newlocal
 
 sub strict
 {
-    return $StrictSchemes unless @_;
-    my $old = $StrictSchemes;
-    $StrictSchemes = $_[0];
+    return $Strict_URL unless @_;
+    my $old = $Strict_URL;
+    $Strict_URL = $_[0];
     $old;
 }
 
@@ -281,6 +309,17 @@ sub abs {
 # This method should always be overridden in subclasses
 sub as_string {
     "";
+}
+
+# This is set up as an alias for various methods
+sub bad_method {
+    my $self = shift;
+    my $scheme = $self->scheme;
+    Carp::croak("Illegal method called for $scheme: URL")
+	if $Strict_URL;
+    # Carp::carp("Illegal method called for $scheme: URL")
+    #     if $^W;
+    undef;
 }
 
 sub print_on
@@ -400,13 +439,12 @@ methods.
 The object constructor new() must be able to determine the scheme for
 the URL.  If a scheme is not specified in the URL itself, it will use
 the scheme specified by the base URL. If no base URL scheme is defined
-then new() will croak unless URI::URL::strict(0) has been invoked, in
-which case I<http> is silently assumed.  Once the scheme has been
+then new() will croak if URI::URL::strict(1) has been invoked,
+otherwise I<http> is silently assumed.  Once the scheme has been
 determined new() then uses the implementor() function to determine
 which class implements that scheme.  If no implementor class is
-defined for the scheme then new() will croak unless
-URI::URL::strict(0) has been invoked, in which case the internal
-generic class is assumed.
+defined for the scheme then new() will croak if URI::URL::strict(1)
+has been invoked, otherwise the internal generic URL class is assumed.
 
 Internally defined schemes are implemented by the
 URI::URL::I<scheme_name> module.  The URI::URL::implementor() function

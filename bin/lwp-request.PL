@@ -1,6 +1,6 @@
-#!/local/bin/perl -w
+#!/usr/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.3 1995/07/14 00:12:36 aas Exp $
+# $Id: lwp-request.PL,v 1.4 1995/07/16 07:19:05 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -31,6 +31,11 @@ The options are:
 
 Set which method to use for the request.  If this option is not used,
 then the method is derived from the name of the program.
+
+=item -f
+
+Force request through, even if the program believes that the method is
+illegal.
 
 =item -b <url>
 
@@ -108,37 +113,45 @@ Gisle Aas <aas@oslonett.no>
 
 =cut
 
-use LWP;
-use LWP::Date qw(str2time time2str);
-use URI::URL;
-use Getopt::Std;
-
-#use LWP::Debug;
-#LWP::Debug::level('+trace');
 
 $0 =~ s,.*/,,;  # use basename only
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
-# "N" = Allowed without content in request
-# "C" = Allowed with content in request
+require LWP;
+require LWP::Date;
+require URI::URL;
+
+#require LWP::Debug;
+#LWP::Debug::level('+trace');
+
+
+# This table lists the methods that are allowed.  It should really be
+# a superset for all methods supported for every scheme that may be
+# supported by the library.  Currently it might be a bit too HTTP
+# specific.  You might use the -f option to force a method through.
+#
+# "" = No content in request, "C" = Needs content in request
+#
 %allowed_methods = (
-    GET        => "N",   
-    HEAD       => "N",
+    GET        => "",   
+    HEAD       => "",
     POST       => "C",   
     PUT        => "C",
-    DELETE     => "N",   
-    LINK       => "N",
-    UNLINK     => "N",
+    DELETE     => "",   
+    LINK       => "",
+    UNLINK     => "",
     CHECKIN    => "C",
-    CHECKOUT   => "N",
-    SHOWMETHOD => "N",
+    CHECKOUT   => "",
+    SHOWMETHOD => "",
 );
 
 
-$ua = new LWP::UserAgent;
+# Parse command line
+use Getopt::Std;
 
 $opt_m = undef;  # set method
+$opt_f = undef;  # make request even if method is now in %allowed_methods
 $opt_b = undef;  # base url
 $opt_t = undef;  # timeout
 $opt_i = undef;  # if-modified-since
@@ -153,13 +166,14 @@ $opt_d = undef;  # don't display content
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
 
-unless (getopts("hvuUsedb:t:i:c:m:")) {
+unless (getopts("hvuUsedb:t:i:c:m:f")) {
     usage();
 }
 
 if ($opt_v) {
+    $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is $0 version $VERSION (using LWP version $LWP::VERSION)
+This is $0 version $VERSION (using LWP version $lwpVersion)
 
 Copyright (C) 1995 Gisle Aas. All rights reserved.
 
@@ -170,9 +184,11 @@ EOT
 
 usage() if $opt_h || !@ARGV;
 
-$method = uc ($opt_m || $0 || "GET");
 
-unless (defined $allowed_methods{$method}) {
+$method = uc($opt_m || $0 || "GET");
+if ($opt_f) {
+    $allowed_methods{$method} = "";  # assume no content requeset
+} elsif (!defined $allowed_methods{$method}) {
     die "$0: $method is not an allowed method\n";
 }
 
@@ -192,13 +208,13 @@ if (defined $opt_t) {
 
 if (defined $opt_i) {
     if (-e $opt_i) {
-	$time = (stat _)[9];
+        $time = (stat _)[9];
     } else {
-	$time = str2time($opt_i);
-	die "$0: Illegal time syntax for -i option\n"
-	    unless defined $time;
+        $time = LWP::Date::str2time($opt_i);
+        die "$0: Illegal time syntax for -i option\n"
+            unless defined $time;
     }
-    $opt_i = time2str($time);
+    $opt_i = LWP::Date::time2str($time);
 }
 
 if (defined $opt_b) {
@@ -209,22 +225,25 @@ $content = undef;
 if ($allowed_methods{$method} eq "C") {
     # This request needs some content
     unless (defined $opt_c) {
-	# set default content type
-	$opt_c = ($method eq "POST") ?
-	      "application/x-www-form-urlencoded"
-	    : "text/plain";
+        # set default content type
+        $opt_c = ($method eq "POST") ?
+              "application/x-www-form-urlencoded"
+            : "text/plain";
     } else {
-	die "$0: Illegal Content-type format\n"
-	    unless $opt_c =~ m,^[\w\-]+/[\w\-]+$,
+        die "$0: Illegal Content-type format\n"
+            unless $opt_c =~ m,^[\w\-]+/[\w\-]+$,
     }
     print "Please enter content ($opt_c) to be ${method}ed:\n"
-	if -t;
+        if -t;
     $content = join("", <STDIN>);
 } else {
     die "$0: Can't set Content-type for $method requests\n"
-	if defined $opt_c;
+        if defined $opt_c;
 }
 
+
+# Create the user agent object
+$ua = new LWP::UserAgent;
 
 # Set up a request.  We use the same request for all URLs.
 $request = new LWP::Request $method;
@@ -240,37 +259,38 @@ if ($opt_c) { # will always be set for request that wants content
 
 $errors = 0;
 
+# Ok, now we perform the requests, one URL at a time
 while ($url = shift) {
     $request->url(new URI::URL $url, $opt_b);
 
     $response = $ua->request($request);
 
     if ($opt_u || $opt_U) {
-	my $url = $request->url->as_string;
-	print "$method $url\n";
+        my $url = $request->url->as_string;
+        print "$method $url\n";
 
         print $request->headerAsString, "\n" if $opt_U;
     }
 
     if ($opt_s) {
-	# Display status code
-	require LWP::StatusCode;
-	my $code = $response->code;
-	print $code, " ", LWP::StatusCode::message($code), "\n";
-	
+        # Display status code
+        require LWP::StatusCode;
+        my $code = $response->code;
+        print $code, " ", LWP::StatusCode::message($code), "\n";
+        
     }
 
     if ($opt_e) {
-	# Display headers
-	print $response->headerAsString;
-	print "\n";  # separate headers and content
+        # Display headers
+        print $response->headerAsString;
+        print "\n";  # separate headers and content
     }
 
     if ($response->isSuccess) {
-	print $response->content unless $opt_d;
+        print $response->content unless $opt_d;
     } else {
-	print STDERR $response->errorAsHTML unless $opt_d;
-	$errors++;
+        print STDERR $response->errorAsHTML unless $opt_d;
+        $errors++;
     }
 }
 
@@ -282,16 +302,19 @@ sub usage
 {
     die <<"EOT";
 Usage: $0 [-options] <url>...
-    -u            Display method and URL before any response
-    -U            Display request headers after method and URL
-    -s            Display response status code
-    -e            Display response headers
-    -d            Don't display content
+    -m <method>   use method for the request
+    -f            make request even if $0 believe method is illegal
     -b <base>     Use the specified URL as base
     -t <timeout>  Set timeout value
     -i <time>     Set the If-Modified-Since header on the request
     -c <conttype> use this content-type for POST, PUT, CHECKIN
-    -m <method>   use method for the request
+
+    -u            Display method and URL before any response
+    -U            Display request headers after method and URL
+    -s            Display response status code
+    -e            Display response headers
+    -d            Do not display content
+
     -v            Show program version
     -h            Print this message
 EOT

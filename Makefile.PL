@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.49 1998/11/19 20:27:10 aas Exp $
+# $Id: Makefile.PL,v 1.50 1999/03/19 20:13:00 gisle Exp $
 
 require 5.004;
 use strict;
@@ -139,6 +139,12 @@ WriteMakefile(
    VERSION_FROM  => 'lib/LWP.pm',
    PL_FILES      => { map {("bin/$_.PL" => "bin/$_")} @programs_to_install },
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
+   PREREQ_PM     => { 'URI'              => 1,
+                      'MIME::Base64'     => 2.1,
+                      'Net::FTP'         => 2.4,
+                      'HTML::HeadParser' => 0,
+                      'Digest::MD5'      => 0,
+                     },
    'clean'       => { FILES => '$(EXE_FILES)' },
    'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );

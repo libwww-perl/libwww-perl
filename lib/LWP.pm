@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.40 1996/10/01 16:20:52 aas Exp $
+# $Id: LWP.pm,v 1.41 1996/10/21 22:04:56 aas Exp $
 
 package LWP;
 
@@ -45,7 +45,7 @@ The main features of the library are:
 
 =item *
 
-Contains various reuseable components (modules) that can be
+Contains various reusable components (modules) that can be
 used separately or together.
 
 =item *
@@ -87,7 +87,7 @@ text).
 =item *
 
 The library can cooperate with Tk.  A simple Tk-based GUI browser
-called 'tkweb' is distributed with the Tk extention for perl.
+called 'tkweb' is distributed with the Tk extension for perl.
 
 =item *
 
@@ -113,7 +113,7 @@ Let us start with this quote from the HTTP specification document
 
 =over 3
 
-=item *
+=item
 
 The HTTP protocol is based on a request/response paradigm. A client
 establishes a connection with a server and sends a request to the
@@ -122,11 +122,11 @@ followed by a MIME-like message containing request modifiers, client
 information, and possible body content. The server responds with a
 status line, including the message's protocol version and a success or
 error code, followed by a MIME-like message containing server
-information, entity metainformation, and possible body content.
+information, entity meta-information, and possible body content.
 
 =back
 
-What this means to libwww-perl is that communcation always take place
+What this means to libwww-perl is that communication always take place
 through these steps: First a I<request> object is created and
 configured. This object is then passed to a server and we get a
 I<response> object in return that we can examine. A request is always
@@ -142,7 +142,7 @@ parameters and the response will contain the query result.  If we want
 to send a mail message to somebody then we send a request object which
 contains our message to the mail server and the response object will
 contain an acknowledgment that tells us that the message has been
-accepted and will be forwarded to the receipient(s).
+accepted and will be forwarded to the recipient(s).
 
 It is as simple as that!
 
@@ -169,7 +169,7 @@ B<POST> and B<HEAD>.
 =item *
 
 The B<url> is a string denoting the protocol, server and
-the name of the "document" we want to access.  The url might
+the name of the "document" we want to access.  The B<url> might
 also encode various other parameters.
 
 =item *
@@ -226,7 +226,7 @@ The request was was successfully received, understood or accepted.
 =item is_error()
 
 The request failed.  The server or the resource might not be
-available, access to the resouce might be denied or other things might
+available, access to the resource might be denied or other things might
 have failed for some reason.
 
 =back
@@ -238,7 +238,7 @@ actually do with it in order to receive a I<response>?
 
 The answer is that you pass it on to a I<user agent> object and this
 object will take care of all the things that need to be done
-(low-level communcation and error handling). The user agent will give
+(low-level communication and error handling). The user agent will give
 you back a I<response> object. The user agent represents your
 application on the network and it provides you with an interface that
 can accept I<requests> and will return I<responses>.
@@ -274,18 +274,23 @@ presents itself on the network.
 =item *
 
 The B<from> attribute can be set to the e-mail address of the person
-reponsible for running the application.  If this is set, then the
+responsible for running the application.  If this is set, then the
 address will be sent to the servers with every request.
 
 =item *
 
-The B<use_alarm> specify if it is ok for the user agent to use the
+The B<use_alarm> specify if it is OK for the user agent to use the
 alarm(2) system to implement timeouts.
 
 =item *
 
 The B<use_eval> specify if the agent should raise an
-expection (C<die> in perl) if an error condition occur.
+exception (C<die> in perl) if an error condition occur.
+
+=item *
+
+The B<parse_head> specify whether we should initialize response
+headers from the E<lt>head> section of HTML documents.
 
 =item *
 
@@ -294,14 +299,16 @@ go through a proxy server. <URL:http://www.w3.org/pub/WWW/Proxies/>
 
 =item *
 
-The B<credentials> provide a way to set up usernames and
+The B<credentials> provide a way to set up user names and
 passwords that is needed to access certain services.
 
 =back
 
-Many applications would want even more control over how they
-interact with the network and they get this by specializing the
-C<LWP::UserAgent> by sub-classing.
+Many applications would want even more control over how they interact
+with the network and they get this by specializing the
+C<LWP::UserAgent> by sub-classing.  The library provide a
+specialization called C<LWP::RobotUA> that is used by robot
+applications.
 
 =head2 An Example
 
@@ -311,7 +318,7 @@ represented in actual perl code:
   # Create a user agent object
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
-  $ua->agent("AgentName/0.1");
+  $ua->agent("AgentName/0.1 " . $ua->agent);
 
   # Create a request
   my $req = new HTTP::Request POST => 'http://www.perl.com/cgi-bin/BugGlimpse';
@@ -328,6 +335,9 @@ represented in actual perl code:
       print "Bad luck this time\n";
   }
 
+The $ua is created once when the application starts up.  New request
+objects are normally created for each request sent.
+
 
 =head1 NETWORK SUPPORT
 
@@ -341,8 +351,9 @@ layer.  In the same way, a "From" header is initialized from the
 $ua->from value.
 
 For all responses, the library will add a header called "Client-Date".
-This format and semantics of the header is just like the server
-created "Date" header.
+This header will recode the time when the response was received by
+your application.  This format and semantics of the header is just
+like the server created "Date" header.
 
 =head2 HTTP Requests
 
@@ -357,20 +368,21 @@ internal error response.
 The library automatically adds a "Host" and a "Content-Length" header
 to the HTTP request before it is sent over the network.
 
-For GET request you migth want to add the "If-Modified-Since" header
+For GET request you might want to add the "If-Modified-Since" header
 to make the request conditional.
 
 For POST request you should add the "Content-Type" header.  When you
-try to emulate HTML <FORM> handling you should usually let the value
+try to emulate HTML E<lt>FORM> handling you should usually let the value
 of the "Content-Type" header be "application/x-www-form-urlencoded".
 See L<lwpcook> for examples of this.
 
 The libwww-perl HTTP implementation currently support the HTTP/1.0
 protocol.  HTTP/0.9 servers are also handled correctly.
 
-The library allows you to access proxy server through HTTP.  You can
-set up the library to forward all types of request through the HTTP
-protocol module.  See L<LWP::UserAgent>
+The library allows you to access proxy server through HTTP.  This
+means that you can set up the library to forward all types of request
+through the HTTP protocol module.  See L<LWP::UserAgent> for
+documentation of this.
 
 
 
@@ -378,39 +390,40 @@ protocol module.  See L<LWP::UserAgent>
 =head2 FTP Requests
 
 The library currently support GET, HEAD and PUT requests.  GET will
-retrive a file or a directory listing from an FTP server.  PUT will
+retrieve a file or a directory listing from an FTP server.  PUT will
 store a file on a ftp server.
 
 You can specify a ftp account for servers that want this in addition
-username and password.  This is specified by passing an "Account"
+user name and password.  This is specified by passing an "Account"
 header in the request.
 
-Username/password can be specified using basic authorization or be
+User name/password can be specified using basic authorization or be
 encoded in the URL.  Bad logins return an UNAUTHORIZED response with
 "WWW-Authenticate: Basic" and can be treated as basic authorization
 for HTTP.
 
-The library support ftp ascii transfer mode by specifying the "type=a"
+The library support ftp ASCII transfer mode by specifying the "type=a"
 parameter in the URL.
 
 Directory listings are by default returned unprocessed (as returned
 from the ftp server) with the content media type reported to be
-"text/ftp-dir-listing". The C<File::Listing> module provide a function
+"text/ftp-dir-listing". The C<File::Listing> module provide functionality
 for parsing of these directory listing.
 
 The ftp module is also able to convert directory listings to HTML and
 this can be requested via the standard HTTP content negotiation
-mechanisms (add an "Accept: text/html" header in the request).
+mechanisms (add an "Accept: text/html" header in the request if you
+want this).
 
 The normal file retrievals, the "Content-Type" is guessed based on the
-file name suffix. See L<LWP::MediaTypes>
+file name suffix. See L<LWP::MediaTypes>.
 
 The "If-Modified-Since" header is not honored yet.
 
 Example:
 
-  $req = HTTP::Request->new('GET', 'ftp://me:passwd@ftp.some.where.com/');
-  $req->header("Accept", "text/html, */*;q=0.1");
+  $req = HTTP::Request->new(GET => 'ftp://me:passwd@ftp.some.where.com/');
+  $req->header(Accept => "text/html, */*;q=0.1");
 
 =head2 News Requests
 
@@ -419,17 +432,17 @@ protocol.  The name of the news server is obtained from the
 NNTP_SERVER environment variable and defaults to "news".  It is not
 possible to specify the hostname of the NNTP server in the news:-URLs.
 
-The library support GET and HEAD to retrive news articles through the
+The library support GET and HEAD to retrieve news articles through the
 NNTP protocol.  You can also post articles to newsgroups by using
-(suprise) the POST method.
+(surprise!) the POST method.
 
 GET on newsgroups is not implemented yet.
 
 Examples:
 
-  $req = HTTP::Request->new('GET', 'news:abc1234@a.sn.no');
+  $req = HTTP::Request->new(GET => 'news:abc1234@a.sn.no');
 
-  $req = HTTP::Request->new('POST', 'news:comp.lang.perl.test');
+  $req = HTTP::Request->new(POST => 'news:comp.lang.perl.test');
   $req->header(Subject => 'This is a test',
                From    => 'me@some.where.org');
   $req->content(<<EOT);
@@ -442,9 +455,9 @@ Examples:
 
 The library supports the GET and HEAD method for gopher request.  All
 request header values are ignored.  HEAD cheats and will return a
-reponse without even talking to server.
+response without even talking to server.
 
-Gopher menues are always converted to HTML.
+Gopher menus are always converted to HTML.
 
 The response "Content-Type" is generated from the document type
 encoded (as the first letter) in the request URL path itself.
@@ -468,7 +481,7 @@ guessed based on the file suffix.
 
 Example:
 
-  $req = HTTP::Request->new('GET', 'file:/etc/passwd');
+  $req = HTTP::Request->new(GET => 'file:/etc/passwd');
 
 
 =head2 Mailto Request
@@ -479,14 +492,14 @@ The "To" header is initialized from the mail address in the URL.
 
 Example:
 
-  $req = HTTP::Request->new('POST', 'mailto:libwww-perl-request@ics.uci.edu');
+  $req = HTTP::Request->new(POST => 'mailto:libwww-perl-request@ics.uci.edu');
   $req->header("Subject", "subscribe");
-  $req->content("Please add me to the libwww-perl mailing list!\n");
+  $req->content("Please subscribe me to the libwww-perl mailing list!\n");
 
 
 =head1 OVERVIEW OF CLASSES AND PACKAGES
 
-This table should give you a quick overview of the classes used by the
+This table should give you a quick overview of the classes provided by the
 library. Indentation shows class inheritance.
 
  LWP::MemberMixin   -- Access to member variables of Perl5 classes
@@ -504,14 +517,21 @@ library. Indentation shows class inheritance.
  HTTP::Message      -- HTTP style message
    HTTP::Request    -- HTTP request
    HTTP::Response   -- HTTP response
+ HTTP::Daemon       -- A HTTP server class
 
  URI::URL           -- Uniform Resource Locators
 
  WWW::RobotRules    -- Parse robots.txt files
+   WWW::RobotRules::AnyDBM_File -- Persistent RobotRules
 
  HTML::Parser       -- Parse HTML documents
- HTML::Element      -- Building block for the parser
- HTML::Formatter    -- Convert HTML to readable formats
+   HTML::TreeBuilder-- Build a HTML syntax tree
+   HTML::HeadParser -- Parse the <HEAD> section of a HTML document
+   HTML::LinkExtor  -- Extract links from a HTML document
+ HTML::Element      -- Building block for the HTML::TreeBuilder
+ HTML::Formatter    -- Convert HTML syntax trees to readable formats
+   HTML::FormatText -- Output is plain text
+   HTML::FormatPS   -- Output is PostScript
 
 The following modules provide various functions and definitions.
 
@@ -522,17 +542,19 @@ The following modules provide various functions and definitions.
  HTTP::Status       -- HTTP status code (200 OK etc)
  HTTP::Date         -- Date parsing module for HTTP date formats
  HTTP::Negotiate    -- HTTP content negotiation calculation
+ HTML::Entities     -- Expand or unexpand entities in HTML text
  File::Listing      -- Parse directory listings
 
 HTTP use the Base64 encoding at some places.  The QuotedPrint module
 is just included to make the MIME:: collection more complete.
 
  MIME::Base64       -- Base64 encoding/decoding routines
- MIME::QuotedPrint  -- Quoted Printanle encoding/decoding routines
+ MIME::QuotedPrint  -- Quoted Printable encoding/decoding routines
 
-The following modules does not have much to do with WWW, but are
-included just because I am lazy and did not bother to make separate
-distributions for them.  Regard them as bonus.
+The following modules does not have much to do with the World Wide
+Web, but are included just because I am lazy and did not bother to
+make separate distributions for them.  Regard them as bonus, provided
+free for your pleasure.
 
  Font::AFM          -- Parse Adobe Font Metric files
  File::CounterFile  -- Persistent counter class
@@ -548,15 +570,15 @@ are implemented.
 
 =head1 BUGS
 
-The library can not handle multiple simultaneous requests.  The HTML::
-modules are still experimental.  Also, check out what's left in the
-TODO file.
+The library can not handle multiple simultaneous requests yet.  The
+HTML:: modules are still experimental.  Also, check out what's left in
+the TODO file.
 
 =head1 ACKNOWLEDGEMENTS
 
-This package ows a lot in motivation, design, and code, to the
+This package owes a lot in motivation, design, and code, to the
 libwww-perl library for Perl 4, maintained by Roy Fielding
-<fielding@ics.uci.edu>.
+E<lt>fielding@ics.uci.edu>.
 
 That package used work from Alberto Accomazzi, James Casey, Brooks
 Cutter, Martijn Koster, Oscar Nierstrasz, Mel Melchner, Gertjan van
@@ -579,7 +601,7 @@ modify it under the same terms as Perl itself.
 
 =head1 AVAILABILITY
 
-The latest version of this library is likly to be available from:
+The latest version of this library is likely to be available from:
 
  http://www.sn.no/libwww-perl/
 

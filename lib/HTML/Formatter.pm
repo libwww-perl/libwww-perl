@@ -70,13 +70,17 @@ sub h6_end   { shift->header_end(6, @_) }
 
 sub br_start
 {
-    shift->vspace(0);
+    my $formatter = shift;
+    $formatter->vspace(0);
+    $formatter->eat_leading_space;
+    
 }
 
 sub hr_start
 {
     my $formatter = shift;
     $formatter->vspace(1);
+    $formatter->eat_leading_space;
 }
 
 sub img_start
@@ -237,6 +241,14 @@ sub address_end
     $formatter->vspace(1);
 }
 
+sub nobr_start
+{
+    1;
+}
+
+sub nobr_end
+{
+}
 
 # Handling of list elements
 

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.21 1996/05/09 09:33:07 aas Exp $
+# $Id: Parse.pm,v 1.22 1996/05/09 10:11:52 aas Exp $
 
 =head1 NAME
 
@@ -35,13 +35,6 @@ The parser is able to parse HTML text incrementally.  The document can
 be given to parse_html() in arbitrary pieces.  The result should be
 the same.
 
-If you want to free the memory assosiated with the HTML parse tree,
-then you will have to delete it explicitly.  The reason for this is
-that perl currently has no proper garbage collector, but depends on
-reference counts in the objects.  This scheme fails because the parse
-tree contains circular references (parents have references to their
-children and children have a reference to their parent).
-
 The following variables control how parsing takes place:
 
 =over 4
@@ -73,6 +66,21 @@ false.
 
 =back
 
+=head1 BUGS
+
+Does not parse tag attributes with the ">" character in the value
+correctly:
+
+   <img src="..." alt="4.4 > V">
+
+If you want to free the memory assosiated with the HTML parse tree,
+then you will have to delete it explicitly.  The reason for this is
+that perl currently has no proper garbage collector, but depends on
+reference counts in the objects.  This scheme fails because the parse
+tree contains circular references (parents have references to their
+children and children have a reference to their parent).
+
+
 =head1 SEE ALSO
 
 L<HTML::Element>, L<HTML::Entities>
@@ -99,7 +107,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 

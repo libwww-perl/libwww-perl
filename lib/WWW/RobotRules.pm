@@ -1,4 +1,6 @@
-# $Id: RobotRules.pm,v 1.4 1996/02/26 18:39:34 aas Exp $
+# $Id: RobotRules.pm,v 1.5 1996/03/18 17:48:43 aas Exp $
+
+package WWW::RobotRules;
 
 =head1 NAME
 
@@ -6,42 +8,54 @@ WWW::RobotsRules - Parse robots.txt files
 
 =head1 SYNOPSIS
 
- $robotsrules = new WWW::RobotRules 'MOMspider/1.0';
+ require WWW::RobotRules;
+ my $robotsrules = new WWW::RobotRules 'MOMspider/1.0';
 
- $robotsrules->parse($url, $content);
-    
+ use LWP::Simple qw(get);
+
+ $url = "http://some.place/robots.txt";
+ my $robots_txt = get $url;
+ $robotsrules->parse($url, $robots_txt);
+
+ $url = "http://some.other.place/robots.txt";
+ my $robots_txt = get $url;
+ $robotsrules->parse($url, $robots_txt);
+
+ # Now we are able to check if a URL is valid for those servers that
+ # we have obtained and parsed "robots.txt" files for.
  if($robotsrules->allowed($url)) {
+     $c = get $url;
      ...
  }
 
 =head1 DESCRIPTION
 
-This module parses a "/robots.txt" file as specified in
+This module parses a F</robots.txt> file as specified in
 "A Standard for Robot Exclusion", described in
-http://web.nexor.co.uk/users/mak/doc/robots/norobots.html.
+<URL:http://info.webcrawler.com/mak/projects/robots/norobots.html>
+Webmasters can use the F</robots.txt> file to disallow conforming
+robots access to parts of their WWW server.
 
-Webmasters can use this file to disallow conforming robots access to
-parts of their WWW server.
+The parsed file is kept in the WWW::RobotRules object, and this object
+provide methods to check if access to a given URL is prohibited.  The
+same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
-The parsed file is kept as a Perl object that support methods to
-check if a given URL is prohibited.
-
-Note that the same RobotRules object can parse multiple files.
+=head1 METHODS
 
 =cut
 
-package WWW::RobotRules;
-
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
+
 
 use URI::URL ();
 use strict;
 
 
-=head2 new RobotRules 'MOMspider/1.0'
+=head2 $rules = new WWW::RobotRules 'MOMspider/1.0'
 
-The argument given to C<new()> is the name of the robot.
+This is the constructor for WWW::RobotRules objects.  The argument
+given to new() is the name of the robot.
 
 =cut
 
@@ -56,17 +70,17 @@ sub new {
     }, $class;
 }
 
-=head2 parse($url, $content)
+=head2 $rules->parse($url, $content)
 
-Parse takes the URL that was used to retrieve the F</robots.txt>
-file, and the contents of the file.
+The parse() method takes as arguments the URL that was used to
+retrieve the F</robots.txt> file, and the contents of the file.
 
 =cut
 
 sub parse {
     my($self, $url, $txt) = @_;
 
-    $url = new URI::URL $url  unless ref($url);	# make it URL
+    $url = new URI::URL $url unless ref($url);	# make it URL
 
     my $hostport = $url->host . ':' . $url->port;
 
@@ -106,8 +120,10 @@ sub parse {
 	    }
 	}
 	elsif (/^Disallow:\s*(.*)\s*$/i) {
-	    warn "Disallow without preceding User-agent" unless 
-		defined $ua;
+	    unless (defined $ua) {
+		warn "RobotRules: Disallow without preceding User-agent\n";
+		$isAnon = 1;  # assume that User-agent: * was intended
+	    }
 
 	    my $full_path;
 	    if ($1 eq '') {
@@ -126,7 +142,7 @@ sub parse {
 	    }
 	}
 	else {
-	    warn "Unexpected line: $_\n";
+	    warn "RobotRules: Unexpected line: $_\n";
 	}
     }
 
@@ -150,7 +166,7 @@ sub is_me {
     return $ua =~ /$me/i;
 }
 
-=head2 allowed($url)
+=head2 $rules->allowed($url)
 
 Returns TRUE if this robot is allowed to retrieve this URL.
 
@@ -170,9 +186,81 @@ sub allowed {
     my $rule;
     for $rule (@{ $self->{'rules'}{$hostport}}) {
 	return 1 if ($rule eq '');
-	return 0 if ($str =~ /^$rule/);
+	return 0 if ($str =~ /^\Q$rule/);
     }
     return 1;
 }
 
 1;
+
+__END__
+
+=head1 ROBOTS.TXT
+
+The format and semantics of the "/robots.txt" file are as follows
+(this is an edited abstract of
+<URL:http://info.webcrawler.com/mak/projects/robots/norobots.html>):
+
+The file consists of one or more records separated by one or more
+blank lines. Each record contains lines of the form
+
+  <field-name>: <value>
+
+The field name is case insensitive.  Text after the '#' character on a
+line is ignored during parsing.  This is used for comments.  The
+following <field-names> can be used:
+
+=over 3
+
+=item User-Agent
+
+The value of this field is the name of the robot the record is
+describing access policy for.  If more than one I<User-Agent> field is
+present the record describes an identical access policy for more than
+one robot. At least one field needs to be present per record.  If the
+value is '*', the record describes the default access policy for any
+robot that has not not matched any of the other records.
+
+=item Disallow
+
+The value of this field specifies a partial URL that is not to be
+visited. This can be a full path, or a partial path; any URL that
+starts with this value will not be retrieved
+
+=back
+
+=head2 Examples
+
+The following example "/robots.txt" file specifies that no robots
+should visit any URL starting with "/cyberworld/map/" or "/tmp/":
+
+  # robots.txt for http://www.site.com/
+  
+  User-agent: *
+  Disallow: /cyberworld/map/ # This is an infinite virtual URL space
+  Disallow: /tmp/ # these will soon disappear
+
+This example "/robots.txt" file specifies that no robots should visit
+any URL starting with "/cyberworld/map/", except the robot called
+"cybermapper":
+
+  # robots.txt for http://www.site.com/
+  
+  User-agent: *
+  Disallow: /cyberworld/map/ # This is an infinite virtual URL space
+  
+  # Cybermapper knows where to go.
+  User-agent: cybermapper
+  Disallow:
+
+This example indicates that no robots should visit this site further:
+
+  # go away
+  User-agent: *
+  Disallow: /
+
+=head1 SEE ALSO
+
+L<LWP::RobotUA>
+
+=cut

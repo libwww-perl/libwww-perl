@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.26 1999/03/20 07:37:35 gisle Exp $
+# $Id: Request.pm,v 1.27 1999/11/17 20:38:14 gisle Exp $
 
 package HTTP::Request;
 
@@ -39,7 +39,7 @@ The following additional methods are available:
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -101,6 +101,7 @@ sub uri
 	if (!defined $uri) {
 	    # that's ok
 	} elsif (ref $uri) {
+	    $uri = $uri->clone;
 	    unless ($HTTP::URI_CLASS eq "URI") {
 		# Argh!! Hate this... old LWP legacy!
 		eval { $uri = $uri->abs; };

@@ -1,3 +1,11 @@
+Thu Aug 17 1995   Gisle Aas <aas@oslonett.no>
+
+ o  $ua->redirectOK() for checking redirects
+
+ o  reorganized tests in the "t" directory.
+
+
+
 Fri Aug 11 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 0.03

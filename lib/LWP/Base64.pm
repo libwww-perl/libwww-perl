@@ -1,17 +1,17 @@
-#!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.7 1995/08/17 13:43:48 aas Exp $
-
+# $Id: Base64.pm,v 1.8 1995/08/22 18:03:32 aas Exp $
 
 package LWP::Base64;
 
 =head1 NAME
 
-LWP::Base64 - Base 64 encoding/decoding routines
+Base64encode - Encode string using base64 encoding
+
+Base64decode - Decode string from base64 encoding
 
 =head1 SYNOPSIS
 
- use LWP::Base64 qw(Base64encode Base64decode);
+ use LWP::Base64;
  
  $encoded = Base64encode('Aladdin:open sesame');
  $decoded = Base64decode($encoded);
@@ -22,182 +22,46 @@ This package provides function to encode and decode strings into
 Base64 encoding specified in RFC 1521 section 5.2, and used by HTTP
 1.0 Basic Authentication.
 
-=head1 AUTHORS
-
-Martijn Koster <m.koster@nexor.co.ukl> and Joerg Reichelt
-<j.reichelt@nexor.co.uk>
-
-=head1 COPYRIGHT
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-IN NO EVENT SHALL THE AUTHORS BE LIABLE TO ANY PARTY FOR DIRECT,
-INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
-OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION (INCLUDING, BUT NOT
-LIMITED TO, LOST PROFITS) EVEN IF THE AUTHORS HAVE BEEN ADVISED OF
-THE POSSIBILITY OF SUCH DAMAGE. 
-
-=head1 BUGS
-
-Did someone else not write one of these?
-
-This is basically C-style code; Perl's pack/unpack using uuencode
-could be cleverly applied, but advantages of either aproach have
-not yet been evaluated.
-
-No performance analysis done on this at all. The index in
-Base64decodeAux might be faster with a hash table or indexable array.
-
-Does not honour the "The output stream (encoded bytes) must be
-represented in lines of no more than 76 characters each" yet,
-as I am not at all sure that is what WWW servers expect...
-
-=head1 FUNCTIONS
-
 =cut
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(Base64encode Base64decode);
+@EXPORT = qw(Base64encode Base64decode);
 
-$VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
 
-@Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
-$Base64CharacterString = join('', @Base64CharacterSet);
-
-
-=head2 Base64encode()
-
-Encode a string using Base64.
-
-=cut
+use integer;
 
 sub Base64encode
 {
-    my $str = shift;
-    $str =~ s/(.{1,3})/_Base64encodeAux($1)/ge;    
-#   $str =~ s/(.{76})/$1\n/g; # rfc 1521 dictates maximum of 76 chars
-    $str;
+    my $res = "";
+    while ($_[0] =~ /(.{1,45})/gs) {
+	$res .= substr(pack('u', $1), 1);
+	chop($res);
+    }
+    $res =~ tr| -_|A-Za-z0-9+/|;
+    # fix padding at the end
+    my $padding = (3 - length($_[0]) % 3) % 3;
+    $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
+    $res;
 }
 
-# _Base64encodeAux()
-#
-# Private helper function for Base64encode.
-#
-# Takes a string of three characters, and encodes
-# it into four characters by taking 6 bits at a
-# time, and using a dictionary @chars
-#
-sub _Base64encodeAux
-{
-    my $threes = shift;
-    @threes = split('', $threes);
-
-    # can have 1, 2, or three characters,
-    # missing characters are undefined.
-
-    my $result = '';
-
-    $unpacked[0] = (unpack('C', $threes[0]))[0];
-
-    my $s0 = ($unpacked[0] & 0xfc) >> 2;
-    $result .= $Base64CharacterSet[$s0];
-
-    my $s1 = ($unpacked[0] & 0x03) << 4;
-
-    if(! defined $threes[1]) {
-        $result .= $Base64CharacterSet[$s1] . '==';
-    }
-    else {
-        $unpacked[1] = (unpack('C', $threes[1]))[0];
-
-        my $s2 = ($unpacked[1] & 0xf0) >> 4;
-        my $s3 = ($unpacked[1] & 0x0f) << 2;
-
-        $result .= $Base64CharacterSet[$s1 | $s2];
-
-        if(!defined $threes[2]) {
-            $result .= $Base64CharacterSet[$s3] . '=';
-        }
-        else {
-            $unpacked[2] = (unpack('C', $threes[2]))[0];
-
-            my $s4 = ($unpacked[2] & 0xc0) >> 6;
-            my $s5 = ($unpacked[2] & 0x3f);
-
-            $result .= $Base64CharacterSet[$s3 | $s4];
-            $result .= $Base64CharacterSet[$s5];
-        }
-    }
-
-    $result;
-}
-
-
-=head2 Base64decode()
-
-Decode a string encoded using Base64.
-Whitespace in the string is ignored.
-The routine will die on illegal characters.
-
-=cut
 
 sub Base64decode
 {
+    local($^W) = 0; # unpack("u",...) gives bogus warning in 5.001m
+
     my $str = shift;
-    $str =~ s/\s+//g;
-    $str =~ s/(.{2,4})/_Base64decodeAux($1)/ge;
-    $str;
-}
-
-sub _Base64decodeAux
-{
-    my $encoded = shift;
-    my $result = '';
-    my @encoded = split('', $encoded);
-
-    my $i0 = index($Base64CharacterString, $encoded[0]);
-    my $i1 = index($Base64CharacterString, $encoded[1]);
-
-    my $error = 'Error in Base64 encoding';
-
-    die "$error: invalid character '$encoded[0]'" if ($i0 < 0);
-    die "$error: invalid character '$encoded[1]'" if ($i1 < 0);
-
-    my $v0 = $i0 << 2 | ($i1 & 0x30) >> 4;
-    $result .= pack('C', $v0);
-
-    if(! defined $encoded[2] || $encoded[2] eq '=') {
-        if($i1 & 0xf) {
-            die "$error: bits set in remaining part of 2nd character";
-        }
+    my $res = "";
+   
+    $str =~ tr|A-Za-z0-9+/||cd;             # remove non-base64 chars (padding)
+    $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
+    while ($str =~ /(.{1,60})/gs) {
+	my $len = chr(32 + length($1)*3/4); # compute length byte
+	$res .= unpack("u", $len . $1 );    # uudecode
     }
-    else {
-        my $i2 = index($Base64CharacterString, $encoded[2]);
-
-        die "$error: invalid character '$encoded[2]'" if ($i2 < 0);
-
-        my $v1 = ($i1 & 0x0f) << 4 | ($i2 & 0x3c) >> 2;
-        $result .= pack('C', $v1);
-
-        if(! defined $encoded[3] || $encoded[3] eq '=') {
-            if($i2 & 0x03) {
-                die "$error: bits set in remaining part of 3rd character";
-            }
-        }
-        else {
-            my $i3 = index($Base64CharacterString, $encoded[3]);
-
-            die "$error: invalid character '$encoded[3]'" if ($i3 < 0);
-
-            my $v2 = ($i2 & 0x03) << 6 | $i3;
-            $result .= pack('C', $v2);
-        }
-    }
-
-    $result;
+    $res;
 }
 
 1;

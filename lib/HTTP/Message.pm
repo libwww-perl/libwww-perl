@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.9 1996/02/05 17:59:41 aas Exp $
+# $Id: Message.pm,v 1.10 1996/02/26 19:04:29 aas Exp $
 
 package HTTP::Message;
 
@@ -41,7 +41,7 @@ sub new
     }
     $content = '' unless defined $content;
     bless {
-        '_header'  => $header,
+        '_headers' => $header,
         '_content' => $content,
     }, $class;
 }
@@ -56,26 +56,26 @@ Returns a copy of the object.
 sub clone
 {
     my $self  = shift;
-    my $clone = new HTTP::Message $self->{'_header'}, $self->{'_content'};
+    my $clone = new HTTP::Message $self->{'_headers'}, $self->{'_content'};
     $clone;
 }
 
 =head2 content([$content])
 
-=head2 addContent($data)
+=head2 add_content($data)
 
 These methods manages the content of the message.  The C<content()>
 method sets the content if an argument is given.  If no argument is
 given the content is not touched.  In either case the previous content
 is returned.
 
-The addContent() methods appends data to the content.
+The add_content() methods appends data to the content.
 
 =cut
 
 sub content   { shift->_elem('_content',  @_); }
 
-sub addContent
+sub add_content
 {
     my $self = shift;
     if (ref($_[0])) {
@@ -85,27 +85,36 @@ sub addContent
     }
 }
 
+sub as_string
+{
+    "";  # To be overridden in subclasses
+}
 
 =head2 header($field [, $val]))
 
-=head2 pushHeader($field, $val)
+=head2 push_header($field, $val)
 
-=head2 removeHeader($field)
+=head2 remove_header($field)
 
-=head2 headerAsString([$endl])
+=head2 headers_as_string([$endl])
 
 These methods provide easy access to the fields for the request
 header.  Refer to L<HTTP::Headers> for details.
 
 =cut
 
-# forward these to the header member
-sub header          { shift->{'_header'}->header(@_);       }
-sub pushHeader      { shift->{'_header'}->pushHeader(@_);   }
-sub removeHeader    { shift->{'_header'}->removeHeader(@_); }
-sub headerAsString  { shift->{'_header'}->asString(@_);     }
+sub headers_as_string  { shift->{'_headers'}->as_string(@_);     }
 
-
+# delegate all other method calls the the _headers object.
+sub AUTOLOAD
+{
+    my $self = shift;
+    #print STDERR "DELEGATE $AUTOLOAD\n";
+    return if $AUTOLOAD =~ /::DESTROY$/;
+    $AUTOLOAD =~ s/^(\w+::)+//;  # Remove the package name.
+    # Pass the message to the delegate.
+    $self->{'_headers'}->$AUTOLOAD(@_);
+}
 
 # Private method to access members in %$self
 sub _elem

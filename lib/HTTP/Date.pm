@@ -1,6 +1,246 @@
-# $Id: Date.pm,v 1.29 1998/02/12 23:13:47 aas Exp $
-#
-package HTTP::Date;
+package HTTP::Date;  # $Date: 1999/04/23 13:07:11 $
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+
+require 5.002;
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw(time2str str2time);
+@EXPORT_OK = qw(time2iso time2isoz);
+
+use strict;
+use Time::Local ();
+
+use vars qw(@DoW @MoY %MoY);
+@DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
+@MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+@MoY{map lc, @MoY} = (1..12);
+
+my %zulu_zone = (gmt => 0, utc => 0, ut => 0, z => 0);
+
+
+sub time2str (;$)
+{
+    my $time = shift;
+    $time = time unless defined $time;
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($time);
+    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
+	    $DoW[$wday],
+	    $mday, $MoY[$mon], $year+1900,
+	    $hour, $min, $sec);
+}
+
+
+sub str2time ($;$)
+{
+    my @d = &str2date;
+    return unless @d;
+    $d[0] -= 1900;  # year
+    $d[1]--;        # month
+
+    # timelocal() seems to go into an infinite loop if it is given out
+    # of range parameters.  Let's check the year at least.
+    # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
+    return if $d[0] > 138;
+    return if $d[0] <  70;  # 1970 is Unix epoch
+
+    my $mktime_func = pop(@d) ? \&Time::Local::timegm
+	                      : \&Time::Local::timelocal;
+    eval { &$mktime_func(reverse @d) };
+}
+
+
+sub str2date ($;$)
+{
+    local($_) = shift;
+    return unless defined;
+    my $default_zone = shift;
+
+    s/^\s+//;  # kill leading space
+    s/^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*,?\s*//i; # Useless weekday
+
+    my($day, $mon, $yr, $hr, $min, $sec, $tz, $aorp);
+
+  PARSEDATE: {
+      # Then we are able to check for most of the formats with this regexp
+      ($day,$mon,$yr,$hr,$min,$sec,$tz) =
+	/^
+	 (\d\d?)               # day
+	    (?:\s+|[-\/])
+	 (\w+)                 # month
+	    (?:\s+|[-\/])
+	 (\d+)                 # year
+	 (?:
+	       (?:\s+|:)       # separator before clock
+	    (\d\d?):(\d\d)     # hour:min
+	    (?::(\d\d))?       # optional seconds
+	 )?                    # optional clock
+	    \s*
+	 ([-+]?\d{2,4}|GMT|gmt)? # timezone
+	    \s*$
+	/x
+	  and last PARSEDATE;
+
+      # Try the ctime and asctime format
+      ($mon, $day, $hr, $min, $sec, $tz, $yr) =
+	/^
+	 (\w{1,3})             # month
+	    \s+
+	 (\d\d?)               # day
+	    \s+
+	 (\d\d?):(\d\d)        # hour:min
+	 (?::(\d\d))?          # optional seconds
+	    \s+
+	 (?:(GMT|gmt)\s+)?     # optional GMT timezone
+	 (\d+)                 # year
+	    \s*$               # allow trailing whitespace
+	/x
+	  and last PARSEDATE;
+
+      # Then the Unix 'ls -l' date format
+      ($mon, $day, $yr, $hr, $min, $sec) =
+	/^
+	 (\w{3})               # month
+	    \s+
+	 (\d\d?)               # day
+	    \s+
+	 (?:
+	    (\d\d\d\d) |       # year
+	    (\d{1,2}):(\d{2})  # hour:min
+            (?::(\d\d))?       # optional seconds
+	 )
+	 \s*$
+       /x
+	 and last PARSEDATE;
+
+      # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
+      ($yr, $mon, $day, $hr, $min, $sec, $tz) =
+	/^
+	  (\d{4})              # year
+	     [-\/]?
+	  (\d\d?)              # numerical month
+	     [-\/]?
+	  (\d\d?)              # day
+	 (?:
+	       (?:\s+|:|T|-)   # separator before clock
+	    (\d\d?):?(\d\d)    # hour:min
+	    (?::?(\d\d))?      # optional seconds
+	 )?                    # optional clock
+	    \s*
+	 ([-+]?\d\d?:?(:?\d\d)?
+	  |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
+	    \s*$
+	/x
+	  and last PARSEDATE;
+
+      # Windows 'dir' 11-12-96  03:52PM
+      ($mon, $day, $yr, $hr, $min, $aorp) =
+        /^
+          (\d{2})                # numerical month
+             -
+          (\d{2})                # day
+             -
+          (\d{2})                # year
+             \s+
+          (\d\d?):(\d\d)([apAP][mM])  # hour:min AM or PM
+             \s*$
+        /x
+          and last PARSEDATE;
+
+      # If it is not recognized by now we give up
+      return;
+    }
+
+    # Translate month name to number
+    if ($mon =~ /^\d+$/) {
+	# numeric month
+	return if $mon < 1 || $mon > 12;
+    } else {
+	$mon = $MoY{lc $mon} || return;
+    }
+
+    # If the year is missing, we assume some date before the current,
+    # because of the formats we support such dates are mostly present
+    # on "ls -l" listings.
+    unless (defined $yr) {
+	my($cur_mon, $yr) = (localtime)[4, 5];
+	$yr += 1900;
+	$yr-- if $mon > $cur_mon;
+    }
+
+    # Then we check if the year is acceptable
+    if (length($yr) < 3) {
+	# Find "obvious" year
+	my $cur_yr = (localtime)[5] + 1900;
+	my $m = $cur_yr % 100;
+	my $tmp = $yr;
+
+	$yr += $cur_yr - $m;
+	$m -= $tmp;
+	$yr += ($m > 0) ? 100 : -100
+	    if abs($m) > 50;
+    }
+
+    # Make sure clock elements are defined
+    for ($sec, $min, $hr) {  $_ = 0 unless defined   }
+
+    # Compensate for AM/PM
+    if ($aorp) {
+	$aorp = uc $aorp;
+	$hr = 0 if $hr == 12 && $aorp eq 'AM';
+	$hr += 12 if $aorp eq 'PM' && $hr != 12;
+    }
+
+    my $gmt;
+    $tz = shift unless defined $tz;
+    if (defined $tz) {
+	$gmt++;
+
+	my $offset;
+	if (exists $zulu_zone{lc $tz}) {
+	    # ok
+	    $offset = 0;
+	} elsif ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
+	    $offset = 3600 * $2;
+	    $offset += 60 * $3 if $3;
+	    $offset *= -1 if $1 && $1 ne '-';
+	} else {
+	    require Time::Zone;
+	    die;
+	    $offset = Time::Zone::tz_offset($tz);
+	}
+	if ($offset) {
+	    die "NYI";
+	    
+	}
+    }
+	
+    wantarray ? ($yr, $mon, $day, $hr, $min, $sec, $gmt)
+	      : sprintf("%04d-%02d-%02d %02d:%02d:%02d%s",
+			$yr, $mon, $day, $hr, $min, $sec, $gmt?"Z":"");
+}
+
+sub time2iso (;$)
+{
+    my $time = shift;
+    $time = time unless defined $time;
+    my($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
+    sprintf("%04d-%02d-%02d %02d:%02d:%02d",
+	    $year+1900, $mon+1, $mday, $hour, $min, $sec);
+}
+
+sub time2isoz (;$)
+{
+    my $time = shift;
+    $time = time unless defined $time;
+    my($sec,$min,$hour,$mday,$mon,$year) = gmtime($time);
+    sprintf("%04d-%02d-%02d %02d:%02d:%02dZ",
+            $year+1900, $mon+1, $mday, $hour, $min, $sec);
+}
+
+1;
+
+__END__
 
 =head1 NAME
 
@@ -26,7 +266,7 @@ The time2str() function converts a machine time (seconds since epoch)
 to a string.  If the function is called without an argument, it will
 use the current time.
 
-The string returned is in the format defined by the HTTP/1.0
+The string returned is in the format defined by the HTTP
 specification.  This is a fixed length subset of the format defined by
 RFC 1123, represented in Universal Time (GMT).  An example of this
 format is:
@@ -85,9 +325,6 @@ matching date I<before> current time.
 
 =head1 BUGS
 
-Non-numerical time zones (like MET, PST) are all treated like GMT.
-Do not use them.  HTTP does not use them.
-
 The str2time() function has been told how to parse far too many
 formats.  This makes the module name misleading. To be sure it is
 really misleading you can also import the time2iso() and time2isoz()
@@ -96,235 +333,9 @@ strings (YYYY-MM-DD hh:mm:ss).
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997, Gisle Aas
+Copyright 1995-1999, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
-
-
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
-sub Version { $VERSION; }
-
-require 5.002;
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT = qw(time2str str2time);
-@EXPORT_OK = qw(time2iso time2isoz);
-
-use Time::Local ();
-
-use strict;
-use vars qw(@DoW @MoY %MoY);
-
-#@DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
-@DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
-@MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-# Build %MoY hash
-my $i = 0;
-foreach(@MoY) {
-   $MoY{lc $_} = $i++;
-}
-
-my($current_month, $current_year) = (localtime)[4, 5];
-
-
-
-
-sub time2str (;$)
-{
-   my $time = shift;
-   $time = time unless defined $time;
-   my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($time);
-   sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
-	   $DoW[$wday],
-	   $mday, $MoY[$mon], $year+1900,
-	   $hour, $min, $sec);
-}
-
-
-
-sub str2time ($;$)
-{
-   local($_) = shift;
-   return undef unless defined;
-   my($default_zone) = @_;
-
-   # Remove useless weekday, if it exists
-   s/^\s*(?:sun|mon|tue|wed|thu|fri|sat)\w*,?\s*//i;
-
-   my($day, $mon, $yr, $hr, $min, $sec, $tz, $aorp);
-   my $offset = 0;  # used when compensating for timezone
-
- PARSEDATE: {
-      # Then we are able to check for most of the formats with this regexp
-      ($day,$mon,$yr,$hr,$min,$sec,$tz) =
-	/^\s*
-	 (\d\d?)               # day
-	    (?:\s+|[-\/])
-	 (\w+)                 # month
-	    (?:\s+|[-\/])
-	 (\d+)                 # year
-	 (?:
-	       (?:\s+|:)       # separator before clock
-	    (\d\d?):(\d\d)     # hour:min
-	    (?::(\d\d))?       # optional seconds
-	 )?                    # optional clock
-	    \s*
-	 ([-+]?\d{2,4}|GMT|gmt)? # timezone
-	    \s*$
-	/x
-	  and last PARSEDATE;
-
-      # Try the ctime and asctime format
-      ($mon, $day, $hr, $min, $sec, $tz, $yr) =
-	/^\s*                  # allow intial whitespace
-	 (\w{1,3})             # month
-	    \s+
-	 (\d\d?)               # day
-	    \s+
-	 (\d\d?):(\d\d)        # hour:min
-	 (?::(\d\d))?          # optional seconds
-	    \s+
-	 (?:(GMT|gmt)\s+)?     # optional GMT timezone
-	 (\d+)                 # year
-	    \s*$               # allow trailing whitespace
-	/x
-	  and last PARSEDATE;
-
-      # Then the Unix 'ls -l' date format
-      ($mon, $day, $yr, $hr, $min, $sec) =
-	/^\s*
-	 (\w{3})               # month
-	    \s+
-	 (\d\d?)               # day
-	    \s+
-	 (?:
-	    (\d\d\d\d) |       # year
-	    (\d{1,2}):(\d{2})  # hour:min
-            (?::(\d\d))?       # optional seconds
-	 )
-	 \s*$
-       /x
-	 and last PARSEDATE;
-
-      # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
-      ($yr, $mon, $day, $hr, $min, $sec, $tz) =
-	/^\s*
-	  (\d{4})              # year
-	     [-\/]?
-	  (\d\d?)              # numerical month
-	     [-\/]?
-	  (\d\d?)              # day
-	 (?:
-	       (?:\s+|:|T|-)   # separator before clock
-	    (\d\d?):?(\d\d)    # hour:min
-	    (?::?(\d\d))?      # optional seconds
-	 )?                    # optional clock
-	    \s*
-	 ([-+]?\d\d?:?(:?\d\d)?
-	  |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
-	    \s*$
-	/x
-	  and last PARSEDATE;
-
-      # Windows 'dir' 11-12-96  03:52PM
-      ($mon, $day, $yr, $hr, $min, $aorp) =
-        /^\s*
-          (\d{2})                # numerical month
-             -
-          (\d{2})                # day
-             -
-          (\d{2})                # year
-             \s+
-          (\d\d?):(\d\d)([apAP][mM])  # hour:min AM or PM
-             \s*$
-        /x
-          and last PARSEDATE;
-
-      # If it is not recognized by now we give up
-      return undef;
-   }
-
-   # Translate month name to number
-   if ($mon =~ /^\d+$/) {
-     # numeric month
-     return undef if $mon < 1 || $mon > 12;
-     $mon--;
-   } else {
-     $mon = lc $mon;
-     return undef unless exists $MoY{$mon};
-     $mon = $MoY{$mon};
-   }
-
-   # If the year is missing, we assume some date before the current,
-   # because these date are mostly present on "ls -l" listings.
-   unless (defined $yr) {
-	$yr = $current_year;
-	$yr-- if $mon > $current_month;
-    }
-
-   # Then we check if the year is acceptable
-   return undef if $yr > 99 && $yr < 1900;  # We ignore these years
-   $yr += 100 if $yr < 50;  # a stupid thing to do???
-   $yr -= 1900 if $yr >= 1900;
-   # The $yr is now relative to 1900 (as expected by timelocal())
-
-   # timelocal() seems to go into an infinite loop if it is given out
-   # of range parameters.  Let's check the year at least.
-
-   # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
-   return undef if $yr > 138;
-   return undef if $yr <  70;  # 1970 is Unix epoch
-
-   # Compensate for AM/PM
-   if ($aorp) {
-       $aorp = uc $aorp;
-       $hr = 0 if $hr == 12 && $aorp eq 'AM';
-       $hr += 12 if $aorp eq 'PM' && $hr != 12;
-   }
-
-   # Make sure things are defined
-   for ($sec, $min, $hr) {  $_ = 0 unless defined   }
-
-   # Should we compensate for the timezone?
-   $tz = $default_zone unless defined $tz;
-   return eval {Time::Local::timelocal($sec, $min, $hr, $day, $mon, $yr)}
-     unless defined $tz;
-
-   # We can calculate offset for numerical time zones
-   if ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
-       $offset = 3600 * $2;
-       $offset += 60 * $3 if $3;
-       $offset *= -1 if $1 && $1 ne '-';
-   }
-   eval{Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset};
-}
-
-
-
-# And then some bloat because I happen to like the ISO 8601 time
-# format.
-
-sub time2iso (;$)
-{
-   my $time = shift;
-   $time = time unless defined $time;
-   my($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
-   sprintf("%04d-%02d-%02d %02d:%02d:%02d",
-	   $year+1900, $mon+1, $mday, $hour, $min, $sec);
-}
-
-
-sub time2isoz (;$)
-{
-    my $time = shift;
-    $time = time unless defined $time;
-    my($sec,$min,$hour,$mday,$mon,$year) = gmtime($time);
-    sprintf("%04d-%02d-%02d %02d:%02d:%02dZ",
-            $year+1900, $mon+1, $mday, $hour, $min, $sec);
-}
-
-1;
-

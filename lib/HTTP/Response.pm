@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.48 2004/04/09 15:07:04 gisle Exp $
+# $Id: Response.pm,v 1.49 2004/04/09 20:30:41 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -128,7 +128,7 @@ EOM
 sub current_age
 {
     my $self = shift;
-    # Implementation of <draft-ietf-http-v11-spec-07> section 13.2.3
+    # Implementation of RFC 2616 section 13.2.3
     # (age calculations)
     my $response_time = $self->client_date;
     my $date = $self->date;
@@ -190,9 +190,9 @@ sub freshness_lifetime
 	    }
 	    elsif ($h_exp > 24 * 3600) {
 		# Should give a warning if more than 24 hours according to
-		# <draft-ietf-http-v11-spec-07> section 13.2.4, but I don't
-		# know how to do it from this function interface, so I just
-		# make this the maximum value.
+		# RFC 2616 section 13.2.4, but I don't know how to do it
+		# from this function interface, so I just make this the
+		# maximum value.
 		return 24 * 3600;
 	    }
 	    return $h_exp;

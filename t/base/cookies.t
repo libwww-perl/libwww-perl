@@ -163,7 +163,7 @@ print "ok 7\n";
 
 
 #-------------------------------------------------------------------
-# Then we test with the examples from draft-ietf-http-state-man-mec-03.txt
+# Then we test with the examples from RFC 2965.
 #
 # 5.  EXAMPLES
 

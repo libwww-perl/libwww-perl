@@ -1,4 +1,4 @@
-#!/local/bin/perl -w
+#!/usr/local/bin/perl -w
 
 # This is a crude hack to parse the HTML DTDs in order to generate
 # a HTML parser in perl.  The output is a perl structure that describe
@@ -8,7 +8,7 @@
 #
 # Author: Gisle Aas
 #
-# $Id: dtd2pm.pl,v 1.3 1996/09/17 12:40:27 aas Exp $
+# $Id: dtd2pm.pl,v 1.4 1998/03/23 09:46:37 aas Exp $
 #
 # Disclaimer: I am not an SGML expert and don't really understand how
 # to read those damn DTDs.
@@ -16,7 +16,7 @@
 $VERBOSE = 0;
 
 undef($/);
-$DTD = "HTML32.dtd";
+$DTD = shift || "HTML32.dtd";
 
 open(DTD, $DTD) or die "Can't open $DTD: $!";
 $_ = <DTD>;
@@ -24,6 +24,13 @@ close(DTD);
 $| = 1;
 
 ($intro) = /<!\s*--(.*?)--\s*>/s;
+#
+# added this because HTML4.0 as downloaded
+# doesn't seem to have an HTML.Version ENTITY
+# so we got an unitialised variable warning
+# on %entity{%html.version} later
+# -- pgm
+($dtdversion) = /\-\/\/W3C\/\/DTD\s+([^\/]*)\/\/EN/;
 
 #print $_;
 
@@ -36,9 +43,16 @@ while (s/^\s*<!//) {
    s/^([^>]*)>//;
    $c = $1;
    while (1) {
+      # played with different things,
+      # but the KISS principle suggests
+      # we simply eliminate lines for
+      # attributes that are reserved for 
+      # possible future use
+      # worry about parsing them when they happen !  -pgm
+      $c =~ s/\s*[^\-]+\-\-\s*reserved\s+for\s+possible\s+future\s+use\s*\-\-//gs;
       $c =~ s/--.*?--//gs;  # remove comments
       if ($c =~ /--/) {
-          # we really did read to little
+          # we really did read too little
           s/([^>]*)>//;
           $c .= $1
       } else {
@@ -132,9 +146,17 @@ print STDERR "?: ", substr($_, 0, 200), "\n" if length $_;
 
 print "##### Do not edit!!  Auto-generated from $DTD\n\n";
 
-print "package HTML::DTD;  # <!DOCTYPE HTML PUBLIC \"$entity{'%html.version'}\">\n\n";
+# was : print "package HTML::DTD;  # <!DOCTYPE HTML PUBLIC \"$entity{'%html.version'}\">\n\n";
+#
+# changed to:
+print "package HTML::DTD;  # <!DOCTYPE HTML PUBLIC \"$dtdversion\">\n\n";
+# --pgm
 $intro =~ s/^[ \t]*/\# /gm;
 print "$intro\n\n";
+
+# initialise and avoid sole-use warnings -pgm
+print "\@all_tags=()\;\n\@optional_start_tag =()\;\n\@empty=()\;\n";
+print "\@optional_end_tag=()\;\n\@boolean_attr=()\;\n\%elem=()\;\n\n";
 
 
 my @all_tags = sort keys %element;
@@ -176,16 +198,26 @@ print "\n%elem = (\n";
 
 for (@all_tags) {
    my $e = $_;
-   $e = "'$e'" if $e eq 'tr' || $e eq 'link' || $e eq 'sub';  # these are perl keywords
-   printf "%-4s => {\n", $e;
+# 
+# there are other keywords popping up.
+# play it more conservative and use quotes around (just about) everything.
+# WAS  $e = "'$e'" if $e eq 'tr' || $e eq 'link' || $e eq 'sub';  # these are perl keywords
+# inserted single quotes next line
+# but that means we do away with nicer formatting --pgm
+# not   printf "\'%-4s\' => {\n", $e; but
+   print "\'$e\'  => {\n";
    print "\t  content => '$element{$_}[2]',\n" if $element{$_}[2] ne 'empty';
    print "\t  optend => 1,\n" if $element{$_}[1] ne '-';
    if (exists $attr{$_}) {
        print "\t  attr => {\n";
        for $a (sort keys %{$attr{$_}}) {
 	   my @a = @{$attr{$_}{$a}};
-	   print "\t\t\t$a => [", join(",", map {qq("$_")} @a), "],\n";
-	   push(@boolean_attr, "$_\t=> '$a'") if $a eq $attr{$_}{$a}[0];
+           # added surrounding quotes to avoid syntax err, warnings on
+           # hyphenated words and keywords
+           #
+	   print "\t\t\t\'$a\' => [", join(",", map {qq("$_")} @a), "],\n" unless $a eq "%reserved";
+           # quotes here, too (e.g., select keyword overlap)
+	   push(@boolean_attr, "\'$_\'\t=> '$a'") if $a eq $attr{$_}{$a}[0];
        }
        print "\t\t  },\n";
    }
@@ -210,6 +242,7 @@ sub parse_attrs  # Parse the <!ATTLIST elem ...> content
 {
     my $a = shift;
     my %a = ();
+    my $a2 = $a;
     #print "---$a---\n";
     while ($a =~ /\S/) {
 	$a =~ s/^\s*(\S+)\s*//;
@@ -220,20 +253,29 @@ sub parse_attrs  # Parse the <!ATTLIST elem ...> content
             $val =~ s/\s+//g;
 	} elsif ($a =~ s/^(\S+)//) {
 	    $val = $1;
-	} else {
-	    die "Missing values";
 	}
+        # problem was here with %reserved  
+        # and comment lines for reserved attrs... pgm
+        # but not an issue if we drop them
+        # but a bit more diagnostic info ?
+	else
+	  {
+	    die "Missing value at end of:\n[$a2]\n-------\n";
+	  }
         $val = lc($val) unless $val =~ /^[A-Z]+$/;
         $val =~ s/^"(.*)"$/$1/;
 	
         $a =~ s/^\s+//;
         if ($a =~ s/^(\#FIXED\s+\'[^\']+\')//) {
-	    $default = $1;
-	} elsif ($a =~ s/^(\S+)//) {
-	    $default = $1;
-	} else {
-	    die "Missing default";
-	}
+	  $default = $1;
+	  } 
+	elsif ($a =~ s/^(\S+)//) {
+	  $default = $1;
+	  } 
+       # same problem as for $val above on reserveds
+	else {
+	  die "Missing default at end of:\n[$a2]\n------\n";
+	  }
 	$default = lc($default) unless $default =~ /^[\#\"]/;
         $default =~ s/^"(.*)"$/$1/;
 
@@ -241,3 +283,7 @@ sub parse_attrs  # Parse the <!ATTLIST elem ...> content
     }
     \%a;
 }
+
+
+
+

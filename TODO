@@ -1,4 +1,4 @@
-$Id: TODO,v 1.2 1995/07/18 11:50:12 aas Exp $
+$Id: TODO,v 1.3 1995/07/24 12:48:10 aas Exp $
 
 Implement more protocol schemes
     1) LWP::Protocol::ftp
@@ -17,7 +17,3 @@ Implement more of LWP::MIMEtypes
 Better LWP::Base64??
 
 Fix bugs, it here are any...
-
-Makefile.PL
-
-Make sure proxying works.

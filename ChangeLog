@@ -1,3 +1,30 @@
+Sun Oct 12 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.14
+
+ o  HTML::Formatter patches from Andreas Gustafsson <gson@araneus.fi>.
+    The formatters handling of whitespace is much better now.  Thanks!
+
+ o  HTML::FormatText: can specify margins in the constructor.
+
+ o  URI::URL: the base will be absolutized internally now.
+
+ o  URI::URL will take advantage of void context provided by perl5.004.
+    This means that using $u->path and $u->query should be safer now.
+
+ o  URI::URL->print_on defaults to STDERR now (used to be STDOUT).
+
+ o  URI::URL: removed version 3 compatibility stuff ($COMPAT_VER_3).
+
+ o  $ua->mirror should work better on dosish systems (can not
+    rename when target file exists).
+
+ o  Typo in lwp-download prevented it from compiling.
+
+ o  Some minor documentations typos corrected.
+
+
+
 Sat Sep 20 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.13

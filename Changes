@@ -1,3 +1,37 @@
+2004-12-11   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.803
+
+    HTTP::Message: $mess->decoded_content sometimes had the side
+    effect of destroying $mess->content.
+
+    HTTP::Message: $mess->decoded_content failed for
+    "Content-Encoding: deflate" if the content was not in the
+    zlib-format as specified for the HTTP protocol.  Microsoft got
+    this wrong, so we have to support raw deflate bytes as well.
+
+    HTTP::Response->parse don't require the protocol to be
+    specified any more.  This allows HTTP::Response->parse($resp->as_string)
+    to round-trip.  Patch by Harald Joerg <haj@oook.m.uunet.de>.
+
+    HTTP::Response: $resp->base might now return undef.  Previously
+    it would croak if there was no associated request.  Based on
+    patch by Harald Joerg <haj@oook.m.uunet.de>.
+
+    HTML::Form now support <label> for check- and radio boxes.
+    Patch contributed by Dan Kubb <dan.kubb@onautopilot.com>.
+
+    Make HTTP::Daemon subclassable, patch by Kees Cook <kees@osdl.org>.
+
+    lwp-download allow directory to save into to be specified.
+    Patch by Radoslaw Zielinski <radek@karnet.pl>.
+
+    lwp-download will validate filename derived from server
+    controlled data and will fail if something looks not
+    quite right.
+
+  
+
 2004-11-30   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.802

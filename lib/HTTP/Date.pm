@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 10:32:37 $
+package HTTP::Date;  # $Date: 1999/05/03 11:12:04 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -77,12 +77,11 @@ sub parse_date ($)
     s/^\s+//;  # kill leading space
     s/^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*,?\s*//i; # Useless weekday
 
-    my($day, $mon, $yr, $hr, $min, $sec, $tz, $aorp);
+    my($day, $mon, $yr, $hr, $min, $sec, $tz, $ampm);
 
-  PARSEDATE: {
-      # Then we are able to check for most of the formats with this regexp
-      ($day,$mon,$yr,$hr,$min,$sec,$tz) =
-	/^
+    # Then we are able to check for most of the formats with this regexp
+    (($day,$mon,$yr,$hr,$min,$sec,$tz) =
+        /^
 	 (\d\d?)               # day
 	    (?:\s+|[-\/])
 	 (\w+)                 # month
@@ -96,11 +95,12 @@ sub parse_date ($)
 	    \s*
 	 ([-+]?\d{2,4}|(?![AP]M\b)[A-Z]+)? # timezone
 	    \s*$
-	/x
-	  and last PARSEDATE;
+	/x)
 
-      # Try the ctime and asctime format
-      ($mon, $day, $hr, $min, $sec, $tz, $yr) =
+    ||
+
+    # Try the ctime and asctime format
+    (($mon, $day, $hr, $min, $sec, $tz, $yr) =
 	/^
 	 (\w{1,3})             # month
 	    \s+
@@ -112,11 +112,12 @@ sub parse_date ($)
 	 (?:([A-Z]+)\s+)?      # optional timezone
 	 (\d+)                 # year
 	    \s*$               # allow trailing whitespace
-	/x
-	  and last PARSEDATE;
+	/x)
 
-      # Then the Unix 'ls -l' date format
-      ($mon, $day, $yr, $hr, $min, $sec) =
+    ||
+
+    # Then the Unix 'ls -l' date format
+    (($mon, $day, $yr, $hr, $min, $sec) =
 	/^
 	 (\w{3})               # month
 	    \s+
@@ -128,11 +129,12 @@ sub parse_date ($)
             (?::(\d\d))?       # optional seconds
 	 )
 	 \s*$
-       /x
-	 and last PARSEDATE;
+       /x)
 
-      # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
-      ($yr, $mon, $day, $hr, $min, $sec, $tz) =
+    ||
+
+    # ISO 8601 format '1996-02-29 12:00:00 -0100' and variants
+    (($yr, $mon, $day, $hr, $min, $sec, $tz) =
 	/^
 	  (\d{4})              # year
 	     [-\/]?
@@ -148,11 +150,12 @@ sub parse_date ($)
 	 ([-+]?\d\d?:?(:?\d\d)?
 	  |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
 	    \s*$
-	/x
-	  and last PARSEDATE;
+	/x)
 
-      # Windows 'dir' 11-12-96  03:52PM
-      ($mon, $day, $yr, $hr, $min, $aorp) =
+    ||
+
+    # Windows 'dir' 11-12-96  03:52PM
+    (($mon, $day, $yr, $hr, $min, $ampm) =
         /^
           (\d{2})                # numerical month
              -
@@ -162,12 +165,10 @@ sub parse_date ($)
              \s+
           (\d\d?):(\d\d)([apAP][mM])  # hour:min AM or PM
              \s*$
-        /x
-          and last PARSEDATE;
+        /x)
 
-      # If it is not recognized by now we give up
-      return;
-    }
+    ||
+    return;  # unrecognized format
 
     # Translate month name to number
     if ($mon =~ /^\d+$/) {
@@ -203,10 +204,10 @@ sub parse_date ($)
     for ($hr, $min, $sec) { $_ = 0 unless defined }
 
     # Compensate for AM/PM
-    if ($aorp) {
-	$aorp = uc $aorp;
-	$hr = 0 if $hr == 12 && $aorp eq 'AM';
-	$hr += 12 if $aorp eq 'PM' && $hr != 12;
+    if ($ampm) {
+	$ampm = uc $ampm;
+	$hr = 0 if $hr == 12 && $ampm eq 'AM';
+	$hr += 12 if $ampm eq 'PM' && $hr != 12;
     }
 
     return($yr, $mon, $day, $hr, $min, $sec, $tz)

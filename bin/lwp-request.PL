@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.32 1998/01/04 19:04:59 aas Exp $
+# $Id: lwp-request.PL,v 1.33 1998/08/04 09:18:11 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -186,7 +186,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -359,7 +359,7 @@ if ($allowed_methods{$method} eq "C") {
             : "text/plain";
     } else {
         die "$progname: Illegal Content-type format\n"
-            unless $opt_c =~ m,^[\w\-]+/[\w\-]+$,
+            unless $opt_c =~ m,^[\w\-]+/[\w\-]+(?:\s*;.*)?$,
     }
     print "Please enter content ($opt_c) to be ${method}ed:\n"
         if -t;

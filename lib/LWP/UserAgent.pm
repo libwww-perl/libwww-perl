@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.73 2000/04/07 11:29:04 gisle Exp $
+# $Id: UserAgent.pm,v 1.74 2000/06/01 13:35:15 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -67,7 +67,7 @@ begin before the complete data has arrived.  The callback function is
 called with 3 arguments: the data received this time, a reference to
 the response object and a reference to the protocol object.  The
 response object returned from request() will have empty content.  If
-the request fails, then the the callback routine is
+the request fails, then the the callback routine is not
 called, and the response->content might not be empty.
 
 The request can be aborted by calling die() in the callback
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.73 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.74 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();

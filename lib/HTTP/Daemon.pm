@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.5 1996/10/18 09:50:58 aas Exp $
+# $Id: Daemon.pm,v 1.6 1996/10/18 16:27:38 aas Exp $
 #
 
 use strict;
@@ -54,7 +54,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -104,8 +104,10 @@ sub accept
 {
     my $self = shift;
     my $sock = $self->SUPER::accept(@_);
-    $sock = bless $sock, "HTTP::Daemon::ClientConn" if $sock;
-    ${*$sock}{'httpd_daemon'} = $self;
+    if ($sock) {
+	$sock = bless $sock, "HTTP::Daemon::ClientConn";
+	${*$sock}{'httpd_daemon'} = $self;
+    }
     $sock;
 }
 

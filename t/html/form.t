@@ -26,5 +26,5 @@ print "ok 3\n";
 $f->value(name => "Gisle Aas");
 $req = $f->click;
 print "not " unless $req && $req->method eq "GET"
-	                 && $req->uri eq "http://localhost/abc?name=Gisle%20Aas";
+	                 && $req->uri eq "http://localhost/abc?name=Gisle+Aas";
 print "ok 4\n";

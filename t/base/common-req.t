@@ -45,11 +45,11 @@ print $r->as_string;
 
 print "not " unless $r->method eq "POST" and
                     $r->content_type eq "application/x-www-form-urlencoded" and
-                    $r->content_length == 64 and
+                    $r->content_length == 58 and
                     $r->header("bar") eq "foo";
 print "ok 7\n";
 
-print "not " unless $r->content eq "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space%20=%20%2B%20";
+print "not " unless $r->content eq "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space+=+%2B+";
 print "ok 8\n";
 
 $r = POST "mailto:gisle\@aas.no",

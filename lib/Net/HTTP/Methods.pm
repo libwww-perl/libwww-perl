@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.2 2001/11/17 02:32:00 gisle Exp $
+# $Id: Methods.pm,v 1.3 2001/11/20 19:48:40 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -337,7 +337,7 @@ sub read_entity_body {
 	    $bytes = 0;
 	}
 	elsif (my $te = ${*$self}{'http_te'}) {
-	    my @te = split(/\s*,\s*/, $te);
+	    my @te = split(/\s*,\s*/, lc($te));
 	    die "Chunked must be last Transfer-Encoding '$te'"
 		unless pop(@te) eq "chunked";
 

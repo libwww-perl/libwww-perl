@@ -1,0 +1,205 @@
+#!/local/bin/perl -w
+# $Id: html2text,v 1.1 1995/09/11 10:31:37 aas Exp $
+
+
+use HTML::Parse;
+
+$file = shift || "test.html";
+
+$h = parse_htmlfile $file;
+#print $h->asHTML, "\n";
+
+package HTML::Format;
+
+$lm  =  3;  # left margin
+$rm  = 70;  # right margin
+$pos = 0;   # current output position.
+$maxpos = 0;
+
+@ignore = ();
+
+$main::h->traverse(\&visit);
+
+sub visit
+{
+    my($node, $start, $depth) = @_;
+    if (ref $node) {
+	my $tag = $node->tag;
+	my $func = $tag . '_' . ($start ? "start" : "end");
+	if (defined &$func) {
+	    return &$func($node);
+	} else {
+	    push(@ignore, $func);
+	    return 0;
+	}
+    } else {
+	text($node);
+    }
+    1;
+}
+
+sub nl;
+sub lm;
+sub out;
+
+sub html_start { 1; }  sub html_end {}
+sub head_start { 0; }
+sub body_start { 1; }  sub body_end {}
+
+sub header_start
+{
+    my($level, $node) = @_;
+    nl; nl; lm;
+    $maxpos = 0;
+    1;
+}
+
+sub header_end
+{
+    my($level, $node) = @_;
+    nl;
+    if ($level <= 2) {
+	$line = '=' if $level == 1;
+	$line = '-' if $level == 2;
+	lm;
+	print $line x ($maxpos - $lm)
+    }
+    nl;
+    1;
+}
+
+sub h1_start { header_start(1, @_) }
+sub h2_start { header_start(2, @_) }
+sub h3_start { header_start(3, @_) }
+sub h4_start { header_start(4, @_) }
+sub h5_start { header_start(5, @_) }
+sub h6_start { header_start(6, @_) }
+
+sub h1_end   { header_end(1, @_) }
+sub h2_end   { header_end(2, @_) }
+sub h3_end   { header_end(3, @_) }
+sub h4_end   { header_end(4, @_) }
+sub h5_end   { header_end(5, @_) }
+sub h6_end   { header_end(6, @_) }
+
+sub img_start
+{
+    text(shift->attr('alt') || "[IMAGE]");
+    0;
+}
+
+sub u_start
+{
+    $underline = 1;
+    1;
+}
+
+sub u_end
+{
+    $underline = 0;
+}
+
+sub b_start
+{
+    $bold = 1;
+    1;
+}
+
+sub b_end
+{
+    $bold = 0;
+}
+
+sub tt_start
+{
+    1;
+}
+
+sub tt_end
+{
+}
+
+sub i_start
+{
+    u_start();
+}
+
+sub i_end
+{
+    u_end();
+}
+
+BEGIN {
+    *cite_start   = \&i_start;
+    *cite_end     = \&i_end;
+    *code_start   = \&tt_start;
+    *code_end     = \&tt_end;
+    *em_start     = \&i_start;
+    *em_end       = \&i_end;
+    *kbd_start    = \&tt_start;
+    *kbd_end      = \&tt_end;
+    *samp_start   = \&tt_start;
+    *samp_end     = \&tt_end;
+    *strong_start = \&b_start;
+    *strong_end   = \&b_end;
+    *var_start    = \&tt_start;
+    *var_end      = \&tt_end;
+}
+
+
+sub text
+{
+    for (split(' ', $_[0])) {
+	out ' ' if $pos > $lm;
+	out $_;
+    }
+}
+
+sub p_start
+{
+    nl();
+    lm();
+    1;
+}
+
+sub p_end
+{
+    nl();
+    1;
+}
+
+sub out
+{
+    if ($pos > $rm) {
+	nl; lm;
+	return if $_[0] =~ /^\s*$/;
+    }
+    print $_[0];
+    $pos += length $_[0];
+    $maxpos = $pos if $maxpos < $pos;
+}
+
+sub lm
+{
+    if ($pos < $lm) {
+	print " " x ($lm - $pos);
+	$pos = $lm;
+    }
+}
+
+sub nl
+{
+    print "\n";
+    $pos = 0;
+}
+
+END
+{
+    print "\n";
+    if (@ignore) {
+	print "Ignored tags:\n";
+	for (@ignore) {
+	    print "\t$_\n";
+	}
+    }
+}

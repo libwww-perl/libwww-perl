@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.50 2004/04/06 22:30:52 gisle Exp $
+# $Id: Headers.pm,v 1.51 2004/04/08 20:04:25 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -18,20 +18,35 @@ $TRANSLATE_UNDERSCORE = 1 unless defined $TRANSLATE_UNDERSCORE;
 #    - Response-Headers
 #    - Entity-Headers
 
-my @header_order = qw(
+my @general_headers = qw(
    Cache-Control Connection Date Pragma Trailer Transfer-Encoding Upgrade
    Via Warning
+);
 
+my @request_headers = qw(
    Accept Accept-Charset Accept-Encoding Accept-Language
    Authorization Expect From Host
    If-Match If-Modified-Since If-None-Match If-Range If-Unmodified-Since
    Max-Forwards Proxy-Authorization Range Referer TE User-Agent
+);
 
+my @response_headers = qw(
    Accept-Ranges Age ETag Location Proxy-Authenticate Retry-After Server
    Vary WWW-Authenticate
+);
 
+my @entity_headers = qw(
    Allow Content-Encoding Content-Language Content-Length Content-Location
    Content-MD5 Content-Range Content-Type Expires Last-Modified
+);
+
+my %entity_header = map { lc($_) => 1 } @entity_headers;
+
+my @header_order = (
+   @general_headers,
+   @request_headers,
+   @response_headers,
+   @entity_headers,
 );
 
 # Make alternative representations of @header_order.  This is used
@@ -109,13 +124,13 @@ sub remove_content_headers
 {
     my $self = shift;
     unless (defined(wantarray)) {
-	# simplify
-	delete @$self{grep /^content-/, keys %$self};
+	# fast branch that does not create return object
+	delete @$self{grep $entity_header{$_} || /^content-/, keys %$self};
 	return;
     }
 
     my $c = ref($self)->new;
-    for my $f (grep /^content-/, keys %$self) {
+    for my $f (grep $entity_header{$_} || /^content-/, keys %$self) {
 	$c->{$f} = delete $self->{$f};
     }
     $c;
@@ -415,8 +430,11 @@ possible to tell which of the returned values belonged to which field.
 
 =item $h->remove_content_headers
 
-This will remove all the headers used to describe the content of a
-message.  These header field names are prefixed with C<Content->.
+This will remove all the header fields used to describe the content of
+a message.  All header field names prefixed with C<Content-> falls
+into this category, as well as C<Allow>, C<Expires> and
+C<Last-Modified>.  RFC 2616 denote these fields as I<Entity Header
+Fields>.
 
 The return value is a new C<HTTP::Headers> object that contains the
 removed headers only.

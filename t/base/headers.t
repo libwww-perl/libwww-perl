@@ -3,10 +3,12 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 59;
+plan tests => 64;
+
+my($h, $h2);
 
 require HTTP::Headers;
-my $h = HTTP::Headers->new;
+$h = HTTP::Headers->new;
 ok($h);
 ok(ref($h), "HTTP::Headers");
 ok($h->as_string, "");
@@ -69,6 +71,60 @@ ok(j($h->clone->remove_header("Bar")), 2);
 ok(j($h->clone->remove_header("Baz")), "2|3");
 ok(j($h->clone->remove_header(qw(Foo Bar Baz Not-There))), "1|2|2|3");
 ok(j($h->clone->remove_header("Not-There")), "");
+
+$h = HTTP::Headers->new(
+    allow => "GET",
+    content => "none",
+    content_type => "text/html",
+    content_md5 => "dummy",
+    content_encoding => "gzip",
+    content_foo => "bar",
+    last_modified => "yesterday",
+    expires => "tomorrow",
+    etag => "abc",
+    date => "today",
+    user_agent => "libwww-perl",
+    zoo => "foo",
+   );
+ok($h->as_string, <<EOT);
+Date: today
+User-Agent: libwww-perl
+ETag: abc
+Allow: GET
+Content-Encoding: gzip
+Content-MD5: dummy
+Content-Type: text/html
+Expires: tomorrow
+Last-Modified: yesterday
+Content: none
+Content-Foo: bar
+Zoo: foo
+EOT
+
+$h2 = $h->clone;
+ok($h->as_string, $h2->as_string);
+
+ok($h->remove_content_headers->as_string, <<EOT);
+Allow: GET
+Content-Encoding: gzip
+Content-MD5: dummy
+Content-Type: text/html
+Expires: tomorrow
+Last-Modified: yesterday
+Content-Foo: bar
+EOT
+
+ok($h->as_string, <<EOT);
+Date: today
+User-Agent: libwww-perl
+ETag: abc
+Content: none
+Zoo: foo
+EOT
+
+# separate code path for the void context case, so test it as well
+$h2->remove_content_headers;
+ok($h->as_string, $h2->as_string);
 
 
 sub j { join("|", @_) }

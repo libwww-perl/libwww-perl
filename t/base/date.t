@@ -1,6 +1,6 @@
 use HTTP::Date;
 
-print "1..30\n";
+print "1..38\n";
 
 $no = 1;
 $| = 1;
@@ -38,7 +38,16 @@ my(@tests) =
  #'Feb  3 00:00',    # Unix 'ls -l' format (can't really test it here)
  'Feb  3 1994',      # Unix 'ls -l' format 
 
+ # ISO 8601 formats
  '1994-02-03 00:00:00 +0000',
+ '1994-02-03',
+ '19940203',
+ '1994-02-03T00:00:00+0000',
+ '1994-02-02T23:00:00-0100',
+ '1994-02-02T23:00:00-01:00',
+ '1994-02-03T00:00:00 Z',
+ '19940203T000000Z',
+ '199402030000',
 
  # A few tests with extra space at various places
  '  03/Feb/1994      ',
@@ -54,7 +63,7 @@ for (@tests) {
     }
     $t = "UNDEF" unless defined $t;
     print "'$_'  =>  $t\n";
-    print "not " if $t != $time;
+    print "not " if $t eq 'UNDEF' || $t != $time;
     ok;
 }
 

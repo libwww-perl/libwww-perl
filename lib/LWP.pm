@@ -1,15 +1,19 @@
 #
-# $Id: LWP.pm,v 1.2 1995/07/07 13:36:25 aas Exp $
+# $Id: LWP.pm,v 1.3 1995/07/08 18:28:26 aas Exp $
+
+package LWP;
+
+$VERSION = "1.0";  # Automatically updated by 'make-dist'
 
 =head1 NAME
 
-LWP -- Library for the Web in Perl 5
+LWP - Library for the Web in Perl 5
 
 =head INTRO
 
-Currently the latest version is available from:
+The latest version will be available from:
 
- http://www.oslonett.no/home/aas/perl/lwp.tar.gz
+ http://www.oslonett.no/home/aas/perl/www/
 
 This code should be discussed on the libwww-perl@ics.UCI.EDU
 mailing list.

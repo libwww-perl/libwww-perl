@@ -11,20 +11,6 @@ lwpcook.pod			Libwww-perl examples
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/CounterFile.pm		Persistent counter class
 lib/File/Listing.pm		Parse directory listings
-lib/Font/AFM.pm			Parse Adobe Font Metric files
-lib/Font/Metrics/Courier.pm	Generated from the AFM file by make_metrics.pl
-lib/Font/Metrics/CourierBold.pm	
-lib/Font/Metrics/CourierBoldOblique.pm	
-lib/Font/Metrics/CourierOblique.pm	
-lib/Font/Metrics/Helvetica.pm		
-lib/Font/Metrics/HelveticaBold.pm	
-lib/Font/Metrics/HelveticaBoldOblique.pm
-lib/Font/Metrics/HelveticaOblique.pm	
-lib/Font/Metrics/TimesBold.pm		
-lib/Font/Metrics/TimesBoldItalic.pm	
-lib/Font/Metrics/TimesItalic.pm		
-lib/Font/Metrics/TimesRoman.pm		
-lib/Font/make_metrics.pl	Writes font metric modules
 lib/HTML/AsSubs.pm		Cool interface for constructing HTML
 lib/HTML/Element.pm		Class that represents an HTML element
 lib/HTML/Entities.pm		Entities encoding/decoding routines
@@ -97,7 +83,6 @@ lib/WWW/RobotRules.pm		Parse robot.txt files
 lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
 t/README			How to run and set up tests
 t/TEST				Run tests
-t/base/afm.t			Test Font::AFM module
 t/base/common-req.t		Test HTTP::Request::Common module
 t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module

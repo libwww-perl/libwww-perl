@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.3 2001/04/10 07:12:37 gisle Exp $
+# $Id: http11.pm,v 1.4 2001/04/13 06:46:32 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -151,10 +151,10 @@ sub request
     # XXX need to support sub-ref content and watch out for write timeouts
     $socket->write_request($method, $fullpath, @h, $request->content);
 
-    my($version, $code, $mess, @h) = $socket->read_response_headers;
+    my($code, $mess, @h) = $socket->read_response_headers;
 
     my $response = HTTP::Response->new($code, $mess);
-    $response->protocol("HTTP/$version");
+    $response->protocol("HTTP/" . $socket->peer_http_version);
     while (@h) {
 	my($k, $v) = splice(@h, 0, 2);
 	$response->push_header($k, $v);

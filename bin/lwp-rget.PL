@@ -119,7 +119,7 @@ use vars qw($VERSION);
 use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
 
 $0 =~ s|.*/||;  # only basename left
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -158,6 +158,7 @@ usage() if @ARGV;
 require LWP::UserAgent;
 my $ua = new LWP::UserAgent;
 $ua->agent("$0/$VERSION " . $ua->agent);
+$ua->env_proxy;
 
 unless (defined $PREFIX) {
     $PREFIX = url($start_url);   # limit to URLs below this one

@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.7 2001/12/05 16:58:05 gisle Exp $
+# $Id: Methods.pm,v 1.8 2002/09/04 17:15:15 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -419,12 +419,15 @@ sub read_entity_body {
 	if ($chunked <= 0) {
 	    my $line = my_readline($self);
 	    if ($chunked == 0) {
-		die "Not empty: '$line'" unless $line eq "";
+		die "Missing newline after chunk data: '$line'" unless $line eq "";
 		$line = my_readline($self);
 	    }
-	    $line =~ s/;.*//;  # ignore potential chunk parameters
-	    $line =~ s/\s+$//; # avoid warnings from hex()
-	    $chunked = hex($line);
+	    my $chunk_len = $line;
+	    $chunk_len =~ s/;.*//;  # ignore potential chunk parameters
+	    unless ($chunk_len =~ /^([\da-fA-F]+)\s*$/) {
+		die "Bad chunk-size in HTTP response: $line";
+	    }
+	    $chunked = hex($1);
 	    if ($chunked == 0) {
 		${*$self}{'http_trailers'} = [$self->_read_header_lines];
 		$$buf_ref = "";

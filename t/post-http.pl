@@ -3,7 +3,7 @@
 # Check POST via HTTP.
 #
 
-sub BEGIN {    unshift(@INC, '../lib'); }
+sub BEGIN {    unshift(@INC, '..'); }
 
 require LWP::http;
 require LWP::UserAgent;

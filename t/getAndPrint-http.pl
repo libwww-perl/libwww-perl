@@ -4,7 +4,7 @@
 # and printing to STDOUT
 #
 
-sub BEGIN {    unshift(@INC, '../lib'); }
+sub BEGIN {    unshift(@INC, '..'); }
 
 require LWP::Debug;
 require LWP::http;

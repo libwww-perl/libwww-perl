@@ -4,7 +4,7 @@
 # with Basic Authentication
 #
 
-sub BEGIN {    unshift(@INC, '../lib'); }
+sub BEGIN {    unshift(@INC, '..'); }
 
 package LWP::askUA;
 

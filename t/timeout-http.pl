@@ -3,7 +3,7 @@
 # Check timeouts via HTTP.
 #
 
-sub BEGIN {    unshift(@INC, '../lib'); }
+sub BEGIN {    unshift(@INC, '..'); }
 
 require LWP::StatusCode;
 require LWP::http;

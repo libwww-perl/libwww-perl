@@ -3,7 +3,7 @@
 # Test mirroring a file
 #
 
-sub BEGIN {    unshift(@INC, '../lib'); }
+sub BEGIN {    unshift(@INC, '..'); }
 
 require LWP::http;
 require LWP::UserAgent;

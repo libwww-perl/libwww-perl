@@ -6,7 +6,7 @@
     attribute for inputs.  This allow your program to simulate
     JavaScript code that modifies these attributes.
 
-    RFC 2616 says that http: referer should not sent with
+    RFC 2616 says that http: referer should not be sent with
     https: requests.  The lwp-rget program, the $req->referer method
     and the redirect handling code now try to enforce this.
     Patch by Ville Skyttä <ville.skytta@iki.fi>.

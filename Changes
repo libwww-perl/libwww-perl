@@ -1,3 +1,19 @@
+2001-04-25   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_92
+
+    LWP::Protocol::ftp now support keep-alives too.  The command
+    connection will stay open if keep-alives are enabled.
+
+    LWP::Protocol::http11 various fixes:
+        - chunked
+        - monitor connection while sending request content
+        - deal with Exect: 100-continue
+
+    LWP::RobotUA: Protect host_port call.  Not all URIs have this method.
+
+
+
 2001-04-20   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_91

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.13 1996/02/05 17:58:37 aas Exp $
+# $Id: Headers.pm,v 1.14 1996/02/26 19:08:16 aas Exp $
 
 package HTTP::Headers;
 
@@ -29,6 +29,10 @@ library.
 
 require Carp;
 
+# Could not use the AutoLoader becase several of the method names are
+# not unique in the first 8 characters.
+#use SelfLoader;
+
 
 # "Good Practice" order of HTTP message headers:
 #    - General-Headers
@@ -38,7 +42,7 @@ require Carp;
 # (From draft-ietf-http-v10-spec-01.ps)
 
 my @header_order = qw( 
-   Date Forwarded MIME-Version Pragma
+   Date Forwarded Message-ID MIME-Version Pragma
 
    Host Accept Accept-Charset Accept-Encoding Accept-Language
    Authorization From If-Modified-Since Orig-URI Referer User-Agent
@@ -47,7 +51,7 @@ my @header_order = qw(
 
    Allow Content-Encoding Content-Language Content-Length
    Content-Transfer-Encoding Content-Type
-   Expires Last-Modified Link Title URI
+   Expires Last-Modified Link Title URI Version
 );
 
 # Make alternative representations of @header_order.  This is used
@@ -87,21 +91,7 @@ sub new
 }
 
 
-=head2 clone()
-
-Returns a copy of the object.
-
-=cut
-
-sub clone
-{
-    my $self = shift;
-    my $clone = new HTTP::Headers;
-    $self->scan(sub { $clone->pushHeader(@_);} );
-    $clone;
-}
-
-=head2 header($field [, $val],...)
+=head2 $h->header($field [, $val],...)
 
 Get/Set the value of a request header.  The header field name is not
 case sensitive.  The value argument may be a scalar or a reference to
@@ -134,7 +124,7 @@ sub _header
 {
     my($self, $field, $val, $push) = @_;
 
-    # $push is only used interally sub pushHeader
+    # $push is only used interally sub push_header
 
     Carp::croak('Need a field name') unless defined $field;
     Carp::croak('Too many parameters') if @_ > 4;
@@ -145,20 +135,20 @@ sub _header
         $standard_case{$lc_field} = $field;
     }
 
-    my $thisHeader = \@{$self->{'_header'}{$lc_field}};
+    my $this_header = \@{$self->{'_header'}{$lc_field}};
 
     my @old = ();
-    if (!$push && defined $thisHeader) {
-        @old = @$thisHeader;  # save it so we can return it
+    if (!$push && defined $this_header) {
+        @old = @$this_header;  # save it so we can return it
     }
     if (defined $val) {
-        @$thisHeader = () unless $push;
+        @$this_header = () unless $push;
         if (!ref($val)) {
             # scalar: create list with single value
-            push(@$thisHeader, $val);
+            push(@$this_header, $val);
         } elsif (ref($val) eq 'ARRAY') {
             # list: copy list            
-            push(@$thisHeader, @$val);
+            push(@$this_header, @$val);
         } else {
             Carp::croak("Unexpected field value $val");
         }
@@ -167,43 +157,9 @@ sub _header
 }
 
 
-=head2 pushHeader($field, $val)
-
-Add a new value to a field of the request header.  The header field
-name is not case sensitive.  The field need not already have a
-value. Duplicates are retained.  The argument may be a scalar or a
-reference to a list of scalars.
-
- $header->pushHeader('Accept' => 'image/jpeg');
-
-=cut
-
-sub pushHeader
-{
-    Carp::croak('Usage: $h->pushHeader($field, $val)') if @_ != 3;
-    shift->_header(@_, 'PUSH');
-}
-
-
-=head2 removeHeader($field,...)
-
-This function removes the headers with the specified names.
-
-=cut
-
-sub removeHeader
-{
-    my $self = shift;
-    my $field;
-    foreach $field (@_) {
-        delete $self->{'_header'}{lc $field};
-    }
-}
-
-
 # Compare function which makes it easy to sort headers in the
 # recommended "Good Practice" order.
-sub _headerCmp
+sub _header_cmp
 {
     # Unknown headers are assign a large value so that they are
     # sorted last.  This also helps avoiding a warning from -w
@@ -215,7 +171,7 @@ sub _headerCmp
 }
 
 
-=head2 scan(\&doit)
+=head2 $h->scan(\&doit)
 
 Apply the subroutine to each header in turn.  The routine is called
 with two parameters; the name of the field and a single value.  If the
@@ -230,7 +186,7 @@ sub scan
 {
     my($self, $sub) = @_;
     my $field;
-    foreach $field (sort _headerCmp keys %{$self->{'_header'}} ) {
+    foreach $field (sort _header_cmp keys %{$self->{'_header'}} ) {
         my $list = $self->{'_header'}{$field};
         if (defined $list) {
             my $val;
@@ -242,19 +198,19 @@ sub scan
 }
 
 
-=head2 asString([$endl])
+=head2 $h->as_string([$endl])
 
 Return the header fields as a formatted MIME header.  Since it uses
 C<scan()> to build the string, the result will use case as suggested
 by HTTP Spec, and it will follow recommended "Good Practice" of
-ordering the header fieds.
+ordering the header fieds.  Long header are I<not> folded.
 
 The optional parameter specifies the line ending sequence to use.  The
 default is C<"\n">.
 
 =cut
 
-sub asString
+sub as_string
 {
     my($self, $endl) = @_;
     $endl = "\n" unless defined $endl;
@@ -268,6 +224,219 @@ sub asString
     });
 
     join($endl, @result, '');
+}
+
+
+# The remaining functions should autoloaded only when needed
+
+# A bug in 5.002gamma makes it risky to have POD text inside the
+# autoloaded section of the code, so we keep the documentation before
+# the __DATA__ token.
+
+=head2 $h->push_header($field, $val)
+
+Add a new value to a field of the request header.  The header field
+name is not case sensitive.  The field need not already have a
+value. Duplicates are retained.  The argument may be a scalar or a
+reference to a list of scalars.
+
+ $header->push_header('Accept' => 'image/jpeg');
+
+=head2 $h->remove_header($field,...)
+
+This function removes the headers with the specified names.
+
+=head2 $h->clone
+
+Returns a copy of the HTTP::Headers object.
+
+=head1 CONVENIENCE METHODS
+
+The most frequently used headers can also be accessed through the
+following convenience methods.  These methods can both be used to read
+and to set the value of a header.  The header value is set if you pass
+an argument to the method.  The old header value is always returned.
+
+Methods that deal with dates/time always convert their value to system
+time (seconds since Jan 1, 1970) and they also expect this kind of
+value when the header value is set.
+
+=head2 $h->date
+
+This header represents the date and time at which the message was
+originated. E.g.:
+
+  $h->date(time);  # set current date
+
+=head2 $h->expires
+
+This header gives the date and time after which the entity should be
+considered stale.
+
+=head2 $h->if_modified_since
+
+This header is used to make a request conditional.  If the requested
+resource has not been modified since the time specified in this field,
+then the server til return a "304 Not Modified" response instead of
+the document itself.
+
+=head2 $h->last_modified
+
+This header indicates the date and time at which the resource was last
+modified. E.g.:
+
+  # check if document is more than 1 hour old
+  if ($h->last_modified < time - 60*60) {  
+	...
+  }
+
+=head2 $h->content_type
+
+The content-type header field indicates the media type of the message
+content. E.g.:
+
+  $h->content_type('text/html');
+
+=head2 $h->content_encoding
+
+The content-encoding header field is used as a modifier to the
+media type.  When present, its value indicates what additional
+encoding mechanism has been applied to the resource.
+
+=head2 $h->content_length
+
+A decimal number indicating the size in bytes of the message content.
+
+=head2 $h->user_agent
+
+This header field is used in request messages and contains information
+about the user agent originating the request.  E.g.:
+
+  $h->user_agent('Mozilla/1.2');
+
+=head2 $h->server
+
+The server header field contains information about the software being
+used by the origin server program handling the request.
+
+=head2 $h->from
+
+This header should contain an Internet e-mail address for the human
+user who controls the requesting user agent.  The address should be
+machine-usable, as defined by RFC822.  E.g.:
+
+  $h->from('Gisle Aas <aas@sn.no>');
+
+=head2 $h->referer
+
+Used to specify the address (URI) of the documetn from which the
+requested resouce address was obtained.
+
+=head2 $h->uri
+
+This header field may contain one or more URIs by which the resource
+origin of the entity can be identified.
+
+=head2 $h->www_authenticate
+
+This header must be included as part of a "401 Unauthorized" response.
+The field value consist of a challenge that indicates the
+authentication scheme and parameters applicable to the requested URI.
+
+=head2 $h->authorization
+
+A user agent that wishes to authenticate itself with a server, may do
+so by including this header.
+
+=head2 $h->authorization_basic
+
+This methods lets you get/set an authorization header that use the
+"Basic Authentication Scheme".  It will return a list of two values.
+The first is the user name and the second the password.  It also
+expects two arguments when it is used to set the header value.  E.g.:
+
+  $h->authorization_basic('user', 'passwd');
+
+=cut
+
+1;
+
+#__DATA__
+
+sub clone
+{
+    my $self = shift;
+    my $clone = new HTTP::Headers;
+    $self->scan(sub { $clone->push_header(@_);} );
+    $clone;
+}
+
+sub push_header
+{
+    Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
+    shift->_header(@_, 'PUSH');
+}
+
+
+sub remove_header
+{
+    my $self = shift;
+    my $field;
+    foreach $field (@_) {
+        delete $self->{'_header'}{lc $field};
+    }
+}
+
+# Convenience access functions
+
+sub _date_header
+{
+    require HTTP::Date;
+    my($self, $header, $time) = @_;
+    my($old) = $self->_header($header);
+    if (defined $time) {
+	$self->_header($header, HTTP::Date::time2str($time));
+    }
+    HTTP::Date::str2time($old);
+}
+
+sub date              { shift->_date_header('Date',              @_); }
+sub expires           { shift->_date_header('Expires',           @_); }
+sub if_modified_since { shift->_date_header('If-Modified-Since', @_); }
+sub last_modified     { shift->_date_header('Last-Modified',     @_); }
+
+# The retry_after field is dual format, and can also be just a
+# number of seconds, so we don't provide an easy way to access it until
+# both these interfaces can be addressed.
+#sub retry_after       { shift->_date_header('Retry-After',       @_); }
+
+sub content_type      { (shift->_header('Content-Type',     @_))[0] }
+sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
+sub content_length    { (shift->_header('Content-Length',   @_))[0] }
+
+sub user_agent        { (shift->_header('User-Agent',       @_))[0] }
+sub server            { (shift->_header('Server',           @_))[0] }
+
+sub from              { (shift->_header('From',             @_))[0] }
+sub referer           { (shift->_header('Referer',          @_))[0] }
+sub uri               { (shift->_header('URI',              @_))[0] }
+
+sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
+sub authorization     { (shift->_header('Authorization',    @_))[0] }
+
+sub authorization_basic {
+    require MIME::Base64;
+    my($self, $user, $passwd) = @_;
+    my($old) = $self->_header('Authorization');
+    if (defined $user) {
+	$passwd = '' unless defined $passwd;
+	$self->_header('Authorization',
+		       'Basic ' . MIME::Base64::encode("$user:$passwd", ''));
+    }
+    if (defined $old && $old =~ s/^\s*Basic\s+//) {
+	return split(/:/, MIME::Base64::decode($old), 2);
+    }
+    undef;
 }
 
 1;

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Date.pm,v 1.2 1995/06/12 18:22:07 aas Exp $
 #
 package LWP::Date;
 
@@ -12,11 +12,11 @@ LWP::Date -- date conversion routines
 
  use LWP::Date;
 
- $stringGMT = &time2str(time()); # Format as GMT time
+ $stringGMT = time2str(time()); # Format as GMT time
 
- $mtime = &str2time($stringGMT); # convert ascii date to machine time
+ $mtime = str2time($stringGMT); # convert ascii date to machine time
  
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
 The C<time2str()> function converts a machine time to a string,
 and the C<str2time()> function converts a string to machine time.
@@ -50,14 +50,14 @@ module.
 
 ####################################################################
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw( time2str str2time );
 
-require "timelocal.pl";
+use Time::Local;
 
 @DoW = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
 
@@ -83,7 +83,7 @@ sub time2str
     
     # turn 2-digit year into 4 digits
     if ($year <= 50) {
-        $year += 2000;
+        $year += 2000; #XXX: is this correct or will year epoch always be 1900
     }
     elsif ($year > 50 and $year < 100) {
         $year += 1900;
@@ -184,14 +184,14 @@ sub str2time
     if ($yr < 70)    { $yr += 100;  }
     if ($yr >= 1900) { $yr -= 1900; }
     if ($yr >= 138)  { return undef; }
-    # Epoch counter maxes out in year 2038
+    # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
 
     # Translate month name to number
-    my $mon = &_mon2num($mn);
+    my $mon = _mon2num($mn);
     return undef unless defined $mon;
 
     # Translate to seconds since Epoch
-    return (&timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
+    return (timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
 }
 
 

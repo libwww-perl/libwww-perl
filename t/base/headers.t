@@ -3,11 +3,79 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 19;
+plan tests => 59;
 
 require HTTP::Headers;
+my $h = HTTP::Headers->new;
+ok($h);
+ok(ref($h), "HTTP::Headers");
+ok($h->as_string, "");
 
-my $h = new HTTP::Headers
+$h = HTTP::Headers->new(foo => "bar");
+ok($h->as_string, "Foo: bar\n");
+
+$h = HTTP::Headers->new(foo => ["bar", "baz"]);
+ok($h->as_string, "Foo: bar\nFoo: baz\n");
+
+$h = HTTP::Headers->new(foo => 1, bar => 2, foo_bar => 3);
+ok($h->as_string, "Bar: 2\nFoo: 1\nFoo-Bar: 3\n");
+ok($h->as_string(";"), "Bar: 2;Foo: 1;Foo-Bar: 3;");
+
+ok($h->header("Foo"), 1);
+ok($h->header("FOO"), 1);
+ok(j($h->header("foo")), 1);
+ok($h->header("foo-bar"), 3);
+ok($h->header("foo_bar"), 3);
+ok($h->header("Not-There"), undef);
+ok(j($h->header("Not-There")), "");
+
+ok($h->header("Foo", 11), 1);
+ok($h->header("Foo", [1, 1]), 11);
+ok($h->header("Foo"), "1, 1");
+ok(j($h->header("Foo")), "1|1");
+ok($h->header(foo => 11, bar => 22), 2);
+ok($h->header("Foo"), 11);
+ok($h->header("Bar"), 22);
+
+$h->push_header(Bar => 22);
+ok($h->header("Bar"), "22, 22");
+$h->push_header(Bar => [23 .. 25]);
+ok($h->header("Bar"), "22, 22, 23, 24, 25");
+eval { $h->push_header(Bar => 23 .. 25) };
+ok($@);
+ok(j($h->header("Bar")), "22|22|23|24|25");
+
+$h->clear;
+$h->header(Foo => 1);
+ok($h->as_string, "Foo: 1\n");
+$h->init_header(Foo => 2);
+$h->init_header(Bar => 2);
+ok($h->as_string, "Bar: 2\nFoo: 1\n");
+$h->init_header(Foo => [2, 3]);
+$h->init_header(Baz => [2, 3]);
+ok($h->as_string, "Bar: 2\nBaz: 2\nBaz: 3\nFoo: 1\n");
+
+eval { $h->init_header(A => 1, B => 2, C => 3) };
+ok($@);
+ok($h->as_string, "Bar: 2\nBaz: 2\nBaz: 3\nFoo: 1\n");
+
+ok($h->clone->remove_header("Foo"), 1);
+ok($h->clone->remove_header("Bar"), 1);
+ok($h->clone->remove_header("Baz"), 2);
+ok($h->clone->remove_header(qw(Foo Bar Baz Not-There)), 4);
+ok($h->clone->remove_header("Not-There"), 0);
+ok(j($h->clone->remove_header("Foo")), 1);
+ok(j($h->clone->remove_header("Bar")), 2);
+ok(j($h->clone->remove_header("Baz")), "2|3");
+ok(j($h->clone->remove_header(qw(Foo Bar Baz Not-There))), "1|2|2|3");
+ok(j($h->clone->remove_header("Not-There")), "");
+
+
+sub j { join("|", @_) }
+
+#---- old tests below -----
+
+$h = new HTTP::Headers
 	mime_version  => "1.0",
 	content_type  => "text/html";
 $h->header(URI => "http://www.oslonett.no/");

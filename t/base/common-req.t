@@ -176,7 +176,7 @@ print "ok 18\n";
 $code = $r->content;
 my $chunk;
 my @chunks;
-while (length($chunk = &$code)) {
+while (defined($chunk = &$code) && length $chunk) {
    push(@chunks, $chunk);
 }
 

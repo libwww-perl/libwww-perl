@@ -144,6 +144,30 @@ The LWP::Simple interface will call env_proxy() for you automatically.
 Applications that use the $ua->env_proxy() method will normally not
 use the $ua->proxy() and $ua->no_proxy() methods.
 
+Some proxies also require that you send it a username/password in
+order to let requests through.  LWP does not support
+Proxy-Authorization directly yet, but you should be able to add the
+required header manually.
+
+Do something like this:
+
+ use LWP::UserAgent;
+ use MIME::Base64 qw(encode_base64);
+
+ $ua = new LWP::UserAgent;
+ $ua->proxy(['http', 'ftp'] => 'http://proxy.myorg.com');
+
+ $proxy_auth = "Basic " . encode_base64("proxy_user:proxy_password");
+
+ $req = new HTTP::Request 'GET',"http://www.perl.com";
+ $req->header("Proxy-Authorization" => $proxy_auth);  # This is the key!
+
+ $res = $ua->request($req);
+ print $res->content if $res->is_success;
+
+Replace C<proxy.myorg.com>, C<proxy_user> and
+C<proxy_password> with something suitable for your site.
+
 
 =head1 ACCESS TO PROTECTED DOCUMENTS
 

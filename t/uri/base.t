@@ -292,7 +292,7 @@ sub parts_test {
     die "\$url->path_components returns '$p', expected '-foo-bar-'"
       unless $p eq "-foo-bar-";
     $url->path_components("", "/etc", "\0", "..", "øse", "");
-    $url->_expect('full_path' => '/%2Fetc/%00/%2E%2E/%F8se/');
+    $url->_expect('full_path' => '/%2Fetc/%00/../%F8se/');
 
     # Setting undef
     $url = new URI::URL 'http://web/p;p?q#f';

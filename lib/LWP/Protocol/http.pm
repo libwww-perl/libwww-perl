@@ -1,9 +1,7 @@
 #
-# $Id: http.pm,v 1.6 1995/07/15 08:03:27 aas Exp $
+# $Id: http.pm,v 1.7 1995/07/17 10:05:38 aas Exp $
 
 package LWP::Protocol::http;
-
-#####################################################################
 
 require LWP::Protocol;
 require LWP::Request;
@@ -17,28 +15,24 @@ use FileHandle;
 
 @ISA = qw(LWP::Protocol);
 
-$httpprotocol = 'http';         # for getservbyname
-$httpversion = 'HTTP/1.0';      # for requests
+my $httpprotocol = 'http';         # for getservbyname
+my $httpversion  = 'HTTP/1.0';     # for requests
+my $endl         = "\r\n";         # how lines should be terminated
 
-# 0 = Not allowed (same as undefined / !exists)
-# 1 = Allowed without content in request
-# 2 = Allowed and with content in request
-%AllowedMethods = (
-    GET        => 1,   
-    HEAD       => 1,
-    POST       => 2,   
-    PUT        => 2,
-    DELETE     => 1,   
-    LINK       => 1,
-    UNLINK     => 1,
-    CHECKIN    => 2,
-    CHECKOUT   => 1,
-    SHOWMETHOD => 1,
+# "" = No content in request, "C" = Needs content in request
+%allowedMethods = (
+    GET        => "",   
+    HEAD       => "",
+    POST       => "C",   
+    PUT        => "C",
+    DELETE     => "",   
+    LINK       => "",
+    UNLINK     => "",
+    CHECKIN    => "C",
+    CHECKOUT   => "",
+    SHOWMETHOD => "",
 );
 
-#####################################################################
-
-# constructor inherited fro LWP::Protocol
 
 sub request
 {
@@ -54,22 +48,16 @@ sub request
     # check method
 
     my $method = $request->method;
-    unless (exists $AllowedMethods{$method} and
-            defined $AllowedMethods{$method} and
-            $AllowedMethods{$method} != 0 )
-    {
-        return new
-          LWP::Response(&LWP::StatusCode::RC_BAD_REQUEST,
-                        'Library does not allow method ' .
-                        "$method for 'http:' URLs");
+    unless (defined $allowedMethods{$method}) {
+        return new LWP::Response &LWP::StatusCode::RC_BAD_REQUEST,
+                                 'Library does not allow method ' .
+                                 "$method for 'http:' URLs";
     }
 
-    # Check if we're proxy'ing
-    
     my $url = $request->url;
+    my($host, $port, $fullpath);
 
-    my ($host, $port, $fullpath);
-
+    # Check if we're proxy'ing
     if (defined $proxy) {
         # $proxy is an HTTP server which will proxy this request
         $host = $proxy->host;
@@ -96,18 +84,17 @@ sub request
     # If we're sending content we *have* to specify
     # a content length otherwise the server won't
     # know a messagebody is coming.
-
     my $content = $request->content;
     if (defined $content){
         $request->header('Content-Length', length($content));
     }
-    my $senddata = $request_line . $request->headerAsString("\r\n") . "\r\n";
+
+    my $senddata = $request_line . $request->headerAsString($endl) . $endl;
     if (defined $content) {
         $senddata .= $content;
     }
 
     LWP::Debug::conns("sending request: $senddata");
-    
     $socket->write($senddata);
 
     # read response line from server
@@ -130,12 +117,11 @@ sub request
         $response = new LWP::Response($2, $3);
         
         LWP::Debug::debug('reading response header');
-
         my $header = '';
         my $delim = "\r?\n\r?\n";
         my $result = $socket->readUntil($delim, \$header, $size, $timeout);
 
-        @headerlines = split("\r?\n", $header);
+        @headerlines = split(/\r?\n/, $header);
 
         # now entire header is read, parse it
         LWP::Debug::debug('parsing response header');
@@ -147,7 +133,7 @@ sub request
                 my ($key, $val) = ($1, $2);
                 if ($lastkey and $lastval) {
                     LWP::Debug::debug("  $lastkey => $lastval");
-                    $response->header($lastkey, $lastval);
+                    $response->pushHeader($lastkey, $lastval);
                 }
                 $lastkey = $key;
                 $lastval = $val;
@@ -161,13 +147,15 @@ sub request
         }
         if ($lastkey and $lastval) {
             LWP::Debug::debug("  $lastkey => $lastval");
-            $response->header($lastkey, $lastval);
+            $response->pushHeader($lastkey, $lastval);
         }
     } else {
         # HTTP/0.9 or worse. Assume OK
         LWP::Debug::debug('HTTP/0.9 server');
 
-        $response = new LWP::Response(&LWP::StatusCode::RC_OK);
+        $response = new LWP::Response &LWP::StatusCode::RC_OK,
+                                      'HTTP 0.9 server';
+        $response->addContent(\$line);
     }
 
     # need to read content
@@ -188,6 +176,5 @@ sub request
     $response;
 }
 
-#####################################################################
 
 1;

@@ -1,9 +1,9 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: URL.pm,v 2.11 1995/07/12 13:40:43 aas Exp $'
+# $Id: URL.pm,v 3.0 1995/07/12 14:14:33 aas Exp $
 #
 package URI::URL;
-require 5.001;
+require 5.001;  # but it should really be 5.001e
 
 #####################################################################
 
@@ -30,7 +30,7 @@ URI::URL - Uniform Resource Locators (absolute and relative)
 
  # Stringify URL
  $str1 = $url->as_string;  # complete escaped URL string
- $str2 = $url->full_path;  # escaped path+query+params+frag
+ $str2 = $url->full_path;  # escaped path+query+params
  $str3 = "$url";           # use operator overloading (experimental)
 
  # Retrieving Generic-RL components:
@@ -250,13 +250,14 @@ better.
 
 The latest version of this module is likely to be available from:
 
-   http://www.ics.uci.edu/WebSoft/libwww-perl/contrib/
+   http://www.oslonett.no/home/aas/perl/www/
    http://web.nexor.co.uk/public/perl/perl.html
+   http://www.ics.uci.edu/WebSoft/libwww-perl/contrib/
 
 =head1 INSTALLING
 
-Create a C<URI> subdirectory in your Perl 5 library directory
-(often /usr/local/lib/perl5), and copy the C<URL.pm> file into it.
+Create a F<URI> subdirectory in your Perl 5 library directory
+(often F</usr/local/lib/perl5>), and copy the F<URL.pm> file into it.
 
 To execute the self-test move to the Perl 5 library directory and run
 C<perl -w URI/URL.pm>
@@ -289,8 +290,8 @@ require Exporter;
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-$Version = '$Revision: 2.11 $';
-($Version) = $Version =~ /(\d+\.\d+)/;
+$VERSION = $VERSION = # shut up -w
+    sprintf("%d.%02d", q$Revision: 3.0 $ =~ /(\d+)\.(\d+)/);
 
 # Define default unsafe characters.
 # Note that you cannot reliably change this at runtime
@@ -991,25 +992,25 @@ sub _esc_path
 
 package URI::URL::ftp;          @ISA = qw(URI::URL::_generic);
 
-sub default_port { 21 };
+sub default_port { 21 }
 
 
 
 package URI::URL::telnet;       @ISA = qw(URI::URL::_generic);
 
-sub default_port { 23 };
+sub default_port { 23 }
 
 
 
 package URI::URL::whois;        @ISA = qw(URI::URL::_generic);
 
-sub default_port { 43 };
+sub default_port { 43 }
 
 
 
 package URI::URL::gopher;       @ISA = qw(URI::URL::_generic);
 
-sub default_port { 70 };
+sub default_port { 70 }
 
 sub _parse {
     my($self, $url)   = @_;
@@ -1028,19 +1029,19 @@ sub gtype    { shift->elem('gtype', @_); }
 
 package URI::URL::finger;       @ISA = qw(URI::URL::_generic);
 
-sub default_port { 79 };
+sub default_port { 79 }
 
 
 
 package URI::URL::http;         @ISA = qw(URI::URL::_generic);
 
-sub default_port { 80 };
+sub default_port { 80 }
 
 
 
 package URI::URL::nntp;         @ISA = qw(URI::URL::_generic);
 
-sub default_port { 119 };
+sub default_port { 119 }
 
 sub _parse {
     my($self, $init) = @_;
@@ -1066,7 +1067,7 @@ sub _parse {
 
 package URI::URL::wais;         @ISA = qw(URI::URL::_generic);
 
-sub default_port { 210 };
+sub default_port { 210 }
 
 sub _parse {
     my($self, $init) = @_;
@@ -1081,13 +1082,13 @@ sub _parse {
 
 package URI::URL::webster;      @ISA = qw(URI::URL::_generic);
 
-sub default_port { 765 };
+sub default_port { 765 }
 
 
 
 package URI::URL::prospero;     @ISA = qw(URI::URL::_generic);
 
-sub default_port { 1525 };      # says rfc1738, section 3.11
+sub default_port { 1525 }       # says rfc1738, section 3.11
 
 
 
@@ -1107,14 +1108,6 @@ package URI::URL::rlogin;       @ISA = qw(URI::URL::_generic);
 
 package URI::URL::tn3270;       @ISA = qw(URI::URL::_generic);
 
-
-
-# Aliases for old method names. To be deleted in a future version.
-{   package URI::URL::_generic;
-    no strict qw(refs);
-    *{"dump"} = \&print_on;
-    *{"str"}  = \&as_string;
-}
 
 
 
@@ -1169,7 +1162,7 @@ $| = 1;
 # Do basic tests first.
 # Dies if an error has been detected, prints "ok" otherwise.
 
-print "Self tests for URI::URL version $URI::URL::Version...\n";
+print "Self tests for URI::URL version $URI::URL::VERSION...\n";
 
     &scheme_parse_test;
 
@@ -1185,7 +1178,7 @@ print "Self tests for URI::URL version $URI::URL::Version...\n";
     $u = new URI::URL "myscheme:something";
     # print $u->as_string, " works after URI::URL::strict(0)\n";
 
-print "URI::URL version $URI::URL::Version ok\n";
+print "URI::URL version $URI::URL::VERSION ok\n";
 exit 0;
 
 

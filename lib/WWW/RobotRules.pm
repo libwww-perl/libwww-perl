@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.6 1996/04/09 15:44:56 aas Exp $
+# $Id: RobotRules.pm,v 1.7 1996/09/16 15:34:24 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F</robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -54,23 +54,38 @@ use strict;
 
 =head2 $rules = new WWW::RobotRules 'MOMspider/1.0'
 
-This is the constructor for WWW::RobotRules objects.  The argument
-given to new() is the name of the robot.
+This is the constructor for WWW::RobotRules objects.  The first 
+argument given to new() is the name of the robot. 
 
 =cut
 
 sub new {
     my($class, $ua) = @_;
 
-    $ua =~ s!/?\s*\d+.\d+\s*$!! if (defined $ua);	# lose version
-
-    bless {
-	'ua' => $ua,
-	'rules' => undef,
-    }, $class;
+    my $self = bless { }, $class;
+    $self->agent($ua);
+    $self;
 }
 
-=head2 $rules->parse($url, $content)
+=head2 $rules->agent([$name])
+
+Get/set the agent name. NOTE: Changing the agent name will clear the robots.txt
+rules and expire times out of the cache.
+
+=cut
+
+sub agent {
+    my ($self, $name) = @_;
+    my $old = $self->{'ua'};
+    if ($name) {
+	$self->clear;
+	$name =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
+	$self->{'ua'}=$name;
+    }
+    $old;
+}
+
+=head2 $rules->parse($url, $content, $fresh_until)
 
 The parse() method takes as arguments the URL that was used to
 retrieve the F</robots.txt> file, and the contents of the file.
@@ -78,67 +93,58 @@ retrieve the F</robots.txt> file, and the contents of the file.
 =cut
 
 sub parse {
-    my($self, $url, $txt) = @_;
+    my($self, $url, $txt, $fresh_until) = @_;
 
     $url = new URI::URL $url unless ref($url);	# make it URL
+    my $netloc = $url->netloc;
 
-    my $hostport = $url->host . ':' . $url->port;
-
-    delete $self->{'rules'}{$hostport} if
-	exists $self->{'rules'}{$hostport};
-
-    $txt =~ s/\015\012/\n/mg;	# fix weird line endings
+    $self->clear_rules($netloc);
+    $self->fresh_until($netloc, $fresh_until || (time + 365*24*3600));
 
     my $ua;
     my $is_me = 0;		# 1 iff this record is for me
-    my $isAnon = 0;		# 1 iff this record is for *
-    my @meDisallowed = ();	# rules disallowed for me
-    my @anonDisallowed = ();	# rules disallowed for *
+    my $is_anon = 0;		# 1 iff this record is for *
+    my @me_disallowed = ();	# rules disallowed for me
+    my @anon_disallowed = ();	# rules disallowed for *
 
     for(split(/\n/, $txt)) {
+	s/\015$//g;
 	s/\s*\#.*//;
 
 	if (/^\s*$/) {		# blank line
-	    if ($is_me) {
-		# That was our record. No need to read the rest.
-		last;
-	    }
-	    $is_me = $isAnon = 0;
-	    @meDisallowed = ();
+	    last if $is_me; # That was our record. No need to read the rest.
+	    $is_anon = 0;
 	}
-	elsif (/^User-agent:\s*(.*)\s*$/i) {
+        elsif (/^User-Agent:\s*(.*)/i) {
 	    $ua = $1;
+	    $ua =~ s/\s+$//;
 	    if ($is_me) {
 		# This record already had a User-agent that
 		# we matched, so just continue.
 	    }
+	    elsif ($ua eq '*') {
+		$is_anon = 1;
+	    }
 	    elsif($self->is_me($ua)) {
 		$is_me = 1;
 	    }
-	    elsif ($ua eq '*') {
-		$isAnon = 1;
-	    }
 	}
-	elsif (/^Disallow:\s*(.*)\s*$/i) {
+	elsif (/^Disallow:\s*(.*)/i) {
 	    unless (defined $ua) {
 		warn "RobotRules: Disallow without preceding User-agent\n";
-		$isAnon = 1;  # assume that User-agent: * was intended
+		$is_anon = 1;  # assume that User-agent: * was intended
 	    }
-
-	    my $full_path;
-	    if ($1 eq '') {
-		$full_path = '';
-	    }
-	    else {
-		my $abs = new URI::URL $1, $url;
-		$full_path = $abs->full_path();
+	    my $disallow = $1;
+	    $disallow =~ s/\s+$//;
+	    if (length $disallow) {
+		$disallow = URI::URL->new($disallow, $url)->full_path;
 	    }
 
 	    if ($is_me) {
-		push(@meDisallowed, $full_path);
+		push(@me_disallowed, $disallow);
 	    }
-	    elsif ($isAnon) {
-		push(@anonDisallowed, $full_path);
+	    elsif ($is_anon) {
+		push(@anon_disallowed, $disallow);
 	    }
 	}
 	else {
@@ -147,10 +153,9 @@ sub parse {
     }
 
     if ($is_me) {
-	$self->{'rules'}{$hostport} = \@meDisallowed;
-    }
-    elsif (@anonDisallowed) {
-	$self->{'rules'}{$hostport} = \@anonDisallowed;
+	$self->push_rules($netloc, @me_disallowed);
+    } else {
+	$self->push_rules($netloc, @anon_disallowed);
     }
 }
 
@@ -161,9 +166,8 @@ sub parse {
 #
 sub is_me {
     my($self, $ua) = @_;
-
     my $me = $self->{'ua'};
-    return $ua =~ /$me/i;
+    return index(lc($ua), lc($me)) >= 0;
 }
 
 =head2 $rules->allowed($url)
@@ -174,21 +178,91 @@ Returns TRUE if this robot is allowed to retrieve this URL.
 
 sub allowed {
     my($self, $url) = @_;
+    $url = URI::URL->new($url) unless ref $url;	# make it URL
 
-    $url = new URI::URL $url unless ref($url);	# make it URL
+    my $netloc = $url->netloc;
 
-    my $hostport = $url->host . ':' . $url->port;
-
-    return 1 unless exists $self->{'rules'}{$hostport};
+    my $fresh_until = $self->fresh_until($netloc);
+    return -1 if !defined($fresh_until) || $fresh_until < time;
 
     my $str = $url->full_path;
-
     my $rule;
-    for $rule (@{ $self->{'rules'}{$hostport}}) {
-	return 1 if ($rule eq '');
-	return 0 if ($str =~ /^\Q$rule/);
+    for $rule ($self->rules($netloc)) {
+	return 1 unless length $rule;
+	return 0 if index($str, $rule) == 0;
     }
     return 1;
+}
+
+sub visit {
+    my($self, $netloc, $time) = @_;
+    $time ||= time;
+    $self->{'loc'}{$netloc}{'last'} = $time;
+    
+    my $count = \$self->{'loc'}{$netloc}{'count'};
+    if (defined $$count) {
+	$$count = 1;
+    } else {
+	$$count++;
+    }
+}
+
+sub no_vists {
+    my ($self, $netloc) = @_;
+    $self->{'loc'}{$netloc}{'count'};
+}
+
+sub last_visit {
+    my ($self, $netloc) = @_;
+    $self->{'loc'}{$netloc}{'last'};
+}
+
+sub fresh_until {
+    my ($self, $netloc, $fresh_until) = @_;
+    my $old = $self->{'loc'}{$netloc}{'fresh'};
+    if (defined $fresh_until) {
+	$self->{'loc'}{$netloc}{'fresh'} = $fresh_until;
+    }
+    $old;
+}
+
+sub push_rules {
+    my($self, $netloc, @rules) = @_;
+    push (@{$self->{'loc'}{$netloc}{'rules'}}, @rules);
+}
+
+sub clear_rules {
+    my($self, $netloc) = @_;
+    delete $self->{'loc'}{$netloc}{'rules'};
+}
+
+sub rules {
+    my($self, $netloc) = @_;
+    if (defined $self->{'loc'}{$netloc}{'rules'}) {
+	return @{$self->{'loc'}{$netloc}{'rules'}};
+    } else {
+	return ();
+    }
+}
+
+sub clear
+{
+    my $self = shift;
+    delete $self->{'rules'};
+}
+
+sub dump
+{
+    my $self = shift;
+    for (keys %$self) {
+	next if $_ eq 'loc';
+	print "$_ = $self->{$_}\n";
+    }
+    for (keys %{$self->{'loc'}}) {
+	my @rules = $self->rules($_);
+	print "$_: ", join("; ", @rules), "\n";
+	
+    }
 }
 
 1;

@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.17 1997/04/05 12:38:04 aas Exp $
+# $Id: MediaTypes.pm,v 1.18 1997/05/25 08:55:42 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -91,7 +91,7 @@ for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
 
 =head1 FUNCTIONS
 
-=head2 guess_media_type($filename)
+=head2 guess_media_type($filename_or_url, [$header_to_modify])
 
 This function tries to guess media type and encoding for given file.
 In scalar context it returns only the content-type.  In array context
@@ -106,11 +106,16 @@ C<-T> perl operator in order to determine if this is a text file
 (text/plain).  If this does not work it will return
 I<application/octet-stream> as the type.
 
+The optional second argument should be a reference to a HTTP::Headers
+object (or some HTTP::Message object).  When present this function
+will set the value of the 'Content-Type' and 'Content-Encoding' for
+this header.
+
 =cut
 
 sub guess_media_type
 {
-    my($file) = @_;
+    my($file, $header) = @_;
     return undef unless defined $file;
 
     my $fullname;
@@ -158,6 +163,11 @@ sub guess_media_type
 	} else {
 	    $ct = "application/octet-stream";
 	}
+    }
+
+    if ($header) {
+	$header->header('Content-Type' => $ct);
+	$header->header('Content-Encoding' => \@encoding) if @encoding;
     }
 
     wantarray ? ($ct, @encoding) : $ct;

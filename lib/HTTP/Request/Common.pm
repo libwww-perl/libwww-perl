@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.11 1998/08/04 14:01:48 aas Exp $
+# $Id: Common.pm,v 1.12 1998/08/04 14:06:01 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -362,10 +362,11 @@ different):
   --6G+f--
 
 If you set the $DYNAMIC_FILE_UPLOAD variable (exportable) to some TRUE
-value, then you get back a request object with a closure as the
-content attribute.  This allow you to upload arbitrary big files
-without using lots of memory.  You can even upload infinite files like
-F</dev/audio> if you wish.
+value, then you get back a request object with a subroutine closure as
+the content attribute.  This subroutine will read the content of any
+files on demand and return it in suitable chunks.  This allow you to
+upload arbitrary big files without using lots of memory.  You can even
+upload infinite files like F</dev/audio> if you wish.
 
 =back
 

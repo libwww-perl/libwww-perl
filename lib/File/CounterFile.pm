@@ -1,9 +1,10 @@
 # This -*-perl -*- module implements a persistent counter class.
 #
-# $Id: CounterFile.pm,v 0.4 1995/07/14 07:58:01 aas Exp $
+# $Id: CounterFile.pm,v 0.5 1995/07/14 09:25:13 aas Exp $
 #
 
 package File::CounterFile;
+
 
 =head1 NAME
 
@@ -20,28 +21,57 @@ File::CounterFile - Persistent counter class
 =head1 DESCRIPTION
 
 This module implements a persistent counter class.  Each counter is
-represented by a separate file in the file system.  You give the file
-name as a parameter to the object constructor.  The file is created if
-it does not exist.
+represented by a separate file in the file system.  File locking is
+applied, so multiple processes might try to access the same counters
+at the same time without risk of counter destruction.
+
+You give the file name as the first parameter to the object
+constructor (C<new>).  The file is created if it does not exist.
 
 If the file name does not start with "/" or ".", then it is
-interpreted as a file relative to C<$File::CounterFile::DEFAULT_DIR>.  You
-might pass a second parameter to the constructor, that sets the
+interpreted as a file relative to C<$File::CounterFile::DEFAULT_DIR>.
+The default value for this variable is initialized from the
+environment variable C<TMPDIR>, or F</usr/tmp> is no environment
+variable is defined.  You may want to assign a different value to this
+variable before creating counters.
+
+If you pass a second parameter to the constructor, that sets the
 initial value for a new counter.  This parameter only takes effect
 when the file is created (i.e. it does not exist before the call).
 
-Each time you call the C<inc> method, you increment the counter value.
-The new value is returned.
+Each time you call the C<inc()> method, you increment the counter
+value.  The new value is returned.
+
+You can peek at the value of the counter (without incrementing it) by
+using the C<value()> method.
+
+The counter can be locked and unlocked with the C<lock()> and
+C<unlock()> methods.  Incrementing and value retrieval is faster when
+the counter is locked, because we do not have to update the counter
+file all the time.  You can query whether the counter is locked with
+the C<locked()> method.
+
+There is also an operator overloading interface to the
+File::CounterFile object.  This means that you might use the C<++>
+operator for incrementing the counter and you can interpolate counters
+diretly into strings.
 
 =head1 BUGS
 
-It uses flock(2) to lock the counter file.  This does not always
-work.  Perhaps it should use the File::Lock module.
+It uses flock(2) to lock the counter file.  This does not work on all
+systems.  Perhaps we should use the File::Lock module?
 
 =head1 INSTALLATION
 
 Copy this file to the F<File> subdirectory of your Perl 5 library
 directory (often F</usr/local/lib/perl5>).
+
+=head1 COPYRIGHT
+
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
@@ -53,17 +83,19 @@ Gisle Aas <aas@oslonett.no>
 use Carp;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 0.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.5 $ =~ /(\d+)\.(\d+)/);
 
 $MAGIC           = "#COUNTER-1.0\n";   # first line in counter files
-$DEFAULT_DIR     = "/usr/tmp";         # default location for counter files
 $DEFAULT_INITIAL = 0;                  # default initial counter value
 
-# Experimental overloading.  It does not work as good as expected.
-#
-# %OVERLOAD = ('++' => sub { my $this=shift; $this->inc; $this; },
-#   	       '""' => sub { shift->value; },
-# );
+ # default location for counter files
+$DEFAULT_DIR     = $ENV{TMPDIR} || "/usr/tmp";
+
+# Experimental overloading.
+%OVERLOAD = ('++'     => \&inc,
+ 	     '""'     => \&value,
+	     fallback => 1,
+);
 
 
 sub new
@@ -76,54 +108,133 @@ sub new
 
     my $value;
     if (-e $file) {
-	croak("Specified file is a directory") if -d _;
-	open(F, $file) or croak("Can't open $file: $!");
+	croak "Specified file is a directory" if -d _;
+	open(F, $file) or croak "Can't open $file: $!";
 	my $first_line = <F>;
 	$value = <F>;
 	close(F);
-	croak("Bad counter magic in $file")
-	    unless $first_line eq $MAGIC;
+	croak "Bad counter magic in $file" unless $first_line eq $MAGIC;
 	chomp($value);
     } else {
-	open(F, ">$file") or croak("Can't open $file: $!");
+	open(F, ">$file") or croak "Can't create $file: $!";
 	print F $MAGIC;
 	print F $initial, "\n";
 	close(F);
 	$value = $initial;
     }
 
-    bless { file => $file, value => $value };
+    bless { file    => $file,  # the filename for the counter
+	    value   => $value, # the current value
+	    updated => 0,      # flag indicating if value has changed
+	    # handle => XXX,   # file handle symbol. Only present when locked
+	  };
+}
+
+
+sub locked
+{
+    exists shift->{handle};
+}
+
+
+sub lock
+{
+    my($self) = @_;
+    $self->unlock if $self->locked;
+
+    my $fh = _gensym();
+    my $file = $self->{file};
+
+    open($fh, "+<$file") or croak "Can't open $file: $!";
+    flock($fh, 2) or croak "Can't flock: $!";  # 2 = exlusive lock
+
+    my $magic = <$fh>;
+    if ($magic ne $MAGIC) {
+	$self->unlock;
+	croak("Bad counter magic '$magic' in $file");
+    }
+    chomp($self->{value} = <$fh>);
+
+    $self->{handle}  = $fh;
+    $self->{updated} = 0;
+    $self;
+}
+
+
+sub unlock
+{
+    my($self) = @_;
+    return unless $self->locked;
+
+    my $fh = $self->{handle};
+
+    if ($self->{updated}) {
+	# write back new value
+	seek($fh, 0, 0) or croak "Can't seek to beginning: $!";
+	print $fh $MAGIC;
+	print $fh "$self->{value}\n";
+    }
+
+    close($fh) or warn "Can't close: $!";
+    _ungensym($self->{handle});
+    delete $self->{handle};
+    $self;
 }
 
 
 sub inc
 {
-    # Get a new identifier by incrementing the $count file
-    my($this) = @_;
-    croak("Not a ref") unless ref($this) eq "File::CounterFile";
-    my $file = $this->{file};
-    my $value;
-    open(COUNT, "+<$file") or croak("Can't open $file: $!");
-    flock(COUNT, 2) or croak("Can't flock: $!"); # exlusive lock
-    my $magic = <COUNT>;
-    if ($magic ne $MAGIC) {
-	close(COUNT);
-	croak("Bad counter magic '$magic' in $file");
+    my($self) = @_;
+
+    if ($self->locked) {
+	$self->{value}++;
+	$self->{updated} = 1;
+    } else {
+	$self->lock;
+	$self->{value}++;
+	$self->{updated} = 1;
+	$self->unlock;
     }
-    chomp($value = <COUNT>);
-    seek(COUNT, 0, 0) or croak("Can't seek to beginning: $!");
-    $value++;
-    print COUNT $MAGIC;
-    print COUNT "$value\n";
-    close(COUNT);
-    $this->{value} = $value;
-    $value;
+    $self->{value}; # return value
 }
 
 
 sub value
 {
-    shift->{value};
+    my($self) = @_;
+    my $value;
+    if ($self->locked) {
+	$value = $self->{value};
+    } else {
+	$self->lock;
+	$value = $self->{value};
+	$self->unlock;
+    }
+    $value;
+}
+
+
+sub DESTROY
+{
+    my $self = shift;
+    $self->unlock;
+}
+
+# Borrowed from POSIX.pm
+# It should actually be in FileHandle.pm, so we could use it from there.
+
+$gensym = 'COUNTER000';
+
+sub _gensym
+{
+    'File::CounterFile::' . $gensym++;
+}
+
+sub _ungensym
+{
+    local($x) = shift;
+    $x =~ s/.*:://;                   # lose package name
+    delete $File::CounterFile::{$x};  # delete from package symbol table
 }
 
 
@@ -176,6 +287,25 @@ $id3 = (new File::CounterFile $cf)->inc;
 die "test failed" unless ($id1 eq "aa99" && $id2 eq "ab00" && $id3 eq "ab01");
 unlink $cf;
 
+# Test operator overloading
+
+$c = new File::CounterFile $cf, "100";
+
+$c->lock;
+
+$c++;  # counter is now 101
+$c++;  # counter is now 102
+
+$id1 = "$c";
+$id2 = ++$c;
+
+sleep(2);
+
+$c = undef;  # destroy object
+
+unlink $cf;
+
+die "test failed" unless $id1 == 102 && $id2 == 103;
+
 
 print "Selftest for File::CounterFile $File::CounterFile::VERSION ok\n";
-

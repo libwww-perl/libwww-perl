@@ -6,6 +6,9 @@
     was enabled.  The HTTP::Cookies::add_cookie_header now ignored
     not-HTTP requests.
 
+    The new local/http test failed on Windows because of a missing
+    binmode().
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

@@ -299,6 +299,7 @@ sub httpd_post_echo
 
    # Do it the hard way to test the send_file
    open(TMP, ">tmp$$") || die;
+   binmode(TMP);
    print TMP $r->as_string;
    close(TMP) || die;
 
@@ -317,7 +318,7 @@ $_ = $res->content;
 print "not " unless $res->is_success
                 and /^Content-Length:\s*16$/mi
 		and /^Content-Type:\s*application\/x-www-form-urlencoded$/mi
-		and /^foo=bar&bar=test/m;
+		and /^foo=bar&bar=test$/m;
 print "ok 17\n";		
 
 #----------------------------------------------------------------

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.72 2004/11/15 11:41:31 gisle Exp $
+# $Id: Makefile.PL,v 1.73 2004/11/15 13:55:09 gisle Exp $
 
 require 5.005;
 use strict;
@@ -128,19 +128,7 @@ $Config{installscript}.
 EOT
     my @tmp;
     for my $alias (@request_aliases) {
-	my $default = "y";
-	# check that we don't overwrite something unrelated with
-	# the current defaults.
-	if (open(PROG, "<$Config{installscript}/$alias")) {
-	    $default = "n";
-	    while (<PROG>) {
-		if (/lwp-request/) {
-		    $default = "y";
-		    last;
-		}
-	    }
-	    close(PROG);
-	}
+	my $default = "n";
 	if (prompt("Do you want to install the $alias alias?", $default) =~ /^y/) {
 	    push(@tmp, $alias);
 	}

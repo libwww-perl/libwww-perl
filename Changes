@@ -1,3 +1,22 @@
+2001-11-21   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.62
+
+    The $VERSION of LWP::UserAgent wrapped around.  This confused the
+    CPAN indexer.  Bumped the major number to 2 to fix this.
+
+    Net::HTTP did not work well on perl5.003.  The PeerHost argument
+    to IO::Socket::INET was not recognized, so we had to use PeerAddr
+    instead.  The syswrite() method also required a length argument.
+
+    Net::HTTP did not deal with transfer encoding tokens in a
+    case-insensitive way.  Patch by Blair Zajac <blair@orcaware.com>.
+
+    The jigsaw-chunk test failed on MacOS because "\n" is different.
+    Patch by Chris Nandor <pudge@pobox.com>.
+
+
+
 2001-11-16   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.61

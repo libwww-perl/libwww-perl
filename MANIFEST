@@ -8,6 +8,7 @@ bin/lwp-download             	Writes bin/lwp-download script
 bin/lwp-mirror			Writes bin/lwp-mirror script
 bin/lwp-request			Writes bin/lwp-request script
 bin/lwp-rget			Writes bin/lwp-rget script
+talk-to-ourself			Are we able to run tests talk HTTP to local server?
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings
 lib/HTML/Form.pm                Parse <form>...</form>

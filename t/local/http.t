@@ -3,6 +3,11 @@ if ($^O eq "MacOS") {
     exit(0);
 }
 
+unless (-f "CAN_TALK_TO_OURSELF") {
+    print "1..0 # Skipped: Can't talk to ourself (misconfigured system)\n";
+    exit;
+}
+
 $| = 1; # autoflush
 
 require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.71 2004/04/06 11:50:41 gisle Exp $
+# $Id: Makefile.PL,v 1.72 2004/11/15 11:41:31 gisle Exp $
 
 require 5.005;
 use strict;
@@ -23,6 +23,21 @@ unless (getopts("n")) {
     die "Usage: $0 [-n]\n";
 }
 @programs_to_install = () if $opt_n || grep /^LIB=/, @ARGV;
+
+# Check if we should try to run tests that talk to ourself
+system(qq("$^X" talk-to-ourself));
+if ($?) {
+    print <<EOT;
+
+You appear to have a misconfigured system, so I will disable tests
+that try to talk HTTP to a local server.
+EOT
+    unlink("t/CAN_TALK_TO_OURSELF");
+}
+else {
+    open(CAN_TALK_TO_OURSELF, ">t/CAN_TALK_TO_OURSELF") || die "Can't create CAN_TALK_TO_OURSELF: $!";
+    close(CAN_TALK_TO_OURSELF);
+}
 
 # Check if we should try to run the live tests
 open(CHANGES, "Changes") || die "Can't open Changes: $!";

@@ -3,6 +3,11 @@ if ($^O eq "MacOS") {
     exit(0);
 }
 
+unless (-f "CAN_TALK_TO_OURSELF") {
+    print "1..0 # Skipped: Can't talk to ourself (misconfigured system)\n";
+    exit;
+}
+
 # Hm, this should really use Test.pm, but not worth changing over, really.
 
 

@@ -1,7 +1,7 @@
 #!perl -w
 
 use strict;
-use Test qw(plan ok);
+use Test qw(plan ok skip);
 
 plan tests => 84;
 
@@ -317,5 +317,7 @@ $m->header("Content-Encoding", "gzip, base64");
 $m->content_type("text/plain; charset=UTF-8");
 $m->content("H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
 
-ok(eval { $m->decoded_content }, "\x{FEFF}Hi there \x{263A}\n");
+$@ = "";
+skip($] < 5.008 ? "No Encode module" : "",
+     sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");

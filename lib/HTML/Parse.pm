@@ -1,12 +1,10 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 2.3 1996/06/09 14:49:59 aas Exp $
+# $Id: Parse.pm,v 2.4 1997/12/05 16:42:13 aas Exp $
 
 =head1 NAME
 
-parse_html - Parse HTML text
-
-parse_htmlfile - Parse HTML text from file
+HTML::Parse - Depreciated
 
 =head1 SYNOPSIS
 
@@ -20,9 +18,9 @@ parse_htmlfile - Parse HTML text from file
 
 =head1 DESCRIPTION
 
-I<Disclaimer: This module is provided for backwards compatibility with
-earlier versions of this library.  New code will probably prefer to
-use the HTML::Parser and HTML::TreeBuilder modules directly.>
+I<Disclaimer: This module is only provided for backwards compatibility
+with earlier versions of this library.  New code shold use the
+HTML::Parser and HTML::TreeBuilder modules directly.>
 
 The C<HTML::Parse> module provides functions to parse HTML documents.
 There are two functions exported by this module:
@@ -35,9 +33,10 @@ This function is really just a synonym for $obj->parse($html) and $obj
 is assumed to be a subclass of C<HTML::Parser>.  Refer to
 L<HTML::Parser> for more documentation.
 
-The $obj will default to a internally created C<HTML::TreeBuilder>
-object.  This class implements a parser that builds (and is) a HTML
-syntax tree with HTML::Element objects as nodes.
+The $obj will default to an internally created C<HTML::TreeBuilder>
+object configured with strict_comment() turned on.  This class
+implements a parser that builds (and is) a HTML syntax tree with
+HTML::Element objects as nodes.
 
 The return value from parse_html() is $obj.
 
@@ -115,7 +114,7 @@ $WARN           = 0;
 
 require HTML::TreeBuilder;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 
 sub parse_html ($;$)
@@ -137,11 +136,13 @@ sub parse_htmlfile ($;$)
 
 sub _new_tree_maker
 {
-    HTML::TreeBuilder->new(implicit_tags  => $IMPLICIT_TAGS,
-			 ignore_unknown => $IGNORE_UNKNOWN,
-			 ignore_text    => $IGNORE_TEXT,
-			 'warn'         => $WARN,
-                        );
+    my $p = HTML::TreeBuilder->new(implicit_tags  => $IMPLICIT_TAGS,
+		 	           ignore_unknown => $IGNORE_UNKNOWN,
+			           ignore_text    => $IGNORE_TEXT,
+				   'warn'         => $WARN,
+				  );
+    $p->strict_comment(1);
+    $p;
 }
 
 1;

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 97;
+plan tests => 98;
 
 use HTML::Form;
 
@@ -91,6 +91,19 @@ ok(@warn, 1);
 ok($warn[0] =~ /^Unknown input type 'xyzzy'/);
 @warn = ();
 
+$f = HTML::Form->parse(<<'EOT', "http://localhost/");
+<form>
+   <input type=submit value="Upload it!" name=n disabled>
+   <input type=image alt="Foo">
+   <input type=text name=t value="1">
+</form>
+EOT
+
+$f->dump;
+ok($f->click->as_string, <<'EOT');
+GET http://localhost/?x=1&y=1&t=1
+
+EOT
 
 # test file upload
 $f = HTML::Form->parse(<<'EOT', "http://localhost/");

@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.45 2004/06/16 18:12:48 gisle Exp $
+# $Id: Form.pm,v 1.46 2004/06/18 07:13:20 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -608,6 +608,7 @@ sub click
     for (@{$self->{'inputs'}}) {
         next unless $_->can("click");
         next if $name && $_->name ne $name;
+	next if $_->disabled;
 	return $_->click($self, @_);
     }
     Carp::croak("No clickable input with name $name") if $name;
@@ -1160,11 +1161,11 @@ sub form_name_value
     my $self = shift;
     my $clicked = $self->{clicked};
     return unless $clicked;
-    my $name = $self->{name};
-    return unless defined $name;
     return if $self->{disabled};
-    return ("$name.x" => $clicked->[0],
-	    "$name.y" => $clicked->[1]
+    my $name = $self->{name};
+    $name = (defined($name) && length($name)) ? "$name." : "";
+    return ("${name}x" => $clicked->[0],
+	    "${name}y" => $clicked->[1]
 	   );
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.10 1995/09/15 17:05:35 aas Exp $
+# $Id: file.pm,v 1.11 1996/02/05 19:42:34 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -58,7 +58,8 @@ sub request
     }
 
     # URL OK, look at file
-    my $path = $url->full_path;
+    my $upath = $url->full_path;
+    my $path  = $url->local_path;
 
     # test file exists and is readable
     unless (-e $path) {
@@ -94,14 +95,6 @@ sub request
     $response->header('Last-Modified', HTTP::Date::time2str($mtime));
 
     if (-d _) {         # If the path is a directory, process it
-	unless ($path =~ m,/$,) {
-	    # The path does not end with slash.  Return a redirect
-	    # response to ensures that paths get correct.
-	    my $resp = new HTTP::Response &HTTP::Status::RC_MOVED_PERMANENTLY,
-	                                  "Missing slash in directory";
-	    $resp->header('URI', "file:$path/");
-	    return $resp;
-	}
         # generate the HTML for directory
         opendir(D, $path) or
            return new HTTP::Response &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
@@ -114,9 +107,15 @@ sub request
             $_ .= "/" if -d "$path/$_";
             $_ = qq{<LI> <a href="$_">$_</a>};
         }
+	# Ensure that the base URL is "/" terminated
+	my $base = $url->clone;
+	unless ($base->full_path =~ m|/$|) {
+	    $base->epath($base->full_path . "/");
+	}
         my $html = join("\n",
                         "<HTML>\n<HEAD>",
                         "<TITLE>Directory $path</TITLE>",
+			"<BASE HREF=\"$base\">",
                         "</HEAD>\n<BODY>",
                         "<UL>", @files, "</UL>",
                         "</BODY>\n</HTML>\n");

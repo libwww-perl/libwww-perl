@@ -1,6 +1,6 @@
 use HTTP::Date;
 
-print "1..38\n";
+print "1..46\n";
 
 $no = 1;
 $| = 1;
@@ -89,10 +89,25 @@ for ('03-Feb-1969', '03-Feb-2039',
      'Mandag 16. September 1996',
      'Thu Feb  3 00:00:00 CET 1994',
      'Thu, 03 Feb 1994 00:00:00 CET',
+     'Wednesday, 31-Dec-69 23:59:59 GMT',
+
+     '1980-00-01',
+     '1980-13-01',
+     '1980-01-00',
+     '1980-01-32',
+     '1980-01-01 25:00:00',
+     '1980-01-01 00:61:00',
+     '1980-01-01 00:00:61',
     )
 {
-    die "str2time('$_') failed" if defined str2time($_);
+    eval {
+	if (defined str2time $_) {
+	    print "str2time($_) is not undefined\n";
+	    $bad++;
+	}
+    };
     print defined($_) ? "'$_'\n" : "undef\n";
+    print $@ if $@;
     ok;
 }
 print "HTTP::Date $HTTP::Date::VERSION tested ok\n";

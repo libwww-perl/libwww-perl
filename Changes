@@ -1,10 +1,6 @@
-2004-06-14   Gisle Aas <gisle@ActiveState.com>
+2004-06-16   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.800
-
-    HTML::Form will now "support" keygen-inputs.  It will not
-    calculate a key by itself.  The user will have to set its
-    value for it to be returned by the form.
 
     HTML::Form will allow individual menu entries to be disabled.
     This was needed to support <input type=radio disabled value=foo>
@@ -13,30 +9,46 @@
     HTML::Form now avoids name clashes between the <select> and
     <option> attributes.
 
+    HTML::Form now implicitly close <select> elements when it sees
+    another input or </form>.  This is closer to the MSIE behaviour.
+
+    HTML::Form will now "support" keygen-inputs.  It will not
+    calculate a key by itself.  The user will have to set its
+    value for it to be returned by the form.
+
     HTTP::Headers now special case field names that start with a
     ':'.   This is used as an escape mechanism when you need the
-    header names to not go through canonicalization.
+    header names to not go through canonicalization.  It means
+    that you can force LWP to use a specific casing and even
+    underscores in header names.  The ugly $TRANSLATE_UNDERSCORE
+    global has been undocumented as a result of this.
 
-    HTTP::Message will now allow an external content_ref
-    to be set.
+    HTTP::Message will now allow an external 'content_ref'
+    to be set.  This can for instance be used to let HTTP::Request
+    objects pick up content data from some scalar variable without
+    having to copy it.
 
     HTTP::Request::Common.  The individual parts will no longer
-    have a Content-Length header for file uploads.
+    have a Content-Length header for file uploads.  This improves
+    compatibility with "normal" browsers.
 
     LWP::Simple doc patch for getprint.
     Contributed by Yitzchak Scott-Thoennes <sthoenna@efn.org>.
 
     LWP::UserAgent: New methods default_header() and
-    default_headers().
+    default_headers().  These can be used to set up headers that
+    area automatically added to requests as they are sent.  This
+    can for instance be used to initialize various Accept headers.
 
-    LWP::Protocol::file and LWP::Protocol::mailto.  Typo fix
-    fix by Ville Skyttä <ville.skytta@iki.fi>.
+    Various typo fixes by Ville Skyttä <ville.skytta@iki.fi>.
 
-    Net::HTTP typo fix by Ville Skyttä <ville.skytta@iki.fi>.
+    Fixed test failure under perl-5.005.
     
-    LWP::Protocol::loopback:  This is a protocol handler that
+    LWP::Protocol::loopback:  This is a new protocol handler that
     works like the HTTP TRACE method, it will return the request
-    provided to it.  This is sometimes useful for testing.
+    provided to it.  This is sometimes useful for testing.  It can
+    for instance be invoked by setting the 'http_proxy' environment
+    variable to 'loopback:'.
 
 
 

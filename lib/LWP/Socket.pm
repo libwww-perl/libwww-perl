@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.13 1995/09/06 16:18:52 aas Exp $
+# $Id: Socket.pm,v 1.14 1995/09/15 14:53:44 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -108,12 +108,12 @@ sub connect
     $self->{'port'} = $port;
 
     my @addr = $self->_getaddress($host, $port);
-    croak "can't resolv address for $host:$port"
+    croak "Can't resolv address for $host"
       unless @addr;
 
     LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
     for (@addr) {
-	connect($self->{'socket'}, $addr[0]) and return;
+	connect($self->{'socket'}, $_) and return;
     }
     croak "Could not connect to $host:$port";
 }
@@ -338,17 +338,12 @@ sub _getaddress
         # hostname
         LWP::Debug::debugl("resolving host '$host'...");
         (undef,undef,undef,undef,@addr) = gethostbyname($host);
-	return undef unless @addr;
 	for (@addr) {
-	    $_ = [ unpack('C4', $_) ];
-	    LWP::Debug::debugl("   ..." . join(".", @$_));
+	    LWP::Debug::debugl("   ..." . join(".", unpack('C4', $_)));
+	    $_ = Socket::sockaddr_in(PF_INET, $port, unpack('C4', $_));
 	}
     }
-    if (wantarray) {
-	map(Socket::sockaddr_in(PF_INET, $port, @$_), @addr);
-    } else {
-	Socket::sockaddr_in(PF_INET, $port, @{$addr[0]});
-    }
+    wantarray ? @addr : $addr[0];
 }
 
 

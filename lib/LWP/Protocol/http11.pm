@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.6 2001/04/17 17:56:16 gisle Exp $
+# $Id: http11.pm,v 1.7 2001/04/19 04:42:23 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -57,6 +57,7 @@ sub _new_socket
 	$@ =~ s/^.*?: //;
 	die "Can't connect to $host:$port ($@)";
     }
+    $sock->blocking(0);
     $sock;
 }
 
@@ -73,9 +74,9 @@ sub _check_sock
 sub _get_sock_info
 {
     my($self, $res, $sock) = @_;
-    if (defined(my $peerhost = $sock->peerhost)) {
-	$res->header("Client-Peer" => "$peerhost:" . $sock->peerport);
-    }
+    #if (defined(my $peerhost = $sock->peerhost)) {
+    #    $res->header("Client-Peer" => "$peerhost:" . $sock->peerport);
+    #}
 }
 
 sub _fixup_header
@@ -191,10 +192,14 @@ sub request
     }
 
     my $req_buf = $socket->format_request($method, $fullpath, @h);
-    #LWP::Debug::conns($req_buf);
 
     # XXX need to watch out for write timeouts
-    print $socket $req_buf;
+    {
+	my $n = $socket->syswrite($req_buf, length($req_buf));
+	die $! unless defined($n);
+	die "short write" unless $n == length($req_buf);
+	#LWP::Debug::conns($req_buf);
+    }
 
     if ($has_content) {
 	# push out content
@@ -226,7 +231,7 @@ sub request
 	    #die "write timeout" if $timeout && !$sel->can_write($timeout);
 	    my $n = $socket->syswrite($$content_ref, length($$content_ref));
 	    die $! unless defined($n);
-	    die "short write" unless $n == length($$content_ref);
+	    die "short write ($n/@{[length($$content_ref)]})" unless $n == length($$content_ref);
 	    #LWP::Debug::conns($$cont_ref);
 	}
     }

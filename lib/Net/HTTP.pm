@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.26 2001/04/29 04:38:47 gisle Exp $
+# $Id: HTTP.pm,v 1.27 2001/04/29 06:14:10 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -354,7 +354,7 @@ sub read_entity_body {
 		${*$self}{'http_trailers'} = [$self->read_header_lines];
 		$$buf_ref = "";
 
-		my $n;
+		my $n = 0;
 		if (my $transforms = ${*$self}{'http_te2'}) {
 		    for (@$transforms) {
 			$$buf_ref = &$_($$buf_ref, 1);
@@ -374,6 +374,8 @@ sub read_entity_body {
 	my $n = $chunked;
 	$n = $size if $size && $size < $n;
 	$n = my_read($self, $$buf_ref, $n);
+	return undef unless defined $n;
+
 	${*$self}{'http_chunked'} = $chunked - $n;
 
 	if (my $transforms = ${*$self}{'http_te2'}) {

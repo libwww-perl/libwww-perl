@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.46 1999/03/19 22:03:10 gisle Exp $
+# $Id: http.pm,v 1.47 1999/11/04 20:31:21 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -84,7 +84,7 @@ sub request
     # connect to remote site
     my $socket = $self->_new_socket($host, $port, $timeout);
     $self->_check_sock($request, $socket);
-	    
+
     my $sel = IO::Select->new($socket) if $timeout;
 
     my $request_line = "$method $fullpath HTTP/1.0$CRLF";
@@ -105,12 +105,14 @@ sub request
 	$h->header('Content-Length' => length $$cont_ref)
 	        if defined($$cont_ref) && length($$cont_ref);
     }
-    
+
     # HTTP/1.1 will require us to send the 'Host' header, so we might
     # as well start now.
     my $hhost = $url->authority;
     $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
     $h->header('Host' => $hhost) unless defined $h->header('Host');
+
+    $h->remove_header('Connection');  # need support here to be useful
 
     # add authorization header if we need them.  HTTP URLs do
     # not really support specification of user and password, but
@@ -143,7 +145,7 @@ sub request
 	die "short write" unless $n == length($$cont_ref);
 	LWP::Debug::conns($buf);
     }
-    
+
     # read response line from server
     LWP::Debug::debug('reading response');
 

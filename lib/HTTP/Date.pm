@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 13:45:02 $
+package HTTP::Date;  # $Date: 1999/05/03 14:04:48 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -45,6 +45,7 @@ sub str2time ($;$)
     }
 
     my @d = parse_date($str);
+    return unless @d;
     $d[0] -= 1900;  # year
     $d[1]--;        # month
 
@@ -103,7 +104,7 @@ sub parse_date ($)
 	    (?::(\d\d))?       # optional seconds
 	 )?                    # optional clock
 	    \s*
-	 ([-+]?\d{2,4}|(?![AP]M\b)[A-Z]+)? # timezone
+	 ([-+]?\d{2,4}|(?![APap][Mm]\b)[A-Za-z]+)? # timezone
 	    \s*$
 	/x)
 
@@ -119,7 +120,7 @@ sub parse_date ($)
 	 (\d\d?):(\d\d)        # hour:min
 	 (?::(\d\d))?          # optional seconds
 	    \s+
-	 (?:([A-Z]+)\s+)?      # optional timezone
+	 (?:([A-Za-z]+)\s+)?   # optional timezone
 	 (\d+)                 # year
 	    \s*$               # allow trailing whitespace
 	/x)
@@ -152,7 +153,7 @@ sub parse_date ($)
 	     [-\/]?
 	  (\d\d?)              # day
 	 (?:
-	       (?:\s+|:|T|-)   # separator before clock
+	       (?:\s+|[-:Tt])  # separator before clock
 	    (\d\d?):?(\d\d)    # hour:min
 	    (?::?(\d\d))?      # optional seconds
 	 )?                    # optional clock
@@ -173,7 +174,7 @@ sub parse_date ($)
              -
           (\d{2})                # year
              \s+
-          (\d\d?):(\d\d)([apAP][mM])  # hour:min AM or PM
+          (\d\d?):(\d\d)([APap][Mm])  # hour:min AM or PM
              \s*$
         /x)
 

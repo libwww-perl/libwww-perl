@@ -1,25 +1,26 @@
-# $Id: Protocol.pm,v 1.21 1996/05/08 16:26:49 aas Exp $
+# $Id: Protocol.pm,v 1.22 1996/05/26 10:41:39 aas Exp $
 
 package LWP::Protocol;
 
 =head1 NAME
 
-LWP::Protocol - Virtual base class for LWP protocols
+LWP::Protocol - Base class for LWP protocols
 
 =head1 DESCRIPTION
 
-This class is the parent for all access method supported by the LWP
-library. It is used internally in the library.
+This class is used a the base class for all protocol implementations
+supported by the LWP library.
 
-When creating an instance of this class using C<LWP::Protocol::new()>
-you pass a URL, and you get an initialised subclass appropriate for
-that access method. In other words, the constructor for this class
-calls the constructor for one of its subclasses.
+When creating an instance of this class using
+C<LWP::Protocol::create($url)>, and you get an initialised subclass
+appropriate for that access method. In other words, the
+LWP::Protocol::create() function calls the constructor for one of its
+subclasses.
 
-The LWP::Protocol sub classes need to override the request() method
-which is used to service a request for that specific protocol. The
-overridden method can make use of the collect() function to collect
-together chunks of data as it is received.
+All derived LWP::Protocol classes need to override the request()
+method which is used to service a request. The overridden method can
+make use of the collect() function to collect together chunks of data
+as it is received.
 
 =head1 SEE ALSO
 
@@ -38,11 +39,12 @@ require LWP::MemberMixin;
 use strict;
 use Carp ();
 use HTTP::Status 'RC_INTERNAL_SERVER_ERROR';
+require HTML::HeadParser;
 
 my %ImplementedBy = (); # scheme => classname
 
 
-=head2 new HTTP::Protocol
+=head2 $prot = new HTTP::Protocol;
 
 The LWP::Protocol constructor is inherited by subclasses. As this is a
 virtual base class this method should B<not> be called directly.
@@ -140,12 +142,12 @@ sub request
 }
 
 
-=head2 timeout($seconds)
+=head2 $prot->timeout($seconds)
 
 Get and set the timeout value in seconds
 
 
-=head2 use_alarm($yesno)
+=head2 $prot->use_alarm($yesno)
 
 Indicates if the library is allowed to use the core alarm()
 function to implement timeouts.
@@ -156,12 +158,23 @@ sub timeout  { shift->_elem('timeout',  @_); }
 sub use_alarm { shift->_elem('use_alarm', @_); }
 
 
-=head2 collect($arg, $response, $collector)
+=head2 $prot->collect($arg, $response, $collector)
 
 Called to collect the content of a request, and process it
-appropriately into a scalar, file, or by calling a callback.
+appropriately into a scalar, file, or by calling a callback.  If $arg
+is undefined, then the content is stored within the $response.  If
+$arg is a simple scalar, then $arg is interpreted as a file name and
+the content is written to this file.  If $arg is a reference to a
+routine, then content is passed to this routine.
 
-Note: We will only use the callback or file argument if
+The $collector is a routine that will be called and which is
+reponsible for returning pieces (as ref to scalar) of the content to
+process.  The $collector signals EOF by returning a reference to an
+empty sting.
+
+The return value from collect() is the $response object reference.
+
+B<Note:> We will only use the callback or file argument if
 $response->is_success().  This avoids sendig content data for
 redirects and authentization responses to the callback which would be
 confusing.
@@ -174,9 +187,17 @@ sub collect
     my $content;
     my($use_alarm, $timeout) = @{$self}{'use_alarm', 'timeout'};
 
+    my $parser;
+    if ($response->content_type eq 'text/html') {
+	$parser = HTML::HeadParser->new($response->{'_headers'});
+    }
+    
     if (!defined($arg) || !$response->is_success) {
 	# scalar
 	while ($content = &$collector, length $$content) {
+	    if ($parser) {
+		$parser->parse($$content) or undef($parser);
+	    }
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    $response->add_content($$content);
@@ -190,6 +211,9 @@ sub collect
 			  "Cannot write to '$arg': $!";
         local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
 	while ($content = &$collector, length $$content) {
+	    if ($parser) {
+		$parser->parse($$content) or undef($parser);
+	    }
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    print OUT $$content;
@@ -200,6 +224,9 @@ sub collect
     elsif (ref($arg) eq 'CODE') {
 	# read into callback
 	while ($content = &$collector, length $$content) {
+	    if ($parser) {
+		$parser->parse($$content) or undef($parser);
+	    }
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
             eval {
@@ -220,6 +247,15 @@ sub collect
     $response;
 }
 
+
+=head2 $prot->collect_once($arg, $response, $content)
+
+Can be called when the whole response content is available as
+$content.  This will invoke collect() with a collector callback that
+returns a reference to $content the first time and an empty string the
+next.
+
+=cut
 
 sub collect_once
 {

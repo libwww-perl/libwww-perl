@@ -1,5 +1,5 @@
 #
-# $Id: UserAgent.pm,v 1.20 1995/09/04 19:42:17 aas Exp $
+# $Id: UserAgent.pm,v 1.21 1995/09/04 20:45:13 aas Exp $
 
 package LWP::UserAgent;
 
@@ -19,7 +19,7 @@ LWP::UserAgent - A WWW UserAgent class
  $response = $ua->request($request, '/tmp/sss'); # or
  $response = $ua->request($request, \&callback, 4096);
 
- sub callback { my($dataref, $response, $protocol) = @_; .... }
+ sub callback { my($data, $response, $protocol) = @_; .... }
 
 =head1 DESCRIPTION
 
@@ -55,9 +55,8 @@ contains the name of the file, but not the content. The subroutine
 variant requires a callback routine and optional chuck size, and can
 be used to construct "pipe-lined" processing, where processing of
 received chuncks can begin before the complete data has arrived.  The
-callback is called with 3 arguments: a reference to the data, a
-reference to the response object and a reference to the protocol
-object.
+callback is called with 3 arguments: a the data, a reference to the
+response object and a reference to the protocol object.
 
 The library also accepts that you put a subroutine as content in the
 request object.  This subroutine should return the content (possibly

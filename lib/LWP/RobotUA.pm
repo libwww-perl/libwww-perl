@@ -1,4 +1,4 @@
-# $Id: RobotUA.pm,v 1.8 1996/09/19 12:11:20 aas Exp $
+# $Id: RobotUA.pm,v 1.9 1996/09/30 11:45:36 aas Exp $
 
 package LWP::RobotUA;
 
@@ -136,19 +136,19 @@ sub rules {
 }
 
 
-=head2 $ua->no_vists($netloc)
+=head2 $ua->no_visits($netloc)
 
 Returns the number of documents fetched from this server host.
 
 =cut
 
-sub no_vists
+sub no_visits
 {
     my($self, $netloc) = @_;
-    $self->{'rules'}->no_vists($netloc);
+    $self->{'rules'}->no_visits($netloc);
 }
 
-*host_count = \&no_vists;  # backwards compatibility with LWP-5.02
+*host_count = \&no_visits;  # backwards compatibility with LWP-5.02
 
 
 =head2 $ua->host_wait($netloc)

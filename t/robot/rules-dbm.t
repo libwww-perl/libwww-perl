@@ -12,7 +12,7 @@ $r->parse("http://www.aas.no/robots.txt", "");
 
 $r->visit("www.aas.no");
 
-print "not " if $r->no_vists("www.aas.no") != 1;
+print "not " if $r->no_visits("www.aas.no") != 1;
 print "ok 1\n";
 
 
@@ -37,11 +37,11 @@ print "ok 3\n";
 $r->visit("www.aas.no", time+10);
 $r->visit("www.sn.no");
 
-print "No visits: ", $r->no_vists("www.aas.no"), "\n";
+print "No visits: ", $r->no_visits("www.aas.no"), "\n";
 print "Last visit: ", $r->last_visit("www.aas.no"), "\n";
 print "Fresh until: ", $r->fresh_until("www.aas.no"), "\n";
 
-print "not " if $r->no_vists("www.aas.no") != 2;
+print "not " if $r->no_visits("www.aas.no") != 2;
 print "ok 4\n";
 
 print "not " if abs($r->last_visit("www.sn.no") - time) > 2;
@@ -53,7 +53,7 @@ $r = undef;
 $r = new WWW::RobotRules::AnyDBM_File undef, $file;
 $r->visit("www.aas.no");
 
-print "not " if $r->no_vists("www.aas.no") != 3;
+print "not " if $r->no_visits("www.aas.no") != 3;
 print "ok 6\n";
 
 print "Agent-Name: ", $r->agent, "\n";
@@ -72,7 +72,7 @@ print "******\n";
 # Try to open database with a different agent name
 $r = new WWW::RobotRules::AnyDBM_File "MOMSpider/2.0", $file;
 
-print "not " if $r->no_vists("www.sn.no");
+print "not " if $r->no_visits("www.sn.no");
 print "ok 8\n";
 
 # Try parsing

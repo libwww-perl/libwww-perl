@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.4 1996/09/19 11:44:35 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.5 1996/09/30 11:45:13 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -79,7 +79,7 @@ sub agent {
     $old;
 }
 
-sub no_vists {
+sub no_visits {
     my ($self, $netloc) = @_;
     (split(/;\s*/, $self->{'dbm'}{"$netloc|vis"}))[0];
 }

@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.10 1996/09/19 11:51:14 aas Exp $
+# $Id: RobotRules.pm,v 1.11 1996/09/30 11:45:10 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -184,8 +184,8 @@ sub allowed {
 # The following methods must be provided by the subclass.
 sub agent;
 sub visit;
-sub no_vists;
-sub last_vists;
+sub no_visits;
+sub last_visits;
 sub fresh_until;
 sub push_rules;
 sub clear_rules;
@@ -228,7 +228,7 @@ sub visit {
     }
 }
 
-sub no_vists {
+sub no_visits {
     my ($self, $netloc) = @_;
     $self->{'loc'}{$netloc}{'count'};
 }

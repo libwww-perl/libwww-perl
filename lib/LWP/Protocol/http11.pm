@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.21 2001/08/28 04:10:07 gisle Exp $
+# $Id: http11.pm,v 1.22 2001/08/28 04:34:31 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -187,7 +187,11 @@ sub request
 
     my @h;
     my $request_headers = $request->headers;
-    $request_headers->scan(sub { push(@h, @_); });
+    $request_headers->scan(sub {
+			       my($k, $v) = @_;
+			       $v =~ s/\n/ /g;
+			       push(@h, $k, $v);
+			   });
 
     my $content_ref = $request->content_ref;
     $content_ref = $$content_ref if ref($$content_ref);

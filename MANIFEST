@@ -82,7 +82,6 @@ t/base/date.t			Test HTTP::Date module
 t/base/entities.t		Test HTML::Entities module
 t/base/headers.t		Test HTTP::Headers module
 t/base/html-parse.t		Test HTML::Parse module
-t/base/mailcap.t		Test Mail::Cap module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
 t/base/quoted-print.t		Test MIME::QuotedPrint module

@@ -1,6 +1,8 @@
 package URI::URL::file;
 @ISA = qw(URI::URL::_generic);
 
+require Carp;
+
 # fileurl        = "file://" [ host | "localhost" ] "/" fpath
 # fpath          = fsegment *[ "/" fsegment ]
 # fsegment       = *[ uchar | "?" | ":" | "@" | "&" | "=" ]
@@ -25,7 +27,6 @@ sub _esc_path
     $text;
 }
 
-use Carp;
-sub query { croak "Illegal method for file URLs"; }
+sub query { Carp::croak("Illegal method for file URLs"); }
 
 1;

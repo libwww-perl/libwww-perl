@@ -1,12 +1,12 @@
 package URI::URL::rlogin;
 @ISA = qw(URI::URL::_generic);
 
-use Carp;
-my $illegal = "Illegal method for rlogin URLs";
+require Carp;
+sub illegal { Carp::croak("Illegal attribute for rlogin URLs"); }
 
-sub path     { croak $illegal; }
-sub params   { croak $illegal; }
-sub query    { croak $illegal; }
-sub frag     { croak $illegal; }
+*path      = \&illegal;
+*query     = \&illegal;
+*params    = \&illegal;
+*frag      = \&illegal;
 
 1;

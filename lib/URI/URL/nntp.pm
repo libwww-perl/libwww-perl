@@ -31,14 +31,15 @@ sub as_string {
     $str;
 }
 
-use Carp;
-my $illegal = "Illegal method for nntp URLs";
+# Standard methods are not legal for nntp URLs
+require Carp;
+sub illegal { Carp::croak("Illegal attribute for nntp URLs"); }
 
-sub path     { croak $illegal; }
-sub params   { croak $illegal; }
-sub query    { croak $illegal; }
-sub frag     { croak $illegal; }
-sub user     { croak $illegal; }
-sub password { croak $illegal; }
+*path      = \&illegal;
+*query     = \&illegal;
+*params    = \&illegal;
+*frag      = \&illegal;
+*user      = \&illegal;
+*password  = \&illegal;
 
 1;

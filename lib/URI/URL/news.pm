@@ -18,17 +18,19 @@ sub as_string {
     "$self->{'scheme'}:" . $self->escape($self->{'grouppart'});
 }
 
-use Carp;
-my $illegal = "Illegal method for news URLs";
+# Standard methods are not legal for news URLs
+require Carp;
+sub illegal { Carp::croak("Illegal attribute for news URLs"); }
 
-sub path     { croak $illegal; }
-sub params   { croak $illegal; }
-sub query    { croak $illegal; }
-sub frag     { croak $illegal; }
-sub netloc   { croak $illegal; }
-sub user     { croak $illegal; }
-sub password { croak $illegal; }
-sub host     { croak $illegal; }
-sub port     { croak $illegal; }
+*path      = \&illegal;
+*query     = \&illegal;
+*params    = \&illegal;
+*frag      = \&illegal;
+
+*user      = \&illegal;
+*password  = \&illegal;
+*host      = \&illegal;
+*port      = \&illegal;
+*full_path = \&illegal;
 
 1;

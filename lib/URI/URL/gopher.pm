@@ -58,7 +58,7 @@ sub _path_elem {
     $old;
 }
 
-use Carp;
-sub query { croak "Illegal method for gopher URLs" }
+require Carp;
+sub query { Carp::croak("Illegal method for gopher URLs") }
 
 1;

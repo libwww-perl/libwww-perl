@@ -20,18 +20,18 @@ sub as_string {
 sub netloc { shift->encoded822addr(@_)};
 
 # Standard methods are not legal for mailto URLs
-use Carp;
-my $illegal = "Illegal attribute for mailto URLs";
+require Carp;
+sub illegal { Carp::croak("Illegal attribute for mailto URLs"); }
 
-sub path      { croak $illegal; }
-sub query     { croak $illegal; }
-sub params    { croak $illegal; }
-sub frag      { croak $illegal; }
+*path      = \&illegal;
+*query     = \&illegal;
+*params    = \&illegal;
+*frag      = \&illegal;
 
-sub user      { croak $illegal; }  # should we allow this one?
-sub password  { croak $illegal; }
-sub host      { croak $illegal; }  # and this one?
-sub port      { croak $illegal; }
-sub full_path { croak $illegal; }
+*user      = \&illegal; # should we allow this one?
+*password  = \&illegal;
+*host      = \&illegal; # and this one?
+*port      = \&illegal;
+*full_path = \&illegal;
 
 1;

@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..8\n";
+print "1..10\n";
 
 use strict;
 #use Data::Dump ();
@@ -15,6 +15,7 @@ use strict;
       a => { "/" => "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 6\r\n\r\nHello\n",
 	     "/bad1" => "HTTP/1.0 200 OK\nServer: foo\nHTTP/1.0 200 OK\nContent-type: text/foo\n\nabc\n",
 	     "/09" => "Hello\r\nWorld!\r\n",
+	     "/chunked" => "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0002; foo=3; bar\r\nHe\r\n1\r\nl\r\n2\r\nlo\r\n0000\r\nContent-MD5: xxx\r\n\r\n",
 	   },
     );
 
@@ -90,6 +91,8 @@ use strict;
 		$buf .= $tmp;
 	    }
 
+	    push(@h, $self->get_trailers);
+
 	};
 
 	my %res = ( code => $code,
@@ -158,4 +161,14 @@ print "not " unless $res->{error} =~ /^Bad response status line: 'Hello'/;
 print "ok 8\n";
 $h = undef;  # it's in a bad state again
 
+$h = HTTP->new(Host => "a", KeepAlive => 1, ReadChunkSize => 1) || die;  # reconnect
+$res = $h->request(GET => "/chunked");
+print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello" &&
+                    "@{$res->{headers}}" eq "Transfer-Encoding chunked Content-MD5 xxx";
+print "ok 9\n";
 
+# once more
+$res = $h->request(GET => "/chunked");
+print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello" &&
+                    "@{$res->{headers}}" eq "Transfer-Encoding chunked Content-MD5 xxx";
+print "ok 10\n";

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.7 1995/07/14 00:29:22 aas Exp $
+# $Id: Request.pm,v 1.8 1995/07/15 07:58:05 aas Exp $
 
 package LWP::Request;
 
@@ -96,7 +96,7 @@ sub url
 	    $url = new URI::URL($url);
 	}
     }
-    $self->_elem('_url',    $url);
+    $self->_elem('_url', $url);
 }
 
 

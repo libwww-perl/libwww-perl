@@ -1,3 +1,19 @@
+2003-10-17   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.71
+
+    lwp-request now prints unsuccessful responses in the same way
+    as successsful ones.  The status will still indicate failures.
+    Based on a patch by Steve Hay <steve.hay@uk.radan.com>.
+
+    HTML::Form's dump now also print alternative value names.
+
+    HTML::Form will now pick up the phrase after a <input type=radio>
+    or <input type=checkbox> and use that as the name of checked
+    value.
+
+
+
 2003-10-13   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.70

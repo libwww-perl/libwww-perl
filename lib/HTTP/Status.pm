@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.13 1996/02/27 19:28:30 aas Exp $
+# $Id: Status.pm,v 1.14 1996/02/27 19:36:34 aas Exp $
 
 package HTTP::Status;
 
@@ -24,7 +24,7 @@ HTTP::Status - HTTP Status code processing
 =head1 DESCRIPTION
 
 HTTP::Status is a library of routines for manipulating
-HTTP Status Codes for L<libwww-perl>.
+HTTP Status Codes for libwww-perl.
 
 The following functions can be used as mnemonic status codes:
 

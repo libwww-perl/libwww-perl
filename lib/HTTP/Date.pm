@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 1999/05/03 12:04:49 $
+package HTTP::Date;  # $Date: 1999/05/03 12:41:15 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -9,6 +9,7 @@ require Exporter;
 @EXPORT_OK = qw(parse_date time2iso time2isoz);
 
 use strict;
+require Time::Local;
 
 use vars qw(@DoW @MoY %MoY);
 @DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
@@ -32,12 +33,21 @@ sub time2str (;$)
 
 sub str2time ($;$)
 {
-    my @d = &parse_date;  # rely on one element shifted off @_
-    return unless @d;
+    my $str = shift;
+    return unless defined $str;
+
+    # fast exit for strictly conforming string
+    if ($str =~ /^[SMTWF][a-z][a-z], (\d\d) ([JFMAJSOND][a-z][a-z]) (\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$/) {
+	return eval {
+	    my $t = Time::Local::timegm($6, $5, $4, $1, $MoY{$2}-1, $3-1900);
+	    $t < 0 ? undef : $t;
+	};
+    }
+
+    my @d = parse_date($str);
     $d[0] -= 1900;  # year
     $d[1]--;        # month
 
-    require Time::Local;
     my $tz = pop(@d);
     unless (defined $tz) {
 	unless (defined($tz = shift)) {
@@ -71,12 +81,7 @@ sub str2time ($;$)
 sub parse_date ($)
 {
     local($_) = shift;
-
     return unless defined;
-
-    # fast exit for strictly conforming string
-    return($3, $MoY{$2}, $1, $4, $5, $6, "GMT")
-	if /^[SMTWF][a-z][a-z], (\d\d) ([JFMAJSOND][a-z][a-z]) (\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$/;
 
     # More lax parsing below
     s/^\s+//;  # kill leading space

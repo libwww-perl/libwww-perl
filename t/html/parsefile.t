@@ -1,10 +1,6 @@
 print "1..1\n";
 
-# This test creates a file and then try to parse it using the
-# parse_htmlfile() function.
-
-
-use HTML::Parse qw(parse_htmlfile);
+use HTML::TreeBuilder;
 
 $file = "lwp-test-$$";
 
@@ -26,7 +22,8 @@ href="http://www.sn.no/libwww-perl/">link</a> back to the
 EOT
 close(F);
 
-$h = parse_htmlfile($file);
+$h = HTML::TreeBuilder->new;
+$h->parse_file($file);
 unlink($file);
 
 $_ = $h->as_HTML;

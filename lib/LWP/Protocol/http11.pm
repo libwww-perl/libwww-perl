@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.10 2001/04/20 16:51:35 gisle Exp $
+# $Id: http11.pm,v 1.11 2001/04/20 18:23:47 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -282,6 +282,8 @@ sub request
     }
 
     $response->remove_header('Transfer-Encoding');
+    $response->push_header('Client-Warning', 'LWP HTTP/1.1 support is experimental');
+    $response->push_header('Client-Request-Num', ++${*$socket}{'myhttp_req_count'});
 
     $response = $self->collect($arg, $response, sub {
 	my $buf;

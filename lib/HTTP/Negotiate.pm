@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.9 2001/08/07 00:10:45 gisle Exp $
+# $Id: Negotiate.pm,v 1.10 2001/11/27 22:15:15 gisle Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -102,10 +102,11 @@ sub choose ($;$)
     for (@$variants) {
 	my($id, $qs, $ct, $enc, $cs, $lang, $bs) = @$_;
 	$qs = 1 unless defined $qs;
+        $ct = '' unless defined $ct;
 	$bs = 0 unless defined $bs;
 	$lang = lc($lang) if $lang; # lg tags are always case-insensitive
 	if ($DEBUG) {
-	    print "\nEvaluating $id ($ct)\n";
+	    print "\nEvaluating $id (ct='$ct')\n";
 	    printf "  qs   = %.3f\n", $qs;
 	    print  "  enc  = $enc\n"  if $enc && !ref($enc);
 	    print  "  enc  = @$enc\n" if $enc && ref($enc);

@@ -3,7 +3,7 @@
 # message.t test suite.
 
 
-print "1..6\n";
+print "1..7\n";
 
 
 use HTTP::Date;
@@ -82,3 +82,5 @@ print "ok 5\n";
 print "not " if $freshness_lifetime != 10;
 print "ok 6\n";
 
+print "not " unless $r->fresh_until;  # should return something
+print "ok 7\n";

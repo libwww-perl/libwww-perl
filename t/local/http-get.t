@@ -218,22 +218,19 @@ print "ok 9\n";
 
 # Let's test a redirect loop too
 sub httpd_get_redirect2 { shift->send_redirect("/redirect3/") }
-sub httpd_get_redirect3 { shift->send_redirect("/redirect4/") }
-sub httpd_get_redirect4 { shift->send_redirect("/redirect5/") }
-sub httpd_get_redirect5 { shift->send_redirect("/redirect6/") }
-sub httpd_get_redirect6 { shift->send_redirect("/redirect2/") }
+sub httpd_get_redirect3 { shift->send_redirect("/redirect2/") }
 
 $res = $ua->get(url("/redirect2", $base));
 #print $res->as_string;
 print "not " unless $res->is_redirect
                 and $res->header("Client-Warning") =~ /loop detected/i;
 print "ok 10\n";
-$i = 1;
+$i = 0;
 while ($res->previous) {
    $i++;
    $res = $res->previous;
 }
-print "not " unless $i == 6;
+print "not " unless $i == 7;
 print "ok 11\n";
 
 #----------------------------------------------------------------

@@ -1,5 +1,9 @@
 Tue Mar  5 1996   Gisle Aas <aas@sn.no>
 
+ o  Release 5b9
+
+ o  Started to write on the libwww-perl cookbook (lwpcook.pod)
+
  o  The URI::URL module now exports the function url().  This is an
     alternative (easy to use) constructor function.
 
@@ -14,15 +18,16 @@ Tue Mar  5 1996   Gisle Aas <aas@sn.no>
  o  The LWP::Simple user agent proxy settings are intialized from
     the proxy environment variables. 
 
- o  Use the Net::FTP library to access ftp servers.
+ o  LWP::Protocol::ftp: Use the Net::FTP library to access ftp servers.
+    Convert directories to HTML on request (Accept: text/html).
 
  o  New module HTTP::Negotiate
 
  o  New module File::Listing
 
  o  HTTP::Date::str2time can parse a few more formats, like the 'ls -l'
-    format.  The function now also takes an optional second parameter
-    which specify an default timezone.
+    format and ISO 8601.  The function now also takes an optional second
+    parameter which specify a default time zone.
 
  o  Added prototypes to the HTTP::Date functions.
 

@@ -3,9 +3,11 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 100;
+plan tests => 142;
 
 my($h, $h2);
+sub j { join("|", @_) }
+
 
 require HTTP::Headers;
 $h = HTTP::Headers->new;
@@ -183,15 +185,82 @@ ok($h->content_type, "text/html");
 ok($h->content_type("   TEXT  / HTML   ") , "text/html");
 ok($h->content_type, "text/html");
 ok(j($h->content_type), "text/html");
-ok($h->content_type("text/html;  charSet = \"ISO-8859-1\"; Foo=1 "), "text/html");
+ok($h->content_type("text/html;\n charSet = \"ISO-8859-1\"; Foo=1 "), "text/html");
 ok($h->content_type, "text/html");
 ok(j($h->content_type), "text/html|charSet = \"ISO-8859-1\"; Foo=1 ");
+ok($h->header("content_type"), "text/html;\n charSet = \"ISO-8859-1\"; Foo=1 ");
+
+ok($h->content_encoding, undef);
+ok($h->content_encoding("gzip"), undef);
+ok($h->content_encoding, "gzip");
+ok(j($h->header_field_names), "Content-Encoding|Content-Type");
+
+ok($h->content_language, undef);
+ok($h->content_language("no"), undef);
+ok($h->content_language, "no");
+
+ok($h->title, undef);
+ok($h->title("This is a test"), undef);
+ok($h->title, "This is a test");
+
+ok($h->user_agent, undef);
+ok($h->user_agent("Mozilla/1.2"), undef);
+ok($h->user_agent, "Mozilla/1.2");
+
+ok($h->server, undef);
+ok($h->server("Apache/2.1"), undef);
+ok($h->server, "Apache/2.1");
+
+ok($h->from("Gisle\@ActiveState.com"), undef);
+ok($h->header("from", "Gisle\@ActiveState.com"));
+
+ok($h->referer("http://www.example.com"), undef);
+ok($h->referer, "http://www.example.com");
+ok($h->referrer, "http://www.example.com");
+
+ok($h->as_string, <<EOT);
+From: Gisle\@ActiveState.com
+Referer: http://www.example.com
+User-Agent: Mozilla/1.2
+Server: Apache/2.1
+Content-Encoding: gzip
+Content-Language: no
+Content-Type: text/html;
+ charSet = "ISO-8859-1"; Foo=1
+Title: This is a test
+EOT
+
+$h->clear;
+ok($h->www_authenticate("foo"), undef);
+ok($h->www_authenticate("bar"), "foo");
+ok($h->www_authenticate, "bar");
+ok($h->proxy_authenticate("foo"), undef);
+ok($h->proxy_authenticate("bar"), "foo");
+ok($h->proxy_authenticate, "bar");
+
+ok($h->authorization_basic, undef);
+ok($h->authorization_basic("u"), undef);
+ok($h->authorization_basic("u", "p"), "u:");
+ok($h->authorization_basic, "u:p");
+ok(j($h->authorization_basic), "u|p");
+ok($h->authorization, "Basic dTpw");
+
+ok(eval { $h->authorization_basic("u2:p") }, undef);
+ok($@);
+ok(j($h->authorization_basic), "u|p");
+
+ok($h->proxy_authorization_basic("u2", "p2"), undef);
+ok(j($h->proxy_authorization_basic), "u2|p2");
+ok($h->proxy_authorization, "Basic dTI6cDI=");
+
+ok($h->as_string, <<EOT);
+Authorization: Basic dTpw
+Proxy-Authorization: Basic dTI6cDI=
+Proxy-Authenticate: bar
+WWW-Authenticate: bar
+EOT
 
 
-
-
-
-sub j { join("|", @_) }
 
 #---- old tests below -----
 

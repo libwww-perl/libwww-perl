@@ -1,7 +1,7 @@
 require HTTP::Request;
 require HTTP::Response;
 
-print "1..3\n";
+print "1..4\n";
 
 $req = new HTTP::Request 'GET', "http://www.oslonett.no/";
 $req->header(
@@ -27,3 +27,6 @@ if ($html =~ /<head>/i && $html =~ /This message/) {
 }
 
 
+if ($res->isSuccess) {
+	print "ok 4\n";
+}

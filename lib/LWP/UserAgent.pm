@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.41 1997/01/26 14:32:38 aas Exp $
+# $Id: UserAgent.pm,v 1.42 1997/02/11 13:47:41 aas Exp $
 
 package LWP::UserAgent;
 
@@ -148,6 +148,7 @@ sub new
 		'use_eval'    => 1,
 		'use_alarm'   => 1,
                 'parse_head'  => 1,
+                'max_size'    => undef,
 		'no_proxy'    => [],
 	}, $class;
     }
@@ -206,8 +207,8 @@ sub simple_request
     }
 
     # Extract fields that will be used below
-    my ($agent, $from, $timeout, $use_alarm, $use_eval, $parse_head) =
-      @{$self}{qw(agent from timeout use_alarm use_eval parse_head)};
+    my ($agent, $from, $timeout, $use_alarm, $use_eval, $parse_head, $max_size) =
+      @{$self}{qw(agent from timeout use_alarm use_eval parse_head max_size)};
 
     # Set User-Agent and From headers if they are defined
     $request->header('User-Agent' => $agent) if $agent;
@@ -216,6 +217,7 @@ sub simple_request
     # Inform the protocol if we need to use alarm() and parse_head()
     $protocol->use_alarm($use_alarm);
     $protocol->parse_head($parse_head);
+    $protocol->max_size($max_size);
     
     # If we use alarm() we need to register a signal handler
     # and start the timeout
@@ -556,6 +558,13 @@ Get/set a value indicating wether we should initialize response
 headers from the E<lt>head> section of HTML documents. The default is
 TRUE.  Do not turn this off, unless you know what you are doing.
 
+=head2 $ua->max_size([$bytes])
+
+Get/set the size limit for response content.  The default is undef,
+which means that there is not limit.  If the returned response content
+is only partial, because the size limit was exceeded, then a
+"X-Content-Range" header will be added to the response.
+
 =cut
 
 sub timeout    { shift->_elem('timeout',   @_); }
@@ -564,6 +573,7 @@ sub from       { shift->_elem('from',      @_); }
 sub use_alarm  { shift->_elem('use_alarm', @_); }
 sub use_eval   { shift->_elem('use_eval',  @_); }
 sub parse_head { shift->_elem('parse_head',@_); }
+sub max_size   { shift->_elem('max_size',  @_); }
 
 
 # Declarations of AutoLoaded methods

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.25 1997/01/26 15:16:38 aas Exp $
+# $Id: Protocol.pm,v 1.26 1997/02/11 13:47:39 aas Exp $
 
 package LWP::Protocol;
 
@@ -163,9 +163,10 @@ documents.
 
 =cut
 
-sub timeout  { shift->_elem('timeout',  @_); }
-sub use_alarm { shift->_elem('use_alarm', @_); }
+sub timeout    { shift->_elem('timeout',    @_); }
+sub use_alarm  { shift->_elem('use_alarm',  @_); }
 sub parse_head { shift->_elem('parse_head', @_); }
+sub max_size   { shift->_elem('max_size',   @_); }
 
 
 =head2 $prot->collect($arg, $response, $collector)
@@ -195,14 +196,15 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
-    my($use_alarm, $parse_head, $timeout) =
-      @{$self}{qw(use_alarm parse_head timeout)};
+    my($use_alarm, $parse_head, $timeout, $max_size) =
+      @{$self}{qw(use_alarm parse_head timeout max_size)};
 
     my $parser;
     if ($parse_head && $response->content_type eq 'text/html') {
 	$parser = HTML::HeadParser->new($response->{'_headers'});
     }
-    
+    my $content_size = 0;
+
     if (!defined($arg) || !$response->is_success) {
 	# scalar
 	while ($content = &$collector, length $$content) {
@@ -212,6 +214,13 @@ sub collect
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    $response->add_content($$content);
+	    $content_size += length($$content);
+	    if ($max_size && $content_size > $max_size) {
+		LWP::Debug::debug("Aborting because size limit exceeded");
+		my $tot = $response->header("Content-Length") || 0;
+		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
+		last;
+	    }
 	    alarm($timeout) if $use_alarm;
 	}
     }
@@ -229,6 +238,13 @@ sub collect
 	    alarm(0) if $use_alarm;
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    print OUT $$content;
+	    $content_size += length($$content);
+	    if ($max_size && $content_size > $max_size) {
+		LWP::Debug::debug("Aborting because size limit exceeded");
+		my $tot = $response->header("Content-Length") || 0;
+		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
+		last;
+	    }
 	    alarm($timeout) if $use_alarm;
 	}
 	close(OUT);

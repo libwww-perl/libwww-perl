@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.84 2001/04/20 16:59:31 gisle Exp $
+# $Id: UserAgent.pm,v 1.85 2001/04/20 18:12:44 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.84 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.85 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -114,25 +114,53 @@ LWP::UserAgent object.
 
 sub new
 {
-    my($class, $init) = @_;
+    my($class, %cnf) = @_;
     LWP::Debug::trace('()');
 
-    my $self;
-    if (ref $init) {
-	$self = $init->clone;
-    } else {
-	$self = bless {
-		'agent'       => "libwww-perl/$LWP::VERSION",
-		'from'        => undef,
-		'timeout'     => 3*60,
-		'proxy'       => undef,
-		'cookie_jar'  => undef,
-		'use_eval'    => 1,
-                'parse_head'  => 1,
-                'max_size'    => 0,
-		'no_proxy'    => [],
-	}, $class;
+    my $agent = delete $cnf{agent};
+    if (!defined $agent) {
+	$agent = $class->_agent;
     }
+    elsif ($agent =~ /\s+$/) {
+	$agent .= $class->_agent;
+    }
+
+    my $from  = delete $cnf{from};
+    my $timeout = delete $cnf{timeout};
+    $timeout = 3*60 unless defined $timeout;
+    my $use_eval = delete $cnf{use_eval};
+    $use_eval = 1 unless defined $use_eval;
+    my $parse_head = delete $cnf{parse_head};
+    $parse_head = 1 unless defined $parse_head;
+    my $max_size = delete $cnf{max_size} || 0;
+
+    my $cookie_jar = delete $cnf{cookie_jar};
+    my $conn_cache = delete $cnf{conn_cache};
+    my $keep_alive = delete $cnf{keep_alive};
+    Carp::croak("Can't mix conn_cache and keep_alive")
+	  if $conn_cache && $keep_alive;
+
+    if (%cnf && $^W) {
+	Carp::carp("Unrecognized LWP::UserAgent options: @{[sort keys %cnf]}");
+    }
+
+    my $self = bless {
+		      agent       => $agent,
+		      from        => $from,
+		      timeout     => $timeout,
+		      proxy       => undef,
+		      use_eval    => $use_eval,
+		      parse_head  => $parse_head,
+		      max_size    => $max_size,
+		      no_proxy    => [],
+		     }, $class;
+
+    $self->cookie_jar($cookie_jar) if $cookie_jar;
+
+    $conn_cache ||= { total_capacity => $keep_alive } if $keep_alive;
+    $self->conn_cache($conn_cache) if $conn_cache;
+
+    return $self;
 }
 
 
@@ -314,7 +342,7 @@ sub request
 	    $scheme = $1;  # untainted now
 	    my $class = "LWP::Authen::\u$scheme";
 	    $class =~ s/-/_/g;
-	
+
 	    no strict 'refs';
 	    unless (%{"$class\::"}) {
 		# try to load it
@@ -421,6 +449,11 @@ Examples are:
   $ua->agent('Checkbot/0.4 ' . $ua->agent);
   $ua->agent('Mozilla/5.0');
 
+=item $ua->_agent
+
+Returns the default agent identifier.  This is a string of the form
+"libwww-perl/#.##".
+
 =item $ua->from([$email_address])
 
 Get/set the Internet e-mail address for the human user who controls
@@ -462,11 +495,38 @@ is only partial, because the size limit was exceeded, then a
 
 sub timeout    { shift->_elem('timeout',   @_); }
 sub agent      { shift->_elem('agent',     @_); }
+sub _agent     { "libwww-perl/$LWP::VERSION" }
 sub from       { shift->_elem('from',      @_); }
-sub cookie_jar { shift->_elem('cookie_jar',@_); }
-sub conn_cache { shift->_elem('conn_cache',@_); }
 sub parse_head { shift->_elem('parse_head',@_); }
 sub max_size   { shift->_elem('max_size',  @_); }
+
+sub cookie_jar {
+    my $self = shift;
+    my $old = $self->{cookie_jar};
+    if (@_) {
+	my $jar = shift;
+	if (ref($jar) eq "HASH") {
+	    require HTTP::Cookies;
+	    $jar = HTTP::Cookies->new(%$jar);
+	}
+	$self->{cookie_jar} = $jar;
+    }
+    $old;
+}
+
+sub conn_cache {
+    my $self = shift;
+    my $old = $self->{conn_cache};
+    if (@_) {
+	my $cache = shift;
+	if (ref($cache) eq "HASH") {
+	    require LWP::ConnCache;
+	    $cache = LWP::ConnCache->new(%$cache);
+	}
+	$self->{conn_cache} = $cache;
+    }
+    $old;
+}
 
 # depreciated
 sub use_eval   { shift->_elem('use_eval',  @_); }

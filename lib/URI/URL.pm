@@ -1,5 +1,5 @@
 #
-# $Id: URL.pm,v 3.5 1995/08/09 20:37:43 aas Exp $
+# $Id: URL.pm,v 3.6 1995/08/09 22:36:18 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
@@ -64,13 +64,7 @@ URI::URL - Uniform Resource Locators (absolute and relative)
  # Port numbers
  $defport= $url->default_port;  # default port for scheme
 
-
- # Escaping functions (See 'HOW AND WHEN TO ESCAPE' below)
- # You must import these functions explicitly
- $escaped   = uri_escape($component);
- $component = uri_unescape($escaped);
-
- # Other functions
+ # Functions
  URI::URL::strict(0);                    # disable strict schemes
  URI::URL::implementor;                  # get generic implementor
  URI::URL::implementor($scheme);         # get scheme implementor
@@ -268,15 +262,7 @@ Non-http scheme specific escaping is not correct yet.
 
 
 use Carp;
-
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(uri_escape uri_unescape);
-
-# Define default unsafe characters. (RFC1738 section 2.2)
-# Note that you cannot reliably change this at runtime
-# because the substitutions which use it use the /o flag.
-my $DefaultUnsafe = '\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF';
+use URI::Escape;
 
 # Basic lexical elements, taken from RFC1738:
 # (these are refered to by comments in the code)
@@ -299,11 +285,6 @@ my $StrictSchemes = 1;  # see new()
 my %ImplementedBy = ( '_generic' => 'URI::URL::_generic' );
 # clases we have initialised:
 my $Implementors  = ();
-
-# Build a char->hex map
-for (0..255) {
-    $escapes{chr($_)} = sprintf("%%%02X", $_);
-}
 
 use strict qw(subs refs);
 
@@ -557,14 +538,8 @@ sub unsafe {
 #
 sub escape
 {
-    my($self, $text, $patn) = @_;
-    if ($patn){
-        $text =~ s/([$patn])/$escapes{$1}/eg;
-        return $text;
-    }
-    # let perl pre-compile this default for max speed
-    $text =~ s/([$DefaultUnsafe])/$escapes{$1}/oeg;
-    $text;
+    my $self = shift;
+    uri_escape(@_);
 }
 
 # Define method aliases so that subclasses can control escaping at
@@ -585,47 +560,13 @@ sub _esc_query {
 
 sub unescape
 {
-    my($self, $text) = @_;
-    return undef unless defined $text;
-    # Note from RFC1630:  "Sequences which start with a percent sign
-    # but are not followed by two hexadecimal characters are reserved
-    # for future extension"
-    $text =~ s/%([\dA-Fa-f][\dA-Fa-f])/chr(hex($1))/eg;
-    $text;
+    my $self = shift;
+    uri_unescape(@_);
 }
 
 # We don't bother defining method aliases for unescape because
 # unescape does not need such fine control.
 
-
-#####################################################################
-#
-# Miscellaneous functions (NON-METHODS)
-
-# uri_escape()
-#
-# Apply URI character escaping rules to some text.
-# Note that it is generally better to do something like this:
-#       $url = new URI::URL 'http:';
-#       $url->path($random_query);
-# See the 'HOW AND WHEN TO ESCAPE' section in the pod text above.
-#
-sub uri_escape
-{
-    URI::URL->escape(@_);
-}
-
-# uri_unescape()
-#
-# Unescape some text destined to be a component of a URL.
-# Note that it is generally better to do something like this:
-#       $url->path(uri_unescape($pre_escaped_path));
-# See the 'HOW AND WHEN TO ESCAPE' section in the pod text above.
-#
-sub uri_unescape
-{
-    URI::URL->unescape(@_);
-}
 
 
 #####################################################################

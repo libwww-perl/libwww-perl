@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.9 1999/02/25 21:41:38 aas Exp $
+# $Id: lwp-download.PL,v 1.10 1999/03/19 14:06:30 gisle Exp $
 
 =head1 NAME
 
@@ -55,10 +55,12 @@ Gisle Aas <gisle@aas.no>
 
 =cut
 
-use LWP::UserAgent;
-use LWP::MediaTypes;
-use URI;
 use strict;
+
+use LWP::UserAgent ();
+use LWP::MediaTypes qw(guess_media_type media_suffix);
+use URI ();
+use HTTP::Date ();
 
 my $progname = $0;
 $progname =~ s,.*/,,;    # only basename left in progname
@@ -66,18 +68,18 @@ $progname =~ s/\.\w*$//; # strip extension if any
 
 #parse option
 use Getopt::Std;
-my %opts;
-unless (getopts('a', \%opts)) {
+my %opt;
+unless (getopts('a', \%opt)) {
     usage();
 }
-my $opt_a = $opts{a}; # save in ascii mode, i.e. not binmode()
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
+my $version = q$Revision: 1.10 $;
 
 my $ua = new LWP::UserAgent;
 
-$ua->agent("lwp-download/0.1 " . $ua->agent);
+$ua->agent("lwp-download/$version " . $ua->agent);
 $ua->env_proxy;
 
 my $req = new HTTP::Request GET => $url;
@@ -148,7 +150,7 @@ my $res = $ua->request($req,
 	      $file = $argfile;
 	  }
 	  open(FILE, ">$file") || die "Can't open $file: $!";
-          binmode FILE unless $opt_a;
+          binmode FILE unless $opt{a};
 	  $length = $res->content_length;
 	  $flength = fbytes($length) if defined $length;
 	  $start_t = time;

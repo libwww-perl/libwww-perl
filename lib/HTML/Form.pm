@@ -89,7 +89,7 @@ sub parse
     my $p = HTML::TokeParser->new(\$html);
     eval {
 	# optimization
-	$p->report_only_tags(qw(form input textarea select optgroup option));
+	$p->report_tags(qw(form input textarea select optgroup option));
     };
 
     my @forms;

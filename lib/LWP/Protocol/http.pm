@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.47 1999/11/04 20:31:21 gisle Exp $
+# $Id: http.pm,v 1.48 2000/04/07 13:09:54 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -199,19 +199,10 @@ sub request
 		if ($line =~ /^([a-zA-Z0-9_\-.]+)\s*:\s*(.*)/) {
 		    $response->push_header($key, $val) if $key;
 		    ($key, $val) = ($1, $2);
-		} elsif ($line =~ /^\s+(.*)/) {
-		    unless ($key) {
-			$response->header("Client-Warning" =>
-					 => "Illegal continuation header");
-			$buf = "$save$buf";
-			last;
-		    }
+		} elsif ($line =~ /^\s+(.*)/ && $key) {
 		    $val .= " $1";
 		} else {
-		    $response->header("Client-Warning" =>
-				      "Illegal header '$line'");
-		    $buf = "$save$buf";
-		    last;
+		    $response->push_header("Client-Bad-Header-Line" => $line);
 		}
 	    }
 	    $response->push_header($key, $val) if $key;

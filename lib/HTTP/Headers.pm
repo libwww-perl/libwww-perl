@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.61 2004/06/14 16:26:42 gisle Exp $
+# $Id: Headers.pm,v 1.62 2004/11/12 15:38:38 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.61 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.62 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -175,17 +175,19 @@ sub _header
 }
 
 
-# Compare function which makes it easy to sort headers in the
-# recommended "Good Practice" order.
-sub _header_cmp
+sub _sorted_field_names
 {
-    ($header_order{$a} || 999) <=> ($header_order{$b} || 999) || $a cmp $b;
+    my $self = shift;
+    return sort {
+        ($header_order{$a} || 999) <=> ($header_order{$b} || 999) ||
+         $a cmp $b
+    } keys %$self
 }
 
 
 sub header_field_names {
     my $self = shift;
-    return map $standard_case{$_} || $_, sort _header_cmp keys %$self
+    return map $standard_case{$_} || $_, $self->_sorted_field_names
 	if wantarray;
     return keys %$self;
 }
@@ -195,7 +197,7 @@ sub scan
 {
     my($self, $sub) = @_;
     my $key;
-    foreach $key (sort _header_cmp keys %$self) {
+    foreach $key ($self->_sorted_field_names) {
         next if $key =~ /^_/;
 	my $vals = $self->{$key};
 	if (ref($vals) eq 'ARRAY') {

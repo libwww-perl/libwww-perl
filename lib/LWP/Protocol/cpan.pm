@@ -37,8 +37,11 @@ unless ($CPAN) {
 	}
     };
 
-    $CPAN ||= "http://cpan.org";  # last resort
+    $CPAN ||= "http://cpan.org/";  # last resort
 }
+
+# ensure that we don't chop of last part
+$CPAN .= "/" unless $CPAN =~ m,/$,;
 
 
 sub request {

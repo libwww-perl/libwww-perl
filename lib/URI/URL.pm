@@ -1,5 +1,5 @@
 #
-# $Id: URL.pm,v 3.3 1995/08/09 12:40:54 aas Exp $
+# $Id: URL.pm,v 3.4 1995/08/09 19:58:16 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
@@ -270,15 +270,13 @@ require Exporter;
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-$VERSION = sprintf("%d.%02d", q$Revision: 3.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 3.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-# Define default unsafe characters.
+# Define default unsafe characters. (RFC1738 section 2.2)
 # Note that you cannot reliably change this at runtime
 # because the substitutions which use it use the /o flag.
-# XXX Should we include '~' or leave it to applications to
-# add that if required?.
-my $DefaultUnsafe = '\x00-\x20"#%;<>?\x7F-\xFF';
+my $DefaultUnsafe = '\x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF';
 
 # Basic lexical elements, taken from RFC1738:
 # (these are refered to by comments in the code)
@@ -937,5 +935,10 @@ package URI::URL::http;
 @ISA = qw(URI::URL::_generic);
 
 sub default_port { 80 }
+
+use Carp;
+my $illegal = "Illegal method for http URLs";
+sub user     { croak $illegal; }
+sub password { croak $illegal; }
 
 1;

@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.44 2004/06/16 10:06:07 gisle Exp $
+# $Id: Form.pm,v 1.45 2004/06/16 18:12:48 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -78,7 +78,7 @@ $response->base() method, as shown by the following example:
 				  $response->base);
 
 The parse() method can parse from an C<HTTP::Response> object
-directly, so the example above can be better written as:
+directly, so the example above can be more conveniently written as:
 
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get("http://www.example.com/form.html");
@@ -277,7 +277,7 @@ The $name should always be passed in lower case.
 Example:
 
    @f = HTML::Form->parse( $html, $foo );
-   @f = grep $_->attr("id") == "foo", @f;
+   @f = grep $_->attr("id") eq "foo", @f;
    die "No form named 'foo' found" unless @f;
    $foo = shift @f;
 

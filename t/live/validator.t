@@ -29,7 +29,9 @@ EOT
 #$file .= "<b>Hi</b>\n" x 20000;
 $file .= "</html>\n";
 
-$f->value("uploaded_file", [undef, "x.html", Content => $file]);
+my $upload = $f->find_input("uploaded_file");
+$upload->filename("x.html");
+$upload->content($file);
 
 $req = $f->click;
 #print $req->as_string;

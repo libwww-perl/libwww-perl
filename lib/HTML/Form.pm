@@ -910,11 +910,21 @@ sub form_name_value {
     my @headers = $self->headers;
     my $content = $self->content;
     if (defined $content) {
+	$filename = $file unless defined $filename;
 	$file = undef;
 	unshift(@headers, "Content" => $content);
     }
     elsif (!defined($file) || length($file) == 0) {
 	return;
+    }
+
+    # legacy (this used to be the way to do it)
+    if (ref($file) eq "ARRAY") {
+	my $f = shift @$file;
+	my $fn = shift @$file;
+	push(@headers, @$file);
+	$file = $f;
+	$filename = $fn unless defined $filename;
     }
 
     return ($name => [$file, $filename, @headers]);

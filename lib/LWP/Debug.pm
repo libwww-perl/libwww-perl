@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Debug.pm,v 1.8 1996/02/26 19:09:17 aas Exp $
+# $Id: Debug.pm,v 1.9 1996/02/26 20:14:25 aas Exp $
 #
 package LWP::Debug;
 
@@ -68,7 +68,7 @@ require Exporter;
 use Carp ();
 
 my @levels = qw(trace debug conns);
-my %current_level = ();
+%current_level = ();
 
 
 sub level

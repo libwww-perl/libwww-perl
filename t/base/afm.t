@@ -7,7 +7,9 @@ eval {
 };
 if ($@) {
    if ($@ =~ /Can't find the AFM file for/) {
-	print "ok 1\n";  # we just don't care to make this fail so easy
+        print $@;
+	print "ok 1\n";  # don't worry, be happy !!
+                         # less complains about test that fails
    } else {
         print $@;
         print "not ok 1\n";
@@ -18,6 +20,7 @@ if ($@) {
 $sw = $font->stringwidth("Gisle Aas");
 
 if ($sw == 4279) {
+    print "Stringwith for Helvetica seems to work\n";
     print "ok 1\n";
 } else {
     print "not ok 1\n";

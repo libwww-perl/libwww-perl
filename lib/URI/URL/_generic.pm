@@ -263,7 +263,7 @@ sub path {
 sub path_components {
     my $self = shift;
     my $old = $self->{'path'};
-    return ('') if !defined($old) || !length($old);
+    $old = '' unless defined $old;
     $old = "/$old" if $old !~ m|^/| && defined $self->{'netloc'};
     if (@_) {
 	$self->_elem('path',

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.20 1996/05/08 16:55:26 aas Exp $
+# $Id: Parse.pm,v 1.21 1996/05/09 09:33:07 aas Exp $
 
 =head1 NAME
 
@@ -20,8 +20,8 @@ parse_htmlfile - Parse HTML text from file
 
 =head1 DESCRIPTION
 
-This module provides functions to parse HTML text.  The result of the
-parsing is a HTML syntax tree with HTML::Element objects as nodes.
+This module provides functions to parse HTML documents.  The result of
+the parsing is a HTML syntax tree with HTML::Element objects as nodes.
 Check out L<HTML::Element> for details of methods available to access
 the syntax tree.
 
@@ -30,6 +30,10 @@ Netscape extentions.
 
 Entites in all text content and attribute values will be expanded by
 the parser.
+
+The parser is able to parse HTML text incrementally.  The document can
+be given to parse_html() in arbitrary pieces.  The result should be
+the same.
 
 If you want to free the memory assosiated with the HTML parse tree,
 then you will have to delete it explicitly.  The reason for this is
@@ -62,6 +66,11 @@ Do not represent the text content of elements.  This saves space if
 all you want is to examine the structure of the document.  Default is
 false.
 
+=item $HTML::Parse::WARN
+
+Call warn() with an apropriate message for syntax errors.  Default is
+false.
+
 =back
 
 =head1 SEE ALSO
@@ -70,14 +79,14 @@ L<HTML::Element>, L<HTML::Entities>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright 1995,1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@sn.no>
 
 =cut
 
@@ -90,13 +99,19 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
 $IMPLICIT_TAGS  = 1;
 $IGNORE_UNKNOWN = 1;
 $IGNORE_TEXT    = 0;
+$WARN           = 0;
+
+sub warning ($)
+{
+    warn "HTML::Parse: $_[0]\n" if $WARN;
+}
 
 
 # Elements that should only be present in the header
@@ -134,34 +149,45 @@ $IGNORE_TEXT    = 0;
 
 
 
-sub parse_html
+sub parse_html ($;$)
 {
     my $html = $_[1];
-    $html = new HTML::Element 'html' unless defined $html;
+    $html = new HTML::Element 'html' unless $html;
     my $buf = \ $html->{'_buf'};
     $$buf .= $_[0];
     # Handle comments
     if ($html->{_comment}) {
 	if ($$buf =~ s/^.*?-->//s) {        # end of comment
 	    delete $html->{_comment};
-	} else {
+        } elsif ($$buf =~ s/^.*?(--?)$/$1/s) { # might become end of comment
+            return $html;            
+        } else {
 	    $$buf = '';          # still inside comment
 	}
     }
     $$buf =~ s/<!--.*?-->//sg;   # remove complete comments
-    if ($$buf =~ s/<!--.*//s) {  # check for start of comment
+    if ($$buf =~ /<!--.*-$/) {   # perhaps partial "end-of-comment" marker
+        return $html;            # delay processing
+    }
+    if ($$buf =~ s/<!--.*//s) {  # check for start of comment (remove it)
 	$html->{_comment} = 1;
     }
     return $html unless length $$buf;
 
-    # Split HTML text into tokens.
+    # Split HTML text into tokens.  We use "<...>" as the tokens we
+    # look for and asume that this will separate tags from normal
+    # text.  This fails for those documents that contain the ">"
+    # character in an attribute value, like this: <foo bar=">">
     my @x = split(/(<[^>]+>)/, $$buf);
-    if ($x[-1] =~ m/>/) {              # last token is complete a tag
+    if ($x[-1] =~ m/>/) {                # last token is complete a tag
 	$$buf = '';
-    } elsif ($x[-1] =~ s/(<.*)//s) {   # last token is partial tag
-	$$buf = $1;                    # parse this next time
+    } elsif ($x[-1] =~ s/(\s*<.*)//s) {  # last token is partial tag
+	$$buf = $1;                      # parse this next time
 	pop(@x) unless length $x[-1];
-    } else {                           # last token is text
+    } elsif ($x[-1] =~ s/(\s+)$//) {     # last token ends with whitespace
+        $$buf = $1;
+        pop(@x) unless length $x[-1];
+    } else {                             # last token is text
 	$$buf = '';
     }
 
@@ -181,7 +207,7 @@ sub parse_html
 }
 
 
-sub parse_htmlfile
+sub parse_htmlfile ($)
 {
     my $file = shift;
     open(F, $file) or return new HTML::Element 'html', 'comment' => $!;
@@ -205,7 +231,7 @@ sub starttag
     my $tag = $1;
     $elem =~ s/>$//;
     unless (defined $tag) {
-	warn "Illegal start tag $_[0]";
+	warning "Illegal start tag $_[0]";
     } else {
 	$tag = lc $tag;
 	#print "START: $tag\n";
@@ -292,7 +318,7 @@ sub starttag
 	    }
 	} elsif ($isHeadElement{$tag}) {
 	    if ($pos->is_inside('body')) {
-		warn "Header element <$tag> in body\n";
+		warning "Header element <$tag> in body";
 	    } elsif (!$pos->is_inside('head')) {
 		$pos = $html->insert_element('head', 1);
 	    }
@@ -304,25 +330,25 @@ sub starttag
 		}
 		return;
 	    } else {
-		warn "Skipping nested html element\n";
+		warning "Skipping nested <html> element";
 		return;
 	    }
 	} elsif ($tag eq 'head') {
 	    if ($ptag ne 'html' && $pos->is_empty()) {
-		warn "Skipping nested <head> element\n";
+		warning "Skipping nested <head> element";
 		return;
 	    }
 	} elsif ($tag eq 'body') {
 	    if ($pos->is_inside('head')) {
 		endtag($html, 'head');
 	    } elsif ($ptag ne 'html') {
-		warn "Skipping nested <body> element\n";
+		warning "Skipping nested <body> element";
 		return;
 	    }
 	} else {
 	    # unknown tag
 	    if ($IGNORE_UNKNOWN) {
-		warn "Skipping $tag\n";
+		warning "Skipping unknown tag $tag";
 		return;
 	    }
 	}
@@ -369,27 +395,25 @@ sub endtag
 }
 
 
-sub text
+sub text ($$)
 {
     my $html = shift;
     my $pos = $html->{_pos};
     $pos = $html unless defined($pos);
 
-    my @text = @_;
-    HTML::Entities::decode(@text) unless $IGNORE_TEXT;
+    my $text = shift;
+    return unless length $text;
+
+    HTML::Entities::decode($text) unless $IGNORE_TEXT;
 
     if ($pos->is_inside(qw(pre xmp listing))) {
 	return if $IGNORE_TEXT;
 	$pos->push_content(@text);
     } else {
-	my $empty = 1;
-	for (@text) {
-	    $empty = 0 if /\S/;
-	}
-	return if $empty;
+	# return unless $text =~ /\S/;  # This is sometimes wrong
 
 	my $ptag = $pos->{_tag};
-	if (!$IMPLICIT_TAGS) {
+	if (!$IMPLICIT_TAGS || $text !~ /\S/) {
 	    # don't change anything
 	} elsif ($ptag eq 'head') {
 	    endtag($html, 'head');
@@ -405,13 +429,9 @@ sub text
 	    $pos = $html->insert_element('p', 1);
 	}
 	return if $IGNORE_TEXT;
-	for (@text) {
-	    next if /^\s*$/;  # empty text
-	    s/\s+/ /g;  # canoncial space
-	    $pos->push_content($_);
-	}
+	$text =~ s/\s+/ /g;  # canoncial space
+	$pos->push_content($text);
     }
 }
-
 
 1;

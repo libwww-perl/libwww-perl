@@ -45,16 +45,23 @@ library, by running these commands:
    make test
    make install
 
-The Makefile.PL program will start out by checking your perl
-installation for a few packages that are recommended to be installed
-together with libwww-perl.  These packages should be available on CPAN
-(described above).
-
 You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
 want to install any programs then make the initial Makefile with:
 
    perl Makefile.PL -n
+
+If you want to install a private copy of libwww-perl in your home
+directory, then you should try to produce the initial Makefile with
+this command:
+
+  perl Makefile.PL PREFIX=~/perl
+
+
+The Makefile.PL program will start out by checking your perl
+installation for a few packages that are recommended to be installed
+together with libwww-perl.  These packages should be available on CPAN
+(described above).
 
 Optional network tests are not enabled automatically when you unpack
 this package.  Consult the t/README file for instructions on how to
@@ -71,20 +78,24 @@ able to use the 'perldoc' utility to extract documentation from these
 files.
 
 
-ABOUT THE HTML MODULES
+THE HTML MODULES ARE STILL ALPHA
 
 The HTML::* modules should still be regarded as being in some kind of
 alpha state.  The interfaces provided by these modules might very well
 change in future releases of this library.  You are warned!
 
 
-MAILING LIST
+SUPPORT
 
-The best place to report bugs and discuss this package is on the
-<libwww-perl@ics.uci.edu> mailing list.  You can join the mailing list
-by sending a message to <libwww-perl-request@ics.uci.edu> with
-"Subscribe" as subject.             ^^^^^^^^
+Question about how to use this library should be directed to the
+comp.lang.perl.modules USENET newsgroup.  Bug reports and suggestions
+for improvements can be sendt to the <libwww-perl@ics.uci.edu> mailing
+list.  This mailing list is also the place for general discussions of
+the libwww-perl package.
 
+You can join the mailing list by sending a message to
+<libwww-perl-request@ics.uci.edu> with "Subscribe" as subject.
+            ^^^^^^^^
 
 COPYRIGHT
 

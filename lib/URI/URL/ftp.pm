@@ -1,8 +1,16 @@
 package URI::URL::ftp;
-require URI::URL::file;
-@ISA = qw(URI::URL::file);
+require URI::URL::_generic;
+@ISA = qw(URI::URL::_generic);
 
 sub default_port { 21 }
+
+sub _parse {
+    my($self, $init) = @_;
+    # The ftp URLs can't have any query string
+    $self->URI::URL::_generic::_parse($init, qw(netloc path params frag));
+    1;
+}
+
 
 sub user
 {
@@ -27,8 +35,10 @@ sub password
 	    $fqdn = Sys::Hostname::hostname();
 	}
 	unless (defined $whoami) {
-	    $whoami = $ENV{USER} || $ENV{LOGNAME} || `whoami`;
-	    chomp $whoami;
+	    $whoami = $ENV{USER} || $ENV{LOGNAME};
+	    unless ($whoami) {
+		chomp($whoami = `whoami`);
+	    }
 	}
 	$old = "$whoami\@$fqdn";
     }

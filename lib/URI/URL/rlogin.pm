@@ -1,4 +1,5 @@
 package URI::URL::rlogin;
+require URI::URL::_generic;
 @ISA = qw(URI::URL::_generic);
 
 require Carp;

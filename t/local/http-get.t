@@ -45,7 +45,7 @@ else {
     open(DAEMON, "$perl local/http-get.t daemon |") or die "Can't exec daemon: $!";
 }
 
-print "1..19\n";
+print "1..20\n";
 
 
 my $greeting = <DAEMON>;
@@ -234,6 +234,14 @@ while ($res->previous) {
 print "not " unless $i == 7;
 print "ok 11\n";
 
+sub httpd_get_redirect_file { shift->send_redirect("file:/etc/passwd") }
+$res = $ua->get(url("/redirect_file/", $base));
+#print $res->as_string;
+print "not " unless $res->is_redirect
+                and $res->header("Client-Warning") =~ /can't redirect to a file:/i;
+print "ok 12\n";
+
+
 #----------------------------------------------------------------
 print "#------------Testing: Check basic authorization...\n";
 sub httpd_get_basic
@@ -241,7 +249,7 @@ sub httpd_get_basic
     my($c, $r) = @_;
     #print STDERR $r->as_string;
     my($u,$p) = $r->authorization_basic;
-    if (defined($u) && $u eq 'ok 12' && $p eq 'xyzzy') {
+    if (defined($u) && $u eq 'ok 13' && $p eq 'xyzzy') {
         $c->send_basic_header(200);
 	print $c "Content-Type: text/plain";
 	$c->send_crlf;
@@ -260,7 +268,7 @@ sub httpd_get_basic
    sub get_basic_credentials {
       my($self, $realm, $uri, $proxy) = @_;
       if ($realm eq "libwww-perl" && $uri->rel($base) eq "basic") {
-	  return ("ok 12", "xyzzy");
+	  return ("ok 13", "xyzzy");
       }
       else {
           return undef;
@@ -282,24 +290,24 @@ print $res->content;
 # Let's try with a $ua that does not pass out credentials
 $res = $ua->get( $that_url );
 print "not " unless $res->code == 401;
-print "ok 13\n";
+print "ok 14\n";
 
 
 print "# Host port: $host_port\n";
 
 # Let's try to set credentials for this realm
-$ua->credentials($host_port, "libwww-perl", "ok 12", "xyzzy");
+$ua->credentials($host_port, "libwww-perl", "ok 13", "xyzzy");
 
 $res = $ua->get( $that_url );
 
 print "not " unless $res->is_success;
-print "ok 14\n";
+print "ok 15\n";
 
 # Then illegal credentials
 $ua->credentials($host_port, "libwww-perl", "user", "passwd");
 $res = $ua->get( $that_url );
 print "not " unless $res->code == 401;
-print "ok 15\n";
+print "ok 16\n";
 }
 
 #----------------------------------------------------------------
@@ -322,7 +330,7 @@ $ua->proxy(ftp => $base);
 $res = $ua->get( "ftp://ftp.perl.com/proxy" );
 #print $res->as_string;
 print "not " unless $res->is_success;
-print "ok 16\n";
+print "ok 17\n";
 
 #----------------------------------------------------------------
 print "#------------Testing: Check POSTing...\n";
@@ -347,7 +355,7 @@ print "not " unless $res->is_success
                 and /^Content-Length:\s*16$/mi
 		and /^Content-Type:\s*application\/x-www-form-urlencoded$/mi
 		and /^foo=bar&bar=test/m;
-print "ok 17\n";		
+print "ok 18\n";		
 
 
 {
@@ -367,7 +375,7 @@ print "not " unless $res->is_success
 		and /^foo=bar&bar=test/m
 		and ! $res->content
 ;
-print "ok 18\n";		
+print "ok 19\n";		
 
 }
 
@@ -383,5 +391,5 @@ sub httpd_get_quit
 $res = $ua->get( url("/quit", $base) );
 
 print "not " unless $res->code == 503 and $res->content =~ /Bye, bye/;
-print "ok 19\n";
+print "ok 20\n";
 

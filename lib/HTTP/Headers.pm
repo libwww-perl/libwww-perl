@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.35 1998/04/02 13:38:17 aas Exp $
+# $Id: Headers.pm,v 1.36 1998/04/10 14:51:22 aas Exp $
 
 package HTTP::Headers;
 
@@ -30,7 +30,7 @@ The following methods are available:
 
 use strict;
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
 
 use Carp ();
 
@@ -98,7 +98,7 @@ sub new
 }
 
 
-=item $h->header($field [=> $val],...)
+=item $h->header($field [=> $value],...)
 
 Get or set the value of a header.  The header field name is not case
 sensitive.  To make the life easier for perl users who wants to avoid
@@ -106,14 +106,16 @@ quoting before the => operator, you can use '_' as a synonym for '-'
 in header names (this behaviour can be suppressed by setting
 $HTTP::Headers::TRANSLATE_UNDERSCORE to a FALSE value).
 
-The value argument may be a scalar or a reference to a list of
-scalars. If the value argument is not defined, then the header is not
-modified.
+The header() method accepts multiple ($field => $value) pairs, so you
+can update several fields with a single invocation.
 
-The header() method accepts multiple ($field => $value) pairs.
+The optional $value argument may be a scalar or a reference to a list
+of scalars. If the $value argument is undefined or not given, then the
+header is not modified.
 
-The list of previous values for the last $field is returned.  Only the
-first header value is returned in scalar context.
+The old value of the last of the $field values is returned.
+Multi-valued fields will be concatenated with "," as separator in
+scalar context.
 
  $header->header(MIME_Version => '1.0',
 		 User_Agent   => 'My-Web-Client/0.01');
@@ -130,7 +132,9 @@ sub header
     while (($field, $val) = splice(@_, 0, 2)) {
 	@old = $self->_header($field, $val);
     }
-    wantarray ? @old : $old[0];
+    return @old if wantarray;
+    return $old[0] if @old <= 1;
+    join(", ", @old);
 }
 
 sub _header

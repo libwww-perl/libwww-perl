@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.94 2001/08/28 05:20:36 gisle Exp $
+# $Id: UserAgent.pm,v 1.95 2001/08/28 17:09:25 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -99,7 +99,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.94 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.95 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -188,7 +188,7 @@ sub new
     my $protocols_allowed   = delete $cnf{protocols_allowed};
     my $protocols_forbidden = delete $cnf{protocols_forbidden};
     
-    my $requests_redirectable = delete $cnf{protocols_forbidden};
+    my $requests_redirectable = delete $cnf{requests_redirectable};
     $requests_redirectable = ['GET', 'HEAD']
       unless defined $requests_redirectable;
 

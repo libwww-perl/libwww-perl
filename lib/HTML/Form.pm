@@ -96,7 +96,7 @@ sub parse
 	if ($tag eq "form") {
 	    my $action = $attr->{'action'};
 	    $action = "" unless defined $action;
-	    $action = URI->new($action, $base_uri)->abs($base_uri);
+	    $action = URI->new_abs($action, $base_uri);
 	    $f = $class->new($attr->{'method'},
 			     $action,
 			     $attr->{'enctype'});
@@ -695,7 +695,7 @@ __END__
 
 =head1 SEE ALSO
 
-L<LWP>, L<HTML::Parser>, L<webtestpp>
+L<LWP>, L<HTML::Parser>, L<webchatpp>
 
 =head1 COPYRIGHT
 

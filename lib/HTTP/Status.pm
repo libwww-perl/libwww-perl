@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.22 1998/01/06 09:56:49 aas Exp $
+# $Id: Status.pm,v 1.23 1998/03/23 07:16:19 aas Exp $
 
 package HTTP::Status;
 
@@ -27,7 +27,8 @@ HTTP::Status - HTTP Status code processing
 I<HTTP::Status> is a library of routines for defining and
 classification of HTTP status codes for libwww-perl.  Status codes are
 used to encode the overall outcome of a HTTP response message.  Codes
-correspond to those defined in RFC 2068.
+correspond to those defined in F<draft-ietf-http-v11-spec-rev-03> (an
+update to RFC 2068).
 
 =head1 CONSTANTS
 
@@ -47,10 +48,11 @@ names:
 
    RC_MULTIPLE_CHOICES			(300)
    RC_MOVED_PERMANENTLY			(301)
-   RC_MOVED_TEMPORARILY			(302)
+   RC_FOUND				(302)
    RC_SEE_OTHER				(303)
    RC_NOT_MODIFIED			(304)
    RC_USE_PROXY				(305)
+   RC_TEMPORARY_REDIRECT		(307)
 
    RC_BAD_REQUEST			(400)
    RC_UNAUTHORIZED			(401)
@@ -69,6 +71,7 @@ names:
    RC_REQUEST_URI_TOO_LARGE		(414)
    RC_UNSUPPORTED_MEDIA_TYPE		(415)
    RC_REQUEST_RANGE_NOT_SATISFIABLE     (416)
+   RC_EXPECTATION_FAILED		(417)
 
    RC_INTERNAL_SERVER_ERROR		(500)
    RC_NOT_IMPLEMENTED			(501)
@@ -87,7 +90,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 # Note also addition of mnemonics to @EXPORT below
 
@@ -103,10 +106,11 @@ my %StatusCode = (
     206 => 'Partial Content',
     300 => 'Multiple Choices',
     301 => 'Moved Permanently',
-    302 => 'Moved Temporarily',
+    302 => 'Found',
     303 => 'See Other',
     304 => 'Not Modified',
     305 => 'Use Proxy',
+    307 => 'Temporary Redirect',
     400 => 'Bad Request',
     401 => 'Unauthorized',
     402 => 'Payment Required',
@@ -124,6 +128,7 @@ my %StatusCode = (
     414 => 'Request-URI Too Large',
     415 => 'Unsupported Media Type',
     416 => 'Request Range Not Satisfiable',
+    417 => 'Expectation Failed',
     500 => 'Internal Server Error',
     501 => 'Not Implemented',
     502 => 'Bad Gateway',
@@ -144,6 +149,11 @@ while (($code, $message) = each %StatusCode) {
 # warn $mnemonicCode; # for development
 eval $mnemonicCode; # only one eval for speed
 die if $@;
+
+# backwards compatibility
+*RC_MOVED_TEMPORARILY = \&RC_FOUND;  # 302 was renamed in the standard
+push(@EXPORT, "RC_MOVED_TEMPORARILY");
+
 
 =head1 FUNCTIONS
 
@@ -205,3 +215,10 @@ sub is_client_error ($) { $_[0] >= 400 && $_[0] < 500; }
 sub is_server_error ($) { $_[0] >= 500 && $_[0] < 600; }
 
 1;
+
+=head1 BUGS
+
+I wished @EXPORT_OK had been used instead of @EXPORT in the beginning.
+Now too much is exported by default.
+
+=cut

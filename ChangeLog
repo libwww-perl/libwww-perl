@@ -1,3 +1,25 @@
+Mon Nov  6 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Release 5b6
+
+ o  Installation should work better for those that still runs
+    perl4 as 'perl'.  The mirror script is not installed by
+    default.
+
+ o  LWP::Socket::_getaddress() Numerical IP adresses did not work.
+
+ o  LWP::Socket::pushback() did not work.  This also avoids the bad
+    pp_select() core dump from perl.
+
+ o  LWP::IO now also selects on socket exceptions.
+
+ o  HTML::Parse:  Ignore <!DOCTYPE ...> regardless for case.  Some
+    bad insertElement() calls made infinite loops.
+
+ o  The uri.t test works better for places where /tmp is a sym-link.
+
+
+
 Sat Sep 16 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 5b5

@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -271,8 +271,9 @@ sub extract_cookies
 	    my @cur;
 	    my $param;
 	    my $expires;
-	    for $param (split(/\s*;\s*/, $set)) {
+	    for $param (split(/;\s*/, $set)) {
 		my($k,$v) = split(/\s*=\s*/, $param, 2);
+		$v =~ s/\s+$//;
 		#print "$k => $v\n";
 		my $lc = lc($k);
 		if ($lc eq "expires") {

@@ -50,7 +50,7 @@ $req->header("Host", "www.acme.com:80");
 
 $res = HTTP::Response->new(200, "OK");
 $res->request($req);
-$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/; expires=Wednesday, 09-Nov-$year_plus_one 23:12:40 GMT");
+$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/ ; expires=Wednesday, 09-Nov-$year_plus_one 23:12:40 GMT");
 #print $res->as_string;
 $c->extract_cookies($res);
 

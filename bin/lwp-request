@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.1 2002/01/03 02:07:02 gisle Exp $
+# $Id: lwp-request,v 2.2 2003/10/10 15:50:16 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -51,10 +51,10 @@ hours, respectively.  The default timeout is '3m', i.e. 3 minutes.
 
 =item -i <time>
 
-Set the If-Modified-Since header in the request. If I<time> it the
+Set the If-Modified-Since header in the request. If I<time> is the
 name of a file, use the modification timestamp for this file. If
 I<time> is not a file, it is parsed as a literal date. Take a look at
-L<HTTP::Date> for recogniced formats.
+L<HTTP::Date> for recognized formats.
 
 =item -c <content-type>
 
@@ -107,7 +107,7 @@ Print response status code.  This option is always on for HEAD requests.
 
 =item -S
 
-Print response status chain. This shows redirect and autorization
+Print response status chain. This shows redirect and authorization
 requests that are handled by the library.
 
 =item -e
@@ -178,7 +178,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

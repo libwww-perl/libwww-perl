@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.9 1995/08/07 08:35:54 aas Exp $
+# $Id: Headers.pm,v 1.10 1995/08/07 09:17:51 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -83,10 +83,7 @@ sub new
         '_header'   => { },
     }, $class;
 
-    my($field, $val);
-    while (($field, $val) = splice(@_, 0, 2)) {
-        $self->header($field, $val);
-    }
+    $self->header(@_); # set up initial headers
     $self;
 }
 
@@ -105,30 +102,43 @@ sub clone
     $clone;
 }
 
-=head2 header($field [, $val])
+=head2 header($field [, $val],...)
 
 Get/Set the value of a request header.  The header field name is not
 case sensitive.  The value argument may be a scalar or a reference to
 a list of scalars. If the value argument is not defined the header is
 not modified.
 
-The list of previous values is returned.  Only the first header value
-is returned in scalar context.
+The method also accepts multiple ($field => $value) pairs.
 
- $header->header('User-Agent' => 'test/.01');
- $header->header('Accept' => [qw(text/html text/plain image/*)]);
+The list of previous values for the last $field is returned.  Only the
+first header value is returned in scalar context.
+
+ $header->header('MIME-Version' => '1.0',
+		 'User-Agent'   => 'My-Web-Client/0.01');
+ $header->header('Accept' => "text/html, text/plain, image/*");
  @accepts = $header->header('Accept');
 
 =cut
 
 sub header
 {
+    my $self = shift;
+    my($field, $val, @old);
+    while (($field, $val) = splice(@_, 0, 2)) {
+        @old = $self->_header($field, $val);
+    }
+    wantarray ? @old : $old[0];
+}
+
+sub _header
+{
     my($self, $field, $val, $push) = @_;
 
     # $push is only used interally sub pushHeader
 
-    croak('need a field name') unless defined $field;
-    croak('to many parameters') if @_ > 4;
+    croak('Need a field name') unless defined $field;
+    croak('Too many parameters') if @_ > 4;
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
@@ -154,8 +164,7 @@ sub header
             croak("Unexpected field value $val");
         }
     }
-
-    wantarray ? @old : $old[0];
+    @old;
 }
 
 
@@ -173,13 +182,13 @@ reference to a list of scalars.
 sub pushHeader
 {
     croak 'Usage: $h->pushHeader($field, $val)' if @_ != 3;
-    shift->header(@_, 'PUSH');
+    shift->_header(@_, 'PUSH');
 }
 
 
 =head2 removeHeader($field,...)
 
-This function removes the header with the specified names.
+This function removes the headers with the specified names.
 
 =cut
 
@@ -249,17 +258,10 @@ sub asString
     $endl = "\n" unless defined $endl;
 
     my @result = ();
-    my $last_field = '';
-
     $self->scan(sub {
         my($field, $val) = @_;
-        if ($field eq $last_field) {
-            $result[-1] .= ", $val";  # append a list value to last header
-        } else {
-            push(@result, "$field: $val");
-        }
-        $last_field = $field;
-    } );
+	push(@result, "$field: $val");
+    });
 
     join($endl, @result, '');
 }

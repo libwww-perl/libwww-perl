@@ -45,7 +45,6 @@ sub database { shift->_path_comp(0, @_); }
 sub wtype    { shift->_path_comp(1, @_); }
 sub wpath    { shift->_path_comp(2, @_); }
 
-require Carp;
-sub params { Carp::croak("Illegal attribute for wais URLs"); }
-*eparams   = \&params;
+*params   = \&URI::URL::bad_method;
+*eparams  = \&URI::URL::bad_method;
 1;

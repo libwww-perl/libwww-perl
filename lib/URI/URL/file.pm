@@ -36,8 +36,8 @@ sub _parse {
 # defined below)
 *local_path = \&{$ostype . "_path"};
 
-sub query { Carp::croak("Illegal method for file URLs"); }
-*equery = \&query;
+*query  = \&URI::URL::bad_method;
+*equery = \&URI::URL::bad_method;
 
 # A U T O  L O A D E R
 # Don't remove this comment, it keeps AutoSplit happy!!

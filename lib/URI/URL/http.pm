@@ -5,9 +5,9 @@ require URI::URL::_generic;
 sub default_port { 80 }
 
 require Carp;
-sub illegal { Carp::croak("Illegal method for http URLs"); }
-*user     = \&illegal;
-*password = \&illegal;
+
+*user     = \&URI::URL::bad_method;
+*password = \&URI::URL::bad_method;
 
 
 # @ISA = qw(AutoLoader)      # This comment is needed by AutoSplit.

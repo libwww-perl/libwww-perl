@@ -70,10 +70,9 @@ sub _path_elem {
     $old;
 }
 
-require Carp;
-sub query { Carp::croak("Illegal method for gopher URLs") }
-*equery = \&query;
-*params = \&query;
-*qparams = \&query;
+*params  = \&URI::URL::bad_method;
+*qparams = \&URI::URL::bad_method;
+*query   = \&URI::URL::bad_method;
+*equery  = \&URI::URL::bad_method;
 
 1;

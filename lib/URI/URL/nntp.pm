@@ -31,17 +31,14 @@ sub as_string {
 }
 
 # Standard methods are not legal for nntp URLs
-require Carp;
-sub illegal { Carp::croak("Illegal attribute for nntp URLs"); }
-
-*path      = \&illegal;
-*epath     = \&illegal;
-*query     = \&illegal;
-*equery    = \&illegal;
-*params    = \&illegal;
-*eparams   = \&illegal;
-*frag      = \&illegal;
-*user      = \&illegal;
-*password  = \&illegal;
+*path      = \&URI::URL::bad_method;
+*epath     = \&URI::URL::bad_method;
+*query     = \&URI::URL::bad_method;
+*equery    = \&URI::URL::bad_method;
+*params    = \&URI::URL::bad_method;
+*eparams   = \&URI::URL::bad_method;
+*frag      = \&URI::URL::bad_method;
+*user      = \&URI::URL::bad_method;
+*password  = \&URI::URL::bad_method;
 
 1;

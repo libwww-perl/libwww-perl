@@ -49,3 +49,8 @@ sub password
     }
     $old;
 }
+
+*query  = \&URI::URL::bad_method;
+*equery = \&URI::URL::bad_method;
+
+1;

@@ -14,15 +14,12 @@ sub _parse {
 }
 
 
-require Carp;
-sub illegal { Carp::croak("Illegal attribute for login URLs"); }
-
-*path      = \&illegal;
-*epath     = \&illegal;
-*query     = \&illegal;
-*equery    = \&illegal;
-*params    = \&illegal;
-*eparams   = \&illegal;
-*frag      = \&illegal;
+*path      = \&URI::URL::bad_method;
+*epath     = \&URI::URL::bad_method;
+*query     = \&URI::URL::bad_method;
+*equery    = \&URI::URL::bad_method;
+*params    = \&URI::URL::bad_method;
+*eparams   = \&URI::URL::bad_method;
+*frag      = \&URI::URL::bad_method;
 
 1;

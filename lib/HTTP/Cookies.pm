@@ -6,7 +6,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.
@@ -137,6 +137,13 @@ sub add_cookie_header
         LWP::Debug::debug("Checking $domain for cookies");
 	my $cookies = $self->{COOKIES}{$domain};
 	next unless $cookies;
+	if ($self->{delayload} && defined($cookies->{'//+delayload'})) {
+	    my $cookie_data = $cookies->{'//+delayload'}{'cookie'};
+	    delete $self->{COOKIES}{$domain};
+	    $self->load_cookie($cookie_data->[1]);
+	    $cookies = $self->{COOKIES}{$domain};
+	    next unless $cookies;  # should not really happen
+	}
 
 	# Want to add cookies corresponding to the most specific paths
 	# first (i.e. longest path first)
@@ -744,7 +751,7 @@ __END__
 
 =head1 SEE ALSO
 
-L<HTTP::Cookies::Netscape>
+L<HTTP::Cookies::Netscape>, L<HTTP::Cookies::Microsoft>
 
 =head1 COPYRIGHT
 

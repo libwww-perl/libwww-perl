@@ -2,7 +2,7 @@ use strict;
 
 require HTTP::Headers;
 
-print "1..14\n";
+print "1..16\n";
 
 my $h = new HTTP::Headers
 	mime_version  => "1.0",
@@ -113,7 +113,7 @@ print "ok 9\n";
 
 
 # Check with FALSE $HTML::Headers::TRANSLATE_UNDERSCORE
-
+{
 local($HTTP::Headers::TRANSLATE_UNDERSCORE);
 $HTTP::Headers::TRANSLATE_UNDERSCORE = undef;  # avoid -w warning
 
@@ -132,6 +132,7 @@ print "not " unless $h->remove_header("Abc_Abc") &&
                     !defined($h->header("abc_abc")) &&
                     $h->header("ABC-ABC") eq "bar";
 print "ok 11\n";
+}
 
 # Check if objects as header values works
 require URI;
@@ -148,3 +149,25 @@ print "ok 13\n";
 $h->clear;
 print "not " unless $h->as_string eq "";
 print "ok 14\n";
+
+$h->content_type("text/plain");
+$h->header(content_md5 => "dummy");
+$h->header("Content-Foo" => "foo");
+$h->header(Location => "http:", xyzzy => "plugh!");
+
+#print $h->as_string;
+print "not " unless $h->as_string eq <<EOT; print "ok 15\n";
+Location: http:
+Content-MD5: dummy
+Content-Type: text/plain
+Content-Foo: foo
+Xyzzy: plugh!
+EOT
+
+$h->remove_content_headers;
+print "not " unless $h->as_string eq <<EOT; print "ok 16\n";
+Location: http:
+Xyzzy: plugh!
+EOT
+
+

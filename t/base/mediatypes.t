@@ -23,7 +23,7 @@ $file = "/etc/passwd";
  ["x.ppm.Z.UU"		=> "image/x-portable-pixmap","compress","x-uuencode",],
 );
 
-$notests = @tests;
+$notests = @tests + 2;
 print "1..$notests\n";
 
 if (-f "$ENV{HOME}/.mime.types") {

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.11 1995/10/16 15:27:53 aas Exp $
+# $Id: Request.pm,v 1.12 1996/02/26 19:06:24 aas Exp $
 
 package HTTP::Request;
 
@@ -23,14 +23,14 @@ Instances of this class are usually passed to the C<request()> method
 of an C<LWP::UserAgent> object:
 
  $ua = new LWP::UserAgent;
- $request = new HTTP::Request('http://www.oslonett.no/');  
+ $request = new HTTP::Request 'http://www.oslonett.no/';
  $response = $ua->request($request);
 
 =head1 METHODS
 
 C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
 inherits its methods.  The inherited methods are C<header>,
-C<pushHeader>, C<removeHeader> C<headerAsString> and C<content>.  See
+C<push_header>, C<remove_header> C<headers_as_string> and C<content>.  See
 L<HTTP::Message> for details.
 
 =cut
@@ -92,9 +92,12 @@ sub method  { shift->_elem('_method', @_); }
 
 sub url
 {
-    my($self, $url) = @_;
-    if (defined $url) {
-        if (ref $url) {
+    my $self = shift;
+    my($url) = @_;
+    if (@_) {
+        if (!defined $url) {
+            # that's ok
+	} elsif (ref $url) {
             $url = $url->abs;
         } else {
             $url = new URI::URL $url;
@@ -103,22 +106,23 @@ sub url
     $self->_elem('_url', $url);
 }
 
+*uri = \&url;  # this is the same
 
-=head2 asString()
+=head2 as_string()
 
 Method returning a textual representation of the request.
 Mainly useful for debugging purposes. It takes no arguments.
 
 =cut
 
-sub asString
+sub as_string
 {
     my $self = shift;
     my @result = ("--- $self ---");
     my $url = $self->url;
     $url = (defined $url) ? $url->as_string : "[NO URL]";
     push(@result, $self->method . " $url");
-    push(@result, $self->headerAsString);
+    push(@result, $self->headers_as_string);
     my $content = $self->content;
     if ($content) {
         push(@result, $self->content);

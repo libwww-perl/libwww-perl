@@ -16,7 +16,7 @@ HTML::AsSubs - functions that construct a HTML syntax tree
 	     "."
 	    ),
 	  );
- print $h;
+ print $h->as_HTML;
 
 =head1 DESCRIPTION
 

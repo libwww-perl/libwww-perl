@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.6 1995/07/16 07:22:37 aas Exp $
+# $Id: Simple.pm,v 1.7 1995/07/17 10:06:20 aas Exp $
 
 =head1 NAME
 
@@ -86,7 +86,7 @@ C<getprint>, C<getstore> and C<mirror>.  The constants are:
    RC_NOT_IMPLEMENTED
    RC_BAD_GATEWAY
    RC_SERVICE_UNAVAILABLE
-   RC_GATEWAY_TIEOUT
+   RC_GATEWAY_TIMEOUT
 
 The LWP::StatusCode procedures are:
 

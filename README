@@ -10,7 +10,7 @@ general use.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
-Library of Common Code.
+Library of Common Code (nowadays known as 'w3c-libwww').
 
 The Perl4 version is still maintained by Roy Fielding, and was the
 basis for tools such as MOMSpider. The perl4 version of libwww-perl
@@ -47,8 +47,8 @@ library, by running these commands:
 
 You can edit the configuration section of Makefile.PL to select which
 programs to install in addition to the library itself.  If you don't
-want to install any programs (but only the library files) then make
-the initial Makefile with:
+want to install any programs (only the library files) and don't want
+to mess with the Makefile.PL then pass the '-n' option to Makefile.PL:
 
    perl Makefile.PL -n
 
@@ -91,8 +91,8 @@ SUPPORT
 Question about how to use this library should be directed to the
 comp.lang.perl.modules USENET Newsgroup.  Bug reports and suggestions
 for improvements can be sendt to the <libwww-perl@ics.uci.edu> mailing
-list.  This mailing list is also the place for general discussions of
-the libwww-perl package.
+list.  This mailing list is also the place for general discussions and
+development of the libwww-perl package.
 
 You can join the mailing list by sending a message to
 <libwww-perl-request@ics.uci.edu> with "Subscribe" as subject.

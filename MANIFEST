@@ -40,9 +40,11 @@ lib/HTML/HTML32.dtd		The SGML DTD
 lib/HTML/ISOlat1.sgml           Included by the SGML DTD
 lib/HTML/dtd2pm.pl		Writes a perl module
 lib/HTML/ent.pl                 Convert entities
+lib/HTTP/Cookies.pm             Cookie storage and management
 lib/HTTP/Daemon.pm		A simple httpd
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
+lib/HTTP/Headers/Util.pm        Some utility functions for header values.
 lib/HTTP/Message.pm		Class encapsulating HTTP messages
 lib/HTTP/Negotiate.pm		Evaluate HTTP content negotiation algoritm
 lib/HTTP/Request.pm		Class encapsulating HTTP Requests
@@ -97,6 +99,7 @@ t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/afm.t			Test Font::AFM module
 t/base/common-req.t		Test HTTP::Request::Common module
+t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module
 t/base/headers.t		Test HTTP::Headers module
 t/base/listing.t		Test File::Listing module

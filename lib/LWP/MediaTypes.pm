@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.15 1996/07/14 13:58:29 aas Exp $
+# $Id: MediaTypes.pm,v 1.16 1996/11/11 17:45:57 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -27,14 +27,26 @@ require Exporter;
 @EXPORT = qw(guess_media_type media_suffix);
 
 require LWP::Debug;
+use strict;
 
-my %suffixType = (              # note: initialized from mime.types
+# note: These hashes will also be filled with the entries found in
+# the 'media.types' file.
+
+my %suffixType = (
     'txt'   => 'text/plain',
     'html'  => 'text/html',
     'gif'   => 'image/gif',
     'jpg'   => 'image/jpeg',
 );
 
+my %suffixExt = (
+    'text/plain' => 'txt',
+    'text/html'  => 'h',
+    'image/gif'  => 'gif',
+    'image/jpeg' => 'jpg',
+);
+
+#XXX: there should be some way to define this in the media.types files.
 my %suffixEncoding = (
     'Z'   => 'compress',
     'gz'  => 'gzip',
@@ -50,7 +62,9 @@ push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
   if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
 
 # Try to locate "media.types" file, and initialize %suffixType from it
-  for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
+my $typefile;
+for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
+    local(*TYPE);
     open(TYPE, $typefile) || next;
     LWP::Debug::debug("Reading media types from $typefile");
     while (<TYPE>) {
@@ -58,6 +72,8 @@ push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
 	next if /^\s*$/; # blank line
 	s/#.*//;         # remove end-of-line comments
 	my($type, @exts) = split(' ', $_);
+	$suffixExt{$type} = $exts[0] if @exts;
+	my $ext;
 	for $ext (@exts) {
 	    $suffixType{$ext} = $type;
 	}
@@ -143,25 +159,37 @@ sub guess_media_type
 }
 
 
-=head2 media_suffix($type)
-
-  media_suffix('image/*')
+=head2 media_suffix($type,...)
 
 This function will return all suffixes that can be used to denote the
-specified media type.  Wildcard types can be used.
+specified media type(s).  Wildcard types can be used.  In scalar
+context it will return the first suffix found.
+
+Examples:
+
+  @suffixes = media_suffix('image/*', 'audio/basic');
+  $suffix = media_suffix('text/html');
 
 =cut
 
 sub media_suffix {
+    if (!wantarray && @_ == 1 && $_[0] !~ /\*/) {
+	return $suffixExt{$_[0]};
+    }
     my(@type) = @_;
-    my(@suffix,$nom,$val);
+    my(@suffix, $ext, $type);
     foreach (@type) {
-	s/\*/.*/;
-	while(($nom,$val) = each(%suffixType)) {
-	    push(@suffix, $nom) if $val =~ /^$_$/;
+	if (s/\*/.*/) {
+	    while(($ext,$type) = each(%suffixType)) {
+		push(@suffix, $ext) if $type =~ /^$_$/;
+	    }
+	} else {
+	    while(($ext,$type) = each(%suffixType)) {
+		push(@suffix, $ext) if $type eq $_;
+	    }
 	}
     }
-    @suffix;
+    wantarray ? @suffix : $suffix[0];
 }
 
 1;

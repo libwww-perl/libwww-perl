@@ -1,4 +1,4 @@
-# $Id: RobotRules.pm,v 1.11 1996/09/30 11:45:10 aas Exp $
+# $Id: RobotRules.pm,v 1.12 1996/10/01 16:22:50 aas Exp $
 
 package WWW::RobotRules;
 
@@ -44,7 +44,7 @@ same WWW::RobotRules object can parse multiple F<robots.txt> files.
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -153,7 +153,7 @@ sub parse {
 #
 sub is_me {
     my($self, $ua) = @_;
-    my $me = $self->{'ua'};
+    my $me = $self->agent;
     return index(lc($ua), lc($me)) >= 0;
 }
 

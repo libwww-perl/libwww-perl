@@ -1,3 +1,28 @@
+Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Made release 0.01
+
+
+
+Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Don't loose first line of HTTP/0.9 requests
+
+ o  LWP::Socket use syswrite() for writing
+
+ o  Added RC_* documentation to LWP::StatusCode
+
+ o  LWP::Date now use hash to look up month numbers
+
+ o  Added -f option to "get"
+
+ o  Untabify
+
+ o  Added a "TODO" list
+
+ o  Fixed various typos
+
+
 
 Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
 

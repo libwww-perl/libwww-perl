@@ -1,13 +1,13 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.15 2004/11/12 10:42:36 gisle Exp $
+# $Id: Methods.pm,v 1.16 2004/11/15 13:43:17 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "1.01";
+$VERSION = "1.02";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -119,6 +119,8 @@ sub format_request {
 	my($k, $v) = splice(@_, 0, 2);
 	my $lc_k = lc($k);
 	if ($lc_k eq "connection") {
+	    $v =~ s/^\s+//;
+	    $v =~ s/\s+$//;
 	    push(@connection, split(/\s*,\s*/, $v));
 	    next;
 	}
@@ -331,7 +333,10 @@ sub read_response_headers {
     for (my $i = 0; $i < @headers; $i += 2) {
 	my $h = lc($headers[$i]);
 	if ($h eq 'transfer-encoding') {
-	    push(@te, $headers[$i+1]);
+	    my $te = $headers[$i+1];
+	    $te =~ s/^\s+//;
+	    $te =~ s/\s+$//;
+	    push(@te, $te) if length($te);
 	}
 	elsif ($h eq 'content-length') {
 	    $content_length = $headers[$i+1];

@@ -72,6 +72,7 @@ t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
 t/base/ua.t			Basic LWP::UserAgent tests
 t/html/form.t			Test HTML::Form module
+t/live/activestate.t
 t/live/jigsaw-auth-b.t
 t/live/jigsaw-auth-d.t
 t/live/jigsaw-chunk.t

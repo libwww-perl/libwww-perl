@@ -21,7 +21,7 @@ the document specified by URL argument:
 
 or as a perl one-liner using the getprint() function:
 
-  perl -MLWP::Simple; -e 'getprint "http://www.sn.no/libwww-perl/"';
+  perl -MLWP::Simple -e 'getprint "http://www.sn.no/libwww-perl/"'
 
 or how about fetching the latest perl by running this:
 
@@ -42,7 +42,7 @@ handle the the response returned.
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
   $ua->agent("$0/0.1");
-  # $ua->agent("Mozilla/5.0") # if you want to pretend you are Netscape
+  # $ua->agent("Mozilla/3.0") # pretend you are some new Netscape browser
 
   $req = new HTTP::Request 'GET', 'http://www.sn.no/libwww-perl';
   $req->header('Accept' => 'text/html');
@@ -91,34 +91,35 @@ operation is to access a WWW form application:
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
 
-  my $req = new HTTP::Request 'POST', 'http://www.perl.com/bug';
+  my $req = new HTTP::Request 'POST','http://www.perl.com/cgi-bin/BugGlimpse';
   $req->content_type('application/x-www-form-urlencoded');
-  $req->content('search=libwww&max=2');
+  $req->content('match=www&errors=0');
 
   my $res = $ua->request($req);
   print $res->as_string;
 
 If your application have the key/value pairs to be posted in an
 associative array, then we can exploit the URI::URL module to create
-the content for the POST request message:
+the content for the POST request message (it handles all the escaping
+issues):
 
-  %form = ( search => 'libwww', max => 2 );
+  %form = ( search => 'www', errors => 0 );
 
-  use URI::URL ();
+  use URI::URL;
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
 
-  my $curl = new URI::URL "http:";
+  my $curl = url("http:");
   $curl->query_form(%form);
-  my $req = new HTTP::Request 'POST', 'http://www.perl.com/bug';
+  my $req = new HTTP::Request 'POST', 'http://www.perl.com/cgi-bin/BugGlimpse';
   $req->content_type('application/x-www-form-urlencoded');
-  $req->content($cur->equery);
+  $req->content($curl->equery);
 
   print $ua->request($req)->as_string;
 
 The lwp-request program (alias POST) that is distributed with the
 library can also be used to posting data.
-  
+
 
 
 =head1 PROXIES
@@ -209,24 +210,25 @@ argument is a code reference):
 
   use LWP::UserAgent;
   $ua = new LWP::UserAgent;
+  $URL = 'ftp://ftp.unit.no/pub/rfc/rfc-index.txt';
 
   my $expected_length;
   my $bytes_received = 0;
-  $ua->request(HTTP::Request->new('GET', 'ftp://ftp.funet.fi/rfc/rfc-index'),
+  $ua->request(HTTP::Request->new('GET', $URL),
                sub {
-                   my($chunk, $res) = shift;
-                   print $chunk;
+                   my($chunk, $res) = @_;
                    $bytes_received += length($chunk);
 	           unless (defined $expected_length) {
 	              $expected_length = $res->content_length || 0;
                    }
 		   if ($expected_length) {
 		        printf STDERR "%d%% - ",
-	                              $bytes_received / $expected_length;
+	                          100 * $bytes_received / $expected_length;
                    }
-	           print STDERR "$bytes bytes received\n";
+	           print STDERR "$bytes_received bytes received\n";
 
-                   # XXX Should really do something with the chunk
+                   # XXX Should really do something with the chunk itself
+	           # print $chunk;
                });
 
 
@@ -237,7 +239,7 @@ It is easy to convert HTML code to "readable" text.
 
   use LWP::Simple;
   use HTML::Parse;
-  parse_html(get 'http://www.sn.no/libwww-perl/')->format;
+  print parse_html(get 'http://www.sn.no/libwww-perl/')->format;
 
 
 
@@ -250,6 +252,7 @@ To access individual elements of a try this:
 
 or
 
+  use URI::URL;
   $u = url("ftp://ftp.sn.no/test/aas;type=i");
   print "Protocol scheme is ", $u->scheme, "\n";
   print "Host is ", $u->host, " at port ", $u->port, "\n";
@@ -260,6 +263,7 @@ or
 
 This code reads URLs and print expanded version.
 
+  use URI::URL;
   $BASE = "http://www.sn.no/some/place?query";
   while (<>) {
      print url($_, $BASE)->abs->as_string, "\n";

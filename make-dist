@@ -31,7 +31,7 @@ print "Patching relevant files...\n";
 run "perl -pi -e 's/(version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $version/ig' $base/README";
 
 # Updating version number in LWP/LWP.pm file
-run qq(perl -pi -e 's/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1 "$version"/' $base/lib/LWP/LWP.pm);
+run qq(perl -pi -e 's/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1 "$version"/' $base/LWP/LWP.pm);
 
 print "Making tar file...\n";
 run "(cd /usr/tmp; tar cf - $name) | gzip >../$name.tar.gz";

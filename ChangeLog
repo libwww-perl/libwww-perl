@@ -1,3 +1,22 @@
+
+ o  All authentication handling moved out of LWP::UserAgent and into
+    LWP::Authen::Basic and LWP::Authen::Digest.  We now also support
+    PROXY_AUTHENTICATION_REQUIRED responses.
+
+ o  HTML::Formatter will always add a blank line for <br>.
+
+ o  Avoid use of uninitialized value in HTTP::Daemon.
+
+ o  HTTP::Date allows seconds when recognizing 'ls -l' dates.  This
+    allows us to parse syslog time stamps.
+
+ o  HTTP::Request::Common::POST allows a hash reference as second
+    argument (in addition to an array reference).
+
+ o  LWP::Simple will initialize the $ua if it is exported.
+
+
+
 Fri Nov 21 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.16

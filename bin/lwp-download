@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.14 2004/12/11 13:51:49 gisle Exp $
+# $Id: lwp-download,v 2.15 2004/12/11 14:02:59 gisle Exp $
 
 =head1 NAME
 
@@ -62,6 +62,7 @@ use HTTP::Date ();
 
 my $progname = $0;
 $progname =~ s,.*/,,;    # only basename left in progname
+$progname =~ s,.*\\,, if $^O eq "MSWin32";
 $progname =~ s/\.\w*$//; # strip extension if any
 
 #parse option
@@ -74,14 +75,14 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.14 $;
+my $version = q$Revision: 2.15 $;
+$version =~ s/[^\d.]//g;
 
-my $ua = new LWP::UserAgent;
-
-$ua->agent("lwp-download/$version " . $ua->agent);
-$ua->env_proxy;
-
-my $req = new HTTP::Request GET => $url;
+my $ua = LWP::UserAgent->new(
+   agent => "lwp-download/$version ",
+   keep_alive => 1,
+   env_proxy => 1,
+);
 
 my $file;      # name of file we download into
 my $length;    # total number of bytes to download
@@ -96,7 +97,7 @@ $SIG{INT} = sub { die "Interrupted\n"; };
 
 $| = 1;  # autoflush
 
-my $res = $ua->request($req,
+my $res = $ua->request(HTTP::Request->new(GET => $url),
   sub {
       unless(defined $file) {
 	  my $res = $_[1];

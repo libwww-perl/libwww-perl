@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.34 1996/04/09 15:44:32 aas Exp $
+# $Id: UserAgent.pm,v 1.35 1996/05/08 16:30:04 aas Exp $
 
 package LWP::UserAgent;
 
@@ -44,8 +44,8 @@ directories will be converted to HTML documents.
 
 The request() method can process the content of the response in one of
 three ways: in core, into a file, or into repeated calls of a
-subroutine.  You choose which one of these by the kind of value passed
-as the second argument to request().
+subroutine.  You choose which one by the kind of value passed as the
+second argument to request().
 
 The in core variant simply returns the content in a scalar attribute
 called content() of the response object, and is suitable for small
@@ -57,26 +57,30 @@ second argument to request(), and is suitable for large WWW objects
 which need to be written directly to the file, without requiring large
 amounts of memory. In this case the response object returned from
 request() will have empty content().  If the request fails, then the
-content() might not be empty.
+content() might not be empty, and the file will be untouched.
 
 The subroutine variant requires a reference to callback routine as the
-second argument to request() and optional chuck size.  This variant
-can be used to construct "pipe-lined" processing, where processing of
-received chuncks can begin before the complete data has arrived.  The
-callback function is called with 3 arguments: the data received this
-time, a reference to the response object and a reference to the
-protocol object.  The response object returned from request() will
-have empty content().  If the request fails, then the the callback
-routine will not have been called, and the response->content() might
-not be empty.
+second argument to request() and it can also take an optional chuck
+size as third argument.  This variant can be used to construct
+"pipe-lined" processing, where processing of received chuncks can
+begin before the complete data has arrived.  The callback function is
+called with 3 arguments: the data received this time, a reference to
+the response object and a reference to the protocol object.  The
+response object returned from request() will have empty content().  If
+the request fails, then the the callback routine will not have been
+called, and the response->content() might not be empty.
 
-The library also accepts that you put a subroutine as content in the
-request object.  This subroutine should return the content (possibly
-in pieces) when called.  It should return an empty string when there
-is no more content.
+The request can be aborted by calling die() within the callback
+routine.  The die message will be available as the "X-Died" special
+response header field.
+
+The library also accepts that you put a subroutine reference as
+content in the request object.  This subroutine should return the
+content (possibly in pieces) when called.  It should return an empty
+string when there is no more content.
 
 The user of this module can finetune timeouts and error handling by
-calling the alarm() and use_eval() methods.
+calling the use_alarm() and use_eval() methods.
 
 By default the library uses alarm() to implement timeouts, dying if
 the timeout occurs. If this is not the prefered behaviour or it
@@ -152,7 +156,7 @@ sub new
 This method dispatches a single WWW request on behalf of a user, and
 returns the response received.  The C<$request> should be a reference
 to a C<HTTP::Request> object with values defined for at least the
-C<method()> and C<url()> attributes.
+method() and url() attributes.
 
 If C<$arg> is a scalar it is taken as a filename where the content of
 the response is stored.
@@ -496,7 +500,7 @@ The user agent string should be one or more simple product identifiers
 with an optional version number separated by the "/" character.
 Examples are:
 
-  $ua->agent('Checkbot/0.4 libwww-perl/5.00');
+  $ua->agent('Checkbot/0.4 ' . $ua->agent);
   $ua->agent('Mozilla/5.0');
 
 =head2 $ua->from([$email_address])
@@ -595,7 +599,7 @@ sub is_protocol_supported
 =head2 $ua->mirror($url, $file)
 
 Get and store a document identified by a URL, using If-Modified-Since,
-and checking of the content-length.  Returns a reference to the
+and checking of the Content-Length.  Returns a reference to the
 response object.
 
 =cut
@@ -645,8 +649,8 @@ sub mirror
 
 Set/retrieve proxy URL for a scheme:
 
- $ua->proxy(['http', 'ftp'], 'http://www.oslonett.no:8001/');
- $ua->proxy('gopher', 'http://web.oslonett.no:8001/');
+ $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
+ $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
 
 The first form specifies that the URL is to be used for proxying of
 access methods listed in the list in the first method argument,
@@ -682,8 +686,11 @@ specify proxies like this (sh-syntax):
 
   gopher_proxy=http://proxy.my.place/
   wais_proxy=http://proxy.my.place/
-  export gopher_proxy wais_proxy
-  no_proxy="my.place"; export no_proxy
+  no_proxy="my.place"
+  export gopher_proxy wais_proxy no_proxy
+
+Csh or tcsh users should use the C<setenv> command to define these
+envirionment variables.
 
 =cut
 
@@ -705,7 +712,7 @@ sub env_proxy {
 =head2 $ua->no_proxy($domain,...)
 
 Do not proxy requests to the given domains.  Calling no_proxy without
-domains clears the list of domains. Eg:
+any domains clears the list of domains. Eg:
 
  $ua->no_proxy('localhost', 'no', ...);
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.10 1995/09/14 13:43:23 aas Exp $
+# $Id: Makefile.PL,v 1.11 1995/09/20 10:12:05 aas Exp $
 
 # Configuration section
 
@@ -65,7 +65,7 @@ config ::
 ";
     if (@request_aliases) {
 	push @m, "all ::\n";
-	push @m, "\t\$(PERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
+	push @m, "\t\$(FULLPERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
 	push @m, <<'EOT';
 	-e 'unlink "$(INST_EXE)/$$_";' \
 	-e 'system("$$Config{\"lns\"} request $(INST_EXE)/$$_") && die; }'

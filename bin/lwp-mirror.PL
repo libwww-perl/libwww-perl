@@ -10,19 +10,19 @@ print SCRIPT <<"END";
 \$DISTNAME = "$NAME-$VERSION";
 END
 
-print SCRIPT <<'END'; chmod(0755, $SCRIPT);
+print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-mirror.PL,v 1.12 1996/02/07 15:42:36 aas Exp $
+# $Id: lwp-mirror.PL,v 1.13 1996/02/26 19:23:06 aas Exp $
 #
 # Simple mirror utility using LWP
 
 =head1 NAME
 
-mirror - Simple mirror utility for WWW
+lwp-mirror - Simple mirror utility for WWW
 
 =head1 SYNOPSIS
 
- mirror [-v] [-t timeout] <url> <local file>
+ lwp-mirror [-v] [-t timeout] <url> <local file>
 
 =head1 DESCRIPTION
 
@@ -43,11 +43,11 @@ supports the protocols that LWP supports.
 
 =head1 SEE ALSO
 
-L<request>, L<LWP>
+L<lwp-request>, L<LWP>
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@a.sn.no>
 
 =cut
 
@@ -57,7 +57,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -68,12 +68,10 @@ unless (getopts("hvt:")) {
 }
 
 if ($opt_v) {
-    require LWP;
-    $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is $DISTNAME $0 version $VERSION (using LWP version $lwpVersion)
+This is $0 version $VERSION ($DISTNAME)
 
-Copyright (C) 1995 Gisle Aas. All rights reserved.
+Copyright (C) 1995,1996 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -97,7 +95,7 @@ $rc = mirror($url, $file);
 
 if ($rc == 304) {
     print STDERR "$0: $file is up to date\n"
-} elsif (!isSuccess($rc)) {
+} elsif (!is_success($rc)) {
     print STDERR "$0: $rc ", message($rc), "   ($url)\n";
     exit 1;
 }
@@ -112,4 +110,4 @@ Usage: $0 [-options] <url> <file>
     -t <timeout> Set timeout value
 EOT
 }
-END
+END_PROGRAM

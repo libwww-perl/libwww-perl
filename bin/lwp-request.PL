@@ -10,22 +10,21 @@ print SCRIPT <<"END";
 \$DISTNAME = "$NAME-$VERSION";
 END
 
-print SCRIPT <<'END'; chmod(0755, $SCRIPT);
+print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-request.PL,v 1.21 1996/02/07 15:42:38 aas Exp $
+# $Id: lwp-request.PL,v 1.22 1996/02/26 19:23:22 aas Exp $
 #
-# Simple user agent using LWP library.  Its interface is based on the
-# libwww-perl-0.40 'get'-program.
+# Simple user agent using LWP library.
 
 =head1 NAME
 
-request, GET, HEAD, POST - Simple WWW user agent
+lwp-request, GET, HEAD, POST - Simple WWW user agent
 
 =head1 SYNOPSIS
 
- request [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
-         [-i <if-modified-since>] [-c <content-type>] [-C <credentials>]
-         [-p <proxy-url>] [-o <format>] <url>...
+ lwp-request [-eEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
+             [-i <if-modified-since>] [-c <content-type>] [-C <credentials>]
+             [-p <proxy-url>] [-o <format>] <url>...
 
 =head1 DESCRIPTION
 
@@ -160,34 +159,32 @@ only support the protocols that LWP supports.
 
 =head1 SEE ALSO
 
-L<mirror>, L<LWP>
+L<lwp-mirror>, L<LWP>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@oslonett.no>
+Gisle Aas <aas@a.sn.no>
 
 =cut
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
 require LWP::Debug;
-
-use HTTP::Date;
-use HTTP::Status qw(statusMessage);
-
 require URI::URL;
 
+use HTTP::Status qw(status_message);
+use HTTP::Date qw(time2str str2time);
 
 
 # This table lists the methods that are allowed.  It should really be
@@ -220,11 +217,11 @@ require URI::URL;
     sub new
     { 
 	my $self = LWP::UserAgent::new(@_);
-	$self->agent("LWP-$0/$main::VERSION");
+	$self->agent("lwp-request/$main::VERSION");
 	$self;
     }
 
-    sub getBasicCredentials
+    sub get_basic_credentials
     {
 	my($self, $realm, $uri) = @_;
 	if ($main::opt_C) {
@@ -248,7 +245,7 @@ require URI::URL;
     }
 }
 
-$method = uc($0 eq "request" ? "GET" : $0);
+$method = uc($0 eq "lwp-request" ? "GET" : $0);
 
 # Parse command line
 use Getopt::Std;
@@ -282,11 +279,10 @@ unless (getopts("xhvuUsSedPp:b:t:i:c:C:m:fo:")) {
 }
 
 if ($opt_v) {
-    $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is $DISTNAME $0 version $VERSION (using LWP version $lwpVersion)
+This is $0 version $VERSION ($DISTNAME)
 
-Copyright (C) 1995 Gisle Aas. All rights reserved.
+Copyright (C) 1995,1996 Gisle Aas. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -301,7 +297,7 @@ LWP::Debug::level('+') if $opt_x;
 $ua = new RequestAgent;
 
 # Load proxy settings from *_proxy environment variables.
-$ua->envProxy unless $opt_P;
+$ua->env_proxy unless $opt_P;
 
 $method = uc($opt_m) if defined $opt_m;
 
@@ -400,7 +396,7 @@ while ($url = shift) {
     if ($opt_u || $opt_U) {
         my $url = $response->request->url->as_string;
         print "$method $url\n";
-        print $response->request->headerAsString, "\n" if $opt_U;
+        print $response->request->headers_as_string, "\n" if $opt_U;
     }
 
     if ($opt_S) {
@@ -408,17 +404,17 @@ while ($url = shift) {
     } elsif ($opt_s) {
         # Display status code
         my $code = $response->code;
-        print $code, " ", statusMessage($code), "\n";
+        print $code, " ", status_message($code), "\n";
         
     }
 
     if ($opt_e) {
         # Display headers
-        print $response->headerAsString;
+        print $response->headers_as_string;
         print "\n";  # separate headers and content
     }
 
-    if ($response->isSuccess) {
+    if ($response->is_success) {
 	unless ($opt_d) {
 	    if ($opt_o &&
 		lc($response->header('Content-Type')) eq 'text/html') {
@@ -438,12 +434,12 @@ while ($url = shift) {
 			last;
 		    };
 		    $opt_o eq 'html' && do {
-			print $html->asHTML;
+			print $html->as_HTML;
 			last;
 		    };
 		    $opt_o eq 'links' && do {
 			my $base = $response->request->url;
-			for ( @{ $html->extractLinks } ) {
+			for ( @{ $html->extract_links } ) {
 			    my($link, $elem) = @$_;
 			    my $tag = uc $elem->tag;
 			    $link = new URI::URL $link, $base;
@@ -462,7 +458,7 @@ while ($url = shift) {
 	    }
 	}
     } else {
-        print STDERR $response->errorAsHTML unless $opt_d;
+        print STDERR $response->error_as_HTML unless $opt_d;
         $errors++;
     }
 }
@@ -478,7 +474,7 @@ sub printResponseChain
     my $method = $response->request->method;
     my $url = $response->request->url->as_string;
     my $code = $response->code;
-    print "$method $url --> $code ", statusMessage($code), "\n";
+    print "$method $url --> $code ", status_message($code), "\n";
 }
 
 
@@ -509,4 +505,4 @@ Usage: $0 [-options] <url>...
     -x            Extra debugging output
 EOT
 }
-END
+END_PROGRAM

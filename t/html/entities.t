@@ -1,6 +1,6 @@
 use HTML::Entities qw(decode_entities encode_entities);
 
-print "1..7\n";
+print "1..8\n";
 
 $a = "V&aring;re norske tegn b&oslash;r &#230res";
 
@@ -50,6 +50,20 @@ print "not " if $a ne $ent;
 print "ok 7\n";
 
 
+# From: Bill Simpson-Young <bill.simpson-young@cmis.csiro.au>
+# Subject: HTML entities problem with 5.11
+# To: libwww-perl@ics.uci.edu
+# Date: Fri, 05 Sep 1997 16:56:55 +1000
+# Message-Id: <199709050657.QAA10089@snowy.nsw.cmis.CSIRO.AU>
+#
+# Hi. I've got a problem that has surfaced with the changes to 
+# HTML::Entities.pm for 5.11 (it doesn't happen with 5.08).  It's happening 
+# in the process of encoding then decoding special entities.  Eg, what goes 
+# in as "abc&def&ghi" comes out as "abc&def;&ghi;".
+
+print "not " unless decode_entities("abc&def&ghi&abc;&def;") eq
+                                    "abc&def&ghi&abc;&def;";
+print "ok 8\n";
 
 
 

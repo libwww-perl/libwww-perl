@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-request.PL,v 1.34 1998/11/19 21:44:59 aas Exp $
+# $Id: lwp-request.PL,v 1.35 1999/03/19 22:06:32 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -186,7 +186,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -236,7 +236,7 @@ use HTTP::Date qw(time2str str2time);
 	if ($main::opt_C) {
 	    return split(':', $main::opt_C, 2);
 	} elsif (-t) {
-	    my $netloc = $uri->netloc;
+	    my $netloc = $uri->host_port;
 	    print "Enter username for $realm at $netloc: ";
 	    my $user = <STDIN>;
 	    chomp($user);

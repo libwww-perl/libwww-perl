@@ -12,7 +12,7 @@ sub begin
     $self->HTML::Formatter::begin;
     $self->{lm}  =    3;  # left margin
     $self->{rm}  =   70;  # right margin
-    $self->{pos} =    0;  # current output position.
+    $self->{curpos} = 0;  # current output position.
     $self->{maxpos} = 0;  # highest value of $pos (used by header underliner)
 }
 
@@ -78,23 +78,23 @@ sub out
     if (defined $formatter->{vspace}) {
 	if ($formatter->{out}) {
 	    $formatter->nl while $formatter->{vspace}-- > 0;
-	    $formatter->lm;
+	    $formatter->goto_lm;
 	} else {
-	    $formatter->lm;
+	    $formatter->goto_lm;
 	}
 	$formatter->{vspace} = undef;
     }
 
-    if ($formatter->{pos} > $formatter->{rm}) {  # line is too long, break it
+    if ($formatter->{curpos} > $formatter->{rm}) { # line is too long, break it
 	return if $text =~ /^\s*$/;  # white space at eol is ok
 	$formatter->nl;
-	$formatter->lm;
+	$formatter->goto_lm;
     }
     
     if ($formatter->{pending_space}) {
 	$formatter->{pending_space} = 0;
 	print ' ';
-	my $pos = ++$formatter->{pos};
+	my $pos = ++$formatter->{curpos};
 	$formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
     }
 
@@ -102,18 +102,18 @@ sub out
     return unless length $text;
 
     print $text;
-    my $pos = $formatter->{pos} += length $text;
+    my $pos = $formatter->{curpos} += length $text;
     $formatter->{maxpos} = $pos if $formatter->{maxpos} < $pos;
-    $formatter->{out}++;
+    $formatter->{'out'}++;
 }
 
-sub lm
+sub goto_lm
 {
     my $formatter = shift;
-    my $pos = $formatter->{pos};
+    my $pos = $formatter->{curpos};
     my $lm  = $formatter->{lm};
     if ($pos < $lm) {
-	$formatter->{pos} = $lm;
+	$formatter->{curpos} = $lm;
 	print " " x ($lm - $pos);
     }
 }
@@ -121,9 +121,9 @@ sub lm
 sub nl
 {
     my $formatter = shift;
-    $formatter->{out}++;
+    $formatter->{'out'}++;
     $formatter->{pending_space} = 0;
-    $formatter->{pos} = 0;
+    $formatter->{curpos} = 0;
     print "\n";
 }
 

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.63 1998/08/06 21:33:32 aas Exp $
+# $Id: UserAgent.pm,v 1.63.2.1 1998/09/11 12:17:50 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,13 +92,10 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.63 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.63.2.1 $ =~ /(\d+)\.(\d+)/);
 
-
-require URI::URL;
-require HTTP::Request;
-require HTTP::Response;
-
+use HTTP::Request ();
+use HTTP::Response ();
 use HTTP::Date ();
 
 use LWP ();
@@ -106,7 +103,6 @@ use LWP::Debug ();
 use LWP::Protocol ();
 
 use Carp ();
-
 use AutoLoader ();
 *AUTOLOAD = \&AutoLoader::AUTOLOAD;  # import the AUTOLOAD method
 
@@ -263,10 +259,15 @@ sub request
 	my $referral = $request->clone;
 
 	# And then we update the URL based on the Location:-header.
-	# Some servers erroneously return a relative URL for redirects,
-	# so make it absolute if it not already is.
-	my $referral_uri = (URI::URL->new($response->header('Location'),
-					  $response->base))->abs(undef,1);
+	my $referral_uri = $response->header('Location');
+	{
+	    # Some servers erroneously return a relative URL for redirects,
+	    # so make it absolute if it not already is.
+	    local $URI::ABS_ALLOW_RELATIVE_SCHEME = 1;
+	    my $base = $response->base;
+	    $referral_uri = $HTTP::URI_CLASS->new($referral_uri, $base)
+		            ->abs($base);
+	}
 
 	$referral->url($referral_uri);
 
@@ -512,7 +513,7 @@ sub clone
 
 You can use this method to query if the library currently support the
 specified C<scheme>.  The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI::URL object reference.
+'ftp') or it might be an URI object reference.
 
 =cut
 
@@ -520,8 +521,8 @@ sub is_protocol_supported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-	# assume we got a reference to an URI::URL object
-	$scheme = $scheme->abs->scheme;
+	# assume we got a reference to an URI object
+	$scheme = $scheme->scheme;
     } else {
 	Carp::croak("Illeal scheme '$scheme' passed to is_protocol_supported")
 	    if $scheme =~ /\W/;
@@ -681,35 +682,23 @@ sub no_proxy {
 sub _need_proxy
 {
     my($self, $url) = @_;
+    $url = $HTTP::URI_CLASS->new($url) unless ref $url;
 
-    $url = new URI::URL($url) unless ref $url;
-
-    LWP::Debug::trace("($url)");
-
-    # check the list of noproxies
-
-    if (@{ $self->{'no_proxy'} }) {
-	my $host = $url->host;
-	return undef unless defined $host;
-	my $domain;
-	for $domain (@{ $self->{'no_proxy'} }) {
-	    if ($host =~ /$domain$/) {
-		LWP::Debug::trace("no_proxy configured");
-		return undef;
+    my $scheme = $url->scheme || return;
+    if (my $proxy = $self->{'proxy'}{$scheme}) {
+	if (@{ $self->{'no_proxy'} }) {
+	    if (my $host = eval { $url->host }) {
+		for my $domain (@{ $self->{'no_proxy'} }) {
+		    if ($host =~ /\Q$domain\E$/) {
+			LWP::Debug::trace("no_proxy configured");
+			return;
+		    }
+		}
 	    }
 	}
+	LWP::Debug::debug("Proxied to $proxy");
+	return $HTTP::URI_CLASS->new($proxy);
     }
-
-    # Currently configured per scheme.
-    # Eventually want finer granularity
-
-    my $scheme = $url->scheme;
-    if (exists $self->{'proxy'}{$scheme}) {
-
-	LWP::Debug::debug('Proxied');
-	return new URI::URL($self->{'proxy'}{$scheme});
-    }
-
     LWP::Debug::debug('Not proxied');
     undef;
 }
@@ -725,7 +714,7 @@ F<lwp-mirror> for examples of usage.
 
 =head1 COPYRIGHT
 
-Copyright 1995-1997 Gisle Aas.
+Copyright 1995-1998 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

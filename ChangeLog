@@ -1,3 +1,36 @@
+Mon Nov 19 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.41
+
+ o  HTTP::Cookies provide better Netscape cookies compliance.
+    Send back cookies to any port, and allow origin host name to
+    be specified as domain, and still be treated as a domain.
+    Patch from Andreas Gustafsson <gson@araneus.fi>.
+
+ o  HTTP::Cookies now ignore the Expires field in Set-Cookie, if the
+    date provided can't be parsed by HTTP::Date.
+
+ o  HTTP::Daemon will lowercase the hostname returned from
+    Sys::Hostname::hostname().  This avoid some test failures in
+    the test suite for people with upper- or mixed-cased hostnames.
+
+ o  LWP::Protocol::gopher: IO::Socket::INET ctor did not specify
+    Proto => 'tcp'.  This made it less portable to older IO::Socket
+    versions.
+
+ o  No programs installed when you build the Makefile with
+    'perl Makefile.PL LIB=/my/lib'
+
+ o  LWP bundle mention Digest::MD5 instead of MD5
+
+ o  headers-auth.t test suite bug triggered by perl5.005_5x.
+    Patch by Albert Dvornik <bert@genscan.com>
+
+ o  The local/http.t test actually did try to unlink(".").  This was
+    very confusing on systems where it succeed.
+
+
+
 Mon Oct 12 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.40_01

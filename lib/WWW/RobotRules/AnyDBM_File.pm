@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.5 1996/09/30 11:45:13 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.6 1997/04/04 11:09:11 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -81,12 +81,16 @@ sub agent {
 
 sub no_visits {
     my ($self, $netloc) = @_;
-    (split(/;\s*/, $self->{'dbm'}{"$netloc|vis"}))[0];
+    my $t = $self->{'dbm'}{"$netloc|vis"};
+    return 0 unless $t;
+    (split(/;\s*/, $t))[0];
 }
 
 sub last_visit {
     my ($self, $netloc) = @_;
-    (split(/;\s*/, $self->{'dbm'}{"$netloc|vis"}))[1];
+    my $t = $self->{'dbm'}{"$netloc|vis"};
+    return undef unless $t;
+    (split(/;\s*/, $t))[1];
 }
 
 sub fresh_until {

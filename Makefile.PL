@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.24 1996/03/15 08:10:40 aas Exp $
+# $Id: Makefile.PL,v 1.25 1996/03/18 17:52:04 aas Exp $
 
 #--- Configuration section ---
 
@@ -10,8 +10,9 @@
 
 require 5.002;  # LWP needs this perl version
 
-# Allow us to suppress of all program installation with the -l (library only)
-# option.  This is for those that don't want to mess with this file.
+# Allow us to suppress all program installation with the -n (library only)
+# option.  This is for those that don't want to mess with the configuration
+# section of this file.
 use Getopt::Std;
 $opt_n = undef;   # avoid -w typo waring
 unless (getopts("n")) {
@@ -19,9 +20,9 @@ unless (getopts("n")) {
 }
 @programs_to_install = () if $opt_n;
 
-# Find the perl executable
+# Find the perl executable.
 $PERL = find_perl(5.002, [ $^X, "perl", "perl5", "perl$]" ],
-                         [split ":", $ENV{PATH}], 0);
+                         [split ":", $ENV{PATH}]);
 $NAME = 'libwww-perl';
 $VERSION = '5b11';
 
@@ -36,8 +37,10 @@ print OUT <<"EOT";
 EOT
 close(OUT);
 
-# Check for Net::FTP library
+# Check for non-standard modules that are used by this library.
 $| = 1;
+$missing_modules = 0;
+
 print "Checking for Net::FTP...";
 eval {
     require Net::FTP;
@@ -45,15 +48,16 @@ eval {
 };
 if ($@) {
     print " failed\n";
+    $missing_modules++;
     print <<EOT;
-
+$@
 The libwww-perl library normally use the Net::FTP module when
 accessing ftp servers.  You would have to install this package or
 configure your application to use a proxy server for making ftp
 requests work.
 
-$@
 EOT
+    sleep(2);  # Don't hurry too much
 } else {
     print " ok\n";
 }
@@ -64,18 +68,27 @@ eval {
 };
 if ($@) {
     print " failed\n";
+    $missing_modules++;
     print <<EOT;
-
+$@
 The MD5 library is needed if you want to be able use the experimental
-"Digest Access Authentication" scheme.  Since very few servers implement
-this authentication scheme, you should not worry too much about this.
+"Digest Access Authentication" scheme.  Since very few servers
+implement this authentication scheme, you should normally not worry
+too much about this.
 
 EOT
 } else {
     print " ok\n";
 }
 
-# Generate Makefile
+print <<EOT if $missing_modules;
+The missing modules can be obtained from CPAN.  Visit
+<URL:http://www.perl.com/CPAN/> to find a CPAN site near you.
+
+EOT
+
+
+# Ok, now it is time to really generate the Makefile
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -90,6 +103,7 @@ WriteMakefile(
    'clean'       => { FILES => '$(EXE_FILES)' },
    'dist'        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
+
 
 # Some code to install programs the way we want
 sub MY::postamble {
@@ -111,12 +125,13 @@ sub MY::test {
 TEST_VERBOSE=0
 
 test:
-	$(FULLPERL) -I$(INST_LIB) t/TEST $(TEST_VERBOSE)
+	$(FULLPERL) t/TEST $(TEST_VERBOSE)
 
 );
 }
 
-# Point out things that should *not* be installed
+
+# Determine things that should *not* be installed
 sub MY::libscan {
     return '' if m:/(RCS|CVS)/:;
     return '' if m/~$/;
@@ -127,16 +142,10 @@ sub MY::libscan {
 
 # Borrowed from MakeMaker
 sub find_perl {
-    my($ver, $names, $dirs, $trace) = @_;
+    my($ver, $names, $dirs) = @_;
     my($name, $dir);
-    if ($trace >= 2){
-	print "Looking for perl $ver by these names: ";
-	print "@$names, ";
-	print "in these dirs:";
-	print "@$dirs";
-    }
     foreach $dir (@$dirs){
-	next unless defined $dir; # $att{PERL_SRC} may be undefined
+	next unless defined $dir;
 	foreach $name (@$names){
 	    my $abs;
 	    if ($name =~ m|^/|) {
@@ -144,14 +153,10 @@ sub find_perl {
 	    } else {
 		$abs = "$dir/$name";
 	    }
-	    print "Checking $abs " if ($trace >= 2);
 	    next unless -x "$abs";
-	    print "Executing $abs" if ($trace >= 2);
 	    if (`$abs -e 'require $ver; print "VER_OK\n" ' 2>&1` =~ /VER_OK/) {
-	        print "Using PERL=$abs" if $trace;
 	        return $abs;
 	    }
-
 	}
     }
     die "Unable to find a perl $ver (by these names: @$names, in these dirs: @$dirs)\n";

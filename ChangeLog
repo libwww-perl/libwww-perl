@@ -1,3 +1,37 @@
+2001-03-14   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.51
+
+    SECURITY FIX: If LWP::UserAgent::env_proxy is called in a CGI
+    environment, the case-insensitivity when looking for "http_proxy"
+    permits "HTTP_PROXY" to be found, but this can be trivially set by the
+    web client using the "Proxy:" header.  The fix applied is that
+    $ENV{HTTP_PROXY} is not longer honored for CGI scripts.
+    The CGI_HTTP_PROXY environment variable can be used instead.
+    Problem reported by Randal L. Schwartz.
+
+    NOTE: It is recommended that everybody that use LWP::UserAgent
+          (including LWP::Simple) in CGI scripts upgrade to this release.
+
+    Explicit setting of action on HTML::Form had no effect because
+    of a code typo.  Patch by BooK <book@netcourrier.com>.
+
+    HTTP::Daemon: The CONNECT method need special treatment because
+    it does not provide a URI as argument (just a "hostname:port").
+    The non-upward compatibility warning is that you must now call
+    $request->url->host_port to get the host/port string for CONNECT,
+    rather than calling $request->url and using the entire string.
+    Based on patch from Randal L. Schwartz <merlyn@stonehenge.com>
+
+    HTTP::Daemon: Create self URL based on $self->sockaddr.  This works
+    better when LocalAddr is used to specify the port number.  Based on
+    patch from Ben Low <ben@snrc.uow.edu.au>. 
+
+    Avoid potential '<FILE> chunk 1' messages at the end of the response
+    'message'.
+
+
+
 2001-01-12   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.50

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.39 2004/04/07 10:27:08 gisle Exp $
+# $Id: Message.pm,v 1.40 2004/04/07 10:44:47 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -335,10 +335,14 @@ The following methods are available:
 =item $mess = HTTP::Message->new( $headers, $content )
 
 This constructs a new message object.  Normally you would want
-construct C<HTTP::Request> and C<HTTP::Response> objects instead.
+construct C<HTTP::Request> or C<HTTP::Response> objects instead.
 
 The optional $header argument should be a reference to an
 C<HTTP::Headers> object or a plain array reference of key/value pairs.
+If an C<HTTP::Headers> object is provided then a copy of it will be
+embedded into the constructed message, i.e. it will not be owned and
+can be modified afterwards without affecting the message.
+
 The optional $content argument should be a string of bytes.
 
 =item $mess = HTTP::Message->parse( $str )
@@ -347,7 +351,7 @@ This constructs a new message object by parsing the given string.
 
 =item $mess->headers
 
-Returns the embedded HTTP::Headers object.
+Returns the embedded C<HTTP::Headers> object.
 
 =item $mess->headers_as_string
 
@@ -366,7 +370,7 @@ but it will make your program a whole character shorter :-)
 
 The content() method sets the content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
-previous content is returned.
+original content is returned.
 
 Note that the content should be a string of bytes.  Strings in perl
 can contain characters outside the range of a byte.  The C<Encode>
@@ -413,15 +417,16 @@ either an C<HTTP::Request> or an C<HTTP::Response> object.
 
 If an @parts argument is given, then the content of the message will
 modified. The array reference form is provided so that an empty list
-can be provided without any special cases.  The @parts array should
-contain C<HTTP::Message> objects.  The @parts objects are owned by
-$mess after this call and should not be modified or made part of other
-messages.
+can be provided.  The @parts array should contain C<HTTP::Message>
+objects.  The @parts objects are owned by $mess after this call and
+should not be modified or made part of other messages.
 
-When setting and the old message content type is not C<multipart/*> or
-C<message/*>, then the content type is set to C<multipart/mixed> and
-all other content headers are cleared.  This method will croak if the
-content type is C<message/*> and more than one part is provided.
+When updating the message with this method and the old content type of
+$mess is not C<multipart/*> or C<message/*>, then the content type is
+set to C<multipart/mixed> and all other content headers are cleared.
+
+This method will croak if the content type is C<message/*> and more
+than one part is provided.
 
 =item $mess->add_part( $part )
 

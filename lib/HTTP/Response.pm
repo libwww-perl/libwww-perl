@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.46 2004/04/07 09:34:24 gisle Exp $
+# $Id: Response.pm,v 1.47 2004/04/07 10:44:47 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -268,6 +268,10 @@ argument should be a reference to an C<HTTP::Headers> object or a
 plain array reference of key/value pairs.  The optional $content
 argument should be a string of bytes.  The meaning these arguments are
 described below.
+
+=item $r = HTTP::Response->parse( $str )
+
+This constructs a new response object by parsing the given string.
 
 =item $r->code
 

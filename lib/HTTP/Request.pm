@@ -1,10 +1,10 @@
 package HTTP::Request;
 
-# $Id: Request.pm,v 1.39 2004/04/07 09:34:24 gisle Exp $
+# $Id: Request.pm,v 1.40 2004/04/07 10:44:47 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -149,6 +149,10 @@ string.  The $uri argument can be either a string, or a reference to a
 C<URI> object.  The optional $header argument should be a reference to
 an C<HTTP::Headers> object or a plain array reference of key/value
 pairs.  The optional $content argument should be a string of bytes.
+
+=item $r = HTTP::Request->parse( $str )
+
+This constructs a new request object by parsing the given string.
 
 =item $r->method
 

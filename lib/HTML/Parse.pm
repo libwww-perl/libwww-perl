@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.16 1996/03/14 12:00:24 aas Exp $
+# $Id: Parse.pm,v 1.17 1996/03/29 13:52:10 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -112,7 +112,7 @@ for (qw(h1 h2 h3 h4 h5 h6
 	ol ul dir menu li
 	dl dt dd
 	cite code em kbd samp strong var dfn strike
-	b i u tt
+	b i u tt small big
 	table tr td th caption
 	form input select option textarea
        )

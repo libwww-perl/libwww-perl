@@ -51,4 +51,14 @@ sub as_string {
     $str;
 }
 
+sub eq {
+    my($self, $other) = @_;
+    my($self, $other) = @_;
+    $other = URI::URL->new($other) unless ref $other;
+
+    # Mail adresses are case-insensitive
+    $self->scheme eq $other->scheme &&
+      lc($self->{'address'}) eq lc($other->{'address'});
+}
+
 1;

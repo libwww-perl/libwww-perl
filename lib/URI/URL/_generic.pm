@@ -144,21 +144,25 @@ sub netloc {
     return $old unless @_;
 
     # update fields derived from netloc
-    my $nl = $self->{'netloc'} || ''; # already unescaped
+    my $nl = $self->{'netloc'} || '';
     if ($nl =~ s/^([^:@]*):?(.*?)@//){
 	$self->{'user'}     = uri_unescape($1);
 	$self->{'password'} = uri_unescape($2) if $2 ne '';
     }
-    if ($nl =~ s/^([^:]*):?(\d*)//){
+    if ($nl =~ /^([^:]*):?(\d*)$/){
+	my $port = $2;
 	# Since this happes so frequently, we inline this call:
 	#    my $host = uri_unescape($1);
-	my $host = $1; $host =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/eg;
+	my $host = $1;
+	$host =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/eg;
 	$self->{'host'} = $host;
-	if ($2 ne '') {
-	    $self->{'port'} = $2;
-	    if ($2 == $self->default_port) {
+	if ($port ne '') {
+	    $self->{'port'} = $port;
+	    if ($self->default_port == $port) {
 		$self->{'netloc'} =~ s/:\d+//;
 	    }
+	} elsif (defined $self->{'netloc'}) {
+	    $self->{'netloc'} =~ s/:$//;  # handle empty port spec
 	}
     }
     $self->{'_str'} = '';
@@ -188,6 +192,7 @@ sub equery;
 sub query;
 sub frag;
 sub abs;
+sub eq;
 
 1;
 __END__
@@ -413,6 +418,35 @@ sub abs
 	($isdir && @newpath ? '/' : '');
 
     $embed;
+}
+
+# Compare two URLs
+sub eq {
+    my($self, $other) = @_;
+    local($^W) = 0; # avoid warnings if we compare undef values
+    $other = URI::URL->new($other, $self) unless ref $other;
+
+    # Compare scheme and netloc
+    return 0 if ref($self) ne ref($other);                # must be same class
+    return 0 if $self->scheme ne $other->scheme;          # Always lower case
+    return 0 if lc($self->netloc) ne lc($other->netloc);  # Case-insensitive
+
+    # Compare full_path:
+    # According to <draft-ietf-http-v11-spec-05>:
+    # Characters other than those in the "reserved" and "unsafe" sets
+    # are equivalent to their %XX encodings.
+    my $fp1 = $self->full_path;
+    my $fp2 = $other->full_path;
+    for ($fp1, $fp2) {
+	s,%([\dA-Fa-f]{2}),
+	  my $x = $1;
+	  my $c = chr(hex($x));
+	  $c =~ /^[;\/?:\@&=+\"\#%<>\0-\040\177]/ ? "%\L$x" : $c;
+	,eg;
+    }
+    return 0 if $fp1 ne $fp2;
+    return 0 if $self->frag ne $other->frag;
+    1;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.62 1998/08/04 09:59:36 aas Exp $
+# $Id: UserAgent.pm,v 1.63 1998/08/06 21:33:32 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.62 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.63 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -527,6 +527,7 @@ sub is_protocol_supported
 	    if $scheme =~ /\W/;
 	$scheme = lc $scheme;
     }
+    local($SIG{__DIE__});  # protect agains user defined die handlers
     return LWP::Protocol::implementor($scheme);
 }
 

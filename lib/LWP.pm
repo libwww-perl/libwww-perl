@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.11 1995/07/24 12:55:42 aas Exp $
+# $Id: LWP.pm,v 1.12 1995/08/09 08:55:53 aas Exp $
 
 package LWP;
 
@@ -27,37 +27,38 @@ interface to these services.  The interface is easy to extend and
 customize for your needs.
 
 You should first read the documentation for LWP::UserAgent.  Then you
-might want to look at how the scripts C<get> and C<mirror> are
-implemented.  More examples are found in the F<test> directory.
+might want to look at how the scripts C<request> and C<mirror> are
+implemented.  More examples are found among the tests in the F<t>
+directory.
 
 =head2 Overview of classes and packages
 
 This table should give you a quick overview of the classes used by the
 library. Indentation shows class inheritance.
 
- LWP::UserAgent   -- WWW user agent class
+ LWP::MemberMixin   -- Access to member variables of Perl5 classes
+   LWP::UserAgent   -- WWW user agent class
 
- LWP::Message     -- HTTP style message
-   LWP::Request   -- HTTP request
-   LWP::Response  -- HTTP response
+   LWP::Message     -- HTTP style message
+     LWP::Request   -- HTTP request
+     LWP::Response  -- HTTP response
 
- LWP::Protocol          -- Interface to various protocol schemes
-   LWP::Protocol::http  -- http:// access
-   LWP::Protocol::file  -- file:// access
+   LWP::Protocol          -- Interface to various protocol schemes
+     LWP::Protocol::http  -- http:// access
+     LWP::Protocol::file  -- file:// access
 
- LWP::MIMEheader  -- MIME/RFC822 style header (used by LWP::Message)
- LWP::Socket      -- Socket creation and reading (LWP::Protocol::http)
- LWP::MemberMixin -- Access to member variables of Perl5 classes
- URI::URL         -- Uniform Resource Locators (separate library)
+ LWP::MIMEheader    -- MIME/RFC822 style header (used by LWP::Message)
+ LWP::Socket        -- Socket creation and reading (LWP::Protocol::http)
+ URI::URL           -- Uniform Resource Locators (separate library)
 
 The following modules provide various functions and definitions.
 
- LWP              -- This file.  Library version number.
- LWP::MIMEtypes   -- MIME types configuration (text/html etc.)
- LWP::StatusCode  -- HTTP status code (200 OK etc)
- LWP::Date        -- Date parsing module
- LWP::Debug       -- Debug logging module
- LWP::Simple      -- Simplified procedural interface for common functions
+ LWP                -- This file.  Library version number.
+ LWP::MIMEtypes     -- MIME types configuration (text/html etc.)
+ LWP::StatusCode    -- HTTP status code (200 OK etc)
+ LWP::Date          -- Date parsing module
+ LWP::Debug         -- Debug logging module
+ LWP::Simple        -- Simplified procedural interface for common functions
 
 =head1 ACKNOWLEDGEMENTS
 

@@ -7,6 +7,10 @@
     HTML::Form's dump() method now print the name of the form if
     present.
 
+    HTML::Form::param() is an alternative interface for inspecting
+    and modifying the form values.  It resembles the interface
+    of CGI.
+
     HTML::Form documentation updated.  Lots of typo fixes and improves
     by Martin Thurn <mthurn@northropgrumman.com>.
 

@@ -364,6 +364,99 @@ sub value
     $input->value(@_);
 }
 
+=item @names = $form->param
+
+=item @values = $form->param( $name )
+
+=item $form->param( $name, $value, ... )
+
+=item $form->param( $name, \@values )
+
+Alternative interface to examining and setting the values of the form.
+
+If called without arguments then it returns the names of all the
+inputs in the form.  The names will not repeat even if multiple inputs
+have the same name.  In scalar context the number of different names
+is returned.
+
+If called with a single argument then it returns the value or values
+of inputs with the given name.  If called in scalar context only the
+first value is returned.  If no input exists with the given name, then
+C<undef> is returned.
+
+If called with 2 or more arguments then it will set values of the
+named inputs.  This form will croak if no inputs have the given name
+or if any of the values provided does not fit.  Values can also be
+provided as a reference to an array.  This form will allow unsetting
+all values with the given name as well.
+
+This interface resembles that of the param() function of the CGI
+module.
+
+=cut
+
+sub param {
+    my $self = shift;
+    if (@_) {
+        my $name = shift;
+        my @inputs;
+        for ($self->inputs) {
+            my $n = $_->name;
+            next if !defined($n) || $n ne $name;
+            push(@inputs, $_);
+        }
+
+        if (@_) {
+            # set
+            die "No '$name' parameter exists" unless @inputs;
+	    my @v = @_;
+	    @v = @{$v[0]} if @v == 1 && ref($v[0]);
+            while (@v) {
+                my $v = shift @v;
+                my $err;
+                for my $i (0 .. @inputs-1) {
+                    eval {
+                        $inputs[$i]->value($v);
+                    };
+                    unless ($@) {
+                        undef($err);
+                        splice(@inputs, $i, 1);
+                        last;
+                    }
+                    $err ||= $@;
+                }
+                die $err if $err;
+            }
+
+	    # the rest of the input should be cleared
+	    for (@inputs) {
+		$_->value(undef);
+	    }
+        }
+        else {
+            # get
+            my @v;
+            for (@inputs) {
+		if (defined(my $v = $_->value)) {
+		    push(@v, $v);
+		}
+            }
+            return wantarray ? @v : $v[0];
+        }
+    }
+    else {
+        # list parameter names
+        my @n;
+        my %seen;
+        for ($self->inputs) {
+            my $n = $_->name;
+            next if !defined($n) || $seen{$n}++;
+            push(@n, $n);
+        }
+        return @n;
+    }
+}
+
 
 =item $form->try_others( \&callback )
 

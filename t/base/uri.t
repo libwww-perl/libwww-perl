@@ -627,7 +627,7 @@ sub newlocal_test {
     my $dir = `$pwd`;
     chomp $dir;
     $url = newlocal URI::URL;
-    $url->_expect('as_string', "file:$dir/");
+    $url->_expect('as_string', URI::URL->new("file:$dir/")->as_string);
 
     print "Local directory is ". $url->local_path . "\n";
 

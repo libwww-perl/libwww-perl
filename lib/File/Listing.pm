@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.7 1996/10/16 15:52:41 aas Exp $
+# $Id: Listing.pm,v 1.8 1996/11/14 13:08:58 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -95,6 +95,36 @@ sub parse_dir ($;$$$)
 sub line { Carp::croak("Not implemented yet"); }
 sub init { } # Dummy sub
 
+sub file_mode ($)
+{
+    # This routine was originally borrowed from Graham Barr's
+    # Net::FTP package.
+
+    local $_ = shift;
+    my $mode = 0;
+    my($type,$ch);
+
+    s/^(.)// and $type = $1;
+
+    while (/(.)/g) {
+	$mode <<= 1;
+	$mode |= 1 if $1 ne "-" &&
+		      $1 ne 'S' &&
+		      $1 ne 't' &&
+		      $1 ne 'T';
+    }
+
+    $type eq "d" and $mode |= 0040000 or	# Directory
+      $type eq "l" and $mode |= 0120000 or	# Symbolic Link
+	$mode |= 0100000;			# Regular File
+
+    $mode |= 0004000 if /^...s....../i;
+    $mode |= 0002000 if /^......s.../i;
+    $mode |= 0001000 if /^.........t/i;
+
+    $mode;
+}
+
 sub parse
 {
    my($pkg, $dir, $tz, $error) = @_;
@@ -146,6 +176,7 @@ sub parse
    wantarray ? @files : \@files;
 }
 
+
 package File::Listing::unix;
 
 use HTTP::Date qw(str2time);
@@ -154,37 +185,8 @@ use HTTP::Date qw(str2time);
 use vars qw($curdir);
 no strict qw(vars);
 
-@File::Listing::unix::ISA = qw(File::Listing);
+@ISA = qw(File::Listing);
 
-sub file_mode ($)
-{
-    # This routine was originally borrowed from Graham Barr's
-    # Net::FTP package.
-
-    local $_ = shift;
-    my $mode = 0;
-    my($type,$ch);
-
-    s/^(.)// and $type = $1;
-
-    while (/(.)/g) {
-	$mode <<= 1;
-	$mode |= 1 if $1 ne "-" &&
-		      $1 ne 'S' &&
-		      $1 ne 't' &&
-		      $1 ne 'T';
-    }
-
-    $type eq "d" and $mode |= 0040000 or	# Directory
-      $type eq "l" and $mode |= 0120000 or	# Symbolic Link
-	$mode |= 0100000;			# Regular File
-
-    $mode |= 0004000 if /^...s....../i;
-    $mode |= 0002000 if /^......s.../i;
-    $mode |= 0001000 if /^.........t/i;
-
-    $mode;
-}
 
 sub init
 {
@@ -199,6 +201,7 @@ sub line
 
     s/\015//g;
     #study;
+
     my ($kind, $size, $date, $name);
     if (($kind, $size, $date, $name) =
 	/^([\-FlrwxsStTdD]{10})                   # Type and permission bits
@@ -221,9 +224,10 @@ sub line
 	    $type = 'f';
 	} elsif ($kind =~ /^[dD]/) {
 	    $type = 'd';
-	    #$size = undef;  # Don't believe the reported size
+	    $size = undef;  # Don't believe the reported size
 	}
-	return [$name, $type, $size, str2time($date, $tz), file_mode($kind)];
+	return [$name, $type, $size, str2time($date, $tz), 
+              File::Listing::file_mode($kind)];
 
     } elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
 	my $dir = $1;
@@ -232,6 +236,79 @@ sub line
 	return ();
     } elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {
 	return ();
+    } elsif (/not found/    || # OSF1, HPUX, and SunOS return
+             # "$file not found"
+             /No such file/ || # IRIX returns
+             # "UX:ls: ERROR: Cannot access $file: No such file or directory"
+                               # Solaris returns
+             # "$file: No such file or directory"
+             /cannot find/     # Windows NT returns
+             # "The system cannot find the path specified."
+             ) {
+	return () unless defined $error;
+	&$error($_) if ref($error) eq 'CODE';
+	warn "Error: $_\n" if $error eq 'warn';
+	return ();
+    } elsif ($_ eq '') {       # AIX, and Linux return nothing
+	return () unless defined $error;
+	&$error("No such file or directory") if ref($error) eq 'CODE';
+	warn "Warning: No such file or directory\n" if $error eq 'warn';
+	return ();
+    } else {
+        # parse failed, check if the dosftp parse understands it
+        return(File::Listing::dosftp->line($_,$tz,$error));
+    }
+
+}
+
+package File::Listing::dosftp;
+
+use HTTP::Date qw(str2time);
+
+# A place to remember current directory from last line parsed.
+use vars qw($curdir);
+no strict qw(vars);
+
+@ISA = qw(File::Listing);
+
+sub init
+{
+    $curdir = '';
+}
+
+sub line
+{
+    shift; # package name
+    local($_) = shift;
+    my($tz, $error) = @_;
+
+    s/\015//g;
+
+    my ($kind, $size, $date, $name);
+
+    # 02-05-96  10:48AM                 1415 src.slf
+    # 09-10-96  09:18AM       <DIR>          sl_util
+    if (($date,$size_or_dir,$name) =
+        /^(\d\d-\d\d-\d\d\s+\d\d:\d\d\wM)         # Date and time info
+         \s+                                      # Some space
+         (<\w{3}>|\d+)                            # Dir or Size
+         \s+                                      # Some more space
+         (.+)$                                    # File name
+        /x )
+    {
+	return if $name eq '.' || $name eq '..';
+	$name = "$curdir/$name" if length $curdir;
+	my $type = '?';
+	if ($size_or_dir eq '<DIR>') {
+	    $type = "d";
+            $size = ""; # directories have no size in the pc listing
+        } else {
+	    $type = 'f';
+            $size = $size_or_dir;
+	}
+	return [$name, $type, $size, str2time($date, $tz),
+              File::Listing::file_mode($kind)];
+
     } else {
 	return () unless defined $error;
 	&$error($_) if ref($error) eq 'CODE';
@@ -245,10 +322,6 @@ package File::Listing::vms;
 @File::Listing::unix::ISA = qw(File::Listing);
 
 package File::Listing::netware;
-@File::Listing::unix::ISA = qw(File::Listing);
-
-
-package File::Listing::dosftp;
 @File::Listing::unix::ISA = qw(File::Listing);
 
 1;

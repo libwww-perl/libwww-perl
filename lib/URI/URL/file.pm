@@ -55,7 +55,7 @@ __END__
 sub newlocal {
     my($class, $path) = @_;
 
-    Carp::Croak("Only implemented for Unix file systems")
+    Carp::croak("Only implemented for Unix file systems")
       unless $ostype eq "unix";
     # XXX: Should implement the same thing for other systems
 

@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.8 1995/08/09 11:31:32 aas Exp $
+# $Id: file.pm,v 1.9 1995/08/27 23:00:59 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -127,9 +127,12 @@ sub request
         });
         
     } else {            # path is a regular file
-        my $type = LWP::MediaTypes::guessMediaType($path);
+        my($type, @enc) = LWP::MediaTypes::guessMediaType($path);
         $response->header('Content-Type',   $type) if $type;
         $response->header('Content-Length', $size);
+	for (@enc) {
+	    $response->pushHeader('Content-Encoding', $_);
+	}
 
         # read the file
         open(F, $path) or return new 

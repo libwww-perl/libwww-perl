@@ -2,25 +2,54 @@ package URI::URL::mailto;
 require URI::URL;
 @ISA = qw(URI::URL);
 
+use URI::Escape;
+
 sub new {
     my($class, $init, $base) = @_;
 
     my $self = bless { }, $class;
     $self->{'scheme'} = lc($1) if $init =~ s/^\s*([\w\+\.\-]+)://;
-    $self->{'encoded822addr'} = $init;
+    $self->{'address'} = uri_unescape($init);
     $self->base($base) if $base;
     $self;
 }
 
-sub encoded822addr { shift->_elem('encoded822addr', @_); }
+sub address { shift->_elem('address', @_); }
 
-*netloc = \&encoded822addr;  # can use this as an alias
+# can use these as aliases
+*encoded822addr = \&address;   # URI::URL v3 compatibility
+*netloc         = \&address;
+
+sub user {
+    my $self = shift;
+    $old = $self->{'address'};
+    if (@_) {
+	my $new = $old;
+	$new =~ s/.*\@?/$_[0]\@/;
+	$self->{'address'} = $new;
+    }
+    $old =~ s/\@.*//;
+    $old;
+}
+
+sub host {
+    my $self = shift;
+    $old = $self->{'address'};
+    if (@_) {
+	my $new = $old;
+	$new =~ s/\@.*/\@$_[0]/;
+	$self->{'address'} = $new;
+    }
+    $old =~ s/.*\@//;
+    $old;
+}
 
 sub as_string {
     my $self = shift;
     my $str = '';
     $str .= "$self->{'scheme'}:" if defined $self->{'scheme'};
-    $str .= "$self->{'encoded822addr'}" if defined $self->{'encoded822addr'};
+    $str .= uri_escape($self->{'address'})
+      if defined $self->{'address'};
     $str;
 }
 

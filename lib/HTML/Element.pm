@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.28 1996/05/08 16:56:11 aas Exp $
+# $Id: Element.pm,v 1.29 1996/05/09 09:22:45 aas Exp $
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags
@@ -511,7 +511,7 @@ __END__
 
 =head1 COPYRIGHT
 
-Copyright 1995 Gisle Aas.  All rights reserved.
+Copyright 1995,1996 Gisle Aas.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

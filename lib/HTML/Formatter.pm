@@ -341,10 +341,15 @@ sub ul_end
 sub li_start
 {
     my $formatter = shift;
-    $formatter->out("$formatter->{markers}[-1] ");
+    $formatter->bullet($formatter->{markers}[-1]);
     $formatter->adjust_lm(+2);
     $formatter->eat_leading_space;
     1;
+}
+
+sub bullet
+{
+    shift->out(@_);
 }
 
 sub li_end

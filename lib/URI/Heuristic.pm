@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.5 1997/10/16 11:41:17 aas Exp $
+# $Id: Heuristic.pm,v 4.6 1997/10/16 12:07:52 aas Exp $
 
 =head1 NAME
 
@@ -132,6 +132,9 @@ sub uf_urlstr ($)
     {
 	$_ = "file:$_";
 
+    } elsif (/^\w+([\.\-]\w+)*\@(\w+\.)+\w{2,3}$/) {
+	$_ = "mailto:$_";
+
     } elsif (!/^[.+\-\w]+:/) {      # no scheme specified
 	if (s/^(\w+(?:\.\w+)*)([\/:\?\#]|$)/$2/) {
 	    my $host = $1;
@@ -176,6 +179,8 @@ sub uf_urlstr ($)
 
 	}
     }
+    print STDERR "uf_urlstr: ==> $_\n" if $DEBUG;
+
     $_;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.16 1996/04/09 15:44:20 aas Exp $
+# $Id: Request.pm,v 1.17 1996/09/18 12:15:16 aas Exp $
 
 package HTTP::Request;
 
@@ -37,7 +37,9 @@ See L<HTTP::Message> for details.
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-require URI::URL;
+
+use URI::URL ();
+use strict;
 
 =head2 $r = new HTTP::Request $method, $url, [$header, [$content]]
 

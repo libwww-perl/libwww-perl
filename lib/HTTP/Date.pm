@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.14 1996/03/05 13:36:12 aas Exp $
+# $Id: Date.pm,v 1.15 1996/03/18 17:44:53 aas Exp $
 #
 package HTTP::Date;
 
@@ -28,7 +28,7 @@ specification.  This is a fixed length subset of the format defined by
 RFC 1123, represented in Universal Time (GMT).  An example of this
 format is:
 
-   Thu, 03 Feb 1994 00:00:00 GMT
+   Thu, 03 Feb 1994 17:09:00 GMT
 
 =head2 str2time($str [, $zone])
 
@@ -63,7 +63,7 @@ and 2038.  The function is able to parse the following formats:
  "Feb  3 17:03"  -- Unix 'ls -l' format
 
 The parser ignores leading and trailing whitespace.  It also allow the
-seconds to be missing and that the month is numerical.
+seconds to be missing and that the month is numerical in most formats.
 
 The str2time() function takes an optional second argument that
 specifies the default time zone to use when converting the date.  This
@@ -74,12 +74,12 @@ format does not contain any zone specification then the local time
 zone is assumed.
 
 If the year is missing, then we assume that the date is the first
-matching date before current time.
+matching date I<before> current time.
 
 =head1 BUGS
 
 Non-numerical time zones (like MET, PST) are all treated like GMT.
-Don't use them.
+Do not use them.
 
 The str2time() function has been told how to parse far too many
 formats.  This makes the module name misleading :-)
@@ -87,7 +87,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;

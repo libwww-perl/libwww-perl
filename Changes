@@ -1,3 +1,57 @@
+2001-04-20   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53_91
+
+    Introduced LWP::ConnCache module.  Works similar to HTTP::Cookies,
+    it that it takes effect if associated with the $ua.
+
+    The handling of $ua->max_size changed to make 0 mean 0
+    (not unlimited).  An value of undef means no limit.
+    The X-Content-Base header is gone.  I hope nobody relies on
+    it.  It might come back if people start to scream.  There
+    is a new Client-Aborted header instead.
+
+    The Range header generated for $ua->max_size had a off-by-one
+    error.  A range of "0-1" means 2 bytes.
+
+    The LWP::UserAgent constructor now takes configuration arguments.
+
+    Keep-alive and the new HTTP/1.1 module can now be simply
+    enabled with something like:
+
+          LWP::UserAgent->new(keep_alive => 1);
+
+    New method $ua->conn_cache to set up and access the associated
+    connection manager.
+
+    If the string passed to $ua->agent() ends with space then
+    the "libwww-perl/#.##" string is automatically appended.
+
+    New method $ua->_agent
+
+    Passing a plain hash to $ua->cookie_jar automatically loads
+    HTTP::Cookies and initialise an object using the hash content
+    as constructor arguments.
+
+    LWP::Protocol::http11 now use the conn_cache of the $ua.
+
+    LWP::Protocol::http11 now added a few new Client- headers.
+
+    LWP::Protocol avoid keeping the connection alive if $ua->max_size
+    limit prevents the whole body content from being read.
+
+    Net::HTTP updates:
+       - new methods: write_chunk(), write_chunk_eof()
+       - reset state properly when a new body is read.
+       - always set read buffer empty on eof
+       - doc update
+
+    WWW::RobotRules patch by Liam Quinn <liam@htmlhelp.com>:
+       - Always qualify netloc with port.
+       - Reverse User-Agent substring matching.
+
+
+
 2001-04-18   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.53_90

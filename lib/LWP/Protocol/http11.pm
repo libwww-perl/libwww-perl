@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.5 2001/04/16 11:20:40 gisle Exp $
+# $Id: http11.pm,v 1.6 2001/04/17 17:56:16 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -162,9 +162,11 @@ sub request
     my $content_ref = $request->content_ref;
     $content_ref = $$content_ref if ref($$content_ref);
     my $chunked;
+    my $has_content;
 
     if (ref($content_ref) eq 'CODE') {
 	my $clen = $request_headers->header('Content-Length');
+	$has_content++ if $clen;
 	unless (defined $clen) {
 	    push(@h, "Transfer-Encoding" => "chunked");
 	    $chunked++;
@@ -173,6 +175,7 @@ sub request
 	# Set (or override) Content-Length header
 	my $clen = $request_headers->header('Content-Length');
 	if (defined($$content_ref) && length($$content_ref)) {
+	    $has_content++;
 	    if (!defined($clen) || $clen ne length($$content_ref)) {
 		if (defined $clen) {
 		    warn "Content-Length header value was wrong, fixed";
@@ -193,38 +196,46 @@ sub request
     # XXX need to watch out for write timeouts
     print $socket $req_buf;
 
-    # XXX watch for 100 Continue (or failure)
-
-    # push out content
-    if (ref($content_ref) eq 'CODE') {
-	my $buf;
-	while ( ($buf = &$content_ref()), defined($buf) && length($buf)) {
+    if ($has_content) {
+	# push out content
+	# XXX watch for 100 Continue (or failure) while sending body.
+	# XXX if request contained a 'Expect: 100-continue'-header, then
+	# XXX we should postpone start sending the body for a while.
+	if (ref($content_ref) eq 'CODE') {
+	    my $buf;
+	    while ( ($buf = &$content_ref()), defined($buf) && length($buf)) {
+		#die "write timeout" if $timeout && !$sel->can_write($timeout);
+		$buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
+		    if $chunked;
+		my $n = $socket->syswrite($buf, length($buf));
+		die $! unless defined($n);
+		die "short write" unless $n == length($buf);
+		#LWP::Debug::conns($buf);
+	    }
+	    if ($chunked) {
+		# output end marker
+		$buf = "0$CRLF$CRLF";
+		my $n = $socket->syswrite($buf, length($buf));
+		die $! unless defined($n);
+		die "short write" unless $n == length($buf);
+		#LWP::Debug::conns($buf);
+	    }
+	}
+	else {
+	    # $$content_ref must be non-empty
 	    #die "write timeout" if $timeout && !$sel->can_write($timeout);
-	    $buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
-		if $chunked;
-	    my $n = $socket->syswrite($buf, length($buf));
+	    my $n = $socket->syswrite($$content_ref, length($$content_ref));
 	    die $! unless defined($n);
-	    die "short write" unless $n == length($buf);
-	    #LWP::Debug::conns($buf);
+	    die "short write" unless $n == length($$content_ref);
+	    #LWP::Debug::conns($$cont_ref);
 	}
-	if ($chunked) {
-	    # output end marker
-	    $buf = "0$CRLF$CRLF";
-	    my $n = $socket->syswrite($buf, length($buf));
-	    die $! unless defined($n);
-	    die "short write" unless $n == length($buf);
-	    #LWP::Debug::conns($buf);
-	}
-    }
-    elsif (defined($$content_ref) && length($$content_ref)) {
-	#die "write timeout" if $timeout && !$sel->can_write($timeout);
-	my $n = $socket->syswrite($$content_ref, length($$content_ref));
-	die $! unless defined($n);
-	die "short write" unless $n == length($$content_ref);
-	#LWP::Debug::conns($$cont_ref);
     }
 
     my($code, $mess, @h) = $socket->read_response_headers;
+    if ($code eq "100") {
+	# do it once more
+	($code, $mess, @h) = $socket->read_response_headers;
+    }
 
     my $response = HTTP::Response->new($code, $mess);
     $response->protocol("HTTP/" . $socket->peer_http_version);

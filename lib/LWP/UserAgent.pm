@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.98 2001/10/26 17:27:18 gisle Exp $
+# $Id: UserAgent.pm,v 1.99 2001/10/26 18:05:22 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -103,7 +103,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.98 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.99 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -226,10 +226,6 @@ sub new
 
     if ($keep_alive) {
 	$conn_cache ||= { total_capacity => $keep_alive };
-
-	# this will go-away when HTTP/1.1 becomes the default
-	require LWP::Protocol::http11;
-	LWP::Protocol::implementor('http', 'LWP::Protocol::http11');
     }
     $self->conn_cache($conn_cache) if $conn_cache;
 

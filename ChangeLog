@@ -1,3 +1,14 @@
+Thu Sep  7 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Changed package name to libwww-perl-5xx
+
+ o  Made LWP::Protocol::ftp actually transfer data
+
+ o  Implemented methods for LWP::Socket to act as a server:
+    bind(), listen(), accept(), getsockname(), host(), port()
+
+
+
 Wed Sep  6 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 0.04

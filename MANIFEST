@@ -111,6 +111,7 @@ t/html/split.t                  Test incremental parsing
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/local/http.t			Test http to local server
+t/local/protosub.t              Test with other protocol module
 t/net/cgi-bin/moved
 t/net/cgi-bin/nph-slowdata
 t/net/cgi-bin/slowread

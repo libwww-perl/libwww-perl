@@ -1,3 +1,21 @@
+Wed Apr 15 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.32
+
+ o  Much improved HTTP::Daemon class. We now support persistent
+    connections.  Changes include:
+       - $c->get_request can be told to return after reading and
+         parsing headers only.
+       - $c->reason (new method)
+       - $c->read_buffer (new method)
+       - $c->proto_ge (new method)
+       - $c->force_last_request (new method)
+       - $c->send_response now support CODE reference content
+         and will use chunked transfer encoding for HTTP/1.1 clients.
+       - expanded the documentation.
+
+
+
 Fri Apr 10 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.31

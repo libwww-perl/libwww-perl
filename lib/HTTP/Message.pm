@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.55 2004/12/06 13:27:20 gisle Exp $
+# $Id: Message.pm,v 1.56 2004/12/08 14:16:45 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.55 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.56 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -201,8 +201,39 @@ sub decoded_content
 		}
 		elsif ($ce eq "deflate") {
 		    require Compress::Zlib;
-		    $content_ref = \Compress::Zlib::uncompress($$content_ref);
-		    die "Can't inflate content" unless defined $$content_ref;
+		    my $out = Compress::Zlib::uncompress($$content_ref);
+		    unless (defined $out) {
+			# "Content-Encoding: deflate" is supposed to mean the "zlib"
+                        # format of RFC 1950, but Microsoft got that wrong, so some
+                        # servers sends the raw compressed "deflate" data.  This
+                        # tries to inflate this format.
+			unless ($content_ref_iscopy) {
+			    # the $i->inflate method is documented to destroy its
+			    # buffer argument
+			    my $copy = $$content_ref;
+			    $content_ref = \$copy;
+			    $content_ref_iscopy++;
+			}
+
+			my($i, $status) = Compress::Zlib::inflateInit(
+			    WindowBits => -Compress::Zlib::MAX_WBITS(),
+                        );
+			my $OK = Compress::Zlib::Z_OK();
+			die "Can't init inflate object" unless $i && $status == $OK;
+			($out, $status) = $i->inflate($content_ref);
+			if ($status != Compress::Zlib::Z_STREAM_END()) {
+			    if ($status == $OK) {
+				$self->push_header("Client-Warning" =>
+				    "Content might be truncated; incomplete deflate stream");
+			    }
+			    else {
+				# something went bad, can't trust $out any more
+				$out = undef;
+			    }
+			}
+		    }
+		    die "Can't inflate content" unless defined $out;
+		    $content_ref = \$out;
 		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "compress" || $ce eq "x-compress") {

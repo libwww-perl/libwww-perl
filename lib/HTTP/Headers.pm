@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.27 1997/12/02 13:02:10 aas Exp $
+# $Id: Headers.pm,v 1.28 1997/12/03 14:14:50 aas Exp $
 
 package HTTP::Headers;
 
@@ -301,6 +301,8 @@ considered stale.
 
 =item $h->if_modified_since
 
+=item $h->if_unmodified_since
+
 This header is used to make a request conditional.  If the requested
 resource has not been modified since the time specified in this field,
 then the server will return a C<"304 Not Modified"> response instead of
@@ -343,6 +345,12 @@ encoding mechanism has been applied to the resource.
 
 A decimal number indicating the size in bytes of the message content.
 
+=item $h->content_language
+
+The natural language(s) of the intended audience for the message
+content.  The value is one or more language tags as defined by RFC
+1766.  Eg. "no" for Norwegian and "en-US" for US-English.
+
 =item $h->title
 
 The title of the document.  In libwww-perl this header will be
@@ -381,10 +389,17 @@ This header must be included as part of a "401 Unauthorized" response.
 The field value consist of a challenge that indicates the
 authentication scheme and parameters applicable to the requested URI.
 
+=item $h->proxy_authenticate
+
+This header must be included in a "407 Proxy Authentication Required"
+response.
+
 =item $h->authorization
 
-A user agent that wishes to authenticate itself with a server, may do
-so by including this header.
+=item $h->proxy_authorization
+
+A user agent that wishes to authenticate itself with a server or a
+proxy, may do so by including these headers.
 
 =item $h->authorization_basic
 
@@ -396,6 +411,13 @@ return I<"uname:password"> as a single string value.
 When used to set the header value, it expects two arguments.  I<E.g.>:
 
   $h->authorization_basic($uname, $password);
+
+The method will croak if the $uname contains a colon ':'.
+
+=item $h->proxy_authorization_basic
+
+Same as authorization_basic() but will set the "Proxy-Authorization"
+header instead.
 
 =back
 
@@ -450,19 +472,21 @@ sub _date_header
     HTTP::Date::str2time($old);
 }
 
-sub date              { shift->_date_header('Date',              @_); }
-sub expires           { shift->_date_header('Expires',           @_); }
-sub if_modified_since { shift->_date_header('If-Modified-Since', @_); }
-sub last_modified     { shift->_date_header('Last-Modified',     @_); }
+sub date                { shift->_date_header('Date',                @_); }
+sub expires             { shift->_date_header('Expires',             @_); }
+sub if_modified_since   { shift->_date_header('If-Modified-Since',   @_); }
+sub if_unmodified_since { shift->_date_header('If-Unmodified-Since', @_); }
+sub last_modified       { shift->_date_header('Last-Modified',       @_); }
 
 # This is used as a private LWP extention.  The Client-Date header is
 # added as a timestamp to a response when it has been received.
-sub client_date       { shift->_date_header('Client-Date',       @_); }
+sub client_date         { shift->_date_header('Client-Date',         @_); }
 
 # The retry_after field is dual format (can also be a expressed as
 # number of seconds from now), so we don't provide an easy way to
 # access it until we have know how both these interfaces can be
-# addressed.
+# addressed.  One possibility is to return a negative value for
+# relative seconds and a positive value for epoch based time values.
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
 sub content_type      {
@@ -474,6 +498,7 @@ sub content_type      {
 
 sub title             { (shift->_header('Title',            @_))[0] }
 sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
+sub content_language  { (shift->_header('Content-Language', @_))[0] }
 sub content_length    { (shift->_header('Content-Length',   @_))[0] }
 
 sub user_agent        { (shift->_header('User-Agent',       @_))[0] }
@@ -481,18 +506,28 @@ sub server            { (shift->_header('Server',           @_))[0] }
 
 sub from              { (shift->_header('From',             @_))[0] }
 sub referer           { (shift->_header('Referer',          @_))[0] }
+sub etag              { (shift->_header('ETag',             @_))[0] }
+sub warning           { (shift->_header('Warning',          @_))[0] }
 
 sub www_authenticate  { (shift->_header('WWW-Authenticate', @_))[0] }
 sub authorization     { (shift->_header('Authorization',    @_))[0] }
 
-sub authorization_basic {
+sub proxy_authenticate  { (shift->_header('Proxy-Authenticate',  @_))[0] }
+sub proxy_authorization { (shift->_header('Proxy-Authorization', @_))[0] }
+
+sub authorization_basic       { shift->_basic_auth("Authorization",       @_) }
+sub proxy_authorization_basic { shift->_basic_auth("Proxy-Authorization", @_) }
+
+sub _basic_auth {
     require MIME::Base64;
-    my($self, $user, $passwd) = @_;
-    my($old) = $self->_header('Authorization');
+    my($self, $h, $user, $passwd) = @_;
+    my($old) = $self->_header($h);
     if (defined $user) {
+	Carp::croak("Basic authorization user name can't contain ':'")
+	  if $user =~ /:/;
 	$passwd = '' unless defined $passwd;
-	$self->_header('Authorization',
-		       'Basic ' . MIME::Base64::encode("$user:$passwd", ''));
+	$self->_header($h => 'Basic ' .
+                             MIME::Base64::encode("$user:$passwd", ''));
     }
     if (defined $old && $old =~ s/^\s*Basic\s+//) {
 	my $val = MIME::Base64::decode($old);

@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.5 1995/07/17 10:02:35 aas Exp $
+# $Id: Socket.pm,v 1.6 1995/08/03 07:25:12 aas Exp $
 
 package LWP::Socket;
 
@@ -34,7 +34,7 @@ localhost to serve chargen and echo protocols.
 #####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 use Socket;
 use Carp;
@@ -105,7 +105,7 @@ sub open
     LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
 
     connect($socket, $addr) or die 
-        "Couldn't connect to host '$host' on port '$port': $!";
+        "Couldn't connect to host '$host' on port '$port': $!\n";
 }
 
 =head2 readUntil($delim, $bufferref, $size)
@@ -252,7 +252,7 @@ sub _getaddress
         LWP::Debug::debugl("resolving host '$host'...");
 
         $thataddr = (gethostbyname($host))[4] or
-            die "Cannot find host '$host'";
+            die "Cannot find host '$host'\n";
     }
     my $sockaddr = 'S n a4 x8';
     return pack($sockaddr, PF_INET, $port, $thataddr);

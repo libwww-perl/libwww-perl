@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.7 1995/07/17 10:06:20 aas Exp $
+# $Id: Simple.pm,v 1.8 1995/08/07 08:52:19 aas Exp $
 
 =head1 NAME
 
@@ -64,12 +64,12 @@ C<getprint>, C<getstore> and C<mirror>.  The constants are:
    RC_OK
    RC_CREATED
    RC_ACCEPTED
-   RC_PROVISIONAL_INFORMATION
+   RC_NON_AUTHORATIVE_INFORMATION
    RC_NO_CONTENT
    RC_MULTIPLE_CHOICES
    RC_MOVED_PERMANENTLY
    RC_MOVED_TEMPORARILY
-   RC_METHOD
+   RC_SEE_OTHER
    RC_NOT_MODIFIED
    RC_BAD_REQUEST
    RC_UNAUTHORIZED
@@ -82,6 +82,7 @@ C<getprint>, C<getstore> and C<mirror>.  The constants are:
    RC_REQUEST_TIMEOUT
    RC_CONFLICT
    RC_GONE
+   RC_AUTHORIZATION_NEEDED
    RC_INTERNAL_SERVER_ERROR
    RC_NOT_IMPLEMENTED
    RC_BAD_GATEWAY

@@ -9,6 +9,10 @@
     The new local/http test failed on Windows because of a missing
     binmode().
 
+    Suppress Client-SSL-Warning warning header when Crypt::SSLeay
+    is able to verify the peer certificate.   Patch contributed by
+    Joshua Chamas <joshua@chamas.com>.
+
 
 
 2003-10-14   Gisle Aas <gisle@ActiveState.com>

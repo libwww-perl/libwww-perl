@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.9 1997/04/03 11:26:28 aas Exp $
+# $Id: Base64.pm,v 1.10 1997/04/05 13:50:12 aas Exp $
 
 package MIME::Base64;
 
@@ -19,7 +19,7 @@ decode_base64 - Decode base64 string
 =head1 DESCRIPTION
 
 This module provides functions to encode and decode strings into the
-Base64 encoding specified in RFC 1521 - I<MIME (Multipurpose Internet
+Base64 encoding specified in RFC 2045 - I<MIME (Multipurpose Internet
 Mail Extensions)>. The Base64 encoding is designed to represent
 arbitrary sequences of octets in a form that need not be humanly
 readable. A 65-character subset ([A-Za-z0-9+/=]) of US-ASCII is used,
@@ -41,7 +41,7 @@ call them as:
 
 =head1 COPYRIGHT
 
-Copyright 1995, 1996 Gisle Aas.
+Copyright 1995-1997 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -62,7 +62,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Carp ();

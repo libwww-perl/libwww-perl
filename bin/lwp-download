@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.12 2004/12/11 13:20:07 gisle Exp $
+# $Id: lwp-download,v 2.13 2004/12/11 13:28:47 gisle Exp $
 
 =head1 NAME
 
@@ -63,7 +63,7 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.12 $;
+my $version = q$Revision: 2.13 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -149,7 +149,12 @@ my $res = $ua->request($req,
 	      }
 
 	      # Check if the file is already present
-	      if (-f $file && -t) {
+	      if (-l $file) {
+		  die "Will not save <$url> to link \"$file\".\nPlease override file name on the command line.\n";
+	      }
+	      elsif (-f _) {
+		  die "Will not save <$url> as \"$file\" without verification.\nEither run from terminal or override file name on the command line.\n"
+		      unless -t;
 		  $shown = 1;
 		  print "Overwrite $file? [y] ";
 		  my $ans = <STDIN>;
@@ -163,6 +168,9 @@ my $res = $ua->request($req,
 		      exit 1;
 		  }
 		  $shown = 0;
+	      }
+	      elsif (-e _) {
+		  die "Will not save <$url> as \"$file\".  Path exists.\n";
 	      }
 	      else {
 		  print "Saving to '$file'...\n";

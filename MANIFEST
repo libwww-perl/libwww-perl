@@ -7,6 +7,8 @@ TODO				The To-Do list for the library
 VERSION				Program that determines the current version
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
+lib/HTML/Element.pm		Class that represents an HTML element
+lib/HTML/Parse.pm		Parse text to build HTML syntax tree
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers
 lib/HTTP/Message.pm		Class encapsulating HTTP messages

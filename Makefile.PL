@@ -1,9 +1,9 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.38 1996/11/11 17:48:04 aas Exp $
+# $Id: Makefile.PL,v 1.39 1996/11/25 14:50:20 aas Exp $
 
 #--- Configuration section ---
 
-@programs_to_install = qw(lwp-request lwp-mirror lwp-rget dl);
+@programs_to_install = qw(lwp-request lwp-mirror lwp-rget lwp-download);
 @request_aliases     = qw(GET HEAD POST);
 
 #--- End Configuration - You should not have to change anything below this line

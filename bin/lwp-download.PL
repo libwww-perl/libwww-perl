@@ -17,24 +17,24 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: dl.PL,v 1.4 1996/11/12 13:34:12 aas Exp $
+# $Id: lwp-download.PL,v 1.1 1996/11/25 14:52:09 aas Exp $
 
 =head1 NAME
 
-dl - download to local file
+lwp-download - download to local file
 
 =head1 SYNOPSIS
 
- dl <url> [<local file>]
+ lwp-download <url> [<local file>]
 
 =head1 DESCRIPTION
 
-The I<dl> program will download the document specified by the URL
+The I<lwp-download> program will download the document specified by the URL
 given as the first command line argument to a local file.  The local
 filename used to save the document is guessed from the URL unless
 specified as the second command line argument.
 
-The I<dl> program is implemented using the I<libwww-perl> library.
+The I<lwp-download> program is implemented using the I<libwww-perl> library.
 
 =head1 AUTHOR
 
@@ -54,7 +54,7 @@ my $argfile = shift;
 
 my $ua = new LWP::UserAgent;
 
-$ua->agent("dl/0.1 " . $ua->agent);
+$ua->agent("lwp-download/0.1 " . $ua->agent);
 
 my $req = new HTTP::Request GET => $url;
 

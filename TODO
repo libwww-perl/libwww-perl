@@ -1,4 +1,4 @@
-$Id: TODO,v 1.8 1995/09/07 06:50:53 aas Exp $
+$Id: TODO,v 1.9 1995/09/14 13:16:23 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
@@ -21,6 +21,9 @@ Make it work on systems where the directory separator is not "/", for
 instance with MacPerl.
 
 Use Mail::Send to implement LWP::Protocol::mailto.
+
+Formatters should support tables.  The postscript formatter should
+manage to inline images.
 
 More useful programs
 

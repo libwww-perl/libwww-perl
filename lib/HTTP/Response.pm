@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.4 1995/07/11 22:42:11 aas Exp $
+# $Id: Response.pm,v 1.5 1995/07/13 15:41:34 aas Exp $
 
 package LWP::Response;
 
@@ -31,7 +31,7 @@ of an C<LWP::UserAgent> object:
  } else {
      print $response->errorAsHTML;    
  }
- 
+
 =head1 METHODS and FUNCTIONS
 
 =cut

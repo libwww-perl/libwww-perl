@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.5 1995/07/11 22:42:10 aas Exp $
+# $Id: Request.pm,v 1.6 1995/07/13 15:41:33 aas Exp $
 
 package LWP::Request;
 
@@ -115,6 +115,8 @@ sub method  { my $self = shift; $self->_elem('_method',  @_); }
 sub content { my $self = shift; $self->_elem('_content', @_); }
 sub url     { my $self = shift; $self->_elem('_url', @_); }
 
+
+=head2 headers
 
 =head2 header(...)
 

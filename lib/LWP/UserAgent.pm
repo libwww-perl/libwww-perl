@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.22 2003/10/26 15:22:12 gisle Exp $
+# $Id: UserAgent.pm,v 2.23 2003/10/26 15:38:08 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.23 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1290,7 +1290,7 @@ usage.
 
 See L<HTTP::Request> and L<HTTP::Response> for a description of the
 message objects dispatched and received.  See L<HTTP::Request::Common>
-for another way to build request objects.
+and L<HTML::Form> for other ways to build request objects.
 
 See L<WWW::Mechanize> and L<WWW::Search> for examples of more
 specialized user agents based on C<LWP::UserAgent>.

@@ -1,6 +1,6 @@
 package LWP::Protocol::GHTTP;
 
-# $Id: GHTTP.pm,v 1.1 2000/11/30 05:59:15 gisle Exp $
+# $Id: GHTTP.pm,v 1.2 2001/04/07 05:26:51 gisle Exp $
 
 #
 # You can tell LWP to use this module for 'http' requests by running
@@ -57,9 +57,17 @@ sub request
     my $response = HTTP::Response->new($r->get_status);
 
     # XXX How can get the headers out of $r??  This way is too stupid.
-    for (qw(Date Server Content-type Last-Modified ETag)) {
+    my @headers;
+    eval {
+	# Wrapped in eval because this method is not always available
+	@headers = $r->get_headers;
+    };
+    @headers = qw(Date Connection Server Content-type
+                  Accept-Ranges Server
+                  Content-Length Last-Modified ETag) if $@;
+    for (@headers) {
 	my $v = $r->get_header($_);
-	$response->header($_ => $v) if $v;
+	$response->header($_ => $v) if defined $v;
     }
 
     return $self->collect_once($arg, $response, $r->get_body);

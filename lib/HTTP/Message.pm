@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.38 2004/04/07 09:34:23 gisle Exp $
+# $Id: Message.pm,v 1.39 2004/04/07 10:27:08 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -345,6 +345,21 @@ The optional $content argument should be a string of bytes.
 
 This constructs a new message object by parsing the given string.
 
+=item $mess->headers
+
+Returns the embedded HTTP::Headers object.
+
+=item $mess->headers_as_string
+
+=item $mess->headers_as_string( $eol )
+
+Call the as_string() method for the headers in the
+message.  This will be the same as
+
+    $mess->headers->as_string
+
+but it will make your program a whole character shorter :-)
+
 =item $mess->content
 
 =item $mess->content( $content )
@@ -373,24 +388,57 @@ for instance:
 
 This example would modify the content buffer in-place.
 
-=item $mess->headers
+=item $mess->parts
 
-Returns the embedded HTTP::Headers object.
+=item $mess->parts( @parts )
 
-=item $mess->headers_as_string
+=item $mess->parts( \@parts )
 
-=item $mess->headers_as_string( $eol )
+Messages can be composite, i.e. contain other messages.  The composite
+messages have a content type of C<multipart/*> or C<message/*>.  This
+method give access to the contained messages.
 
-Call the as_string() method for the headers in the
-message.  This will be the same as
+The argumentless form will return a list of C<HTTP::Message> objects.
+If the content type of $msg is not C<multipart/*> or C<message/*> then
+this will return the empty list.  In scalar context only the first
+object is returned.  The returned message parts should be regarded as
+are read only (future versions of this library might make it possible
+to modify the parent by modifying the parts).
 
-    $mess->headers->as_string
+If the content type of $msg is C<message/*> then there will only be
+one part returned.
 
-but it will make your program a whole character shorter :-)
+If the content type is C<message/http>, then the return value will be
+either an C<HTTP::Request> or an C<HTTP::Response> object.
+
+If an @parts argument is given, then the content of the message will
+modified. The array reference form is provided so that an empty list
+can be provided without any special cases.  The @parts array should
+contain C<HTTP::Message> objects.  The @parts objects are owned by
+$mess after this call and should not be modified or made part of other
+messages.
+
+When setting and the old message content type is not C<multipart/*> or
+C<message/*>, then the content type is set to C<multipart/mixed> and
+all other content headers are cleared.  This method will croak if the
+content type is C<message/*> and more than one part is provided.
+
+=item $mess->add_part( $part )
+
+This will add a part to a message.  The $part argument should be
+another C<HTTP::Message> object.  If the previous content type of
+$mess is not C<multipart/*> then the old content (together with all
+content headers) will be made part #1 and the content type made
+C<multipart/mixed> before the new part is added.  The $part object is
+owned by $mess after this call and should not be modified or made part
+of other messages.
+
+There is no return value.
 
 =item $mess->clear
 
-Will clear the headers and set the content to the empty string.
+Will clear the headers and set the content to the empty string.  There
+is no return value
 
 =item $mess->protocol
 

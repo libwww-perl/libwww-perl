@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.2 1996/03/05 15:20:49 aas Exp $
+# $Id: Listing.pm,v 1.3 1996/03/18 17:47:37 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -193,7 +193,7 @@ sub parse_unix_line
         /x )
 
     {  
-	next if $name eq '.' || $name eq '..';
+	return if $name eq '.' || $name eq '..';
 	$name = "$curdir/$name" if length $curdir;
 	my $type = '?';
 	if ($kind =~ /^l/ && $name =~ /(.*) -> (.*)/ ) {
@@ -207,10 +207,9 @@ sub parse_unix_line
 	}
 	return [$name, $type, $size, str2time($date, $tz), file_mode($kind)];
 
-    } elsif (/^(.+):$/) {
+    } elsif (/^(.+):$/ && !/^[dcbsp].*\s.*\s.*:$/ ) {
 	my $dir = $1;
         next if $dir eq '.';
-	$dir = "$curdir/$dir" if $dir !~ m|/| && length($curdir);
 	$curdir = $dir;
 	return ();
     } elsif (/^[Tt]otal\s+(\d+)$/ || /^\s*$/) {

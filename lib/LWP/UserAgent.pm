@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.8 2003/10/15 12:46:18 gisle Exp $
+# $Id: UserAgent.pm,v 2.9 2003/10/15 12:47:37 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.9 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1256,7 +1256,7 @@ F<lwp-mirror> for examples of usage.
 
 =head1 COPYRIGHT
 
-Copyright 1995-2002 Gisle Aas.
+Copyright 1995-2003 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

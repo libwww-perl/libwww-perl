@@ -1,37 +1,46 @@
 Sun May 26 1996   Gisle Aas <aas@sn.no>
 
- o  Rewritten HTML::Parse stuff.  Introduced a class named HTML::Parser
-    that just tokenize a HTML document.  The rest of the old HTML::Parse
-    functionality has moved to HTML::TreeBuilder class.
+ o  Release 5.00.
 
- o  Implemented HTML::HeadParser
+ o  LWP::Simple::head() now return something useful in scalar context.
 
- o  HTML::Element knows which  attributes can be boolean.
+ o  Rewritten the HTML::Parse stuff.  Introduced the HTML::Parser class
+    that will tokenize a HTML document.  The rest of the old
+    HTML::Parse functionality has moved to HTML::TreeBuilder class.
+    Note, that the HTML stuff is still alpha.
 
- o  Included additional ISO8859/1 entites listed in RFC1866
+ o  Implemented HTML::HeadParser.  This is a lightweight parser for
+    the <HEAD> section of a HTML document.
 
- o   Added -quiet option to lwp-rget
+ o  HTML::Element had problem with presenting things like <foo
+    bar="bar">.
 
- o   HTML::AsSubs listed 'header' instead of 'head'
+ o  HTML::Entities: Included additional ISO-8859/1 entities listed in
+    RFC1866.
 
- o   Handle more of the HTML 3.2 element
+ o  HTML::AsSubs exported 'header' instead of 'head'
 
- o  %boolean_attr
+ o  We know about a few more of the HTML 3.2 element.
 
- o  HTTP::Date have problems with years before 1970, because Time::Local
-    goes into an infinite loop.  Check for this.
+ o  HTTP::Date had problems with years before 1970, because Time::Local
+    went into an infinite loop.  Check for this.
 
- o  $header->title method
+ o  Added $header->title method.
 
- o  $header->authorization_basic returns "uname:passwd" in scalar context
+ o  Made $header->authorization_basic return "uname:passwd" in scalar
+    context
 
- o  Simplified $response->base implementation
+ o  LWP::Protocol::collect() will let the HTML::HeadParser look at the
+    document content as it arrives.  This will initialize headers from
+    elements like <base href="...">, <title>...</title> and <meta
+    http-equiv="..." ...>.
 
- o  LWP::Protocol will let the HTML::HeadParser look at the content
+ o  Simplified $response->base implementation, because we don't have
+    to look into the content any more.
 
- o  LWP::Simple::head return something useful in scalar context
+ o  Added -quiet option to lwp-rget
 
- o  Typo fixes and added documentation
+ o  Typo fixes and some documentation additions.
 
 
 

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.11 1995/08/17 13:58:49 aas Exp $
+# $Id: Response.pm,v 1.12 1996/01/08 20:03:22 aas Exp $
 
 package HTTP::Response;
 
@@ -160,6 +160,7 @@ sub errorAsHTML
     }
     else {
     my $title = 'An Error Occurred';
+    my $code = $self->code;
     return <<EOM;
 <HTML>
 <HEAD>
@@ -169,7 +170,7 @@ $title
 </HEAD>
 <BODY>
 <H1>$title</h1>
-$msg
+$code - $msg
 </BODY>
 </HTML>
 EOM

@@ -15,6 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
+#line 18
 
 =head1 NAME
 
@@ -23,8 +24,8 @@ lwp-rget - Retrieve WWW documents recursively
 =head1 SYNOPSIS
 
  lwp-rget [--verbose] [--auth=USER:PASS] [--depth=N] [--hier] [--iis]
-	  [--limit=N] [--nospace] [--prefix=URL] [--sleep=N]
-	  [--tolower] <URL>
+	  [--keepext=mime/type[,mime/type]] [--limit=N] [--nospace]
+	  [--prefix=URL] [--sleep=N] [--tolower] <URL>
  lwp-rget --version
 
 =head1 DESCRIPTION
@@ -73,6 +74,12 @@ Sends an "Accept: */*" on all URL requests as a workaround for a bug in
 IIS 2.0.  If no Accept MIME header is present, IIS 2.0 returns with a
 "406 No acceptable objects were found" error.  Also converts any back
 slashes (\\) in URLs to forward slashes (/).
+
+=item --keepext=I<mime/type[,mime/type]>
+
+Keeps the current extension for the list MIME types.  Useful when
+downloading text/plain documents that shouldn't all be translated to
+*.txt files.
 
 =item --limit=I<n>
 
@@ -147,13 +154,13 @@ use URI::URL	    qw(url);
 use LWP::MediaTypes qw(media_suffix);
 
 use vars qw($VERSION);
-use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP $HIER $AUTH $IIS $TOLOWER $NOSPACE);
+use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP $HIER $AUTH $IIS $TOLOWER $NOSPACE %KEEPEXT);
 
 my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -175,6 +182,7 @@ GetOptions('version'  => \&print_version,
 	   'iis'      => \$IIS,
 	   'tolower'  => \$TOLOWER,
 	   'nospace'  => \$NOSPACE,
+	   'keepext=s' => \$KEEPEXT{'OPT'},
 	  ) || usage();
 
 sub print_version {
@@ -212,6 +220,7 @@ unless (defined $PREFIX) {
     $PREFIX = $PREFIX->as_string;
 }
 
+%KEEPEXT = map { lc($_) => 1 } split(/\s*,\s*/, $KEEPEXT{'OPT'});
 
 print <<"" if $VERBOSE;
 START	  = $start_url
@@ -526,11 +535,18 @@ sub find_name
     } elsif (! -d $dirname) {
 	mkdirp($dirname, 0775);
     }
-    $path =~ s|\..*||;	# trim suffix
-    $path = "index" unless length $path;
 
     my $extra = "";  # something to make the name unique
-    my $suffix = media_suffix($type);
+    my $suffix;
+
+    if ($KEEPEXT{lc($type)}) {
+        $suffix = ($path =~ m/\.(.*)/) ? $1 : "";
+    } else {
+        $suffix = media_suffix($type);
+    }
+
+    $path =~ s|\..*||;	# trim suffix
+    $path = "index" unless length $path;
 
     while (1) {
 	# Construct a new file name
@@ -570,6 +586,7 @@ Allowed options are:
   --hier	    Download into hierarchy (not all files into cwd)
   --iis		    Workaround IIS 2.0 bug by sending "Accept: */*" MIME
 		    header; translates backslashes (\\) to forward slashes (/)
+  --keepext=type    Keep file extension for MIME types (comma-separated list)
   --limit=N	    A limit on the number documents to get (default is $MAX_DOCS)
   --nospace	    Translate spaces URLs (not #fragments) to underscores (_)
   --version	    Print version number and quit

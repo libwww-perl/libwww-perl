@@ -1,12 +1,12 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.12 1997/12/11 23:59:39 aas Exp $
+# $Id: Parser.pm,v 2.13 1998/01/23 09:35:30 aas Exp $
 
 use strict;
 use HTML::Entities ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.13 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -72,7 +72,7 @@ sub parse
 		} elsif ($text =~ s/(&(?:(?:\#\d*)?|\w*))$//) {
 		    $$buf = $1;
 		};
-		$self->text($text);
+		$self->text($text) if length $text;
 		last TOKEN;
 	    } else {
 		$self->text($1);

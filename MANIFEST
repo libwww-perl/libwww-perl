@@ -44,6 +44,7 @@ lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP protocol
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
+lib/LWP/RobotUA.pm              Easy creation of conforming robots
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/Socket.pm		TCP/IP socket interface
 lib/LWP/TkIO.pm			LWP::IO replacement for Tk
@@ -55,6 +56,7 @@ lib/Mail/Cap.pm			Parse mailcap files
 lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
 lib/URI/URL/_generic.pm         Implements generic hierarchical RL (RFC 1808)
+lib/URI/URL/_login.pm           Base class for telnet, tn3270 and rlogin
 lib/URI/URL/file.pm		Implements file URLs
 lib/URI/URL/finger.pm		Implements finger URLs
 lib/URI/URL/ftp.pm		Implements ftp URLs
@@ -72,6 +74,7 @@ lib/URI/URL/wais.pm		Implements wais URLs
 lib/URI/URL/webster.pm		Implements webster URLs
 lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
+update_from_5b7                 A script that helps you convert old programs
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/afm.t			Test Font::AFM module

@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.9 1995/07/16 07:40:30 aas Exp $
+# $Id: LWP.pm,v 1.10 1995/07/16 13:17:37 aas Exp $
 
 package LWP;
 
@@ -16,7 +16,7 @@ __END__
 
 =head1 NAME
 
-LWP - Library for the Web in Perl 5
+LWP - Library for WWW access in Perl
 
 =head1 ARCHITECTURE
 

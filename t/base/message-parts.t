@@ -6,7 +6,6 @@ plan tests => 38;
 
 use HTTP::MessageParts;
 use HTTP::Request::Common qw(POST);
-use Data::Dump qw(dump);
 
 my $m = HTTP::Message->new;
 

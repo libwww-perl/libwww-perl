@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.36 1997/12/17 09:23:11 aas Exp $
+# $Id: http.pm,v 1.37 1997/12/17 09:55:38 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -20,11 +20,18 @@ my $CRLF         = "\015\012";     # how lines should be terminated;
 sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
+
+    local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = IO::Socket::INET->new(PeerAddr => $host,
 				     PeerPort => $port,
+				     Proto    => 'tcp',
 				     Timeout  => $timeout,
 				    );
-    die "Can't connect to $host:$port" unless $sock;
+    unless ($sock) {
+	# IO::Socket::INET leaves additional error messages in $@
+	$@ =~ s/^.*?: //;
+	die "Can't connect to $host:$port ($@)";
+    }
     $sock;
 }
 
@@ -106,7 +113,7 @@ sub request
 	my $n = $socket->syswrite($buf, length($buf));
 	die $! unless defined($n);
 	die "short write" unless $n == length($buf);
-	#LWP::Debug::conns($buf);
+	LWP::Debug::conns($buf);
     }
     if (defined $content) {
 	if (ref($contRef) eq 'CODE') {
@@ -115,14 +122,14 @@ sub request
 		my $n = $socket->syswrite($buf, length($buf));
 		die $! unless defined($n);
 		die "short write" unless $n == length($buf);
-		#LWP::Debug::conns($buf);
+		LWP::Debug::conns($buf);
 	    }
 	} else {
 	    die "write timeout" if $timeout && !$sel->can_write($timeout);
 	    my $n = $socket->syswrite($$contRef, length($$contRef));
 	    die $! unless defined($n);
 	    die "short write" unless $n == length($$contRef);
-	    #LWP::Debug::conns($buf);
+	    LWP::Debug::conns($buf);
 	}
     }
 
@@ -140,6 +147,7 @@ sub request
 	    my $n = $socket->sysread($buf, $size, length($buf));
 	    die $! unless defined($n);
 	    die "unexpected EOF before status line seen" unless $n;
+	    LWP::Debug::conns($buf);
 	}
 	if ($buf =~ s/^(HTTP\/\d+\.\d+)[ \t]+(\d+)[ \t]*([^\012]*)\012//) {
 	    # HTTP/1.0 response or better
@@ -158,6 +166,7 @@ sub request
 		my $n = $socket->sysread($buf, $size, length($buf));
 		die $! unless defined($n);
 		die "unexpected EOF before all headers seen" unless $n;
+		#LWP::Debug::conns($buf);
 	    }
 
 	    # now we start parsing the headers.  The strategy is to
@@ -220,6 +229,7 @@ sub request
 	die "read timeout" if $timeout && !$sel->can_read($timeout);
 	my $n = $socket->sysread($buf, $size);
 	die $! unless defined($n);
+	#LWP::Debug::conns($buf);
 	return \$buf;
 	} );
 

@@ -5,6 +5,8 @@
     Takanori Ugai <ugai@jp.fujitsu.com> found that 'max_redirect'
     introduced in 5.72 was broken an provided a patch for that.
 
+    Applied OpenPKG's patch to LWP::Protocol::ftp.  Don't really
+    know what it fixes.
 
 
 2003-10-15   Gisle Aas <gisle@ActiveState.com>

@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..10\n";
+print "1..12\n";
 
 use strict;
 #use Data::Dump ();
@@ -16,6 +16,7 @@ use strict;
 	     "/bad1" => "HTTP/1.0 200 OK\nServer: foo\nHTTP/1.0 200 OK\nContent-type: text/foo\n\nabc\n",
 	     "/09" => "Hello\r\nWorld!\r\n",
 	     "/chunked" => "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0002; foo=3; bar\r\nHe\r\n1\r\nl\r\n2\r\nlo\r\n0000\r\nContent-MD5: xxx\r\n\r\n",
+	     "/head" => "HTTP/1.1 200 OK\r\nContent-Length: 16\r\nContent-Type: text/plain\r\n\r\n",
 	   },
     );
 
@@ -172,3 +173,15 @@ $res = $h->request(GET => "/chunked");
 print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello" &&
                     "@{$res->{headers}}" eq "Transfer-Encoding chunked Content-MD5 xxx";
 print "ok 10\n";
+
+# test head
+$res = $h->request(HEAD => "/head");
+print "not " unless $res->{code} eq "200" && $res->{content} eq "" &&
+                    "@{$res->{headers}}"  eq "Content-Length 16 Content-Type text/plain";
+print "ok 11\n";
+
+$res = $h->request(GET => "/");
+print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello\n";
+print "ok 12\n";
+#use Data::Dump; Data::Dump::dump($res);
+

@@ -92,10 +92,10 @@ EOT
 
 print "not " unless $f->click->as_string eq <<'EOT'; print "ok 10\n";
 POST http://localhost/
-Content-Length: 73
+Content-Length: 76
 Content-Type: application/x-www-form-urlencoded
 
-i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&a=%0Aabc%0A+++&s=bar&m=a&m=b
+i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&x=&a=%0Aabc%0A+++&s=bar&m=a&m=b
 EOT
 
 print "not " unless @warn == 1 && $warn[0] =~ /^Unknown input type 'xyzzy'/;

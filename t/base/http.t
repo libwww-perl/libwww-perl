@@ -5,6 +5,9 @@ print "1..12\n";
 use strict;
 #use Data::Dump ();
 
+my $CRLF = "\015\012";
+my $LF   = "\012";
+
 {
     package HTTP;
     use vars qw(@ISA);
@@ -12,11 +15,11 @@ use strict;
     @ISA=qw(Net::HTTP::Methods);
 
     my %servers = (
-      a => { "/" => "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 6\r\n\r\nHello\n",
-	     "/bad1" => "HTTP/1.0 200 OK\nServer: foo\nHTTP/1.0 200 OK\nContent-type: text/foo\n\nabc\n",
-	     "/09" => "Hello\r\nWorld!\r\n",
-	     "/chunked" => "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0002; foo=3; bar\r\nHe\r\n1\r\nl\r\n2\r\nlo\r\n0000\r\nContent-MD5: xxx\r\n\r\n",
-	     "/head" => "HTTP/1.1 200 OK\r\nContent-Length: 16\r\nContent-Type: text/plain\r\n\r\n",
+      a => { "/" => "HTTP/1.0 200 OK${CRLF}Content-Type: text/plain${CRLF}Content-Length: 6${CRLF}${CRLF}Hello\n",
+	     "/bad1" => "HTTP/1.0 200 OK${LF}Server: foo${LF}HTTP/1.0 200 OK${LF}Content-type: text/foo${LF}${LF}abc\n",
+	     "/09" => "Hello${CRLF}World!${CRLF}",
+	     "/chunked" => "HTTP/1.1 200 OK${CRLF}Transfer-Encoding: chunked${CRLF}${CRLF}0002; foo=3; bar${CRLF}He${CRLF}1${CRLF}l${CRLF}2${CRLF}lo${CRLF}0000${CRLF}Content-MD5: xxx${CRLF}${CRLF}",
+	     "/head" => "HTTP/1.1 200 OK${CRLF}Content-Length: 16${CRLF}Content-Type: text/plain${CRLF}${CRLF}",
 	   },
     );
 
@@ -41,13 +44,13 @@ use strict;
 	my $out;
 	if ($method eq "TRACE") {
 	    my $len = length($in);
-	    $out = "HTTP/1.0 200 OK\r\nContent-Length: $len\r\n" .
-                   "Content-Type: message/http\r\n\r\n" .
+	    $out = "HTTP/1.0 200 OK${CRLF}Content-Length: $len${CRLF}" .
+                   "Content-Type: message/http${CRLF}${CRLF}" .
                    $in;
 	}
         else {
 	    $out = ${*$self}{server}{$uri};
-	    $out = "HTTP/1.0 404 Not found\r\n\r\n" unless defined $out;
+	    $out = "HTTP/1.0 404 Not found${CRLF}${CRLF}" unless defined $out;
 	}
 
 	${*$self}{out} .= $out;
@@ -128,14 +131,14 @@ print "ok 2\n";
 
 $res = $h->request(TRACE => "/foo");
 print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1\r\nKeep-Alive: 300\r\nConnection: Keep-Alive\r\nHost: a:80\r\n\r\n";
+                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Keep-Alive: 300${CRLF}Connection: Keep-Alive${CRLF}Host: a:80${CRLF}${CRLF}";
 print "ok 3\n";
 
 # try to turn off keep alive
 $h->keep_alive(0);
 $res = $h->request(TRACE => "/foo");
 print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1\r\nConnection: close\r\nHost: a:80\r\n\r\n";
+                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Connection: close${CRLF}Host: a:80${CRLF}${CRLF}";
 print "ok 4\n";
 
 # try a bad one
@@ -153,7 +156,7 @@ $h = undef;  # it is in a bad state now
 $h = HTTP->new(Host => "a") || die;  # reconnect
 $res = $h->request(GET => "/09", [], {laxed => 1});
 print "not " unless $res->{code} eq "200" && $res->{message} eq "Assumed OK" &&
-                    $res->{content} eq "Hello\r\nWorld!\r\n" &&
+                    $res->{content} eq "Hello${CRLF}World!${CRLF}" &&
                     $h->peer_http_version eq "0.9";
 print "ok 7\n";
 

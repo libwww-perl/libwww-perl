@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.11 1999/03/20 07:37:35 gisle Exp $
+# $Id: Listing.pm,v 1.12 2003/10/10 16:18:25 gisle Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -309,5 +309,65 @@ package File::Listing::vms;
 
 package File::Listing::netware;
 @File::Listing::unix::ISA = qw(File::Listing);
+
+package File::Listing::apache;
+@ISA = qw(File::Listing);
+
+sub init { }
+
+sub line {
+    shift; # package name
+    local($_) = shift;
+    my($tz, $error) = @_; # ignored for now...
+
+    if (m!<A\s+HREF=\"([^\"]+)\">.*</A>.*?(\d+)-([a-zA-Z]+)-(\d+)\s+(\d+):(\d+)\s+(?:([\d\.]+[kM]?|-))!i) {
+	my($filename, $filesize) = ($1, $7);
+	my($d,$m,$y, $H,$M) = ($2,$3,$4,$5,$6);
+
+	$filesize = 0 if $filesize eq '-';
+	if ($filesize =~ s/k$//i) {
+	    $filesize *= 1024;
+	} elsif ($filesize =~ s/M$//) {
+	    $filesize *= 1024*1024;
+	} elsif ($filesize =~ s/G$//) {
+	    $filesize *= 1024*1024*1024;
+	}
+	$filesize = int $filesize;
+
+	require Time::Local;
+	my $filetime = Time::Local::timelocal(0,$M,$H,$d,_monthabbrev_number($m)-1,_guess_year($y)-1900);
+	my $filetype = ($filename =~ s|/$|| ? "d" : "f");
+	return [$filename, $filetype, $filesize, $filetime, undef];
+    }
+
+    return ();
+}
+
+sub _guess_year {
+    my $y = shift;
+    if ($y >= 90) {
+	$y = 1900+$y;
+    } elsif ($y < 100) {
+	$y = 2000+$y;
+    }
+    $y;
+}
+
+sub _monthabbrev_number {
+    my $mon = shift;
+    +{'Jan' => 1,
+      'Feb' => 2,
+      'Mar' => 3,
+      'Apr' => 4,
+      'May' => 5,
+      'Jun' => 6,
+      'Jul' => 7,
+      'Aug' => 8,
+      'Sep' => 9,
+      'Oct' => 10,
+      'Nov' => 11,
+      'Dec' => 12,
+     }->{$mon};
+}
 
 1;

@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.14 1996/02/26 18:37:54 aas Exp $
+# $Id: Parse.pm,v 1.15 1996/03/09 10:31:22 aas Exp $
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ require Exporter;
 require HTML::Element;
 require HTML::Entities;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -239,9 +239,9 @@ sub starttag
 	    $key = $1;
 	    if (defined $2) {
 		# read value
-		if ($elem =~ s/^"([^\"]+)"?\s*//) {       # doble quoted val
+		if ($elem =~ s/^"([^\"]*)"?\s*//) {       # doble quoted val
 		    $val = $1;
-		} elsif ($elem =~ s/^'([^\']+)'?\s*//) {  # single quoted val
+		} elsif ($elem =~ s/^'([^\']*)'?\s*//) {  # single quoted val
 		    $val = $1;
 		} elsif ($elem =~ s/^(\S*)\s*//) {        # unquoted val
 		    $val = $1;

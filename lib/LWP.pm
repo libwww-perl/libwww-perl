@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.92 1999/11/16 14:16:01 gisle Exp $
+# $Id: LWP.pm,v 1.93 2000/03/17 10:49:20 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.47";
+$VERSION = "5.48";
 sub Version { $VERSION; }
 
 require 5.004;
@@ -567,7 +567,7 @@ Koenig, Jared Rhine, and Jack Shirazi.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-1999, Gisle Aas
+  Copyright 1995-2000, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

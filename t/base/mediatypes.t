@@ -5,8 +5,26 @@ require URI::URL;
 $url1 = new URI::URL 'http://www/foo/test.gif?search+x#frag';
 $url2 = new URI::URL 'http:test';
 
-$file = "/etc/passwd";
--r $file or $file = "./README";
+my $pwd if $^O eq "MacOS";
+
+unless ($^O eq "MacOS") {
+    $file = "/etc/passwd";
+    -r $file or $file = "./README";
+} else {
+    require Mac::Files;
+    $pwd = `pwd`;
+    chomp($pwd);
+    my $dir = Mac::Files::FindFolder(Mac::Files::kOnSystemDisk(),
+	                             Mac::Files::kDesktopFolderType());
+    chdir($dir);
+    $file = "README";
+    open(README,">$file") or die "Unable to open $file";
+    print README "This is a dummy file for LWP testing purposes\n";
+    close README;
+    open(README,">/dev/null") or die "Unable to open /dev/null";
+    print README "This is a dummy file for LWP testing purposes\n";
+    close README;
+}
 
 @tests =
 (
@@ -84,4 +102,10 @@ print "not " unless "@x" eq "x-world/x-vrml rot13 x-gzip";
 print "ok $testno\n"; $testno++;
 
 #print LWP::MediaTypes::_dump();
+
+if($^O eq "MacOS") {
+    unlink "README";
+    unlink "/dev/null";
+    chdir($pwd);
+}
 

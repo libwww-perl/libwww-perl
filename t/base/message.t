@@ -3,6 +3,9 @@ print "1..16\n";
 require HTTP::Request;
 require HTTP::Response;
 
+require Time::Local if $^O eq "MacOS";
+my $offset = ($^O eq "MacOS") ? Time::Local::timegm(0,0,0,1,0,70) : 0;
+
 $req = new HTTP::Request 'GET', "http://www.sn.no/";
 $req->header(
 	"if-modified-since" => "Thu, 03 Feb 1994 00:00:00 GMT",
@@ -29,7 +32,7 @@ print "Content is: ", $req->content, "\n";
 $req->content eq "gisle aas old interface" || print "not ";
 print "ok 3\n";
 
-$req->if_modified_since == 760233600 || print "not ";
+$req->if_modified_since == ((760233600 + $offset) | 0) || print "not ";
 print "ok 4\n";
 
 $time = time;

@@ -1,5 +1,9 @@
-$| = 1; # autoflush
+if($^O eq "MacOS") {
+    print "1..0\n";
+    exit(0);
+}
 
+$| = 1; # autoflush
 require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon
 
 # First we make ourself a daemon in another process

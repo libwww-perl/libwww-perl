@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.31 2001/05/05 13:40:34 gisle Exp $
+# $Id: HTTP.pm,v 1.32 2001/08/02 22:59:17 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -12,22 +12,6 @@ require IO::Socket::INET;
 @ISA=qw(IO::Socket::INET);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
-
-my $zlib_ok;
-{
-    # Try to load Compress::Zlib.
-    # It might be a better idea to load this on demand the first time
-    # the 'send_te' option is turned on.
-    local $@;
-    local $SIG{__DIE__};
-
-    eval {
-	require Compress::Zlib;
-	Compress::Zlib->VERSION(1.10);
-	$zlib_ok++;
-    };
-    #warn $@ if $@ && $^W;
-}
 
 sub configure {
     my($self, $cnf) = @_;
@@ -152,7 +136,7 @@ sub format_request {
     if ($given{te}) {
 	push(@connection, "TE") unless grep lc($_) eq "te", @connection;
     }
-    elsif ($self->send_te && $zlib_ok) {
+    elsif ($self->send_te && zlib_ok()) {
 	# gzip is less wanted since the Compress::Zlib interface for
 	# it does not really allow chunked decoding to take place easily.
 	push(@h2, "TE: deflate,gzip;q=0.3");
@@ -344,13 +328,13 @@ sub read_entity_body {
 		unless pop(@te) eq "chunked";
 
 	    for (@te) {
-		if ($_ eq "deflate" && $zlib_ok) {
+		if ($_ eq "deflate" && zlib_ok()) {
 		    #require Compress::Zlib;
 		    my $i = Compress::Zlib::inflateInit();
 		    die "Can't make inflator" unless $i;
 		    $_ = sub { scalar($i->inflate($_[0])) }
 		}
-		elsif ($_ eq "gzip" && $zlib_ok) {
+		elsif ($_ eq "gzip" && zlib_ok()) {
 		    #require Compress::Zlib;
 		    my @buf;
 		    $_ = sub {
@@ -464,6 +448,29 @@ sub get_trailers {
     my $self = shift;
     @{${*$self}{'http_trailers'} || []};
 }
+
+BEGIN {
+my $zlib_ok;
+
+sub zlib_ok {
+    return $zlib_ok if defined $zlib_ok;
+
+    # Try to load Compress::Zlib.
+    local $@;
+    local $SIG{__DIE__};
+    $zlib_ok = 0;
+
+    eval {
+	require Compress::Zlib;
+	Compress::Zlib->VERSION(1.10);
+	$zlib_ok++;
+    };
+    #warn $@ if $@ && $^W;
+}
+
+} # BEGIN
+
+
 
 1;
 

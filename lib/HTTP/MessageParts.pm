@@ -1,13 +1,12 @@
 package HTTP::MessageParts;
 
+# This module populate the HTTP::Message class with some
+# additional methods to deal with message parts.
+
 use strict;
 require HTTP::Message;
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
-
-sub HTTP::Message::parent {
-    shift->_elem('_parent',  @_);
-}
 
 sub HTTP::Message::_content {
     my $self = shift;

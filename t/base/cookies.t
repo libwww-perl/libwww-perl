@@ -1,6 +1,5 @@
-print "1..22\n";
+print "1..28\n";
 
-use blib;
 #use LWP::Debug '+';
 
 use HTTP::Cookies;
@@ -329,51 +328,112 @@ print "ok 13\n";
 
 print $c->as_string;
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 # Test rejection of Set-Cookie2 responses based on domain, path or port
 
 $c = HTTP::Cookies->new;
 
+# illegal domain (no embedded dots)
 $cookie = interact($c, "http://www.acme.com", 'foo=bar; domain=".com"');
 print "not " if count_cookies($c) > 0;
 print "ok 14\n";
 
+# legal domain
 $cookie = interact($c, "http://www.acme.com", 'foo=bar; domain="acme.com"');
 print "not " if count_cookies($c) != 1;
 print "ok 15\n";
 
+# illegal domain (host prefix "www.a" contains a dot)
 $cookie = interact($c, "http://www.a.acme.com", 'foo=bar; domain="acme.com"');
 print "not " if count_cookies($c) != 1;
 print "ok 16\n";
 
+# legal domain
 $cookie = interact($c, "http://www.a.acme.com", 'foo=bar; domain=".a.acme.com"');
 print "not " if count_cookies($c) != 2;
 print "ok 17\n";
 
+# can't use a IP-address as domain
 $cookie = interact($c, "http://125.125.125.125", 'foo=bar; domain="125.125.125"');
 print "not " if count_cookies($c) != 2;
 print "ok 18\n";
 
+# illegal path (must be prefix of request path)
 $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; path="/foo"');
 print "not " if count_cookies($c) != 2;
 print "ok 19\n";
 
+# legal path
 $cookie = interact($c, "http://www.sol.no/foo/bar", 'foo=bar; domain=".sol.no"; path="/foo"');
 print "not " if count_cookies($c) != 3;
 print "ok 20\n";
 
+# illegal port (request-port not in list)
 $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90,100"');
 print "not " if count_cookies($c) != 3;
 print "ok 21\n";
 
-$cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90,100, 80,8080"');
+# legal port
+$cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90,100, 80,8080"; max-age=100; Comment = "Just kidding! (\"|\\\\) "');
 print "not " if count_cookies($c) != 4;
 print "ok 22\n";
 
-print $c->as_string;
+# encoded path
+$cookie = interact($c, "http://www.sol.no/foo/", 'foo8=bar; path="/%66oo"');
+print "not " if count_cookies($c) != 5;
+print "ok 23\n";
+
+my $file = "lwp-cookies-$$.txt";
+$c->save($file);
+$old = $c->as_string;
 undef($c);
 
+$c = HTTP::Cookies->new;
+$c->load($file);
+unlink($file) || warn "Can't unlink $file: $!";
+
+print "not " unless $old eq $c->as_string;
+print "ok 24\n";
+
+undef($c);
+
+#
+# Try some URL encodings of the PATHs
+#
+$c = HTTP::Cookies->new;
+interact($c, "http://www.acme.com/foo%2f%25/%40%40%0Anew%E5/%E5", 'foo  =   bar; version    =   1');
+print $c->as_string;
+
+$cookie = interact($c, "http://www.acme.com/foo%2f%25/@@%0anewå/æøå", "bar=baz; path=\"/foo/\"; version=1");
+print "not " unless $cookie =~ /foo=bar/ && $cookie =~ /^\$version=\"?1\"?/i;
+print "ok 25\n";
+
+$cookie = interact($c, "http://www.acme.com/foo/%25/@@%0anewå/æøå");
+print "not " if $cookie;
+print "ok 26\n";
+
+undef($c);
+
+#
+# Try to use the Netscape cookie file format for saving
+#
+$file = "cookies-$$.txt";
+$c = HTTP::Cookies::Netscape->new(file => $file);
+interact($c, "http://www.acme.com/", "foo1=bar; max-age=100");
+interact($c, "http://www.acme.com/", "foo2=bar; port=\"80\"; max-age=100; Discard; Version=1");
+interact($c, "http://www.acme.com/", "foo3=bar; secure; Version=1");
+$c->save;
+undef($c);
+
+$c = HTTP::Cookies::Netscape->new(file => $file);
+print "not " unless count_cookies($c) == 1;     # 2 of them discarded on save
+print "ok 27\n";
+
+print "not " unless $c->as_string =~ /foo1=bar/;
+print "ok 28\n";
+undef($c);
+unlink($file);
 
 #-------------------------------------------------------------------
 

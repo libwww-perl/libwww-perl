@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.75 2001/03/14 17:38:43 gisle Exp $
+# $Id: UserAgent.pm,v 1.76 2001/03/14 20:22:28 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.75 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.76 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -627,17 +627,25 @@ specify proxies like this (sh-syntax):
 Csh or tcsh users should use the C<setenv> command to define these
 environment variables.
 
+On systems with case-insensitive environment variables there exists a
+name clash between the CGI environment variables and the C<HTTP_PROXY>
+environment variable normally picked up by env_proxy().  Because of
+this C<HTTP_PROXY> is not honored for CGI scripts.  The
+C<CGI_HTTP_PROXY> environment variable can be used instead.
+
 =cut
 
 sub env_proxy {
     my ($self) = @_;
     my($k,$v);
     while(($k, $v) = each %ENV) {
-	unless ($ENV{REQUEST_METHOD}) {
+	if ($ENV{REQUEST_METHOD}) {
 	    # Need to be careful when called in the CGI environment, as
 	    # the HTTP_PROXY variable is under control of that other guy.
-	    $k = lc($k)
+	    next if $k =~ /^HTTP_/;
+	    $k = "HTTP_PROXY" if $k eq "CGI_HTTP_PROXY";
 	}
+	$k = lc($k);
 	next unless $k =~ /^(.*)_proxy$/;
 	$k = $1;
 	if ($k eq 'no') {

@@ -1,10 +1,18 @@
-use Config;
-unlink("bin/request");
-open REQ, ">bin/request" or die "open for writing bin/request: $!";
-print REQ "#!$Config{'scriptdir'}/perl -w\n";
-print REQ <<'END'; chmod(0755, "bin/request");
+$SCRIPT = "bin/request";
 
-# $Id: lwp-request.PL,v 1.19 1995/09/15 17:02:34 aas Exp $
+require "myConfig.out";
+unlink($SCRIPT);
+open SCRIPT, ">$SCRIPT" or die "Can't open for writing $SCRIPT: $!";
+
+print SCRIPT <<"END";
+#!$PERL -w
+
+\$DISTNAME = "$NAME-$VERSION";
+END
+
+print SCRIPT <<'END'; chmod(0755, $SCRIPT);
+
+# $Id: lwp-request.PL,v 1.20 1995/09/20 22:23:45 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -169,7 +177,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -276,7 +284,7 @@ unless (getopts("xhvuUsSedPp:b:t:i:c:C:m:fo:")) {
 if ($opt_v) {
     $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is $0 version $VERSION (using LWP version $lwpVersion)
+This is $DISTNAME $0 version $VERSION (using LWP version $lwpVersion)
 
 Copyright (C) 1995 Gisle Aas. All rights reserved.
 

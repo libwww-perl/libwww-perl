@@ -1,10 +1,18 @@
-use Config;
-unlink("bin/mirror");
-open MIR, ">bin/mirror" or die "open for writing bin/mirror: $!";
-print MIR "#!$Config{'scriptdir'}/perl -w\n";
-print MIR <<'END'; chmod(0755, "bin/mirror");
+$SCRIPT = "bin/mirror";
 
-# $Id: lwp-mirror.PL,v 1.10 1995/09/07 17:46:53 aas Exp $
+require "myConfig.out";
+unlink($SCRIPT);
+open SCRIPT, ">$SCRIPT" or die "Can't open for writing $SCRIPT: $!";
+
+print SCRIPT <<"END";
+#!$PERL -w
+
+\$DISTNAME = "$NAME-$VERSION";
+END
+
+print SCRIPT <<'END'; chmod(0755, $SCRIPT);
+
+# $Id: lwp-mirror.PL,v 1.11 1995/09/20 22:23:45 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -49,7 +57,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -63,7 +71,7 @@ if ($opt_v) {
     require LWP;
     $lwpVersion = &LWP::Version;
     die <<"EOT";
-This is LWP $0 version $VERSION (using LWP version $lwpVersion)
+This is $DISTNAME $0 version $VERSION (using LWP version $lwpVersion)
 
 Copyright (C) 1995 Gisle Aas. All rights reserved.
 

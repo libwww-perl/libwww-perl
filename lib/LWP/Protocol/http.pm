@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.43 1998/08/04 12:37:58 aas Exp $
+# $Id: http.pm,v 1.43.2.1 1998/10/12 10:21:57 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -77,7 +77,8 @@ sub request
     else {
 	$host = $url->host;
 	$port = $url->port;
-	$fullpath = $url->full_path;
+	$fullpath = $url->path_query;
+	$fullpath = "/" unless length $fullpath;
     }
 
     # connect to remote site
@@ -107,7 +108,7 @@ sub request
     
     # HTTP/1.1 will require us to send the 'Host' header, so we might
     # as well start now.
-    my $hhost = $url->netloc;
+    my $hhost = $url->authority;
     $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
     $h->header('Host' => $hhost) unless defined $h->header('Host');
 

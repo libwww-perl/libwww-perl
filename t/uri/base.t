@@ -905,6 +905,8 @@ EOM
 	 ["file:/etc/motd", "file:/etc/passwd",  "motd"],
 	 ["file:/etc/motd", "file:/etc/rc2.d/",  "../motd"],
 	 ["file:/etc/motd", "file:/usr/lib/doc", "../../etc/motd"],
+         ["file:",          "file:/etc/",        "../"],
+         ["file:foo",       "file:/etc/",        "../foo"],
 
 	 ["mailto:aas",     "http://abc",        "mailto:aas"],
 

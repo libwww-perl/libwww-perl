@@ -1,9 +1,16 @@
 #
-# $Id: LWP.pm,v 1.3 1995/07/08 18:28:26 aas Exp $
+# $Id: LWP.pm,v 1.4 1995/07/11 13:22:46 aas Exp $
 
 package LWP;
 
-$VERSION = "1.0";  # Automatically updated by 'make-dist'
+$VERSION = "0.01";  # Automatically updated by 'make-dist'
+
+require 5.001;
+require LWP::UserAgent;
+
+1;
+
+__END__
 
 =head1 NAME
 
@@ -11,7 +18,7 @@ LWP - Library for the Web in Perl 5
 
 =head INTRO
 
-The latest version will be available from:
+The latest version of this library will be available from:
 
  http://www.oslonett.no/home/aas/perl/www/
 
@@ -63,11 +70,6 @@ Jared Rhine, and Jack Shirazi.
 
 =head1 TO DO
 
-Receive comments on this code.
-
-MDA! I can really do with an authenticated file upload facility,
-and now MD5.pm is here...
-
 More documentation
 
 Lots of other things.
@@ -81,10 +83,3 @@ This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
-
-require LWP::UserAgent;
-require LWP::http;
-require LWP::file;
-
-1;
-

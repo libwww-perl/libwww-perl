@@ -71,6 +71,6 @@ sub install
 	die "$dir/LWP is in the way!\n" unless -d _;
 	print "Overwriting old '$dir/LWP'...\n";
     }
-    run "cp -r LWP $dir";  # This is really all that need to be done
+    run "cp -r LWP* $dir";  # This is really all that need to be done
     $installed = 1;
 }

@@ -1,3 +1,35 @@
+Tue Jul 23 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5.01.
+
+ o  Updated ftp protocol module to be compatible with Net::FTP 
+    version 2.00 (the version found in libnet-1.00)
+
+ o  New HTML parser module called HTML::LinkExtor
+
+ o  Various documentation typo corrections.  Most of these contributed
+    by Bob Dalgleish.
+
+ o  HTML::HeadParser updates 'Content-Base' instead of 'Base'.  It also
+    updates the 'Link' header based on <link ...>
+
+ o  HTTP::Headers and HTTP::Status updated according to
+    draft-ietf-http-v11-spec-06
+
+ o  HTTP::Headers can now use "_" as alternative to "-" in field names.
+
+ o  HTTP::Response::base now looks for 'Content-Base',
+    'Content-Location' and 'Base' headers.
+
+ o  Avoid warning in LWP::MediaTypes if $ENV{HOME} is not defined.
+
+ o  Added eq() method for URI::URL objects
+
+ o  The HTML::Formatter recovers even if a handle method is not defined
+    for all tags found during traversal
+
+
+
 Sun May 26 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.00.

@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.33 1999/03/19 21:46:41 gisle Exp $
+# $Id: Protocol.pm,v 1.34 1999/06/18 23:05:14 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,7 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -49,7 +49,7 @@ require HTML::HeadParser;
 my %ImplementedBy = (); # scheme => classname
 
 
-=item $prot = new HTTP::Protocol;
+=item $prot = LWP::Protocol->new()
 
 The LWP::Protocol constructor is inherited by subclasses. As this is a
 virtual base class this method should B<not> be called directly.

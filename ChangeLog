@@ -1,3 +1,10 @@
+
+Tue Jul 18 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Implemented LWP::Protocol::gopher
+
+
+
 Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
 
  o  Made release 0.01
@@ -45,7 +52,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
     LWP::Request and LWP::Response much simpler.  Made clone() method
     actually work.
 
- o  LWP::Protocol::implementor does not die if it cannot load pacakge.
+ o  LWP::Protocol::implementor does not die if it cannot load package.
 
  o  Moved UserAgent convenience methods into LWP::Simple.  Made LWP::Simple
     export LWP::StatusCode symbols and functions.
@@ -83,7 +90,7 @@ Wed Jun 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  Protocol::file now uses the collector
 
- o  Intoduced LWP::Simple
+ o  Introduced LWP::Simple
 
 
 
@@ -120,7 +127,7 @@ Tue May 23 1995   Martijn Koster <m.koster@nexor.co.uk>
 
  o  Made alarm handling optional
 
- o  Added a LWP::Message or completeness sake
+ o  Added a LWP::Message for completeness sake
 
  o  Added LWP::MemberMixin to reduce code duplication
 

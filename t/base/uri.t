@@ -322,12 +322,14 @@ sub parts_test {
 
     $url->query_form(a => undef, a => 'foo', '&=' => '&=+');
     $url->_expect('as_string' => 'http://web/?a=&a=foo&%26%3D=%26%3D+');
+
     my @a = $url->query_form;
     die "Wrong length" unless @a == 6;
     die "Bad keys from query_form"
       unless $a[0] eq 'a' && $a[2] eq 'a' && $a[4] eq '&=';
     die "Bad values from query_form"
       unless $a[1] eq '' && $a[3] eq 'foo' && $a[5] eq '&=+';
+
     # calling keywords is an error
     eval { $url->keywords; };
     die "\$url->keywords should croak when query is a form."
@@ -337,6 +339,10 @@ sub parts_test {
     @a = $url->query_form;
     #print join(":", @a), "\n";
     die "Wrong length" unless @a == 8;
+    # Try array ref values in the key value pairs
+    $url->query_form(a => ['foo', 'bar'], b => 'foo', c => ['bar', 'foo']);
+    $url->_expect('as_string', 'http://web/?a=foo&a=bar&b=foo&c=bar&c=foo');
+
 
     netloc_test();
     port_test();

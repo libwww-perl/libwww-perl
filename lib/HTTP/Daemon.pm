@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.7 1996/10/21 22:04:07 aas Exp $
+# $Id: Daemon.pm,v 1.8 1996/10/22 08:11:54 aas Exp $
 #
 
 use strict;
@@ -39,8 +39,14 @@ directly on it.
 The accept() method will return when a connection from a client is
 available. The returned value will be a reference to a object of the
 I<HTTP::Daemon::ClientConn> class which is another I<IO::Socket::INET>
-subclass. Calling the get_request() method on this object will return
-an I<HTTP::Request> object reference.
+subclass. Calling the get_request() method on this object will read
+data from the client and return an I<HTTP::Request> object reference.
+
+This HTTP daemon does not fork(2) for you.  Your application, i.e. the
+user of the I<HTTP::Daemon> is reponsible for forking if that is
+desirable.  Also note that the user is responsible for generating
+responses that conforms to the HTTP/1.1 protocol.  The
+I<HTTP::Daemon::ClientConn> provide some methods that make this easier.
 
 =head1 METHODS
 
@@ -52,12 +58,14 @@ to the I<IO::Socket::INET> base class.
 =cut
 
 
-use vars qw($VERSION @ISA);
+use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
+
+$PROTO = "HTTP/1.1";
 
 =item $d = new HTTP::Daemon
 
@@ -161,7 +169,8 @@ provided:
 
 Will read data from the client and turn it into a I<HTTP::Request>
 object which is then returned. Will return undef if reading of the
-request failed.
+request failed.  If it fails, then the I<HTTP::Daemon::ClientConn>
+object ($c) should be discarded.
 
 The $c->get_request method support HTTP/1.1 content bodies, including
 I<chunked> transfer encoding with footer and I<multipart/*> types.
@@ -330,7 +339,7 @@ sub send_status_line
     my($self, $status, $message, $proto) = @_;
     $status  ||= RC_OK;
     $message ||= status_message($status);
-    $proto   ||= "HTTP/1.1";
+    $proto   ||= $HTTP::Daemon::PROTO;
     print $self "$proto $status $message$CRLF";
 }
 

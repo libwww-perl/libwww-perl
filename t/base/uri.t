@@ -1,6 +1,7 @@
 #!/local/bin/perl -w
 
-use URI::URL qw(uri_escape uri_unescape);
+use URI::URL;
+use URI::Escape;
 
 package URI::URL::_generic;
 

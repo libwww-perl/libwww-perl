@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.32 2001/08/02 22:59:17 gisle Exp $
+# $Id: HTTP.pm,v 1.33 2001/08/02 23:30:44 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -300,6 +300,7 @@ sub read_response_headers {
     ${*$self}{'http_content_length'} = $content_length;
     ${*$self}{'http_first_body'}++;
     delete ${*$self}{'http_trailers'};
+    return $code unless wantarray;
     return ($code, $message, @headers);
 }
 
@@ -507,7 +508,8 @@ HTTP protocol is described in RFC 2616.
 
 C<Net::HTTP> is a sub-class of C<IO::Socket::INET>.  You can mix the
 methods described below with reading and writing from the socket
-directly.
+directly.  This is not necessary a good idea, unless you know what you
+are doing.
 
 The following methods are provided (in addition to those of
 C<IO::Socket::INET>):
@@ -542,7 +544,7 @@ and C<peer_http_version> attributes.
 =item $s->send_te
 
 Get/set the a value indicating if the request will be sent with a "TE"
-header to indicate the transfer encodings that the server chose to
+header to indicate the transfer encodings that the server can chose to
 use.  If the C<Compress::Zlib> module is installed then this will
 annouce that this client accept both the I<deflate> and I<gzip>
 encodings.
@@ -602,7 +604,18 @@ Returns the string to be written for signaling EOF.
 
 =item ($code, $mess, %headers) = $s->read_response_headers
 
-Read response headers from server.
+Read response headers from server.  The $code is the 3 digit HTTP
+status code (see L<HTTP::Status>) and $mess is the textual message
+that came with it.  Headers are then returned as key/value pairs.
+Since key letter casing is not normalized and the same key can occur
+multiple times, assigning these values directly to a hash might be
+risky.
+
+As a side effect this method updates the 'peer_http_version'
+attribute.
+
+The method will raise exceptions (die) if the server does not speak
+proper HTTP.
 
 =item $n = $s->read_entity_body($buf, $size);
 
@@ -614,6 +627,9 @@ read_response_headers() call.
 The return value will be C<undef> on errors, 0 on EOF, -1 if no data
 could be returned this time, and otherwise the number of bytes added
 to $buf.
+
+This method might raise exceptions (die) if the server does not speak
+proper HTTP.
 
 =item %headers = $s->get_trailers
 

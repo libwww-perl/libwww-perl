@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.31 1996/05/19 15:11:31 aas Exp $
+# $Id: Element.pm,v 1.32 1996/05/26 10:29:48 aas Exp $
 
 =head1 NAME
 
@@ -39,10 +39,10 @@ use Carp ();
 use HTML::Entities ();
 
 use vars qw($VERSION
-	    %emptyElement %optionalEndTag %linkElements
+	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -61,13 +61,30 @@ sub Version { $VERSION; }
  img    => [qw(src lowsrc usemap)],   # lowsrc is a Netscape invention
  form   => 'action',
  input  => 'src',
- 'link' => 'href',          # need quoting since link is a perl builtin
+'link'  => 'href',          # need quoting since link is a perl builtin
  frame  => 'src',
  applet => 'codebase',
  area   => 'href',
 );
 
-
+# These attributes are normally printed without showing the "='value'".
+# This representation works as long as no element has more than one
+# attribute like this.
+%boolean_attr = (
+ area   => 'nohref',
+ dir    => 'compact',
+ dl     => 'compact',
+ hr     => 'noshade',
+ img    => 'ismap',
+ input  => 'checked',
+ menu   => 'compact',
+ ol     => 'compact',
+ option => 'selected',
+'select'=> 'multiple',
+ td     => 'nowrap',
+ th     => 'nowrap',
+ ul     => 'compact',
+);
 
 =head2 $h = HTML::Element->new('tag', 'attrname' => 'value',...)
 
@@ -75,6 +92,25 @@ The object constructor.  Takes an tag name as argument. Optionally
 allows you to specify initial attributes at object creation time.
 
 =cut
+
+#
+# An HTML::Element is represented by blessed hash reference.  Key-names
+# not starting with '_' is reserved for the SGML attributes of the element.
+# The following special keys are used:
+#
+#    '_tag':    The tag name
+#    '_parent': A reference to the HTML::Element above (when forming a tree)
+#    '_pos':    The current position (a reference to a HTML::Element), is
+#               where inserts will placed (look at the insert_element method)
+#
+# Example: <img src="gisle.jpg" alt="Gisle's photo"> is represented like this:
+#
+#  bless {
+#     _tag => 'img',
+#     src  => 'gisle.jpg',
+#     alt  => "Gisle's photo",
+#  }, HTML::Element;
+#
 
 sub new
 {
@@ -88,7 +124,6 @@ sub new
 	$self->{lc $attr} = $val;
     }
     if ($tag eq 'html') {
-	$self->{'_buf'} = '';
 	$self->{'_pos'} = undef;
     }
     $self;
@@ -125,12 +160,13 @@ Returns the complete start tag for the element.  Including leading
 sub starttag
 {
     my $self = shift;
-    my $tag = "<\U$self->{'_tag'}";
+    my $name = $self->{'_tag'};
+    my $tag = "<\U$name";
     for (sort keys %$self) {
 	next if /^_/;
 	my $val = $self->{$_};
-	if ($_ eq $val) {   # not always good enough (perhaps a very special
-                            # value is better)
+	if ($_ eq $val &&
+	    exists($boolean_attr{$name}) && $boolean_attr{$name} eq $_) {
 	    $tag .= " \U$_";
 	} else {
 	    HTML::Entities::encode_entities($val, '&">');

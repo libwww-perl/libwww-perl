@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.14 1996/04/09 15:44:18 aas Exp $
+# $Id: Message.pm,v 1.15 1996/05/26 10:39:23 aas Exp $
 
 package HTTP::Message;
 
@@ -10,8 +10,8 @@ HTTP::Message - Class encapsulating HTTP messages
 =head1 DESCRIPTION
 
 A C<HTTP::Message> object contains some headers and a content (body).
-The class is used as a pure virtual base class for C<HTTP::Request> and
-C<HTTP::Response>.
+The class is only used as a base class for C<HTTP::Request> and
+C<HTTP::Response>, and are never instantiated alone.
 
 =head1 METHODS
 
@@ -22,10 +22,10 @@ C<HTTP::Response>.
 require HTTP::Headers;
 require Carp;
 
-=head2 $mess = new HTTP::Message
+=head2 $mess = new HTTP::Message;
 
-Object constructor.  It should normally only be called internally by
-this library.  External code should construct C<HTTP::Request> or
+Object constructor.  It should only be called internally by this
+library.  External code should construct C<HTTP::Request> or
 C<HTTP::Response> objects.
 
 =cut
@@ -90,21 +90,39 @@ sub as_string
     "";  # To be overridden in subclasses
 }
 
-=head2 $mess->header($field [, $val]))
-
-=head2 $mess->push_header($field, $val)
-
-=head2 $mess->remove_header($field)
-
-=head2 $mess->headers_as_string([$endl])
-
-These methods provide easy access to the fields for the request
-header.
+=head1 HEADER METHODS
 
 All unknown C<HTTP::Message> methods are delegated to the
 C<HTTP::Headers> object that is part of every message.  This allows
-convenient access to these methods.
-Refer to L<HTTP::Headers> for details.
+convenient access to these methods.  Refer to L<HTTP::Headers> for
+details of these methods:
+
+  $mess->header($field => $val);
+  $mess->scan(&doit);
+  $mess->push_header($field => $val);
+  $mess->remove_header($field);
+
+  $mess->date;
+  $mess->expires;
+  $mess->if_modified_since;
+  $mess->last_modified;
+  $mess->content_type;
+  $mess->content_encoding;
+  $mess->content_length;
+  $mess->title;
+  $mess->user_agent;
+  $mess->server;
+  $mess->from;
+  $mess->referer;
+  $mess->www_authenticate;
+  $mess->authorization;
+  $mess->authorization_basic;
+
+
+=head2 $mess->headers_as_string([$endl])
+
+Call the HTTP::Headers->as_string() method for the headers in the
+message.
 
 =cut
 

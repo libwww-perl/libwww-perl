@@ -69,6 +69,8 @@ while (($key,$val) = each(%cat)) {
 }
 print "******\n";
 
+untie %cat;
+
 # Try to open database with a different agent name
 $r = new WWW::RobotRules::AnyDBM_File "MOMSpider/2.0", $file;
 

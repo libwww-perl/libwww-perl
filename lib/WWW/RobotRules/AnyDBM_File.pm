@@ -1,4 +1,4 @@
-# $Id: AnyDBM_File.pm,v 1.6 1997/04/04 11:09:11 aas Exp $
+# $Id: AnyDBM_File.pm,v 1.7 1997/04/10 08:22:34 aas Exp $
 
 package WWW::RobotRules::AnyDBM_File;
 
@@ -72,6 +72,7 @@ sub agent {
 	unless ($old && $old eq $newname) {
 	# Old info is now stale.
 	    my $file = $self->{'filename'};
+	    untie %{$self->{'dbm'}};
 	    tie %{$self->{'dbm'}}, 'AnyDBM_File', $file, O_TRUNC|O_RDWR, 0640;
 	    $self->{'dbm'}{"|ua-name|"} = $newname;
 	}

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.20 1997/10/12 21:54:36 aas Exp $
+# $Id: Simple.pm,v 1.21 1997/10/12 22:08:37 aas Exp $
 
 =head1 NAME
 
@@ -50,9 +50,10 @@ Returns an empty list if it fails.
 
 =item getprint($url)
 
-Get and print a document identified by a URL. The document is printet
-on STDOUT. The error message (formatted as HTML) is printed on STDERR
-if the request fails.  The return value is the HTTP response code.
+Get and print a document identified by a URL. The document is printed
+on STDOUT as data is received from the network.  If the request fails,
+then the status code and message is printed on STDERR.  The return
+value is the HTTP response code.
 
 =item getstore($url, $file)
 
@@ -147,7 +148,7 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);
 @EXPORT_OK = qw($ua);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {$_ eq "http_proxy"} keys %ENV;
 
 sub import
@@ -225,14 +226,10 @@ sub getprint ($)
     _init_ua() unless $ua;
 
     my $request = HTTP::Request->new(GET => $url);
-    # XXX: should really use callback version so we can print as it is
-    # received.
-    my $response = $ua->request($request);
     local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
-    if ($response->is_success) {
-	print $response->content;
-    } else {
-	print STDERR $response->error_as_HTML;
+    my $response = $ua->request($request, sub { print $_[0] });
+    unless ($response->is_success) {
+	print STDERR $response->status_line, " <URL:$url>\n";
     }
     $response->code;
 }
@@ -271,7 +268,7 @@ sub _get
 	return _trivial_http_get($host, $port, $path);
     } else {
         _init_ua() unless $ua;
-	my $request = new HTTP::Request 'GET', $url;
+	my $request = HTTP::Request->new(GET => $url);
 	my $response = $ua->request($request);
 	return $response->is_success ? $response->content : undef;
     }

@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.20 1997/12/02 13:02:10 aas Exp $
+# $Id: Message.pm,v 1.21 1997/12/03 21:04:45 aas Exp $
 
 package HTTP::Message;
 
@@ -48,7 +48,7 @@ sub new
 	Carp::croak("Bad header argument") unless ref $header;
 	$header = $header->clone;
     } else {
-	$header = new HTTP::Headers;
+	$header = HTTP::Headers->new;
     }
     $content = '' unless defined $content;
     bless {
@@ -67,7 +67,7 @@ Returns a copy of the object.
 sub clone
 {
     my $self  = shift;
-    my $clone = new HTTP::Message $self->{'_headers'}, $self->{'_content'};
+    my $clone = HTTP::Message->new($self->{'_headers'}, $self->{'_content'});
     $clone;
 }
 
@@ -127,6 +127,20 @@ sub as_string
     "";  # To be overridden in subclasses
 }
 
+=item $mess->headers;
+
+Return the embedded HTTP::Headers object.
+
+=item $mess->headers_as_string([$endl])
+
+Call the HTTP::Headers->as_string() method for the headers in the
+message.
+
+=cut
+
+sub headers            { shift->{'_headers'};                }
+sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
+
 =back
 
 All unknown C<HTTP::Message> methods are delegated to the
@@ -135,17 +149,19 @@ convenient access to these methods.  Refer to L<HTTP::Headers> for
 details of these methods:
 
   $mess->header($field => $val);
-  $mess->scan(&doit);
+  $mess->scan(\&doit);
   $mess->push_header($field => $val);
   $mess->remove_header($field);
 
   $mess->date;
   $mess->expires;
   $mess->if_modified_since;
+  $mess->if_unmodified_since;
   $mess->last_modified;
   $mess->content_type;
   $mess->content_encoding;
   $mess->content_length;
+  $mess->content_language
   $mess->title;
   $mess->user_agent;
   $mess->server;
@@ -153,20 +169,12 @@ details of these methods:
   $mess->referer;
   $mess->www_authenticate;
   $mess->authorization;
+  $mess->proxy_authorization;
   $mess->authorization_basic;
-
-=over 4
-
-=item $mess->headers_as_string([$endl])
-
-Call the HTTP::Headers->as_string() method for the headers in the
-message.
-
-=back
+  $mess->proxy_authorization_basic;
 
 =cut
 
-sub headers_as_string  { shift->{'_headers'}->as_string(@_);     }
 
 # delegate all other method calls the the _headers object.
 sub AUTOLOAD
@@ -180,9 +188,10 @@ sub AUTOLOAD
 # Private method to access members in %$self
 sub _elem
 {
-    my($self, $elem, $val) = @_;
+    my $self = shift;
+    my $elem = shift;
     my $old = $self->{$elem};
-    $self->{$elem} = $val if defined $val;
+    $self->{$elem} = $_[0] if @_;
     return $old;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.23 1998/03/23 07:16:19 aas Exp $
+# $Id: Status.pm,v 1.24 1998/03/23 08:20:32 aas Exp $
 
 package HTTP::Status;
 
@@ -90,7 +90,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 # Note also addition of mnemonics to @EXPORT below
 
@@ -166,19 +166,20 @@ exported by default.
 
 The status_message() function will translate status codes to human
 readable strings. The string is the same as found in the constant
-names above.
+names above.  If the $code is unknown, then C<undef> is returned.
 
 =cut
 
 sub status_message ($)
 {
-    return undef unless exists $StatusCode{$_[0]};
     $StatusCode{$_[0]};
 }
 
 =item is_info($code)
 
-Return TRUE if C<$code> is an I<Informational> status code.
+Return TRUE if C<$code> is an I<Informational> status code.  This
+class of status code indicates a provisional response which can't have
+any content.
 
 =item is_success($code)
 
@@ -186,7 +187,9 @@ Return TRUE if C<$code> is a I<Successful> status code.
 
 =item is_redirect($code)
 
-Return TRUE if C<$code> is a I<Redirection> status code.
+Return TRUE if C<$code> is a I<Redirection> status code. This class of
+status code indicates that further action needs to be taken by the
+user agent in order to fulfill the request.
 
 =item is_error($code)
 
@@ -195,13 +198,19 @@ return TRUE for both client error or a server error status codes.
 
 =item is_client_error($code)
 
-Return TRUE if C<$code> is an I<Client Error> status code.  This
-function is B<not> exported by default.
+Return TRUE if C<$code> is an I<Client Error> status code. This class
+of status code is intended for cases in which the client seems to have
+erred.
+
+This function is B<not> exported by default.
 
 =item is_server_error($code)
 
-Return TRUE if C<$code> is an I<Server Error> status code.   This
-function is B<not> exported by default.
+Return TRUE if C<$code> is an I<Server Error> status code. This class
+of status codes is intended for cases in which the server is aware
+that it has erred or is incapable of performing the request.
+
+This function is B<not> exported by default.
 
 =back
 
@@ -218,7 +227,7 @@ sub is_server_error ($) { $_[0] >= 500 && $_[0] < 600; }
 
 =head1 BUGS
 
-I wished @EXPORT_OK had been used instead of @EXPORT in the beginning.
+Wished @EXPORT_OK had been used instead of @EXPORT in the beginning.
 Now too much is exported by default.
 
 =cut

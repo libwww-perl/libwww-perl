@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.26 1996/03/05 10:52:52 aas Exp $
+# $Id: UserAgent.pm,v 1.27 1996/03/12 14:09:27 aas Exp $
 
 package LWP::UserAgent;
 
@@ -305,10 +305,74 @@ sub request
                 } else {
                     return $response; # no password found
                 }
-            } else {
-                warn "Authentication scheme '$scheme' not supported\n";
+            } elsif ($scheme =~ /^Digest$/i) {
+		# http://hopf.math.nwu.edu/digestauth/draft.rfc
+		require MD5; 
+		my $md5 = new MD5;
+                my($uid, $pwd) = $self->get_basic_credentials($realm,
+							      $request->url);
+		my $string = $challenge;
+		$string =~ s/^$scheme\s+//;
+		$string =~ s/"//g;                       #" unconfuse emacs
+		my %mda = map { split(/,?\s+|=/) } $string;
+
+		my(@digest);
+		$md5->add(join(":", $uid, $mda{realm}, $pwd));
+		push(@digest, $md5->hexdigest);
+		$md5->reset;
+
+		push(@digest, $mda{nonce});
+
+		$md5->add(join(":", $request->method, $request->url->path));
+		push(@digest, $md5->hexdigest);
+		$md5->reset;
+
+		$md5->add(join(":", @digest));
+		my($digest) = $md5->hexdigest;
+		$md5->reset;
+		
+		my %resp = map { $_, $mda{$_} } qw(realm nonce opaque);
+		@resp{qw(username uri response)} =
+		  ($uid, $request->url->path, $digest);
+
+		if (defined $uid and defined $pwd) {
+		    my(@order) = qw(username realm nonce uri response);
+		    if($request->method =~ /^POST|PUT$/) {
+			$md5->add($request->content);
+			my($content) = $md5->hexdigest;
+			$md5->reset;
+			$md5->add(join(":", @digest[0..1], $content));
+			$md5->reset;
+			$resp{"message-digest"} = $md5->hexdigest;
+			push(@order, "message-digest");
+		    }
+		    push(@order, "opaque");
+		    my @pairs  = map { "$_=" . qq("$resp{$_}") } @order;
+		    my $header = "$scheme " . join(", ", @pairs);
+
+		    # Need to check this isn't a repeated fail!
+		    my $r = $response;
+		    while ($r) {
+			my $auth = $r->request->header('Authorization');
+			if ($auth && $auth eq $header) {
+			    # here we know this failed before
+			    $response->message('Invalid Credentials');
+			    return $response;
+			}
+			$r = $r->previous;
+		    }
+
+		    my $referral = $request->clone;
+		    $referral->header('Extension', "Security/Digest");
+		    $referral->header('Authorization', $header);
+		    return $self->request($referral, $arg, $size, $response);
+		} else {
+		    return $response; # no password found
+		}
+	    } else {
+		warn "Authentication scheme '$scheme' not supported\n";
 		return $response;
-            }
+	    }
         } else {
             warn "Unknown challenge '$challenge'";
 	    return $response;
@@ -349,8 +413,8 @@ sub redirect_ok
 
 =head2 $ua->credentials($netloc, $realm, $uname, $pass)
 
-Set the user name and password to be used for a realm.  If is often
-more useful to specialize the credentials() method instead.
+Set the user name and password to be used for a realm.  It is often more
+useful to specialize the credentials() method instead.
 
 =cut
 
@@ -364,7 +428,7 @@ sub credentials
 =head2 get_basic_credentials($realm, $uri)
 
 This is called by request() to retrieve credentials for a Realm
-protected by Basic Authentication.
+protected by Basic Authentication or Digest Authentication.
 
 Should return username and password in a list.  Return undef to abort
 the authentication resolution atempts.

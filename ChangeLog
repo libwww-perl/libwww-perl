@@ -1,3 +1,10 @@
+Fri Sep 13 1996   Gisle Aas <aas@sn.no>
+	
+ o  Avoid '"my" variable $var masks earlier declaration in same scope'
+    warnings in perl5.003_05.
+
+
+
 Wed Sep 11 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.02

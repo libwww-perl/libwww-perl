@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.26 1996/04/09 15:44:09 aas Exp $
+# $Id: Element.pm,v 1.27 1996/05/08 16:34:22 aas Exp $
 
 =head1 NAME
 
@@ -36,35 +36,27 @@ The following methods are available:
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags
-for (qw(base link meta isindex nextid
-	img br hr wbr
-	input
-       )
-    ) {
-    $noEndTag{$_} = 1;
-}
+%noEndTag = map { $_ => 1 } qw(base link meta isindex nextid
+			       img br hr wbr
+			       input
+			      );
+%optionalEndTag = map { $_ => 1 } qw(p li dt dd option);
 
 # Link elements an the name of the link attribute
 %linkElements =
 (
- 'base' => 'href',
- 'a'    => 'href',
- 'img'  => 'src',
- 'form' => 'action',
- 'link' => 'href',
+ body  => 'background',
+ base  => 'href',
+ a     => 'href',
+ img   => 'src',
+ form  => 'action',
+ link  => 'href',
+ frame => 'src',
 );
-
-
-# Elements that act as paragraph
-for (qw(p form h1 h2 h3 h4 h5 h6
-	blockquote hr title body
-       )){
-    $blockElements{$_} = 1;
-}
 
 
 
@@ -126,10 +118,11 @@ sub starttag
     for (sort keys %$self) {
 	next if /^_/;
 	my $val = $self->{$_};
-	if ($_ eq $val) {
+	if ($_ eq $val) {   # not always good enough (perhaps a very special
+                            # value is better)
 	    $tag .= " \U$_";
 	} else {
-	    $val =~ s/([\">])/"&#" . ord($1) . ";"/eg;
+	    $val =~ s/([&\">])/"&#" . ord($1) . ";"/eg;
 	    $val = qq{"$val"} unless $val =~ /^\d+$/;
 	    $tag .= qq{ \U$_\E=$val};
 	}
@@ -446,7 +439,8 @@ sub extract_links
 =head2 $h->dump()
 
 Prints the element and all its children to STDOUT.  Mainly useful for
-debugging.
+debugging.  The structure of the document is shown by indentation (no
+end tags).
 
 =cut
 
@@ -478,73 +472,25 @@ its children.
 sub as_HTML
 {
     my $self = shift;
-    my $depth = shift || 0;
-    my $black = shift || 0; # protect string from whitespace
-    my $tag = $self->tag;
-    my $pre = $self->is_inside('pre');
-    my $html = '';
-    if ($pre) {
-	$html .= $self->starttag;
-    } else {
-	if ($black) {
-	    $html .= substr($self->starttag,0,length($self->starttag)-1)
-		. "\n" . ("  " x $depth) . ">" ;
-	} else {
-	    $html .= "  " x $depth;
-	    $html .= $self->starttag;
-	}
-    }
-
-    my $pos = 0;
-
-    for (@{$self->{_content}}) {
-	if (ref $_) {
-	    unless ($pre || $black) {
-		$html .= "\n";
-	    }
-	    $html .= $_->as_HTML($depth+1,$black);
-	} else {
-	    if ($pre) {
-		$html .= "$_";
-	    } else {
-		if ($pos + length $_ < 60) {
-		    $html .= $_;
-		    $pos += length $_;
-		} else {
-		    my $copy = $_;
-		    my @m;
-		    while ($copy =~ s/^(.{60,}?)\s//) {
-			push @m,  $1;
-		    }
-		    $html .= join "\n" . "  " x ($depth+1), @m, $copy;
-		    $pos = length $copy;
+    my @html = ();
+    $self->traverse(
+        sub {
+	    my($node, $start, $depth) = @_;
+	    if (ref $node) {
+		my $tag = $node->tag;
+		if ($start) {
+		    push(@html, $node->starttag);
+		} elsif (not ($noEndTag{$tag} or $optionalEndTag{$tag})) {
+		    push(@html, $node->endtag);
 		}
-		if (substr($html,length($html)-1) =~ /\s/) {
-		    $black = 0;
-		    $pos = 0;
-		} else {
-		    $black = 1;
-		}
-	    }
-	}
-    }
-    unless ($noEndTag{$tag} || $tag eq 'p' || $tag eq 'li' || $tag eq 'dt') {
-	if ($pre) {
-	    $html .= $self->endtag;
-	} else {
-	    $black = 0 if $blockElements{$tag};
-	    if ($black) {
-		$html .= substr($self->endtag,0,length($self->endtag)-1)
-		    . "\n" . ("  " x $depth) . ">" ;
 	    } else {
-		$html .= "\n";
-		$html .= "  " x $depth;
-		$html .= $self->endtag;
+		# simple text content
+		HTML::Entities::encode_entities($node, "<>&");
+		push(@html, $node);
 	    }
-	}
-    }
-    $html .= "\n" if $depth == 0;
-    $html;
+        }
+    );
+    join('', @html, "\n");
 }
 
 sub format
@@ -565,7 +511,7 @@ __END__
 
 =head1 COPYRIGHT
 
-Copyright 1995 Gisle Aas. All rights reserved.
+Copyright 1995 Gisle Aas.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

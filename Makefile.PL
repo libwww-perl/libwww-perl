@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.9 1995/09/13 16:34:03 aas Exp $
+# $Id: Makefile.PL,v 1.10 1995/09/14 13:43:23 aas Exp $
 
 # Configuration section
 
@@ -26,6 +26,9 @@ sub initialize
 	    SUFFIX       => 'gz', 
             DIST_DEFAULT => 'all tardist'
         },
+	'installpm' => {
+	    SPLITLIB     => '',
+	},
     );
     for (@programs_to_install) {
 	push(@{ $hash{EXE_FILES} }, "bin/$_");

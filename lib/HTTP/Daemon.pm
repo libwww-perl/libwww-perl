@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.10 1996/10/22 11:07:49 aas Exp $
+# $Id: Daemon.pm,v 1.11 1996/10/25 12:08:27 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -439,7 +439,7 @@ sub send_error
     print $self $CRLF;
     print $self <<EOT;
 <title>$status $mess</title>
-<h1>$status $mess</title>
+<h1>$status $mess</h1>
 $error
 EOT
     $status;

@@ -43,6 +43,7 @@ lib/LWP/Protocol/http11.pm	Access with HTTP/1.1 protocol
 lib/LWP/Protocol/https.pm	Access with HTTP protocol over SSL
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Protocol/nntp.pm	Handles access to news: and nntp: URLs
+lib/LWP/Protocol/nogo.pm	Denies all requests.
 lib/LWP/RobotUA.pm		Easy creation of conforming robots
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class

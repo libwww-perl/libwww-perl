@@ -1,6 +1,6 @@
 use HTTP::Date;
 
-print "1..47\n";
+print "1..51\n";
 
 $no = 1;
 $| = 1;
@@ -115,6 +115,21 @@ for ('03-Feb-1969', '03-Feb-2039',
     print "not " if $bad;
     ok;
 }
+
+# Test the str2iso routines
+use HTTP::Date qw(time2iso time2isoz);
+
+print "Testing time2iso functions\n";
+
+$a = time2iso;
+$b = time2iso(500000);
+print "LOCAL $a  $b\n";
+$az = time2isoz;
+$bz = time2isoz(500000);
+print "GMT   $az $bz\n";
+
+for ($a,  $b)  { ok if /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/;  }
+for ($az, $bz) { ok if /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ$/; }
+
+
 print "HTTP::Date $HTTP::Date::VERSION tested ok\n";
-
-

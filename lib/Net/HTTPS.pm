@@ -1,6 +1,6 @@
 package Net::HTTPS;
 
-# $Id: HTTPS.pm,v 1.1 2001/11/17 01:42:46 gisle Exp $
+# $Id: HTTPS.pm,v 1.2 2001/11/17 02:05:31 gisle Exp $
 
 use strict;
 use vars qw($VERSION $SSL_SOCKET_CLASS @ISA);
@@ -46,5 +46,10 @@ sub http_connect {
 sub http_default_port {
     443;
 }
+
+# The underlying SSLeay classes fails to work if the socket is
+# placed in non-blocking mode.  This override of the blocking
+# method makes sure it stays the way it was created.
+sub blocking { }  # noop
 
 1;

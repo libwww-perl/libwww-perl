@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.60 1997/12/03 18:31:44 aas Exp $
+# $Id: LWP.pm,v 1.61 1997/12/15 20:28:26 aas Exp $
 
 package LWP;
 
-$VERSION = "5.18";
+$VERSION = "5.18_02";
 sub Version { $VERSION; }
 
 require 5.004;

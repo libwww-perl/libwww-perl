@@ -2,12 +2,12 @@
                    -----------------------------
 
 Libwww-perl is a collection of Perl modules which provides a simple
-and consistent application programming interface (API) to the World-Wide Web.  The
-main focus of the library is to provide classes and functions that
-allow you to write WWW clients, thus libwww-perl said to be a WWW
-client library. The library also contain modules that are of more
-general use and even classes that help you implement simple HTTP
-servers.
+and consistent application programming interface (API) to the
+World-Wide Web.  The main focus of the library is to provide classes
+and functions that allow you to write WWW clients, thus libwww-perl
+said to be a WWW client library. The library also contain modules that
+are of more general use and even classes that help you implement
+simple HTTP servers.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
@@ -38,7 +38,7 @@ libwww-perl:
   MIME-Base64
   HTML-Parser
   libnet
-  Digest::MD5
+  Digest-MD5
 
 These packages should be available on CPAN.
 

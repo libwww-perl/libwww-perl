@@ -15,7 +15,7 @@ $Config{'startperl'} -w
 !GROK!THIS!
 
 print OUT <<'!NO!SUBS!';
-# $Id: lwp-download.PL,v 1.6 1998/04/28 08:05:24 aas Exp $
+# $Id: lwp-download.PL,v 1.7 1998/08/04 09:03:35 aas Exp $
 
 =head1 NAME
 
@@ -78,6 +78,7 @@ my $argfile = shift;
 my $ua = new LWP::UserAgent;
 
 $ua->agent("lwp-download/0.1 " . $ua->agent);
+$ua->env_proxy;
 
 my $req = new HTTP::Request GET => $url;
 

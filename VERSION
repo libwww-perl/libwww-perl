@@ -23,7 +23,7 @@ Andreas Koenig <koenig@mind.de>
 
 =cut
 
-$VERSION="5b8";
+$VERSION="5b6";
 
 use lib "lib";
 
@@ -76,14 +76,14 @@ sub rewrite
 }
 
 __END__
-Font::AFM 1.07
-HTML::Element 1.18
+Font::AFM 1.08
+HTML::Element 1.19
 HTML::Entities 1.01
 HTML::Parse 1.13
 HTTP::Date 1.10
 LWP 0.06
-LWP::Socket 1.15
+LWP::Socket 1.17
 MIME::Base64 1.03
-MIME::QuotedPrint 1.04
+MIME::QuotedPrint 1.05
 Mail::Cap 1.03
 URI::URL 3.05

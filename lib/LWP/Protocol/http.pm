@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.19 1996/02/26 19:14:42 aas Exp $
+# $Id: http.pm,v 1.20 1996/02/27 19:38:31 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -25,9 +25,14 @@ my $endl         = "\015\012";     # how lines should be terminated;
     HEAD       => "",
     POST       => "C",   
     PUT        => "C",
+    PATCH      => "C",
+    COPY       => "",
+    MOVE       => "",
     DELETE     => "",   
     LINK       => "",
     UNLINK     => "",
+    TRACE      => "",
+    WRAPPED    => "",
     CHECKIN    => "C",
     CHECKOUT   => "",
     SHOWMETHOD => "",

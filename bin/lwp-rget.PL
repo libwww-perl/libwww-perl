@@ -22,7 +22,8 @@ lwp-rget - Retrieve WWW documents recursively
 
 =head1 SYNOPSIS
 
- lwp-rget [--verbose] [--depth=N] [--limit=N] [--prefix=URL] <URL>
+ lwp-rget [--verbose] [--auth=USER:PASS] [--depth=N] [--hier]
+          [--limit=N] [--prefix=URL] <URL>
  lwp-rget --version
 
 =head1 DESCRIPTION
@@ -44,6 +45,13 @@ The options are:
 
 =over 3
 
+=item --auth=USER:PASS<n>
+
+Set the authentication credentials to user "USER" and password "PASS" if
+any restricted parts of the web site are hit.  If there are restricted
+parts of the web site and authentication credentials are not available,
+those pages will not be downloaded.
+
 =item --depth=I<n>
 
 Limit the recursive level. Embedded images are always loaded, even if
@@ -52,6 +60,11 @@ I<--depth=0> in order to fetch a single document together with all
 inline graphics.
 
 The default depth is 5.
+
+=item --hier
+
+Download files into a hierarchy that mimics the web site structure.
+The default is to put all files in the current directory.
 
 =item --limit=I<n>
 
@@ -110,18 +123,18 @@ Gisle Aas <aas@sn.no>
 
 use strict;
 
-use Getopt::Long;
-use URI::URL;
+use Getopt::Long    qw(GetOptions);
+use URI::URL        qw(url);
 use LWP::MediaTypes qw(media_suffix);
 
 use vars qw($VERSION);
-use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP);
+use vars qw($MAX_DEPTH $MAX_DOCS $PREFIX $VERBOSE $QUIET $SLEEP $HIER $AUTH);
 
 my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;
@@ -138,6 +151,8 @@ GetOptions('version'  => \&print_version,
            'quiet!'   => \$QUIET,
 	   'sleep=i'  => \$SLEEP,
 	   'prefix:s' => \$PREFIX,
+	   'hier'     => \$HIER,
+	   'auth=s'   => \$AUTH,
 	  ) || usage();
 
 sub print_version {
@@ -146,7 +161,7 @@ sub print_version {
     print <<"EOT";
 This is lwp-rget version $VERSION ($DISTNAME)
 
-Copyright 1996, Gisle Aas.
+Copyright 1996-1998, Gisle Aas.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -240,7 +255,9 @@ sub fetch
     # Fetch document 
     $no_docs++;
     sleep($SLEEP) if $SLEEP;
-    my $res = $ua->request(HTTP::Request->new(GET => $url));
+    my $req = HTTP::Request->new(GET => $url);
+    $req->authorization_basic(split (/:/, $AUTH)) if (defined $AUTH);
+    my $res = $ua->request($req);
 
     # Check outcome
     if ($res->is_success) {
@@ -259,23 +276,50 @@ sub fetch
 	    save($name, $doc);
 	    my $base = $res->base;
 	    # Follow and substitute links...
-	    $doc =~ s/(<\s*(img|a|body)\b[^>]+\b(?:src|href|background)\s*=\s*)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $depth+1)/gie;       #"; # help emacs
+	    $doc =~ s/(<\s*(img|a|body|frame)\b[^>]+\b(?:src|href|background)\s*=\s*)(["']?)([^>\s]+)\3/new_link($1, lc($2), $3, $4, $base, $name, $depth+1)/gie;       #"; # help emacs
 	}
 	save($name, $doc);
-	return $name;					  
+	return $name;
     } else {
 	print STDERR $res->code . " " . $res->message . "\n" if $VERBOSE;
-	$seen{$plain_url->as_string} = "*BAD*";
-	return "*BAD*";
+	$seen{$plain_url->as_string} = $url->as_string;
+        $url->as_string;
     }
 }
 
 sub new_link
 {
-    my($pre, $type, $quote, $url, $base, $depth) = @_;
-    $url = url($url, $base)->abs;
-    $pre . $quote . fetch($url, $type, $depth) . $quote;
+    my($pre, $type, $quote, $url, $base, $localbase, $depth) = @_;
+
+    $url = fetch(url($url, $base)->abs, $type, $depth);
+    $url = url("file:$url", "file:$localbase")->rel
+        unless $url =~ /^[.+\-\w]+:/;
+
+    return $pre . $quote . $url . $quote;
 }
+
+
+sub mkdirp
+{
+    my($directory, $mode) = @_;
+    my @dirs = split(/\//, $directory);
+    my $path = shift(@dirs);   # build it as we go
+    my $result = 1;   # assume it will work
+
+    unless (-d $path) {
+        $result &&= mkdir($path, $mode);
+    }
+
+    foreach (@dirs) {
+        $path .= "/$_";
+        if ( ! -d $path) {
+            $result &&= mkdir($path, $mode);
+        }
+    }
+
+    return $result;
+}
+
 
 sub find_name
 {
@@ -286,16 +330,22 @@ sub find_name
     my $path = $url->path;
 
     # trim path until only the basename is left
-    $path =~ s|.*/||;
-    $path =~ s|\..*||;
-    $path = "index" unless length($path);
+    $path =~ s|(.*/)||;
+    my $dirname = ".$1";
+    if (!$HIER) {
+	$dirname = "";
+    } elsif (! -d $dirname) {
+        mkdirp($dirname, 0775);
+    }
+    $path =~ s|\..*||;  # trim suffix
+    $path = "index" unless length $path;
 
     my $extra = "";  # something to make the name unique
     my $suffix = media_suffix($type);
 
     while (1) {
 	# Construct a new file name
-	my $file = $path . $extra;
+	my $file = $dirname . $path . $extra;
 	$file .= ".$suffix" if $suffix;
 	# Check if it is unique
 	return $file unless -f $file;
@@ -320,12 +370,15 @@ sub save
     close(FILE);
 }
 
+
 sub usage
 {
     die <<"";
 Usage: $progname [options] <URL>
 Allowed options are:
+  --auth=USER:PASS  Set authentication credentials for web site
   --depth=N         Maximum depth to traverse (default is $MAX_DEPTH)
+  --hier            Download into hierarchy (not all files into cwd)
   --limit=N         A limit on the number documents to get (default is $MAX_DOCS)
   --version         Print version number and quit
   --verbose         More output

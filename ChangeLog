@@ -1,3 +1,33 @@
+Thu Mar 12 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.21
+
+ o  lwp-rget patches from David D. Kilzer <ddkilzer@madison.dseg.ti.com>
+    (modified by Gisle).  Support the --hier  and the --auth options
+    and <frame>s.
+
+ o  File::CounterFile protect against bad $/ and $\ as suggested
+    by Frank Hoehne.
+ 
+ o  File::Listing used "next" when return was more appropriate.
+    Patch by erik@mediator.uni-c.dk.
+
+ o  HTML::Element support for multiple boolean attributes for a single
+    element.  Patch by Philip Guenther.
+
+ o  Can set $HTTP::Headers::TRANSLATE_UNDERSCORE to FALSE value to
+    suppress tr/_/-/ of header keys.
+
+ o  LWP::Protocol::http will not initialize the Host header if it is
+    already set. Patch by Ed Jordan.
+
+ o  LWP::Protocol::http did not handle responses with no header lines
+    correctly.  Patch by Daniel Buenzli <buenzli@rzu.unizh.ch>
+
+ o  $url->rel() handles path segments without leading "/" better.
+
+
+
 Fri Feb 13 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.20

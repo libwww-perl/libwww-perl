@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.40 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Response.pm,v 1.41 2003/10/24 10:25:16 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -209,82 +209,100 @@ __END__
 
 =head1 NAME
 
-HTTP::Response - Class encapsulating HTTP Responses
+HTTP::Response - HTTP style response message
 
 =head1 SYNOPSIS
 
- require HTTP::Response;
+Response objects are returned by the request() method of the C<LWP::UserAgent>:
+
+    # ...
+    $response = $ua->request($request)
+    if ($response->is_success) {
+        print $response->content;
+    }
+    else {
+        print STDERR $response->status_line, "\n";
+    }
 
 =head1 DESCRIPTION
 
 The C<HTTP::Response> class encapsulates HTTP style responses.  A
-response consists of a response line, some headers, and (potentially
-empty) content. Note that the LWP library also uses HTTP style
-responses for non-HTTP protocol schemes.
-
-Instances of this class are usually created and returned by the
-C<request()> method of an C<LWP::UserAgent> object:
-
- #...
- $response = $ua->request($request)
- if ($response->is_success) {
-     print $response->content;
- }
- else {
-     print $response->error_as_HTML;
- }
+response consists of a response line, some headers, and a content
+body. Note that the LWP library uses HTTP style responses even for
+non-HTTP protocol schemes.  Instances of this class are usually
+created and returned by the request() method of an C<LWP::UserAgent>
+object.
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods most often used are header(),
-push_header(), remove_header(), and content().
-The header convenience methods are also available.  See
-L<HTTP::Message> for details.
-
-The following additional methods are available:
+inherits its methods.  The following additional methods are available:
 
 =over 4
 
-=item $r = HTTP::Response->new( $rc )
+=item $r = HTTP::Response->new( $code )
 
-=item $r = HTTP::Response->new( $rc, $msg )
+=item $r = HTTP::Response->new( $code, $msg )
 
-=item $r = HTTP::Response->new( $rc, $msg, $header )
+=item $r = HTTP::Response->new( $code, $msg, $header )
 
-=item $r = HTTP::Response->new( $rc, $msg, $header, $content )
+=item $r = HTTP::Response->new( $code, $msg, $header, $content )
 
 Constructs a new C<HTTP::Response> object describing a response with
-response code C<$rc> and optional message C<$msg>.  The message is a
-short human readable single line string that explains the response
-code.
+response code $code and optional message $msg.  The optional $header
+argument should be a reference to an C<HTTP::Headers> object.  The
+optional $content argument should be a string of bytes.  The meaning
+these arguments are described below.
 
 =item $r->code
 
 =item $r->code( $code )
 
+This is used to get/set the code attribute.  The code is a 3 digit
+number that encode the overall outcome of a HTTP response.  The
+C<HTTP::Status> module provide constants that provide mnemonic names
+for the code attribute.
+
 =item $r->message
 
 =item $r->message( $message )
+
+This is used to get/set the message attribute.  The message is a short
+human readable single line string that explains the response code.
+
+=item $r->header( $field )
+
+=item $r->header( $field => $value )
+
+This is used to get/set header values and it is inherited from
+C<HTTP::Headers> via C<HTTP::Message>.  See L<HTTP::Headers> for
+details and other similar methods that can be used to access the
+headers.
+
+=item $r->content
+
+=item $r->content( $content )
+
+This is used to get/set the content and it is inherited from the
+C<HTTP::Message> base class.  See L<HTTP::Message> for details and
+other methods that can be used to access the content.
 
 =item $r->request
 
 =item $r->request( $request )
 
+This is used to get/set the request attribute.  The request attribute
+is a reference to the the request that caused this response.  It does
+not have to be the same request passed to the $ua->request() method,
+because there might have been redirects and authorization retries in
+between.
+
 =item $r->previous
 
 =item $r->previous( $response )
 
-These methods provide public access to the object attributes.  The
-first two contain respectively the response code and the message
-of the response.
-
-The request attribute is a reference the request that caused this
-response.  It does not have to be the same request as passed to the
-$ua->request() method, because there might have been redirects and
-authorization retries in between.
-
-The previous attribute is used to link together chains of responses.
-You get chains of responses if the first response is redirect or
-unauthorized.
+This is used to get/set the previous attribute.  The previous
+attribute is used to link together chains of responses.  You get
+chains of responses if the first response is redirect or unauthorized.
+The value is C<undef> if this is the first response in a chain.
 
 =item $r->status_line
 
@@ -342,7 +360,7 @@ useful for debugging purposes. It takes no arguments.
 =item $r->is_error
 
 These methods indicate if the response was informational, sucessful, a
-redirection, or an error.
+redirection, or an error.  See L<HTTP::Status> for the meaning of these.
 
 =item $r->error_as_HTML
 
@@ -352,18 +370,18 @@ is TRUE.
 
 =item $r->current_age
 
-Calculates the "current age" of the response as
-specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.3.  The
-age of a response is the time since it was sent by the origin server.
-The returned value is a number representing the age in seconds.
+Calculates the "current age" of the response as specified by RFC 2616
+section 13.2.3.  The age of a response is the time since it was sent
+by the origin server.  The returned value is a number representing the
+age in seconds.
 
 =item $r->freshness_lifetime
 
-Calculates the "freshness lifetime" of the response
-as specified by E<lt>draft-ietf-http-v11-spec-07> section 13.2.4.  The
-"freshness lifetime" is the length of time between the generation of a
-response and its expiration time.  The returned value is a number
-representing the freshness lifetime in seconds.
+Calculates the "freshness lifetime" of the response as specified by
+RFC 2616 section 13.2.4.  The "freshness lifetime" is the length of
+time between the generation of a response and its expiration time.
+The returned value is a number representing the freshness lifetime in
+seconds.
 
 If the response does not contain an "Expires" or a "Cache-Control"
 header, then this function will apply some simple heuristic based on
@@ -381,6 +399,10 @@ server.
 Returns the time when this entiy is no longer fresh.
 
 =back
+
+=head1 SEE ALSO
+
+L<HTTP::Headers>, L<HTTP::Message>, L<HTTP::Status>, L<HTTP::Request>
 
 =head1 COPYRIGHT
 

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.29 2003/10/24 09:21:00 gisle Exp $
+# $Id: Message.pm,v 1.30 2003/10/24 10:25:16 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -105,7 +105,7 @@ __END__
 
 =head1 NAME
 
-HTTP::Message - Class encapsulating HTTP messages
+HTTP::Message - HTTP style message base class
 
 =head1 SYNOPSIS
 
@@ -115,31 +115,12 @@ HTTP::Message - Class encapsulating HTTP messages
 
 =head1 DESCRIPTION
 
-An C<HTTP::Message> object contains some headers and a content (body).
+An C<HTTP::Message> object contains some headers and a content body.
 The class is abstract, i.e. it only used as a base class for
 C<HTTP::Request> and C<HTTP::Response> and should never instantiated
-as itself.
-
-The following methods are available:
+as itself.  The following methods are available:
 
 =over 4
-
-=item $mess = HTTP::Message->new
-
-This is the object constructor.  It should only be called internally
-by this library.  External code should construct C<HTTP::Request> or
-C<HTTP::Response> objects.
-
-=item $mess->clone()
-
-Returns a copy of the object.
-
-=item $mess->protocol
-
-=item $mess->protocol( $proto )
-
-Sets the HTTP protocol used for the message.  The protocol() is a string
-like C<HTTP/1.0> or C<HTTP/1.1>.
 
 =item $mess->content
 
@@ -184,38 +165,49 @@ message.  This will be the same as
 
 but it will make your program a whole character shorter :-)
 
+=item $mess->protocol
+
+=item $mess->protocol( $proto )
+
+Sets the HTTP protocol used for the message.  The protocol() is a string
+like C<HTTP/1.0> or C<HTTP/1.1>.
+
+=item $mess->clone
+
+Returns a copy of the message object.
+
 =back
 
-All unknown C<HTTP::Message> methods are delegated to the
+All methods unknown to C<HTTP::Message> itself are delegated to the
 C<HTTP::Headers> object that is part of every message.  This allows
 convenient access to these methods.  Refer to L<HTTP::Headers> for
 details of these methods:
 
-  $mess->header($field => $val);
-  $mess->push_header($field => $val);
-  $mess->init_header($field => $val);
-  $mess->remove_header($field);
-  $mess->scan(\&doit);
+    $mess->header( $field => $val )
+    $mess->push_header( $field => $val )
+    $mess->init_header( $field => $val )
+    $mess->remove_header( $field )
+    $mess->scan( \&doit )
 
-  $mess->date;
-  $mess->expires;
-  $mess->if_modified_since;
-  $mess->if_unmodified_since;
-  $mess->last_modified;
-  $mess->content_type;
-  $mess->content_encoding;
-  $mess->content_length;
-  $mess->content_language
-  $mess->title;
-  $mess->user_agent;
-  $mess->server;
-  $mess->from;
-  $mess->referer;
-  $mess->www_authenticate;
-  $mess->authorization;
-  $mess->proxy_authorization;
-  $mess->authorization_basic;
-  $mess->proxy_authorization_basic;
+    $mess->date
+    $mess->expires
+    $mess->if_modified_since
+    $mess->if_unmodified_since
+    $mess->last_modified
+    $mess->content_type
+    $mess->content_encoding
+    $mess->content_length
+    $mess->content_language
+    $mess->title
+    $mess->user_agent
+    $mess->server
+    $mess->from
+    $mess->referer
+    $mess->www_authenticate
+    $mess->authorization
+    $mess->proxy_authorization
+    $mess->authorization_basic
+    $mess->proxy_authorization_basic
 
 =head1 COPYRIGHT
 

@@ -1,9 +1,9 @@
-# $Id: Common.pm,v 1.10 1998/08/04 13:06:46 aas Exp $
+# $Id: Common.pm,v 1.11 1998/08/04 14:01:48 aas Exp $
 #
 package HTTP::Request::Common;
 
 use strict;
-use vars qw(@EXPORT $VERSION $DYNAMIC_FILE_UPLOAD);
+use vars qw(@EXPORT @EXPORT_OK $VERSION $DYNAMIC_FILE_UPLOAD);
 
 $DYNAMIC_FILE_UPLOAD ||= 0;  # make it defined (don't know why)
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -164,21 +164,22 @@ sub form_data   # RFC1867
 
 	# set up a closure that will return content piecemeal
 	$content = sub {
-	  AGAIN:
-	    my $p = shift @parts;
-	    unless (ref $p) {
-		$p .= shift @parts while @parts && !ref($parts[0]);
-		return $p;
+	    for (;;) {
+		return unless @parts;
+		my $p = shift @parts;
+		unless (ref $p) {
+		    $p .= shift @parts while @parts && !ref($parts[0]);
+		    return $p;
+		}
+		my($buf, $fh) = @$p;
+		my $n = read($fh, $buf, 2048, length($buf));
+		if ($n) {
+		    unshift(@parts, ["", $fh]);
+		} else {
+		    close($fh);
+		}
+		return $buf if length $buf;
 	    }
-	    my($buf, $fh) = @$p;
-	    my $n = read($fh, $buf, 2048, length($buf));
-	    if ($n) {
-		unshift(@parts, ["", $fh]);
-	    } else {
-		close($fh);
-	    }
-	    goto AGAIN unless length $buf;
-	    return $buf;
 	};
 
     } else {

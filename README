@@ -49,7 +49,8 @@ the following packages installed before you install libwww-perl:
 These packages should be available on CPAN (described above).
 
 If you want to access sites using the https protocol, then you need to
-install SSLeay.pm first.
+install the Crypt-SSLeay modules first.  The Net::SSLeay module is not
+supported any more.
 
 
 INSTALLATION

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.49 1997/12/01 15:50:30 aas Exp $
+# $Id: UserAgent.pm,v 1.50 1997/12/01 19:11:47 aas Exp $
 
 package LWP::UserAgent;
 
@@ -330,9 +330,11 @@ sub request
 	}
 
 	require HTTP::Headers::Util;
+	$challenge =~ tr/,/;/;  # "," is used to separate auth-params!!
 	($challenge) = HTTP::Headers::Util::split_header_words($challenge);
 	my $scheme = lc(shift(@$challenge));
 	shift(@$challenge); # no value
+	$challenge = { @$challenge };  # make rest into a hash
 
 	unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
 	    $response->header("Client-Warning" => 

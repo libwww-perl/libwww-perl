@@ -1,3 +1,18 @@
+2004-04-07   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.78
+
+    Added the parse(), clear(), parts() and add_part() methods to
+    HTTP::Message.  The HTTP::MessageParts module of 5.77 is no more.
+
+    Added clear() and remove_content_headers() methods to
+    HTTP::Headers.
+
+    The as_string() method of HTTP::Message now appends a newline
+    if called without arguments and the non-empty content does
+    not end with a newline.  This ensures better compatibility with
+    5.76 and older versions of libwww-perl.
+
     Use case insensitive lookup of hostname in $ua->credentials.
     Patch by Andrew Pimlott <andrew@pimlott.net>.
 

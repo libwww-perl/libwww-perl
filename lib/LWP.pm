@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.137 2004/04/06 13:14:37 gisle Exp $
+# $Id: LWP.pm,v 1.138 2004/04/07 10:56:11 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.77";
+$VERSION = "5.78";
 sub Version { $VERSION; }
 
 require 5.005;
@@ -603,7 +603,8 @@ You might want to set it to C<URI::URL> for compatiblity with old times.
 =head1 AUTHORS
 
 LWP was made possible by contributions from Adam Newby, Albert
-Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas König, Andy
+Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas König,
+Andrew Pimlott, Andy
 Lester, Ben Coleman, Benjamin Low, Ben Low, Ben Tilly, Blair Zajac,
 Bob Dalgleish, BooK, Brad Hughes, Brian J. Murrell, Brian McCauley,
 Charles C. Fu, Charles Lane, Chris Nandor, Christian Gilmore, Chris

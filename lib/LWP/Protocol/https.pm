@@ -1,5 +1,5 @@
 #
-# $Id: https.pm,v 1.4 1997/12/16 19:43:59 aas Exp $
+# $Id: https.pm,v 1.5 1997/12/17 09:55:56 aas Exp $
 
 use strict;
 
@@ -15,6 +15,7 @@ sub _new_socket
     my($self, $host, $port, $timeout) = @_;
     my $sock = LWP::SSL_INET->new(PeerAddr => $host,
 				  PeerPort => $port,
+				  Proto    => 'tcp',
 				  Timeout  => $timeout,
 				 );
     die "Can't connect to $host:$port" unless $sock;

@@ -6,7 +6,8 @@ and consistent programming interface (API) to the World-Wide Web.  The
 main focus of the library is to provide classes and functions that
 allow you to write WWW clients, thus libwww-perl said to be a WWW
 client library. The library also contain modules that are of more
-general use.
+general use and even classes that helps you implement simple HTTP
+servers.
 
 There are actually two versions of libwww-perl: one for Perl4, and one
 for Perl5. Both have a similar architecture, loosely based on the CERN
@@ -30,15 +31,28 @@ The latest version of libwww-perl should always be available from:
      http://www.sn.no/libwww-perl/
 
 The library is also available from the Comprehensive Perl Archive
-Network (CPAN). Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
+Network (CPAN).  Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
 site near you.
+
+
+PREREQUISITES
+
+In order to install and use this package you will need Perl version
+5.002 or better.  Some modules within this package depend on packages
+that are distributed separately from perl.  We recommend that you have
+the following packages installed before you install libwww-perl:
+
+  IO-#.##            (bundled with perl5.004 and better)
+  libnet-#.##
+  MD5-#.##
+
+These packages should be available on CPAN (described above).
 
 
 INSTALLATION
 
-In order to use this package you will need Perl version 5.002 or
-better.  You install libwww-perl, as you would install any perl module
-library, by running these commands:
+You install libwww-perl, as you would install any perl module library,
+by running these commands:
 
    perl Makefile.PL
    make
@@ -58,13 +72,11 @@ something like this command:
 
   perl Makefile.PL PREFIX=~/perl
 
-
 The Makefile.PL program will start out by checking your perl
 installation for a few packages that are recommended to be installed
-together with libwww-perl.  These packages should be available on CPAN
-(described above).
+together with libwww-perl.
 
-Optional network tests are not enabled automatically when you unpack
+Optional network tests are _not_ enabled automatically when you unpack
 this package.  Consult the t/README file for instructions on how to
 enable these tests.
 
@@ -75,8 +87,8 @@ See lib/LWP.pm for an overview of the library. See ChangeLog for
 recent changes.  POD style documentation is included in all modules
 and scripts.  These are normally converted to manual pages and
 installed as part of the "make install" process.  You should also be
-able to use the 'perldoc' utility to extract documentation from the
-module files directly.
+able to use the 'perldoc' utility to extract and read documentation
+from the module files directly.
 
 
 THE HTML MODULES ARE STILL ALPHA

@@ -1,4 +1,4 @@
-print "1..16\n";
+print "1..19\n";
 
 use HTTP::Request::Common;
 
@@ -139,3 +139,55 @@ print "not " unless $r->content =~ /foo=42/ &&
 print "ok 16\n";
 
  
+#
+# POST for File upload
+#
+use HTTP::Request::Common qw($DYNAMIC_FILE_UPLOAD);
+
+$file = "test-$$";
+open(FILE, ">$file") or die "Can't create $file: $!";
+for (1..1000) {
+   print FILE "a" .. "z";
+}
+close(FILE);
+
+$DYNAMIC_FILE_UPLOAD++;
+$r = POST 'http://www.perl.org/survey.cgi',
+       Content_Type => 'form-data',
+       Content      => [ name  => 'Gisle Aas',
+                         email => 'gisle@aas.no',
+                         gender => 'm',
+                         born   => '1964',
+                         file   => [$file],
+                       ];
+print $r->as_string;
+
+print "not " unless $r->method eq "POST" and
+	            $r->url->path eq "/survey.cgi" and
+                    $r->content_type eq "multipart/form-data" and
+	            $r->header(Content_type) =~ /boundary="?([^"]+)"?/ and
+		    ref($r->content) eq "CODE";
+print "ok 17\n";
+$boundary = $1;
+
+print "not " unless length($boundary) > 10;
+print "ok 18\n";
+
+$code = $r->content;
+my $chunk;
+my @chunks;
+while (length($chunk = &$code)) {
+   push(@chunks, $chunk);
+}
+
+unlink($file) or warn "Can't unlink $file: $!";
+
+$_ = join("", @chunks);
+
+print int(@chunks), " chunks, total size is ", length($_), " bytes\n";
+
+# should be close to expected size and number of chunks
+print "not " unless abs(@chunks - 15 < 3) and
+                    abs(length($_) - 26589) < 20;
+print "ok 19\n";
+

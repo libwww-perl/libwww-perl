@@ -326,31 +326,31 @@ sub newlocal_test {
     # cwd
     chdir('/tmp') or die $!;
     $url = newlocal URI::URL;
-    $url->_expect('as_string', 'file://localhost/tmp/');
+    $url->_expect('as_string', 'file:/tmp/');
 
     # absolute dir
     chdir('/') or die $!;
     $url = newlocal URI::URL '/usr/';
-    $url->_expect('as_string', 'file://localhost/usr/');
+    $url->_expect('as_string', 'file:/usr/');
 
     # absolute file
     $url = newlocal URI::URL '/vmunix';
-    $url->_expect('as_string', 'file://localhost/vmunix');
+    $url->_expect('as_string', 'file:/vmunix');
 
     # relative file
     chdir('/tmp') or die $!;
     $url = newlocal URI::URL 'foo';
-    $url->_expect('as_string', 'file://localhost/tmp/foo');
+    $url->_expect('as_string', 'file:/tmp/foo');
 
     # relative dir
     chdir('/tmp') or die $!;
     $url = newlocal URI::URL 'bar/';
-    $url->_expect('as_string', 'file://localhost/tmp/bar/');
+    $url->_expect('as_string', 'file:/tmp/bar/');
 
     # 0
     chdir('/') or die $!;
     $url = newlocal URI::URL '0';
-    $url->_expect('as_string', 'file://localhost/0');
+    $url->_expect('as_string', 'file:/0');
 
     chdir($dir) or die $!;
 }

@@ -1,11 +1,11 @@
 #
-# $Id: URL.pm,v 3.9 1995/09/02 08:22:33 aas Exp $
+# $Id: URL.pm,v 3.10 1995/09/15 17:03:33 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
 
 # Make the version number available
-$VERSION = "3.04";
+$VERSION = "3.05";
 sub Version { $VERSION; }
 
 #####################################################################
@@ -381,7 +381,7 @@ taken relative to the current directory.
 sub newlocal
 {
     my($class, $path) = @_;
-    my $url = new URI::URL "file://localhost/";
+    my $url = new URI::URL "file:";
         
     unless (defined $path and $path =~ m:^/:) {
         require Cwd;

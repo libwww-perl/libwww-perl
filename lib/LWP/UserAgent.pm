@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.88 2001/04/21 03:58:14 gisle Exp $
+# $Id: UserAgent.pm,v 1.89 2001/04/21 04:15:28 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -10,7 +10,10 @@ LWP::UserAgent - A WWW UserAgent class
 =head1 SYNOPSIS
 
  require LWP::UserAgent;
- $ua = LWP::UserAgent->new;
+ $ua = LWP::UserAgent->new(env_proxy => 1,
+                           keep_alive => 1,
+                           timeout => 30,
+                          );
 
  $request = HTTP::Request->new('GET', 'file://localhost/etc/motd');
 
@@ -92,7 +95,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.88 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.89 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -107,8 +110,32 @@ use Carp ();
 
 =item $ua = LWP::UserAgent->new( %options );
 
-Constructor for the UserAgent.  Returns a reference to a
-LWP::UserAgent object.
+This class method constructs a new C<LWP::UserAgent> object and
+returns a reference to it.
+
+Key/value pair arguments may be provided to set up the initial state
+of the user agent.  The following options correspond to attribute
+methods described below:
+
+   KEY           DEFAULT
+   -----------   --------------------
+   agent         "libwww-perl/#.##"
+   from          undef
+   timeout       180
+   use_eval      1
+   parse_head    1
+   max_size      undef
+   cookie_jar    undef
+   conn_cache    undef
+
+The followings option are also accepted: If the C<env_proxy> option is
+passed in an has a TRUE value, then proxy settings are read from
+environment variables.  If the C<keep_alive> option is passed in, then
+a C<LWP::ConnCache> is set up (see conn_cache() method below).  The
+keep_alive value is a number and is passed on as the total_capacity
+for the connection cache.  The C<keep_alive> option also has the
+effect of loading and enabling the new experimental HTTP/1.1 protocol
+module.
 
 =cut
 
@@ -128,6 +155,7 @@ sub new
     my $parse_head = delete $cnf{parse_head};
     $parse_head = 1 unless defined $parse_head;
     my $max_size = delete $cnf{max_size};
+    my $env_proxy = delete $cnf{env_proxy};
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -142,15 +170,16 @@ sub new
     my $self = bless {
 		      from        => $from,
 		      timeout     => $timeout,
-		      proxy       => undef,
 		      use_eval    => $use_eval,
 		      parse_head  => $parse_head,
 		      max_size    => $max_size,
+		      proxy       => undef,
 		      no_proxy    => [],
 		     }, $class;
 
     $self->agent($agent) if $agent;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
+    $self->env_proxy if $env_proxy;
 
     if ($keep_alive) {
 	$conn_cache ||= { total_capacity => $keep_alive };

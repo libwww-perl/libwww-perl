@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.61 1998/05/07 15:00:56 aas Exp $
+# $Id: UserAgent.pm,v 1.62 1998/08/04 09:59:36 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.61 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.62 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -306,6 +306,9 @@ sub request
 	my $scheme = lc(shift(@$challenge));
 	shift(@$challenge); # no value
 	$challenge = { @$challenge };  # make rest into a hash
+	for (keys %$challenge) {       # make sure all keys are lower case
+	    $challenge->{lc $_} = delete $challenge->{$_};
+	}
 
 	unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
 	    $response->header("Client-Warning" => 

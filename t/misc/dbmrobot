@@ -1,0 +1,23 @@
+#!/local/perl/bin/perl -w
+
+use URI::URL;
+$url = url(shift) || die "Usage: $0 <url>\n";
+
+require WWW::RobotRules::AnyDBM_File;
+require LWP::RobotUA;
+
+$botname = "Spider/0.1";
+
+$rules = new WWW::RobotRules::AnyDBM_File $botname, 'robotdb';
+$ua = new LWP::RobotUA $botname, 'gisle@aas.no', $rules;
+$ua->delay(0.1);
+
+my $req = new HTTP::Request GET => $url;
+
+my $res = $ua->request($req);
+print "Got ", $res->code, " ", $res->message, "(", $res->content_type, ")\n";
+
+my $netloc = $url->netloc;
+print "This was visit no ", $ua->no_visits($netloc), " to $netloc\n";
+
+

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.12 1996/02/26 19:06:24 aas Exp $
+# $Id: Request.pm,v 1.13 1996/02/27 19:37:50 aas Exp $
 
 package HTTP::Request;
 
@@ -39,7 +39,7 @@ require HTTP::Message;
 @ISA = qw(HTTP::Message);
 require URI::URL;
 
-=head2 new($method, $url, [$header, [$content]])
+=head2 new HTTP::Request $method, $url, [$header, [$content]]
 
 Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be
@@ -70,9 +70,9 @@ sub clone
 }
 
 
-=head2 method([$val])
+=head2 $r->method([$val])
 
-=head2 url([$val])
+=head2 $r->url([$val])
 
 These methods provide public access to the member variables containing
 respectively the method of the request and the URL object of the
@@ -108,7 +108,7 @@ sub url
 
 *uri = \&url;  # this is the same
 
-=head2 as_string()
+=head2 $r->as_string()
 
 Method returning a textual representation of the request.
 Mainly useful for debugging purposes. It takes no arguments.

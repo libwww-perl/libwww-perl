@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.13 1996/02/27 19:37:50 aas Exp $
+# $Id: Request.pm,v 1.14 1996/03/21 09:24:43 aas Exp $
 
 package HTTP::Request;
 
@@ -100,13 +100,14 @@ sub url
 	} elsif (ref $url) {
             $url = $url->abs;
         } else {
-            $url = new URI::URL $url;
+	    eval {  $url = URI::URL->new($url); };
+	    $url = undef if $@;
         }
     }
     $self->_elem('_url', $url);
 }
 
-*uri = \&url;  # this is the same
+*uri = \&url;  # this is the same for now
 
 =head2 $r->as_string()
 

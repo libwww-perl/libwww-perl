@@ -1,4 +1,4 @@
-print "1..28\n";
+print "1..29\n";
 
 #use LWP::Debug '+';
 
@@ -434,6 +434,37 @@ print "not " unless $c->as_string =~ /foo1=bar/;
 print "ok 28\n";
 undef($c);
 unlink($file);
+
+
+#
+# Some additional Netscape cookies test
+#
+$c = HTTP::Cookies->new;
+$req = HTTP::Request->new(POST => "http://foo.bar.acme.com/foo");
+
+# Netscape allows a host part that contains dots
+$res = HTTP::Response->new(200, "OK");
+$res->header(set_cookie => 'Customer=WILE_E_COYOTE; domain=.acme.com');
+$res->request($req);
+$c->extract_cookies($res);
+
+# and that the domain is the same as the host without adding a leading
+# dot to the domain.  Should not quote even if strange chars are used
+# in the cookie value.
+$res = HTTP::Response->new(200, "OK");
+$res->header(set_cookie => 'PART_NUMBER=3,4; domain=foo.bar.acme.com');
+$res->request($req);
+$c->extract_cookies($res);
+
+print $c->as_string;
+
+$req = HTTP::Request->new(POST => "http://foo.bar.acme.com/foo");
+$c->add_cookie_header($req);
+#print $req->as_string;
+print "not " unless $req->header("Cookie") =~ /PART_NUMBER=3,4/ &&
+	            $req->header("Cookie") =~ /Customer=WILE_E_COYOTE/;
+print "ok 29\n";
+
 
 #-------------------------------------------------------------------
 

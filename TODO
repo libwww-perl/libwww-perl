@@ -1,8 +1,16 @@
-$Id: TODO,v 1.16 1996/02/26 19:23:53 aas Exp $
+$Id: TODO,v 1.17 1996/03/05 11:01:57 aas Exp $
 
 This list contains items that we plan to implement in libwww-perl5.
 The order of items does not reflect priority.
 
+
+HTTP/1.1 features:
+   Transfer-Encoding: chunked
+   Connection: Keep-Alive
+   Wait 5 sec before sending content in request
+   Content-Range
+
+HTTP::Headers convenience access functions
 
 Implement MDA security
 
@@ -18,14 +26,9 @@ reference on to the protocol->request().
 
 The ftp module should format directory listings as HTML.
 
-The ftp module probably does not work when talking to non-Unix ftp
-servers.  We should CWD to the directory first.
-
-The ftp module could imitate basic authorisation when login fails.
-
-Support ACCT in ftp.
-
 Cache previous ftp connections.
+
+Support MOVE, DELETE method for ftp.
 
 Make file://non-localhost invoke the ftp.pm module.
 

@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.4 1995/07/14 00:15:46 aas Exp $
+# $Id: Socket.pm,v 1.5 1995/07/17 10:02:35 aas Exp $
 
 package LWP::Socket;
 
@@ -34,7 +34,7 @@ localhost to serve chargen and echo protocols.
 #####################################################################
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 use Socket;
 use Carp;
@@ -79,7 +79,7 @@ sub new
 sub DESTROY
 {
     my($self) = @_;
-    _ungensym($self->{'socket'});
+    $self->close;
 }
 
 
@@ -106,11 +106,6 @@ sub open
 
     connect($socket, $addr) or die 
         "Couldn't connect to host '$host' on port '$port': $!";
-
-    # flush output on every write
-    local($old) = select($socket);
-    $| = 1;
-    select($old);
 }
 
 =head2 readUntil($delim, $bufferref, $size)
@@ -193,12 +188,12 @@ Write data to socket
 
 sub write
 {
-    my($self, $buffer) = @_;
+    my $self = shift;
     LWP::Debug::trace('()');
     # XXX I guess should we time these out too?
-    LWP::Debug::conns(">>>$buffer<<<");
+    LWP::Debug::conns(">>>$_[0]<<<");
     $socket = $self->{'socket'};
-    print $socket $buffer;
+    syswrite($socket, $_[0], length $_[0]);
 }
 
 
@@ -213,7 +208,12 @@ sub close
     my($self) = @_;
     LWP::Debug::trace('()');
 
-    close($self->{'socket'});
+    my $socket = $self->{'socket'};
+    if (defined $socket) {
+        close($socket);
+        _ungensym($socket);
+        delete $self->{'socket'};
+    }
 }
 
 
@@ -324,6 +324,5 @@ sub echo
     $socket->close;
 }
 
-#####################################################################
 
 1;

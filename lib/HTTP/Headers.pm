@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.7 1995/07/17 10:01:46 aas Exp $
+# $Id: Headers.pm,v 1.8 1995/08/03 07:27:15 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -113,8 +113,8 @@ not modified.
 The list of previous values is returned.  Only the first header value
 is returned in scalar context.
 
- $header->header('User-Agent', 'test/.01');
- $header->header('Accept', ['text/html', 'text/plain']);
+ $header->header('User-Agent' => 'test/.01');
+ $header->header('Accept' => [qw(text/html text/plain image/*)]);
  @accepts = $header->header('Accept');
 
 =cut
@@ -158,7 +158,7 @@ name is not case sensitive.  The field need not already have a
 value. Duplicates are retained.  The argument may be a scalar or a
 reference to a list of scalars.
 
- $header->pushHeader('Accept', 'image/jpeg');
+ $header->pushHeader('Accept' => 'image/jpeg');
 
 =cut
 
@@ -169,16 +169,19 @@ sub pushHeader
 }
 
 
-=head2 removeHeader($field)
+=head2 removeHeader($field,...)
 
-This function removes the header with the specified name.
+This function removes the header with the specified names.
 
 =cut
 
 sub removeHeader
 {
-    my($self, $field) = @_;
-    delete $self->{'_header'}{lc $field};
+    my $self = shift;
+    my $field;
+    foreach $field (@_) {
+        delete $self->{'_header'}{lc $field};
+    }
 }
 
 
@@ -250,7 +253,7 @@ sub asString
     $self->scan(sub {
         my($field, $val) = @_;
         if ($field eq $last_field) {
-            push(@result, " $val");  # continuation line
+            $result[-1] .= ", $val";  # append a list value to last header
         } else {
             push(@result, "$field: $val");
         }

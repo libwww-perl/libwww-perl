@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);
@@ -56,6 +56,7 @@ sub load_cookies_from_file
 sub get_user_name
 {
 	use Win32;
+	use locale;
 	my $user = lc(Win32::LoginName());
 
 	return $user;

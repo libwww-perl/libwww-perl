@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.62 2001/12/05 05:21:37 gisle Exp $
+# $Id: http.pm,v 1.63 2001/12/14 19:33:52 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -373,6 +373,11 @@ sub sysread {
     my $self = shift;
     if (my $timeout = ${*$self}{io_socket_timeout}) {
 	die "read timeout" unless $self->can_read($timeout);
+    }
+    else {
+	# since we have made the socket non-blocking we
+	# use select to wait for some data to arrive
+	$self->can_read(undef) || die "Assert";
     }
     sysread($self, $_[0], $_[1], $_[2] || 0);
 }

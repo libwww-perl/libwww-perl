@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.47 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Headers.pm,v 1.48 2004/04/06 18:54:42 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.47 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.48 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -69,6 +69,12 @@ sub header
     return @old if wantarray;
     return $old[0] if @old <= 1;
     join(", ", @old);
+}
+
+sub clear
+{
+    my $self = shift;
+    %$self = ();
 }
 
 
@@ -391,6 +397,10 @@ context the number of fields removed is returned.
 Note that if you pass in multiple field names then it is generally not
 possible to tell which of the returned values belonged to which field.
 
+=item $h->clear
+
+This will remove all header fields.
+
 =item $h->scan( \&process_header_field )
 
 Apply a subroutine to each header field in turn.  The callback routine
@@ -595,7 +605,7 @@ header instead.
 
 =head1 COPYRIGHT
 
-Copyright 1995-2002 Gisle Aas.
+Copyright 1995-2004 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

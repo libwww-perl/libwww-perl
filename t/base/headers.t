@@ -2,7 +2,7 @@ use strict;
 
 require HTTP::Headers;
 
-print "1..13\n";
+print "1..14\n";
 
 my $h = new HTTP::Headers
 	mime_version  => "1.0",
@@ -145,4 +145,6 @@ print "ok 12\n";
 print "not " unless $h->header("URI");
 print "ok 13\n";
 
-
+$h->clear;
+print "not " unless $h->as_string eq "";
+print "ok 14\n";

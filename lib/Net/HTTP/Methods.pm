@@ -1,13 +1,13 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.5 2001/12/03 22:04:56 gisle Exp $
+# $Id: Methods.pm,v 1.6 2001/12/05 06:58:01 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "0.01";
+$VERSION = "0.02";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -505,7 +505,8 @@ sub zlib_ok {
 	Compress::Zlib->VERSION(1.10);
 	$zlib_ok++;
     };
-    #warn $@ if $@ && $^W;
+
+    return $zlib_ok;
 }
 
 } # BEGIN

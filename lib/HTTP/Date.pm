@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.16 1996/04/09 15:44:16 aas Exp $
+# $Id: Date.pm,v 1.17 1996/05/19 13:05:56 aas Exp $
 #
 package HTTP::Date;
 
@@ -87,7 +87,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -233,12 +233,17 @@ sub str2time ($;$)
     }
 
    # Then we check if the year is acceptable
-   return undef if $yr > 99 && $yr < 1970;  # Epoch started in 1970
-   # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
-   return undef if $yr > 2038;
-
-   $yr += 100 if $yr < 70;
+   return undef if $yr > 99 && $yr < 1900;  # We ignore these years
+   $yr += 100 if $yr < 50;  # a stupid thing to do???
    $yr -= 1900 if $yr >= 1900;
+   # The $yr is now relative to 1900 (as expected by timelocal())
+
+   # timelocal() seems to go into an infinite loop if it is given out
+   # of range parameters.  Let's check the year at least.
+
+   # Epoch counter maxes out in year 2038, assuming "time_t" is 32 bit
+   return undef if $yr > 138;
+   return undef if $yr <  70;  # 1970 is Unix epoch
 
    # Check the day
    return undef if $day < 1 || $day > 31;

@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.12 1996/04/09 15:44:13 aas Exp $
+# $Id: Formatter.pm,v 1.13 1996/06/04 09:13:33 aas Exp $
 
 =head1 NAME
 
@@ -53,7 +53,10 @@ sub format
 	    if (ref $node) {
 		my $tag = $node->tag;
 		my $func = $tag . '_' . ($start ? "start" : "end");
-		return $self->$func($node);
+		# We protect the call by eval, so we can recover if
+		# a handler is not defined for the tag.
+		my $retval = eval { $self->$func($node); };
+		return $@ ? 1 : $retval;
 	    } else {
 		$self->textflow($node);
 	    }

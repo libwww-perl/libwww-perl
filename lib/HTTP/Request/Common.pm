@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.13 1998/08/04 15:13:23 aas Exp $
+# $Id: Common.pm,v 1.13.2.1 1998/09/11 10:53:11 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13.2.1 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -51,12 +51,12 @@ sub POST
 	    $boundary = qq("$boundary") if $boundary =~ /\W/;
 	    $ct = qq(multipart/form-data; boundary=$boundary);
 	} else {
-	    # We use a temporary URI::URL object to format
+	    # We use a temporary URI object to format
 	    # the application/x-www-form-urlencoded content.
-	    require URI::URL;
-	    my $url = URI::URL->new('http:');
+	    require URI;
+	    my $url = URI->new('http:');
 	    $url->query_form(ref($content) eq "HASH" ? %$content : @$content);
-	    $content = $url->equery;
+	    $content = $url->query;
 	}
     }
 

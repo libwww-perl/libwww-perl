@@ -3,7 +3,7 @@ package HTTP::Headers::Util;
 use strict;
 use vars qw($VERSION @ISA @EXPORT_OK);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 require Exporter;
 @ISA=qw(Exporter);
@@ -131,7 +131,7 @@ are quoted if needed.
 Example:
 
    join_header_words(["text/plain" => undef, charset => "iso-8859/1"]);
-   join_header_words(""text/plain" => undef, charset => "iso-8859/1");
+   join_header_words("text/plain" => undef, charset => "iso-8859/1");
 
 will both return the string:
 

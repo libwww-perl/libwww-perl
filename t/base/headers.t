@@ -1,6 +1,6 @@
 require HTTP::Headers;
 
-print "1..9\n";
+print "1..11\n";
 
 $h = new HTTP::Headers
 	mime_version  => "1.0",
@@ -104,3 +104,24 @@ print "not " unless $str =~ /^A:\s*foo<<\n
                                 \t bar<<\n
                              $/x;
 print "ok 9\n";
+
+
+# Check with FALSE $HTML::Headers::TRANSLATE_UNDERSCORE
+
+local($HTTP::Headers::TRANSLATE_UNDERSCORE);
+
+$h = HTTP::Headers->new;
+
+$h->header(abc_abc   => "foo");
+$h->header("abc-abc" => "bar");
+
+#print $h->as_string;
+
+print "not " unless $h->header("ABC_ABC") eq "foo" &&
+                    $h->header("ABC-ABC") eq "bar";
+print "ok 10\n";
+
+$h->remove_header("Abc_Abc");
+print "not " unless !defined($h->header("abc_abc")) &&
+                    $h->header("ABC-ABC") eq "bar";
+print "ok 11\n";

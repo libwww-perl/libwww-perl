@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.29 1998/11/19 21:45:01 aas Exp $
+# $Id: Simple.pm,v 1.30 1999/03/19 21:01:05 gisle Exp $
 
 =head1 NAME
 
@@ -159,7 +159,7 @@ use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %ENV;
 
 
@@ -236,7 +236,11 @@ sub getprint ($)
 
     my $request = HTTP::Request->new(GET => $url);
     local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
-    my $response = $ua->request($request, sub { print $_[0] });
+    my $callback = sub { print $_[0] };
+    if ($^O eq "MacOS") {
+	$callback = sub { $_[0] =~ s/\015?\012/\n/g; print $_[0] }
+    }
+    my $response = $ua->request($request, $callback);
     unless ($response->is_success) {
 	print STDERR $response->status_line, " <URL:$url>\n";
     }

@@ -1,3 +1,44 @@
+Tue Oct 22 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5.04
+
+ o  Added HTTP::Daemon.  This is a HTTP/1.1 server class.  This means
+    that libwww-perl no longer is a client library only.  The HTTP::Daemon
+    is also used in the new test suite.
+
+ o  HTTP::Message support the protocol() method.  Used by HTTP::Daemon.
+
+ o  HTTP::Response can be constructed with a header and content as
+    argument.
+
+ o  Typo corrections in the documentation.
+
+ o  File::Listing::parse_dir accepts "GMT" as timezone now.
+
+ o  HTML::Parser will call the start() method with two new parameters;
+    $attrseq, $origtext.
+
+ o  Integrated HTML::FormatPS patches from
+    Jim Stern <jstern@world.northgrum.com>
+
+ o  Class modules don't inherit from AutoLoader any more.  They just
+    import the AUTOLOAD method.
+
+ o  LWP::Protocol will untaints scheme before loading protocol module.
+
+ o  Digest does not send "opaque" if it was not present in the request.
+    The "Extension" header is not returned any more.
+
+ o  New method: $url->crack that will return a list of the various
+    elements in a URI::URL.
+
+ o  WWW::RobotRules did not use the agent() method when determining
+    who we are.  This affected WWW::RobotRules::AnyDBM_File parsing
+    for robots.txt.  Visit count did not increment for
+    WWW::RobotRules::InCore.
+
+
+
 Tue Oct  1 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.03

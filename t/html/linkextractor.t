@@ -1,4 +1,4 @@
-print "1..7\n";
+print "1..9\n";
 
 require HTML::LinkExtor;
 
@@ -37,19 +37,33 @@ $p = new HTML::LinkExtor undef, "http://www.sn.no/foo/foo.html";
 $p->parse($HTML); $p->parse(undef);
 
 @p = $p->links;
+
+# There should be 4 links in the document
+print "not " if @p != 4;
+print "ok 4\n";
+
 for (@p) {
     ($t, %attr) = @$_ if $_->[0] eq 'img';
     print "@$_\n";
 }
 
 $t eq 'img' || print "not ";
-print "ok 4\n";
-
-delete $attr{src} eq "http://www.sn.no/foo/img.jpg" || print "not ";
 print "ok 5\n";
 
-delete $attr{lowsrc} eq "http://www.sn.no/foo/img.gif" || print "not ";
+delete $attr{src} eq "http://www.sn.no/foo/img.jpg" || print "not ";
 print "ok 6\n";
 
-scalar(keys %attr) && print "not "; # there should be no more attributes
+delete $attr{lowsrc} eq "http://www.sn.no/foo/img.gif" || print "not ";
 print "ok 7\n";
+
+scalar(keys %attr) && print "not "; # there should be no more attributes
+print "ok 8\n";
+
+# Used to be problems when using the links method on a document with
+# no links it it.  This is a test to prove that it works.
+$p = new HTML::LinkExtor;
+$p->parse("this is a document with no links"); $p->parse(undef);
+@a = $p->links;
+print "not " if @a != 0;
+print "ok 9\n";
+

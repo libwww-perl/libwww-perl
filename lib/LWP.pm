@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.17 1995/09/20 14:40:32 aas Exp $
+# $Id: LWP.pm,v 1.18 1995/12/29 15:20:31 aas Exp $
 
 package LWP;
 
-$VERSION = "0.06";
+$VERSION = "0.07";
 
 sub Version { $VERSION; }
 
@@ -17,6 +17,11 @@ __END__
 =head1 NAME
 
 LWP - Library for WWW access in Perl
+
+=head1 DESCRIPTION
+
+Libwww-perl is a collection of Perl modules which provides a simple
+and consistent programming interface (API) to the World-Wide Web.
 
 =head1 ARCHITECTURE
 

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.24 1996/09/18 12:16:14 aas Exp $
+# $Id: Response.pm,v 1.25 1996/10/17 11:42:18 aas Exp $
 
 package HTTP::Response;
 
@@ -49,17 +49,17 @@ use URI::URL ();
 use strict;
 
 
-=head2 $r = new HTTP::Response ($rc [, $msg])
+=head2 $r = new HTTP::Response ($rc, [$msg, [$header, [$content]]])
 
 Constructs a new C<HTTP::Response> object describing a response with
-response code C<$rc> and optional message C<$msg>
+response code C<$rc> and optional message C<$msg>.
 
 =cut
 
 sub new
 {
-    my($class, $rc, $msg) = @_;
-    my $self = bless new HTTP::Message;
+    my($class, $rc, $msg, $header, $content) = @_;
+    my $self = bless new HTTP::Message $header, $content;
     $self->code($rc);
     $self->message($msg);
     $self;

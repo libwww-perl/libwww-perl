@@ -1,7 +1,7 @@
 #!/local/bin/perl -w
 
 use URI::URL qw(url);
-use URI::Escape;  # imports uri_escape() and uri_unescape()
+use URI::Escape qw(uri_escape uri_unescape);
 
 use Carp;
 
@@ -771,7 +771,6 @@ EOM
     }
 
     # bug found and fixed in 1.9 by "J.E. Fritz" <FRITZ@gems.vcu.edu>
-
     my $base = new URI::URL 'http://host/directory/file';
     my $relative = new URI::URL 'file', $base;
     my $result = $relative->abs;
@@ -784,11 +783,45 @@ EOM
     # be canonicalised, rather than making a simple
     # substitution of the last component.
     # Better doublecheck someone hasn't "fixed this bug" :-)
-
     my $base = new URI::URL 'http://host/dir1/../dir2/file';
     my $relative = new URI::URL 'file', $base;
     my $result = $relative->abs;
     die 'URL not canonicalised' unless $result eq 'http://host/dir2/file';
+
+    print "--------\n";
+    # Test various other kinds of URLs and how they like to be absolutized
+    for (["http://abc/", "news:45664545", "http://abc/"],
+         ["news:abc",    "http://abc/",   "news:abc"],
+         ["abc",         "file:/test?aas", "file:/abc"],
+         ["gopher:",     "",               "gopher:"],
+         ["?foo",        "http://abc/a",   "http://abc/a?foo"],
+	 ["?foo",        "file:/abc",      "file:/?foo"],
+	 ["#foo",        "http://abc/a",   "http://abc/a#foo"],
+	 ["#foo",        "file:a",         "file:a#foo"],
+	 ["#foo",        "file:/a",         "file:/a#foo"],
+	 ["#foo",        "file:/a",         "file:/a#foo"],
+	 ["#foo",        "file://localhost/a", "file://localhost/a#foo"],
+         ['123@sn.no',   "news:comp.lang.perl.misc", 'news:123@sn.no'],
+         ['no.perl',     'news:123@sn.no',           'news:no.perl'],
+         ['mailto:aas@a.sn.no', "http://www.sn.no/", 'mailto:aas@a.sn.no'],
+
+	 # Test absolutizing with old behaviour.
+	 ['http:foo',     'http://h/a/b',   'http://h/a/foo'],
+	 ['http:/foo',    'http://h/a/b',   'http://h/foo'],
+	 ['http:?foo',    'http://h/a/b',   'http://h/a/b?foo'],
+	 ['http:#foo',    'http://h/a/b',   'http://h/a/b#foo'],
+	 ['http:?foo#bar','http://h/a/b',   'http://h/a/b?foo#bar'],
+	 ['file:/foo',    'http://h/a/b',   'file:/foo'],
+
+        )
+    {
+        my($url, $base, $expected_abs) = @$_;
+        $rel = new URI::URL $url, $base;
+	my $abs = $rel->abs($base, 1);
+        printf("  %-12s+  $base  =>  %s\n", $rel, $abs);
+        
+	$abs->_expect('as_string', $expected_abs);
+    }
 
     print "absolute test ok\n";
 }

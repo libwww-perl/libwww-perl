@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =head1 VERSION
 
@@ -21,6 +21,8 @@ this file.
 Andreas Koenig <koenig@mind.de>
 
 =cut
+
+$VERSION=0.02;
 
 use lib "lib";
 
@@ -45,17 +47,16 @@ die $@ if $@;
 eval join "", "\$o = \"", @o, "\"";
 die $@ if $@;
 
-$VERSION=0.03;
-
 &rewrite if $rewrite;
 printf "%.2f\n", $VERSION;
 
-sub rewrite {
+sub rewrite
+{
     $VERSION += 0.01;
-    open READ, "$0";
+    open READ, "$0" or die "Can't read myself: $!";
     $versions = "";
     while (<READ>) {
-	s/(\$VERSION=)\d+\.\d+/$1.$VERSION/e;
+	s/(^\$VERSION=)\d+\.\d+/$1.$VERSION/e;
 	$versions .= $_;
 	last if /^__END__/;
     }
@@ -64,19 +65,18 @@ sub rewrite {
     print WRITE $versions;
     print WRITE $o;
     close WRITE;
-    $^I="~";
-    @ARGV=qw(README);
-    while (<>) {
-	s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig;
-    }
-    @ARGV=qw(lib/LWP.pm);
-    while (<>) {
-	s/^(\\\$VERSION\\s*=\\s*)[^;]+/\$1\"$VERSION\"/;
-    }
+
+    # Let's also update the version number in the README file
+# XXX this does not work for me (aas@oslonett.no)
+#    $^I="~";
+#    @ARGV=qw(README);
+#    while (<>) {
+#	s/(lwp version)\\s+\\d+\\.\\d+([a-z]\d*)?/\$1 $VERSION/ig;
+#    }
 }
 
 __END__
-LWP 0.01
+LWP 0.02
 LWP::Base64 1.06
 LWP::Date 1.06
 LWP::Socket 1.05

@@ -1,5 +1,3 @@
-print "1..1\n";
-
 require Font::AFM;
 
 eval {
@@ -7,15 +5,17 @@ eval {
 };
 if ($@) {
    if ($@ =~ /Can't find the AFM file for/) {
+	print "1..0\n";
 	print $@;
-	print "ok 1\n";  # don't worry, be happy !!
-			 # less complains about test that fails
+	print "ok 1\n";
    } else {
+	print "1..1\n";
 	print $@;
 	print "not ok 1\n";
    }
    exit;
 }
+print "1..1\n";
 
 $sw = $font->stringwidth("Gisle Aas");
 

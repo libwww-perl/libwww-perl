@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.53 2004/11/30 17:23:18 gisle Exp $
+# $Id: Message.pm,v 1.54 2004/12/03 08:35:41 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.54 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -68,6 +68,7 @@ sub clone
     my $self  = shift;
     my $clone = HTTP::Message->new($self->headers,
 				   $self->content);
+    $clone->protocol($self->protocol);
     $clone;
 }
 

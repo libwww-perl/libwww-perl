@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.74 1998/03/25 13:24:06 aas Exp $
+# $Id: LWP.pm,v 1.75 1998/03/26 21:33:51 aas Exp $
 
 package LWP;
 
@@ -77,11 +77,6 @@ URL handling (both absolute and relative URLs are supported).
 =item *
 
 A parser for F<robots.txt> files and a framework for constructing robots.
-
-=item *
-
-An experimental HTML parser and formatters (for PostScript and plain
-text).
 
 =item *
 
@@ -535,15 +530,6 @@ library. Indentation shows class inheritance.
  WWW::RobotRules    -- Parse robots.txt files
    WWW::RobotRules::AnyDBM_File -- Persistent RobotRules
 
- HTML::Parser       -- Parse HTML documents
-   HTML::TreeBuilder-- Build a HTML syntax tree
-   HTML::HeadParser -- Parse the <HEAD> section of a HTML document
-   HTML::LinkExtor  -- Extract links from a HTML document
- HTML::Element      -- Building block for the HTML::TreeBuilder
- HTML::Formatter    -- Convert HTML syntax trees to readable formats
-   HTML::FormatText -- Output is plain text
-   HTML::FormatPS   -- Output is PostScript
-
 The following modules provide various functions and definitions.
 
  LWP                -- This file.  Library version number and documentation.
@@ -553,7 +539,6 @@ The following modules provide various functions and definitions.
  HTTP::Status       -- HTTP status code (200 OK etc)
  HTTP::Date         -- Date parsing module for HTTP date formats
  HTTP::Negotiate    -- HTTP content negotiation calculation
- HTML::Entities     -- Expand or unexpand entities in HTML text
  File::Listing      -- Parse directory listings
 
 
@@ -567,9 +552,8 @@ are implemented.
 
 =head1 BUGS
 
-The library can not handle multiple simultaneous requests yet.  The
-HTML:: modules are still experimental.  Also, check out what's left in
-the TODO file.
+The library can not handle multiple simultaneous requests yet.  Also,
+check out what's left in the TODO file.
 
 =head1 ACKNOWLEDGEMENTS
 

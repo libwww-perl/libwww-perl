@@ -10,15 +10,18 @@ my @tests = (
    ["foo=bar bar=baz"         => "foo=bar; bar=baz"],
    ["foo=bar;bar=baz"         => "foo=bar; bar=baz"],
    ['foo bar baz'             => "foo; bar; baz"],
-   ['foo="\"" bar="\\"'       => 'foo="\""; bar="\\"'],
+   ['foo="\"" bar="\\\\"'     => 'foo="\""; bar="\\\\"'],
    ['foo,,,bar'               => 'foo, bar'],
    ['foo=bar,bar=baz'         => 'foo=bar, bar=baz'],
 
    ['text/html; charset=iso-8859-1' =>
     'text/html; charset="iso-8859-1"'],
+
    ['foo="bar"; port="80,81"; discard, bar=baz' =>
     'foo=bar; port="80,81"; discard, bar=baz'],
-   ['Basic realm="\"foo\\bar\""'  => 'Basic; realm="\"foo\\bar\""'],
+
+   ['Basic realm="\"foo\\\\bar\""' =>
+    'Basic; realm="\"foo\\\\bar\""'],
 );
 
 print "1.." .  @tests . "\n";

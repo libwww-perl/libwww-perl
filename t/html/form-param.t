@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 23;
+plan tests => 24;
 
 use HTML::Form;
 
@@ -46,6 +46,7 @@ ok(!@warn);
 $form->param('hidden_1', 'x');
 ok(@warn && $warn[0] =~ /^Input 'hidden_1' is readonly/);
 @warn = ();
+ok(j($form->param('hidden_1')), 'x');
 
 eval {
     $form->param('checkbox_1', 'foo');
@@ -70,7 +71,7 @@ $form->param('multi_select_field', 3, 2);
 ok(j($form->param('multi_select_field')), "2:3");
 
 print "# Done\n";
-ok(1);
+ok(!@warn);
 
 sub j {
     join(":", @_);

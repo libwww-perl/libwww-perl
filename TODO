@@ -1,8 +1,7 @@
-                                            $Date: 1996/05/09 10:04:58 $
+                                            $Date: 1996/05/19 11:18:06 $
 
-This is a list over things that we plan to implement in libwww-perl5.
-The order of items does not reflect priority.
-
+This is a list over things that we plan to implement in libwww-perl-5
+(or 6, or 7,...)  The order of items does not reflect priority.
 
   o  Add more HTTP/1.1 features as they stabilize
        Transfer-Encoding: chunked
@@ -14,7 +13,7 @@ The order of items does not reflect priority.
 
   o  Support PICS??
 
-  o  HTTP-NG :-(
+  o  HTTP-NG in the future...
 
   o  Make multiple simultaneous requests work.  Make the callback
      request interface event driven.  This will require a major
@@ -47,19 +46,23 @@ The order of items does not reflect priority.
   o  Make the HTML parser more correct: for instance <tag attr="val>ue">
      and things like that.
 
-  o  $h->as_HTML has trouble with this: <input name="name">
+  o  Make the parser ignore insignificat whitespace.
+
+  o  $h->as_HTML has trouble with this: <input name="name">, i.e. when
+     the attribute name and value are the same.
 
   o  Make the HTML parser much faster.  Perhaps we need to reimplement it
-     as C code.
+     as C code to make it acceptable.
 
-  o  Make traverse kind of callbacks during parsing (this should allow
+  o  Make traverse style callbacks during parsing (this should allow
      us to do formatting as data arrives).
 
   o  The HTML::Parse module should make meta information (<HEAD>) easier to
      access.  The interface should allow us to stop parsing as soon as the
      <HEAD> section is done.
 
-  o  Parse full HTML 3.0 markup.
+  o  Parse full HTML 3.0 markup and new ad-hoc (Netscape) extentions as
+     they turn up.
 
   o  Make the $html->as_HTML() output look nicely formatted.
 
@@ -87,3 +90,4 @@ The order of items does not reflect priority.
   o  More tests
 
   o  Finally, fix bugs, if there are any...
+

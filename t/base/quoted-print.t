@@ -2,6 +2,8 @@
 
 use MIME::QuotedPrintable;
 
+$x73 = "x" x 73;
+
 @tests =
   (
    # plain ascii should not be encoded
@@ -21,12 +23,20 @@ use MIME::QuotedPrintable;
    ["=\n" => "=3D\n"],
    ["\0\xff" => "=00=FF"],
 
-   # Very long lines should be broken
+   # Very long lines should be broken (not more than 76 chars
    ["The Quoted-Printable encoding is intended to represent data that largly consists of octets that correspond to printable characters in the ASCII character set." =>
     "The Quoted-Printable encoding is intended to represent data that largly cons=
 ists of octets that correspond to printable characters in the ASCII characte=
 r set."
     ],
+
+   # Not allowed to break =XX escapes using soft line break
+   ["$x73=a" => "$x73=3D=\na"],
+   ["$x73 =a" => "$x73 =\n=3Da"],
+   ["$x73  =a" => "$x73 =\n =3Da"],
+   ["$x73=" => "$x73=3D"],
+   ["$x73 =" => "$x73 =\n=3D"],
+   ["$x73  =" => "$x73 =\n =3D"],
 );
 
 $notests = @tests;

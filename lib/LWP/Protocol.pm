@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.37 2001/04/19 05:34:03 gisle Exp $
+# $Id: Protocol.pm,v 1.38 2001/04/21 03:56:03 gisle Exp $
 
 package LWP::Protocol;
 
@@ -38,7 +38,7 @@ The following methods and functions are provided:
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -206,10 +206,11 @@ sub collect
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    $response->add_content($$content);
 	    $content_size += length($$content);
-	    if ($max_size && $content_size > $max_size) {
+	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
-		my $tot = $response->header("Content-Length") || 0;
-		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
+		$response->push_header("Client-Aborted", "max_size");
+		#my $tot = $response->header("Content-Length") || 0;
+		#$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
 	}
@@ -228,10 +229,11 @@ sub collect
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    print OUT $$content;
 	    $content_size += length($$content);
-	    if ($max_size && $content_size > $max_size) {
+	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
-		my $tot = $response->header("Content-Length") || 0;
-		$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
+		$response->push_header("Client-Aborted", "max_size");
+		#my $tot = $response->header("Content-Length") || 0;
+		#$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
 	}
@@ -249,7 +251,8 @@ sub collect
 	    };
 	    if ($@) {
 	        chomp($@);
-		$response->header('X-Died' => $@);
+		$response->push_header('X-Died' => $@);
+		$response->push_header("Client-Aborted", "die");
 		last;
 	    }
 	}

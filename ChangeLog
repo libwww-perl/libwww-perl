@@ -1,3 +1,45 @@
+Fri Dec 12 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.18
+
+ o  HTTP authorization patches from Tony Finch <fanf@demon.net>.
+    Allows "user:pass@" in HTTP URLs.
+
+ o  HTML::Parser patch by Brian McCauley <B.A.McCauley@bham.ac.uk>.
+    Pass original text to end() method.
+
+ o  The HTML::Parser->netscape_buggy_comment method is depreciated.
+    Use HTML::Parser->strict_comment instead.  The default value
+    has changed with the name.
+
+ o  Some HTML::Parser optimization tweaks.
+
+ o  New module named HTML::Filter
+
+ o  Updated HTTP::Headers to the latest HTTP spec.  Added knowledge
+    about the "Trailer", "Expect", "TE", "Accept-Range" headers.
+    "Public" header is gone.
+
+ o  Added some more header convenience methods: if_unmodified_since,
+    content_language, and proxy_authorization methods.
+
+ o  HTTP::{Request,Response}->clone can handle subclasses now.
+
+ o  HTTP::Request->url() can now undefine the URL.
+
+ o  HTTP::{Request,Response}->as_string format looks more like
+    the HTTP protocol formatting now.  Dashed lines above and
+    below is gone.
+
+ o  Documented HTTP::Response->status_line method
+
+ o  Compressed HTML::Response->error_as_HTML output
+
+ o  HTTP::Status updated to latest HTTP spec.  Added 
+    RC_REQUEST_RANGE_NOT_SATISFIABLE (416)
+
+
+
 Tue Dec  2 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.17

@@ -1,6 +1,3 @@
-#
-# $Id: URL.pm,v 4.4 1996/03/05 10:40:17 aas Exp $
-#
 package URI::URL;
 
 # Make the version number available
@@ -866,8 +863,8 @@ them to the libwww-perl mailing list at <libwww-perl@ics.uci.edu>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
-Copyright (c) 1995 Martijn Koster. All rights reserved.
+Copyright 1995-1996 Gisle Aas.
+Copyright 1995 Martijn Koster.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.2 1996/10/16 16:27:42 aas Exp $
+# $Id: Daemon.pm,v 1.3 1996/10/16 16:45:31 aas Exp $
 #
 
 use strict;
@@ -97,7 +97,7 @@ modify it under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -213,7 +213,7 @@ sub send_response
 	$res = HTTP::Response->new($res, @_);
     }
     $res->date(time);
-    $res->header(Server => "libwww-perl");
+    $res->header(Server => "libwww-perl-daemon/$HTTP::Daemon::VERSION");
     unless ($res->message) {
 	$res->message(status_message($res->code));
     }

@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.22 1996/07/17 13:01:44 aas Exp $
+# $Id: Headers.pm,v 1.23 1996/07/17 13:06:52 aas Exp $
 
 package HTTP::Headers;
 
@@ -100,9 +100,9 @@ sub new
 =head2 $h->header($field [=> $val],...)
 
 Get or set the value of a header.  The header field name is not case
-sensitive.  To make the life of perl users who wants to avoid quotes
-around names preceding the => operator, you can use '_' as a synonym
-for '-' in header names.
+sensitive.  To make the life easier for perl users who wants to avoid
+quoting before the => operator, you can use '_' as a synonym for '-'
+in header names.
 
 The value argument may be a scalar or a reference to a list of
 scalars. If the value argument is not defined, then the header is not

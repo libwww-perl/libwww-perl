@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.45 1999/03/19 21:20:23 gisle Exp $
+# $Id: http.pm,v 1.46 1999/03/19 22:03:10 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -116,7 +116,7 @@ sub request
     # not really support specification of user and password, but
     # we allow it.
     if (defined($1) && not $h->header('Authorization')) {
-	$h->authorization_basic($url->user, $url->password);
+	$h->authorization_basic(split(":", $1));
     }
 
     my $buf = $request_line . $h->as_string($CRLF) . $CRLF;

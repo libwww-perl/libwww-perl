@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.24 1996/10/15 11:51:51 aas Exp $
+# $Id: Protocol.pm,v 1.25 1997/01/26 15:16:38 aas Exp $
 
 package LWP::Protocol;
 
@@ -220,6 +220,7 @@ sub collect
 	open(OUT, ">$arg") or
 	    return new HTTP::Response RC_INTERNAL_SERVER_ERROR,
 			  "Cannot write to '$arg': $!";
+        binmode(OUT);
         local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
 	while ($content = &$collector, length $$content) {
 	    if ($parser) {

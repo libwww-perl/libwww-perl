@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.30 1996/05/19 11:41:42 aas Exp $
+# $Id: Element.pm,v 1.31 1996/05/19 15:11:31 aas Exp $
 
 =head1 NAME
 
@@ -24,7 +24,7 @@ HTML::Element - Class for objects that represent HTML elements
 =head1 DESCRIPTION
 
 Objects of the HTML::Element class can be used to represent elements
-of HTML.  Objects have attributes and content.  The content is a
+of HTML.  These objects have attributes and content.  The content is a
 sequence of text segments and other HTML::Element objects.  Thus a
 tree of HTML::Element objects as nodes can represent the syntax tree
 for a HTML document.
@@ -42,7 +42,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -69,7 +69,7 @@ sub Version { $VERSION; }
 
 
 
-=head2 $h = new HTML::Element 'tag', 'attrname' => 'value',...
+=head2 $h = HTML::Element->new('tag', 'attrname' => 'value',...)
 
 The object constructor.  Takes an tag name as argument. Optionally
 allows you to specify initial attributes at object creation time.
@@ -98,7 +98,8 @@ sub new
 
 =head2 $h->tag()
 
-Returns (optionally sets) the tag name for the element.
+Returns (optionally sets) the tag name for the element.  The tag is
+always converted to lower case.
 
 =cut
 
@@ -106,7 +107,7 @@ sub tag
 {
     my $self = shift;
     if (@_) {
-	$self->{'_tag'} = $_[0];
+	$self->{'_tag'} = lc $_[0];
     } else {
 	$self->{'_tag'};
     }
@@ -116,7 +117,8 @@ sub tag
 
 =head2 $h->starttag()
 
-Returns the complete start tag for the element.  Including <> and attributes.
+Returns the complete start tag for the element.  Including leading
+"<", trailing ">" and attributes.
 
 =cut
 
@@ -143,7 +145,8 @@ sub starttag
 
 =head2 $h->endtag()
 
-Returns the complete end tag.
+Returns the complete end tag.  Including leading "</" and the trailing
+">".
 
 =cut
 
@@ -213,7 +216,10 @@ sub is_inside
 
 Returns (and optionally sets) the current position.  The position is a
 reference to a HTML::Element object that is part of the tree that has
-the current object as root.
+the current object as root.  This restriction is not enforced when
+setting pos(), but unpredictable things will happen if this is not
+true.
+
 
 =cut
 
@@ -279,7 +285,8 @@ sub is_empty
 
 =head2 $h->insert_element($element, $implicit)
 
-Inserts a new element at current position and sets the pos.
+Inserts a new element at current position and updates pos() to point
+to the inserted element.  Returns $element.
 
 =cut
 
@@ -305,7 +312,7 @@ sub insert_element
 }
 
 
-=head2 $h->push_content($element)
+=head2 $h->push_content($element_or_text,...)
 
 Adds to the content of the element.  The content should be a text
 segment (scalar) or a reference to a HTML::Element object.
@@ -525,12 +532,17 @@ __END__
 
 =head1 BUGS
 
-If you want to free the memory assosiated with the HTML parse tree,
-then you will have to delete it explicitly.  The reason for this is
-that perl currently has no proper garbage collector, but depends on
-reference counts in the objects.  This scheme fails because the parse
-tree contains circular references (parents have references to their
-children and children have a reference to their parent).
+If you want to free the memory assosiated with a tree built of
+HTML::Element nodes then you will have to delete it explicitly.  The
+reason for this is that perl currently has no proper garbage
+collector, but depends on reference counts in the objects.  This
+scheme fails because the parse tree contains circular references
+(parents have references to their children and children have a
+reference to their parent).
+
+=head1 SEE ALSO
+
+L<HTML::AsSubs>
 
 =head1 COPYRIGHT
 

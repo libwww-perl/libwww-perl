@@ -38,12 +38,11 @@ site near you.
 PREREQUISITES
 
 In order to install and use this package you will need Perl version
-5.002 or better.  Some modules within this package depend on packages
+5.004 or better.  Some modules within this package depend on packages
 that are distributed separately from perl.  We recommend that you have
 the following packages installed before you install libwww-perl:
 
   MIME-Base64-#.##
-  IO-#.##            (bundled with perl5.004 and better)
   libnet-#.##
   MD5-#.##
 

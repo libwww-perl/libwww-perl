@@ -1,18 +1,12 @@
 #
-# $Id: LWP.pm,v 1.51 1997/06/20 13:50:15 aas Exp $
+# $Id: LWP.pm,v 1.52 1997/08/06 08:19:05 aas Exp $
 
 package LWP;
 
-require Exporter;
-@ISA=qw(Exporter);  # for version number checking only, since we really
-                    # don't export anything.  This will noe be neccessary
-                    # when perl5.004 is out.
-
 $VERSION = "5.11";
-
 sub Version { $VERSION; }
 
-require 5.002;
+require 5.004;
 require LWP::UserAgent;  # this should load everything you need
 
 1;

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.42 1997/08/05 13:59:19 aas Exp $
+# $Id: Makefile.PL,v 1.43 1997/08/06 08:18:45 aas Exp $
 
 #--- Configuration section ---
 
@@ -8,7 +8,7 @@
 
 #--- End Configuration - You should not have to change anything below this line
 
-require 5.002;  # LWP needs this perl version
+require 5.004;  # LWP needs this perl version
 
 # Allow us to suppress all program installation with the -n (library only)
 # option.  This is for those that don't want to mess with the configuration
@@ -24,25 +24,6 @@ unless (getopts("n")) {
 # Check for non-standard modules that are used by this library.
 $| = 1;
 my $missing_modules = 0;
-
-print "Checking for IO::Socket....";
-eval {
-    require IO::Socket;
-    IO::Socket->require_version('1.13');
-};
-if ($@) {
-    print " failed\n";
-    $missing_modules++;
-    print <<EOT;
-$@
-The IO::Socket module is used by the HTTP::Daemon.  It is also
-a prerequisite for Net::FTP.
-
-EOT
-    sleep(2);  # Don't hurry too much
-} else {
-    print " ok\n";
-}
 
 print "Checking for MIME::Base64..";
 eval {

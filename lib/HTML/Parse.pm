@@ -1,6 +1,6 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.22 1996/05/09 10:11:52 aas Exp $
+# $Id: Parse.pm,v 2.0 1996/05/19 11:53:06 aas Exp $
 
 =head1 NAME
 
@@ -39,7 +39,7 @@ The following variables control how parsing takes place:
 
 =over 4
 
-=item $HTML::Parse::IMPLICIT_TAGS
+=item $HTML::Parse::tree::IMPLICIT_TAGS
 
 Setting this variable to true will instruct the parser to try to
 deduce implicit elements and implicit end tags.  If this variable is
@@ -48,37 +48,23 @@ Might be useful for quick & dirty parsing.  Default is true.
 
 Implicit elements have the implicit() attribute set.
 
-=item $HTML::Parse::IGNORE_UNKNOWN
+=item $HTML::Parse::tree::IGNORE_UNKNOWN
 
 This variable contols whether unknow tags should be represented as
 elements in the parse tree.  Default is true.
 
-=item $HTML::Parse::IGNORE_TEXT
+=item $HTML::Parse::tree::IGNORE_TEXT
 
 Do not represent the text content of elements.  This saves space if
 all you want is to examine the structure of the document.  Default is
 false.
 
-=item $HTML::Parse::WARN
+=item $HTML::Parse::tree::WARN
 
 Call warn() with an apropriate message for syntax errors.  Default is
 false.
 
 =back
-
-=head1 BUGS
-
-Does not parse tag attributes with the ">" character in the value
-correctly:
-
-   <img src="..." alt="4.4 > V">
-
-If you want to free the memory assosiated with the HTML parse tree,
-then you will have to delete it explicitly.  The reason for this is
-that perl currently has no proper garbage collector, but depends on
-reference counts in the objects.  This scheme fails because the parse
-tree contains circular references (parents have references to their
-children and children have a reference to their parent).
 
 
 =head1 SEE ALSO
@@ -104,12 +90,220 @@ require Exporter;
 
 @EXPORT = qw(parse_html parse_htmlfile expand_entities);
 
-require HTML::Element;
-require HTML::Entities;
+use strict;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+use vars qw($VERSION);
+
+require HTML::Element;
+use HTML::Entities ();
+
+$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
+
+# How does Netscape do it: It parse <xmp> in the depreceated 'literal'
+# mode, i.e. no tags are recognized until a </xmp> is found.
+# 
+# <listing> is parsed like <pre>, i.e. tags are recognized.  <listing>
+# are presentend in smaller font than <pre>
+#
+# Netscape does not parse this comment correctly (it terminates the comment
+# too early):
+#
+#    <! -- comment -- --> more comment -->
+#
+# Netscape does not allow space after the initial "<" in the start tag.
+# Like this "<a href='gisle'>"
+#
+# Netscape ignore '<!--' and '-->' within the <SCRIPT> tag.  This is used
+# as a trick to make non-script-aware browsers ignore the scripts.
+
+
+sub parse_html ($;$)
+{
+    my $p = $_[1];
+    $p = HTML::Parse::tree->new unless $p;
+    my $buf = \ $p->{'_buf'};
+    $$buf .= $_[0];
+
+    # Parse html text in $$buf.  The strategy is to remove complete
+    # tokens from the beginning of $$buf until we can't deside whether
+    # it is a token or not, or the $$buf is empty.
+    while (1) {  # the loop will end by returning when text is parsed
+	# First we try to pull off any plain text
+	if ($$buf =~ s|^([^<]+)||) {
+	    unless (length $$buf) {
+		# At the end of the buffer, we should not parse white space
+		# but leave it for parsing on the next round
+		my $text = $1;
+		$text =~ s|(\s*)$||;
+		$$buf = $1;
+		$p->text($text);
+		return $p;
+	    } else {
+		$p->text($1);
+	    }
+	# Then, special tags (usually either <!DOCTYPE...> or a comment)
+	} elsif ($$buf =~ s|^(<!)||) {
+	    my $eaten = $1;
+	    my $text = '';
+	    # Eat text and beginning of comment
+	    while ($$buf =~ s|^(([^>]*?)--)||) {
+		$eaten .= $1;
+		$text .= $2;
+		# Look for end of comment
+		if ($$buf =~ s|^((.*?)--)||s) {
+		    $eaten .= $1;
+		    $p->comment($2);
+		} else {
+		    # Need more data to get all comment text.  This might
+		    # result in the comment callback being called more than
+		    # once for the several comment data.
+		    $$buf = $eaten . $$buf;
+		    return $p;
+		}
+	    }
+	    # Can we finish the tag
+	    if ($$buf =~ s|^([^>]*)>||) {
+		$text .= $1;
+		$p->special($text) if $text =~ /\S/;
+	    } else {
+		$$buf = $eaten . $$buf;  # must start with it all next time
+		return $p;
+	    }
+	# Then, look for a end tag
+	} elsif ($$buf =~ s|^</||) {
+	    # end tag
+	    if ($$buf =~ s|^\s*([a-z]\w*)\s*>||i) {
+		$p->end(lc($1));
+	    } elsif ($$buf =~ m|^\s*[a-z]*\w*\s*$|i) {
+		$$buf = "</" . $$buf;  # need more data to be sure
+		return $p;
+	    } else {
+		# it is plain text after all
+		$p->text($$buf);
+		$$buf = "";
+	    }
+	# Then, finally we look for a start tag
+	} elsif ($$buf =~ s|^(<\s*)||) {
+	    # start tag
+	    my $eaten = $1;
+
+	    # This first thing we must find is a tag word
+	    if ($$buf =~ s|^(([a-z]\w*)\s*)||i) {
+		$eaten .= $1;
+		my $tag = lc $2;
+		my %attr;
+
+		# Then we would like to find some attributes
+		while ($$buf =~ s|^(([a-z]\w*)\s*)||i) {
+		    $eaten .= $1;
+		    my $attr = lc $2;
+		    my $val = $attr;
+		    # The attribute might take an optional value
+		    if ($$buf =~ s|(^=\s*([^>\"\'][^>\s]*)\s*)||) { # unquoted
+			$eaten .= $1;
+			$val = $2;
+			HTML::Entities::decode($val);
+                     # or quoted by " or '
+		     } elsif ($$buf =~ s|(^=\s*([\"\'])?([^\2]*)\2\s*)||) {
+			$eaten .= $1;
+			$val = $3;
+			HTML::Entities::decode($val);
+		    }
+		    $attr{$attr} = $val;
+		}
+
+		# At the end there should be a closing ">"
+		if ($$buf =~ s|^>||) {
+		    $p->start($tag, \%attr);
+		} elsif (length $$buf) {
+		    # Not a conforming start tag, regard it as normal text
+		    $p->text($eaten);
+		} else {
+		    $$buf = $eaten;  # need more data to know
+		    return $p;
+		}
+
+	    } elsif (length $$buf) {
+		$p->text($eaten);
+	    } else {
+		$$buf = $eaten . $$buf;  # need more data to parse
+		return $p;
+	    }
+
+	} elsif (length $$buf) {
+	    die; # This should never happen
+	} else {
+	    # The buffer is empty now
+	    return $p;
+	}
+    }
+    $p;
+}
+
+
+sub parse_htmlfile ($;$)
+{
+    my($file, $p) = @_;
+    local(*HTML);
+    open(HTML, $file) or return undef;
+    my $chunk = '';
+    while(read(HTML, $chunk, 2048)) {
+	$p = parse_html($chunk, $p);
+    }
+    close(HTML);
+    $p;
+}
+
+
+
+package HTML::Parse::base;
+
+sub new
+{
+    my $class = shift;
+    my $self = bless { '_buf' => '' }, $class;
+    $self;
+}
+
+sub text
+{
+    # my($self, $text) = @_;
+}
+
+sub special
+{
+    # my($self, $special) = @_;
+}
+
+sub comment
+{
+    # my($self, $comment) = @_;
+}
+
+sub start
+{
+    my($self, $tag, $attr) = @_;  # $attr is reference to a HASH
+}
+
+sub end
+{
+    my($self, $tag) = @_;
+}
+
+
+
+
+package HTML::Parse::tree;
+
+use vars qw(@ISA
+            $IMPLICIT_TAGS $IGNORE_UNKNOWN $IGNORE_TEXT $WARN
+            %isHeadElement %isBodyElement %isPhraseMarkup
+            %isList %isTableElement %isFormElement
+           );
+
+@ISA = qw(HTML::Element HTML::Parse::base);
 
 $IMPLICIT_TAGS  = 1;
 $IGNORE_UNKNOWN = 1;
@@ -123,11 +317,11 @@ sub warning ($)
 
 
 # Elements that should only be present in the header
-%isHeadElement = map { $_ => 1 } qw(title base link meta isindex nextid);
+%isHeadElement = map { $_ => 1 } qw(title base link meta isindex script);
 
 # Elements that should only be present in the body
 %isBodyElement = map { $_ => 1 } qw(h1 h2 h3 h4 h5 h6
-				    p pre address blockquote
+				    p div pre address blockquote
 				    xmp listing
 				    a img br hr
 				    ol ul dir menu li
@@ -136,6 +330,9 @@ sub warning ($)
 				    b i u tt small big
 				    table tr td th caption
 				    form input select option textarea
+				    map area
+				    applet param
+				    isindex script
 				   ),
                           # Also known are some Netscape extentions elements
                                  qw(wbr nobr center blink font basefont);
@@ -155,259 +352,160 @@ sub warning ($)
 %isFormElement  = map { $_ => 1 } qw(input select option textarea);
 
 
-
-
-sub parse_html ($;$)
+sub new
 {
-    my $html = $_[1];
-    $html = new HTML::Element 'html' unless $html;
-    my $buf = \ $html->{'_buf'};
-    $$buf .= $_[0];
-    # Handle comments
-    if ($html->{_comment}) {
-	if ($$buf =~ s/^.*?-->//s) {        # end of comment
-	    delete $html->{_comment};
-        } elsif ($$buf =~ s/^.*?(--?)$/$1/s) { # might become end of comment
-            return $html;            
-        } else {
-	    $$buf = '';          # still inside comment
+    my $class = shift;
+    my $self = bless HTML::Element->new('html'), $class;
+    $self->{'_buf'} = '';
+    $self;
+}
+
+
+sub start ($$$)
+{
+    my($self, $tag, $attr) = @_;
+
+    my $pos  = $self->{'_pos'};
+    $pos = $self unless defined $pos;
+    my $ptag = $pos->{'_tag'};
+    my $e = HTML::Element->new($tag, %$attr);
+
+    if (!$IMPLICIT_TAGS) {
+	# do nothing
+    } elsif ($isBodyElement{$tag}) {
+
+	# Ensure that we are within <body>
+	if ($pos->is_inside('head')) {
+	    $self->end('head');
+	    $pos = $self->insert_element('body', 1);
+	    $ptag = $pos->tag;
+	} elsif (!$pos->is_inside('body')) {
+	    $pos = $self->insert_element('body', 1);
+	    $ptag = $pos->tag;
 	}
-    }
-    $$buf =~ s/<!--.*?-->//sg;   # remove complete comments
-    if ($$buf =~ /<!--.*-$/) {   # perhaps partial "end-of-comment" marker
-        return $html;            # delay processing
-    }
-    if ($$buf =~ s/<!--.*//s) {  # check for start of comment (remove it)
-	$html->{_comment} = 1;
-    }
-    return $html unless length $$buf;
 
-    # Split HTML text into tokens.  We use "<...>" as the tokens we
-    # look for and asume that this will separate tags from normal
-    # text.  This fails for those documents that contain the ">"
-    # character in an attribute value, like this: <foo bar=">">
-    my @x = split(/(<[^>]+>)/, $$buf);
-    if ($x[-1] =~ m/>/) {                # last token is complete a tag
-	$$buf = '';
-    } elsif ($x[-1] =~ s/(\s*<.*)//s) {  # last token is partial tag
-	$$buf = $1;                      # parse this next time
-	pop(@x) unless length $x[-1];
-    } elsif ($x[-1] =~ s/(\s+)$//) {     # last token ends with whitespace
-        $$buf = $1;
-        pop(@x) unless length $x[-1];
-    } else {                             # last token is text
-	$$buf = '';
-    }
-
-    # Process all complete tokens
-    for (@x) {
-	if (m:^</\s*(\w+)\s*>$:) {
-	    endtag($html, lc $1);
-	} elsif (m/^<\s*\w+/) {
-	    starttag($html, $_);
-	} elsif (m/^<!\s*DOCTYPE\b/i) {
-	    # just ignore it
+	# Handle implicit endings and insert based on <tag> and position
+	if ($tag eq 'p' || $tag =~ /^h[1-6]/ || $tag eq 'form') {
+	    # Can't have <p>, <h#> or <form> inside these
+	    $self->end([qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
+	} elsif ($tag =~ /^[oud]l$/) {
+	    # Can't have lists inside <h#>
+	    if ($ptag =~ /^h[1-6]/) {
+		$self->end($ptag);
+		$pos = $self->insert_element('p', 1);
+		$ptag = 'p';
+	    }
+	} elsif ($tag eq 'li') {
+	    # Fix <li> outside list
+	    $self->end('li', keys %isList);
+	    $ptag = $self->pos->tag;
+	    $pos = $self->insert_element('ul', 1) unless $isList{$ptag};
+	} elsif ($tag eq 'dt' || $tag eq 'dd') {
+	    $self->end(['dt', 'dd'], 'dl');
+	    $ptag = $self->pos->tag;
+	    # Fix <dt> or <dd> outside <dl>
+	    $pos = $self->insert_element('dl', 1) unless $ptag eq 'dl';
+	} elsif ($isFormElement{$tag}) {
+	    return unless $pos->is_inside('form');
+	    if ($tag eq 'option') {
+		# return unless $ptag eq 'select';
+		$self->end('option');
+		$ptag = $self->pos->tag;
+		$pos = $self->insert_element('select', 1)
+		  unless $ptag eq 'select';
+	    }
+	} elsif ($isTableElement{$tag}) {
+	    $self->end($tag, 'table');
+	    $pos = $self->insert_element('table', 1)
+	      if !$pos->is_inside('table');
+	} elsif ($isPhraseMarkup{$tag}) {
+	    if ($ptag eq 'body') {
+		$pos = $self->insert_element('p', 1);
+	    }
+	}
+    } elsif ($isHeadElement{$tag}) {
+	if ($pos->is_inside('body')) {
+	    warning "Header element <$tag> in body";
+	} elsif (!$pos->is_inside('head')) {
+	    $pos = $self->insert_element('head', 1);
+	}
+    } elsif ($tag eq 'html') {
+	if ($ptag eq 'html' && $pos->is_empty()) {
+	    # migrate attributes to origial HTML element
+	    for (keys %$attr) {
+		$self->attr($_, $attr->{$_});
+	    }
+	    return;
 	} else {
-	    text($html, $_);
+	    warning "Skipping nested <html> element";
+	    return;
 	}
-    }
-    $html;
-}
-
-
-sub parse_htmlfile ($)
-{
-    my $file = shift;
-    open(F, $file) or return new HTML::Element 'html', 'comment' => $!;
-    my $html = undef;
-    my $chunk = '';
-    while(read(F, $chunk, 1024)) {
-	$html = parse_html($chunk, $html);
-    }
-    close(F);
-    $html;
-}
-
-
-
-sub starttag
-{
-    my $html = shift;
-    my $elem = shift;
-
-    $elem =~ s/^<\s*(\w+)\s*//;
-    my $tag = $1;
-    $elem =~ s/>$//;
-    unless (defined $tag) {
-	warning "Illegal start tag $_[0]";
+    } elsif ($tag eq 'head') {
+	if ($ptag ne 'html' && $pos->is_empty()) {
+	    warning "Skipping nested <head> element";
+	    return;
+	}
+    } elsif ($tag eq 'body') {
+	if ($pos->is_inside('head')) {
+	    $self->end('head');
+	} elsif ($ptag ne 'html') {
+	    warning "Skipping nested <body> element";
+	    return;
+	}
     } else {
-	$tag = lc $tag;
-	#print "START: $tag\n";
-	my %attr;
-	while ($elem =~ s/^([^\s=]+)\s*(=\s*)?//) {
-	    $key = $1;
-	    if (defined $2) {
-		# read value
-		if ($elem =~ s/^"([^\"]*)"?\s*//) {       # doble quoted val
-		    $val = $1;
-		} elsif ($elem =~ s/^'([^\']*)'?\s*//) {  # single quoted val
-		    $val = $1;
-		} elsif ($elem =~ s/^(\S*)\s*//) {        # unquoted val
-		    $val = $1;
-		} else {
-		    die "This should not happen";
-		}
-		# expand entities
-		HTML::Entities::decode($val);
-	    } else {
-		# boolean attribute
-		$val = $key;
-	    }
-	    $attr{$key} = $val;
+	# unknown tag
+	if ($IGNORE_UNKNOWN) {
+	    warning "Skipping unknown tag $tag";
+	    return;
 	}
-
-	my $pos  = $html->{_pos};
-	$pos = $html unless defined $pos;
-	my $ptag = $pos->{_tag};
-	my $e = new HTML::Element $tag, %attr;
-
-	if (!$IMPLICIT_TAGS) {
-	    # do nothing
-	} elsif ($isBodyElement{$tag}) {
-
-	    # Ensure that we are within <body>
-	    if ($pos->is_inside('head')) {
-		endtag($html, 'head');
-		$pos = $html->insert_element('body', 1);
-		$ptag = $pos->tag;
-	    } elsif (!$pos->is_inside('body')) {
-		$pos = $html->insert_element('body', 1);
-		$ptag = $pos->tag;
-	    }
-
-	    # Handle implicit endings and insert based on <tag> and position
-	    if ($tag eq 'p' || $tag =~ /^h[1-6]/ || $tag eq 'form') {
-		# Can't have <p>, <h#> or <form> inside these
-		endtag($html, [qw(p h1 h2 h3 h4 h5 h6 pre textarea)], 'li');
-	    } elsif ($tag =~ /^[oud]l$/) {
-		# Can't have lists inside <h#>
-		if ($ptag =~ /^h[1-6]/) {
-		    endtag($html, $ptag);
-		    $pos = $html->insert_element('p', 1);
-		    $ptag = 'p';
-		}
-	    } elsif ($tag eq 'li') {
-		# Fix <li> outside list
-		endtag($html, 'li', keys %isList);
-		$ptag = $html->pos->tag;
-		$pos = $html->insert_element('ul', 1) unless $isList{$ptag};
-	    } elsif ($tag eq 'dt' || $tag eq 'dd') {
-		endtag($html, ['dt', 'dd'], 'dl');
-		$ptag = $html->pos->tag;
-		# Fix <dt> or <dd> outside <dl>
-		$pos = $html->insert_element('dl', 1) unless $ptag eq 'dl';
-	    } elsif ($isFormElement{$tag}) {
-		return unless $pos->is_inside('form');
-		if ($tag eq 'option') {
-		    # return unless $ptag eq 'select';
-		    endtag($html, 'option');
-		    $ptag = $html->pos->tag;
-		    $pos = $html->insert_element('select', 1)
-		      unless $ptag eq 'select';
-		}
-	    } elsif ($isTableElement{$tag}) {
-		endtag($html, $tag, 'table');
-		$pos = $html->insert_element('table', 1)
-		  if !$pos->is_inside('table');
-	    } elsif ($isPhraseMarkup{$tag}) {
-		if ($ptag eq 'body') {
-		    $pos = $html->insert_element('p', 1);
-		}
-	    }
-	} elsif ($isHeadElement{$tag}) {
-	    if ($pos->is_inside('body')) {
-		warning "Header element <$tag> in body";
-	    } elsif (!$pos->is_inside('head')) {
-		$pos = $html->insert_element('head', 1);
-	    }
-	} elsif ($tag eq 'html') {
-	    if ($ptag eq 'html' && $pos->is_empty()) {
-		# migrate attributes to origial HTML element
-		for (keys %attr) {
-		    $html->attr($_, $attr{$_});
-		}
-		return;
-	    } else {
-		warning "Skipping nested <html> element";
-		return;
-	    }
-	} elsif ($tag eq 'head') {
-	    if ($ptag ne 'html' && $pos->is_empty()) {
-		warning "Skipping nested <head> element";
-		return;
-	    }
-	} elsif ($tag eq 'body') {
-	    if ($pos->is_inside('head')) {
-		endtag($html, 'head');
-	    } elsif ($ptag ne 'html') {
-		warning "Skipping nested <body> element";
-		return;
-	    }
-	} else {
-	    # unknown tag
-	    if ($IGNORE_UNKNOWN) {
-		warning "Skipping unknown tag $tag";
-		return;
-	    }
-	}
-	$html->insert_element($e);
     }
+    $self->insert_element($e);
 }
 
 
-sub endtag
+sub end
 {
-    my($html, $tag, @stop) = @_;
+    my($self, $tag, @stop) = @_;
 
     # End the specified tag, but don't move above any of the @stop tags.
     # The tag can also be a reference to an array.  Terminate the first
     # tag found.
 
-    my $p = $html->{_pos};
-    $p = $html unless defined($p);
+    my $p = $self->{'_pos'};
+    $p = $self unless defined($p);
     if (ref $tag) {
       PARENT:
 	while (defined $p) {
-	    my $ptag = $p->{_tag};
+	    my $ptag = $p->{'_tag'};
 	    for (@$tag) {
 		last PARENT if $ptag eq $_;
 	    }
 	    for (@stop) {
 		return if $ptag eq $_;
 	    }
-	    $p = $p->{_parent};
+	    $p = $p->{'_parent'};
 	}
     } else {
 	while (defined $p) {
-	    my $ptag = $p->{_tag};
+	    my $ptag = $p->{'_tag'};
 	    last if $ptag eq $tag;
 	    for (@stop) {
 		return if $ptag eq $_;
 	    }
-	    $p = $p->{_parent};
+	    $p = $p->{'_parent'};
 	}
     }
 
     # Move position if the specified tag was found
-    $html->{_pos} = $p->{_parent} if defined $p;
+    $self->{'_pos'} = $p->{'_parent'} if defined $p;
 }
 
 
 sub text ($$)
 {
-    my $html = shift;
-    my $pos = $html->{_pos};
-    $pos = $html unless defined($pos);
+    my $self = shift;
+    my $pos = $self->{'_pos'};
+    $pos = $self unless defined($pos);
 
     my $text = shift;
     return unless length $text;
@@ -416,25 +514,25 @@ sub text ($$)
 
     if ($pos->is_inside(qw(pre xmp listing))) {
 	return if $IGNORE_TEXT;
-	$pos->push_content(@text);
+	$pos->push_content($text);
     } else {
 	# return unless $text =~ /\S/;  # This is sometimes wrong
 
-	my $ptag = $pos->{_tag};
+	my $ptag = $pos->{'_tag'};
 	if (!$IMPLICIT_TAGS || $text !~ /\S/) {
 	    # don't change anything
 	} elsif ($ptag eq 'head') {
-	    endtag($html, 'head');
-	    $html->insert_element('body', 1);
-	    $pos = $html->insert_element('p', 1);
+	    $self->end('head');
+	    $self->insert_element('body', 1);
+	    $pos = $self->insert_element('p', 1);
 	} elsif ($ptag eq 'html') {
-	    $html->insert_element('body', 1);
-	    $pos = $html->insert_element('p', 1);
+	    $self->insert_element('body', 1);
+	    $pos = $self->insert_element('p', 1);
 	} elsif ($ptag eq 'body' ||
 	       # $ptag eq 'li'   ||
 	       # $ptag eq 'dd'   ||
 		 $ptag eq 'form') {
-	    $pos = $html->insert_element('p', 1);
+	    $pos = $self->insert_element('p', 1);
 	}
 	return if $IGNORE_TEXT;
 	$text =~ s/\s+/ /g;  # canoncial space

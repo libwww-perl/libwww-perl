@@ -296,11 +296,11 @@ sub encodeTest
     for $test (@encode_tests) {
         my($plain, $expected) = ($$test[0], $$test[1]);
 
-        my $encoded = base64_encode($plain, '');
+        my $encoded = encode_base64($plain, '');
         if ($encoded ne $expected) {
             die "test $testno ($plain): expected $expected, got $encoded\n";
         }
-        my $decoded = base64_decode($encoded);
+        my $decoded = decode_base64($encoded);
         if ($decoded ne $plain) {
             die "test $testno ($plain): expected $expected, got $encoded\n";
         }
@@ -325,7 +325,7 @@ sub decodeTest
     for $test (@decode_tests) {
         my($encoded, $expected) = ($$test[0], $$test[1]);
 
-        my $decoded = base64_decode($encoded);
+        my $decoded = decode_base64($encoded);
         if ($decoded ne $expected) {
             die "test $testno ($encoded): expected $expected, got $decoded\n";
         }

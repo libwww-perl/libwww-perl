@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 
-use MIME::QuotedPrintable;
+use MIME::QuotedPrint;
 
 $x73 = "x" x 73;
 
@@ -46,7 +46,7 @@ $testno = 0;
 for (@tests) {
     $testno++;
     ($plain, $encoded) = @$_;
-    $x = qp_encode($plain);
+    $x = encode_qp($plain);
     if ($x ne $encoded) {
 	print "Encode test failed\n";
 	print "Got:      '$x'\n";
@@ -54,7 +54,7 @@ for (@tests) {
 	print "not ok $testno\n";
 	next;
     }
-    $x = qp_decode($encoded);
+    $x = decode_qp($encoded);
     if ($x ne $plain) {
 	print "Decode test failed\n";
 	print "Got:      '$x'\n";

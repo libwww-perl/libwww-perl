@@ -1,6 +1,6 @@
 package HTML::FormatText;
 
-# $Id: FormatText.pm,v 1.8 1995/09/14 13:05:21 aas Exp $
+# $Id: FormatText.pm,v 1.9 1995/09/26 11:10:11 aas Exp $
 
 =head1 NAME
 
@@ -101,7 +101,7 @@ sub pre_out
     }
     my $indent = ' ' x $self->{lm};
     my $pre = shift;
-    $pre =~ s/^/$indent/gm;
+    $pre =~ s/\n/\n$indent/g;
     $self->collect($pre);
     $self->{out}++;
 }

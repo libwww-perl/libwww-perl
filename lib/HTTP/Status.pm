@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.6 1995/08/07 08:19:01 aas Exp $
+# $Id: Status.pm,v 1.7 1995/08/07 11:20:42 aas Exp $
 
 package LWP::StatusCode;
 
@@ -106,13 +106,14 @@ my $mnemonicCode = '';
 my ($code, $message);
 while (($code, $message) = each %StatusCode) {
     # create mnemonic subroutines
-    $message =~ tr/a-z /A-Z_/;
+    $message =~ tr/a-z \-/A-Z__/;
     $mnemonicCode .= "sub RC_$message { $code }\t";
     # make them exportable
     $mnemonicCode .= "push(\@EXPORT_OK, 'RC_$message');\n";
 }
 # warn $mnemonicCode; # for development
 eval $mnemonicCode; # only one eval for speed
+die if $@;
 undef $mnemonicCode;
 
 

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "Location: /"
+echo "Location: http://$SERVER_NAME:$SERVER_PORT/"
 echo

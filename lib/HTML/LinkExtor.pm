@@ -9,7 +9,7 @@ HTML::LinkExtor - Extract links from an HTML document
  require HTML::LinkExtor;
  $p = HTML::LinkExtor->new(\&cb, "http://www.sn.no/");
  sub cb {
-     my($tag, %links);
+     my($tag, %links) = @_;
      print "$tag @{[%links]}\n";
  }
  $p->parse_file("index.html");

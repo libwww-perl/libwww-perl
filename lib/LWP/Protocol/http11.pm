@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.2 2001/04/09 20:33:55 gisle Exp $
+# $Id: http11.pm,v 1.3 2001/04/10 07:12:37 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -20,17 +20,36 @@ use vars qw(@ISA @EXTRA_SOCK_OPTS);
 require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
 
+{
+    package LWP::Protocol::MyHTTP;
+    use vars qw(@ISA);
+    @ISA = qw(Net::HTTP);
+
+    sub xread {
+	my $self = shift;
+	if (my $timeout = ${*$self}{io_socket_timeout}) {
+	    my $iosel = (${*$self}{myhttp_io_sel} ||=
+			 do {
+			     require IO::Select;
+			     IO::Select->new($self);
+			 });
+	    die "read timeout" unless $iosel->can_read($timeout);
+	}
+	sysread($self, $_[0], $_[1], $_[2] || 0);
+    }
+}
+
 sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
 
     local($^W) = 0;  # IO::Socket::INET can be noisy
-    my $sock = Net::HTTP->new(PeerAddr => $host,
-			      PeerPort => $port,
-			      Proto    => 'tcp',
-			      Timeout  => $timeout,
-			      $self->_extra_sock_opts($host, $port),
-			     );
+    my $sock = LWP::Protocol::MyHTTP->new(PeerAddr => $host,
+					  PeerPort => $port,
+					  Proto    => 'tcp',
+					  Timeout  => $timeout,
+					  $self->_extra_sock_opts($host, $port),
+					 );
     unless ($sock) {
 	# IO::Socket::INET leaves additional error messages in $@
 	$@ =~ s/^.*?: //;
@@ -61,10 +80,7 @@ sub _fixup_header
 {
     my($self, $h, $url, $proxy) = @_;
 
-    $h->remove_header('Connection');  # need support here to be useful
-
-    # HTTP/1.1 will require us to send the 'Host' header, so we might
-    # as well start now.
+    # Extract 'Host' header
     my $hhost = $url->authority;
     $hhost =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
     $h->header('Host' => $hhost) unless defined $h->header('Host');
@@ -132,7 +148,9 @@ sub request
     my @h;
     $request->scan(sub { push(@h, @_); });
 
+    # XXX need to support sub-ref content and watch out for write timeouts
     $socket->write_request($method, $fullpath, @h, $request->content);
+
     my($version, $code, $mess, @h) = $socket->read_response_headers;
 
     my $response = HTTP::Response->new($code, $mess);
@@ -154,14 +172,17 @@ sub request
 
     $response = $self->collect($arg, $response, sub {
 	my $buf;
-	CHUNK: {
-	    # XXX check for timeout
-	    my $n = $socket->read_entity_body($buf, $size);
-	    die $! unless defined $n;
-	    redo CHUNK if $n && $n == 0;
-	};
+	my $n = $socket->read_entity_body($buf, $size);
+	die $! unless defined $n;
         return \$buf;
     } );
+
+    @h = $socket->get_trailers;
+    while (@h) {
+	my($k, $v) = splice(@h, 0, 2);
+	$response->push_header($k, $v);
+    }
+
     $response;
 }
 

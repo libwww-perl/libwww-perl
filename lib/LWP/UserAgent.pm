@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.39 1996/12/04 15:24:29 aas Exp $
+# $Id: UserAgent.pm,v 1.40 1997/01/22 14:36:05 aas Exp $
 
 package LWP::UserAgent;
 
@@ -283,10 +283,13 @@ sub request
 
 	# Make a copy of the request and initialize it with the new URI
 	my $referral = $request->clone;
-	my $referral_uri = URI::URL->new($response->header('Location'));
-	# some servers erroneously return a relative URL for redirects,
-	# so make it absolute.
-	$referral_uri = $referral_uri->abs($response->base);
+
+	# And then we update the URL based on the Location:-header.
+	# Some servers erroneously return a relative URL for redirects,
+	# so make it absolute if it not already is.
+	my $referral_uri = (URI::URL->new($response->header('Location'),
+					  $response->base))->abs();
+
 	$referral->url($referral_uri);
 
 	return $response unless $self->redirect_ok($referral);

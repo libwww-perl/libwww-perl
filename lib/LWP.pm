@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.112 2001/10/26 23:24:03 gisle Exp $
+# $Id: LWP.pm,v 1.113 2001/11/15 08:53:09 gisle Exp $
 
 package LWP;
 
@@ -15,7 +15,7 @@ __END__
 
 =head1 NAME
 
-LWP - Library for WWW access in Perl
+LWP - The World-Wide Web library for Perl
 
 =head1 SYNOPSIS
 
@@ -543,6 +543,43 @@ provide.  The I<lwpcook> manpage is the libwww-perl cookbook that contain
 examples of typical usage of the library.  You might want to take a
 look at how the scripts C<lwp-request>, C<lwp-rget> and C<lwp-mirror>
 are implemented.
+
+=head1 ENVIRONMENT
+
+The following environment variables are used by LWP:
+
+=over
+
+=item HOME
+
+The C<LWP::MediaTypes> functions will look for the F<.media.types> and
+F<.mime.types> files relative to you home directory.
+
+=item http_proxy
+
+=item ftp_proxy
+
+=item xxx_proxy
+
+=item no_proxy
+
+These environment variables can be set to enable communication through
+a proxy server.  See the description of the C<env_proxy> method in
+L<LWP::UserAgent>.
+
+=item PERL_LWP_USE_HTTP_10
+
+Enable the old HTTP/1.0 protocol driver instead of the new HTTP/1.1
+driver.  You might want to set this to a TRUE value if you discover
+that your old LWP applications fails after you installed LWP-5.60 or
+better.
+
+=item PERL_HTTP_URI_CLASS
+
+Used to decide what URI objects to instantiate.  The default is C<URI>.
+You might want to set it to C<URI::URL> for compatiblity with old times.
+
+=back
 
 =head1 BUGS
 

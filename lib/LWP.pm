@@ -1,8 +1,9 @@
 #
-# $Id: LWP.pm,v 1.4 1995/07/11 13:22:46 aas Exp $
+# $Id: LWP.pm,v 1.5 1995/07/11 22:36:06 aas Exp $
 
 package LWP;
 
+$VERSION = # shut up -w
 $VERSION = "0.01";  # Automatically updated by 'make-dist'
 
 require 5.001;

@@ -1,6 +1,6 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.42 2001/11/15 06:17:42 gisle Exp $
+# $Id: Headers.pm,v 1.43 2001/11/15 06:19:22 gisle Exp $
 
 =head1 NAME
 
@@ -35,7 +35,7 @@ use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -236,7 +236,7 @@ sub _header
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
-	# generate a %stadard_case entry for this field
+	# generate a %standard_case entry for this field
 	$field =~ s/\b(\w)/\u$1/g;
 	$standard_case{$lc_field} = $field;
     }

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 87;
+plan tests => 92;
 
 use HTML::Form;
 
@@ -380,3 +380,31 @@ ok(!$f->find_input("m2", undef, 3)->disabled);
 ok($f->find_input("m3", undef, 1)->disabled);
 ok($f->find_input("m3", undef, 2)->disabled);
 ok($f->find_input("m3", undef, 3)->disabled);
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<!-- from http://www.blooberry.com/indexdot/html/tagpages/k/keygen.htm -->
+<form  METHOD="post" ACTION="http://example.com/secure/keygen/test.cgi" ENCTYPE="application/x-www-form-urlencoded">
+   <keygen NAME="randomkey" CHALLENGE="1234567890">
+   <input TYPE="text" NAME="Field1" VALUE="Default Text">
+</form>
+EOT
+
+ok($f->find_input("randomkey"));
+ok($f->find_input("randomkey")->challenge, "1234567890");
+ok($f->find_input("randomkey")->keytype, "rsa");
+ok($f->click->as_string, <<EOT);
+POST http://example.com/secure/keygen/test.cgi
+Content-Length: 19
+Content-Type: application/x-www-form-urlencoded
+
+Field1=Default+Text
+EOT
+
+$f->value(randomkey => "foo");
+ok($f->click->as_string, <<EOT);
+POST http://example.com/secure/keygen/test.cgi
+Content-Length: 33
+Content-Type: application/x-www-form-urlencoded
+
+randomkey=foo&Field1=Default+Text
+EOT

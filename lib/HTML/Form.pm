@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.41 2004/06/03 13:10:17 gisle Exp $
+# $Id: Form.pm,v 1.42 2004/06/14 11:19:57 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -27,6 +27,8 @@ my %type2class = (
  submit   => "SubmitInput",
  image    => "ImageInput",
  file     => "FileInput",
+
+ keygen   => "KeygenInput",
 );
 
 =head1 NAME
@@ -94,7 +96,7 @@ sub parse
     my $p = HTML::TokeParser->new(ref($html) ? $html->content_ref : \$html);
     eval {
 	# optimization
-	$p->report_tags(qw(form input textarea select optgroup option));
+	$p->report_tags(qw(form input textarea select optgroup option keygen));
     };
 
     unless (defined $base_uri) {
@@ -165,6 +167,9 @@ sub parse
 			    Carp::carp("Bad <select> tag '$tag'") if $^W;
 			}
 		    }
+		}
+		elsif ($tag eq "keygen") {
+		    $f->push_input("keygen", $attr);
 		}
 	    }
 	}
@@ -1254,6 +1259,19 @@ sub form_name_value {
     }
 
     return ($name => [$file, $filename, @headers]);
+}
+
+package HTML::Form::KeygenInput;
+@HTML::Form::KeygenInput::ISA=qw(HTML::Form::Input);
+
+sub challenge {
+    my $self = shift;
+    return $self->{challenge};
+}
+
+sub keytype {
+    my $self = shift;
+    return lc($self->{keytype} || 'rsa');
 }
 
 1;

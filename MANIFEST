@@ -86,7 +86,6 @@ t/base/base64.t			Test MIME::Base64 module
 t/base/date.t			Test HTTP::Date module
 t/base/entities.t		Test HTML::Entities module
 t/base/headers.t		Test HTTP::Headers module
-t/base/html-parse.t		Test HTML::Parse module
 t/base/listing.t                Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Request/HTTP::Response
@@ -95,6 +94,7 @@ t/base/quoted-print.t		Test MIME::QuotedPrint module
 t/base/robot-rules.t		Test WWW::RobotRules module
 t/base/status.t			Test HTTP::Status module
 t/base/uri.t			Test URI::URL module
+t/html/parse.t                  Test HTML::Parse module
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/net/cgi-bin/moved

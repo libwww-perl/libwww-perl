@@ -162,9 +162,8 @@ sub HTTP::Message::parts {
 sub HTTP::Message::add_part {
     my $self = shift;
     if (($self->content_type || "") !~ m,^multipart/,) {
-	my $p = HTTP::Message->new($self->headers, $self->content(""));
-	# XXX clear all non-content-headers of $p
-	$self->remove_content_headers;
+	my $p = HTTP::Message->new($self->remove_content_headers,
+				   $self->content(""));
 	$self->content_type("multipart/mixed");
 	$self->{_parts} = [$p];
     }

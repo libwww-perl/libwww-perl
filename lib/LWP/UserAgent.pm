@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.32 2004/06/14 12:36:49 gisle Exp $
+# $Id: UserAgent.pm,v 2.33 2004/09/16 09:28:22 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.33 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -86,7 +86,7 @@ sub new
 		      parse_head   => $parse_head,
 		      max_size     => $max_size,
 		      max_redirect => $max_redirect,
-		      proxy        => undef,
+		      proxy        => {},
 		      no_proxy     => [],
                       protocols_allowed     => $protocols_allowed,
                       protocols_forbidden   => $protocols_forbidden,

@@ -1,8 +1,9 @@
-print "1..9\n";
+print "1..10\n";
 
 use LWP::UserAgent;
 
 $ua = LWP::UserAgent->new;
+$clone = $ua->clone;
 
 print "not " unless $ua->agent =~ /^libwww-perl/;
 print "ok 1\n";
@@ -47,3 +48,6 @@ Multi: 2
 X: y
 
 EOT
+
+print "not " unless (ref($clone->{proxy}) eq 'HASH');
+print "ok 10\n";

@@ -1,6 +1,9 @@
+#
+# $Id: RobotRules.pm,v 1.3 1995/10/16 15:40:06 aas Exp $
+
 =head1 NAME
 
-WWW::RobotsRules
+WWW::RobotsRules - Parse robots.txt files
 
 =head1 SYNOPSIS
 
@@ -30,8 +33,12 @@ Note that the same RobotRules object can parse multiple files.
 
 package RobotRules;
 
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
+
 use URI::URL;
 use strict;
+
 
 =head2 new RobotRules 'MOMspider/1.0'
 
@@ -52,7 +59,7 @@ sub new {
 
 =head2 parse($url, $content)
 
-Parse takes the URL that was used to retrieve the /robots.txt
+Parse takes the URL that was used to retrieve the F</robots.txt>
 file, and the contents of the file.
 
 =cut
@@ -144,7 +151,7 @@ sub isMe {
     return $ua =~ /$me/i;
 }
 
-=head1 allowed($url)
+=head2 allowed($url)
 
 Returns TRUE if this robot is allowed to retrieve this URL.
 

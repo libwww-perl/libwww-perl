@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.3 1996/04/09 15:44:10 aas Exp $
+# $Id: Entities.pm,v 1.4 1996/05/08 16:32:10 aas Exp $
 
 =head1 NAME
 
@@ -42,7 +42,7 @@ corresponding entities.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
+Copyright 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -60,7 +60,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 

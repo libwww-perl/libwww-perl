@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.2 1997/05/24 22:08:32 aas Exp $
+# $Id: Common.pm,v 1.3 1997/08/04 15:38:58 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -14,7 +14,9 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+
+my $CRLF = "\015\012";   # "\r\n" is not portable
 
 sub GET  { _simple_req('GET',  @_); }
 sub HEAD { _simple_req('HEAD', @_); }
@@ -119,11 +121,11 @@ sub form_data   # RFC1867
 		$content = $h->header("Content");
 		$h->remove_header("Content");
 	    }
-	    push(@parts, "Content-Disposition: $disp\n" .
-                         $h->as_string .
-                         "\n$content");
+	    push(@parts, "Content-Disposition: $disp$CRLF" .
+                         $h->as_string($CRLF) .
+                         "$CRLF$content");
 	} else {
-	    push(@parts, qq(Content-Disposition: form-data; name="$k"\n\n$v));
+	    push(@parts, qq(Content-Disposition: form-data; name="$k"$CRLF$CRLF$v));
 	}
     }
     return "" unless @parts;
@@ -143,9 +145,9 @@ sub form_data   # RFC1867
 	last;
     }
 
-    my $content = "--$boundary\n" .
-                  join("\n--$boundary\n", @parts) .
-                  "\n--$boundary--\n";
+    my $content = "--$boundary$CRLF" .
+                  join("$CRLF--$boundary$CRLF", @parts) .
+                  "$CRLF--$boundary--$CRLF";
     wantarray ? ($content, $boundary) : $content;
 }
 

@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.31 2004/04/05 19:28:52 gisle Exp $
+# $Id: Message.pm,v 1.32 2004/04/06 09:27:04 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -67,6 +67,7 @@ sub add_content
     else {
 	$self->{'_content'} .= $_[0];
     }
+    delete $self->{_parts};
 }
 
 

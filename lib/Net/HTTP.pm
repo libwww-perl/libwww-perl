@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.6 2001/04/09 20:43:21 gisle Exp $
+# $Id: HTTP.pm,v 1.7 2001/04/09 20:55:44 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -32,13 +32,11 @@ sub configure {
 
     my $sock = $self->SUPER::configure($cnf);
     if ($sock) {
-	$self->host($host);
-	$self->http_version($http_version);
-	$self->peer_http_version($peer_http_version);
-	$self->keep_alive($keep_alive);
 	$host .= ":" . $sock->peerport unless $host =~ /:/;
-	${*$sock}{'http_host'} = $host;
-	${*$sock}{'http_keep_alive'} = $keep_alive;
+	$sock->host($host);
+	$sock->keep_alive($keep_alive);
+	$sock->http_version($http_version);
+	$sock->peer_http_version($peer_http_version);
     }
     return $sock;
 }
@@ -142,7 +140,6 @@ sub read_line {
     local $/ = "\012";
     my $line = readline($self);
     return undef unless defined $line;
-    #Data::Dump::dump("XXX", $line);
     $line =~ s/\015?\012\z//;
     return $line;
 }

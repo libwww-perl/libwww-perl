@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.14 1996/05/08 16:28:55 aas Exp $
+# $Id: MediaTypes.pm,v 1.15 1996/07/14 13:58:29 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -45,11 +45,12 @@ my %suffixEncoding = (
 
 local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
 
+my @priv_files = ();
+push(@priv_files, "$ENV{HOME}/.media.types", "$ENV{HOME}/.mime.types")
+  if defined $ENV{HOME};  # Some does not have a home (for instance Win32)
+
 # Try to locate "media.types" file, and initialize %suffixType from it
-for $typefile ((map {"$_/LWP/media.types"} @INC),
-	       "$ENV{HOME}/.media.types",
-	       "$ENV{HOME}/.mime.types",
-	       ) {
+  for $typefile ((map {"$_/LWP/media.types"} @INC), @priv_files) {
     open(TYPE, $typefile) || next;
     LWP::Debug::debug("Reading media types from $typefile");
     while (<TYPE>) {

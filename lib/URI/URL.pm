@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.08";   # $Date: 1996/12/04 15:12:53 $
+$VERSION = "4.09";   # $Date: 1996/12/10 14:20:32 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -160,6 +160,7 @@ sub implementor
     unless (defined @{"${ic}::ISA"}) {
 	# Try to load it
 	eval { require "URI/URL/$scheme.pm"; };
+	die $@ if $@ && $@ !~ /Can\'t locate/;
 	$ic = '' unless defined @{"${ic}::ISA"};
     }
     if ($ic) {

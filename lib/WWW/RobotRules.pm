@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.30 2004/04/09 15:09:14 gisle Exp $
+# $Id: RobotRules.pm,v 1.31 2004/11/12 16:05:09 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.31 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -185,10 +185,12 @@ sub agent {
         #       "FooBot/1.2"                                  => "FooBot"
         #       "FooBot/1.2 [http://foobot.int; foo@bot.int]" => "FooBot"
 
-	delete $self->{'loc'};   # all old info is now stale
 	$name = $1 if $name =~ m/(\S+)/; # get first word
 	$name =~ s!/.*!!;  # get rid of version
-	$self->{'ua'}=$name;
+	unless ($old && $old eq $name) {
+	    delete $self->{'loc'}; # all old info is now stale
+	    $self->{'ua'} = $name;
+	}
     }
     $old;
 }

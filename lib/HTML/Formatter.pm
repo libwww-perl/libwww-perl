@@ -1,10 +1,16 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.13 1996/06/04 09:13:33 aas Exp $
+# $Id: Formatter.pm,v 1.14 1997/04/05 12:38:00 aas Exp $
 
 =head1 NAME
 
 HTML::Formatter - Base class for HTML formatters
+
+=head1 SYNOPSIS
+
+ package HTML::FormatXX;
+ require HTML::Formatter;
+ @ISA=qw(HTML::Formatter);
 
 =head1 DESCRIPTION
 

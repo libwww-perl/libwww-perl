@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.8 1996/10/07 09:37:31 aas Exp $
+# $Id: IO.pm,v 1.9 1997/04/05 12:38:04 aas Exp $
 
 require LWP::Debug;
 use AutoLoader ();
@@ -15,6 +15,10 @@ __END__
 =head1 NAME
 
 LWP::IO - Low level I/O capability
+
+=head1 SYNOPSIS
+
+ use LWP::IO ();
 
 =head1 DESCRIPTION
 

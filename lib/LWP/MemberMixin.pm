@@ -1,11 +1,17 @@
 #
-# $Id: MemberMixin.pm,v 1.3 1996/02/26 19:12:24 aas Exp $
+# $Id: MemberMixin.pm,v 1.4 1997/04/05 12:38:05 aas Exp $
 
 package LWP::MemberMixin;
 
 =head1 NAME
 
 LWP::MemberMixin - Member access mixin class
+
+=head1 SYNOPSIS
+
+ package Foo;
+ require LWP::MemberMixin;
+ @ISA=qw(LWP::MemberMixin);
 
 =head1 DESCRIPTION
 

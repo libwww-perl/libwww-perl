@@ -1,10 +1,16 @@
-# $Id: Protocol.pm,v 1.26 1997/02/11 13:47:39 aas Exp $
+# $Id: Protocol.pm,v 1.27 1997/04/05 12:38:06 aas Exp $
 
 package LWP::Protocol;
 
 =head1 NAME
 
 LWP::Protocol - Base class for LWP protocols
+
+=head1 SYNOPSIS
+
+ package LWP::Protocol::foo;
+ require LWP::Protocol;
+ @ISA=qw(LWP::Protocol);
 
 =head1 DESCRIPTION
 

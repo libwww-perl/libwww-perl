@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.47 1997/02/11 14:48:53 aas Exp $
+# $Id: LWP.pm,v 1.48 1997/04/05 12:37:58 aas Exp $
 
 package LWP;
 
@@ -22,6 +22,11 @@ __END__
 =head1 NAME
 
 LWP - Library for WWW access in Perl
+
+=head1 SYNOPSIS
+
+  use LWP;
+  print "This is libwww-perl-$LWP::VERSION\n";
 
 
 =head1 DESCRIPTION

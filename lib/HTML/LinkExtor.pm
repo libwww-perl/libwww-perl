@@ -4,7 +4,7 @@ package HTML::LinkExtor;
 
 HTML::LinkExtor - Extract links from an HTML document
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
  require HTML::LinkExtor;
  $p = HTML::LinkExtor->new(\&cb, "http://www.sn.no/");

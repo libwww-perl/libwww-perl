@@ -1,11 +1,17 @@
 #
-# $Id: Message.pm,v 1.18 1996/10/29 10:06:35 aas Exp $
+# $Id: Message.pm,v 1.19 1997/04/05 12:38:02 aas Exp $
 
 package HTTP::Message;
 
 =head1 NAME
 
 HTTP::Message - Class encapsulating HTTP messages
+
+=head1 SYNOPSIS
+
+ package HTTP::Request;  # or HTTP::Response
+ require HTTP::Message;
+ @ISA=qw(HTTP::Message);
 
 =head1 DESCRIPTION
 

@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.16 1996/11/11 17:45:57 aas Exp $
+# $Id: MediaTypes.pm,v 1.17 1997/04/05 12:38:04 aas Exp $
 
 package LWP::MediaTypes;
 
@@ -8,6 +8,11 @@ package LWP::MediaTypes;
 guess_media_type - guess media type for a file or a URL.
 
 media_suffix - returns file extentions for a media type
+
+=head1 SYNOPSIS
+
+ use LWP::MediaTypes qw(guess_media_type);
+ $type = guess_media_type("/tmp/foo.gif");
 
 =head1 DESCRIPTION
 

@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.03";   # $Date: 1996/03/15 08:09:48 $
+$VERSION = "4.03";   # $Date: 1996/03/18 17:44:15 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -564,7 +564,7 @@ value.
 
 =over 3
 
-=item $url->abs([$base])
+=item $url->abs([$base, [$allow_scheme_in_relative_urls]])
 
 The abs() method attempts to return a new absolute URI::URL object
 for a given URL.  In order to convert a relative URL into an absolute
@@ -573,6 +573,15 @@ URL either by passing a I<base> to the new() constructor when a
 URI::URL is created or using the base() method on the object later.
 Alternatively you can specify a one-off base as a parameter to the
 abs() method.
+
+Some older parsers used to allow the scheme name to be present in the
+relative URL if it was the same as the base URL scheme.  RFC1808 says
+that this should be avoided, but you can enable this old behaviour by
+passing a TRUE value as the second argument to the abs() method.  The
+difference is demonstrated by the following examples:
+
+  url("http:foo")->base("http://host/a/b")     ==>  "http:foo"
+  url("http:foo")->base("http://host/a/b", 1)  ==>  "http:/host/a/foo"
 
 =item $url->as_string
 

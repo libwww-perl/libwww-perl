@@ -1,8 +1,6 @@
 package HTML::FormatPS;
 
-# $Id: FormatPS.pm,v 1.22 1997/10/12 13:36:23 aas Exp $
-
-$DEFAULT_PAGESIZE = "A4";
+# $Id: FormatPS.pm,v 1.23 1997/10/12 20:28:38 aas Exp $
 
 =head1 NAME
 
@@ -97,7 +95,7 @@ L<HTML::Formatter>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995-1997 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -112,6 +110,10 @@ use Carp;
 
 require HTML::Formatter;
 @ISA = qw(HTML::Formatter);
+
+use strict;
+
+use vars qw(%PaperSizes %FontFamilies @FontSizes %param $DEBUG);
 
 # A few routines that convert lengths into points
 sub mm { $_[0] * 72 / 25.4; }
@@ -179,20 +181,43 @@ sub ITALIC { 0x02; }
 sub new
 {
     my $class = shift;
+    my $self = $class->SUPER::new(@_);
 
-    # Set up defaults
-    my $self = bless {
-	family => "Times",
-	mH => mm(40),
-	mW => mm(20),
-	printpageno => 1,
-	fontscale   => 1,
-	leading     => 0.1,
-    }, $class;
-    $self->papersize($DEFAULT_PAGESIZE);
+    # Obtained from the <title> element
+    $self->{title} = "";
 
-    # Parse constructor arguments (might override defaults)
-    while (($key, $val) = splice(@_, 0, 2)) {
+    # The font ID last sent to the PostScript output (this may be
+    # temporarily different from the "current font" as read from
+    # the HTML input).  Initially none.
+    $self->{psfontid} = "";
+    
+    # Pending horizontal space.  A list [ " ", $fontid, $width ],
+    # or undef if no space is pending.
+    $self->{hspace} = undef;
+    
+    $self;
+}
+
+sub default_values
+{
+    (
+     family      => "Times",
+     mH          => mm(40),
+     mW          => mm(20),
+     printpageno => 1,
+     fontscale   => 1,
+     leading     => 0.1,
+     papersize   => 'A4',
+     paperwidth  => mm(210),
+     paperheight => mm(297),
+    )
+}
+
+sub configure
+{
+    my($self, $hash) = @_;
+    my($key,$val);
+    while (($key, $val) = each %$hash) {
 	$key = lc $key;
 	croak "Illegal parameter ($key => $val)" unless exists $param{$key};
 	$key = $param{$key};
@@ -211,20 +236,7 @@ sub new
 	    $self->{$key} = lc $val;
 	}
     }
-    $self->{title} = "";
-
-    # The font ID last sent to the PostScript output (this may be
-    # temporarily different from the "current font" as read from
-    # the HTML input).  Initially none.
-    $self->{psfontid} = "";
-    
-    # Pending horizontal space.  A list [ " ", $fontid, $width ],
-    # or undef if no space is pending.
-    $self->{hspace} = undef;
-    
-    $self;
 }
-
 
 sub papersize
 {
@@ -277,7 +289,10 @@ sub setfont
     my $fontfile = $fontmod . ".pm";
     $fontfile =~ s,::,/,g;
     require $fontfile;
-    $self->{wx} = \@{ "${fontmod}::wx" };
+    {
+	no strict 'refs';
+	$self->{wx} = \@{ "${fontmod}::wx" };
+    }
     $font = $self->{fonts}{$font_with_size} || do {
 	my $fontID = "F" . ++$self->{fno};
 	$self->{fonts}{$font_with_size} = $fontID;

@@ -1,6 +1,6 @@
-package HTTP::Date;  # $Date: 2000/08/17 08:40:29 $
+package HTTP::Date;  # $Date: 2001/01/04 20:27:15 $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.42 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
 
 require 5.004;
 require Exporter;
@@ -157,7 +157,7 @@ sub parse_date ($)
 	 (?:
 	       (?:\s+|[-:Tt])  # separator before clock
 	    (\d\d?):?(\d\d)    # hour:min
-	    (?::?(\d\d))?      # optional seconds
+	    (?::?(\d\d(?:\.\d*)?))?  # optional seconds (and fractional)
 	 )?                    # optional clock
 	    \s*
 	 ([-+]?\d\d?:?(:?\d\d)?

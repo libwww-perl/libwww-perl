@@ -3,7 +3,7 @@ use HTTP::Date;
 require Time::Local if $^O eq "MacOS";
 my $offset = ($^O eq "MacOS") ? Time::Local::timegm(0,0,0,1,0,70) : 0;
 
-print "1..57\n";
+print "1..58\n";
 
 $no = 1;
 $| = 1;
@@ -157,7 +157,9 @@ ok($t ne "1996-11-12 13:05:00");
 $t = time2iso(str2time("11-12-96 12:05PM"));print "$t\n";
 ok($t ne "1996-11-12 12:05:00");
 
-
+$t = str2time("2000-01-01 00:00:01.234");
+print "FRAC $t = ", time2iso($t), "\n";
+ok(abs(($t - int($t)) - 0.234) > 0.000001);
 
 $a = time2iso;
 $b = time2iso(500000);

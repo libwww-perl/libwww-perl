@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.17 1997/10/12 20:27:13 aas Exp $
+# $Id: Formatter.pm,v 1.18 1997/11/26 15:39:14 aas Exp $
 
 =head1 NAME
 
@@ -158,8 +158,7 @@ sub h6_end   { shift->header_end(6, @_) }
 sub br_start
 {
     my $self = shift;
-    $self->vspace(0);
-
+    $self->vspace(0, 1);
 }
 
 sub hr_start
@@ -515,9 +514,17 @@ sub textflow
 
 sub vspace
 {
-    my($self, $new) = @_;
-    return if defined $self->{vspace} and $self->{vspace} > $new;
-    $self->{vspace} = $new;
+    my($self, $min, $add) = @_;
+    my $old = $self->{vspace};
+    if (defined $old) {
+	my $new = $old;
+	$new += $add || 0;
+	$new = $min if $new < $min;
+	$self->{vspace} = $new;
+    } else {
+	$self->{vspace} = $min;
+    }
+    $old;
 }
 
 sub collect

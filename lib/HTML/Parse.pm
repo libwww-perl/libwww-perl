@@ -1,47 +1,70 @@
 package HTML::Parse;
 
-# $Id: Parse.pm,v 1.3 1995/09/05 14:32:39 aas Exp $
+# $Id: Parse.pm,v 1.4 1995/09/05 22:12:31 aas Exp $
 
 =head1 NAME
 
-parse - Parse HTML text
+parse_html - Parse HTML text
 
-parsefile - Parse HTML text from file
+parse_htmlfile - Parse HTML text from file
+
+expand_entities - Expand HTML entites in a string
 
 =head1 SYNOPSIS
 
  use HTML::Parse;
- $h = parsefile("test.html");
- print $h->asHTML;
- $h = parse("<p>Some more text", $h);
+ $h = parse_htmlfile("test.html");
+ print $h->dump;
+ $h = parse_html("<p>Some more <i>italic</i> text", $h);
  $h->delete;
+
+ print parse_htmlfile("index.html")->asHTML;  # tidy up markup in a file
+
+ $a = "V&aring;re norske tegn b&oslash;r &#230res";
+ expand_entities($a);
 
 =head1 DESCRIPTION
 
-This module provides functions to parse HTML text.  The result of
-parsing text is a HTML syntax tree with HTML::Element objects as
-nodes.
+This module provides functions to parse HTML text.  The result of the
+parsing is a HTML syntax tree with HTML::Element objects as nodes.
+Check out L<HTML::Element> for details of methods available to access
+the syntax tree.
+
+The parser currently understands HTML 2.0 markup + tables + some
+Netscape extentions.
+
+Entites in all text content and attribute values will be expanded by
+the parser.  There is normally no need to call expand_entites().
 
 You must delete the parse tree explicitly to free the memory
-assosiated with it.  The reason for this is that the parse tree
-contains circular references (parents have references to their
-children and children have a reference to their parent).
+assosiated with it before the perl interpreter terminates.  The reason
+for this is that the parse tree contains circular references (parents
+have references to their children and children have a reference to
+their parent).
 
 The following variables control how parsing takes place:
 
 =over 4
 
-=item $HTML::Parse::IMPLICIT
+=item $HTML::Parse::IMPLICIT_TAGS
 
 Setting this variable to true will instruct the parser to try to
 deduce implicit elements and implicit end tags.  If this variable is
 false you get a parse tree that just reflects the text as it stands.
 Might be useful for quick & dirty parsing.  Default is true.
 
+Implicit elements have the implicit() attribute set.
+
 =item $HTML::Parse::IGNORE_UNKNOWN
 
 This variable contols whether unknow tags should be represented as
 elements in the parse tree.  Default is true.
+
+=item $HTML::Parse::IGNORE_TEXT
+
+Do not represent the text content of elements.  This saves space if
+all you want is to examine the structure of the document.  Default is
+false.
 
 =item $HTML::Parse::SPLIT_TEXT
 
@@ -49,6 +72,10 @@ This variable controls whether the text content of elements should be
 cut into pieces. Default is false.
 
 =back
+
+=head1 SEE ALSO
+
+L<HTML::Element>
 
 =head1 COPYRIGHT
 
@@ -67,18 +94,25 @@ Gisle Aas <aas@oslonett.no>
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(parse parsefile);
+@EXPORT = qw(parse_html parse_htmlfile expand_entities);
 
 require HTML::Element;
 
-$IMPLICIT = 1;
-$SPLIT_TEXT = 0;
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+sub Version { $VERSION; }
+
+
+$IMPLICIT_TAGS  = 1;
+$SPLIT_TEXT     = 0;
 $IGNORE_UNKNOWN = 1;
+$IGNORE_TEXT    = 0;
+
 
 # Elements that should only be present in the header
 for (qw(title base link meta isindex nextid)) {
     $isHeadElement{$_} = 1;
 }
+
 
 # Elements that should only be present in the body
 for (qw(h1 h2 h3 h4 h5 h6
@@ -95,25 +129,42 @@ for (qw(h1 h2 h3 h4 h5 h6
     $isBodyElement{$_} = 1;
 }
 
-# Also parse some Netscape extentions elements
+# Also known are some Netscape extentions elements
 for (qw(wbr nobr center blink font basefont)) {
     $isBodyElement{$_} = 1;
 }
+
+
+# The following elements must be directly contained in some other
+# element than body.
+
+for (qw(cite code em kbd samp strong var b i u tt
+	a img br hr
+	wbr nobr center blink font basefont
+	table
+       )
+    ) {
+    $isPhraseMarkup{$_} = 1;
+}
+
 
 # Lists
 for (qw(ul ol dir menu)) {
     $isList{$_} = 1;
 }
 
+
 # Table elements
 for (qw(tr td th caption)) {
     $isTableElement{$_} = 1;
 }
 
-# Form element
+
+# Form elements
 for (qw(input select option textarea)) {
     $isFormElement{$_} = 1;
 }
+
 
 %entities = (
 
@@ -186,10 +237,15 @@ for (qw(input select option textarea)) {
  'yacute' => 'ý',
  'yuml'   => 'ÿ',
 
+ # Netscape extentions
+ 'reg'    => '®',
+ 'copy'   => '©',
+
 );
 
 
-sub parse
+
+sub parse_html
 {
     my $html = $_[1];
     $html = new HTML::Element 'html' unless defined $html;
@@ -231,6 +287,22 @@ sub parse
     $html;
 }
 
+
+sub parse_htmlfile
+{
+    my $file = shift;
+    open(F, $file) or return new HTML::Element 'html', 'comment' => $!;
+    my $html = undef;
+    my $chunk;
+    while(read(F, $chunk, 1024)) {
+	$html = parse_html($chunk, $html);
+    }
+    close(F);
+    $html;
+}
+
+
+
 sub starttag
 {
     my $html = shift;
@@ -259,7 +331,7 @@ sub starttag
 		    die "This should not happen";
                 }
 		# expand entities
-		expandEntities($val);
+		expand_entities($val);
 	    } else {
 		# boolean attribute
 		$val = $key;
@@ -271,7 +343,7 @@ sub starttag
 	my $ptag = $pos->tag;
 	my $e = new HTML::Element $tag, %attr;
 
-        if (!$IMPLICIT) {
+        if (!$IMPLICIT_TAGS) {
 	    # do nothing
 	} elsif ($tag eq 'html') {
 	    if ($ptag eq 'html' && $pos->isEmpty()) {
@@ -339,11 +411,17 @@ sub starttag
 	    } elsif ($isFormElement{$tag}) {
 		return unless $pos->isInside('form');
 		if ($tag eq 'option') {
+		    # return unless $ptag eq 'select';
 		    endtag($html, 'option');
 		    $ptag = $html->pos->tag;
 		    $pos = insertTag($html, 'select') unless $ptag eq 'select';
 		}
+	    } elsif ($isPhraseMarkup{$tag}) {
+		if ($ptag eq 'body') {
+		    $pos = insertTag($html, 'p');
+		}
 	    }
+	    
 
 	} else {
 	    # unknown tag
@@ -355,6 +433,7 @@ sub starttag
 	insertTag($html, $e);
     }
 }
+
 
 sub insertTag
 {
@@ -374,6 +453,7 @@ sub insertTag
     $html->pos;
 }
 
+
 sub endtag
 {
     my $html = shift;
@@ -391,15 +471,17 @@ sub endtag
     }
 }
 
+
 sub text
 {
     my $html = shift;
     my $pos = $html->pos;
 
     my @text = @_;
-    expandEntities(@text);
+    expand_entities(@text);
 
     if ($pos->isInside('pre')) {
+	return if $IGNORE_TEXT;
 	$pos->pushContent(@text);
     } else {
 	my $empty = 1;
@@ -409,7 +491,9 @@ sub text
 	return if $empty;
 
 	my $ptag = $pos->tag;
-	if ($ptag eq 'head') {
+	if (!$IMPLICIT_TAGS) {
+	    # don't change anything
+	} elsif ($ptag eq 'head') {
 	    endtag($html, 'head');
 	    insertTag($html, 'body');
 	    $pos = insertTag($html, 'p');
@@ -422,6 +506,7 @@ sub text
 		 $ptag eq 'form') {
 	    $pos = insertTag($html, 'p');
 	}
+	return if $IGNORE_TEXT;
 	for (@text) {
 	    next if /^\s*$/;  # empty text
 	    if ($SPLIT_TEXT) {
@@ -434,25 +519,13 @@ sub text
     }
 }
 
-sub expandEntities
+
+sub expand_entities
 {
     for (@_) {
 	s/(&\#(\d+);?)/$2 < 256 ? chr($2) : $1/eg;
 	s/(&(\w+);?)/$entities{$2} || $1/eg;
     }
-}
-
-
-sub parsefile
-{
-    my $file = shift;
-    open(F, $file) or return new HTML::Element 'html', 'comment' => $!;
-    my $html = undef;
-    while(<F>) {
-	$html = parse($_, $html);
-    }
-    close(F);
-    $html;
 }
 
 1;

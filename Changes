@@ -9,6 +9,9 @@
 
     HTTP::Daemon patch for Alpha by <shildreth@emsphone.com>
 
+    The format_chunk() and write_chunk() methods of Net::HTTP
+    did not work.  Bug spotted by Yale Huang <yale@sdf-eu.org>.
+
 
 
 2002-05-31   Gisle Aas <gisle@ActiveState.com>

@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.16 1995/10/19 18:11:36 aas Exp $
+# $Id: Socket.pm,v 1.17 1995/11/06 09:42:03 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket;
@@ -262,7 +262,8 @@ read().  Can be used if you find out that you have read too much.
 sub pushback
 {
     LWP::Debug::trace('(...)');
-    substr(shift->{'buffer'}, 0, 0) = shift;
+    my $self = shift;
+    substr($self->{'buffer'}, 0, 0) = shift;
 }
 
 =head2 write($data, [$timeout])

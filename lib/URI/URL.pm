@@ -1,14 +1,16 @@
 package URI::URL;
 
-$VERSION = "4.10";   # $Date: 1997/03/18 16:02:31 $
+$VERSION = "4.10";   # $Date: 1997/04/04 11:08:26 $
 sub Version { $VERSION; }
 
 require 5.002;
 
 require Exporter;
-require AutoLoader;
-@ISA = qw(Exporter AutoLoader);
+@ISA = qw(Exporter);
 @EXPORT = qw(url);
+
+require AutoLoader;
+*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
 use Carp ();
 

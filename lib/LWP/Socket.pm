@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.21 1996/04/09 15:44:31 aas Exp $
+# $Id: Socket.pm,v 1.22 1997/01/27 14:18:43 aas Exp $
 
 package LWP::Socket;
 
@@ -33,7 +33,7 @@ localhost to serve chargen and echo protocols.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in
@@ -271,7 +271,7 @@ read().  Can be used if you find out that you have read too much.
 
 sub pushback
 {
-    LWP::Debug::trace('(...)');
+    LWP::Debug::trace('(' . length($_[1]) . ' bytes)');
     my $self = shift;
     substr($self->{'buffer'}, 0, 0) = shift;
 }

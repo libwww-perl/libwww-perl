@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.44 1998/11/19 21:45:01 aas Exp $
+# $Id: http.pm,v 1.45 1999/03/19 21:20:23 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -194,7 +194,7 @@ sub request
 		$line =~ s/\015$//;
 		last unless length $line;
 
-		if ($line =~ /^([a-zA-Z0-9_\-]+)\s*:\s*(.*)/) {
+		if ($line =~ /^([a-zA-Z0-9_\-.]+)\s*:\s*(.*)/) {
 		    $response->push_header($key, $val) if $key;
 		    ($key, $val) = ($1, $2);
 		} elsif ($line =~ /^\s+(.*)/) {

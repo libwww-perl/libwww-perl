@@ -10,19 +10,19 @@ require LWP::UserAgent;
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
-$url = new URI::URL('http://web.nexor.co.uk/' .
-                    'users/mak/cgi-bin/lwp-test.pl/as_string');
+$url = new URI::URL('http://localhost/cgi-bin/test');
 
+my $request = new LWP::Request('GET', $url);
 
-my $form = 'searchtype=Substring';
-
-my $request = new LWP::Request('GET', $url, undef, $form);
+print "GET $url\n\n";
 
 my $response = $ua->request($request, undef, undef);
 
 my $str = $response->asString;
 
-if ($response->isSuccess and $str =~ /REQUEST_METHOD = 'GET'/) {
+print "$str\n";
+
+if ($response->isSuccess and $str =~ /^REQUEST_METHOD=GET$/m) {
     print "ok 1\n";
 }
 else {

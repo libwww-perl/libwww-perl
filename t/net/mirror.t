@@ -10,7 +10,7 @@ print "1..2\n";
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
-my $url = 'http://web.nexor.co.uk/';
+my $url = 'http://localhost/';
 my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
 
 my $response = $ua->mirror($url, $copy);

@@ -7,7 +7,7 @@ print "1..1\n";
 require LWP::UserAgent;
 # note no LWP::Protocol::http;
 
-$url = 'http://web.nexor.co.uk/users/mak/cgi-bin/lwp-test.pl/simple_html';
+$url = 'http://localhost/';
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 

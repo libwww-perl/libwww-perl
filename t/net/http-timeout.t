@@ -12,15 +12,15 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $ua->timeout(5);
 
-$url = new URI::URL('http://web.nexor.co.uk/' .
-                    'users/mak/cgi-bin/timeout.pl');
-
+$url = new URI::URL('http://localhost/cgi-bin/lwp/timeout');
 
 my $request = new LWP::Request('GET', $url);
 
-my $response = $ua->request($request, undef, undef);
+my $response = $ua->request($request, undef);
 
 my $str = $response->asString;
+
+print "$str\n";
 
 if ($response->isError and 
     $response->code == &LWP::StatusCode::RC_REQUEST_TIMEOUT and 

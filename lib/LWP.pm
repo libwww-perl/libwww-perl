@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.32 1996/05/09 11:39:30 aas Exp $
+# $Id: LWP.pm,v 1.33 1996/05/19 11:16:36 aas Exp $
 
 package LWP;
 
@@ -81,8 +81,8 @@ text).
 
 =item *
 
-The library can cooperate with Tk.  A simple Tk-based GUI browser is
-distributed with the Tk extention for perl.
+The library can cooperate with Tk.  A simple Tk-based GUI browser
+called 'tkweb' is distributed with the Tk extention for perl.
 
 =item *
 
@@ -101,7 +101,7 @@ A simple command line client application called C<lwp-request>.
 
 
 The libwww-perl library is based on HTTP style communication. This
-section tries to describe what that means.
+section try to describe what that means.
 
 Let us start with this quote from the HTTP specification document
 <URL:http://www.w3.org/pub/WWW/Protocols/>:
@@ -402,14 +402,14 @@ The "If-Modified-Since" header is not honored yet.
 
 Example:
 
-  $req = HTTP::Request->new('GET', 'ftp://me:passwd@ftp.some.where/');
+  $req = HTTP::Request->new('GET', 'ftp://me:passwd@ftp.some.where.com/');
   $req->header("Accept", "text/html, */*;q=0.1");
 
 =head2 News Requests
 
 Access to the USENET News system is implemented through the NNTP
 protocol.  The name of the news server is obtained from the
-NNTP_SERVER envirionment variable and defaults to "news".  It is not
+NNTP_SERVER environment variable and defaults to "news".  It is not
 possible to specify the hostname of the NNTP server in the news:-URLs.
 
 The library support GET and HEAD to retrive news articles through the
@@ -453,7 +453,7 @@ Example:
 The library supports GET and HEAD methods for file requests.  The
 "If-Modified-Since" header is supported.  All other headers are
 ignored.  The I<host> component of the file URL must be empty or set
-to "localhost".
+to "localhost".  Any other I<host> value will be treated as an error.
 
 Directories are always converted to an HTML document.  For normal
 files, the "Content-Type" and "Content-Encoding" in the response are
@@ -534,15 +534,16 @@ distributions for them.  Regard them as bonus.
 =head1 MORE DOCUMENTATION
 
 All modules contain detailed information on the interfaces they
-provide.  The L<lwpcook> is the libwww-perl cookbook that
-contain examples of typical usage of the library.  You might want to
-take a look at how the scripts C<lwp-request> and C<lwp-mirror> are
-implemented.
+provide.  The L<lwpcook> is the libwww-perl cookbook that contain
+examples of typical usage of the library.  You might want to take a
+look at how the scripts C<lwp-request>, C<lwp-rget> and C<lwp-mirror>
+are implemented.
 
 =head1 BUGS
 
 The library can not handle multiple simultaneous requests.  The HTML::
-modules are still experimental.  Check what's left in the TODO file.
+modules are still experimental.  Also, check out what's left in the
+TODO file.
 
 =head1 ACKNOWLEDGEMENTS
 

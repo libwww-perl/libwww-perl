@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.9 1996/03/05 15:26:53 aas Exp $
+# $Id: ftp.pm,v 1.10 1996/03/14 15:51:33 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -144,12 +144,12 @@ sub request
 		    return \$content;
 		} );
 	    }
-	    my $resp = $data->close;
-	    if ($resp < 200 || $resp >= 300) {
+	    if ($data->close != 2) {
 		# Something did not work too well
 		if ($method ne 'HEAD') {
 		    $response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
-		    $response->message("FTP response code $resp");
+		    $response->message("FTP close response: " . $ftp->code .
+                                       " " . $ftp->message);
 		}
 	    }
 	} elsif (!length($remote_file) || $ftp->code == 550) {

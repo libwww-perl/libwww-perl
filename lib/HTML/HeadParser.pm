@@ -10,22 +10,51 @@ HTML::HeadParser - Parse <HEAD> section of a HTML document
  $p = HTML::HeadParser->new;
  $p->parse($text) and  print "not finished";
 
- $p->header('Title')  # to access <title>....</title>
- $p->header('Base')   # to access <base href="http://...">
- $p->header('Foo')    # to access <meta http-equiv="Foo" content="...">
+ $p->header('Title')          # to access <title>....</title>
+ $p->header('Content-Base')   # to access <base href="http://...">
+ $p->header('Foo')            # to access <meta http-equiv="Foo" content="...">
 
 =head1 DESCRIPTION
 
-The C<HTML::HeadParser> is a specialized (and lightweight)
-C<HTML::Parser> that will only parse the <HEAD>...</HEAD> section of a
-HTML document.  The parse() and parse_file() method will return a
+The I<HTML::HeadParser> is a specialized (and lightweight)
+I<HTML::Parser> that will only parse the <HEAD>...</HEAD> section of a
+HTML document.  The parse() and parse_file() methods will return a
 FALSE value as soon as a <BODY> element is found, and should not be
 called again after this.
 
-The C<HTML::HeadParser> constructor can also be called with a
-HTTP::Headers object reference as argument.  This will make the parser
-update this header object as the various head elements are recognized.
-The following example illustrates this:
+The I<HTML::HeadParser> constructor takes a I<HTTP::Headers> object
+reference as argument.  The parser will update this header object as
+the various head elements are recognized.
+
+The following header fields are initialized from elements found in the
+L<lt>head> section of a HTML document:
+
+=over 4
+
+=item Content-Base:
+
+The I<Content-Base> header is initialized from the E<lt>base
+href="..."> element.
+
+=item Title:
+
+The I<Title> header is initialized from the E<lt>title>...E<lt>/title>
+element.
+
+=item Isindex:
+
+The I<Isindex> header will be added if there is a E<lt>isindex>
+element in the E<lt>head>.  The header value is initialized from the
+I<prompt> attribute if it is present.
+
+=item I<http-equiv>
+
+Any other header field can be initialized from a E<lt>meta
+http-equiv="header" content="..."> element.
+
+=back
+
+=head1 EXAMPLES
 
  $h = HTTP::Headers->new;
  $p = HTML::HeadParser->new($h);
@@ -35,10 +64,7 @@ The following example illustrates this:
  Normal text starts here.
  EOT
  undef $p;
- print $h->title;
-
-The parse text can be supplied in arbitrary chunks to the parse()
-method.
+ print $h->title;   # should print "Stupid example"
 
 =head1 SEE ALSO
 
@@ -53,7 +79,7 @@ modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas E<lt>aas@sn.no>
 
 =cut
 
@@ -66,7 +92,7 @@ require HTTP::Headers;
 use strict;
 use vars qw($VERSION $DEBUG);
 #$DEBUG = 1;
-$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
 
 my $FINISH = "HEAD PARSED\n";
 
@@ -136,19 +162,27 @@ sub start
     print "START[$tag]\n" if $DEBUG;
     $self->flush_text if $self->{'tag'};
     if ($tag eq 'meta') {
-	if (exists $attr->{'http-equiv'}) {
-	    $self->{'header'}->push_header($attr->{'http-equiv'} =>
-					   $attr->{content})
-	}
+	return unless exists $attr->{'http-equiv'};
+	$self->{'header'}->push_header($attr->{'http-equiv'} =>
+				       $attr->{content})
     } elsif ($tag eq 'base') {
-	$self->{'header'}->header(Base => $attr->{href});
+	return unless exists $attr->{href};
+	$self->{'header'}->header('Content-Base' => $attr->{href});
     } elsif ($tag eq 'isindex') {
+	# This is a non-standard header.  Perhaps we should just ignore
+	# this element
 	$self->{'header'}->header(Isindex => $attr->{prompt} || '?');
     } elsif ($tag =~ /^(?:title|script|style)$/) {
+	# Just remember tag.  Initialize header when we see the end tag.
 	$self->{'tag'} = $tag;
     } elsif ($tag eq 'link') {
-	#XXX: how shall we represent a link as a header?
+	return unless exists $attr->{href};
 	# <link href="http:..." rel="xxx" rev="xxx" title="xxx">
+	my $h_val = "<" . delete($attr->{href}) . ">";
+	for (sort keys %{$attr}) {
+	    $h_val .= qq(; $_="$attr->{$_}");
+	}
+	$self->{'header'}->header(Link => $h_val);
     } elsif ($tag eq 'head' || $tag eq 'html') {
 	# ignore
     } else {

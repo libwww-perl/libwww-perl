@@ -1,6 +1,6 @@
 package HTML::Formatter;
 
-# $Id: Formatter.pm,v 1.14 1997/04/05 12:38:00 aas Exp $
+# $Id: Formatter.pm,v 1.15 1997/07/03 06:50:11 aas Exp $
 
 =head1 NAME
 
@@ -242,7 +242,7 @@ sub font_start
 {
     my($self, $elem) = @_;
     my $size = $elem->attr('size');
-    return unless defined $size;
+    return 1 unless defined $size;
     if ($size =~ /^\s*[+\-]/) {
 	my $base = $self->{basefont_size}[-1];
 	$size = $base + $size;

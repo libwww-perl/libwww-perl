@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.1 1997/10/13 13:04:36 aas Exp $
+# $Id: Heuristic.pm,v 4.2 1997/10/13 23:10:01 aas Exp $
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ modify it under the same terms as Perl itself.
 
 use strict;
 
-use vars qw(@EXPORT_OK);
+use vars qw(@EXPORT_OK %LOCAL_GUESSING $DEBUG);
 
 require Exporter;
 *import = \&Exporter::import;
@@ -57,7 +57,18 @@ eval {
     require Net::Domain;
     my $fqdn = Net::Domain::hostfqdn();
     $my_country = lc($1) if $fqdn =~ /\.([a-zA-Z]{2})$/;
+
+    # Some other heuristics to guess country?  Perhaps looking
+    # at some environment variable (LANG, LC_ALL, ???)
+    $my_country = $ENV{COUNTRY} if exists $ENV{COUNTRY};
 };
+
+%LOCAL_GUESSING =
+(
+ 'us' => ['www.ACME.gov', 'www.ACME.mil'],
+ 'uk' => ['www.ACME.co.uk', 'www.ACME.ac.uk'],
+ 'au' => ['www.ACME.com.au', 'www.ACME.edu.au'],
+);
 
 
 sub url ($)
@@ -75,10 +86,10 @@ sub friendly_url ($)
     s/^\s+//;
     s/\s+$//;
 
-    if (/^(www|web|http)\./) {
+    if (/^(www|web|home)\./) {
 	$_ = "http://$_";
 
-    } elsif (/^(ftp|gopher|news|wais)\./) {
+    } elsif (/^(ftp|gopher|news|wais|http|https)\./) {
 	$_ = "$1://$_";
 
     } elsif (m,^/,      ||          # absolute file name
@@ -88,18 +99,27 @@ sub friendly_url ($)
 	$_ = "file:$_";
 
     } elsif (!/^[.+\-\w]+:/) {      # no scheme specified
-	if (s/^([\w\.]+)//) {
+	if (s/^(\w+(?:\.\w+)*)([\/:\?\#]|$)/$2/) {
 	    my $host = $1;
 
 	    if ($host !~ /\./) {
 		my @guess;
-		push(@guess, "www.$host.$my_country") if $my_country;
-		push(@guess, map { "www.$host.$_" } "com", "org");
-		push(@guess, map { "www.$host.$_"} "gov", "mil")
-		    if $my_country && $my_country eq "us";
+
+		if ($my_country) {
+		    my $special = $LOCAL_GUESSING{$my_country};
+		    if ($special) {
+			push(@guess, map { s/\bACME\b/$host/; $_ } @$special);
+		    } else {
+			push(@guess, "www.$host.$my_country");
+		    }
+		}
+
+		push(@guess, map "www.$host.$_",
+                                 "com", "org", "net", "edu", "int");
 
 		my $guess;
 		for $guess (@guess) {
+		    print STDERR "Looking up '$guess'\n" if $DEBUG;
 		    if (gethostbyname($guess)) {
 			$host = $guess;
 			last;
@@ -107,8 +127,11 @@ sub friendly_url ($)
 		}
 	    }
 	    $_ = "http://$host$_";
+
+	} else {
+	    # pure junk, just return it unchanged...
+
 	}
-	
     }
     $_;
 }

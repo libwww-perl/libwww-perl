@@ -125,7 +125,7 @@ sub full_path
 #
 # subclasses will usually want to override this
 #
-sub default_port { 0; }
+sub default_port { undef; }
 
 
 #####################################################################
@@ -191,6 +191,7 @@ sub params;
 sub equery;
 sub query;
 sub frag;
+sub crack;
 sub abs;
 sub rel;
 sub eq;
@@ -318,6 +319,20 @@ sub query {
 # No efrag method because the fragment is always stored unescaped
 sub frag     { shift->_elem('frag', @_); }
 
+sub crack
+{
+    my $self = shift;
+    return $self unless wantarray;
+    my @c = @{$self}{qw(scheme user password host port path params query frag)};
+    if (!$c[0]) {
+	# try to determine scheme
+	my $base = $self->base;
+	$c[0] = $base->scheme if $base;
+	$c[0] ||= 'http';  # last resort, default in URI::URL::new
+    }
+    $c[4] ||= $self->default_port;
+    @c;
+}
 
 # Generic-RL: Resolving Relative URL into an Absolute URL
 #

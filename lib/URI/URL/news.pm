@@ -48,6 +48,22 @@ sub group {
     $old;
 }
 
+sub crack
+{
+    my $self = shift;
+    ('news',             # scheme
+     undef,              # user
+     undef,              # passwd
+     undef,              # host
+     undef,              # port
+     $self->{'path'},    # path
+     undef,              # params
+     undef,              # query
+     undef               # fragment
+    )
+}
+
+
 sub as_string {
     my $self = shift;
     my $scheme = $self->{'scheme'} || "news";

@@ -1,6 +1,6 @@
 package URI::URL;
 
-$VERSION = "4.06";   # $Date: 1996/09/26 14:51:08 $
+$VERSION = "4.07";   # $Date: 1996/10/08 11:20:00 $
 sub Version { $VERSION; }
 
 require 5.002;
@@ -234,6 +234,7 @@ sub newlocal;
 sub strict;
 sub base;
 sub scheme;
+sub crack;
 sub abs;
 sub rel;
 sub as_string;
@@ -300,6 +301,22 @@ sub scheme {
 	$self->{'scheme'} = undef;
     }
     $old;
+}
+
+sub crack
+{
+    # should be overridden by subclasses
+    my $self = shift;
+    ($self->scheme,  # 0: scheme
+     undef,          # 1: user
+     undef,          # 2: passwd
+     undef,          # 3: host
+     undef,          # 4: port
+     undef,          # 5: path
+     undef,          # 6: params
+     undef,          # 7: query
+     undef           # 8: fragment
+    )
 }
 
 # These are overridden by _generic (this is just a noop for those schemes that
@@ -650,6 +667,27 @@ base URL matters when you call the abs() method.
 =item $url->clone
 
 Returns a copy of the current URI::URL object.
+
+=item $url->crack
+
+Return a 9 element array with the following content:
+
+   0: $url->scheme *)
+   1: $url->user
+   2: $url->password
+   3: $url->host
+   4: $url->port
+   5: $url->epath
+   6: $url->eparams
+   7: $url->equery
+   8: $url->frag
+
+All elements except I<scheme> will be undefined if the corresponding
+URL part is not available.
+
+B<Note:> The scheme (first element) returned by crack will aways be
+defined.  This is different from what the $url->scheme returns, since
+it will return I<undef> for relative URLs.
 
 =item $url->default_port
 

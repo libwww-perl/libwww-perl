@@ -44,6 +44,21 @@ sub host {
     $old;
 }
 
+sub crack
+{
+    my $self = shift;
+    ('mailto',           # scheme
+     $self->user,        # user
+     undef,              # passwd
+     $self->host,        # host
+     undef,              # port
+     $self->{'address'}, # path
+     undef,              # params
+     undef,              # query
+     undef               # fragment
+    )
+}
+
 sub as_string {
     my $self = shift;
     my $str = ($self->{'scheme'} || "mailto") . ":";

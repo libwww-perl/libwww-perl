@@ -22,7 +22,7 @@ unshift(@INC, "../blib/lib", "../blib/arch");
 
 use Test::Harness;
 $Test::Harness::verbose = shift
-  if $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
+  if defined $ARGV[0] and $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
 
 my @tests;
 

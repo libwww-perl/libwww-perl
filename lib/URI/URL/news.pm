@@ -50,7 +50,8 @@ sub group {
 
 sub as_string {
     my $self = shift;
-    "$self->{'scheme'}:" . uri_escape($self->{'path'});
+    my $scheme = $self->{'scheme'} || "news";
+    "$scheme:" . uri_escape($self->{'path'});
 }
 
 1;

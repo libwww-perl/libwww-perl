@@ -46,10 +46,8 @@ sub host {
 
 sub as_string {
     my $self = shift;
-    my $str = '';
-    $str .= "$self->{'scheme'}:" if defined $self->{'scheme'};
-    $str .= uri_escape($self->{'address'})
-      if defined $self->{'address'};
+    my $str = ($self->{'scheme'} || "mailto") . ":";
+    $str .= uri_escape($self->{'address'}) if defined $self->{'address'};
     $str;
 }
 

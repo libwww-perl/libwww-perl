@@ -33,8 +33,13 @@ sub password
 	if ($user eq 'anonymous' || $user eq 'ftp') {
 	    # anonymous ftp login password
 	    unless (defined $fqdn) {
-		require Net::Domain;
-		$fqdn = Net::Domain::hostfqdn();
+		eval {
+		    require Net::Domain;
+		    $fqdn = Net::Domain::hostfqdn();
+		};
+		if ($@) {
+		    $fqdn = '';
+		}
 	    }
 	    unless (defined $whoami) {
 		$whoami = $ENV{USER} || $ENV{LOGNAME};

@@ -1,3 +1,35 @@
+
+
+
+ o  Release 5.06
+
+ o  URI::URL is now compatible with perl5.004 overloading.
+
+ o  HTML::HeadParser makes X-Meta-Foo headers.
+
+ o  URI::URL::ftp does not die if Net::Domain is not installed.
+
+ o  WWW::RobotRules:  The robots.txt parser did not ignore comment lines
+    as it should.
+
+ o  Allow "?" before search string in gopher URLs.
+
+ o  LWP::Protocol::file did not escape funny filenames when generating
+    HTML directory listings.
+
+ o  LWP::Protocol::ftp now gets the Content-Encoding correct. 'CODE'
+    content in PUT requests also work now.
+
+ o  Relative locations in redirects did not work with URI::URL::strict.
+
+ o  OS/2 portability patches from Ilya Zakharevich
+
+ o  Support experimental data:- URLs
+
+ o  Some tests now die more gracefully if IO::* modules is not installed.
+
+
+
 Wed Dec  4 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.05

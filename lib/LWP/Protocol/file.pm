@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.15 1996/09/13 15:47:00 aas Exp $
+# $Id: file.pm,v 1.16 1997/01/13 14:23:16 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -9,6 +9,9 @@ require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
 require HTTP::Date;
+
+require URI::Escape;
+require HTML::Entities;
 
 use Carp;
 
@@ -101,7 +104,9 @@ sub request
 	# Make directory listing
 	for (@files) {
 	    $_ .= "/" if -d "$path/$_";
-	    $_ = qq{<LI> <a href="$_">$_</a>};
+	    my $furl = URI::Escape::uri_escape($_);
+	    my $desc = HTML::Entities::encode($_);
+	    $_ = qq{<LI><A HREF="$furl">$desc</A>};
 	}
 	# Ensure that the base URL is "/" terminated
 	my $base = $url->clone;

@@ -12,8 +12,6 @@ require URI::URL;
 
 use URI::Escape;
 
-%OVERLOAD = ( '""' => 'as_string', 'fallback' => 1 );    # EXPERIMENTAL
-
 
 sub new {                               # inherited by subclasses
     my($class, $init, $base) = @_;

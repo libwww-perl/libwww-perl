@@ -1,14 +1,20 @@
-2004-04-09   Gisle Aas <gisle@ActiveState.com>
+2004-04-13   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.79
 
-    WWW::RobotRules: a robot should look for the string found in
-    robots.txt as a case insensitive substring from its own User-Agent
-    string, not the other way around.
+    HTML::Form now exposes the 'readonly' and 'disabled'
+    attribute for inputs.  This allow your program to simulate
+    JavaScript code that modifies these attributes.
+
+    RFC 2616 says that http: referer should not sent with
+    https: requests.  The lwp-rget program, the $req->referer method
+    and the redirect handling code now try to enforce this.
     Patch by Ville Skyttä <ville.skytta@iki.fi>.
 
-    HTML::Form now exposes the 'readonly' and 'disabled'
-    attribute for inputs.
+    WWW::RobotRules now look for the string found in
+    robots.txt as a case insensitive substring from its own
+    User-Agent string, not the other way around.
+    Patch by Ville Skyttä <ville.skytta@iki.fi>.
 
     HTML::Headers: New method 'header_field_names' that
     return a list names as suggested by its name.
@@ -19,7 +25,7 @@
     that RFC 2616 denote as Entity Header Fields.
 
     HTML::Headers: $h->content_type is now more careful
-    to remove embedded space in the returned value.
+    in removing embedded space in the returned value.
     It also now returns all the parameters as the second
     return value as documented.
 

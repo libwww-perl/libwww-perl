@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.2 2003/10/15 18:34:33 gisle Exp $
+# $Id: lwp-download,v 2.3 2003/10/23 11:22:05 gisle Exp $
 
 =head1 NAME
 
@@ -40,6 +40,8 @@ Gisle Aas <gisle@aas.no>
 
 =cut
 
+#' get emacs out of quote mode
+
 use strict;
 
 use LWP::UserAgent ();
@@ -60,7 +62,7 @@ unless (getopts('a', \%opt)) {
 
 my $url = URI->new(shift || usage());
 my $argfile = shift;
-my $version = q$Revision: 2.2 $;
+my $version = q$Revision: 2.3 $;
 
 my $ua = new LWP::UserAgent;
 
@@ -125,9 +127,19 @@ my $res = $ua->request($req,
 
 	      # Check if the file is already present
 	      if (-f $file && -t) {
+		  $shown = 1;
 		  print "Overwrite $file? [y] ";
 		  my $ans = <STDIN>;
-		  exit if !defined($ans) || !($ans =~ /^y?\n/);
+		  unless (defined($ans) && $ans =~ /^y?\n/) {
+		      if (defined $ans) {
+			  print "Ok, aborting.\n";
+		      }
+		      else {
+			  print "\nAborting.\n";
+		      }
+		      exit 1;
+		  }
+		  $shown = 0;
 	      } else {
 		  print "Saving to '$file'...\n";
 	      }
@@ -141,8 +153,10 @@ my $res = $ua->request($req,
 	  $start_t = time;
 	  $last_dur = 0;
       }
+
+      print FILE $_[0] or die "Can't write to $file: $!";
       $size += length($_[0]);
-      print FILE $_[0];
+
       if (defined $length) {
 	  my $dur  = time - $start_t;
 	  if ($dur != $last_dur) {  # don't update too often
@@ -162,7 +176,9 @@ my $res = $ua->request($req,
   }
 );
 
-if ($res->is_success || $res->message =~ /^Interrupted/) {
+if (fileno(FILE)) {
+    close(FILE) || die "Can't write to $file: $!";
+
     show("");  # clear text
     print "\r";
     print fbytes($size);
@@ -174,21 +190,41 @@ if ($res->is_success || $res->message =~ /^Interrupted/) {
 	print " in ", fduration($dur), " ($speed)";
     }
     print "\n";
-    my $died = $res->header("X-Died");
-    if ($died || !$res->is_success) {
+
+    if (my $mtime = $res->last_modified) {
+	utime time, $mtime, $file;
+    }
+
+    if ($res->header("X-Died") || !$res->is_success) {
 	if (-t) {
 	    print "Transfer aborted.  Delete $file? [n] ";
 	    my $ans = <STDIN>;
-	    unlink($file) if defined($ans) && $ans =~ /^y\n/;
+	    if (defined($ans) && $ans =~ /^y\n/) {
+		unlink($file) && print "Deleted.\n";
+	    }
+	    elsif ($length > $size) {
+		print "Truncated file kept: ", fbytes($length - $size), " missing\n";
+	    }
+	    else {
+		print "File kept.\n";
+	    }
+            exit 1;
 	} else {
 	    print "Transfer aborted, $file kept\n";
 	}
     }
-} else {
-    print "\n" if $shown;
-    print "$progname: ", $res->status_line, "\n";
-    exit 1;
+    exit 0;
 }
+
+# Did not manage to create any file
+print "\n" if $shown;
+if ($res->header("X-Died")) {
+    print "$progname: Aborted\n";
+}
+else {
+    print "$progname: ", $res->status_line, "\n";
+}
+exit 1;
 
 
 sub fbytes

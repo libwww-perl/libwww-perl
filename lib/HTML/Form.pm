@@ -770,12 +770,16 @@ sub dump
 
     $type = ($type eq "text") ? "" : " ($type)";
     my $menu = $self->{menu} || "";
+    my $value_names = $self->{value_names};
     if ($menu) {
 	my @menu;
 	for (0 .. @$menu-1) {
 	    my $opt = $menu->[$_];
 	    $opt = "<UNDEF>" unless defined $opt;
 	    substr($opt,0,0) = "*" if $self->{seen}[$_];
+	    $opt .= "/$value_names->[$_]"
+		if $value_names && defined $value_names->[$_]
+		    && $value_names->[$_] ne $opt;
 	    push(@menu, $opt);
 	}
 	$menu = "[" . join("|", @menu) . "]";

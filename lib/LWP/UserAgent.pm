@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.89 2001/04/21 04:15:28 gisle Exp $
+# $Id: UserAgent.pm,v 1.90 2001/05/05 13:32:02 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -95,7 +95,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.89 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.90 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -117,16 +117,19 @@ Key/value pair arguments may be provided to set up the initial state
 of the user agent.  The following options correspond to attribute
 methods described below:
 
-   KEY           DEFAULT
-   -----------   --------------------
-   agent         "libwww-perl/#.##"
-   from          undef
-   timeout       180
-   use_eval      1
-   parse_head    1
-   max_size      undef
-   cookie_jar    undef
-   conn_cache    undef
+   KEY                     DEFAULT
+   -----------             --------------------
+   agent                   "libwww-perl/#.##"
+   from                    undef
+   timeout                 180
+   use_eval                1
+   parse_head              1
+   max_size                undef
+   cookie_jar              undef
+   conn_cache              undef
+   protocols_allowed       undef
+   protocols_forbidden     undef
+   requests_redirectable   ['GET', 'HEAD']
 
 The followings option are also accepted: If the C<env_proxy> option is
 passed in an has a TRUE value, then proxy settings are read from
@@ -160,8 +163,26 @@ sub new
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
     my $keep_alive = delete $cnf{keep_alive};
+    
     Carp::croak("Can't mix conn_cache and keep_alive")
 	  if $conn_cache && $keep_alive;
+
+
+    my $protocols_allowed   = delete $cnf{protocols_allowed};
+    my $protocols_forbidden = delete $cnf{protocols_forbidden};
+    
+    my $requests_redirectable = delete $cnf{protocols_forbidden};
+    $requests_redirectable = ['GET', 'HEAD']
+      unless defined $requests_redirectable;
+
+    # Actually ""s are just as good as 0's, but for concision we'll just say:
+    Carp::croak("protocols_allowed has to be an arrayref or 0, not \"$protocols_allowed\"!")
+      if $protocols_allowed and ref($protocols_allowed) ne 'ARRAY';
+    Carp::croak("protocols_forbidden has to be an arrayref or 0, not \"$protocols_forbidden\"!")
+      if $protocols_forbidden and ref($protocols_forbidden) ne 'ARRAY';
+    Carp::croak("requests_redirectable has to be an arrayref or 0, not \"$requests_redirectable\"!")
+      if $requests_redirectable and ref($requests_redirectable) ne 'ARRAY';
+
 
     if (%cnf && $^W) {
 	Carp::carp("Unrecognized LWP::UserAgent options: @{[sort keys %cnf]}");
@@ -175,11 +196,17 @@ sub new
 		      max_size    => $max_size,
 		      proxy       => undef,
 		      no_proxy    => [],
+                      protocols_allowed => $protocols_allowed,
+                      protocols_forbidden => $protocols_forbidden,
+                      requests_redirectable => $requests_redirectable,
 		     }, $class;
 
     $self->agent($agent) if $agent;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->env_proxy if $env_proxy;
+
+    $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;
+    $self->protocols_forbidden($protocols_forbidden) if $protocols_forbidden;
 
     if ($keep_alive) {
 	$conn_cache ||= { total_capacity => $keep_alive };
@@ -238,10 +265,40 @@ sub simple_request
     } else {
 	$scheme = $url->scheme;
     }
-    my $protocol = eval { LWP::Protocol::create($scheme, $self) };
-    if ($@) {
+
+    my $protocol;
+
+    {
+      # Honor object-specific restrictions by forcing protocol objects
+      #  into class LWP::Protocol::nogo.
+      my $x;
+      if($x       = $self->protocols_allowed) {
+        if(grep $_ eq $scheme, @$x) {
+          LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
+        } else {
+          LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
+          require LWP::Protocol::nogo;
+          $protocol = LWP::Protocol::nogo->new;
+        }
+      } elsif ($x = $self->protocols_forbidden) {
+        if(grep $_ eq $scheme, @$x) {
+          LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
+          require LWP::Protocol::nogo;
+          $protocol = LWP::Protocol::nogo->new;
+        } else {
+          LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
+        }
+      }
+      # else fall thru and create the protocol object normally
+    }
+
+
+    unless($protocol) {
+      $protocol = eval { LWP::Protocol::create($scheme, $self) };
+      if ($@) {
 	$@ =~ s/\s+at\s+\S+\s+line\s+\d+.*//;  # remove file/line number
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@);
+      }
     }
 
     # Extract fields that will be used below
@@ -399,30 +456,201 @@ sub request
     return $response;
 }
 
+#---------------------------------------------------------------------------
+# Now the shortcuts...
 
-=item $ua->redirect_ok
+=item $ua->get($url, Header => Value,...);
 
-This method is called by request() before it tries to do any
-redirects.  It should return a true value if a redirect is allowed
-to be performed. Subclasses might want to override this.
+This is a shortcut for C<$ua-E<gt>request(HTTP::Request::Common::GET(
+$url, Header =E<gt> Value,... ))>.  See
+L<HTTP::Request::Common|HTTP::Request::Common>.
 
-The default implementation will return FALSE for POST request and TRUE
-for all others.
+=item $ua->post($url, \%formref, Header => Value,...);
+
+This is a shortcut for C<$ua-E<gt>request( HTTP::Request::Common::POST(
+$url, \%formref, Header =E<gt> Value,... ))>.  Note that the form
+reference is optional, and can be either a hashref (C<\%formdata> or C<{
+'key1' => 'val2', 'key2' => 'val2', ...
+}>) or an arrayref (C<\@formdata> or
+C<['key1' => 'val2', 'key2' => 'val2', ...]>).  See
+L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=item $ua->head($url, Header => Value,...);
+
+This is a shortcut for C<$ua-E<gt>request( HTTP::Request::Common::HEAD(
+$url, Header =E<gt> Value,... ))>.  See
+L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=item $ua->put($url, Header => Value,...);
+
+This is a shortcut for C<$ua-E<gt>request( HTTP::Request::Common::PUT(
+$url, Header =E<gt> Value,... ))>.  See
+L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=cut
+
+sub get {
+  require HTTP::Request::Common;
+  return shift->request( HTTP::Request::Common::GET( @_ ) );
+}
+
+sub post {
+  require HTTP::Request::Common;
+  return shift->request( HTTP::Request::Common::POST( @_ ) );
+}
+
+sub head {
+  require HTTP::Request::Common;
+  return shift->request( HTTP::Request::Common::HEAD( @_ ) );
+}
+
+sub put {
+  require HTTP::Request::Common;
+  return shift->request( HTTP::Request::Common::PUT( @_ ) );
+}
+
+
+#---------------------------------------------------------------------------
+# This whole allow/forbid thing is based on man 1 at's way of doing things.
+
+=item $ua->protocols_allowed( );  # to read
+
+=item $ua->protocols_allowed( \@protocols ); # to set
+
+This reads (or sets) this user-agent's list of procotols that
+C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will exclusively
+allow.
+
+For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
+means that this user agent will I<allow only> those protocols,
+and attempts to use this user-agent to access URLs with any other
+schemes (like "ftp://...") will result in a 500 error.
+
+To delete the list, call: 
+C<$ua-E<gt>protocols_allowed(undef)>
+
+By default, an object has neither a protocols_allowed list, nor
+a protocols_forbidden list.
+
+Note that having a protocols_allowed
+list causes any protocols_forbidden list to be ignored.
+
+=item $ua->protocols_forbidden( );  # to read
+
+=item $ua->protocols_forbidden( \@protocols ); # to set
+
+This reads (or sets) this user-agent's list of procotols that
+C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will I<not> allow.
+
+For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
+means that this user-agent will I<not> allow those protocols, and
+attempts to use this user-agent to access URLs with those schemes
+will result in a 500 error.
+
+To delete the list, call: 
+C<$ua-E<gt>protocols_forbidden(undef)>
+
+=item $ua->is_protocol_supported($scheme)
+
+You can use this method to test whether this user-agent object supports the
+specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
+'ftp') or it might be an URI object reference.)
+
+Whether a scheme is supported, is determined by $ua's protocols_allowed or
+protocols_forbidden lists (if any), and by the capabilities
+of LWP.  I.e., this will return TRUE only if LWP supports this protocol
+I<and> it's permitted for this particular object.
+
+=cut
+
+sub is_protocol_supported
+{
+    my($self, $scheme) = @_;
+    if (ref $scheme) {
+	# assume we got a reference to an URI object
+	$scheme = $scheme->scheme;
+    } else {
+	Carp::croak("Illegal scheme '$scheme' passed to is_protocol_supported")
+	    if $scheme =~ /\W/;
+	$scheme = lc $scheme;
+    }
+
+    my $x;
+    if(ref($self) and $x       = $self->protocols_allowed) {
+      return 0 unless grep $_ eq $scheme, @$x;
+    } elsif (ref($self) and $x = $self->protocols_forbidden) {
+      return 0 if grep $_ eq $scheme, @$x;
+    }
+
+    local($SIG{__DIE__});  # protect agains user defined die handlers
+    $x = LWP::Protocol::implementor($scheme);
+    return 1 if $x and $x ne 'LWP::Protocol::nogo';
+    return 0;
+}
+
+#---------------------------------------------------------------------------
+
+=item $ua->requests_redirectable( );  # to read
+
+=item $ua->requests_redirectable( \@requests );  # to set
+
+This reads or sets the object's list of request names that 
+C<$ua-E<gt>redirect_ok(...)> will allow redirection for.  By
+default, this is C<['GET', 'HEAD']>, as per RFC 2068.  To
+change to include 'POST', consider:
+
+   push @{ $ua->requests_redirectable }, 'POST';
+
+=cut
+
+sub protocols_allowed      { shift->_elem('protocols_allowed'    , @_) }
+sub protocols_forbidden    { shift->_elem('protocols_forbidden'  , @_) }
+sub requests_redirectable  { shift->_elem('requests_redirectable', @_) }
+
+#---------------------------------------------------------------------------
+
+=item $ua->redirect_ok($prospective_request)
+
+This method is called by request() before it tries to follow a
+redirection to the request in $prospective_request.  This
+should return a true value if this redirection is
+permissible.
+
+The default implementation will return FALSE unless the method
+is in the object's C<requests_redirectable> list,
+FALSE if the proposed redirection is to a "file://..."
+URL, and TRUE otherwise.
+
+Subclasses might want to override this.
+
+(This method's behavior in previous versions was simply to return
+TRUE for anything except POST requests).
 
 =cut
 
 sub redirect_ok
 {
-    # draft-ietf-http-v10-spec-02.ps from www.ics.uci.edu, specify:
-    #
-    # If the 30[12] status code is received in response to a request using
-    # the POST method, the user agent must not automatically redirect the
-    # request unless it can be confirmed by the user, since this might change
-    # the conditions under which the request was issued.
+    # RFC 2068, section 10.3.2 and 10.3.3 say:
+    #  If the 30[12] status code is received in response to a request other
+    #  than GET or HEAD, the user agent MUST NOT automatically redirect the
+    #  request unless it can be confirmed by the user, since this might
+    #  change the conditions under which the request was issued.
+
+    # Note that this routine used to be just:
+    #  return 0 if $_[1]->method eq "POST";  return 1;
 
     my($self, $request) = @_;
-    return 0 if $request->method eq "POST";
-    1;
+    my $method = $request->method;
+    return 0 unless grep $_ eq $method,
+      @{ $self->requests_redirectable || [] };
+    
+    if($request->url->scheme eq 'file') {
+      LWP::Debug::trace("Can't redirect to a file:// URL!");
+      return 0;
+    }
+    
+    # Otherwise it's apparently okay...
+    return 1;
 }
 
 
@@ -636,28 +864,6 @@ sub clone
 }
 
 
-=item $ua->is_protocol_supported($scheme)
-
-You can use this method to query if the library currently support the
-specified C<scheme>.  The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI object reference.
-
-=cut
-
-sub is_protocol_supported
-{
-    my($self, $scheme) = @_;
-    if (ref $scheme) {
-	# assume we got a reference to an URI object
-	$scheme = $scheme->scheme;
-    } else {
-	Carp::croak("Illegal scheme '$scheme' passed to is_protocol_supported")
-	    if $scheme =~ /\W/;
-	$scheme = lc $scheme;
-    }
-    local($SIG{__DIE__});  # protect agains user defined die handlers
-    return LWP::Protocol::implementor($scheme);
-}
 
 
 =item $ua->mirror($url, $file)
@@ -855,3 +1061,5 @@ This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
+
+

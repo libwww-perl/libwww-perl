@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.42 1998/05/06 08:37:36 aas Exp $
+# $Id: http.pm,v 1.43 1998/08/04 12:37:58 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -95,15 +95,14 @@ sub request
 
     # If we're sending content we *have* to specify a content length
     # otherwise the server won't know a messagebody is coming.
-    if ($ctype eq 'SCALAR') {
-	$h->header('Content-Length' => length $$cont_ref)
-	        if defined($$cont_ref) && length($$cont_ref);
-    } elsif ($ctype eq 'CODE') {
-	die 'No Content-Length header for request with CODE content'
-	    unless $h->header('Content-Length');
+    if ($ctype eq 'CODE') {
+	die 'No Content-Length header for request with dynamic content'
+	    unless defined($h->header('Content-Length')) ||
+		   $h->content_type =~ /^multipart\//;
 	# For HTTP/1.1 we could have used chunked transfer encoding...
     } else {
-	die "Illegal content type ($ctype) in request";
+	$h->header('Content-Length' => length $$cont_ref)
+	        if defined($$cont_ref) && length($$cont_ref);
     }
     
     # HTTP/1.1 will require us to send the 'Host' header, so we might

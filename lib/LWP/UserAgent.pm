@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.37 1996/10/07 09:37:55 aas Exp $
+# $Id: UserAgent.pm,v 1.38 1996/10/08 14:30:43 aas Exp $
 
 package LWP::UserAgent;
 
@@ -368,13 +368,13 @@ sub request
 		my($digest) = $md5->hexdigest;
 		$md5->reset;
 
-		my %resp = map { $_, $mda{$_} } qw(realm nonce opaque);
+		my %resp = map { $_ => $mda{$_} } qw(realm nonce opaque);
 		@resp{qw(username uri response)} =
 		  ($uid, $request->url->path, $digest);
 
 		if (defined $uid and defined $pwd) {
 		    my(@order) = qw(username realm nonce uri response);
-		    if($request->method =~ /^POST|PUT$/) {
+		    if($request->method =~ /^(?:POST|PUT)$/) {
 			$md5->add($request->content);
 			my($content) = $md5->hexdigest;
 			$md5->reset;
@@ -384,7 +384,11 @@ sub request
 			push(@order, "message-digest");
 		    }
 		    push(@order, "opaque");
-		    my @pairs  = map { "$_=" . qq("$resp{$_}") } @order;
+		    my @pairs;
+		    for (@order) {
+			next unless defined $resp{$_};
+			push(@pairs, "$_=" . qq("$resp{$_}"));
+		    }
 		    my $header = "$scheme " . join(", ", @pairs);
 
 		    # Need to check this isn't a repeated fail!
@@ -400,7 +404,7 @@ sub request
 		    }
 
 		    my $referral = $request->clone;
-		    $referral->header('Extension' => "Security/Digest");
+		    #$referral->header('Extension' => "Security/Digest");
 		    $referral->header('Authorization' => $header);
 		    return $self->request($referral, $arg, $size, $response);
 		} else {

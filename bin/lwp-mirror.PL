@@ -1,4 +1,4 @@
-$SCRIPT = "bin/mirror";
+$SCRIPT = "bin/lwp-mirror";
 
 require "myConfig.out";
 unlink($SCRIPT);
@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-mirror.PL,v 1.11 1995/09/20 22:23:45 aas Exp $
+# $Id: lwp-mirror.PL,v 1.12 1996/02/07 15:42:36 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -57,7 +57,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version

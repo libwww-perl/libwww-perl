@@ -1,9 +1,9 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.17 1996/02/05 18:52:43 aas Exp $
+# $Id: Makefile.PL,v 1.18 1996/02/07 15:42:23 aas Exp $
 
 #--- Configuration section ---
 
-@programs_to_install = qw(request);      # qw(request mirror);
+@programs_to_install = qw(lwp-request);      # qw(lwp-request lwp-mirror);
 @request_aliases     = qw(GET HEAD POST);
 
 #--- End Configuration - You should not have to change anything below this line
@@ -45,8 +45,8 @@ WriteMakefile(
    #VERSION_FROM  => 'lib/LWP.pm', # Can be enabled when the real thing is out
    SKIP          => [qw(static dynamic)],
    PL_FILES      => {
-                      'bin/request.PL' => 'bin/request',
-	              'bin/mirror.PL'  => 'bin/mirror',
+                      'bin/lwp-request.PL' => 'bin/lwp-request',
+	              'bin/lwp-mirror.PL'  => 'bin/lwp-mirror',
 	            },
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
    'clean'       => { FILES => '$(EXE_FILES)' },
@@ -65,12 +65,12 @@ exit;
 # Some code to install programs the way we want
 sub MY::postamble {
     my @m;
-    if (@request_aliases && grep($_ eq 'request', @programs_to_install)) {
+    if (@request_aliases && grep($_ eq 'lwp-request', @programs_to_install)) {
 	push @m, "all ::\n";
 	push @m, "\t\$(FULLPERL) -e 'use Config; foreach (qw(@request_aliases)) {' \\\n";
 	push @m, <<'EOT';
 	-e 'unlink "$(INST_EXE)/$$_";' \
-	-e 'system("$$Config{\"lns\"} request $(INST_EXE)/$$_") && die; }'
+	-e 'system("$$Config{\"lns\"} lwp-request $(INST_EXE)/$$_") && die; }'
 EOT
     }
     join "", @m;

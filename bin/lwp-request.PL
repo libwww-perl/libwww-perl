@@ -1,4 +1,4 @@
-$SCRIPT = "bin/request";
+$SCRIPT = "bin/lwp-request";
 
 require "myConfig.out";
 unlink($SCRIPT);
@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-request.PL,v 1.20 1995/09/20 22:23:45 aas Exp $
+# $Id: lwp-request.PL,v 1.21 1996/02/07 15:42:38 aas Exp $
 #
 # Simple user agent using LWP library.  Its interface is based on the
 # libwww-perl-0.40 'get'-program.
@@ -177,7 +177,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;

@@ -181,9 +181,9 @@ program for an example of this.
 
 =head1 COOKIES
 
-Some sites like to play games with cookies.  By default LWP ignore
-cookies provided by the servers it visit.  You can make it start
-collecting them by setting up a cookie jar.
+Some sites like to play games with cookies.  By default LWP ignores
+cookies provided by the servers it visits.  LWP will collect cookies
+and respond to cookie requests if you set up a cookie jar.
 
   use LWP::UserAgent;
   use HTTP::Cookies;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-mirror,v 2.2 2003/10/26 14:39:18 gisle Exp $
+# $Id: lwp-mirror,v 2.3 2004/04/10 11:19:33 gisle Exp $
 #
 # Simple mirror utility using LWP
 
@@ -24,7 +24,7 @@ The timeout value specified with the C<-t> option.  The timeout value
 is the time that the program will wait for response from the remote
 server before it fails.  The default unit for the timeout value is
 seconds.  You might append "m" or "h" to the timeout value to make it
-minutes or hours, repectively.
+minutes or hours, respectively.
 
 Because this program is implemented using the LWP library, it only
 supports the protocols that LWP supports.
@@ -47,7 +47,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version

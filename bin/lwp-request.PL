@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.5 1995/07/17 09:59:58 aas Exp $
+# $Id: lwp-request.PL,v 1.6 1995/07/18 07:33:57 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -115,7 +115,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -185,6 +185,9 @@ EOT
 usage() if $opt_h || !@ARGV;
 
 
+# Create the user agent object
+$ua = new LWP::UserAgent;
+
 $method = uc($opt_m || $0 || "GET");
 if ($opt_f) {
     if ($opt_c) {
@@ -244,10 +247,6 @@ if ($allowed_methods{$method} eq "C") {
     die "$0: Can't set Content-type for $method requests\n"
         if defined $opt_c;
 }
-
-
-# Create the user agent object
-$ua = new LWP::UserAgent;
 
 # Set up a request.  We use the same request for all URLs.
 $request = new LWP::Request $method;

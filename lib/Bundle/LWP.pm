@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -21,6 +21,8 @@ Net::FTP 2.00      - If you want ftp://-support
 MIME::Base64       - Used in authentication headers
 
 MD5                - Needed to Digest authentication
+
+LWP                - The reason why you need the modules above
 
 =head1 DESCRIPTION
 

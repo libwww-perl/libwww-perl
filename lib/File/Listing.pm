@@ -1,10 +1,10 @@
 #
-# $Id: Listing.pm,v 1.3 1996/03/18 17:47:37 aas Exp $
+# $Id: Listing.pm,v 1.4 1996/03/18 18:06:44 aas Exp $
 
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -78,10 +78,26 @@ use strict;
 use Carp ();
 use HTTP::Date qw(str2time);
 
-
 sub parse_dir ($;$$$)
 {
-   my($dir, $tz, $fstype, $error) = shift;
+   my($dir, $tz, $fstype, $error) = @_;
+
+   $fstype ||= 'unix';
+   $fstype = "File::Listing::" . lc $fstype;
+
+   my @args = $_[0];
+   push(@args, $tz) if(@_ >= 2);
+   push(@args, $error) if(@_ >= 4);
+
+   $fstype->parse(@args);
+}
+
+sub line { Carp::croak("Not implemented yet"); }
+sub init { } # Dummy sub
+
+sub parse
+{
+   my($pkg, $dir, $tz, $error) = @_;
 
    # First let's try to determine what kind of dir parameter we have
    # received.  We allow both listings, reference to arrays and
@@ -111,30 +127,31 @@ sub parse_dir ($;$$$)
        }
    }
 
-   # Default listing type is Unix 'ls -l'
-   $fstype ||= 'unix';
+   $pkg->init();
 
-   no strict 'refs';
-
-   my $init   = "parse_${fstype}_init";
-   my $parser = "parse_${fstype}_line";
-   &$init if defined &$init;
-
-   my @files;
+   my @files = ();
    if (ref($dir) eq 'ARRAY') {
        for (@$dir) {
-	   push(@files, &$parser($_, $tz, $error));
+	   push(@files, $pkg->line($_, $tz, $error));
        }
    } else {
        while (<$dir>) {
 	   chomp;
-	   push(@files, &$parser($_, $tz, $error));
+	   push(@files, $pkg->line($_, $tz, $error));
        }
    }
    wantarray ? @files : \@files;
-
 }
 
+package File::Listing::unix;
+
+use HTTP::Date qw(str2time);
+
+# A place to remember current directory from last line parsed.
+use vars qw($curdir);
+no strict qw(vars);
+
+@File::Listing::unix::ISA = qw(File::Listing);
 
 sub file_mode ($)
 {
@@ -166,16 +183,14 @@ sub file_mode ($)
     $mode;
 }
 
-# A place to remember current directory from last line parsed.
-use vars qw($curdir);
-
-sub parse_unix_init
+sub init
 {
     $curdir = '';
 }
 
-sub parse_unix_line
+sub line
 {
+    shift; # package name
     local($_) = shift;
     my($tz, $error) = @_;
 
@@ -223,19 +238,14 @@ sub parse_unix_line
 
 }
 
-sub parse_vms_line
-{
-    Carp::croak("Not implemented yet");
-}
+package File::Listing::vms;
+@File::Listing::unix::ISA = qw(File::Listing);
 
-sub parse_netware_line
-{
-    Carp::croak("Not implemented yet");
-}
+package File::Listing::netware;
+@File::Listing::unix::ISA = qw(File::Listing);
 
-sub parse_dosftp_line
-{
-    Carp::croak("Not implemented yet");
-}
+
+package File::Listing::dosftp;
+@File::Listing::unix::ISA = qw(File::Listing);
 
 1;

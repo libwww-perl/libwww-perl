@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.72 2000/03/27 18:31:47 gisle Exp $
+# $Id: UserAgent.pm,v 1.73 2000/04/07 11:29:04 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.72 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.73 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -437,7 +437,7 @@ the requesting user agent.  The address should be machine-usable, as
 defined in RFC 822.  The from value is send as the "From" header in
 the requests.  There is no default.  Example:
 
-  $ua->from('aas@sn.no');
+  $ua->from('gaas@cpan.org');
 
 =item $ua->timeout([$secs])
 
@@ -602,20 +602,16 @@ proxy URL for a single access scheme.
 
 sub proxy
 {
-    my($self, $key, $proxy) = @_;
+    my $self = shift;
+    my $key  = shift;
 
-    LWP::Debug::trace("$key, $proxy");
+    LWP::Debug::trace("$key @_");
 
-    if (!ref($key)) {   # single scalar passed
-	my $old = $self->{'proxy'}{$key};
-	$self->{'proxy'}{$key} = $proxy;
-	return $old;
-    } elsif (ref($key) eq 'ARRAY') {
-	for(@$key) {    # array passed
-	    $self->{'proxy'}{$_} = $proxy;
-	}
-    }
-    return undef;
+    return map $self->proxy($_, @_), @$key if ref $key;
+
+    my $old = $self->{'proxy'}{$key};
+    $self->{'proxy'}{$key} = shift if @_;
+    return $old;
 }
 
 =item $ua->env_proxy()
@@ -706,7 +702,7 @@ F<lwp-mirror> for examples of usage.
 
 =head1 COPYRIGHT
 
-Copyright 1995-1998 Gisle Aas.
+Copyright 1995-2000 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -9,7 +9,7 @@ use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 my $EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
@@ -692,7 +692,7 @@ sub load
     my($self, $file) = @_;
     $file ||= $self->{'file'} || return;
     local(*FILE, $_);
-    local $/ = "\n";  # make we got standard record separator
+    local $/ = "\n";  # make sure we got standard record separator
     my @cookies;
     open(FILE, $file) || return;
     my $magic = <FILE>;

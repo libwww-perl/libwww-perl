@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.18 2003/10/24 11:37:33 gisle Exp $
+# $Id: UserAgent.pm,v 2.19 2003/10/24 12:12:01 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.19 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -818,28 +818,295 @@ LWP::UserAgent - Web user agent class
 
 =head1 DESCRIPTION
 
-The C<LWP::UserAgent> is a class implementing a Web user agent in
-Perl. It brings together the C<HTTP::Request> C<HTTP::Response> and
-the C<LWP::Protocol> classes that form the rest of the core of
-libwww-perl library. For simple uses this class can be used directly
-to dispatch web requests, alternatively it can be subclassed for
-application-specific behaviour.
+The C<LWP::UserAgent> is a class implementing a web user agent.
+C<LWP::UserAgent> objects can be used to dispatch web requests.
 
-In normal use the application creates an C<LWP::UserAgent> object, and then
-configures it with values for timeouts, proxies, name, etc. It then
-creates an instance of C<HTTP::Request> for the request that
-needs to be performed. This request is then passed to one of the UserAgent's
-request() methods, which dispatches it using the relevant protocol,
-and returns a C<HTTP::Response> object.
-
-There are convenience methods for sending the most common request
-types: get(), head() and post().
+In normal use the application creates an C<LWP::UserAgent> object, and
+then configures it with values for timeouts, proxies, name, etc. It
+then creates an instance of C<HTTP::Request> for the request that
+needs to be performed. This request is then passed to one of the
+request() method the UserAgent, which dispatches it using the relevant
+protocol, and returns a C<HTTP::Response> object.  There are
+convenience methods for sending the most common request types: get(),
+head() and post().
 
 The basic approach of the library is to use HTTP style communication
-for all protocol schemes, i.e. you even receive an C<HTTP::Response>
-object for gopher or ftp requests.  In order to achieve even more
+for all protocol schemes.  This means that you will construct
+C<HTTP::Request> objects and receive C<HTTP::Response> objects even
+for I<gopher> and I<ftp> requests.  In order to achieve even more
 similarity to HTTP style communications, gopher menus and file
 directories are converted to HTML documents.
+
+=head1 CONSTRUCTOR METHODS
+
+The following constructor methods are available:
+
+=over 4
+
+=item $ua = LWP::UserAgent->new( %options )
+
+This method constructs a new C<LWP::UserAgent> object and returns it.
+Key/value pair arguments may be provided to set up the initial state.
+The following options correspond to attribute methods described below:
+
+   KEY                     DEFAULT
+   -----------             --------------------
+   agent                   "libwww-perl/#.##"
+   from                    undef
+   conn_cache              undef
+   cookie_jar              undef
+   max_size                undef
+   max_redirect            7
+   parse_head              1
+   protocols_allowed       []
+   protocols_forbidden     []
+   requests_redirectable   ['GET', 'HEAD']
+   timeout                 180
+
+The following additional options are also accepted: If the
+C<env_proxy> option is passed in with a TRUE value, then proxy
+settings are read from environment variables (see env_proxy() method
+below).  If the C<keep_alive> option is passed in, then a
+C<LWP::ConnCache> is set up (see conn_cache() method below).  The
+C<keep_alive> value is passed on as the C<total_capacity> for the
+connection cache.
+
+=item $ua->clone
+
+Returns a copy of the LWP::UserAgent object.
+
+=back
+
+=head1 ATTRIBUTES
+
+The following attributes methods are provided.  The attribute value is
+left unchanged if no argument is given.  The return value from each
+method is the old attribute value.
+
+=over
+
+=item $ua->agent
+
+=item $ua->agent( $product_id )
+
+Get/set the product token that is used to identify the user agent on
+the network.  The agent value is sent as the "User-Agent" header in
+the requests.  The default is the string returned by the _agent()
+method (see below).
+
+If the $product_id ends with space then the _agent() string is
+appended to it.
+
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the "/" character.
+Examples are:
+
+  $ua->agent('Checkbot/0.4 ' . $ua->_agent);
+  $ua->agent('Checkbot/0.4 ');    # same as above
+  $ua->agent('Mozilla/5.0');
+  $ua->agent("");                 # don't identify
+
+=item $ua->_agent
+
+Returns the default agent identifier.  This is a string of the form
+"libwww-perl/#.##", where "#.##" is substituted with the version number
+of this library.
+
+=item $ua->from
+
+=item $ua->from( $email_address )
+
+Get/set the Internet e-mail address for the human user who controls
+the requesting user agent.  The address should be machine-usable, as
+defined in RFC 822.  The from value is send as the "From" header in
+the requests.  Example:
+
+  $ua->from('gaas@cpan.org');
+
+The default is to not send a "From" header.
+
+=item $ua->cookie_jar
+
+=item $ua->cookie_jar( $cookie_jar_obj )
+
+Get/set the cookie jar object to use.  The only requirement is that
+the cookie jar object must implement the extract_cookies($request) and
+add_cookie_header($response) methods.  These methods will then be
+invoked by the user agent as requests are sent and responses are
+received.  Normally this will be a C<HTTP::Cookies> object or some
+subclass.
+
+The default is to have no cookie_jar, i.e. never automatically add
+"Cookie" headers to the requests.
+
+Shortcut: If a reference to a plain hash is passed in as the
+$cookie_jar_object, then it is replaced with an instance of
+C<HTTP::Cookies> that is initialized based on the hash.  This form also
+automatically loads the C<HTTP::Cookies> module.  It means that:
+
+  $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
+
+is really just a shortcut for:
+
+  require HTTP::Cookies;
+  $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+
+=item $ua->conn_cache
+
+=item $ua->conn_cache( $cache_obj )
+
+Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache> for details.
+
+=item $ua->max_size
+
+=item $ua->max_size( $bytes )
+
+Get/set the size limit for response content.  The default is C<undef>,
+which means that there is no limit.  If the returned response content
+is only partial, because the size limit was exceeded, then a
+"Client-Aborted" header will be added to the response.
+
+=item $ua->max_redirect
+
+=item $ua->max_redirect( $n )
+
+This reads or sets the object's limit of how many times it will obey
+redirection responses in a given C<< $ua->get(...) / $ua->put(...) /
+$ua->head(...) / $ua->request(...) >> / etc. cycle.
+
+By default, the value is 7. This means that if you call C<<
+$ua->get($url) >> and the response is a redirect elsewhere which is in
+turn a redirect, and so on seven times, then LWP gives up after that
+seventh request.  Otherwise (like if the seventh or earlier isn't a
+redirect), then the response from C<< $ua->get($url) >> redirects
+are followed.
+
+=item $ua->parse_head
+
+=item $ua->parse_head( $boolean )
+
+Get/set a value indicating whether we should initialize response
+headers from the E<lt>head> section of HTML documents. The default is
+TRUE.  Do not turn this off, unless you know what you are doing.
+
+=item $ua->protocols_allowed
+
+=item $ua->protocols_allowed( \@protocols )
+
+This reads (or sets) this user agent's list of protocols that
+C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will exclusively
+allow.  The protocol names are case insensitive.
+
+For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
+means that this user agent will I<allow only> those protocols,
+and attempts to use this user agent to access URLs with any other
+schemes (like "ftp://...") will result in a 500 error.
+
+To delete the list, call:
+C<$ua-E<gt>protocols_allowed(undef)>
+
+By default, an object has neither a protocols_allowed list, nor
+a protocols_forbidden list.
+
+Note that having a protocols_allowed
+list causes any protocols_forbidden list to be ignored.
+
+=item $ua->protocols_forbidden
+
+=item $ua->protocols_forbidden( \@protocols )
+
+This reads (or sets) this user agent's list of protocols that
+C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will I<not> allow.
+The protocol names are case insensitive.
+
+For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
+means that this user agent will I<not> allow those protocols, and
+attempts to use this user agent to access URLs with those schemes
+will result in a 500 error.
+
+To delete the list, call:
+C<$ua-E<gt>protocols_forbidden(undef)>
+
+=item $ua->is_protocol_supported( $scheme )
+
+You can use this method to test whether this user agent object supports the
+specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
+'ftp') or it might be an URI object reference.)
+
+Whether a scheme is supported, is determined by $ua's protocols_allowed or
+protocols_forbidden lists (if any), and by the capabilities
+of LWP.  I.e., this will return TRUE only if LWP supports this protocol
+I<and> it's permitted for this particular object.
+
+=item $ua->requests_redirectable
+
+=item $ua->requests_redirectable( \@requests )
+
+This reads or sets the object's list of request names that
+C<$ua-E<gt>redirect_ok(...)> will allow redirection for.  By
+default, this is C<['GET', 'HEAD']>, as per RFC 2068.  To
+change to include 'POST', consider:
+
+   push @{ $ua->requests_redirectable }, 'POST';
+
+=item $ua->timeout
+
+=item $ua->timeout( $secs )
+
+Get/set the timeout value in seconds. The default timeout() value is
+180 seconds, i.e. 3 minutes.
+
+=back
+
+=head2 Proxy attributes
+
+=over
+
+=item $ua->proxy(\@schemes, $proxy_url)
+
+=item $ua->proxy($scheme, $proxy_url)
+
+Set/retrieve proxy URL for a scheme:
+
+ $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
+ $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
+
+The first form specifies that the URL is to be used for proxying of
+access methods listed in the list in the first method argument,
+i.e. 'http' and 'ftp'.
+
+The second form shows a shorthand form for specifying
+proxy URL for a single access scheme.
+
+=item $ua->no_proxy( $domain, ... )
+
+Do not proxy requests to the given domains.  Calling no_proxy without
+any domains clears the list of domains. Eg:
+
+ $ua->no_proxy('localhost', 'no', ...);
+
+=item $ua->env_proxy
+
+Load proxy settings from *_proxy environment variables.  You might
+specify proxies like this (sh-syntax):
+
+  gopher_proxy=http://proxy.my.place/
+  wais_proxy=http://proxy.my.place/
+  no_proxy="localhost,my.domain"
+  export gopher_proxy wais_proxy no_proxy
+
+csh or tcsh users should use the C<setenv> command to define these
+environment variables.
+
+On systems with case insensitive environment variables there exists a
+name clash between the CGI environment variables and the C<HTTP_PROXY>
+environment variable normally picked up by env_proxy().  Because of
+this C<HTTP_PROXY> is not honored for CGI scripts.  The
+C<CGI_HTTP_PROXY> environment variable can be used instead.
+
+=back
+
+=head1 REQUEST METHODS
 
 The send_request(), simple_request() and request() methods can process
 the content of the response in one of three ways: in core, into a
@@ -879,40 +1146,7 @@ content in the request object.  This subroutine should return the
 content (possibly in pieces) when called.  It should return an empty
 string when there is no more content.
 
-=head1 METHODS
-
-The following methods are available:
-
-=over 4
-
-=item $ua = LWP::UserAgent->new( %options )
-
-This class method constructs a new C<LWP::UserAgent> object and
-returns it.  Key/value pair arguments may be provided to set up the
-initial state.  The following options correspond to attribute methods
-described below:
-
-   KEY                     DEFAULT
-   -----------             --------------------
-   agent                   "libwww-perl/#.##"
-   from                    undef
-   timeout                 180
-   use_eval                1
-   parse_head              1
-   max_size                undef
-   max_redirect            7
-   cookie_jar              undef
-   conn_cache              undef
-   protocols_allowed       undef
-   protocols_forbidden     undef
-   requests_redirectable   ['GET', 'HEAD']
-
-The followings option are also accepted: If the C<env_proxy> option is
-passed in with a TRUE value, then proxy settings are read from
-environment variables.  If the C<keep_alive> option is passed in, then
-a C<LWP::ConnCache> is set up (see conn_cache() method below).  The
-C<keep_alive> value is passed on as the C<total_capacity> for the
-connection cache.
+=over
 
 =item $ua->send_request( $request )
 
@@ -1018,65 +1252,17 @@ L<HTTP::Request::Common|HTTP::Request::Common>.
 You can also use the C<':content_file' / ':content_cb' /
 ':read_size_hint'> headers just as with C<< $ua->get >>.
 
-=item $ua->protocols_allowed
+=item $ua->mirror($url, $file)
 
-=item $ua->protocols_allowed( \@protocols )
+Get and store a document identified by a URL, using If-Modified-Since,
+and checking of the Content-Length.  Returns a reference to the
+response object.
 
-This reads (or sets) this user agent's list of protocols that
-C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will exclusively
-allow.  The protocol names are case insensitive.
+=back
 
-For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
-means that this user agent will I<allow only> those protocols,
-and attempts to use this user agent to access URLs with any other
-schemes (like "ftp://...") will result in a 500 error.
+=head2 Callback methods
 
-To delete the list, call:
-C<$ua-E<gt>protocols_allowed(undef)>
-
-By default, an object has neither a protocols_allowed list, nor
-a protocols_forbidden list.
-
-Note that having a protocols_allowed
-list causes any protocols_forbidden list to be ignored.
-
-=item $ua->protocols_forbidden
-
-=item $ua->protocols_forbidden( \@protocols )
-
-This reads (or sets) this user agent's list of protocols that
-C<$ua-E<gt>request> and C<$ua-E<gt>simple_request> will I<not> allow.
-The protocol names are case insensitive.
-
-For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
-means that this user agent will I<not> allow those protocols, and
-attempts to use this user agent to access URLs with those schemes
-will result in a 500 error.
-
-To delete the list, call:
-C<$ua-E<gt>protocols_forbidden(undef)>
-
-=item $ua->is_protocol_supported( $scheme )
-
-You can use this method to test whether this user agent object supports the
-specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI object reference.)
-
-Whether a scheme is supported, is determined by $ua's protocols_allowed or
-protocols_forbidden lists (if any), and by the capabilities
-of LWP.  I.e., this will return TRUE only if LWP supports this protocol
-I<and> it's permitted for this particular object.
-
-=item $ua->requests_redirectable
-
-=item $ua->requests_redirectable( \@requests )
-
-This reads or sets the object's list of request names that
-C<$ua-E<gt>redirect_ok(...)> will allow redirection for.  By
-default, this is C<['GET', 'HEAD']>, as per RFC 2068.  To
-change to include 'POST', consider:
-
-   push @{ $ua->requests_redirectable }, 'POST';
+=over
 
 =item $ua->redirect_ok( $prospective_request )
 
@@ -1095,11 +1281,6 @@ Subclasses might want to override this.
 (This method's behavior in previous versions was simply to return
 TRUE for anything except POST requests).
 
-=item $ua->credentials( $netloc, $realm, $uname, $pass )
-
-Set the user name and password to be used for a realm.  It is often more
-useful to specialize the get_basic_credentials() method instead.
-
 =item $ua->get_basic_credentials( $realm, $uri )
 
 =item $ua->get_basic_credentials( $realm, $uri, $proxy )
@@ -1115,168 +1296,10 @@ variables. Subclasses can override this method to e.g. ask the user
 for a username/password.  An example of this can be found in
 C<lwp-request> program distributed with this library.
 
-=item $ua->agent
+=item $ua->credentials( $netloc, $realm, $uname, $pass )
 
-=item $ua->agent( $product_id )
-
-Get/set the product token that is used to identify the user agent on
-the network.  The agent value is sent as the "User-Agent" header in
-the requests.  The default is the string returned by the _agent()
-method (see below).
-
-If the $product_id ends with space then the C<_agent> string is
-appended to it.
-
-The user agent string should be one or more simple product identifiers
-with an optional version number separated by the "/" character.
-Examples are:
-
-  $ua->agent('Checkbot/0.4 ' . $ua->_agent);
-  $ua->agent('Checkbot/0.4 ');    # same as above
-  $ua->agent('Mozilla/5.0');
-  $ua->agent("");                 # don't identify
-
-=item $ua->_agent
-
-Returns the default agent identifier.  This is a string of the form
-"libwww-perl/#.##", where "#.##" is substituted with the version number
-of this library.
-
-=item $ua->from
-
-=item $ua->from( $email_address )
-
-Get/set the Internet e-mail address for the human user who controls
-the requesting user agent.  The address should be machine-usable, as
-defined in RFC 822.  The from value is send as the "From" header in
-the requests.  Example:
-
-  $ua->from('gaas@cpan.org');
-
-The default is to not send a "From" header.
-
-=item $ua->timeout
-
-=item $ua->timeout( $secs )
-
-Get/set the timeout value in seconds. The default timeout() value is
-180 seconds, i.e. 3 minutes.
-
-=item $ua->cookie_jar
-
-=item $ua->cookie_jar( $cookie_jar_obj )
-
-Get/set the cookie jar object to use.  The only requirement is that
-the cookie jar object must implement the extract_cookies($request) and
-add_cookie_header($response) methods.  These methods will then be
-invoked by the user agent as requests are sent and responses are
-received.  Normally this will be a C<HTTP::Cookies> object or some
-subclass.
-
-The default is to have no cookie_jar, i.e. never automatically add
-"Cookie" headers to the requests.
-
-Shortcut: If a reference to a plain hash is passed in as the
-$cookie_jar_object, then it is replaced with an instance of
-C<HTTP::Cookies> that is initialized based on the hash.  This form also
-automatically loads the C<HTTP::Cookies> module.  It means that:
-
-  $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
-
-is really just a shortcut for:
-
-  require HTTP::Cookies;
-  $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
-
-=item $ua->conn_cache
-
-=item $ua->conn_cache( $cache_obj )
-
-Get/set the C<LWP::ConnCache> object to use.
-
-=item $ua->parse_head
-
-=item $ua->parse_head( $boolean )
-
-Get/set a value indicating whether we should initialize response
-headers from the E<lt>head> section of HTML documents. The default is
-TRUE.  Do not turn this off, unless you know what you are doing.
-
-=item $ua->max_size
-
-=item $ua->max_size( $bytes )
-
-Get/set the size limit for response content.  The default is C<undef>,
-which means that there is no limit.  If the returned response content
-is only partial, because the size limit was exceeded, then a
-"Client-Aborted" header will be added to the response.
-
-=item $ua->max_redirect
-
-=item $ua->max_redirect( $n )
-
-This reads or sets the object's limit of how many times it will obey
-redirection responses in a given C<< $ua->get(...) / $ua->put(...) /
-$ua->head(...) / $ua->request(...) >> / etc. cycle.
-
-By default, the value is 7. This means that if you call C<<
-$ua->get($url) >> and the response is a redirect elsewhere which is in
-turn a redirect, and so on seven times, then LWP gives up after that
-seventh request.  Otherwise (like if the seventh or earlier isn't a
-redirect), then the response from C<< $ua->get($url) >> redirects
-are followed.
-
-=item $ua->clone
-
-Returns a copy of the LWP::UserAgent object
-
-=item $ua->mirror($url, $file)
-
-Get and store a document identified by a URL, using If-Modified-Since,
-and checking of the Content-Length.  Returns a reference to the
-response object.
-
-=item $ua->proxy(\@schemes, $proxy_url)
-
-=item $ua->proxy($scheme, $proxy_url)
-
-Set/retrieve proxy URL for a scheme:
-
- $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
- $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
-
-The first form specifies that the URL is to be used for proxying of
-access methods listed in the list in the first method argument,
-i.e. 'http' and 'ftp'.
-
-The second form shows a shorthand form for specifying
-proxy URL for a single access scheme.
-
-=item $ua->env_proxy
-
-Load proxy settings from *_proxy environment variables.  You might
-specify proxies like this (sh-syntax):
-
-  gopher_proxy=http://proxy.my.place/
-  wais_proxy=http://proxy.my.place/
-  no_proxy="localhost,my.domain"
-  export gopher_proxy wais_proxy no_proxy
-
-csh or tcsh users should use the C<setenv> command to define these
-environment variables.
-
-On systems with case insensitive environment variables there exists a
-name clash between the CGI environment variables and the C<HTTP_PROXY>
-environment variable normally picked up by env_proxy().  Because of
-this C<HTTP_PROXY> is not honored for CGI scripts.  The
-C<CGI_HTTP_PROXY> environment variable can be used instead.
-
-=item $ua->no_proxy( $domain, ... )
-
-Do not proxy requests to the given domains.  Calling no_proxy without
-any domains clears the list of domains. Eg:
-
- $ua->no_proxy('localhost', 'no', ...);
+Set the user name and password to be used for a realm.  It is often more
+useful to specialize the get_basic_credentials() method instead.
 
 =back
 

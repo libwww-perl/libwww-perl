@@ -1,9 +1,12 @@
 ^blib/
 \.old$
 ^Makefile$
+^MANIFEST.bak$
+^#
+/#
 ~$
-^bin/get$
+^bin/request$
 ^bin/mirror$
 ^find-tab$
-CVS/[^/]+$
-
+\b(RCS|CVS)/[^/]+$
+.cvsignore$

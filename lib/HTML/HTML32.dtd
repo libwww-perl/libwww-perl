@@ -2,12 +2,12 @@
         W3C Document Type Definition for the HyperText Markup Language
         This version is code named Wilbur, and also as "HTML 3.2".
 
-        Draft: Tuesday 25-June-96
+        Draft: Tuesday August 21st 1996
 
         Author: Dave Raggett <dsr@w3.org>
 
         This is subject to change, pending final approval by the W3C
-        member companies. Changes are limited to bug fixes at this time.
+        member companies.
 
         HTML 3.2 aims to capture recommended practice as of early '96
         and as such to be used as a replacement for HTML 2.0 (RFC 1866).
@@ -25,11 +25,11 @@
 -->
 
 <!ENTITY % HTML.Version
-        "-//W3C//DTD HTML 3.2 Draft//EN"
+        "-//W3C//DTD HTML 3.2 Draft 19960821//EN"
 
         -- Typical usage:
 
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Draft//EN">
+            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Draft 19960821//EN">
             <html>
             ...
             </html>
@@ -93,7 +93,7 @@
 
 <!ENTITY % phrase "EM | STRONG | DFN | CODE | SAMP | KBD | VAR | CITE">
 
-<!ENTITY % special "A | IMG | APPLET | FONT | BR | SCRIPT | MAP">
+<!ENTITY % special "A | IMG | APPLET | FONT | BASEFONT | BR | SCRIPT | MAP">
 
 <!ENTITY % form "INPUT | SELECT | TEXTAREA">
 
@@ -117,7 +117,12 @@
     color   CDATA   #IMPLIED    -- #RRGGBB in hex, e.g. red: color="#FF0000" --
     >
 
-<!ELEMENT BR    - O EMPTY   -- forced line break -->
+<!ELEMENT BASEFONT - O EMPTY    -- base font size (1 to 7)-->
+<!ATTLIST BASEFONT
+    size    CDATA   #IMPLIED    -- e.g. size=3 --
+    >
+
+<!ELEMENT BR    - O EMPTY    -- forced line break -->
 <!ATTLIST BR
         clear (left|all|right|none) none -- control of text flow --
         >
@@ -165,7 +170,7 @@
 
 <!ELEMENT DIV - - %body.content>
 <!ATTLIST DIV
-        align   (left|center|right) left -- alignment of following text --
+        align   (left|center|right) #IMPLIED -- alignment of following text --
         >
 
 <!-- CENTER is a shorthand for DIV with ALIGN=CENTER -->
@@ -271,21 +276,17 @@
   can be an absolute URL or a relative URL. The absolute URL is used as is
   without modification and is not effected by the documents <BASE> element.
   When the codebase attribute is relative, then it is relative to the
-  document URL (or <BASE> tag if defined). <TEXTFLOW> avoids the problems
-  with SGML mixed content. It can always be omitted *except* when the APPLET
-  element hasn't any content. White space, comments and PARAM elements
-  don't count as content for this purpose. TEXTFLOW was introduced into
-  the DTD to satisfy SGML parsers, but is ignored by current Web browsers.
+  document URL (or <BASE> tag if defined).
 -->
-<!ELEMENT APPLET - - (PARAM*, TEXTFLOW)>
+<!ELEMENT APPLET - - (%text)* +(PARAM)>
 <!ATTLIST APPLET
         codebase %URL     #IMPLIED   -- code base --
         code     CDATA    #REQUIRED  -- class file --
-        name     CDATA    #IMPLIED   -- applet name --
         alt      CDATA    #IMPLIED   -- for display in place of applet --
-        align    %IAlign  #IMPLIED   -- vertical or horizontal alignment --
-        height   %Pixels  #REQUIRED  -- suggested height in pixels --
+        name     CDATA    #IMPLIED   -- applet name --
         width    %Pixels  #REQUIRED  -- suggested width in pixels --
+        height   %Pixels  #REQUIRED  -- suggested height in pixels --
+        align    %IAlign  #IMPLIED   -- vertical or horizontal alignment --
         hspace   %Pixels  #IMPLIED   -- suggested horizontal gutter --
         vspace   %Pixels  #IMPLIED   -- suggested vertical gutter --
         >
@@ -295,7 +296,6 @@
         name    NAME      #REQUIRED  -- The name of the parameter --
         value   CDATA     #IMPLIED   -- The value of the parameter --
         >
-<!ELEMENT TEXTFLOW O O (%text)* -- needed to bypass mixed content model -->
 
 <!--
 Here is an example:
@@ -446,7 +446,7 @@ Here is an example:
 
 <!ELEMENT FORM - - %body.content -(FORM)>
 <!ATTLIST FORM
-        action %URL #REQUIRED -- server-side form handler --
+        action %URL #IMPLIED  -- server-side form handler --
         method (%HTTP-Method) GET -- see HTTP specification --
         enctype %Content-Type; "application/x-www-form-urlencoded"
         >
@@ -534,8 +534,10 @@ Here is an example:
         nowrap (nowrap)  #IMPLIED  -- suppress word wrap --
         rowspan NUMBER   1         -- number of rows spanned by cell --
         colspan NUMBER   1         -- number of cols spanned by cell --
-        %cell.halign;              -- horizontal alignment in cells --
-        %cell.valign;              -- vertical alignment in cells --
+        %cell.halign;              -- horizontal alignment in cell --
+        %cell.valign;              -- vertical alignment in cell --
+        width   %Pixels  #IMPLIED  -- suggested width for cell --
+        height  %Pixels  #IMPLIED  -- suggested height for cell --
         >
 
 <!--================ Document Head ========================================-->
@@ -596,11 +598,11 @@ Here is an example:
 <!ENTITY % version.attr "VERSION CDATA #FIXED '%HTML.Version;'">
 
 <![ %HTML.Deprecated [
-        <!ENTITY % html.content "HEAD, BODY, PLAINTEXT?">
-  ]]>
-<!ENTITY % html.content "HEAD, BODY">
+    <!ENTITY % html.content "HEAD, BODY, PLAINTEXT?">
+]]>
 
 <!ELEMENT HTML O O  (%html.content)>
 <!ATTLIST HTML
         %version.attr;
         >
+

@@ -13,6 +13,7 @@ lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings
 lib/HTML/Form.pm                Parse <form>...</form>
 lib/HTTP/Cookies.pm             Cookie storage and management
+lib/HTTP/Cookies/Netscape.pm    Deal with the Netscape cookie file format
 lib/HTTP/Daemon.pm		A simple httpd
 lib/HTTP/Date.pm		Date conversion routines
 lib/HTTP/Headers.pm		Class encapsulating HTTP Message headers

@@ -5,10 +5,14 @@ use HTTP::Date qw(str2time time2str);
 use HTTP::Headers::Util qw(split_header_words join_header_words);
 use LWP::Debug ();
 
-use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+use vars qw($VERSION $EPOCH_OFFSET);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
-my $EPOCH_OFFSET = 0;  # difference from Unix epoch
+# Legacy: because "use "HTTP::Cookies" used be the ONLY way
+#  to load the class HTTP::Cookies::Netscape.
+require HTTP::Cookies::Netscape;
+
+$EPOCH_OFFSET = 0;  # difference from Unix epoch
 if ($^O eq "MacOS") {
     require Time::Local;
     $EPOCH_OFFSET = Time::Local::timelocal(0,0,0,1,0,70);
@@ -16,17 +20,31 @@ if ($^O eq "MacOS") {
 
 =head1 NAME
 
-HTTP::Cookies - Cookie storage and management
+HTTP::Cookies - HTTP cookie jars
 
 =head1 SYNOPSIS
 
- use HTTP::Cookies;
- $cookie_jar = HTTP::Cookies->new;
+  use HTTP::Cookies;
+  $cookie_jar = HTTP::Cookies->new(
+    file => "$ENV{'HOME'}/lwp_cookies.dat',
+    autosave => 1,
+  );
 
- $cookie_jar->add_cookie_header($request);
- $cookie_jar->extract_cookies($response);
+  use LWP;
+  my $browser = LWP::UserAgent->new;
+  $browser->cookie_jar($cookie_jar);
+
+Or for an empty and temporary cookie jar:
+
+  use LWP;
+  my $browser = LWP::UserAgent->new;
+  $browser->cookie_jar( {} );
 
 =head1 DESCRIPTION
+
+This class is for objects that represent a "cookie jar" -- that is, a
+database of all the HTTP cookies that a given LWP::UserAgent object
+knows about.
 
 Cookies are a general mechanism which server side connections can use
 to both store and retrieve information on the client side of the
@@ -449,7 +467,9 @@ sub set_cookie
     $self;
 }
 
-=item $cookie_jar->save( [$file] );
+=item $cookie_jar->save();
+
+=item $cookie_jar->save( $file );
 
 This method file saves the state of the $cookie_jar to a file.
 The state can then be restored later using the load() method.  If a
@@ -476,7 +496,9 @@ sub save
     1;
 }
 
-=item $cookie_jar->load( [$file] );
+=item $cookie_jar->load();
+
+=item $cookie_jar->load( $file );
 
 This method reads the cookies from the file and adds them to the
 $cookie_jar.  The file must be in the format written by the save()
@@ -542,7 +564,13 @@ sub revert
     $self;
 }
 
-=item $cookie_jar->clear( [$domain, [$path, [$key] ] ]);
+=item $cookie_jar->clear();
+
+=item $cookie_jar->clear( $domain );
+
+=item $cookie_jar->clear( $domain, $path );
+
+=item $cookie_jar->clear( $domain, $path, $key );
 
 Invoking this method without arguments will empty the whole
 $cookie_jar.  If given a single argument only cookies belonging to
@@ -637,11 +665,13 @@ sub scan
     }
 }
 
-=item $cookie_jar->as_string( [$skip_discard] );
+=item $cookie_jar->as_string()
+
+=item $cookie_jar->as_string( $skip_discardables );
 
 The as_string() method will return the state of the $cookie_jar
 represented as a sequence of "Set-Cookie3" header lines separated by
-"\n".  If $skip_discard is TRUE, it will not return lines for
+"\n".  If $skip_discardables is TRUE, it will not return lines for
 cookies with the I<Discard> attribute.
 
 =cut
@@ -706,97 +736,19 @@ sub _normalize_path  # so that plain string compare can be used
     $_[0] =~ s/([\0-\x20\x7f-\xff])/sprintf("%%%02X",ord($1))/eg;
 }
 
-
-
-=back
-
-=head1 SUB CLASSES
-
-We also provide a subclass called I<HTTP::Cookies::Netscape> which
-loads and saves Netscape compatible cookie files.  You
-should be able to have LWP share Netscape's cookies by constructing
-your $cookie_jar like this:
-
- $cookie_jar = HTTP::Cookies::Netscape->new(
-                   File     => "$ENV{HOME}/.netscape/cookies",
-                   AutoSave => 1,
-               );
-
-Please note that the Netscape cookie file format is not able to store
-all the information available in the Set-Cookie2 headers, so you will
-probably loose some information if you save in this format.
-
-=cut
-
-package HTTP::Cookies::Netscape;
-
-use vars qw(@ISA);
-@ISA=qw(HTTP::Cookies);
-
-sub load
-{
-    my($self, $file) = @_;
-    $file ||= $self->{'file'} || return;
-    local(*FILE, $_);
-    local $/ = "\n";  # make sure we got standard record separator
-    my @cookies;
-    open(FILE, $file) || return;
-    my $magic = <FILE>;
-    unless ($magic =~ /^\# Netscape HTTP Cookie File/) {
-	warn "$file does not look like a netscape cookies file" if $^W;
-	close(FILE);
-	return;
-    }
-    my $now = time() - $EPOCH_OFFSET;
-    while (<FILE>) {
-	next if /^\s*\#/;
-	next if /^\s*$/;
-	tr/\n\r//d;
-	my($domain,$bool1,$path,$secure, $expires,$key,$val) = split(/\t/, $_);
-	$secure = ($secure eq "TRUE");
-	$self->set_cookie(undef,$key,$val,$path,$domain,undef,
-			  0,$secure,$expires-$now, 0);
-    }
-    close(FILE);
-    1;
-}
-
-sub save
-{
-    my($self, $file) = @_;
-    $file ||= $self->{'file'} || return;
-    local(*FILE, $_);
-    open(FILE, ">$file") || return;
-
-    print FILE <<EOT;
-# Netscape HTTP Cookie File
-# http://www.netscape.com/newsref/std/cookie_spec.html
-# This is a generated file!  Do not edit.
-
-EOT
-
-    my $now = time - $EPOCH_OFFSET;
-    $self->scan(sub {
-	my($version,$key,$val,$path,$domain,$port,
-	   $path_spec,$secure,$expires,$discard,$rest) = @_;
-	return if $discard && !$self->{ignore_discard};
-	$expires = $expires ? $expires - $EPOCH_OFFSET : 0;
-	return if $now > $expires;
-	$secure = $secure ? "TRUE" : "FALSE";
-	my $bool = $domain =~ /^\./ ? "TRUE" : "FALSE";
-	print FILE join("\t", $domain, $bool, $path, $secure, $expires, $key, $val), "\n";
-    });
-    close(FILE);
-    1;
-}
-
 1;
 
 __END__
 
+=back
+
+=head1 SEE ALSO
+
+L<HTTP::Cookies::Netscape>
+
 =head1 COPYRIGHT
 
-Copyright 1997-1999 Gisle Aas
+Copyright 1997-2002 Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

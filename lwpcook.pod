@@ -8,6 +8,9 @@ This document contain some examples that show typical usage of the
 libwww-perl library.  You should consult the documentation for the
 individual modules for more extensive documentation.
 
+All examples should be runnable programs. You can in most cases
+test the code sections by just piping the program text to perl.
+
 
 
 =head1 GET

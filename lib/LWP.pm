@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.21 1996/02/27 14:33:27 aas Exp $
+# $Id: LWP.pm,v 1.22 1996/03/12 14:08:32 aas Exp $
 
 package LWP;
 
-$VERSION = "0.09";
+$VERSION = "0.10";
 
 sub Version { $VERSION; }
 

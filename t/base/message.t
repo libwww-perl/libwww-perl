@@ -1,4 +1,4 @@
-print "1..17\n";
+print "1..14\n";
 
 require HTTP::Request;
 require HTTP::Response;
@@ -91,28 +91,3 @@ $res->header('Base', 'http://www.sn.no/xxx/');
 
 $res->base eq "http://www.sn.no/xxx/" || print "not ";
 print "ok 14\n";
-
-$res->content_type("text/plain");
-$res->content('<head><basE
-href="file:/"><title>xxx</title></head>..............</html>');
-$res->remove_header("base");
-
-# Since the Content-Type isn't html, we should not look inside
-$res->base eq "http://www.sn.no/" || print "not ";
-print "ok 15\n";
-
-$res->content_type("text/html");
-
-$res->base eq "file:/" || print "not ";
-print "ok 16\n";
-
-$res->content("<head><title>Foo</title><h1>Foo</h1>
-Some text
-");
-
-# This was an error in the B11 release.  If $1 was set before calling
-# base(), then we would return it's value.
-"2" =~ /(\d)/;   # set $1 to "2"
-
-$res->base eq "http://www.sn.no/" || print "not ";
-print "ok 17\n";

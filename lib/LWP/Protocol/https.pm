@@ -1,9 +1,10 @@
 #
-# $Id: https.pm,v 1.5 1997/12/17 09:55:56 aas Exp $
+# $Id: https.pm,v 1.6 1998/01/20 14:23:28 aas Exp $
 
 use strict;
 
 package LWP::Protocol::https;
+require Net::SSL;  # from Crypt-SSLeay
 
 use vars qw(@ISA);
 
@@ -13,81 +14,41 @@ require LWP::Protocol::http;
 sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
-    my $sock = LWP::SSL_INET->new(PeerAddr => $host,
-				  PeerPort => $port,
-				  Proto    => 'tcp',
-				  Timeout  => $timeout,
-				 );
+    my $sock = Net::SSL->new(PeerAddr => $host,
+			     PeerPort => $port,
+			     Proto    => 'tcp',
+			     Timeout  => $timeout,
+			    );
     die "Can't connect to $host:$port" unless $sock;
     $sock;
 }
 
-#
-# We create our own subclass of IO::Socket::INET that makes
-# the SSL connection mostly transparent.
-#
-
-package LWP::SSL_INET;
-
-use vars qw(@ISA);
-
-require Net::SSLeay;
-require IO::Socket;
-@ISA=qw(IO::Socket::INET);
-
-sub connect
+sub _check_sock
 {
-    my $self = shift;
-    if ($self->SUPER::connect(@_)) {
-	my $ctx = Net::SSLeay::CTX_new() or die "Failed to create SSL_CTX $!";
-	my $ssl = Net::SSLeay::new($ctx) or die "Failed to create SSL $!";
-	Net::SSLeay::set_fd($ssl, fileno($self));
-	Net::SSLeay::connect($ssl) or die "SSL connect failed";
-	*$self->{'ssl_ctx'} = $ctx;
-	*$self->{'ssl_ssl'} = $ssl;
-	return $self;
-    } else {
-	return;
+    my($self, $req, $sock) = @_;
+    my $check = $req->header("If-SSL-Cert-Subject");
+    if (defined $check) {
+	my $cert = $sock->get_peer_certificate ||
+	    die "Missing SSL certificate";
+	my $subject = $cert->subject_name;
+	die "Bad SSL certificate subject: '$subject' !~ /$check/"
+	    unless $subject =~ /$check/;
+	$req->remove_header("If-SSL-Cert-Subject");  # don't pass it on
     }
 }
 
-sub close
+sub _get_sock_info
 {
     my $self = shift;
-    Net::SSLeay::free(*$self->{'ssl_ssl'});
-    Net::SSLeay::CTX_free(*$self->{'ssl_ctx'});
-    $self->SUPER::close(@_);
-}
-
-sub sysread
-{
-    my $self = shift;
-    if (@_ <= 2) {
-	$_[0] = Net::SSLeay::read(*$self->{'ssl_ssl'});
-	return unless defined($_[0]);
-	return length($_[0]);
-    } else {
-	my $offset = $_[2];
-	my $buf = Net::SSLeay::read(*$self->{'ssl_ssl'});
-	return unless defined($buf);
-	substr($_[0], length($_[0])-1) = $buf;
-	return length($buf);
+    $self->SUPER::_get_sock_info(@_);
+    my($res, $sock) = @_;
+    $res->header("Client-SSL-Cipher" => $sock->get_cipher);
+    my $cert = $sock->get_peer_certificate;
+    if ($cert) {
+	$res->header("Client-SSL-Cert-Subject" => $cert->subject_name);
+	$res->header("Client-SSL-Cert-Issuer" => $cert->issuer_name);
     }
+    $res->header("Client-SSL-Warning" => "Peer certificate not verified");
 }
-
-sub syswrite
-{
-    my $self = shift;
-    die "syswrite() with offset not implemented" if @_ > 2;
-    my $len = $_[1];
-    if ($len < length($_[0])) {
-	return Net::SSLeay::write(*$self->{'ssl_ssl'}, substr($_[0], 0, $len));
-    } else {
-	return Net::SSLeay::write(*$self->{'ssl_ssl'}, $_[0]);
-    }
-}
-
-*read  = \&sysread;
-*write = \&syswrite;
 
 1;

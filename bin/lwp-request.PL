@@ -12,7 +12,7 @@ END
 
 print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
 
-# $Id: lwp-request.PL,v 1.23 1996/03/05 15:27:58 aas Exp $
+# $Id: lwp-request.PL,v 1.24 1996/03/18 17:51:44 aas Exp $
 #
 # Simple user agent using LWP library.
 
@@ -176,7 +176,7 @@ Gisle Aas <aas@a.sn.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -438,7 +438,7 @@ while ($url = shift) {
 			last;
 		    };
 		    $opt_o eq 'links' && do {
-			my $base = $response->request->url;
+			my $base = $response->base;
 			for ( @{ $html->extract_links } ) {
 			    my($link, $elem) = @$_;
 			    my $tag = uc $elem->tag;

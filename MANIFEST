@@ -1,10 +1,8 @@
 ChangeLog			History of this package
 MANIFEST			This file
-MANIFEST.SKIP			For the developer only
 Makefile.PL			Makefile generator
 README				Get you started with this package
 TODO				The To-Do list for the library
-VERSION				Program that determines the current version
 bin/mirror.PL			Writes bin/mirror script
 bin/request.PL			Writes bin/request script
 lib/Font/AFM.pm			Parse Adobe Font Metric files
@@ -55,11 +53,12 @@ lib/MIME/QuotedPrint.pm		Quoted-Printable encoding/decoding routines
 lib/Mail/Cap.pm			Parse mailcap files
 lib/URI/Escape.pm		General URI escaping functions
 lib/URI/URL.pm			Class encapsulating URLs
+lib/URI/URL/_generic.pm         Implements generic hierarchical RL (RFC 1808)
 lib/URI/URL/file.pm		Implements file URLs
 lib/URI/URL/finger.pm		Implements finger URLs
 lib/URI/URL/ftp.pm		Implements ftp URLs
 lib/URI/URL/gopher.pm		Implements gopher URLs
-lib/URI/URL/http.pm		Dummy
+lib/URI/URL/http.pm		Implements http URLs
 lib/URI/URL/https.pm		Implements https URLs
 lib/URI/URL/mailto.pm		Implements mailto URLs
 lib/URI/URL/news.pm		Implements news URLs

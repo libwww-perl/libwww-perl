@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.50 2000/05/24 09:41:13 gisle Exp $
+# $Id: http.pm,v 1.51 2001/04/05 14:03:44 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -60,7 +60,7 @@ sub _get_sock_info
 
 sub _fixup_header
 {
-    my($self, $h, $url) = @_;
+    my($self, $h, $url, $proxy) = @_;
 
     $h->remove_header('Connection');  # need support here to be useful
 
@@ -76,7 +76,18 @@ sub _fixup_header
     if (defined($1) && not $h->header('Authorization')) {
 	require URI::Escape;
 	$h->authorization_basic(map URI::Escape::uri_unescape($_),
-				split(":", $1));
+				split(":", $1, 2));
+    }
+
+    if ($proxy) {
+	# Check the proxy URI's userinfo() for proxy credentials
+	# export http_proxy="http://proxyuser:proxypass@proxyhost:port"
+	my $p_auth = $proxy->userinfo();
+	if(defined $p_auth) {
+	    my($p_user, $p_pass) = split(':', $p_auth, 2);
+	    LWP::Debug::debug("PROXY AUTH BASIC: user: $p_user, pass: $p_pass");
+	    $h->proxy_authorization_basic($p_user, $p_pass);
+	}
     }
 }
 
@@ -141,7 +152,7 @@ sub request
 	        if defined($$cont_ref) && length($$cont_ref);
     }
 
-    $self->_fixup_header($h, $url);
+    $self->_fixup_header($h, $url, $proxy);
 
     my $buf = $request_line . $h->as_string($CRLF) . $CRLF;
     my $n;  # used for return value from syswrite/sysread

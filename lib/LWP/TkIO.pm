@@ -1,15 +1,21 @@
 package LWP::IO;
 
-# $Id: TkIO.pm,v 1.2 1995/09/04 18:40:17 aas Exp $
+# $Id: TkIO.pm,v 1.3 1995/12/29 15:12:04 aas Exp $
 
 require Tk;
 require LWP::Debug;
 
-=head1 Tk I/O routines for the LWP library
+=head1 NAME
+
+LWP::TkIO - Tk I/O routines for the LWP library
+
+=head1 SYNOPSIS
 
  use Tk;
  require LWP::TkIO;
  require LWP::UserAgent;
+
+=head1 DESCRIPTION
 
 This module provide replacement functions for the LWP::IO
 functions. Require this module if you use Tk and want non exclusive IO

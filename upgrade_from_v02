@@ -1,0 +1,16 @@
+#!/usr/local/bin/perl -pi~
+
+# This script should help you upgrade old scripts that used LWP-0.02.
+# Some class names have been changed.  See ChangeLog for details
+
+s/LWP::StatusCode/HTTP::Status/g;
+s/HTTP::Status::message/HTTP::Status::statusMessage/g;
+
+s/LWP::Request/HTTP::Request/g;
+s/LWP::Response/HTTP::Response/g;
+s/LWP::MIMEheader/HTTP::Headers/g;
+
+s/LWP::Date/HTTP::Date/g;
+
+s/LWP::MIMEtypes/LWP::MediaTypes/g;
+s/guessType/guessMediaType/g;

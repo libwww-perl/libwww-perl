@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.52 1997/12/12 19:52:36 aas Exp $
+# $Id: UserAgent.pm,v 1.53 1997/12/12 20:18:24 aas Exp $
 
 package LWP::UserAgent;
 
@@ -204,7 +204,7 @@ sub simple_request
 	$protocol = LWP::Protocol::create($scheme);
     };
     if ($@) {
-	$@ =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;  # remove file/line number
+	$@ =~ s/\s+at\s+\S+\s+line\s+\d+\.?\s*//;  # remove file/line number
 	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED, $@)
     }
 
@@ -227,10 +227,7 @@ sub simple_request
     # If we use alarm() we need to register a signal handler
     # and start the timeout
     if ($use_alarm) {
-	$SIG{'ALRM'} = sub {
-	    LWP::Debug::trace('timeout');
-	    die 'Timeout';
-	};
+	$SIG{'ALRM'} = sub { die 'Timeout'; };
 	$protocol->timeout($timeout);
 	alarm($timeout);
     }
@@ -240,22 +237,27 @@ sub simple_request
 	eval {
 	    $response = $protocol->request($request, $proxy,
 					   $arg, $size, $timeout);
+	    alarm(0) if $use_alarm;
 	};
 	if ($@) {
 	    if ($@ =~ /^timeout/i) {
-		$response = HTTP::Response->new(&HTTP::Status::RC_REQUEST_TIMEOUT, 'User-agent timeout');
+		$response =
+		  HTTP::Response->new(&HTTP::Status::RC_REQUEST_TIMEOUT, 
+				      'User-agent timeout');
 	    } else {
-		$@ =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;  # remove file/line number
-		$response = HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
+		$@ =~ s/\s+at\s+\S+\s+line\s+\d+\.?\s*//;
+		$response =
+		  HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+				      $@);
 	    }
 	}
     } else {
 	# user has to handle any dies, usually timeouts
 	$response = $protocol->request($request, $proxy,
 				       $arg, $size, $timeout);
+	alarm(0) if $use_alarm;
 	# XXX: Should we die unless $response->is_success ???
     }
-    alarm(0) if ($use_alarm); # no more timeout
 
     $response->request($request);  # record request for reference
     $cookie_jar->extract_cookies($response) if $cookie_jar;

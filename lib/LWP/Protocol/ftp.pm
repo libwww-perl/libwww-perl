@@ -1,16 +1,18 @@
 #
-# $Id: ftp.pm,v 1.8 1996/03/05 10:49:25 aas Exp $
+# $Id: ftp.pm,v 1.9 1996/03/05 15:26:53 aas Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
 
 package LWP::Protocol::ftp;
 
-require HTTP::Response;
-require HTTP::Status;
-require LWP::MediaTypes;
-
 use Carp ();
+
+use HTTP::Status ();
+use HTTP::Negotiate ();
+use HTTP::Response ();
+use LWP::MediaTypes ();
+use File::Listing ();
 
 require LWP::Protocol;
 @ISA = qw(LWP::Protocol);
@@ -85,8 +87,7 @@ sub request
     $mess =~ s|\n.*||s; # only first line left
     $mess =~ s|\s*ready\.?$||;
     # Make the version number more HTTP like
-    $mess =~ s|\s*\(Version\s*|/|;
-    $mess =~ s|\)$||;
+    $mess =~ s|\s*\(Version\s*|/| and $mess =~ s|\)$||;
     $response->header("Server", $mess);
 
     $ftp->timeout($timeout) if $timeout;
@@ -96,17 +97,24 @@ sub request
         # Unauthorized.  Let's fake a RC_UNAUTHORIZED response
         my $res =  new HTTP::Response &HTTP::Status::RC_UNAUTHORIZED, $@;
         $res->header("WWW-Authenticate", qq(Basic Realm="FTP login"));
+	$res->content($ftp->message);
 	return $res;
     }
     LWP::Debug::debug($ftp->message);
     
-    # Go to the right spot
+    # Get & fix the path
     my @path =  $url->path_components;
-    shift(@path);  # There will always be an empty
-    pop(@path) while @path && $path[-1] eq '';
+    shift(@path);  # There will always be an empty first component
+    pop(@path) while @path && $path[-1] eq '';  # remove empty tailing comps
     my $remote_file = pop(@path);
+    $remote_file = '' unless defined $remote_file;
 
-    $ftp->binary; # XXX should check for ;type=a parameter
+    my $params = $url->params;
+    if (defined($params) && $params eq 'type=a') {
+	$ftp->ascii;
+    } else {
+	$ftp->binary;
+    }
     
     for (@path) {
 	LWP::Debug::debug("CWD $_");
@@ -128,16 +136,21 @@ sub request
 		$response->header('Content-Length', "$1");
 	    }
 
-	    $response = $self->collect($arg, $response, sub { 
-		my $content = '';
-		my $result = $data->read($content, $size);
-		return \$content;
-	    } );
+	    if ($method ne 'HEAD') {
+		# Read data from server
+		$response = $self->collect($arg, $response, sub { 
+		    my $content = '';
+		    my $result = $data->read($content, $size);
+		    return \$content;
+		} );
+	    }
 	    my $resp = $data->close;
 	    if ($resp < 200 || $resp >= 300) {
 		# Something did not work too well
-		$response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
-		$response->message("FTP response code $resp");
+		if ($method ne 'HEAD') {
+		    $response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
+		    $response->message("FTP response code $resp");
+		}
 	    }
 	} elsif (!length($remote_file) || $ftp->code == 550) {
 	    # 550 not a plain file, try to list instead
@@ -146,12 +159,58 @@ sub request
 		return new HTTP::Response &HTTP::Status::RC_NOT_FOUND,
 		       "File '$remote_file' not found";
 	    }
-	    # XXX should use HTTP::Negotiate and by default prefer to
-	    # make text/html using the File::Listing module.
-	    $response->header('Content-Type', 'text/ftp-dir-listing');
+    
+	    # It should now be safe to try to list the directory
 	    LWP::Debug::debug("lsl");
-	    # XXX should collect
-	    $response->content(join "\n", $ftp->lsl) if $method ne 'HEAD';
+	    my @lsl = $ftp->lsl;
+	    
+	    # Try to figure out if the user want us to convert the
+	    # directory listing to HTML.
+	    my @variants =
+	      (
+	       ['html',  0.60, 'text/html'            ],
+	       ['dir',   1.00, 'text/ftp-dir-listing' ]
+	      );
+	    #$HTTP::Negotiate::DEBUG=1;
+	    my $prefer = HTTP::Negotiate::choose(\@variants, $request);
+
+	    my $content = '';
+
+	    if (!defined($prefer)) {
+		return new HTTP::Response &HTTP::Status::RC_NONE_ACCEPTABLE,
+                                   "Neither HTML nor directory listing wanted";
+	    } elsif ($prefer eq 'html') {
+		$response->header('Content-Type', 'text/html');
+		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
+		my $base = $request->url->clone;
+		my $path = $base->epath;
+		$base->epath("$path/") unless $path =~ m|/$|;
+		$content .= qq(<BASE HREF="$base">\n</HEAD>\n);
+		$content .= "<BODY>\n<UL>\n";
+		for (File::Listing::parse_dir(\@lsl, 'GMT')) {
+		    ($name, $type, $size, $mtime, $mode) = @$_;
+		    $content .= qq(  <LI> <a href="$name">$name</a>);
+		    $content .= " $size bytes" if $type eq 'f';
+		    $content .= "\n";
+		}
+		$content .= "</UL></body>\n";
+	    } else {
+		$response->header('Content-Type', 'text/ftp-dir-listing');
+		$content = join("\n", @lsl, '');
+	    }
+
+	    $response->header('Content-Length', length($content));
+
+            if ($method ne 'HEAD') {
+		# Let's collect once
+		my $first = 1;
+		$response = $self->collect($user_arg, $response, sub {
+		    if ($first--) {
+			return \$content;
+		    }
+		    return \ "";
+		});
+	    }
 	} else {
 	    my $res = new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
 	                  "FTP return code " . $ftp->code;

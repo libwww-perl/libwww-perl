@@ -1,18 +1,23 @@
-$SCRIPT = "bin/lwp-mirror";
+use Config;
+use File::Basename qw(basename dirname);
+chdir(dirname($0));
+($file = basename($0)) =~ s/\.PL$//;
+$file =~ s/\.pl$//
+	if ($Config{'osname'} eq 'VMS' or
+	    $Config{'osname'} eq 'OS2');  # "case-forgiving"
+open OUT,">$file" or die "Can't create $file: $!";
+chmod(0755, $file);
+print "Extracting $file (with variable substitutions)\n";
 
-require "myConfig.out";
-unlink($SCRIPT);
-open SCRIPT, ">$SCRIPT" or die "Can't open for writing $SCRIPT: $!";
+print OUT <<"!GROK!THIS!";
+$Config{'startperl'} -w
+    eval 'exec perl -S \$0 "\$@"'
+	if 0;
 
-print SCRIPT <<"END";
-#!$PERL -w
+!GROK!THIS!
 
-\$DISTNAME = "$NAME-$VERSION";
-END
-
-print SCRIPT <<'END_PROGRAM'; chmod(0755, $SCRIPT);
-
-# $Id: lwp-mirror.PL,v 1.15 1996/03/10 07:38:46 aas Exp $
+print OUT <<'!NO!SUBS!';
+# $Id: lwp-mirror.PL,v 1.16 1996/05/19 11:22:34 aas Exp $
 #
 # Simple mirror utility using LWP
 
@@ -57,7 +62,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
@@ -68,8 +73,10 @@ unless (getopts("hvt:")) {
 }
 
 if ($opt_v) {
+    require LWP;
+    my $DISTNAME = 'libwww-perl-' . LWP::Version();
     die <<"EOT";
-This is $0 version $VERSION ($DISTNAME)
+This is lwp-mirror version $VERSION ($DISTNAME)
 
 Copyright 1995-1996, Gisle Aas.
 
@@ -110,4 +117,4 @@ Usage: $0 [-options] <url> <file>
     -t <timeout> Set timeout value
 EOT
 }
-END_PROGRAM
+!NO!SUBS!

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.64 2002/05/29 16:21:34 gisle Exp $
+# $Id: Makefile.PL,v 1.65 2002/05/31 20:48:37 gisle Exp $
 
 require 5.005;
 use strict;
@@ -73,7 +73,7 @@ EOT
 		close(ZLIB_OK);
 	    };
 	    if ($@) {
-		warn $@;
+		#warn $@;
 		unlink("t/live/ZLIB_OK");
 	    }
 	}

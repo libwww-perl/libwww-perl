@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.66 2002/05/31 20:51:03 gisle Exp $
+# $Id: Makefile.PL,v 1.67 2003/01/24 06:13:42 gisle Exp $
 
 require 5.005;
 use strict;
@@ -100,9 +100,10 @@ EOT
 	}
     }
     @programs_to_install = @tmp;
+}
 
-    if (grep($_ eq 'lwp-request', @programs_to_install) && @request_aliases) {
-	print <<EOT;
+if (grep($_ eq 'lwp-request', @programs_to_install) && @request_aliases) {
+    print <<EOT;
 
 The lwp-request program will use the name it is invoked with to
 determine what HTTP method to use.  I can set up alias for the most
@@ -110,27 +111,29 @@ common HTTP methods.  These alias are also installed in
 $Config{sitebin}.
 
 EOT
-	@tmp = ();
-	for my $alias (@request_aliases) {
-	    my $default = "y";
-	    # check that we don't overwrite something unrelated with
-	    # the current defaults.
-	    if (open(PROG, "<$Config{sitebin}/$alias")) {
-		$default = "n";
-		while (<PROG>) {
-		    if (/lwp-request/) {
-			$default = "y";
-			last;
-		    }
+    my @tmp;
+    for my $alias (@request_aliases) {
+	my $default = "y";
+	# check that we don't overwrite something unrelated with
+	# the current defaults.
+	if (open(PROG, "<$Config{sitebin}/$alias")) {
+	    $default = "n";
+	    while (<PROG>) {
+		if (/lwp-request/) {
+		    $default = "y";
+		    last;
 		}
-		close(PROG);
 	    }
-	    if (prompt("Do you want to install the $alias alias?", $default) =~ /^y/) {
-		push(@tmp, $alias);
-	    }
+	    close(PROG);
 	}
-	@request_aliases = @tmp;
+	if (prompt("Do you want to install the $alias alias?", $default) =~ /^y/) {
+	    push(@tmp, $alias);
+	}
     }
+    @request_aliases = @tmp;
+}
+else {
+    @request_aliases = ();
 }
 
 # Check for non-standard modules that are used by this library.

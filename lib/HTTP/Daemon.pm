@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.25 2001/08/07 19:32:40 gisle Exp $
+# $Id: Daemon.pm,v 1.26 2002/08/18 03:23:43 gisle Exp $
 #
 
 use strict;
@@ -64,7 +64,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -134,7 +134,7 @@ sub url
     my $self = shift;
     my $url = "http://";
     my $addr = $self->sockaddr;
-    if ($addr eq INADDR_ANY) {
+    if (!$addr || $addr eq INADDR_ANY) {
  	require Sys::Hostname;
  	$url .= lc Sys::Hostname::hostname();
     }

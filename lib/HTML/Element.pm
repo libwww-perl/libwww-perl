@@ -1,6 +1,6 @@
 package HTML::Element;
 
-# $Id: Element.pm,v 1.33 1996/06/09 14:49:56 aas Exp $
+# $Id: Element.pm,v 1.34 1996/07/22 15:00:51 aas Exp $
 
 =head1 NAME
 
@@ -42,7 +42,7 @@ use vars qw($VERSION
 	    %emptyElement %optionalEndTag %linkElements %boolean_attr
            );
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 # Elements that does not have corresponding end tags (i.e. are empty)
@@ -293,8 +293,9 @@ sub attr
 
 =head2 $h->content()
 
-Returns the content of this element.  The content is represented as an
-array of text segments and references to other HTML::Element objects.
+Returns the content of this element.  The content is represented as a
+reference to an array of text segments and references to other
+HTML::Element objects.
 
 =cut
 

@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.20 2003/10/26 14:02:49 gisle Exp $
+# $Id: UserAgent.pm,v 2.21 2003/10/26 14:44:19 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.20 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.21 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1109,7 +1109,7 @@ response object.  See L<HTTP::Response> for a description of the
 interface it provides.
 
 Fields names that start with ":" are special.  These will not
-intialize headers of the request but will determine how the response
+initialize headers of the request but will determine how the response
 content is treated.  The following special field names are recognized:
 
     :content_file   => $filename
@@ -1202,7 +1202,7 @@ options described with the get() method above.
 You are allowed to use a CODE reference as C<content> in the request
 object passed in.  The C<content> function should return the content
 when called.  The content can be returned in chunks.  The content
-function will be invoked repeatadly until it return an empty string to
+function will be invoked repeatedly until it return an empty string to
 signal that there is no more content.
 
 =item $ua->simple_request( $request )
@@ -1237,7 +1237,7 @@ object.
 =head2 Callback methods
 
 The following methods will be invoked as requests are processed. These
-methods are documented here becase subclasses of C<LWP::UserAgent>
+methods are documented here because subclasses of C<LWP::UserAgent>
 might want to override their behaviour.
 
 =over

@@ -2,13 +2,30 @@
 # Test retrieving a file with a 'file://' URL,
 #
 
+# First locate some suitable tmp-dir.  We need an absolute path.
+$TMPDIR = undef;
+for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
+    if (open(TEST, ">$_/test-$$")) {
+        close(TEST);
+	unlink("$_/test-$$");
+	$TMPDIR = $_;
+	last;
+    }
+}
+unless ($TMPDIR) {
+   # Can't run any tests
+   print "1..0\n";
+   print "ok 1\n";
+   exit;
+}
+
 print "1..2\n";
 
 use LWP::Simple;
 require LWP::Protocol::file;
 
-my $orig = "/usr/tmp/lwp-orig-$$";          # local file
-my $copy = "/usr/tmp/lwp-copy-$$"; 	    # downloaded copy
+my $orig = "$TMPDIR/lwp-orig-$$";          # local file
+my $copy = "$TMPDIR/lwp-copy-$$"; 	    # downloaded copy
 
 # First we create the original
 open(OUT, ">$orig") or die "Cannot open $orig: $!";

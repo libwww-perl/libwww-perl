@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.22 2001/08/28 04:34:31 gisle Exp $
+# $Id: http11.pm,v 1.23 2001/09/07 19:04:16 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -30,7 +30,7 @@ my $CRLF = "\015\012";
     sub sysread {
 	my $self = shift;
 	if (my $timeout = ${*$self}{io_socket_timeout}) {
-	    my $io_sel = (${*$self}{myhttp_io_sel} ||= $self->io_sel);
+	    my $io_sel = $self->io_sel;
 	    die "read timeout" unless $io_sel->can_read($timeout);
 	}
 	sysread($self, $_[0], $_[1], $_[2] || 0);
@@ -38,12 +38,8 @@ my $CRLF = "\015\012";
 
     sub io_sel {
 	my $self = shift;
-	my $io_sel = (${*$self}{myhttp_io_sel} ||=
-		      do {
-			  require IO::Select;
-			  IO::Select->new($self);
-		      });
-	return $io_sel;
+	require IO::Select;
+	return IO::Select->new($self);
     }
 
     sub ping {

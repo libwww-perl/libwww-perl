@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.68 2004/06/14 16:26:46 gisle Exp $
+# $Id: http.pm,v 1.69 2004/12/14 12:38:45 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -193,7 +193,7 @@ sub request
 	    }
 	}
 	elsif ($clen) {
-	    warn "Content-Length set when there is not content, fixed";
+	    warn "Content-Length set when there is no content, fixed";
 	    hlist_remove(\@h, 'Content-Length');
 	}
     }

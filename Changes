@@ -7,6 +7,8 @@
          rewrite request as GET
        - pass $response to redirect_ok()
 
+    Support cpan:-URLs.  Try 'lwp-download cpan:src/latest.tar.gz' :)
+
     Fix test failure in 't/html/form.t' for perl5.005.
 
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.61 2001/11/27 17:41:20 gisle Exp $
+# $Id: Makefile.PL,v 1.62 2001/11/27 17:47:53 gisle Exp $
 
 require 5.005;
 use strict;
@@ -38,7 +38,7 @@ die "Can't figure out release date" unless $release_date;
 #print "Release date: $release_date\n";
 
 my $some_time_ago = sprintf "%04d-%02d-%02d",
-                            sub { ($_[5]+1900, $_[4]+1, $_[3])}->(localtime(time - 45 * 24*60*60));
+          sub { ($_[5]+1900, $_[4]+1, $_[3])}->(localtime(time - 45 * 24*60*60));
 if ($some_time_ago lt $release_date) {
     # Check if we have internet connection
     require IO::Socket;
@@ -61,7 +61,7 @@ EOT
 	    open(ENABLED, ">t/live/ENABLED") || die "Can't enable: $!";
 	    close(ENABLED);
 
-	    # Figure out if the compress lib works an signal that with
+	    # Figure out if the compress lib works and signal that with
 	    # a file for the test suite to find.  We don't want the
 	    # test script to do this 'require' itself because we want
 	    # to test that the module loads it on demand as it should.
@@ -152,9 +152,9 @@ if ($@) {
     $missing_modules++;
     print <<EOT;
 $@
-The HTML::Parser is needed to extract correct <BASE> information from
-HTML so that we can resolv relative links correctly.  The HTML::Form
-module need HTML::TokeParser to work.
+The HTML::Parser is needed to extract correct base URI information from
+HTML so that we can resolve relative links correctly.  The HTML::Form
+module also need HTML::TokeParser to work.
 
 EOT
     sleep(2);  # Don't hurry too much

@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.129 2003/10/19 19:58:48 gisle Exp $
+# $Id: LWP.pm,v 1.130 2003/10/23 13:45:51 gisle Exp $
 
 package LWP;
 
@@ -76,6 +76,10 @@ Provides parser for F<robots.txt> files and a framework for constructing robots.
 
 =item *
 
+Supports parsing of HTML forms.
+
+=item *
+
 Implements HTTP content negotiation algorithm that can
 be used both in protocol modules and in server scripts (like CGI
 scripts).
@@ -86,7 +90,7 @@ Supports HTTP cookies.
 
 =item *
 
-A simple command line client application called C<lwp-request>.
+Some simple command line clients, for instance C<lwp-request> and C<lwp-download>.
 
 =back
 
@@ -346,10 +350,10 @@ internal error response.
 The library automatically adds a "Host" and a "Content-Length" header
 to the HTTP request before it is sent over the network.
 
-For GET request you might want to add a "If-Modified-Since" or
+For a GET request you might want to add a "If-Modified-Since" or
 "If-None-Match" header to make the request conditional.
 
-For POST request you should add the "Content-Type" header.  When you
+For a POST request you should add the "Content-Type" header.  When you
 try to emulate HTML E<lt>FORM> handling you should usually let the value
 of the "Content-Type" header be "application/x-www-form-urlencoded".
 See L<lwpcook> for examples of this.
@@ -577,11 +581,6 @@ Used to decide what URI objects to instantiate.  The default is C<URI>.
 You might want to set it to C<URI::URL> for compatiblity with old times.
 
 =back
-
-=head1 BUGS
-
-The library can not handle multiple simultaneous requests yet.  Also,
-check out what's left in the TODO file.
 
 =head1 ACKNOWLEDGEMENTS
 

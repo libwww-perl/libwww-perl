@@ -1,5 +1,5 @@
 #
-# $Id: gopher.pm,v 1.11 1996/02/26 19:14:15 aas Exp $
+# $Id: gopher.pm,v 1.12 1996/03/05 10:48:42 aas Exp $
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -48,7 +48,7 @@ sub request
 
     LWP::Debug::trace('()');
 
-    $size = 4096 unless defined $size and $size > 0;
+    $size = 4096 unless $size;
 
     # check proxy
     if (defined $proxy)

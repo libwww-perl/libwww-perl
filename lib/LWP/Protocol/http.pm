@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.20 1996/02/27 19:38:31 aas Exp $
+# $Id: http.pm,v 1.21 1996/03/05 10:48:40 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -45,7 +45,7 @@ sub request
 
     LWP::Debug::trace('()');
 
-    $size = 4096 unless defined $size and $size > 0;
+    $size = 4096 unless $size;
 
     # check method
 

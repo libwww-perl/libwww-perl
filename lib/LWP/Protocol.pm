@@ -1,4 +1,4 @@
-# $Id: Protocol.pm,v 1.17 1996/03/21 14:34:37 aas Exp $
+# $Id: Protocol.pm,v 1.18 1996/04/07 20:38:33 aas Exp $
 
 package LWP::Protocol;
 
@@ -12,14 +12,14 @@ This class is the parent for all access method supported by the LWP
 library. It is used internally in the library.
 
 When creating an instance of this class using C<LWP::Protocol::new()>
-you pass a URL, and you get a initialised subclass appropriate for
+you pass a URL, and you get an initialised subclass appropriate for
 that access method. In other words, the constructor for this class
-calls the constructor for one of its subclasses;
+calls the constructor for one of its subclasses.
 
-The LWP::Protocol classes need to override the C<request()> function
-which is used to request service for an access method. The overridden
-method can make use of the C<collect()> function to collect together
-chunks of data received.
+The LWP::Protocol sub classes need to override the request() method
+which is used to service a request for that specific protocol. The
+overridden method can make use of the collect() function to collect
+together chunks of data as it is received.
 
 =head1 SEE ALSO
 
@@ -41,12 +41,10 @@ use HTTP::Status 'RC_INTERNAL_SERVER_ERROR';
 my %ImplementedBy = (); # scheme => classname
 
 
-=head2 new
+=head2 new HTTP::Protocol
 
 The LWP::Protocol constructor is inherited by subclasses. As this is a
-virtual base class this method should B<not> be called like:
-
- $prot = new LWP::Protocol()
+virtual base class this method should B<not> be called directly.
 
 =cut
 
@@ -62,7 +60,7 @@ sub new
 }
 
 
-=head2 LWP::Protocol::create($url)
+=head2 $prot = LWP::Protocol::create($url)
 
 Create an object of the class implementing the protocol to handle the
 given scheme. This is a function, not a method. It is more an object
@@ -83,10 +81,7 @@ sub create
 }
 
 
-=head2 LWP::Protocol::implementor
-
- LWP::Protocol::implementor($scheme);
- LWP::Protocol::implementor($scheme, $class);
+=head2 $class = LWP::Protocol::implementor($scheme, [$class])
 
 Get and/or set implementor class for a scheme.  Returns '' if the
 specified scheme is not supported.
@@ -125,14 +120,15 @@ sub implementor
 }
 
 
-=head2 request(...)
+=head2 $prot->request(...)
 
  $response = $protocol->request($request, $proxy, undef);
  $response = $protocol->request($request, $proxy, '/tmp/sss');
  $response = $protocol->request($request, $proxy, \&callback, 1024);
 
 Dispactches a request over the protocol, and returns a response
-object. This method needs to be overridden in subclasses.
+object. This method needs to be overridden in subclasses.  Referer to
+L<LWP::UserAgent> for description of the arguments.
 
 =cut
 
@@ -150,7 +146,7 @@ Get and set the timeout value in seconds
 
 =head2 use_alarm($yesno)
 
-Indicates if the library is allowed to use the core C<alarm()>
+Indicates if the library is allowed to use the core alarm()
 function to implement timeouts.
 
 =cut
@@ -164,9 +160,10 @@ sub use_alarm { shift->_elem('use_alarm', @_); }
 Called to collect the content of a request, and process it
 appropriately into a scalar, file, or by calling a callback.
 
-Note: We will only use the callback if $response->is_success().  This
-avoids sendig content data for redirects and authentization responses
-to the callback which would be confusing.
+Note: We will only use the callback or file argument if
+$response->is_success().  This avoids sendig content data for
+redirects and authentization responses to the callback which would be
+confusing.
 
 =cut
 
@@ -176,7 +173,7 @@ sub collect
     my $content;
     my($use_alarm, $timeout) = @{$self}{'use_alarm', 'timeout'};
 
-    if (! defined $arg) {
+    if (!defined($arg) || !$response->is_success) {
         # scalar
         while ($content = &$collector, length $$content) {
             alarm(0) if $use_alarm;
@@ -204,11 +201,7 @@ sub collect
         while ($content = &$collector, length $$content) {
             alarm(0) if $use_alarm;
             LWP::Debug::debug("read " . length($$content) . " bytes");
-	    if ($response->is_success) {
-		&$arg($$content, $response, $self);
-	    } else {
-		$response->add_content($$content);
-	    }
+	    &$arg($$content, $response, $self);
             alarm($timeout) if $use_alarm
         }
     }

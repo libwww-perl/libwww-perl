@@ -1,71 +1,123 @@
-This code has not been released yet, but here's a change log detailing
-changes as I make them. This will be tidied up in future once the first
-alpha release has been made.
+
+Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Reorganized directories.  Moved LWP.pm up.  Moved file.pm and http.pm
+    into the LWP::Protocol direcotory.  Moved LWP out of the lib directory
+    and removed lib.
+
+ o  Implemented the "get" and "mirror" scripts in the "bin" directory.
+
+ o  Implemented "install-lwp", "update_version" and "make-dist".  The library
+    version number is found in the VERSION file.
+
+ o  Always adds 1900 to the year in LWP::Date
+
+ o  In LWP::MIMEheader:  Implemented clone(), removeHeader() and scan() 
+    methods.  Reimplemented asString.  Removed asMIME().  Moved "Good
+    Practice" into this file, and reimplemented it.
+
+ o  Moved "header" and "content" into LWP::Message class.  This change made
+    LWP::Request and LWP::Response much simpler.  Made clone() method
+    actually work.
+
+ o  LWP::Protocol::implementor does not die if it cannot load pacakge.
+
+ o  Moved UserAgent convinience methods into LWP::Simple.  Made LWP::Simple
+    export LWP::StatusCode symbols and functions.
+
+ o  Implemented $ua->isProtocolSupported($scheme) method.
+
+ o  Nicer directory listing in LWP::Protocol::file.pm
+
+ o  Rely on URI::URL 3.00 behaviour for $url->full_path
+
+ o  Library version number now in LWP.pm.  You should be able to say
+    "use LWP 1.0;" is you need at least this version.
+
+ o  Various cleanups and arranging layout as I like it.  Use fooBar-style
+    (as opposed to foo_bar stype) everywhere.  This means that as_string()
+    now is called asString().
+
+ o  Added more documentation.
 
 
-Wed Jun 14 1995
 
-Removed lot of rendundant & before function calls.
+Wed Jun 14 1995   Gisle Aas <aas@oslonett.no>
 
-$this --> $self
+ o  Removed lot of rendundant & before function calls.
 
-&collector passes content as a reference, don't want to copy so much
+ o  $this --> $self
 
-parameterlist to collect callback has been rearranged
+ o  &collector passes content as a reference, don't want to copy so much
 
-Response::addContent gets a reference to the data
+ o  parameterlist to collect callback has been rearranged
 
-Added some callback documentation to UserAgent.pm
+ o  Response::addContent gets a reference to the data
 
-Protocol::file now uses the collector
+ o  Added some callback documentation to UserAgent.pm
 
+ o  Protocol::file now uses the collector
 
-Sun Jun 11 1995
-
-Added basic authentication support
-
-Added mirroring of single documents
-
-Change Protocol construction from
-whacky URL.pm (constructor returns
-subclass) to more normal C++'ish way.
+ o  Intoduced LWP::Simple
 
 
-Wed June 7 ??? 1995
 
-Minor cleanups from printed code inspection
+Sun Jun 11 1995   Martijn Koster <m.koster@nexor.co.uk>
+
+ o  Added basic authentication support
+
+ o  Added mirroring of single documents
+
+ o  Change Protocol construction from whacky URL.pm (constructor returns
+    subclass) to more normal C++'ish way.
 
 
-Wed May 24 ??? 1995
 
-Added redirection resolution
-Added optional autoloading of protocols
+Wed June 7 1995   Martijn Koster <m.koster@nexor.co.uk>
+
+ o  Minor cleanups from printed code inspection
 
 
-Tue May 23 ??? 1995
 
-Separated socket stuff into separate module
-Added HTTP proxy support
-Made alarm handling optional
+Wed May 24 1995   Martijn Koster <m.koster@nexor.co.uk>
 
-Added a LWP::Message or completeness sake
-Added LWP::MemberMixin to reduce code duplication
+ o  Added redirection resolution
 
-Cosmetic changes to LWP::Date
-Renamed LWP::Error to LWP::StatusCode
-Renamed LWP::MIME to LWP::MIMEtype
+ o  Added optional autoloading of protocols
 
-Changed the tests to cope with all this
+
+
+Tue May 23 1995   Martijn Koster <m.koster@nexor.co.uk>
+
+ o  Separated socket stuff into separate module
+
+ o  Added HTTP proxy support
+
+ o  Made alarm handling optional
+
+ o  Added a LWP::Message or completeness sake
+
+ o  Added LWP::MemberMixin to reduce code duplication
+
+ o  Cosmetic changes to LWP::Date
+
+ o  Renamed LWP::Error to LWP::StatusCode
+
+ o  Renamed LWP::MIME to LWP::MIMEtype
+
+ o  Changed the tests to cope with all this
 
 It's getting there...
 
 
-Mon, May 22 10:38:15 BST 1995
 
-Changed the socket reading to use sysread.
-This will have to go into a module of its own.
+Mon May 22 1995   Martijn Koster <m.koster@nexor.co.uk>
+
+ o  Changed the socket reading to use sysread.  This will have to go
+    into a module of its own.
 
 
-Thu, 18 May 1995 10:55:30
 
-Mentioned on libwww-perl that I had changed the classes around lots.
+Thu 18 May 1995   Martijn Koster <m.koster@nexor.co.uk>
+
+ o  Mentioned on libwww-perl that I had changed the classes around lots.

@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.29 1997/12/03 13:24:30 aas Exp $
+# $Id: Response.pm,v 1.30 1997/12/03 21:05:47 aas Exp $
 
 package HTTP::Response;
 
@@ -22,7 +22,7 @@ responses also for non-HTTP protocol schemes.
 Instances of this class are usually created and returned by the
 C<request()> method of an C<LWP::UserAgent> object:
 
- ...
+ #...
  $response = $ua->request($request)
  if ($response->is_success) {
      print $response->content;
@@ -31,7 +31,7 @@ C<request()> method of an C<LWP::UserAgent> object:
  }
 
 C<HTTP::Response> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods are header(),
+inherits its methods.  The inherited methods often used are header(),
 push_header(), remove_header(), headers_as_string(), and content().
 The header convenience methods are also available.  See
 L<HTTP::Message> for details.
@@ -51,10 +51,12 @@ use URI::URL ();
 use strict;
 
 
-=item $r = new HTTP::Response ($rc, [$msg, [$header, [$content]]])
+=item $r = HTTP::Response->new($rc, [$msg, [$header, [$content]]])
 
 Constructs a new C<HTTP::Response> object describing a response with
-response code C<$rc> and optional message C<$msg>.
+response code C<$rc> and optional message C<$msg>.  The message is a
+short human readable single line string that explains the response
+code.
 
 =cut
 
@@ -71,7 +73,7 @@ sub new
 sub clone
 {
     my $self = shift;
-    my $clone = bless $self->HTTP::Message::clone;
+    my $clone = bless $self->SUPER::clone, ref($self);
     $clone->code($self->code);
     $clone->message($self->message);
     $clone->request($self->request->clone) if $self->request;
@@ -107,11 +109,19 @@ sub message   { shift->_elem('_msg',     @_); }
 sub previous  { shift->_elem('_previous',@_); }
 sub request   { shift->_elem('_request', @_); }
 
+=item $r->status_line
+
+Returns the string "E<lt>code> E<lt>message>".  If the message attribute
+is not set then the official name of E<lt>code> (see L<HTTP::Status>)
+is substituted.
+
+=cut
+
 sub status_line
 {
     my $self = shift;
     my $code = $self->{'_rc'}  || "000";
-    my $mess = $self->{'_msg'} || "?";
+    my $mess = $self->{'_msg'} || HTTP::Status::status_message($code) || "?";
     return "$code $mess";
 }
 
@@ -166,7 +176,7 @@ sub base
 }
 
 
-=item $r->as_string()
+=item $r->as_string
 
 Method returning a textual representation of the response.  Mainly
 useful for debugging purposes. It takes no arguments.
@@ -177,17 +187,24 @@ sub as_string
 {
     require HTTP::Status;
     my $self = shift;
-    my @result = ("--- $self ---");
+    my @result;
+    #push(@result, "---- $self ----");
     my $code = $self->code;
-    push(@result, "RC: $code (" . HTTP::Status::status_message($code) . ")" );
-    push(@result, 'Message: ' . $self->message);
-    push(@result, '');
+    my $status_message = HTTP::Status::status_message($code) || "Unknown code";
+    my $message = $self->message || "";
+
+    my $status_line = "$code";
+    my $proto = $self->protocol;
+    $status_line = "$proto $status_line" if $proto;
+    $status_line .= " ($status_message)" if $status_message ne $message;
+    $status_line .= " $message";
+    push(@result, $status_line);
     push(@result, $self->headers_as_string);
     my $content = $self->content;
-    if ($content) {
-	push(@result, $self->content);
+    if (defined $content) {
+	push(@result, $content);
     }
-    push(@result, ("-" x 35));
+    #push(@result, ("-" x 40));
     join("\n", @result, "");
 }
 
@@ -221,19 +238,14 @@ is TRUE.
 sub error_as_HTML
 {
     my $self = shift;
-    my $msg = $self->{'_msg'} || 'Unknown';
     my $title = 'An Error Occurred';
-    my $code = $self->code;
+    my $body  = $self->status_line;
     return <<EOM;
 <HTML>
-<HEAD>
-<TITLE>
-$title
-</TITLE>
-</HEAD>
+<HEAD><TITLE>$title</TITLE></HEAD>
 <BODY>
 <H1>$title</h1>
-$code - $msg
+$body
 </BODY>
 </HTML>
 EOM

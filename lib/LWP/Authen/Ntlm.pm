@@ -106,21 +106,21 @@ LWP::Authen::Ntlm - Library for enabling NTLM authentication (Microsoft) in LWP
 
 =head1 SYNOPSIS
 
-	use LWP::UserAgent;
-	use HTTP::Request::Common;
-	my $url = 'http://www.company.com/protected_page.html';
+ use LWP::UserAgent;
+ use HTTP::Request::Common;
+ my $url = 'http://www.company.com/protected_page.html';
 
-	# Set up the ntlm client and then the base64 encoded ntlm handshake message
-	my $ua = new LWP::UserAgent(keep_alive=>1);
-	$ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
+ # Set up the ntlm client and then the base64 encoded ntlm handshake message
+ my $ua = new LWP::UserAgent(keep_alive=>1);
+ $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
 
-	$request = GET $url;
-	print "--Performing request now...-----------\n";
-	$response = $ua->request($request);
-	print "--Done with request-------------------\n";
+ $request = GET $url;
+ print "--Performing request now...-----------\n";
+ $response = $ua->request($request);
+ print "--Done with request-------------------\n";
 
-	if ($response->is_success) {print "It worked!->" . $response->code . "\n"}
-	else {print "It didn't work!->" . $response->code . "\n"}
+ if ($response->is_success) {print "It worked!->" . $response->code . "\n"}
+ else {print "It didn't work!->" . $response->code . "\n"}
 
 =head1 DESCRIPTION
 
@@ -148,13 +148,17 @@ code prior to attempting to retrieve the URL:
 
 =over 4
 
-=item * Enable persistent HTTP connections
+=item *
+
+Enable persistent HTTP connections
 
 To do this, pass the "keep_alive=>1" option to the LWP::UserAgent when creating it, like this:
 
-	 my $ua = new LWP::UserAgent(keep_alive=>1);
+    my $ua = new LWP::UserAgent(keep_alive=>1);
 
-=item * Set the credentials on the UserAgent object
+=item *
+
+Set the credentials on the UserAgent object
 
 The credentials must be set like this:
 
@@ -170,16 +174,13 @@ has nothing to do with LWP::Authen::Ntlm)
 If you run into trouble and need help troubleshooting your problems, try enabling LWP 
 debugging by putting this line at the top of your code:
 
-use LWP::Debug qw(+);
+    use LWP::Debug qw(+);
 
 You should get copious debugging output, including messages from LWP::Authen::Ntlm itself.
 
 =head1 AVAILABILITY
 
-LWP::Authen::Ntlm is available ???.  
-
-General queries regarding LWP should be made to the LWP Mailing List (see 
-http://www.lwp.org for details).
+General queries regarding LWP should be made to the LWP Mailing List.
 
 Questions specific to LWP::Authen::Ntlm can be forwarded to jtillman@bigfoot.com
 
@@ -191,4 +192,4 @@ under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<LWP>, L<LWP::UserAgent>, L<LWPCook>.
+L<LWP>, L<LWP::UserAgent>, L<lwpcook>.

@@ -1,3 +1,10 @@
+2002-09-02   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.66
+
+    Various patches from Sean M. Burke.  Some of them to
+    match to LWP to the "Perl & LWP" book.
+
 2002-05-31   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.65

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.9 1995/08/09 11:33:04 aas Exp $
+# $Id: Simple.pm,v 1.10 1995/12/29 14:13:51 aas Exp $
 
 =head1 NAME
 
@@ -125,7 +125,8 @@ push(@EXPORT, @HTTP::Status::EXPORT);
 
 require LWP::UserAgent;
 $ua = new LWP::UserAgent;  # we create a global UserAgent object
-
+$ua->agent(sprintf("LWP::Simple/%d.%02d",
+		   q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/));
 use HTTP::Date qw(str2time);
 use Carp;
 

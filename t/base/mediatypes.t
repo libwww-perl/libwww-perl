@@ -23,7 +23,7 @@ $file = "/etc/passwd";
  ["x.ppm.Z.UU"		=> "image/x-portable-pixmap","compress","x-uuencode",],
 );
 
-$notests = @tests + 2;
+$notests = @tests + 3;
 print "1..$notests\n";
 
 if (-f "$ENV{HOME}/.mime.types") {
@@ -71,3 +71,17 @@ print "ok $testno\n"; $testno++;
 @enc = $r->header("Content-Encoding");
 print "not " unless "@enc" eq "gzip x-uuencode";
 print "ok $testno\n"; $testno++;
+
+#
+use LWP::MediaTypes qw(add_type add_encoding);
+add_type("x-world/x-vrml", qw(wrl vrml));
+add_encoding("x-gzip" => "gz");
+add_encoding(rot13 => "r13");
+
+@x = guess_media_type("foo.vrml.r13.gz");
+#print "@x\n";
+print "not " unless "@x" eq "x-world/x-vrml rot13 x-gzip";
+print "ok $testno\n"; $testno++;
+
+#print LWP::MediaTypes::_dump();
+

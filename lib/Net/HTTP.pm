@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.40 2002/12/23 18:16:29 gisle Exp $
+# $Id: HTTP.pm,v 1.41 2002/12/25 21:27:02 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -39,6 +39,7 @@ Net::HTTP - Low-level HTTP client connection
  while (1) {
     my $buf;
     my $n = $s->read_entity_body($buf, 1024);
+    die "read failed: $!" unless defined $n;
     last unless $n;
     print $buf;
  }

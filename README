@@ -28,7 +28,7 @@ AVAILABILITY
 The Perl5 version of libwww-perl is currently in beta, and the latest
 version should always be available from:
 
-     http://www.sn.no/~aas/perl/www/
+     http://www.sn.no/libwww-perl/
 
 The library is also available from the Comprehensive Perl Archive
 Network (CPAN). Visit http://www.perl.com/ to find a CPAN site near
@@ -37,7 +37,7 @@ you.
 
 INSTALLATION
 
-In order to use this package you will need Perl version 5.001m or
+In order to use this package you will need Perl version 5.002beta2 or
 better.
 
 You install the library by running these commands:
@@ -75,7 +75,8 @@ by sending a message to <libwww-perl-request@ics.uci.edu> with
 
 COPYRIGHT
 
-Copyright 1995 Martijn Koster and Gisle Aas. All rights reserved.
+  © 1995 Martijn Koster. All rights reserved.
+  © 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

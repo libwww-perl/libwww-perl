@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.2 2001/04/05 18:08:11 gisle Exp $
+# $Id: HTTP.pm,v 1.3 2001/04/06 00:30:31 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -102,7 +102,7 @@ sub write_request {
 	if ($peer_ver eq "1.0") {
 	    # XXX from looking at Netscape's headers
 	    print $self "Keep-Alive: 300$CRLF";
-	    print $self "Connection: keep-alive$CRLF";
+	    print $self "Connection: Keep-Alive$CRLF";
 	}
     }
     else {
@@ -169,16 +169,29 @@ sub read_response_headers {
 }
 
 sub read_chunked_content {
-    my $self = shift;
+    my($self, $sink) = @_;
     my @buf;
     while (my $n = read_line($self)) {
+	$n =~ s/;.*//;  # ignore potential chunk parameters
 	$n =~ s/\s+$//;
 	$n = hex($n);
 	my $buf;
 	read($self, $buf, $n) == $n || die;
 	read_line($self) eq "" || die;
-	push(@buf, $buf);
+	if ($sink) {
+	    if (ref($sink) eq "CODE") {
+		&$sink($buf);
+	    }
+	    else {
+		# could deal with array and scalars here
+		die;
+	    }
+	}
+	else {
+	    push(@buf, $buf);
+	}
     }
+    # XXX There can be trailer headers here
     read_line($self) eq "" || die;
     wantarray ? @buf : join("", @buf);
 }

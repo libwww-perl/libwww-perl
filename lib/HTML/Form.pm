@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.43 2004/06/16 08:52:38 gisle Exp $
+# $Id: Form.pm,v 1.44 2004/06/16 10:06:07 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -165,6 +165,21 @@ sub parse
 			}
 			else {
 			    Carp::carp("Bad <select> tag '$tag'") if $^W;
+			    if ($tag eq "/form" ||
+				$tag eq "input" ||
+				$tag eq "textarea" ||
+				$tag eq "select" ||
+				$tag eq "keygen")
+			    {
+				# MSIE implictly terminate the <select> here, so we
+				# try to do the same.  Actually the MSIE behaviour
+				# appears really strange:  <input> and <textarea>
+				# do implictly close, but not <select>, <keygen> or
+				# </form>.
+				my $type = ($tag =~ s,^/,,) ? "E" : "S";
+				$p->unget_token([$type, $tag, @$t]);
+				last;
+			    }
 			}
 		    }
 		}

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 92;
+plan tests => 97;
 
 use HTML::Form;
 
@@ -408,3 +408,31 @@ Content-Type: application/x-www-form-urlencoded
 
 randomkey=foo&Field1=Default+Text
 EOT
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form  ACTION="http://example.com/">
+   <select name=s>
+     <option>1
+     <option>2
+   <input name=t>
+</form>
+EOT
+
+ok($f);
+ok($f->find_input("t"));
+
+
+@f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form  ACTION="http://example.com/">
+   <select name=s>
+     <option>1
+     <option>2
+</form>
+<form  ACTION="http://example.com/">
+     <input name=t>
+</form>
+EOT
+
+ok(@f, 2);
+ok($f[0]->find_input("s"));
+ok($f[1]->find_input("t"));

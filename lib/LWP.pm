@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: LWP.pm,v 1.2 1995/07/07 13:36:25 aas Exp $
 
 =head1 NAME
 
@@ -9,10 +9,7 @@ LWP -- Library for the Web in Perl 5
 
 Currently the latest version is available from:
 
- http://web.nexor.co.uk/users/mak/doc/libwww-perl5/lwp.tar.gz
- http://web.nexor.co.uk/users/mak/doc/libwww-perl5/lwp.tar
- http://web.nexor.co.uk/users/mak/doc/libwww-perl5/lwp/
-
+ http://www.oslonett.no/home/aas/perl/lwp.tar.gz
 
 This code should be discussed on the libwww-perl@ics.UCI.EDU
 mailing list.
@@ -42,7 +39,7 @@ This architecture is very heavily object oriented.
  LWP::MemberMixin -- Access to member variables of Perl5 classes
  LWP::Socket      -- Socket creation and reading
 
-=head2 XXX
+ LWP::Simple      -- Simplified interface for common functions
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -74,6 +71,8 @@ Lots of other things.
 =head1 COPYRIGHT
 
 Copyright (c) 1995 Martijn Koster. All rights reserved.
+Copyright (c) 1995 Gisle Aas. All rights reserved.
+
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-print "1..4\n";
+print "1..6\n";
 
 use HTML::Form;
 
@@ -8,7 +8,7 @@ print "ok 1\n";
 
 @f = HTML::Form->parse(<<'EOT', "http://localhost/");
 
-<form action="abc">
+<form action="abc" name="foo">
 
 <input name="name" value="Gisle">
 
@@ -28,3 +28,9 @@ $req = $f->click;
 print "not " unless $req && $req->method eq "GET"
 	                 && $req->uri eq "http://localhost/abc?name=Gisle+Aas";
 print "ok 4\n";
+
+print "not " unless $f->attr("name") eq "foo";
+print "ok 5\n";
+
+print "not " if $f->attr("method");
+print "ok 6\n";

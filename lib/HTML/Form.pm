@@ -102,10 +102,10 @@ sub parse
 	    my $action = delete $attr->{'action'};
 	    $action = "" unless defined $action;
 	    $action = URI->new_abs($action, $base_uri);
-	    $f = $class->new(delete $attr->{'method'},
+	    $f = $class->new($attr->{'method'},
 			     $action,
-			     delete $attr->{'enctype'});
-	    $f->{extra_attr} = $attr;
+			     $attr->{'enctype'});
+	    $f->{attr} = $attr;
 	    push(@forms, $f);
 	    while (my $t = $p->get_tag) {
 		my($tag, $attr) = @$t;
@@ -198,6 +198,23 @@ BEGIN {
     *uri = \&action;  # alias
 }
 
+=item $form->attr( $name )
+
+=item $form->attr( $name, $new_value )
+
+This method give access to the original attributes of the form.
+
+=cut
+
+sub attr {
+    my $self = shift;
+    my $name = shift;
+    return undef unless defined $name;
+
+    my $old = $self->{attr}{$name};
+    $self->{attr}{$name} = shift if @_;
+    return $old;
+}
 
 =item $form->inputs
 

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.11 1995/09/02 13:16:45 aas Exp $
+# $Id: http.pm,v 1.12 1995/09/03 09:57:01 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -15,7 +15,6 @@ use FileHandle;
 
 @ISA = qw(LWP::Protocol);
 
-my $httpprotocol = 'http';         # for getservbyname
 my $httpversion  = 'HTTP/1.0';     # for requests
 my $endl         = "\015\012";     # how lines should be terminated;
                                    # "\r\n" is not correct on all systems, for
@@ -82,21 +81,24 @@ sub request
     my $request_line = "$method $fullpath $httpversion$endl";
     LWP::Debug::debug("request line: $request_line");
 
-    # If we're sending content we *have* to specify
-    # a content length otherwise the server won't
-    # know a messagebody is coming.
-    my $content = $request->content;
+    # If we're sending content we *have* to specify a content length
+    # otherwise the server won't know a messagebody is coming.
+
+    my $content = "aas"; #$request->content;
     if (defined $content){
-        $request->header('Content-Length', length($content));
+	$content = \$content unless ref($content);
+	if (ref($content) eq 'SCALAR') {
+	    $request->header('Content-Length', length $$content);
+	} elsif (ref($content) eq 'CODE') {
+	    croak('No Content-Length header for request with content')
+	      unless $request->header('Content-Length');
+	} else {
+	    croak "Illegal content in request ($content) ";
+	}
     }
 
-    my $senddata = $request_line . $request->headerAsString($endl) . $endl;
-    if (defined $content) {
-        $senddata .= $content;
-    }
-
-    LWP::Debug::conns("sending request: $senddata");
-    $socket->write($senddata);
+    $socket->write($request_line . $request->headerAsString($endl) . $endl);
+    $socket->write($$content) if defined $content;
 
     # read response line from server
     LWP::Debug::debugl('reading response');

@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.12 2001/04/21 03:54:50 gisle Exp $
+# $Id: http11.pm,v 1.13 2001/04/25 17:16:25 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -192,6 +192,7 @@ sub request
 	$has_content++ if $clen;
 	unless (defined $clen) {
 	    push(@h, "Transfer-Encoding" => "chunked");
+	    $has_content++;
 	    $chunked++;
 	}
     } else {
@@ -223,47 +224,96 @@ sub request
 	#LWP::Debug::conns($req_buf);
     }
 
+    my($code, $mess);
+    my $drop_connection;
+
     if ($has_content) {
-	# push out content
-	# XXX watch for 100 Continue (or failure) while sending body.
-	# XXX if request contained a 'Expect: 100-continue'-header, then
-	# XXX we should postpone start sending the body for a while.
+	my $write_wait = 0;
+	$write_wait = 2
+	    if ($request_headers->header("Expect") || "") =~ /100-continue/;
+
+	my $eof;
+	my $wbuf;
+	my $woffset = 0;
 	if (ref($content_ref) eq 'CODE') {
-	    my $buf;
-	    while ( ($buf = &$content_ref()), defined($buf) && length($buf)) {
-		#die "write timeout" if $timeout && !$sel->can_write($timeout);
-		$buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
-		    if $chunked;
-		my $n = $socket->syswrite($buf, length($buf));
-		die $! unless defined($n);
-		die "short write" unless $n == length($buf);
-		#LWP::Debug::conns($buf);
-	    }
-	    if ($chunked) {
-		# output end marker
-		$buf = "0$CRLF$CRLF";
-		my $n = $socket->syswrite($buf, length($buf));
-		die $! unless defined($n);
-		die "short write" unless $n == length($buf);
-		#LWP::Debug::conns($buf);
-	    }
+	    my $buf = &$content_ref();
+	    $buf = "" unless defined($buf);
+	    $buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
+		if $chunked;
+	    $wbuf = \$buf;
 	}
 	else {
-	    # $$content_ref must be non-empty
-	    #die "write timeout" if $timeout && !$sel->can_write($timeout);
-	    my $n = $socket->syswrite($$content_ref, length($$content_ref));
-	    die $! unless defined($n);
-	    die "short write ($n/@{[length($$content_ref)]})" unless $n == length($$content_ref);
-	    #LWP::Debug::conns($$cont_ref);
+	    $wbuf = $content_ref;
+	    $eof = 1;
+	}
+
+	my $io_sel = $socket->io_sel;
+
+	while ($woffset < length($$wbuf)) {
+
+	    my $time_before;
+	    my $sel_timeout = $timeout;
+	    if ($write_wait) {
+		$time_before = time;
+		$sel_timeout = $write_wait if $write_wait < $sel_timeout;
+	    }
+
+	    my($r, $w) = IO::Select::select($io_sel,
+					    ($write_wait ? undef : $io_sel),
+					    undef,
+					    $sel_timeout);
+
+	    if ($write_wait) {
+		$write_wait -= time - $time_before;
+		$write_wait = 0 if $write_wait < 0;
+	    }
+
+	    if ($r && @$r) {
+		# readable
+		my $buf = $socket->_rbuf;
+		my $n = sysread($socket, $buf, 1024, length($buf));
+		unless ($n) {
+		    die "EOF";
+		}
+		$socket->_rbuf($buf);
+		if ($buf =~ /\015?\012\015?\012/) {
+		    # a whole response present
+		    ($code, $mess, @h) = $socket->read_response_headers;
+		    if ($code eq "100") {
+			$write_wait = 0;
+			undef($code);
+		    }
+		    else {
+			$drop_connection++;
+			last;
+			# XXX should perhaps try to abort write in a nice way too
+		    }
+		}
+	    }
+	    if ($w && @$w) {
+		my $n = $socket->syswrite($$wbuf, length($$wbuf), $woffset);
+		unless ($n) {
+		    die "syswrite: $!" unless defined $n;
+		    die "syswrite: no bytes written";
+		}
+		$woffset += $n;
+
+		if (!$eof && $woffset >= length($$wbuf)) {
+		    # need to refill buffer from $content_ref code
+		    my $buf = &$content_ref();
+		    $buf = "" unless defined($buf);
+		    $eof++ unless length($buf);
+		    $buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
+			if $chunked;
+		    $wbuf = \$buf;
+		    $woffset = 0;
+		}
+	    }
 	}
     }
 
-    my($code, $mess);
-    ($code, $mess, @h) = $socket->read_response_headers;
-    if ($code eq "100") {
-	# do it once more
-	($code, $mess, @h) = $socket->read_response_headers;
-    }
+    ($code, $mess, @h) = $socket->read_response_headers
+	unless $code;
 
     my $response = HTTP::Response->new($code, $mess);
     my $peer_http_version = $socket->peer_http_version;
@@ -293,6 +343,7 @@ sub request
 	$complete++ if $n == 0;
         return \$buf;
     } );
+    $drop_connection++ unless $complete;
 
     @h = $socket->get_trailers;
     while (@h) {
@@ -301,7 +352,7 @@ sub request
     }
 
     # keep-alive support
-    if ($complete) {
+    unless ($drop_connection) {
 	if (my $conn_cache = $self->{ua}{conn_cache}) {
 	    my %connection = map { (lc($_) => 1) }
 		             split(/\s*,\s*/, ($response->header("Connection") || ""));

@@ -1,3 +1,28 @@
+Wed Apr 24 1996   Gisle Aas <aas@sn.no>
+
+ o  Release 5b12
+
+ o  New utility program called 'lwp-rget'.
+
+ o  $response->base was broken for HTML documents
+
+ o  New fancy LWP::Debug import() method.  Can now turn on debugging with
+    "use LWP::Debug '+';"
+
+ o  Trap exceptions (die) from the response callback routine
+
+ o  The RobotUA now requires an e-mail address of the person reponsible
+    for the robot.
+
+ o  New $ua->from() method.
+
+ o  Support for gopher Index-Search (gopher type '7' requests).
+    Contributed by Harry Bochner <bochner@das.harvard.edu>
+
+ o  Cleaned up white-space usage in the source.
+
+
+
 Wed Apr  3 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5b11

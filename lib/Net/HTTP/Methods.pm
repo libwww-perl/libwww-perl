@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.9 2002/12/20 08:10:10 gisle Exp $
+# $Id: Methods.pm,v 1.10 2002/12/20 08:32:59 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -170,13 +170,13 @@ sub write_request {
 sub format_chunk {
     my $self = shift;
     return $_[0] unless defined($_[0]) && length($_[0]);
-    return hex(length($_[0])) . $CRLF . $_[0] . $CRLF;
+    return sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF;
 }
 
 sub write_chunk {
     my $self = shift;
     return 1 unless defined($_[0]) && length($_[0]);
-    $self->print(hex(length($_[0])) . $CRLF . $_[0] . $CRLF);
+    $self->print(sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF);
 }
 
 sub format_chunk_eof {

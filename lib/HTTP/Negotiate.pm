@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.5 1996/06/13 08:23:17 aas Exp $
+# $Id: Negotiate.pm,v 1.6 1997/04/03 10:51:14 aas Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -51,11 +51,12 @@ sub choose ($;$)
 	$val =~ s/\s+//g;
 	my $name;
 	for $name (split(/,/, $val)) {
-	    $name =~ s/;(.*)//;
 	    my(%param, $param);
-	    for $param (split(/;/, $1)) {
-		my ($pk, $pv) = split(/=/, $param, 2);
-		$param{$pk} = $pv;
+	    if ($name =~ s/;(.*)//) {
+		for $param (split(/;/, $1)) {
+		    my ($pk, $pv) = split(/=/, $param, 2);
+		    $param{$pk} = $pv;
+		}
 	    }
 	    $name = lc $name;
 	    if (defined $param{'q'}) {
@@ -202,10 +203,11 @@ sub choose ($;$)
 	if (exists $accept{'type'} && $ct) {
 	    # First we clean up our content-type
 	    $ct =~ s/\s+//g;
-	    $ct =~ s/;(.*)//;
+	    my $params = "";
+	    $params = $1 if $ct =~ s/;(.*)//;
 	    my($type, $subtype) = split("/", $ct, 2);
 	    my %param = ();
-	    for $param (split(/;/, $1)) {
+	    for $param (split(/;/, $params)) {
 		my($pk,$pv) = split(/=/, $param, 2);
 		$param{$pk} = $pv;
 	    }

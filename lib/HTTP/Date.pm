@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.23 1997/01/30 15:41:01 aas Exp $
+# $Id: Date.pm,v 1.24 1997/04/03 10:51:13 aas Exp $
 #
 package HTTP::Date;
 
@@ -99,7 +99,7 @@ modify it under the same terms as Perl itself.
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -291,7 +291,7 @@ sub str2time ($;$)
    if ($tz =~ /^([-+])?(\d\d?):?(\d\d)?$/) {
        $offset = 3600 * $2;
        $offset += 60 * $3 if $3;
-       $offset *= -1 if $1 ne '-';
+       $offset *= -1 if $1 && $1 ne '-';
    }
    Time::Local::timegm($sec, $min, $hr, $day, $mon, $yr) + $offset;
 }

@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.11 1996/06/13 08:15:11 aas Exp $
+# $Id: AFM.pm,v 1.12 1997/08/08 09:13:50 aas Exp $
 
 package Font::AFM;
 
@@ -185,7 +185,7 @@ it under the same terms as Perl itself.
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 sub ModuleVersion { $VERSION; }
 
 
@@ -256,9 +256,10 @@ sub new
        if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
 	   # only lines that start with "C" or "CH" are parsed
 	   next unless /^CH?\s/;
-	   my($name) = /\bN\s+(\w+)\s*;/;
+	   my($name) = /\bN\s+(\.?\w+)\s*;/;
 	   my($wx)   = /\bWX\s+(\d+)\s*;/;
-	   my($bbox)    = /\bB\s+([^;]+)\s*;/;
+	   my($bbox)    = /\bB\s+([^;]+);/;
+	   $bbox =~ s/\s+$//;
 	   # Should also parse lingature data (format: L successor lignature)
 	   $this->{'wx'}{$name} = $wx;
 	   $this->{'bbox'}{$name} = $bbox;
@@ -279,8 +280,10 @@ sub new
        }
    }
    close(AFM);
-   $this->{wx}->{'.notdef'} = 0;
-   $this->{bbox}{'.notdef'} = "0 0 0 0";
+   unless (exists $this->{wx}->{'.notdef'}) {
+       $this->{wx}->{'.notdef'} = 0;
+       $this->{bbox}{'.notdef'} = "0 0 0 0";
+   }
    $this;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.4 1995/07/11 13:21:01 aas Exp $
+# $Id: Request.pm,v 1.5 1995/07/11 22:42:10 aas Exp $
 
 package LWP::Request;
 
@@ -81,7 +81,11 @@ either a string, or a reference to a C<URI::URL> object.
 
 sub new {
     my($class, $method, $url, $content) = @_;
-    $url = new URI::URL($url) unless ref $url;
+    unless (ref $url) {
+	$url = new URI::URL($url);
+    } else {
+	$url = $url->abs;
+    }
 
     bless {
         '_method'  => $method,
@@ -129,8 +133,9 @@ header. Usual use as follows:
 =cut
 
 # forward these to the header member variable
-sub header       { my($self) = shift; $self->{'_header'}->header(@_) }
-sub pushHeader   { my($self) = shift; $self->{'_header'}->pushHeader(@_) }
+sub headers      { shift->{'_header'}; }
+sub header       { shift->{'_header'}->header(@_) }
+sub pushHeader   { shift->{'_header'}->pushHeader(@_) }
 
 sub headerAsMIME {
     my($self) = shift; 

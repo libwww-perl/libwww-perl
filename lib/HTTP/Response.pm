@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.3 1995/07/11 13:21:02 aas Exp $
+# $Id: Response.pm,v 1.4 1995/07/11 22:42:11 aas Exp $
 
 package LWP::Response;
 
@@ -85,19 +85,19 @@ sub addContent
     $self->{'_content'} .= $$data;
 }
 
+=head2 headers()
+
 =head2 header(...)
 
 =head2 pushHeader(...)
 
-These methods provide easy access to the fields for the request
-header. Usual use as follows:
-
- $request->pushHeader('Accept', 'image/gif');
- @accepts = $request->header('Accept');
+These methods provide easy access to the fields for the request header.
 
 =cut
 
 # forward these to the header member variable
+sub headers    { shift->{'_header'}; }
+
 sub header     { shift->{'_header'}->header(@_) };
 sub pushHeader { shift->{'_header'}->pushHeader(@_) };
 
@@ -114,7 +114,7 @@ sub as_string {
     my $result = "LWP::Response::as_string($self):\n";
     $result .= 'Response Code: ' . $self->_strElem('_rc') . "\n";
     $result .= 'Message: '       . $self->_strElem('_msg') . "\n";
-    $result .= $self->{'_header'}->as_string;
+    $result .= $self->headers->as_string;
     $result .= "Content:\n"      . $self->_strElem('_content') . "\n";
     $result .= "\n";
     $result;

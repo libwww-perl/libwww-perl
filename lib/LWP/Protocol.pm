@@ -1,5 +1,5 @@
 #
-# $Id: Protocol.pm,v 1.6 1995/07/14 00:23:36 aas Exp $
+# $Id: Protocol.pm,v 1.7 1995/07/15 07:57:03 aas Exp $
 
 package LWP::Protocol;
 
@@ -118,11 +118,11 @@ sub implementor
             my $package = "LWP/Protocol/${scheme}.pm";
             eval {require "$package"};
             if ($@) {
-		if ($@ =~ /^Can't locate/) { # emacs get confused by '
-		    $ic = '';
-		} else {
-		    die "$@\n";
-		}
+                if ($@ =~ /^Can't locate/) { # emacs get confused by '
+                    $ic = '';
+                } else {
+                    die "$@\n";
+                }
             }
         } else {
             $ic = '';
@@ -193,7 +193,7 @@ sub collect
         open(OUT, ">$arg") or
             return new LWP::Response(
                           LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-			  "Cannot write to '$arg': $!");
+                          "Cannot write to '$arg': $!");
 
         while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;

@@ -23,7 +23,7 @@ $r = PUT "http://www.sn.no",
      Content => 'foo';
 print $r->as_string;
 
-print "not " unless $r->method eq "PUT" and $r->url->netloc eq "www.sn.no";
+print "not " unless $r->method eq "PUT" and $r->uri->host eq "www.sn.no";
 print "ok 4\n";
 
 print "not " if defined($r->header("Content"));

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Socket.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Socket.pm,v 1.2 1995/06/14 08:18:24 aas Exp $
 
 package LWP::Socket;
 
@@ -35,12 +35,11 @@ and echo protocols.
 
 #####################################################################
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 use Socket;
 use Carp;
-use English;
 
 require LWP::Debug;
 
@@ -59,11 +58,11 @@ Constructs a socket.
 sub new {
     my($class) = @_;
 
-    &LWP::Debug::trace("($class)");
+    LWP::Debug::trace("($class)");
 
     my $socket = &_gensym;
 
-    &LWP::Debug::debug("Socket $socket");
+    LWP::Debug::debug("Socket $socket");
 
     socket($socket, PF_INET, SOCK_STREAM, $tcp_proto) or
         croak "socket: $!";
@@ -81,7 +80,7 @@ sub new {
 
 sub DESTROY {
     my($self) = @_;
-    &_ungensym($self->{'socket'});
+    _ungensym($self->{'socket'});
 }
 
 =head2 open($host, $port)
@@ -93,7 +92,7 @@ Connect the socket to given host and port
 sub open {
     my($self, $host, $port) = @_;
 
-    &LWP::Debug::trace("($host, $port)");
+    LWP::Debug::trace("($host, $port)");
 
     $self->{'host'} = $host;
     $self->{'port'} = $port;
@@ -102,7 +101,7 @@ sub open {
 
     my $addr = $self->_getaddress($host, $port);
 
-    &LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
+    LWP::Debug::debugl("Connecting to host '$host' on port '$port'...");
 
     connect($socket, $addr) or die 
         "Couldn't connect to host '$host' on port '$port': $!";
@@ -110,13 +109,14 @@ sub open {
     # flush output on every write
 
     local($old) = select($socket);
-    $OUTPUT_AUTOFLUSH = 1;
+    $| = 1;
     select($old);
 }
 
 =head2 readUntil($delim, $bufferref, $size)
 
-Reads data from the socket, up to a delimiter.
+Reads data from the socket, up to a delimiter specified by
+a regular expression.
 If $delim is undefined all data is read.
 If $size is defined, data will be read in 
 chunks of $size bytes.
@@ -135,7 +135,7 @@ sub readUntil {
     my($socket) = $self->{'socket'};
     my($size) = $self->{'size'};
 
-    &LWP::Debug::trace('(...)');
+    LWP::Debug::trace('(...)');
 
     my $totalbuffer = '';       # result so far
     $totalbuffer = $self->{'buffer'} if defined $self->{'buffer'};
@@ -149,7 +149,7 @@ sub readUntil {
             ('', '', '', '', '', '');
         vec($rin,fileno($socket),1) = 1;
 
-        &LWP::Debug::debug('selecting');
+        LWP::Debug::debug('selecting');
 
         my($nfound,$timeleft) =
             select($rout=$rin, $wout=$win, $eout=$ein, $timeout);
@@ -161,13 +161,13 @@ sub readUntil {
             die "Select failed: $!";
         }
         else {
-            &LWP::Debug::debug('reading');
+            LWP::Debug::debug('reading');
 
             my $buffer = '';
             $read = sysread($socket, $buffer, $size);
             $totalbuffer .= $buffer if defined $buffer;
 
-            &LWP::Debug::conns("Read $read bytes: >>>$buffer<<<");
+            LWP::Debug::conns("Read $read bytes: >>>$buffer<<<");
         }
         last if (!defined $delim and $read == 0);
     }
@@ -179,11 +179,11 @@ sub readUntil {
         $$bufferref = $totalbuffer;
     }
 
-    &LWP::Debug::debug("\nResult: " .
-                       (defined $$bufferref ? ">>>$$bufferref<<<" : 'undef') .
-                       "\nBuffered: " . 
-                       (defined $self->{'buffer'} ?
-                        ">>>$self->{'buffer'}<<<" : 'undef') );
+    LWP::Debug::debug("\nResult: " .
+                      (defined $$bufferref ? ">>>$$bufferref<<<" : 'undef') .
+                      "\nBuffered: " . 
+                      (defined $self->{'buffer'} ?
+                       ">>>$self->{'buffer'}<<<" : 'undef') );
 
     return 1;
 }
@@ -196,9 +196,9 @@ Write data to socket
 
 sub write {
     my($self, $buffer) = @_;
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
     # XXX I guess should we time these out too?
-    &LWP::Debug::conns(">>>$buffer<<<");
+    LWP::Debug::conns(">>>$buffer<<<");
     $socket = $self->{'socket'};
     print $socket $buffer;
 }
@@ -211,7 +211,7 @@ Close the connection
 
 sub close {
     my($self) = @_;
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     close($self->{'socket'});
 }
@@ -232,8 +232,8 @@ internal values are used.
 sub _getaddress {
     my($self, $h, $p) = @_;
 
-    &LWP::Debug::trace('(' . (defined $h ? $h : 'undef') .
-                       ', '. (defined $p ? $p : 'undef') . ')');
+    LWP::Debug::trace('(' . (defined $h ? $h : 'undef') .
+                      ', '. (defined $p ? $p : 'undef') . ')');
 
     my($host) = (defined $h ? $h : $self->{'host'});
     my($port) = (defined $p ? $p : $self->{'port'});
@@ -246,7 +246,7 @@ sub _getaddress {
     }
     else {
         # hostname
-        &LWP::Debug::debugl("resolving host '$host'...");
+        LWP::Debug::debugl("resolving host '$host'...");
 
         $thataddr = (gethostbyname($host))[4] or
             die "Cannot find host '$host'";

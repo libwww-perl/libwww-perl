@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Request.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Request.pm,v 1.2 1995/06/14 08:18:20 aas Exp $
 
 package LWP::Request;
 @ISA = qw(LWP::Message);
 
-#included pod file
+
 =head1 NAME
 
 LWP::Request -- Class encapsulating HTTP Requests
@@ -16,7 +16,7 @@ LWP::Request -- Class encapsulating HTTP Requests
 
  $request = new LWP::Request('http://web.nexor.co.uk/');
  
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
 C<LWP::Request> is a class encapsulating HTTP style
 requests, consisting of a request line, a MIME header,
@@ -149,8 +149,8 @@ sub as_string {
     my $result = "LWP::Request::as_string($self):\n";
     $result .= 'Method: '   . $self->_strElem('_method')   . "\n";
     $result .= 'URL: '      . $self->_strElem('_url')      . "\n";
-    $result .= 'Message: '  . $self->_strElem('_msg')      . "\n";
-    $result .= "Header:\n"  . $self->{'_header'}->as_string . "\n";
+#   $result .= 'Message: '  . $self->_strElem('_msg')      . "\n";
+    $result .= "Header:\n"  . $self->{'_header'}->as_string ."\n";
     $result .= "Content:\n" . $self->_strElem('_content')  . "\n";
     $result .= "\n";
     return $result;

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Protocol.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Protocol.pm,v 1.2 1995/06/14 08:18:18 aas Exp $
 
 package LWP::Protocol;
 
@@ -47,8 +47,7 @@ my %ImplementedBy = (); # scheme => classname
 
 =head2 LWP::Protocol Constructor
 
-Inherited by subclasses. As this is
-a virtual base class this method 
+Inherited by subclasses. As this is a virtual base class this method
 should _not_ be called like:
 
  $prot = new LWP::Protocol()
@@ -58,31 +57,29 @@ should _not_ be called like:
 sub new { 
     my($class) = @_;
 
-    my $this = bless {  
+    my $self = bless {  
         'timeout' => 0,
         'useAlarm' => 1,
     }, $class;
-    $this;
+    $self;
 }
 
 =head1 LWP::Protocol::create
 
  $prot = LWP::Protocol::create($url);
 
-Create an object of the class implementing
-the protocol to handle the given scheme.
-This is a function, not a method. It's more
-an object factory than a constructor. This
-is the function user agents should use to
-access protocols.
+Create an object of the class implementing the protocol to handle the
+given scheme. This is a function, not a method. It's more an object
+factory than a constructor. This is the function user agents should
+use to access protocols.
 
 =cut
 
 sub create
 {
     my $scheme = shift;
-    my $impclass = LWP::Protocol::implementor($scheme) or croak 
-        "Protocol scheme '$scheme' is not supported";
+    my $impclass = LWP::Protocol::implementor($scheme) or
+        croak "Protocol scheme '$scheme' is not supported";
 
     # hand-off to scheme specific implementation sub-class
     my $prot = new $impclass, $scheme;
@@ -142,11 +139,10 @@ Dispactches a request over the protocol, and returns a response
 object. This method needs to be overridden in subclasses.
 
 =cut
+
 sub request {
     my($self, $request, $arg) = @_;
-
-    &croak('LWP::Protocol::request() needs to be ' .
-           'overridden in subclasses');
+    croak('LWP::Protocol::request() needs to be overridden in subclasses');
 }
 
 =head2 timeout($seconds)
@@ -161,16 +157,13 @@ function to implement timeouts.
 =cut
 
 sub timeout  { my $self = shift; $self->_elem('timeout',  @_); }
-sub useAlarm { my $self = shift; $self->_elem('useAlarm',  @_); }
+sub useAlarm { my $self = shift; $self->_elem('useAlarm', @_); }
 
 =head2 collect($arg, $response, $collector
 
-Called to collect the content of a request,
-and process it appropriately into a scalar,
-file, or by calling a callback
-
-caller can make use of Perl 5.001e's closure
-mechanism
+Called to collect the content of a request, and process it
+appropriately into a scalar, file, or by calling a callback.
+Caller can make use of Perl 5.001e's closure mechanism.
 
 =cut
 sub collect {
@@ -178,43 +171,46 @@ sub collect {
     my $content;
     if (! defined $arg) {
         # scalar
-        while($content = &$collector) {
+        while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
-            &LWP::Debug::debug("read " . length $content . " bytes");
-            &LWP::Debug::conns("read: $content");
+            LWP::Debug::debug("read " . length $$content . " bytes");
+            LWP::Debug::conns("read: $$content");
             $response->addContent($content);
             alarm($self->timeout) if $self->useAlarm;
         }
     }
     elsif (!defined ref($arg)) {
         # filename
-        open(OUT, ">$arg") or return
-            new LWP::Response(
-                 &LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                              "Cannot write to '$arg': $!");
+        open(OUT, ">$arg") or
+            return new LWP::Response(
+                          LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+			  "Cannot write to '$arg': $!");
 
-        while($content = &$collector) {
+        while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
-            &LWP::Debug::debug("read " . length $content . " bytes");
-            &LWP::Debug::conns("read: $content");
-            print OUT $content;
+            LWP::Debug::debug("read " . length $content . " bytes");
+            LWP::Debug::conns("read: $content");
+            print OUT $$content;
             alarm($self->timeout) if $self->useAlarm;
         }
-        close (OUT);
+        close(OUT);
     }
     elsif (ref($arg) eq 'CODE') {
         # read into callback
-        while($content = &$collector) {
+        while ($content = &$collector, length $$content) {
             alarm(0) if $self->useAlarm;
-            &LWP::Debug::debug("read " . length $content . " bytes");
-            &LWP::Debug::conns("read: $content");
-            &$arg($this, $response, $content);
+            LWP::Debug::debug("read " . length $$content . " bytes");
+            LWP::Debug::conns("read: $$content");
+            &$arg($content, $response, $self);
             alarm($self->timeout) if $self->useAlarm;
         }
     }
     else {
-        return die "Unexpected argument '$arg'";
+        return LWP::Response( 
+                  LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+                  "Unexpected collect argument  '$arg'");
     }
+    $response;
 }
 
 #####################################################################

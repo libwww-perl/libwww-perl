@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Response.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: Response.pm,v 1.2 1995/06/14 08:18:22 aas Exp $
 #
 package LWP::Response;
 
-#included pod file
+
 =head1 NAME
 
 LWP::Response -- Class encapsulating HTTP Responses
@@ -13,7 +13,7 @@ LWP::Response -- Class encapsulating HTTP Responses
 
  require LWP::Response;
 
-=head1 DESCRIPION
+=head1 DESCRIPTION
 
 C<LWP::Response> is a class encapsulating HTTP style
 responses, consisting of a response line, a MIME header,
@@ -84,7 +84,7 @@ sub message   { shift->_elem('_msg',  @_); }
 sub content   { shift->_elem('_content',  @_); }
 sub addContent {
     my($self, $data) = @_;
-    $self->{'_content'} .= $data;
+    $self->{'_content'} .= $$data;
 }
 
 =head2 header(...)

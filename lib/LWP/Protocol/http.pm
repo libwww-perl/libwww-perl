@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: http.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: http.pm,v 1.2 1995/06/14 08:18:27 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -44,10 +44,10 @@ $httpversion = 'HTTP/1.0';      # for requests
 sub request {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
 
-    &LWP::Debug::trace("LWP::http::request(" . 
-                       (defined $request ? $request : '<undef>') . ', ' .
-                       (defined $arg ? $arg : '<undef>') . ', ' .
-                       (defined $size ? $size : '<undef>') .')');
+    LWP::Debug::trace("LWP::http::request(" . 
+                      (defined $request ? $request : '<undef>') . ', ' .
+                      (defined $arg ? $arg : '<undef>') . ', ' .
+                      (defined $size ? $size : '<undef>') .')');
 
     $size = 4096 unless defined $size and $size > 0;
 
@@ -82,10 +82,13 @@ sub request {
         $host = $url->host;
         $port = $url->port;
         $fullpath = $url->full_path;
+        # $fullpath might be empty (i.e. http://host),
+        # XXX: perhaps we should fix URI::URL instead
+        $fullpath = "/" unless length $fullpath;
+        # XXX: The fullpath contains the #frag part.  Is this correct?
     }
 
     # create socket
-
     $socket = new LWP::Socket;
 
     # connect to remote site
@@ -93,12 +96,10 @@ sub request {
     alarm($timeout) if $self->useAlarm and defined $timeout;
 
     $socket->open($host, $port);
-
-    &LWP::Debug::debug('connected'); 
+    LWP::Debug::debug('connected');
 
     my $request_line = "$method $fullpath $httpversion\r\n";
-
-    &LWP::Debug::debug("request line: $request_line");
+    LWP::Debug::debug("request line: $request_line");
 
     # If we're sending content we *have* to specify
     # a content length otherwise the server won't
@@ -113,45 +114,42 @@ sub request {
         $senddata .= $content;
     }
 
-    &LWP::Debug::conns("sending request: $senddata");
+    LWP::Debug::conns("sending request: $senddata");
     
     $socket->write($senddata);
 
     # read response line from server
- 
-    &LWP::Debug::debugl('reading response');
-
+    LWP::Debug::debugl('reading response');
 
     my $line;
-    my $delim = "\r\n";
+    my $delim = "\n";
     my $result = $socket->readUntil($delim, \$line, $size, $timeout);
 
-    &LWP::Debug::conns("Received response: $line");
+    $line =~ s/\r$//;
+    LWP::Debug::conns("Received response: $line");
 
     # parse response header
+    my $response;
     
     if ($line =~ m:^HTTP/(\d+\.\d+)\s+(\d+)\s(.*)$:) # HTTP/1.0 or better
     {
         # XXX need to check protocol version
-
-        &LWP::Debug::debug('HTTP/1.0 server');
+        LWP::Debug::debug('HTTP/1.0 server');
 
         $response = new LWP::Response($2, $3);
         
-        &LWP::Debug::debug('reading response header');
+        LWP::Debug::debug('reading response header');
 
         my $header = '';
-        my $delim = "\r\n\r\n";
+        my $delim = "\r?\n\r?\n";
         my $result = $socket->readUntil($delim, \$header, $size, $timeout);
-        $header =~ s/[\r\n]+$//g; # wrap continuation lines
-        @headerlines = split("\r\n", $header);
+
+        @headerlines = split("\r?\n", $header);
 
         # now entire header is read, parse it
-
-        &LWP::Debug::debug('parsing response header');
+        LWP::Debug::debug('parsing response header');
 
         my %parsedheaders;
-
         my($lastkey, $lastval) = ('', '');
         for(@headerlines) {
             if (/^(\S+?):\s*(.*)$/) {
@@ -164,44 +162,42 @@ sub request {
                 $lastval = $val;
             }
             elsif(/\s+(.*)/) {
-                &croak('Unexpected header continuation') unless 
-                    defined $lastval;
+                croak('Unexpected header continuation')
+                    unless defined $lastval;
                 $lastval .= " $1";
             }
             else {
-                &croak("Illegal header '$_'");
+                croak("Illegal header '$_'");
             }
         }
         if ($lastkey and $lastval) {
-            &LWP::Debug::debug("  $lastkey => $lastval");
+            LWP::Debug::debug("  $lastkey => $lastval");
             $response->header($lastkey, $lastval);
         }
     }
     else {
         # HTTP/0.9 or worse. Assume OK
-
-        &LWP::Debug::debug('HTTP/0.9 server');
+        LWP::Debug::debug('HTTP/0.9 server');
 
         $response = new LWP::Response(&LWP::StatusCode::RC_OK);
     }
 
-   # need to read content
-
-    &LWP::Debug::debug('Reading content');
+    # need to read content
+    LWP::Debug::debug('Reading content');
 
     alarm($timeout) if $self->useAlarm and defined $timeout;
      
-    $self->collect($arg, $response, sub { 
-        &LWP::Debug::debug('collecting');
+    $response = $self->collect($arg, $response, sub { 
+        LWP::Debug::debug('collecting');
         my $content = '';
         my $result = $socket->readUntil(undef, \$content, $size, $timeout);
-        &LWP::Debug::debug("collected: $content");
-        return $content;
+        LWP::Debug::debug("collected: $content");
+        return \$content;
         } );
 
     $socket->close;
 
-    return $response;
+    $response;
 }
 
 #####################################################################

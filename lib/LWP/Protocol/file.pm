@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: file.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: file.pm,v 1.2 1995/06/14 08:18:26 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -28,10 +28,14 @@ use Carp;
 sub request {
     my($self, $request, $proxy, $arg, $size) = @_;
 
+    LWP::Debug::trace("LWP::file::request(" . 
+                      (defined $request ? $request : '<undef>') . ', ' .
+                      (defined $arg ? $arg : '<undef>') . ', ' .
+                      (defined $size ? $size : '<undef>') .')');
+
     $size = 4096 unless defined $size and $size > 0;
 
     # check proxy
-
     if (defined $proxy)
     {
         return new LWP::Response(&LWP::StatusCode::RC_BAD_REQUEST,
@@ -39,7 +43,6 @@ sub request {
     }
 
     # check method
-
     $method = $request->method;
 
      unless (exists $AllowedMethods{$method} and
@@ -52,7 +55,6 @@ sub request {
     }
 
     # check url
-
     my $url = $request->url;
 
     my $scheme = $url->scheme;
@@ -69,12 +71,10 @@ sub request {
     }
 
     # URL OK, look at file
-
     my $path = $url->path();
-    $path = "/" unless $path;
+    $path = "/" unless length $path;
 
     # test file exists and is readable
-
     if (!(-e $path))
     {
         return new LWP::Response(&LWP::StatusCode::RC_NOT_FOUND,
@@ -87,7 +87,6 @@ sub request {
     }
 
     # looks like file exists
-    
     my($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
        $atime,$mtime,$ctime,$blksize,$blocks)
             = stat(_);
@@ -95,10 +94,9 @@ sub request {
     # XXX should check Accept headers?
 
     # check if-modified-since
-
     my $ims = $request->header('If-modified-since');
     if (defined $ims) {
-        my $time = &LWP::Date::str2time($ims);
+        my $time = LWP::Date::str2time($ims);
         if (defined $time and $time >= $mtime) {
             $response = new LWP::file::Response(
                 &LWP::StatusCode::RC_NOT_MODIFIED, $method, $path);         
@@ -112,57 +110,52 @@ sub request {
     }
 
     # fill in response headers
-
-    $response->header('Last-Modified', $mtime);
+    $response->header('Last-Modified', LWP::Date::time2str($mtime));
 
     if (-d _)           # If the path is a directory, process it
     {
-        $response->contentType('text/html');
-        # won't know size until we generate the HTML
+        # generate the HTML for directory
+        opendir(D, $path) or return new 
+           LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+                    "Cannot read directory '$path': $!");
+        my(@files) = sort readdir(D);
+        closedir(D);
+
+        my $html = join("\n", @files);  # directory listing could more fancy
+
+        $response->header('Content-Type',   'text/html');
+        $response->header('Content-Length', length $html);
+
+        # let's collect once
+        my $first = 1;
+        $response =  $self->collect($arg, $response, sub {
+            if ($first) {
+               $first = 0;
+               return \$html;
+            }
+            return \"";
+        });
+        
     }
-    else {
+    else {            # path is a regular file
         my($type) = &LWP::MIMEtypes::guessType($path);
         $response->header('Content-Type', $type) if ($type);
         $response->header('Content-Length', $size);
-    }
 
-
-    # on to the content
-
-    # XXX this should use LWP::Protocol::collect()
-
-    open(F, $path) or return new 
-      LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
+        # read the file
+        open(F, $path) or return new 
+           LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
                     "Cannot read file '$path': $!");
+        $response =  $self->collect($arg, $response, sub {
+            my $content;
+            my $bytes = sysread(F, $content, $size);
+            return \$content if $bytes > 0;
+            return \"";
+        });
+        close(F);
+    }
 
-    if(!defined $arg) {
-        # save into a scalar in the response
-        undef($/);
-        $response->content(<F>);
-    }
-    elsif (ref($arg)) {
-        # pass to callback
-        my $data = '';
-        die "not yet";
-        while($n = sysread(F, $data, $size)) {
-            &$arg($response, $data);
-        }
-    }
-    else {
-        # save into file
-        open(OUT, "> $arg") or return new
-            LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
-                    "Cannot write to file '$arg': $!");
-        my $data = 0;
-        my $n = 0;
-        while($n = sysread(F, $data, $size)) {
-            print OUT $data;
-        }
-        close(OUT);
-    }
-    close(F);
-
-    return $response;
+    $response;
 }
 
 1;

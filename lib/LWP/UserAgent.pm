@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: UserAgent.pm,v 1.1 1995/06/11 23:29:43 aas Exp $
+# $Id: UserAgent.pm,v 1.2 1995/06/14 08:18:25 aas Exp $
 #
 package LWP::UserAgent;
 
@@ -20,8 +20,11 @@ LWP::UserAgent -- A WWW UserAgent class
  $response = $ua->request($request, '/tmp/sss'); # or
  $response = $ua->request($request, \&callback, 4096);
 
+ sub callback { my($dataref, $response, $protocol) = @_; .... }
+
  $ua->getAndPrint('http://web.nexor.co.uk/');
  $ua->getAndStore('http://web.nexor.co.uk/', '/tmp/nexor.html');
+ $content = $ua->get('http://web.nexor.co.uk/');
 
 =head1 DESCRIPION
 
@@ -49,11 +52,17 @@ of memory. In this case the response object contains the name of the
 file, but not the content. The subroutine variant requires a callback
 routine and optional chuck size, and can be used to construct
 "pipe-lined" processing, where processing of received chuncks can
-begin before the complete data has arrived.
+begin before the complete data has arrived.  The callback is called with
+3 arguments:  a reference to the data, a reference to the response
+object and a reference to the protocol object.
 
 A few convenience methods cover frequent uses: the C<getAndPrint>
 and C<getAndStore> methods print and save the results of a GET
-request.
+request.  The message is printed on STDERR unless succesful response.
+Both routines returns a C<LWP::Reponse> object.
+
+The C<get> method returns the content of a ducument. It returns undef
+in case of errors.
 
 Two advanced facilities allow the user of this module to finetune
 timeouts and error handling:
@@ -83,8 +92,8 @@ Need MDA security
 
 #####################################################################
 
-$Version = '$Revision: 1.1 $';
-($Version = $Version) =~ /(\d+\.\d+)/;
+$Version = '$Revision: 1.2 $';
+($Version) = $Version =~ /(\d+\.\d+)/;
 
 @ISA = qw(LWP::MemberMixin);
 require LWP::MemberMixin;
@@ -92,6 +101,7 @@ require LWP::MemberMixin;
 require URI::URL;
 
 require LWP::Request;
+require LWP::Response;
 require LWP::Protocol;
 require LWP::Debug;
 require LWP::Date;
@@ -119,7 +129,7 @@ sub new {
     
     my($class, $init) = @_;
 
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     my $self;
     if (ref $init) {
@@ -127,11 +137,11 @@ sub new {
     }
     else {
         $self = bless {
-                'agent'   => undef,
-                'timeout' => 3*60,
-                'proxy'   => undef,
-                'useEval'    => 1,
-                'useAlarm' => 1,
+                'agent'       => undef,
+                'timeout'     => 3*60,
+                'proxy'       => undef,
+                'useEval'     => 1,
+                'useAlarm'    => 1,
                 'maxRedirect' => 5,
         }, $class;
     }
@@ -162,10 +172,9 @@ above for the use of the method arguments.
 sub simple_request {
     my($self, $request, $arg, $size) = @_;
 
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     # Locate protocol to use
-
     my $url = $request->url;
     my $scheme = '';
     my $proxy = $self->_needProxy($url);
@@ -178,26 +187,22 @@ sub simple_request {
     my $protocol = LWP::Protocol::create($scheme);
 
     # Set User-Agent header if there is one
-
     my $agent = $self->agent;
     $request->header('User-Agent', $agent) if
         defined $agent and $agent;
 
     # If a timeout value has been set we pass it
     # on to the protocol
-
     my $timeout = $self->timeout;
 
     # Inform the protocol if we need to use alarm()
-
     $protocol->useAlarm($self->useAlarm);
 
     # If we use alarm() we need to register a signal handler
     # and start the timeout
-
     if ($self->useAlarm) {
         $SIG{'ALRM'} = sub {
-            &LWP::Debug::trace('timeout');
+            LWP::Debug::trace('timeout');
             my $msg = 'Timeout';
             if (defined $LWP::Debug::timeoutMessage) {
                 $msg .= ': ' . $LWP::Debug::timeoutMessage;
@@ -251,7 +256,7 @@ XXX This sub is getting a bit large...
 sub request {
     my($self, $request, $arg, $size, $depth, $seenref) = @_;
 
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     if (defined $depth) {
         die "Maximum number of redirects exceeded" if
@@ -265,7 +270,7 @@ sub request {
     
     my $code = $response->code;
 
-    &LWP::Debug::debug('Simple result: ' . &LWP::StatusCode::message($code));
+    LWP::Debug::debug('Simple result: ' . LWP::StatusCode::message($code));
 
     if ($code == &LWP::StatusCode::RC_MOVED_PERMANENTLY or
         $code == &LWP::StatusCode::RC_MOVED_TEMPORARILY) {
@@ -339,7 +344,7 @@ sub request {
     elsif ($code == &LWP::StatusCode::RC_PAYMENT_REQUIRED or
            $code == &LWP::StatusCode::RC_PROXY_AUTHENTICATION_REQUIRED) {
 
-        die 'Resolution of' . &LWP::StatusCode::message($code) .
+        die 'Resolution of' . LWP::StatusCode::message($code) .
             'not yet implemented';
     }
     return $response;
@@ -383,6 +388,23 @@ sub getBasicCredentials {
 #
 #####################################################################
 
+=head1 get($url)
+
+Get a document
+
+=cut
+
+sub get {
+    my($self, $url) = @_;
+    LWP::Debug::trace('()');
+
+    my $request = new LWP::Request('GET', $url);
+    my $response = $self->request($request);
+
+    return $response->content if $response->isSuccess;
+    return undef;
+}
+
 =head1 getAndPrint($url)
 
 Get and print a document identified by a URL
@@ -391,18 +413,18 @@ Get and print a document identified by a URL
 
 sub getAndPrint {
     my($self, $url) = @_;
-
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('GET', $url);
-
     my $response = $self->request($request);
+
     if ($response->isSuccess) {
         print $response->content;
     }
     else {
-        print $response->errorAsHTML;
+        print STDERR $response->errorAsHTML;
     }
+    $response;
 }
 
 =head1 getAndStore($url, $file)
@@ -413,12 +435,11 @@ Get and store a document identified by a URL
 
 sub getAndStore {
     my($self, $url, $file) = @_;
-
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('GET', $url);
-
     my $response = $self->request($request, $file);
+
     $response;
 }
 
@@ -433,7 +454,7 @@ Returns response.
 sub mirror {
     my($self, $url, $file) = @_;
 
-    &LWP::Debug::trace('()');
+    LWP::Debug::trace('()');
 
     my $request = new LWP::Request('GET', $url);
 
@@ -465,7 +486,6 @@ sub mirror {
 	}
 	else {
 	    # OK
-
 	    rename($tmpfile, $file) or die
 		"Cannot rename '$tmpfile' to '$file': $!\n";
 	}
@@ -514,18 +534,18 @@ proxy URL's for a single access scheme.
 =cut
 
 sub proxy {
-    my($this, $key, $proxy) = @_;
+    my($self, $key, $proxy) = @_;
 
     &LWP::Debug::trace("$key, $proxy");
 
     if (!ref($key)) {   # single scalar passed
-        my $old = $this->{'proxy'}{$key};
-        $this->{'proxy'}{$key} = $proxy;
+        my $old = $self->{'proxy'}{$key};
+        $self->{'proxy'}{$key} = $proxy;
         return $old;    
     }
     elsif (ref($key) eq 'ARRAY') {
         for(@$key) {    # array passed
-            $this->{'proxy'}{$_} = $proxy;
+            $self->{'proxy'}{$_} = $proxy;
         }
     }
     return undef;

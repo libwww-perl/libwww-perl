@@ -8,7 +8,6 @@ bin/lwp-download             	Writes bin/lwp-download script
 bin/lwp-mirror			Writes bin/lwp-mirror script
 bin/lwp-request			Writes bin/lwp-request script
 bin/lwp-rget			Writes bin/lwp-rget script
-lwpcook.pod			Libwww-perl examples
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings
 lib/HTML/Form.pm                Parse <form>...</form>
@@ -51,20 +50,21 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
 lib/Net/HTTP.pm			Lower level HTTP on an IO::Socket::INET
-lib/Net/HTTPS.pm                Lower level HTTP on an SSL socket
 lib/Net/HTTP/Methods.pm		Lower level HTTP/1.1 protocol
 lib/Net/HTTP/NB.pm		Non-blocking HTTP
+lib/Net/HTTPS.pm                Lower level HTTP on an SSL socket
 lib/WWW/RobotRules.pm		Parse robot.txt files
 lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
+lwpcook.pod			Libwww-perl examples
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/common-req.t		Test HTTP::Request::Common module
 t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module
-t/base/headers.t		Test HTTP::Headers module
 t/base/headers-auth.t		Test HTTP::Headers::Auth module
 t/base/headers-etag.t		Test HTTP::Headers::ETag module
 t/base/headers-util.t		Test HTTP::Headers::Util module
+t/base/headers.t		Test HTTP::Headers module
 t/base/http.t			Test Net::HTTP::Methods module
 t/base/listing.t		Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
@@ -78,13 +78,18 @@ t/live/activestate.t
 t/live/jigsaw-auth-b.t
 t/live/jigsaw-auth-d.t
 t/live/jigsaw-chunk.t
+t/live/jigsaw-md5-get.t
 t/live/jigsaw-md5.t
+t/live/jigsaw-neg-get.t
 t/live/jigsaw-neg.t
 t/live/jigsaw-te.t
 t/live/validator.t
+t/local/autoload-get.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
+t/local/http-get.t
 t/local/http.t			Test http to local server
+t/local/httpsub.t
 t/local/protosub.t              Test with other protocol module
 t/net/cgi-bin/moved
 t/net/cgi-bin/nph-slowdata
@@ -100,4 +105,5 @@ t/net/moved.t
 t/net/proxy.t
 t/robot/rules-dbm.t		Test WWW::RobotRules::AnyDBM_File
 t/robot/rules.t			Test WWW::RobotRules
+t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA

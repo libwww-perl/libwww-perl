@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.78 2001/03/16 02:46:11 gisle Exp $
+# $Id: UserAgent.pm,v 1.79 2001/03/16 03:17:55 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.78 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.79 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -262,7 +262,7 @@ sub request
 	my $referral = $request->clone;
 
 	# And then we update the URL based on the Location:-header.
-	my $referral_uri = $response->header('Location');
+	my($referral_uri) = $response->header('Location');
 	{
 	    # Some servers erroneously return a relative URL for redirects,
 	    # so make it absolute if it not already is.

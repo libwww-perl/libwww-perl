@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.18 1998/04/15 19:34:35 aas Exp $
+# $Id: Daemon.pm,v 1.19 1998/09/02 10:07:18 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -715,6 +715,7 @@ sub send_file_response
 	local(*F);
 	sysopen(F, $file, 0) or 
 	  return $self->send_error(RC_FORBIDDEN);
+	binmode(F);
 	my($ct,$ce) = guess_media_type($file);
 	my($size,$mtime) = (stat _)[7,9];
 	unless ($self->antique_client) {

@@ -1,20 +1,22 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.44 1997/12/03 21:36:08 aas Exp $
+# $Id: Makefile.PL,v 1.45 1997/12/17 00:15:23 aas Exp $
+
+require 5.004;
+use strict;
 
 #--- Configuration section ---
 
-@programs_to_install = qw(lwp-request lwp-mirror lwp-rget lwp-download);
-@request_aliases     = qw(GET HEAD POST);
+my @programs_to_install = qw(lwp-request lwp-mirror lwp-rget lwp-download);
+my @request_aliases     = qw(GET HEAD POST);
 
 #--- End Configuration - You should not have to change anything below this line
 
-require 5.004;  # LWP needs this perl version
 
 # Allow us to suppress all program installation with the -n (library only)
 # option.  This is for those that don't want to mess with the configuration
 # section of this file.
 use Getopt::Std;
-$opt_n = undef;   # avoid -w typo waring
+use vars qw($opt_n);
 unless (getopts("n")) {
     die "Usage: $0 [-n]\n";
 }

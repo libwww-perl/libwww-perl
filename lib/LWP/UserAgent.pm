@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.74 2000/06/01 13:35:15 gisle Exp $
+# $Id: UserAgent.pm,v 1.75 2001/03/14 17:38:43 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.74 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.75 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -633,7 +633,11 @@ sub env_proxy {
     my ($self) = @_;
     my($k,$v);
     while(($k, $v) = each %ENV) {
-	$k = lc($k);
+	unless ($ENV{REQUEST_METHOD}) {
+	    # Need to be careful when called in the CGI environment, as
+	    # the HTTP_PROXY variable is under control of that other guy.
+	    $k = lc($k)
+	}
 	next unless $k =~ /^(.*)_proxy$/;
 	$k = $1;
 	if ($k eq 'no') {

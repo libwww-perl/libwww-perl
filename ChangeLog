@@ -1,3 +1,24 @@
+1999-05-09   Gisle Aas <gisle@aas.no>
+
+ o  Release 5.43
+
+ o  New lwp-request command line option that allow you to put any
+    header into the request (-H).
+
+ o  New HTTP::Date because of Y2K-problems with the old one.
+    It refused to parse the ftp-listing (ls -l) dates missing year.
+    Additional entry point is parse_date().  This function avoid any
+    limitations caused by the time-representation (seconds since
+    epoch).
+
+ o  Y2K fix to t/base/cookies.t.  Netscape's original cookie
+    example expires at 09-Nov-99.
+
+ o  Added another binmode() to LWP::Protocol::file as suggested
+    by Matt Sergeant <matt-news@sergeant.org>
+
+
+
 1999-03-20   Gisle Aas <gisle@aas.no>
 
  o  Release 5.42

@@ -1,3 +1,19 @@
+Sat Sep 16 1995   Gisle Aas <aas@oslonett.no>
+
+ o  Release 5b5
+
+ o  newlocal URI::URL does not put "//localhost" into the URLs any
+    longer.
+
+ o  The request program: New -o option to reformat the HTML code
+    New -C option to provide credentials on the command line.
+    The -b option never worked.
+
+ o  LWP::Protocol::file now returns redirect for access to directories
+    where the trailing slash is missing.
+
+
+
 Thu Sep 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  Speedups and bug fixes in the HTML parser.  The parser now

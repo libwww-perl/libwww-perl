@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.18 2001/04/14 06:08:38 gisle Exp $
+# $Id: HTTP.pm,v 1.19 2001/04/17 17:24:57 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -340,7 +340,12 @@ __END__
 
 =head1 NAME
 
-Net::HTTP - HTTP client connection
+Net::HTTP - Low-level HTTP client connection
+
+=head1 NOTE
+
+This module is experimental.  Details of its interface is likely to
+change in the future.
 
 =head1 SYNOPSIS
 

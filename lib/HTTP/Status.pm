@@ -1,5 +1,5 @@
 #
-# $Id: Status.pm,v 1.4 1995/07/14 00:14:45 aas Exp $
+# $Id: Status.pm,v 1.5 1995/07/17 10:07:20 aas Exp $
 
 package LWP::StatusCode;
 
@@ -24,17 +24,41 @@ LWP::StatusCode - HTTP Status code processing
 LWP::StatusCode is a library of routines for manipulating
 HTTP Status Codes for L<lwp>.
 
-The C<RC_*> rountines can be used as mnemonic status codes.
-These are constructed by taking the human readable string,
-converting it to upper case and converting spaces to '_',
-and prepending 'RC_';
+The following functions can be used as mnemonic status codes:
 
-The C<message> function will translate status codes to human
+   RC_OK
+   RC_CREATED
+   RC_ACCEPTED
+   RC_PROVISIONAL_INFORMATION
+   RC_NO_CONTENT
+   RC_MULTIPLE_CHOICES
+   RC_MOVED_PERMANENTLY
+   RC_MOVED_TEMPORARILY
+   RC_METHOD
+   RC_NOT_MODIFIED
+   RC_BAD_REQUEST
+   RC_UNAUTHORIZED
+   RC_PAYMENT_REQUIRED
+   RC_FORBIDDEN
+   RC_NOT_FOUND
+   RC_METHOD_NOT_ALLOWED
+   RC_NONE_ACCEPTABLE
+   RC_PROXY_AUTHENTICATION_REQUIRED
+   RC_REQUEST_TIMEOUT
+   RC_CONFLICT
+   RC_GONE
+   RC_INTERNAL_SERVER_ERROR
+   RC_NOT_IMPLEMENTED
+   RC_BAD_GATEWAY
+   RC_SERVICE_UNAVAILABLE
+   RC_GATEWAY_TIMEOUT
+
+The C<message()> function will translate status codes to human
 readable strings.
 
-The C<isSuccess>, C<isError>, and C<isRedirect> functions will return
-a true value if the passed status code indicates success, and error,
-or a redirect respectively.
+The C<isSuccess()>, C<isError()>, and C<isRedirect()> functions will
+return a true value if the passed status code indicates success, and
+error, or a redirect respectively.
 
 =cut
 
@@ -73,7 +97,7 @@ my %StatusCode = (
     501 => 'Not Implemented',
     502 => 'Bad Gateway',
     503 => 'Service Unavailable',
-    504 => 'Gateway Tieout',
+    504 => 'Gateway Timeout',
 );
 
 my $mnemonicCode = '';

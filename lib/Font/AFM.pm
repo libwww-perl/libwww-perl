@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.13 1997/08/08 09:30:24 aas Exp $
+# $Id: AFM.pm,v 1.14 1997/08/08 13:22:13 aas Exp $
 
 package Font::AFM;
 
@@ -187,7 +187,7 @@ use Carp;
 use strict;
 use vars qw($VERSION @ISOLatin1Encoding);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/);
 
 
 # The metrics_path is used to locate metrics files
@@ -293,10 +293,18 @@ sub latin1_wx_table
 {
     my($self) = @_;
     unless ($self->{'_wx_table'}) {
-	$self->{'_wx_table'} =
-	    [ map {$self->{wx}->{$ISOLatin1Encoding[$_]}} 0..255 ];
+	my @wx;
+	for (0..255) {
+	    my $name = $ISOLatin1Encoding[$_];
+	    if (exists $self->{wx}->{$name}) {
+		push(@wx, $self->{wx}->{$name})
+	    } else {
+		push(@wx, $self->{wx}->{'.notdef'});
+	    }
+	}
+	$self->{'_wx_table'} = \@wx;
     }
-    @{ $self->{'_wx_table'} };
+    wantarray ? @{ $self->{'_wx_table'} } : $self->{'_wx_table'};
 }
 
 sub stringwidth
@@ -307,8 +315,8 @@ sub stringwidth
 
     my @wx = $self->latin1_wx_table;
     my $width = 0.0;
-    while ($string =~ /./g) {
-	$width += $wx[ord $&];
+    while ($string =~ /(.)/g) {
+	$width += $wx[ord($1)];
     }
     if ($pointsize) {
 	$width *= $pointsize / 1000;

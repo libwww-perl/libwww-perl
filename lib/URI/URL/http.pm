@@ -41,13 +41,17 @@ sub query_form {
     if (@_) {
 	# Try to set query string
 	my @query;
-	my($key,$val);
-	while (($key,$val) = splice(@_, 0, 2)) {
-	    for ($key, $val) {
-		$_ = '' unless defined;
-		$_ = URI::Escape::uri_escape($_, $URI::URL::reserved);
+	my($key,$vals);
+	while (($key,$vals) = splice(@_, 0, 2)) {
+	    $key = '' unless defined $key;
+	    $key =  URI::Escape::uri_escape($key, $URI::URL::reserved);
+	    $vals = [$vals] unless ref($vals) eq 'ARRAY';
+	    my $val;
+	    for $val (@$vals) {
+		$val = '' unless defined $val;
+		$val = URI::Escape::uri_escape($val, $URI::URL::reserved);
+		push(@query, "$key=$val");
 	    }
-	    push(@query, "$key=$val");
 	}
 	$self->equery(join('&', @query));
 	return undef;

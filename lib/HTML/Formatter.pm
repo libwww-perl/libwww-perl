@@ -62,7 +62,6 @@ sub header_start
 sub header_end
 {
     my($formatter, $level, $node) = @_;
-    1;
 }
 
 sub h1_start { shift->header_start(1, @_) }
@@ -376,6 +375,10 @@ sub textflow
 	$formatter->pre_out($_[0]);
     } else {
 	for (split(/(\s+)/, $_[0])) {
+	    if ($formatter->{eat_leading_space} && /^\s/) {
+		$formatter->{eat_leading_space} = 0;
+		next;
+	    }
 	    $formatter->out($_) if length $_;
 	}
     }

@@ -85,11 +85,6 @@ sub out
 	$formatter->{vspace} = undef;
     }
 
-    if ($formatter->{eat_leading_space}) {
-	$text =~ s/^\s+//;
-	$formatter->{eat_leading_space} = 0;
-    }
-
     if ($formatter->{pos} > $formatter->{rm}) {  # line is too long, break it
 	return if $text =~ /^\s*$/;  # white space at eol is ok
 	$formatter->nl;

@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 1.3 1995/07/14 00:26:04 aas Exp $
+# $Id: Message.pm,v 1.4 1995/07/16 07:22:06 aas Exp $
 
 package LWP::Message;
 
@@ -35,14 +35,14 @@ sub new
 {
     my($class, $header, $content) = @_;
     if (defined $header) {
-	croak "Bad header argument" unless ref($header) eq "LWP::MIMEheader";
-	$header = $header->clone;
+        croak "Bad header argument" unless ref($header) eq "LWP::MIMEheader";
+        $header = $header->clone;
     } else {
-	$header = new LWP::MIMEheader;
+        $header = new LWP::MIMEheader;
     }
     bless {
-	'_header'  => $header,
-	'_content' => $content,
+        '_header'  => $header,
+        '_content' => $content,
     }, $class;
 }
 

@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.5 1995/07/14 00:15:33 aas Exp $
+# $Id: Simple.pm,v 1.6 1995/07/16 07:22:37 aas Exp $
 
 =head1 NAME
 
@@ -149,11 +149,11 @@ sub head
     my $response = $ua->request($request);
 
     if ($response->isSuccess) {
-	return ($response->header('Content-Type'),
-	        $response->header('Content-Length'),
+        return ($response->header('Content-Type'),
+                $response->header('Content-Length'),
                 str2time($response->header('Last-Modified')),
-                str2time($response->header('Expires')),#XXX: Verify header name
-        	$response->header('Server'),
+                str2time($response->header('Expires')),
+                $response->header('Server'),
                );
     } else {
         return undef;

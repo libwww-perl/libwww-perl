@@ -1,6 +1,6 @@
 #!/local/bin/perl
 
-# $Id: install-lwp,v 1.4 1995/07/14 00:34:47 aas Exp $
+# $Id: install-lwp,v 1.5 1995/07/16 07:20:09 aas Exp $
 #
 # This script might be used to install LWP
 #
@@ -20,9 +20,9 @@ if ($@) {
     $version = $URI::URL::Version || $URI::URL::VERSION;
     print "You have installed URI::URL version $version.\n";
     if ($URI::URL::VERSION < 3.00) {
-	die "Please upgrade URI::URL, LWP needs at least version 3.00.\n";
+        die "Please upgrade URI::URL, LWP needs at least version 3.00.\n";
     } else {
-	# print "That's just what I need!\n";
+        # print "That's just what I need!\n";
     }
 }
 
@@ -41,23 +41,23 @@ for $dir (@loc) {
     print "Install LWP in $dir? [n] ";
     chomp($ans = <STDIN>);
     if ($ans =~ /^y(es)?$/i) {
-	install($dir);
-	last;
+        install($dir);
+        last;
     }
 }
 
 unless ($installed) {
   MANUAL:
     {
-	print "Enter directory where you want to install LWP\n";
-	print "> ";
-	chomp($dir = <STDIN>);
-	last unless length $dir;
-	unless (-d $dir) {
-	    print "'$dir' is not a directory!\n";
-	    redo MANUAL;
-	}
-	install($dir);
+        print "Enter directory where you want to install LWP\n";
+        print "> ";
+        chomp($dir = <STDIN>);
+        last unless length $dir;
+        unless (-d $dir) {
+            print "'$dir' is not a directory!\n";
+            redo MANUAL;
+        }
+        install($dir);
     }
 }
 
@@ -81,8 +81,8 @@ sub install
 {
     my $dir = shift;
     if (-e "$dir/LWP") {
-	die "$dir/LWP is in the way!\n" unless -d _;
-	print "Overwriting old '$dir/LWP'...\n";
+        die "$dir/LWP is in the way!\n" unless -d _;
+        print "Overwriting old '$dir/LWP'...\n";
     }
     run "cp -r LWP* $dir";  # This is really all that need to be done
     $installed = 1;

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.8 1995/07/15 07:58:05 aas Exp $
+# $Id: Request.pm,v 1.9 1995/07/16 07:24:01 aas Exp $
 
 package LWP::Request;
 
@@ -90,11 +90,11 @@ sub url
 {
     my($self, $url) = @_;
     if (defined $url) {
-	if (ref $url) {
-	    $url = $url->abs;
-	} else {
-	    $url = new URI::URL($url);
-	}
+        if (ref $url) {
+            $url = $url->abs;
+        } else {
+            $url = new URI::URL($url);
+        }
     }
     $self->_elem('_url', $url);
 }
@@ -117,7 +117,7 @@ sub asString
     push(@result, $self->headerAsString);
     my $content = $self->content;
     if ($content) {
-	push(@result, $self->content);
+        push(@result, $self->content);
     }
     push(@result, ("-" x 35));
     join("\n", @result, "");

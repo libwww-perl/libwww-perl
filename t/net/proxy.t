@@ -18,7 +18,7 @@ $ua->proxy('ftp', 'http://web.nexor.co.uk/');
 
 my $url = new URI::URL('ftp://lancaster.nexor.co.uk/welcome.msg');
 
-my $request = new LWP::Request('GET', $url);
+my $request = new HTTP::Request('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
 

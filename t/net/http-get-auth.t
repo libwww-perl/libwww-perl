@@ -47,7 +47,7 @@ $url = new URI::URL('http://web.nexor.co.uk:9999/' .
 
 $ua->credentials('RegisteredUsers', 'test', 'test');
 
-my $request = new LWP::Request('GET', $url);
+my $request = new HTTP::Request('GET', $url);
 
 my $response = $ua->request($request);
 

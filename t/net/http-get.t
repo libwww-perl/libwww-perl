@@ -12,7 +12,7 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $url = new URI::URL('http://localhost/cgi-bin/test');
 
-my $request = new LWP::Request('GET', $url);
+my $request = new HTTP::Request('GET', $url);
 
 print "GET $url\n\n";
 

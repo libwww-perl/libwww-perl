@@ -17,7 +17,7 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $url = new URI::URL('http://web.nexor.co.uk:9999/');
 
-my $request = new LWP::Request('GET', $url, undef);
+my $request = new HTTP::Request('GET', $url, undef);
 
 # set some standard and non-standard fields,
 # in random order

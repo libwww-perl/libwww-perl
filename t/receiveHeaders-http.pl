@@ -17,7 +17,7 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $url = new URI::URL('http://web.nexor.co.uk/');
 
-my $request = new LWP::Request('GET', $url, undef);
+my $request = new HTTP::Request('GET', $url, undef);
 print $request->asString;
 my $response = $ua->request($request, undef, undef);
 print $response->asString;

@@ -14,7 +14,7 @@ $url = new URI::URL('http://localhost/cgi-bin/test');
 
 my $form = 'searchtype=Substring';
 
-my $request = new LWP::Request('POST', $url, undef, $form);
+my $request = new HTTP::Request('POST', $url, undef, $form);
 
 my $response = $ua->request($request, undef, undef);
 

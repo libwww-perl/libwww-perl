@@ -4,7 +4,7 @@
 
 require LWP::Protocol::http;
 require LWP::UserAgent;
-require LWP::StatusCode;
+require HTTP::Status;
 
 print "1..2\n";
 
@@ -15,7 +15,7 @@ my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
 
 my $response = $ua->mirror($url, $copy);
 
-if ($response->code == &LWP::StatusCode::RC_OK) {
+if ($response->code == &HTTP::Status::RC_OK) {
     print "ok 1\n";
 } else {
     print "not ok 1\n";
@@ -23,7 +23,7 @@ if ($response->code == &LWP::StatusCode::RC_OK) {
 
 # OK, so now do it again, should get Not-Modified
 $response = $ua->mirror($url, $copy);
-if ($response->code == &LWP::StatusCode::RC_NOT_MODIFIED) {
+if ($response->code == &HTTP::Status::RC_NOT_MODIFIED) {
     print "ok 2\n";
 } else {
     print "nok ok 2\n";

@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.44 1997/08/05 13:59:21 aas Exp $
+# $Id: UserAgent.pm,v 1.45 1997/09/20 11:35:42 aas Exp $
 
 package LWP::UserAgent;
 
@@ -146,6 +146,7 @@ sub new
 		'from'        => undef,
 		'timeout'     => 3*60,
 		'proxy'       => undef,
+		'cookie_jar'  => undef,
 		'use_eval'    => 1,
 		'use_alarm'   => ($Config::Config{d_alarm} ?
 				  $Config::Config{d_alarm} eq 'define' :
@@ -210,12 +211,15 @@ sub simple_request
     }
 
     # Extract fields that will be used below
-    my ($agent, $from, $timeout, $use_alarm, $use_eval, $parse_head, $max_size) =
-      @{$self}{qw(agent from timeout use_alarm use_eval parse_head max_size)};
+    my ($agent, $from, $timeout, $cookie_jar,
+        $use_alarm, $use_eval, $parse_head, $max_size) =
+      @{$self}{qw(agent from timeout cookie_jar
+                  use_alarm use_eval parse_head max_size)};
 
     # Set User-Agent and From headers if they are defined
     $request->header('User-Agent' => $agent) if $agent;
     $request->header('From' => $from) if $from;
+    $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
     # Inform the protocol if we need to use alarm() and parse_head()
     $protocol->use_alarm($use_alarm);
@@ -256,6 +260,7 @@ sub simple_request
     alarm(0) if ($use_alarm); # no more timeout
 
     $response->request($request);  # record request for reference
+    $cookie_jar->extract_cookies($response) if $cookie_jar;
     $response->header("Client-Date" => HTTP::Date::time2str(time));
     return $response;
 }
@@ -542,6 +547,12 @@ the requests.  There is no default.  Example:
 Get/set the timeout value in seconds. The default timeout() value is
 180 seconds, i.e. 3 minutes.
 
+=head2 $ua->cookie_jar([$cookies])
+
+Get/set the I<HTTP::Cookies> object to use.  The default is to have no
+cookie_jar, i.e. never automatically add "Cookie" headers to the
+requests.
+
 =head2 $ua->use_alarm([$boolean])
 
 Get/set a value indicating wether to use alarm() when implementing
@@ -572,6 +583,7 @@ is only partial, because the size limit was exceeded, then a
 sub timeout    { shift->_elem('timeout',   @_); }
 sub agent      { shift->_elem('agent',     @_); }
 sub from       { shift->_elem('from',      @_); }
+sub cookie_jar { shift->_elem('cookie_jar',@_); }
 sub use_alarm  { shift->_elem('use_alarm', @_); }
 sub use_eval   { shift->_elem('use_eval',  @_); }
 sub parse_head { shift->_elem('parse_head',@_); }

@@ -1,5 +1,5 @@
 #!/local/bin/perl
-# $Id: html2text,v 1.2 1995/09/12 08:06:32 aas Exp $
+# $Id: html2text,v 1.3 1995/09/12 08:50:22 aas Exp $
 
 
 use HTML::Parse;
@@ -16,7 +16,8 @@ $rm  =   70;  # right margin
 $pos =    0;  # current output position.
 $maxpos = 0;  # highest value of $pos
 
-@ignore = ();
+@ignore = (); # just a place to collect unknown tags, so that we can
+              # report this as errors at the end.
 
 $main::h->traverse(\&visit);
 
@@ -197,12 +198,21 @@ sub p_end
 sub pre_start
 {
     $pre++;
+    vspace(1);
     1;
 }
 
 sub pre_end
 {
     $pre--;
+    vspace(1);
+}
+
+BEGIN {
+    *listing_start = \&pre_start;
+    *listing_end   = \&pre_end;
+    *xmp_start     = \&pre_start;
+    *xmp_end       = \&pre_end;
 }
 
 sub blockquote_start
@@ -350,7 +360,18 @@ sub textflow
 sub pre_out
 {
     # should really handle bold/italic etc.
-    print $_[0];
+    if (defined $vspace) {
+	if ($out) {
+	    nl();
+	    nl() while $vspace-- > 0;
+	    $vspace = undef;
+	}
+    }
+    my $indent = ' ' x $lm;
+    my $pre = shift;
+    $pre =~ s/^/$indent/gm;
+    print $pre;
+    $out++;
 }
 
 sub out
@@ -380,7 +401,7 @@ sub out
     
     if ($pending_space) {
 	$pending_space = 0;
-	print '·';
+	print ' ';
 	$pos++;
 	$maxpos = $pos if $maxpos < $pos;
     }

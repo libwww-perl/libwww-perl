@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 1.8 1996/10/23 10:01:09 aas Exp $
+# $Id: Base64.pm,v 1.9 1997/04/03 11:26:28 aas Exp $
 
 package MIME::Base64;
 
@@ -62,7 +62,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Carp ();
@@ -73,6 +73,7 @@ sub encode_base64 ($;$)
     my $res = "";
     my $eol = $_[1];
     $eol = "\n" unless defined $eol;
+    pos($_[0]) = 0;                          # ensure start at the beginning
     while ($_[0] =~ /(.{1,45})/gs) {
 	$res .= substr(pack('u', $1), 1);
 	chop($res);

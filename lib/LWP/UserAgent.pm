@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.92 2001/08/28 04:37:52 gisle Exp $
+# $Id: UserAgent.pm,v 1.93 2001/08/28 04:53:53 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -10,13 +10,17 @@ LWP::UserAgent - A WWW UserAgent class
 =head1 SYNOPSIS
 
  require LWP::UserAgent;
- $ua = LWP::UserAgent->new(env_proxy => 1,
-                           keep_alive => 1,
-                           timeout => 30,
-                          );
+ my $ua = LWP::UserAgent->new(env_proxy => 1,
+                              keep_alive => 1,
+                              timeout => 30,
+                             );
 
- $request = HTTP::Request->new('GET', 'file://localhost/etc/motd');
+ $response = $ua->get('http://search.cpan.org/');
 
+ # or:
+
+ $request = HTTP::Request->new('GET', 'http://search.cpan.org/');
+  # and then one of these:
  $response = $ua->request($request); # or
  $response = $ua->request($request, '/tmp/sss'); # or
  $response = $ua->request($request, \&callback, 4096);
@@ -95,7 +99,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.92 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.93 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();

@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.8 2001/04/10 05:13:01 gisle Exp $
+# $Id: HTTP.pm,v 1.9 2001/04/10 05:28:34 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -138,11 +138,9 @@ sub write_request {
 
 
 sub xread {
-    my $self = shift;
-    for (${*$self}{'http_buf'}) {
-	return sysread($self, $_, $_[2] || 1024, length);
-    }
+    sysread($_[0], $_[1], $_[2], $_[3] || 0);
 }
+
 
 sub my_read {
     die if @_ > 3;
@@ -154,9 +152,7 @@ sub my_read {
 	    return length($_[0]);
 	}
 	else {
-	    my $n = $self->xread($len);
-	    $_[0] = $_;  $_ = "";
-	    return $n;
+	    return $self->xread($_[1], $len);
 	}
     }
 }
@@ -169,7 +165,7 @@ sub my_readline {
 	while (1) {
 	    $pos = index($_, "\012");
 	    last if $pos >= 0;
-	    my $n = $self->xread(1024);
+	    my $n = $self->xread($_, 1024, length);
 	    if (!$n) {
 		return undef unless length;
 		return substr($_, 0, length, "");

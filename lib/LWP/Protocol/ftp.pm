@@ -1,5 +1,5 @@
 #
-# $Id: ftp.pm,v 1.32 2003/07/23 18:34:54 gisle Exp $
+# $Id: ftp.pm,v 1.33 2003/10/14 18:57:30 gisle Exp $
 
 # Implementation of the ftp protocol (RFC 959). We let the Net::FTP
 # package do all the dirty work.
@@ -247,18 +247,25 @@ sub request
 		my $range_info = $request->header('Range');
 
 		# Change bytes=2772992-6781209 to just 2772992
-		my ($start_byte,$end_byte) = $range_info =~ /.*=\s*(\d+)-(\d+)/;
+		my ($start_byte,$end_byte) = $range_info =~ /.*=\s*(\d+)-(\d+)?/;
+		if ( defined $start_byte && !defined $end_byte ) {
 
-		if (!defined $start_byte || !defined $end_byte ||
-		  ($start_byte < 0) || ($start_byte > $end_byte) || ($end_byte < 0))
-		{
+		  # open range -- only the start is specified
+
+		  $ftp->restart( $start_byte );
+		  # don't define $max_size, we don't want to abort early
+		}
+		elsif ( defined $start_byte && defined $end_byte &&
+			$start_byte >= 0 && $end_byte >= $start_byte ) {
+
+		  $ftp->restart( $start_byte );
+		  $max_size = $end_byte - $start_byte;
+		}
+		else {
+
 		  return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
 		     'Incorrect syntax for Range request');
 		}
-
-		$max_size = $end_byte-$start_byte;
-
-		$ftp->restart($start_byte);
 	}
 	elsif ($request->header('Range') && !$ftp->supported('REST'))
 	{

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.7 1995/07/18 20:58:44 aas Exp $
+# $Id: lwp-request.PL,v 1.8 1995/07/23 20:39:40 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -124,7 +124,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -322,7 +322,7 @@ sub usage
     die <<"EOT";
 Usage: $0 [-options] <url>...
     -m <method>   use method for the request
-    -f            make request even if $0 believe method is illegal
+    -f            make request even if $0 believes method is illegal
     -b <base>     Use the specified URL as base
     -t <timeout>  Set timeout value
     -i <time>     Set the If-Modified-Since header on the request

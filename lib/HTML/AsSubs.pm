@@ -11,8 +11,8 @@ HTML::AsSubs - functions that construct a HTML syntax tree
 	   h1("This is the heading"),
 	   p("This is the first paragraph which contains a ",
 	     a({href=>'link.html'}, "link"),
-	     " and an "
-	     img({src='img.gif', alt=>'image'}),
+	     " and an ",
+	     img({src=>'img.gif', alt=>'image'}),
 	     "."
 	    ),
 	  );
@@ -67,7 +67,7 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @TAGS = qw(html
-	   header title base link meta isindex nextid
+	   head title base link meta isindex nextid
 	   body h1 h2 h3 h4 h5 h6 p pre address blockquote
 	   a img br hr
 	   ol ul dir menu li

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.4 1995/07/16 07:19:05 aas Exp $
+# $Id: lwp-request.PL,v 1.5 1995/07/17 09:59:58 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -115,7 +115,7 @@ Gisle Aas <aas@oslonett.no>
 
 
 $0 =~ s,.*/,,;  # use basename only
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -187,7 +187,11 @@ usage() if $opt_h || !@ARGV;
 
 $method = uc($opt_m || $0 || "GET");
 if ($opt_f) {
-    $allowed_methods{$method} = "";  # assume no content requeset
+    if ($opt_c) {
+        $allowed_methods{$method} = "C";
+    } else {
+        $allowed_methods{$method} = "";
+    }
 } elsif (!defined $allowed_methods{$method}) {
     die "$0: $method is not an allowed method\n";
 }
@@ -268,7 +272,6 @@ while ($url = shift) {
     if ($opt_u || $opt_U) {
         my $url = $request->url->as_string;
         print "$method $url\n";
-
         print $request->headerAsString, "\n" if $opt_U;
     }
 

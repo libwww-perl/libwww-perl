@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.13 1996/03/05 10:51:11 aas Exp $
+# $Id: Simple.pm,v 1.14 1996/03/18 17:49:30 aas Exp $
 
 =head1 NAME
 
@@ -21,12 +21,12 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 =head1 DESCRIPTION
 
 This interface is intended for those who want a simplified view of the
-LWP library.  This interface should also be suitable for one-liners.
-If you need more control or miss access to the header fields in the
-requests sent and responses received you should use the full OO
-interface provided by the LWP::UserAgent module.
+libwww-perl library.  This interface should also be suitable for
+one-liners.  If you need more control or miss access to the header
+fields in the requests sent and responses received you should use the
+full OO interface provided by the LWP::UserAgent module.
 
-This following functions are exported by this module:
+This following functions are provided (and exported) by this module:
 
 =over 3
 
@@ -34,7 +34,8 @@ This following functions are exported by this module:
 
 This function will get the document identified by the given URL.  The
 get() function will return the document if successful or 'undef' if it
-fails.
+fails.  The $url argument can be either a simple string or a reference
+to a URI::URL object.
 
 You will not be able to examine the response code or response headers
 (like I<Content-Type>) when you are accessing the web using this
@@ -51,23 +52,24 @@ Returns 'undef' if it fails.
 
 Get and print a document identified by a URL. The document is printet
 on STDOUT. The error message (formatted as HTML) is printed on STDERR
-if it fails.  It returns the response code.
+if the request fails.  The return value is the HTTP response code.
 
 =item getstore($url, $file)
 
-Gets a document identified by a URL and stores it in the file. It
-returns the response code.
+Gets a document identified by a URL and stores it in the file. The
+return value is the HTTP response code.
 
 =item mirror($url, $file)
 
-Get and store a document identified by a URL, using I<If-modified-since>,
-and checking of the I<Content-Length>.  Returns response code.
+Get and store a document identified by a URL, using
+I<If-modified-since>, and checking of the I<Content-Length>.  Returns
+the HTTP response code.
 
 =back
 
 This module also exports the HTTP::Status constants and
 procedures.  These can be used when you check the response code from
-C<getprint>, C<getstore> and C<mirror>.  The constants are:
+getprint(), getstore() and mirror().  The constants are:
 
    RC_OK
    RC_CREATED
@@ -97,7 +99,7 @@ C<getprint>, C<getstore> and C<mirror>.  The constants are:
    RC_SERVICE_UNAVAILABLE
    RC_GATEWAY_TIMEOUT
 
-The HTTP::Status procedures are:
+The HTTP::Status classification functions are:
 
 =over 3
 
@@ -113,6 +115,10 @@ Check if response code indicated that an error occured.
 
 The module will also export the LWP::UserAgent object as C<$ua> if you
 ask for it explicitly.
+
+The user agent created by this module will identify itself as
+"LWP::Simple/0.00" and will initialize its proxy defaults from the
+environment (by calling $ua->env_proxy).
 
 =head1 SEE ALSO
 
@@ -142,11 +148,11 @@ $ua->agent("LWP::Simple/$LWP::VERSION");
 $ua->env_proxy;
 
 
-sub get
+sub get ($)
 {
     my($url) = @_;
 
-    my $request = new HTTP::Request('GET', $url);
+    my $request = new HTTP::Request 'GET', $url;
     my $response = $ua->request($request);
 
     return $response->content if $response->is_success;
@@ -154,11 +160,11 @@ sub get
 }
 
 
-sub head
+sub head ($)
 {
     my($url) = @_;
 
-    my $request = new HTTP::Request('HEAD', $url);
+    my $request = new HTTP::Request 'HEAD', $url;
     my $response = $ua->request($request);
 
     if ($response->is_success) {
@@ -174,11 +180,11 @@ sub head
 }
 
 
-sub getprint
+sub getprint ($)
 {
     my($url) = @_;
 
-    my $request = new HTTP::Request('GET', $url);
+    my $request = new HTTP::Request 'GET', $url;
     my $response = $ua->request($request);
     if ($response->is_success) {
         print $response->content;
@@ -189,21 +195,18 @@ sub getprint
 }
 
 
-sub getstore
+sub getstore ($$)
 {
     my($url, $file) = @_;
-    croak("getstore needs two arguments") unless @_ == 2;
 
-    my $request = new HTTP::Request('GET', $url);
+    my $request = new HTTP::Request 'GET', $url;
     my $response = $ua->request($request, $file);
 
     $response->code;
 }
 
-sub mirror
+sub mirror ($$)
 {
-    croak("mirror needs two arguments") unless @_ == 2;
-
     my($url, $file) = @_;
     my $response = $ua->mirror($url, $file);
     $response->code;

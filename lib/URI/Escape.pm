@@ -1,14 +1,12 @@
 #
-# $Id: Escape.pm,v 3.6 1996/04/09 15:44:45 aas Exp $
+# $Id: Escape.pm,v 3.7 1997/12/02 12:39:48 aas Exp $
 #
 
 package URI::Escape;
 
 =head1 NAME
 
-uri_escape - Escape unsafe characters
-
-uri_unescape - Unescape escaped characters
+URI::Escape - Escape and unescape unsafe characters
 
 =head1 SYNOPSIS
 
@@ -23,7 +21,15 @@ This module provide functions to escape and unescape URI strings.
 Some characters are regarded as "unsafe" and must be escaped in
 accordance with RFC 1738.  Escaped characters are represented by a
 triplet consisting of the character "%" followed by two hexadecimal
-digits.
+digits.  The following functions are provided (and exported by
+default):
+
+=over 4
+
+=item uri_escape($string, [$unsafe])
+
+This function replaces all unsafe characters in the $string with their
+escape sequence and return the result.
 
 The uri_escape() function takes an optional second argument that
 overrides the set of characters that are to be escaped.  The set is
@@ -38,12 +44,27 @@ The default set of characters to be escaped is:
 
   \x00-\x20"#%;<>?{}|\\\\^~`\[\]\x7F-\xFF
 
+=item uri_unescape($string)
+
+Returns a string with all %XX sequences replaced with the actual
+character.
+
+=back
+
 The module can also export the %escapes hash which contains the
 mapping from all characters to the corresponding escape code.
 
 =head1 SEE ALSO
 
 L<URI::URL>
+
+
+=head1 COPYRIGHT
+
+Copyright 1995-1997 Gisle Aas.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 

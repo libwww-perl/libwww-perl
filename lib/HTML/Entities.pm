@@ -1,6 +1,6 @@
 package HTML::Entities;
 
-# $Id: Entities.pm,v 1.7 1996/06/09 14:49:57 aas Exp $
+# $Id: Entities.pm,v 1.8 1996/09/06 07:18:46 aas Exp $
 
 =head1 NAME
 
@@ -60,7 +60,7 @@ require Exporter;
 @EXPORT = qw(encode_entities decode_entities);
 @EXPORT_OK = qw(%entity2char %char2entity);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 
@@ -207,7 +207,7 @@ sub encode_entities
 	&{$subst{$_[1]}}($_[0]);
     } else {
 	# Encode control chars, high bit chars and '<', '&', '>', '"'
-	$_[0] =~ s/([^\n\t !#$%'-;=?-~])/$char2entity{$1}/g;
+	$_[0] =~ s/([^\n\t !\#\$%\'-;=?-~])/$char2entity{$1}/g;
     }
     $_[0];
 }

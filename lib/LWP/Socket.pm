@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 #
-# $Id: Socket.pm,v 1.17 1995/11/06 09:42:03 aas Exp $
+# $Id: Socket.pm,v 1.18 1996/02/05 18:04:15 aas Exp $
 
 package LWP::Socket;
 
@@ -21,7 +21,8 @@ LWP::Socket - TCP/IP socket interface
 =head1 DESCRIPTION
 
 This class implements TCP/IP sockets.  It groups socket generation,
-TCP address manipulation and buffered reading.
+TCP address manipulation and buffered reading. Errors are handled by
+dying (throws exceptions).
 
 This class should really not be required, something like this should
 be part of the standard Perl5 library.
@@ -33,10 +34,10 @@ localhost to serve chargen and echo protocols.
 
 #####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
-use Socket;
+use Socket qw(1.5);
 use Carp;
 
 require LWP::Debug;
@@ -171,8 +172,8 @@ sub accept
     my $ns = _gensym();
     my $addr = accept($ns, $self->{'socket'});
     if ($addr) {
-	my($family, $port, @addr) = unpack('S n C4 x8', $addr);
-	return new LWP::Socket $ns, join('.', @addr), $port;
+	my($port, $addr) = unpack_sockaddr_in($addr);
+	return new LWP::Socket $ns, inet_ntoa($addr), $port;
     } else {
 	_ungensym($ns);
 	croak "Can't accept: $!";
@@ -187,9 +188,8 @@ Returns a 2 element array ($host, $port)
 
 sub getsockname
 {
-    my($family, $port, @addr) =
-      unpack('S n C4 x8', getsockname(shift->{'socket'}));
-    (join('.', @addr), $port);
+    my($port, $addr) = unpack_sockaddr_in(getsockname(shift->{'socket'}));
+    (inet_ntoa($addr), $port);
 }
 
 =head2 readUntil($delim, $data_ref, $size, $timeout)
@@ -330,18 +330,18 @@ sub _getaddress
     my(@addr);
     if (!defined $host) {
 	# INADDR_ANY
-	$addr[0] = Socket::sockaddr_in(PF_INET, $port, 0, 0, 0, 0);
+	$addr[0] = pack_sockaddr_in($port, INADDR_ANY);
     }
-    elsif ($host =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) {
+    elsif ($host =~ /^(\d+\.\d+\.\d+\.\d+)$/) {
         # numeric IP address
-        $addr[0] = Socket::sockaddr_in(PF_INET, $port, $1, $2, $3, $4);
+        $addr[0] = pack_sockaddr_in($port, inet_aton($1));
     } else {
         # hostname
         LWP::Debug::debugl("resolving host '$host'...");
         (undef,undef,undef,undef,@addr) = gethostbyname($host);
 	for (@addr) {
-	    LWP::Debug::debugl("   ..." . join(".", unpack('C4', $_)));
-	    $_ = Socket::sockaddr_in(PF_INET, $port, unpack('C4', $_));
+	    LWP::Debug::debugl("   ..." . inet_ntoa($_));
+	    $_ = pack_sockaddr_in($port, $_);
 	}
     }
     wantarray ? @addr : $addr[0];

@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.10 1995/08/09 09:45:24 aas Exp $
+# $Id: Request.pm,v 1.11 1995/10/16 15:27:53 aas Exp $
 
 package HTTP::Request;
 
@@ -10,8 +10,8 @@ HTTP::Request - Class encapsulating HTTP Requests
 =head1 SYNOPSIS
 
  require HTTP::Request;
- $request = new HTTP::Request('GET', 'http://www.oslonett.no/');
- 
+ $request = new HTTP::Request 'GET', 'http://www.oslonett.no/';
+
 =head1 DESCRIPTION
 
 C<HTTP::Request> is a class encapsulating HTTP style requests,
@@ -44,9 +44,9 @@ require URI::URL;
 Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be
 either a string, or a reference to a C<URI::URL> object.  The $header
-argument should be a reference to a MIMEheader.
+argument should be a reference to a HTTP::Headers object.
 
- $request = new HTTP::Request('GET', 'http://www.oslonett.no/');
+ $request = new HTTP::Request 'GET', 'http://www.oslonett.no/';
 
 =cut
 
@@ -82,6 +82,10 @@ If an argument is given the member variable is given that as its new
 value. If no argument is given the value is not touched. In either
 case the previous value is returned.
 
+The url() method accept both a reference to a URI::URL object and a
+string as its argument.  If a string is given, then it should be
+parseable as an absolute URL.
+
 =cut
 
 sub method  { shift->_elem('_method', @_); }
@@ -93,7 +97,7 @@ sub url
         if (ref $url) {
             $url = $url->abs;
         } else {
-            $url = new URI::URL($url);
+            $url = new URI::URL $url;
         }
     }
     $self->_elem('_url', $url);

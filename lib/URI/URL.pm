@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: URL.pm,v 2.9 1995/05/10 18:00:00 aas Exp $'
+# $Id: URL.pm,v 2.10 1995/07/12 13:37:57 aas Exp $'
 #
 package URI::URL;
 require 5.001;
@@ -283,15 +283,14 @@ Below you'll find some descriptions of methods and functions.
 
 
 use Carp;
-require Cwd;
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(uri_escape uri_unescape);
 
 # Make the version number available
-($Version) = '$Revision: 2.9 $' =~ /(\d+\.\d+)/;
-$Version += 0;  # shut up -w
+$Version = '$Revision: 2.10 $';
+($Version = $Version) =~ /(\d+\.\d+)/;
 
 # Define default unsafe characters.
 # Note that you cannot reliably change this at runtime
@@ -351,12 +350,12 @@ use strict qw(subs refs);
 
 =head2 new
 
-   $url = new URI::URL $escaped_string [, $optional_base_url]
+ $url = new URI::URL $escaped_string [, $optional_base_url]
 
 This is the object constructor.  To trap bad or unknown URL schemes
 use:
 
-   $obj = eval { new URI::URL ... };
+ $obj = eval { new URI::URL ... };
 
 or set C<URI::URL::strict(0)> if you don't care about bad or unknown
 schemes.
@@ -389,11 +388,11 @@ sub new
             $scheme = 'http';
         }
         my $impclass = URI::URL::implementor($scheme);
-	unless ($impclass) {
-	    croak "URI::URL scheme '$scheme' is not supported"
-		if $StrictSchemes;
-	    $impclass = URI::URL::implementor(); # use generic
-	}
+        unless ($impclass) {
+            croak "URI::URL scheme '$scheme' is not supported"
+                if $StrictSchemes;
+            $impclass = URI::URL::implementor(); # use generic
+        }
 
         # hand-off to scheme specific implementation sub-class
         $self = $impclass->new($init, $base);
@@ -413,7 +412,7 @@ sub clone
 
 =head2 newlocal
 
-   $url = newlocal URI::URL $path;
+ $url = newlocal URI::URL $path;
 
 Return a URL object that denotes a path on the local filesystem
 (current directory by default).  Paths not starting with '/' are
@@ -427,6 +426,7 @@ sub newlocal
     my $url = new URI::URL "file://localhost/";
         
     unless (defined $path and $path =~ m:^/:) {
+        require Cwd;
         my $cwd = Cwd::fastcwd();
         $cwd =~ s:/?$:/:; # force trailing slash on dir
         $path = (defined $path) ? $cwd . $path : $cwd;
@@ -438,7 +438,7 @@ sub newlocal
 
 =head2 print_on
 
-    $url->print_on(*FILEHANDLE);
+ $url->print_on(*FILEHANDLE);
 
 Prints a verbose presentation of the contents of the URL object to
 the specified file handle (default STDOUT).  Mainly useful for
@@ -470,9 +470,9 @@ sub strict
 
 =head2 URI::URL::implementor
 
-   URI::URL::implementor;
-   URI::URL::implementor($scheme);
-   URI::URL::implementor($scheme, $class);
+ URI::URL::implementor;
+ URI::URL::implementor($scheme);
+ URI::URL::implementor($scheme, $class);
 
 Get and/or set implementor class for a scheme.
 Returns '' if specified scheme is not supported.
@@ -486,25 +486,26 @@ sub implementor {
     $scheme = (defined $scheme) ? lc($scheme) : '_generic';
 
     if ($impclass) {
-	$impclass->_init_implementor($scheme);
-	$ImplementedBy{$scheme} = $impclass;
+        $impclass->_init_implementor($scheme);
+        $ImplementedBy{$scheme} = $impclass;
     }
     return $ic if $ic=$ImplementedBy{$scheme};
 
-    # scheme not yet known, look for internal implementation
-    $ic = "URI::URL::$scheme";	# default location
+    # scheme not yet known, look for internal or
+    # preloaded (with 'use') implementation
+    $ic = "URI::URL::$scheme";  # default location
     no strict qw(refs);
     # check we actually have one for the scheme:
     $ic = '' unless defined @{"${ic}::ISA"};
     if ($ic) {
-	$ic->_init_implementor;
-	$ImplementedBy{$scheme} = $ic;
+        $ic->_init_implementor;
+        $ImplementedBy{$scheme} = $ic;
     }
     $ic;
 }
 
 
-sub _init_implementor			# private method
+sub _init_implementor                   # private method
 {
     my($class) = @_;
     # Remember that one implementor class may actually
@@ -516,9 +517,9 @@ sub _init_implementor			# private method
     no strict qw(refs);
     # Setup overloading - experimental
     %{"${class}::OVERLOAD"} = %URI::URL::_generic::OVERLOAD
-	unless defined %{"${class}::OVERLOAD"};
+        unless defined %{"${class}::OVERLOAD"};
     $Implementors{$class} = 1;
-    1;	# success, one day we may also want to indicate failure
+    1;  # success, one day we may also want to indicate failure
 }
 
 
@@ -636,7 +637,7 @@ sub escape
 
 sub _esc_query {
     my($self, $text, @unsafe) = @_;
-    $text =~ s/ /+/g;	# RFC1630
+    $text =~ s/ /+/g;   # RFC1630
     my $text = $self->escape($text, @unsafe);
 }
 
@@ -698,7 +699,7 @@ package URI::URL::_generic;           # base support for generic-RL's
 
 use Carp;
 @ISA = qw(URI::URL);
-%OVERLOAD = ( '""'=>'as_string', 'fallback'=>1 );	# EXPERIMENTAL
+%OVERLOAD = ( '""'=>'as_string', 'fallback'=>1 );      # EXPERIMENTAL
 
 sub new {                               # inherited by subclasses
     my($class, $init, $base) = @_;
@@ -724,10 +725,10 @@ sub _parse {
     # 2.4.3
     $self->{netloc} = $self->unescape($1) if $u =~ s!^//([^/]*)!!;
     # 2.4.4
-    if ($u =~ s/\?(.*)//){	# '+' -> ' ' for queries (RFC1630)
-	my $query = $1;
-	$query =~ s/\+/ /g;
-	$self->{query}  = $self->unescape($query)
+    if ($u =~ s/\?(.*)//){      # '+' -> ' ' for queries (RFC1630)
+        my $query = $1;
+        $query =~ s/\+/ /g;
+        $self->{query}  = $self->unescape($query)
     }
     # 2.4.5
     $self->{params} = $self->unescape($1) if $u =~ s/;(.*)//;
@@ -790,7 +791,6 @@ sub as_string
     $self->{'_str'} = $urlstr;  # set cache
     return $urlstr;
 }
-
 
 # Generic-RL stringify full path (path+query+params+frag)
 #
@@ -901,7 +901,9 @@ sub abs
         }
     }
 
-    $embed->{path} = join('/', @newpath) . ($isdir ? '/' : '');
+    $embed->{path} = '/' . join('/', @newpath) . 
+        ($isdir && @newpath ? '/' : '');
+
     $embed;
 }
 
@@ -1100,7 +1102,7 @@ package URI::URL::tn3270;       @ISA = qw(URI::URL::_generic);
 
 package main;
 
-eval join('',<DATA>) || die "$@ $DATA" unless caller();
+eval join('',<DATA>) || die $@ unless caller();
 
 1;
 
@@ -1171,7 +1173,7 @@ sub scheme_parse_test {
         'hTTp://web1.net/a/b/c/welcome#intro'
         => {    'scheme'=>'http', 'host'=>'web1.net', 'port'=>undef,
                 'path'=>'/a/b/c/welcome', 'frag'=>'intro',
-		'query'=>undef,
+                'query'=>undef,
                 'as_string'=>'http://web1.net/a/b/c/welcome#intro' },
 
         'http://web:1/a?query+text'
@@ -1206,7 +1208,7 @@ sub scheme_parse_test {
         => {    'group'=>'comp.lang.perl' },
         'news:perl-faq/module-list-1-794455075@ig.co.uk'
         => {    'article'=>
-		    'perl-faq/module-list-1-794455075@ig.co.uk' },
+                    'perl-faq/module-list-1-794455075@ig.co.uk' },
 
         'nntp://news.com/comp.lang.perl/42'
         => {    'group'=>'comp.lang.perl', 'digits'=>42 },
@@ -1254,17 +1256,17 @@ sub parts_test {
     $url = new URI::URL 'file://web/orig/path';
     $url->scheme('http');
     $url->path('1info');
-    # $url->query('key+word');	was wrong, + is 'escaped' form
+    # $url->query('key+word');  was wrong, + is 'escaped' form
     $url->query('key words');
     $url->frag('this');
     $url->_expect('as_string', 'http://web/1info?key+words#this');
 
     &netloc_test;
     &port_test;
-		  
+                  
     $url->query(undef);
     $url->_expect('query', undef);
-    $url->print_on;
+#    $url->print_on;
 }
 
 #
@@ -1307,21 +1309,21 @@ sub port_test {
     die "Port undefined" unless defined $port;
     die "Wrong port $port" unless $port == 80;
     die "Wrong string" unless $url->as_string eq
-	'http://foo/root/dir/';
+        'http://foo/root/dir/';
 
     $url->port(8001);
     $port = $url->port;
     die "Port undefined" unless defined $port;
     die "Wrong port $port" unless $port == 8001;
     die "Wrong string" unless $url->as_string eq 
-	'http://foo:8001/root/dir/';
+        'http://foo:8001/root/dir/';
 
     $url->port(80);
     $port = $url->port;
     die "Port undefined" unless defined $port;
     die "Wrong port $port" unless $port == 80;
     die "Wrong string" unless $url->as_string eq 
-	'http://foo/root/dir/';
+        'http://foo/root/dir/';
 
     $url->port(8001);
     $url->port(undef);
@@ -1329,7 +1331,7 @@ sub port_test {
     die "Port undefined" unless defined $port;
     die "Wrong port $port" unless $port == 80;
     die "Wrong string" unless $url->as_string eq 
-	'http://foo/root/dir/';
+        'http://foo/root/dir/';
 }
 
 
@@ -1351,16 +1353,16 @@ sub escape_test {
     $url->path('this ALSO has spaces');
     # check whole url is escaped
     $url->_expect('as_string',
-		  'http://web/this%20ALSO%20has%20spaces');
+                  'http://web/this%20ALSO%20has%20spaces');
 
     # now make 'A' an unsafe character :-)
     $url->unsafe('A\x00-\x20"#%;<>?\x7F-\xFF');
     $url->_expect('as_string',
-		  'http://web/this%20%41LSO%20has%20spaces');
+                  'http://web/this%20%41LSO%20has%20spaces');
 
     $url = new URI::URL uri_escape('http://web/try %?#" those');
     $url->_expect('as_string', 
-		  'http://web/try%20%25%3F%23%22%20those');
+                  'http://web/try%20%25%3F%23%22%20those');
 
     my $all = pack('c*',0..255);
     my $esc = uri_escape($all);
@@ -1395,7 +1397,8 @@ sub escape_test {
 sub newlocal_test {
     print "newlocal_test:\n";
 
-    my $dir = Cwd::fastcwd();
+    my $dir =`/bin/pwd`;        # check Cwd gets require'd
+    chomp $dir;
 
     # cwd
     chdir('/tmp') or die $!;
@@ -1552,5 +1555,26 @@ EOM
         my $got = $u->abs;
         $got->_expect('as_string', $abs_str);
     }
+
+    # bug found & fixed in 1.9 by "J.E. Fritz" <FRITZ@gems.vcu.edu>
+
+    my $base = new URI::URL 'http://host/directory/file';
+    my $relative = new URI::URL 'file', $base;
+    my $result = $relative->abs;
+
+    my ($a, $b) = ($base->path, $result->path);
+        die "'$a' and '$b' should be the same" unless $a eq $b;
+
+    # Counter the expectation of least surprise,
+    # section 6 of the draft says the URL should
+    # be canonicalised, rather than making a simple
+    # substitution of the last component.
+    # Better doublecheck someone hasn't "fixed this bug" :-)
+
+    my $base = new URI::URL 'http://host/dir1/../dir2/file';
+    my $relative = new URI::URL 'file', $base;
+    my $result = $relative->abs;
+    die 'URL not canonicalised' unless $result eq 'http://host/dir2/file';
+
     print "absolute test ok\n";
 }

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.32 1997/08/05 14:24:21 aas Exp $
+# $Id: http.pm,v 1.33 1997/12/12 10:09:53 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -88,7 +88,16 @@ sub request
 
     # HTTP/1.1 will require us to send the 'Host' header, so we might
     # as well start now.
-    $request->header('Host', $url->netloc);
+    {
+	my $host = $url->netloc;
+	$host =~ s/^([^\@]*)\@//;  # get rid of potential "user:pass@"
+	$request->header('Host' => $host);
+
+	# add authorization header if we need them
+	if (defined($1) && not $request->header('Authorization')) {
+	    $request->authorization_basic($url->user, $url->password);
+	}
+    }
 
     $socket->write($request_line . $request->headers_as_string($endl) . $endl);
     if (defined $content) {

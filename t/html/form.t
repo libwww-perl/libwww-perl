@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 29;
+plan tests => 52;
 
 use HTML::Form;
 
@@ -221,3 +221,48 @@ EOT
 
 ok(join(":", $f->find_input("x")->value_names), "one:two:3");
 ok(join(":", map $_->name, $f->find_input(undef, "option")), "x:y");
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form>
+<input name=x value=1 disabled>
+<input name=y value=2 READONLY type=TEXT>
+<input name=z value=3 type=hidden>
+</form>
+EOT
+
+ok($f->value("x"), 1);
+ok($f->value("y"), 2);
+ok($f->value("z"), 3);
+ok($f->click->uri->query, "y=2&z=3");
+
+my $input = $f->find_input("x");
+ok($input->type, "text");
+ok(!$input->readonly);
+ok($input->disabled);
+ok($input->disabled(0));
+ok(!$input->disabled);
+ok($f->click->uri->query, "x=1&y=2&z=3");
+
+$input = $f->find_input("y");
+ok($input->type, "text");
+ok($input->readonly);
+ok(!$input->disabled);
+
+$input->value(22);
+ok($f->click->uri->query, "x=1&y=22&z=3");
+ok(@warn, 1);
+ok($warn[0] =~ /^Input 'y' is readonly/);
+@warn = ();
+
+ok($input->readonly(0));
+ok(!$input->readonly);
+
+$input->value(222);
+ok(@warn, 0);
+print @warn;
+ok($f->click->uri->query, "x=1&y=222&z=3");
+
+$input = $f->find_input("z");
+ok($input->type, "hidden");
+ok($input->readonly);
+ok(!$input->disabled);

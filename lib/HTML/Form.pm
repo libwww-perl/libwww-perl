@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.38 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Form.pm,v 1.39 2004/04/09 14:17:32 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -188,10 +188,11 @@ sub push_input
 	Carp::carp("Unknown input type '$type'") if $^W;
 	$class = "TextInput";
     }
-    $class = "IgnoreInput" if exists $attr->{disabled};
     $class = "HTML::Form::$class";
+    my @extra;
+    push(@extra, readonly => 1) if $type eq "hidden";
 
-    my $input = $class->new(type => $type, %$attr);
+    my $input = $class->new(type => $type, %$attr, @extra);
     $input->add_to_form($self);
 }
 
@@ -769,6 +770,41 @@ sub value_names {
     return
 }
 
+=item $bool = $input->readonly
+
+=item $input->readonly( $bool )
+
+This method is used to get/set the value of the readonly attribute.
+You are allowed to modify the value of readonly inputs, but setting
+the value will generate some noise when warnings are enabled.  Hidden
+fields always start out readonly.
+
+=cut
+
+sub readonly {
+    my $self = shift;
+    my $old = $self->{readonly};
+    $self->{readonly} = shift if @_;
+    $old;
+}
+
+=item $bool = $input->disabled
+
+=item $input->disabled( $bool )
+
+This method is used to get/set the value of the disabled attribute.
+Disabled inputs do not contribute any key/value pairs for the form
+value.
+
+=cut
+
+sub disabled {
+    my $self = shift;
+    my $old = $self->{disabled};
+    $self->{disabled} = shift if @_;
+    $old;
+}
+
 =item $input->form_name_value
 
 Returns a (possible empty) list of key/value pairs that should be
@@ -781,6 +817,7 @@ sub form_name_value
     my $self = shift;
     my $name = $self->{'name'};
     return unless defined $name;
+    return if $self->{disabled};
     my $value = $self->value;
     return unless defined $value;
     return ($name => $value);
@@ -833,9 +870,8 @@ sub value
     my $old = $self->{value};
     $old = "" unless defined $old;
     if (@_) {
-	if (exists($self->{readonly}) || $self->{type} eq "hidden") {
-	    Carp::carp("Input '$self->{name}' is readonly") if $^W;
-	}
+        Carp::carp("Input '$self->{name}' is readonly")
+	    if $^W && $self->{readonly};
 	$self->{value} = shift;
     }
     $old;
@@ -1068,6 +1104,7 @@ sub form_name_value
     return unless $clicked;
     my $name = $self->{name};
     return unless defined $name;
+    return if $self->{disabled};
     return ("$name.x" => $clicked->[0],
 	    "$name.y" => $clicked->[1]
 	   );
@@ -1154,6 +1191,7 @@ sub form_name_value {
 
     my $name = $self->name;
     return unless defined $name;
+    return if $self->{disabled};
 
     my $file = $self->file;
     my $filename = $self->filename;

@@ -55,7 +55,7 @@ handle the response returned.
 
   # check the outcome
   if ($res->is_success) {
-     print $res->content;
+     print $res->decoded_content;
   }
   else {
      print "Error: " . $res->status_line . "\n";
@@ -157,7 +157,7 @@ required header, with something like this:
  $req = HTTP::Request->new('GET',"http://www.perl.com");
 
  $res = $ua->request($req);
- print $res->content if $res->is_success;
+ print $res->decoded_content if $res->is_success;
 
 Replace C<proxy.myorg.com>, C<username> and
 C<password> with something suitable for your site.

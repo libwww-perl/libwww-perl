@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 84;
+plan tests => 88;
 
 require HTTP::Message;
 
@@ -321,3 +321,15 @@ $@ = "";
 skip($] < 5.008 ? "No Encode module" : "",
      sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
+
+$m->header("Content-Encoding", "foobar");
+ok($m->decoded_content, undef);
+ok($@ =~ /^Don't know how to decode Content-Encoding 'foobar'/);
+
+my $err = 0;
+eval {
+    $m->decoded_content(raise_error => 1);
+    $err++;
+};
+ok($@ =~ /Don't know how to decode Content-Encoding 'foobar'/);
+ok($err, 0);

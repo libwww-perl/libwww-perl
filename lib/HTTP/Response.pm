@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.49 2004/04/09 20:30:41 gisle Exp $
+# $Id: Response.pm,v 1.50 2004/11/30 12:00:22 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.49 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -302,9 +302,14 @@ headers.
 
 =item $r->content( $content )
 
-This is used to get/set the content and it is inherited from the
+This is used to get/set the raw content and it is inherited from the
 C<HTTP::Message> base class.  See L<HTTP::Message> for details and
 other methods that can be used to access the content.
+
+=item $r->decoded_content( %options )
+
+This will return the content after any C<Content-Encoding> and
+charsets has been decoded.  See L<HTTP::Message> for details.
 
 =item $r->request
 

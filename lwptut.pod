@@ -111,7 +111,7 @@ illustrated:
 
   # Otherwise, process the content somehow:
   
-  if($response->content =~ m/jazz/i) {
+  if($response->decoded_content =~ m/jazz/i) {
     print "They're talking about jazz today on Fresh Air!\n";
   }
   else {
@@ -147,9 +147,9 @@ C<< $response->content_type >>
 
 =item *
 
-The actual content of the response, in C<< $response->content >>.
+The actual content of the response, in C<< $response->decoded_content >>.
 If the response is HTML, that's where the HTML source will be; if
-it's a GIF, then C<< $response->content >> will be the binary
+it's a GIF, then C<< $response->decoded_content >> will be the binary
 GIF data.
 
 =item *
@@ -311,7 +311,7 @@ the HTML the report of the number of matches:
   die "Weird content type at $url -- ", $response->content_type
    unless $response->content_type eq 'text/html';
 
-  if( $response->content =~ m{AltaVista found ([0-9,]+) results} ) {
+  if( $response->decoded_content =~ m{AltaVista found ([0-9,]+) results} ) {
     # The substring will be like "AltaVista found 2,345 results"
     print "$word: $1\n";
   }
@@ -384,7 +384,7 @@ list of new modules in CPAN:
   die "Can't get $url -- ", $response->status_line
    unless $response->is_success;
   
-  my $html = $response->content;
+  my $html = $response->decoded_content;
   while( $html =~ m/<A HREF=\"(.*?)\"/g ) {
     print "$1\n";
   }

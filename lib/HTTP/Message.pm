@@ -1,10 +1,10 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.51 2004/11/30 11:37:26 gisle Exp $
+# $Id: Message.pm,v 1.52 2004/11/30 12:00:22 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
@@ -159,64 +159,71 @@ sub content_ref
 sub decoded_content
 {
     my($self, %opt) = @_;
+    my $content_ref;
 
-    require HTTP::Headers::Util;
-    my($ct, %ct_param);
-    if (my @ct = HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
-	($ct, undef, %ct_param) = @{$ct[-1]};
-	$ct = lc($ct);
+    eval {
 
-	Carp::croak("Can't decode multipart content")
-	    if $ct =~ m,^multipart/,;
-    }
+	require HTTP::Headers::Util;
+	my($ct, %ct_param);
+	if (my @ct = HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
+	    ($ct, undef, %ct_param) = @{$ct[-1]};
+	    $ct = lc($ct);
 
-    my $content_ref = $self->content_ref;
-    Carp::croak("Can't decode ref content") if ref($content_ref) ne "SCALAR";
+	    die "Can't decode multipart content" if $ct =~ m,^multipart/,;
+	}
 
-    if (my $h = $self->header("Content-Encoding")) {
-	$h =~ s/^\s+//;
-	$h =~ s/\s+$//;
-	for my $ce (reverse split(/\s*,\s*/, lc($h))) {
-	    next unless $ce || $ce eq "identity";
-	    if ($ce eq "gzip" || $ce eq "x-gzip") {
-		require Compress::Zlib;
-		$content_ref = \Compress::Zlib::memGunzip($$content_ref);
-		Carp::croak("Can't gunzip content") unless defined $$content_ref;
-	    }
-	    elsif ($ce eq "x-bzip2") {
-		require Compress::Bzip2;
-		$content_ref = Compress::Bzip2::decompress($$content_ref);
-		Carp::croak("Can't bunzip content") unless defined $$content_ref;
-	    }
-	    elsif ($ce eq "deflate") {
-		require Compress::Zlib;
-		$content_ref = \Compress::Zlib::uncompress($$content_ref);
-		Carp::croak("Can't inflate content") unless defined $$content_ref;
-	    }
-	    elsif ($ce eq "compress" || $ce eq "x-compress") {
-		Carp::croak("Can't uncompress content");
-	    }
-	    elsif ($ce eq "base64") {  # not really C-T-E, but should be harmless
-		require MIME::Base64;
-		$content_ref = \MIME::Base64::decode($$content_ref);
-	    }
-	    elsif ($ce eq "quoted-printable") { # not really C-T-E, but should be harmless
-		require MIME::QuotedPrint;
-		$content_ref = \MIME::QuotedPrint::decode($$content_ref);
-	    }
-	    else {
-		Carp::croak("Don't know how to decode Content-Encoding '$ce'");
+	$content_ref = $self->content_ref;
+	die "Can't decode ref content" if ref($content_ref) ne "SCALAR";
+
+	if (my $h = $self->header("Content-Encoding")) {
+	    $h =~ s/^\s+//;
+	    $h =~ s/\s+$//;
+	    for my $ce (reverse split(/\s*,\s*/, lc($h))) {
+		next unless $ce || $ce eq "identity";
+		if ($ce eq "gzip" || $ce eq "x-gzip") {
+		    require Compress::Zlib;
+		    $content_ref = \Compress::Zlib::memGunzip($$content_ref);
+		    die "Can't gunzip content" unless defined $$content_ref;
+		}
+		elsif ($ce eq "x-bzip2") {
+		    require Compress::Bzip2;
+		    $content_ref = Compress::Bzip2::decompress($$content_ref);
+		    die "Can't bunzip content" unless defined $$content_ref;
+		}
+		elsif ($ce eq "deflate") {
+		    require Compress::Zlib;
+		    $content_ref = \Compress::Zlib::uncompress($$content_ref);
+		    die "Can't inflate content" unless defined $$content_ref;
+		}
+		elsif ($ce eq "compress" || $ce eq "x-compress") {
+		    die "Can't uncompress content";
+		}
+		elsif ($ce eq "base64") {  # not really C-T-E, but should be harmless
+		    require MIME::Base64;
+		    $content_ref = \MIME::Base64::decode($$content_ref);
+		}
+		elsif ($ce eq "quoted-printable") { # not really C-T-E, but should be harmless
+		    require MIME::QuotedPrint;
+		    $content_ref = \MIME::QuotedPrint::decode($$content_ref);
+		}
+		else {
+		    die "Don't know how to decode Content-Encoding '$ce'";
+		}
 	    }
 	}
-    }
 
-    if ($ct && $ct =~ m,^text/,,) {
-	my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || "ISO-8859-1";
-	$charset = lc($charset);
-	if ($charset ne "none") {
-	    require Encode;
-	    $content_ref = \Encode::decode($charset, $$content_ref, Encode::FB_CROAK());
+	if ($ct && $ct =~ m,^text/,,) {
+	    my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || "ISO-8859-1";
+	    $charset = lc($charset);
+	    if ($charset ne "none") {
+		require Encode;
+		$content_ref = \Encode::decode($charset, $$content_ref, Encode::FB_CROAK());
+	    }
 	}
+    };
+    if ($@) {
+	Carp::croak($@) if $opt{raise_error};
+	return undef;
     }
 
     return $opt{ref} ? $content_ref : $$content_ref;
@@ -536,6 +543,13 @@ C<none> can used to suppress decoding of the charset.
 =item C<default_charset>
 
 This override the default charset of "ISO-8859-1".
+
+=item C<raise_error>
+
+If TRUE then raise an exception if not able to decode content.  Reason
+might be that the specified C<Content-Encoding> or C<charset> is not
+supported.  If this option is FALSE, then decode_content() will return
+C<undef> on errors, but will still set $@.
 
 =item C<ref>
 

@@ -1,6 +1,6 @@
 use HTTP::Date;
 
-print "1..51\n";
+print "1..59\n";
 
 $no = 1;
 $| = 1;
@@ -116,6 +116,35 @@ for ('03-Feb-1969', '03-Feb-2039',
     ok;
 }
 
+print "Testing AM/PM gruff...\n";
+
+$t = time2iso(str2time("11-12-96  0:00AM"));print "$t\n";
+ok($t ne "1996-11-12 00:00:00");
+
+$t = time2iso(str2time("11-12-96 12:00AM"));print "$t\n";
+ok($t ne "1996-11-12 00:00:00");
+
+$t = time2iso(str2time("11-12-96  0:00PM"));print "$t\n";
+ok($t ne "1996-11-12 12:00:00");
+
+$t = time2iso(str2time("11-12-96 12:00PM"));print "$t\n";
+ok($t ne "1996-11-12 12:00:00");
+
+
+$t = time2iso(str2time("11-12-96  1:05AM"));print "$t\n";
+ok($t ne "1996-11-12 01:05:00");
+
+$t = time2iso(str2time("11-12-96 12:05AM"));print "$t\n";
+ok($t ne "1996-11-12 00:05:00");
+
+$t = time2iso(str2time("11-12-96  1:05PM"));print "$t\n";
+ok($t ne "1996-11-12 13:05:00");
+
+$t = time2iso(str2time("11-12-96 12:05PM"));print "$t\n";
+ok($t ne "1996-11-12 12:05:00");
+
+
+
 # Test the str2iso routines
 use HTTP::Date qw(time2iso time2isoz);
 
@@ -130,6 +159,7 @@ print "GMT   $az $bz\n";
 
 for ($a,  $b)  { ok if /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/;  }
 for ($az, $bz) { ok if /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ$/; }
+
 
 
 print "HTTP::Date $HTTP::Date::VERSION tested ok\n";

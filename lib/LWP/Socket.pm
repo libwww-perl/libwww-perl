@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.23 1997/12/02 13:22:53 aas Exp $
+# $Id: Socket.pm,v 1.24 1998/01/26 11:12:01 aas Exp $
 
 package LWP::Socket;
 
@@ -20,6 +20,7 @@ LWP::Socket - TCP/IP socket interface
 
 B<Beware:> New code should not use this module.  The IO::Socket::INET
 module provide the standard Perl interface to OO Internet sockets.
+Even LWP is now rewritten to use IO::Socket::INET throughout.
 
 This class implements TCP/IP sockets.  It groups socket generation,
 TCP address manipulation and buffered reading. Errors are handled by
@@ -35,7 +36,7 @@ The following methods are available:
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use Socket qw(pack_sockaddr_in unpack_sockaddr_in

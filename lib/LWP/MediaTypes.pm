@@ -1,32 +1,20 @@
 #
-# $Id: MediaTypes.pm,v 1.7 1995/08/21 13:25:00 aas Exp $
+# $Id: MediaTypes.pm,v 1.8 1995/08/21 13:54:44 aas Exp $
 
 package LWP::MediaTypes;
 
 =head1 NAME
 
-LWP::MediaTypes - Library for media types
+guessMediaType - guess media type for a file or an URL.
+
+mediaSuffix - returns file extentions for a media type
 
 =head1 DESCRIPTION
 
-This module is supposed to handle mailcap files so that we are able to
-determine media (also known as MIME) types for files and URLs.
-
-Currently all behaviour is hard coded into this module.
-
-=head1 TO DO
-
-=over 3 
-
-=item * 
-
-Read mailcap
-
-=item *
-
-Read types from server config files.
-
-=back
+This module provides functions for handling of media (also known as
+MIME) types and encodings.  The mapping from file extentions to media
+types is defined by the F<mime.types> file.  If the F<~/.mime.types>
+file exist it is used as a replacement.
 
 =cut
 
@@ -53,7 +41,8 @@ my %suffixEncoding = (
 
 
 # Try to locate "mime.types" file, and initialize %suffixType from it
-for $typefile ("$ENV{HOME}/.mime.types", map {"$_/LWP/mime.types"} @INC) {
+for $typefile ("$ENV{HOME}/.mime.types",
+	       map {"$_/LWP/mime.types"} @INC) {
     if (open(TYPE, "$typefile")) {
 	%suffixType = ();  # forget default types
 	while (<TYPE>) {
@@ -151,7 +140,7 @@ sub guessMediaType
 
   mediaSuffix('image/*')
 
-This function will return all suffixes that are used to denote the
+This function will return all suffixes that can be used to denote the
 specified media type.  Wildcard types can be used.
 
 =cut

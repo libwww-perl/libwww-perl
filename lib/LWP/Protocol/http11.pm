@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.17 2001/05/02 04:40:41 gisle Exp $
+# $Id: http11.pm,v 1.18 2001/05/02 05:12:48 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -72,7 +72,7 @@ sub _new_socket
 					  Proto    => 'tcp',
 					  Timeout  => $timeout,
 					  KeepAlive => !!$conn_cache,
-					  SendTE    => 0,
+					  SendTE    => 1,
 					  $self->_extra_sock_opts($host, $port),
 					 );
     # Enabling of SendTE breaks www.google.com's persistent connection.

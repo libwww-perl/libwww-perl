@@ -21,7 +21,6 @@ lib/HTTP/Headers/Auth.pm	Some methods that deal with authorization.
 lib/HTTP/Headers/ETag.pm	Some methods that deal with entity tags
 lib/HTTP/Headers/Util.pm        Some utility functions for header values.
 lib/HTTP/Message.pm		Class encapsulating HTTP messages
-lib/HTTP/MessageParts.pm	Additional HTTP::Message methods
 lib/HTTP/Negotiate.pm		Evaluate HTTP content negotiation algoritm
 lib/HTTP/Request.pm		Class encapsulating HTTP Requests
 lib/HTTP/Request/Common.pm      Generate common requests

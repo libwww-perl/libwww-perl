@@ -4,7 +4,7 @@ use strict;
 use Test qw(plan ok);
 plan tests => 39;
 
-use HTTP::MessageParts;
+use HTTP::Message;
 use HTTP::Request::Common qw(POST);
 
 my $m = HTTP::Message->new;

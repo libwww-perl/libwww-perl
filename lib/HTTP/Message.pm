@@ -1,14 +1,15 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.37 2004/04/07 08:28:44 gisle Exp $
+# $Id: Message.pm,v 1.38 2004/04/07 09:34:23 gisle Exp $
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 require HTTP::Headers;
 require Carp;
 
+my $CRLF = "\015\012";   # "\r\n" is not portable
 $HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
 eval "require $HTTP::URI_CLASS"; die $@ if $@;
 
@@ -19,17 +20,46 @@ sub new
     my($class, $header, $content) = @_;
     if (defined $header) {
 	Carp::croak("Bad header argument") unless ref $header;
-        $header = HTTP::Headers->new(@$header) if ref($header) eq "ARRAY";
-	$header = $header->clone;
+        if (ref($header) eq "ARRAY") {
+	    $header = HTTP::Headers->new(@$header);
+	}
+	else {
+	    $header = $header->clone;
+	}
     }
     else {
 	$header = HTTP::Headers->new;
     }
     $content = '' unless defined $content;
+
     bless {
 	'_headers' => $header,
 	'_content' => $content,
     }, $class;
+}
+
+
+sub parse
+{
+    my($class, $str) = @_;
+
+    my @hdr;
+    while (1) {
+	if ($str =~ s/^([^ \t:]+)[ \t]*: ?(.*)\n?//) {
+	    push(@hdr, $1, $2);
+	    $hdr[-1] =~ s/\r\z//;
+	}
+	elsif (@hdr && $str =~ s/^([ \t].*)\n?//) {
+	    $hdr[-1] .= "\n$1";
+	    $hdr[-1] =~ s/\r\z//;
+	}
+	else {
+	    $str =~ s/^\r?\n//;
+	    last;
+	}
+    }
+
+    new($class, \@hdr, $str);
 }
 
 
@@ -112,6 +142,48 @@ sub headers            { shift->{'_headers'};                }
 sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
 
 
+sub parts {
+    my $self = shift;
+    if (defined(wantarray) && !exists $self->{_parts}) {
+	$self->_parts;
+    }
+    my $old = $self->{_parts};
+    if (@_) {
+	my @parts = map { ref($_) eq 'ARRAY' ? @$_ : $_ } @_;
+	my $ct = $self->content_type || "";
+	if ($ct =~ m,^message/,) {
+	    Carp::croak("Only one part allowed for $ct content")
+		if @parts > 1;
+	}
+	elsif ($ct !~ m,^multipart/,) {
+	    $self->remove_content_headers;
+	    $self->content_type("multipart/mixed");
+	}
+	$self->{_parts} = \@parts;
+	delete $self->{_content};
+    }
+    return @$old if wantarray;
+    return $old->[0];
+}
+
+sub add_part {
+    my $self = shift;
+    if (($self->content_type || "") !~ m,^multipart/,) {
+	my $p = HTTP::Message->new($self->remove_content_headers,
+				   $self->content(""));
+	$self->content_type("multipart/mixed");
+	$self->{_parts} = [$p];
+    }
+    elsif (!exists $self->{_parts}) {
+	$self->_parts;
+    }
+
+    push(@{$self->{_parts}}, @_);
+    delete $self->{_content};
+    return;
+}
+
+
 # delegate all other method calls the the _headers object.
 sub AUTOLOAD
 {
@@ -134,6 +206,105 @@ sub _elem
     my $old = $self->{$elem};
     $self->{$elem} = $_[0] if @_;
     return $old;
+}
+
+
+# Create private _parts attribute from current _content
+sub _parts {
+    my $self = shift;
+    my $ct = $self->content_type;
+    if ($ct =~ m,^multipart/,) {
+	require HTTP::Headers::Util;
+	my @h = HTTP::Headers::Util::split_header_words($self->header("Content-Type"));
+	die "Assert" unless @h;
+	my %h = @{$h[0]};
+	if (defined(my $b = $h{boundary})) {
+	    my $str = $self->{_content};
+	    $str =~ s/\r?\n--\Q$b\E--\r?\n.*//s;
+	    if ($str =~ s/(^|.*?\r?\n)--\Q$b\E\r?\n//s) {
+		$self->{_parts} = [map HTTP::Message->parse($_),
+				   split(/\r?\n--\Q$b\E\r?\n/, $str)]
+	    }
+	}
+    }
+    elsif ($ct eq "message/http") {
+	require HTTP::Request;
+	require HTTP::Response;
+	my $class = ($self->{_content} =~ m,^(HTTP/.*)\n,) ?
+	    "HTTP::Response" : "HTTP::Request";
+	$self->{_parts} = [$class->parse($self->{_content})];
+    }
+    elsif ($ct =~ m,^message/,) {
+	$self->{_parts} = [ HTTP::Message->parse($self->{_content}) ];
+    }
+
+    $self->{_parts} ||= [];
+}
+
+
+# Create private _content attribute from current _parts
+sub _content {
+    my $self = shift;
+    my $ct = $self->header("Content-Type") || "multipart/mixed";
+    if ($ct =~ m,^\s*message/,i) {
+	$self->{_content} = $self->{_parts}[0]->as_string($CRLF);
+	return;
+    }
+
+    require HTTP::Headers::Util;
+    my @v = HTTP::Headers::Util::split_header_words($ct);
+    Carp::carp("Multiple Content-Type headers") if @v > 1;
+    @v = @{$v[0]};
+
+    my $boundary;
+    my $boundary_index;
+    for (my @tmp = @v; @tmp;) {
+	my($k, $v) = splice(@tmp, 0, 2);
+	if (lc($k) eq "boundary") {
+	    $boundary = $v;
+	    $boundary_index = @v - @tmp - 1;
+	    last;
+	}
+    }
+
+    my @parts = map $_->as_string($CRLF), @{$self->{_parts}};
+
+    my $bno = 0;
+    $boundary = _boundary() unless defined $boundary;
+ CHECK_BOUNDARY:
+    {
+	for (@parts) {
+	    if (index($_, $boundary) >= 0) {
+		# must have a better boundary
+		$boundary = _boundary(++$bno);
+		redo CHECK_BOUNDARY;
+	    }
+	}
+    }
+
+    if ($boundary_index) {
+	$v[$boundary_index] = $boundary;
+    }
+    else {
+	push(@v, boundary => $boundary);
+    }
+
+    $ct = HTTP::Headers::Util::join_header_words(@v);
+    $self->header("Content-Type", $ct);
+
+    $self->{_content} = "--$boundary$CRLF" .
+	                join("$CRLF--$boundary$CRLF", @parts) .
+			"$CRLF--$boundary--$CRLF";
+}
+
+
+sub _boundary
+{
+    my $size = shift || return "xYzZY";
+    require MIME::Base64;
+    my $b = MIME::Base64::encode(join("", map chr(rand(256)), 1..$size*3), "");
+    $b =~ s/[\W]/X/g;  # ensure alnum only
+    $b;
 }
 
 
@@ -169,6 +340,10 @@ construct C<HTTP::Request> and C<HTTP::Response> objects instead.
 The optional $header argument should be a reference to an
 C<HTTP::Headers> object or a plain array reference of key/value pairs.
 The optional $content argument should be a string of bytes.
+
+=item $mess = HTTP::Message->parse( $str )
+
+This constructs a new message object by parsing the given string.
 
 =item $mess->content
 

@@ -1,10 +1,10 @@
 package HTTP::Request;
 
-# $Id: Request.pm,v 1.38 2004/04/07 08:28:45 gisle Exp $
+# $Id: Request.pm,v 1.39 2004/04/07 09:34:24 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 
@@ -16,6 +16,27 @@ sub new
     my $self = $class->SUPER::new($header, $content);
     $self->method($method);
     $self->uri($uri);
+    $self;
+}
+
+
+sub parse
+{
+    my($class, $str) = @_;
+    my $request_line;
+    if ($str =~ s/^(.*)\n//) {
+	$request_line = $1;
+    }
+    else {
+	$request_line = $str;
+	$str = "";
+    }
+
+    my $self = $class->SUPER::parse($str);
+    my($method, $uri, $protocol) = split(' ', $request_line);
+    $self->method($method) if defined($method);
+    $self->uri($uri) if defined($uri);
+    $self->protocol($protocol) if $protocol;
     $self;
 }
 

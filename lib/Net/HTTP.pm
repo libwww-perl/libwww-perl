@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.34 2001/08/28 03:03:42 gisle Exp $
+# $Id: HTTP.pm,v 1.35 2001/08/28 04:08:33 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -35,7 +35,7 @@ sub configure {
     $peer_http_version = "1.0" unless defined $peer_http_version;
     my $send_te = delete $cnf->{SendTE};
 
-    my $sock = $self->SUPER::configure($cnf);
+    my $sock = $self->_http_socket_configure($cnf);
     if ($sock) {
 	unless ($host =~ /:/) {
 	    my $p = $sock->peerport;
@@ -50,6 +50,11 @@ sub configure {
 	${*$self}{'http_buf'} = "";
     }
     return $sock;
+}
+
+sub _http_socket_configure {
+    my $self = shift;
+    $self->SUPER::configure(@_);
 }
 
 sub host {

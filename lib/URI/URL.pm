@@ -1,5 +1,5 @@
 #
-# $Id: URL.pm,v 3.6 1995/08/09 22:36:18 aas Exp $
+# $Id: URL.pm,v 3.7 1995/08/12 12:55:46 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
@@ -749,7 +749,12 @@ sub netloc {
     }
     if ($nl =~ s/^([^:]*):?(\d*)//){
         $self->{'host'} = $1;
-        $self->{'port'} = $2 if $2 ne '';
+	if ($2 ne '') {
+	    $self->{'port'} = $2;
+	    if ($2 == $self->default_port) {
+		$self->{'netloc'} =~ s/:\d+//;
+	    }
+	}
     }
     $old;
 }

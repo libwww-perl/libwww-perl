@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.29 2001/05/02 04:40:41 gisle Exp $
+# $Id: HTTP.pm,v 1.30 2001/05/02 05:11:02 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -164,7 +164,7 @@ sub format_request {
 	    if ($peer_ver eq "1.0") {
 		# from looking at Netscape's headers
 		push(@h2, "Keep-Alive: 300");
-		push(@connection, "Keep-Alive");
+		unshift(@connection, "Keep-Alive");
 	    }
 	}
 	else {
@@ -172,7 +172,7 @@ sub format_request {
 	}
     }
     push(@h2, "Connection: " . join(", ", @connection)) if @connection;
-    push(@h2, "Host: ${*$self}{'http_host'}")unless $given{host};
+    push(@h2, "Host: ${*$self}{'http_host'}") unless $given{host};
 
     return join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content);
 }
@@ -183,19 +183,30 @@ sub write_request {
     print $self $self->format_request(@_);
 }
 
+sub format_chunk {
+    my $self = shift;
+    return $_[0] unless defined($_[0]) && length($_[0]);
+    return hex(length($_[0])) . $CRLF . $_[0] . $CRLF;
+}
+
 sub write_chunk {
     my $self = shift;
-    return unless defined($_[0]) && length($_[0]);
+    return 1 unless defined($_[0]) && length($_[0]);
     print $self hex(length($_[0])), $CRLF, $_[0], $CRLF;
 }
 
-sub write_chunk_eof {
+sub format_chunk_eof {
     my $self = shift;
     my @h;
     while (@_) {
 	push(@h, sprintf "%s: %s$CRLF", splice(@_, 0, 2));
     }
-    print $self "0$CRLF", @h, $CRLF;
+    return join("", "0$CRLF", @h, $CRLF);
+}
+
+sub write_chunk_eof {
+    my $self = shift;
+    print $self $self->format_chunk_eof(@_);
 }
 
 sub xread {
@@ -301,7 +312,7 @@ sub read_response_headers {
 	    $content_length = $headers[$i+1];
 	}
     }
-    ${*$self}{'http_te'} = join("", @te);
+    ${*$self}{'http_te'} = join(",", @te);
     ${*$self}{'http_content_length'} = $content_length;
     ${*$self}{'http_first_body'}++;
     delete ${*$self}{'http_trailers'};
@@ -329,7 +340,8 @@ sub read_entity_body {
 	}
 	elsif (my $te = ${*$self}{'http_te'}) {
 	    my @te = split(/\s*,\s*/, $te);
-	    die "Chunked must be last Transfer-Encoding '$te'" unless pop(@te) eq "chunked";
+	    die "Chunked must be last Transfer-Encoding '$te'"
+		unless pop(@te) eq "chunked";
 
 	    for (@te) {
 		if ($_ eq "deflate" && $zlib_ok) {
@@ -437,6 +449,7 @@ sub read_entity_body {
 	my $n = $bytes;
 	$n = $size if $size && $size < $n;
 	$n = my_read($self, $$buf_ref, $n);
+	return undef unless defined $n;
 	${*$self}{'http_bytes'} = $bytes - $n;
 	return $n;
     }
@@ -564,6 +577,10 @@ body data.
 
 Returns true if successful.
 
+=item $s->format_chunk($data)
+
+Returns the string to be written for the given chunk of data.
+
 =item $s->write_chunk_eof(%trailers)
 
 Will write eof marker for chunked data and optional trailers.  Note
@@ -571,6 +588,10 @@ that trailers should not really be used unless is was signaled
 with a C<Trailer> header.
 
 Returns true if successful.
+
+=item $s->format_chunk_eof(%trailers)
+
+Returns the string to be written for signaling EOF.
 
 =item ($code, $mess, %headers) = $s->read_response_headers
 

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.5 1995/07/14 00:13:52 aas Exp $
+# $Id: Base64.pm,v 1.6 1995/07/15 07:37:34 aas Exp $
 
 
 package LWP::Base64;
@@ -40,18 +40,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 =head1 BUGS
 
-Did not someone else write one of these?
+Did someone else not write one of these?
 
-This is basically C code; can clever use of pack/unpack not
-reduce this code?
+This is basically C-style code; Perl's pack/unpack using uuencode
+could be cleverly applied, but advantages of either aproach have
+not yet been evaluated.
 
-No performance analysis done on this at all. The index in 
-Base64decodeAux might be faster with a hash table or 
-indexable array.
+No performance analysis done on this at all. The index in
+Base64decodeAux might be faster with a hash table or indexable array.
 
 Does not honour the "The output stream (encoded bytes) must be
 represented in lines of no more than 76 characters each" yet,
-as I am not at all sure what WWW servers expect...
+as I am not at all sure that is what WWW servers expect...
 
 =head1 FUNCTIONS
 
@@ -62,7 +62,7 @@ require Exporter;
 @EXPORT_OK = qw(Base64encode Base64decode);
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);

@@ -2,6 +2,9 @@
 
     Release 5.53
 
+    LWP::Simple::get() could sometimes return nothing on failure in
+    list context.  Now it always returns 'undef'.
+
     HTTP::Cookies does not request 2 dots on domain names any more.
     New option to hide the Cookie2 header.  Cookie2 header now quote
     the version number. Updated reference to RFC 2965.

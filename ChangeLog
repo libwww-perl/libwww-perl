@@ -1,3 +1,18 @@
+1999-11-16   Gisle Aas <gisle@aas.no>
+
+ o  Release 5.47
+
+ o  Added HTML::Form to the distribution.
+
+ o  LWP::Protocol::ftp: Make it URI.pm compatible.  We broke it in 5.45.
+
+ o  LWP::Protocol::http: Kill any Connection header
+
+ o  LWP::MediaTypes: Fixed builtin html/text mapping.
+    Added bz2 to suffixEncoding
+
+
+
 1999-10-28   Gisle Aas <gisle@aas.no>
 
  o  Release 5.46

@@ -1,3 +1,25 @@
+Sat Apr  5 1997   Gisle Aas <aas@sn.no>
+
+ o  Release 5.08
+
+ o  Made libwww-perl warning compatible with upcoming perl5.004beta2
+    (aka 5.003_98)
+
+ o  encode_base64() did not work properly if pos() of the string to
+    encode was different from 0.
+
+ o  HTML::Parser was confused about "</" when it did not start an end tag.
+
+ o  HTML::FormatPS will provide ISOLatin1Encoding in its output.
+
+ o  Calling HTML::LinkExtor->links will clear out old links.
+
+ o  url()->rel($base) would ignore the $base argument.
+
+ o  Don't croak() when setting url()->path().
+
+
+
 Tue Feb 11 1997   Gisle Aas <aas@sn.no>
 
  o  Release 5.07

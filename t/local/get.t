@@ -7,7 +7,7 @@ print "1..2\n";
 use LWP::Simple;
 require LWP::Protocol::file;
 
-my $orig = '/etc/motd';            # local file 
+my $orig = '/etc/passwd';          # local file 
 my $copy = "/usr/tmp/lwp-test-$$"; # downloaded copy
 
 # First we make a test using getprint(), so we need to capture stdout

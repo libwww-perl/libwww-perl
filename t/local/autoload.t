@@ -5,9 +5,9 @@
 print "1..1\n";
 
 require LWP::UserAgent;
-# note no LWP::Protocol::http;
+# note no LWP::Protocol::file;
 
-$url = 'http://localhost/';
+$url = 'file://localhost/';
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 

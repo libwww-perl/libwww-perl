@@ -42,28 +42,6 @@ lib/LWP/RobotUA.pm		Easy creation of conforming robots
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lib/LWP/media.types		Mapping from file extentions media types
-lib/URI/Escape.pm		General URI escaping functions
-lib/URI/Heuristic.pm            User friendly URLs
-lib/URI/URL.pm			Class encapsulating URLs
-lib/URI/URL/_generic.pm		Implements generic hierarchical RL (RFC 1808)
-lib/URI/URL/_login.pm		Base class for telnet, tn3270 and rlogin
-lib/URI/URL/data.pm             Implements data URLs
-lib/URI/URL/file.pm		Implements file URLs
-lib/URI/URL/finger.pm		Implements finger URLs
-lib/URI/URL/ftp.pm		Implements ftp URLs
-lib/URI/URL/gopher.pm		Implements gopher URLs
-lib/URI/URL/http.pm		Implements http URLs
-lib/URI/URL/https.pm		Implements https URLs
-lib/URI/URL/mailto.pm		Implements mailto URLs
-lib/URI/URL/news.pm		Implements news URLs
-lib/URI/URL/nntp.pm		Implements nntp URLs
-lib/URI/URL/prospero.pm		Implements prospero URLs
-lib/URI/URL/rlogin.pm		Implements rlogin URLs
-lib/URI/URL/telnet.pm		Implements telnet URLs
-lib/URI/URL/tn3270.pm		Implements tn3270 URLs
-lib/URI/URL/wais.pm		Implements wais URLs
-lib/URI/URL/webster.pm		Implements webster URLs
-lib/URI/URL/whois.pm		Implements whois URLs
 lib/WWW/RobotRules.pm		Parse robot.txt files
 lib/WWW/RobotRules/AnyDBM_File.pm	Persistent robot rules
 t/README			How to run and set up tests

@@ -1,6 +1,6 @@
 # This -*-perl -*- module implements a persistent counter class.
 #
-# $Id: CounterFile.pm,v 0.5 1995/07/14 09:25:13 aas Exp $
+# $Id: CounterFile.pm,v 0.6 1995/07/14 14:24:21 aas Exp $
 #
 
 package File::CounterFile;
@@ -39,8 +39,10 @@ If you pass a second parameter to the constructor, that sets the
 initial value for a new counter.  This parameter only takes effect
 when the file is created (i.e. it does not exist before the call).
 
-Each time you call the C<inc()> method, you increment the counter
-value.  The new value is returned.
+When you call the C<inc()> method, you increment the counter value by
+one. When you call C<dec()> the counter value is decrementd.  In both
+cases the new value is returned.  The C<dec()> method only works for
+numerical counters (digits only).
 
 You can peek at the value of the counter (without incrementing it) by
 using the C<value()> method.
@@ -53,8 +55,8 @@ the C<locked()> method.
 
 There is also an operator overloading interface to the
 File::CounterFile object.  This means that you might use the C<++>
-operator for incrementing the counter and you can interpolate counters
-diretly into strings.
+operator for incrementing the counter, C<--> operator for decrementing
+and you can interpolate counters diretly into strings.
 
 =head1 BUGS
 
@@ -83,7 +85,7 @@ Gisle Aas <aas@oslonett.no>
 use Carp;
 
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 0.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 0.6 $ =~ /(\d+)\.(\d+)/);
 
 $MAGIC           = "#COUNTER-1.0\n";   # first line in counter files
 $DEFAULT_INITIAL = 0;                  # default initial counter value
@@ -93,6 +95,7 @@ $DEFAULT_DIR     = $ENV{TMPDIR} || "/usr/tmp";
 
 # Experimental overloading.
 %OVERLOAD = ('++'     => \&inc,
+	     '--'     => \&dec,
  	     '""'     => \&value,
 	     fallback => 1,
 );
@@ -199,6 +202,27 @@ sub inc
 }
 
 
+sub dec
+{
+    my($self) = @_;
+
+    if ($self->locked) {
+	croak "Autodecrement is not magical in perl"
+	    unless $self->{value} =~ /^\d+$/;
+	$self->{value}--;
+	$self->{updated} = 1;
+    } else {
+	$self->lock;
+	croak "Autodecrement is not magical in perl"
+	    unless $self->{value} =~ /^\d+$/;
+	$self->{value}--;
+	$self->{updated} = 1;
+	$self->unlock;
+    }
+    $self->{value}; # return value
+}
+
+
 sub value
 {
     my($self) = @_;
@@ -245,7 +269,6 @@ sub _ungensym
 #####################################################################
 #
 # If we're not use'd or require'd execute self-test.
-# Handy for regression testing and as a quick reference :)
 #
 # Test is kept behind __END__ so it doesn't take uptime
 # and memory  unless explicitly required. If you're working
@@ -261,7 +284,7 @@ eval join('',<DATA>) || die $@ unless caller();
 __END__
 
 
-$cf = "./counter-$$";  # the name for out temprary counter
+$cf = "./zz-counter-$$";  # the name for out temprary counter
 
 # Test normal object creation and increment
 
@@ -272,8 +295,9 @@ $id2 = $c->inc;
 
 $c = new File::CounterFile $cf;
 $id3 = $c->inc;
+$id4 = $c->dec;
 
-die "test failed" unless ($id1 == 1 && $id2 == 2 && $id3 == 3);
+die "test failed" unless ($id1 == 1 && $id2 == 2 && $id3 == 3 && $id4 == 2);
 unlink $cf;
 
 # Test magic increment
@@ -281,6 +305,12 @@ unlink $cf;
 $id1 = (new File::CounterFile $cf, "aa98")->inc;
 $id2 = (new File::CounterFile $cf)->inc;
 $id3 = (new File::CounterFile $cf)->inc;
+
+eval {
+    # This should now work because "Decrement is not magical in perl"
+    $c = new File::CounterFile $cf; $id4 = $c->dec; $c = undef;
+};
+die "test failed (No exception to catch)" unless $@;
 
 #print "$id1 $id2 $id3\n";
 
@@ -295,11 +325,11 @@ $c->lock;
 
 $c++;  # counter is now 101
 $c++;  # counter is now 102
+$c++;  # counter is now 103
+$c--;  # counter is now 102 again
 
 $id1 = "$c";
 $id2 = ++$c;
-
-sleep(2);
 
 $c = undef;  # destroy object
 

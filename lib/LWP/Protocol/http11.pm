@@ -1,4 +1,4 @@
-# $Id: http11.pm,v 1.23 2001/09/07 19:04:16 gisle Exp $
+# $Id: http11.pm,v 1.24 2001/09/12 23:03:05 gisle Exp $
 #
 # You can tell LWP to use this module for 'http' requests by running
 # code like this before you make requests:
@@ -30,21 +30,23 @@ my $CRLF = "\015\012";
     sub sysread {
 	my $self = shift;
 	if (my $timeout = ${*$self}{io_socket_timeout}) {
-	    my $io_sel = $self->io_sel;
-	    die "read timeout" unless $io_sel->can_read($timeout);
+	    die "read timeout" unless $self->can_read($timeout);
 	}
 	sysread($self, $_[0], $_[1], $_[2] || 0);
     }
 
-    sub io_sel {
-	my $self = shift;
-	require IO::Select;
-	return IO::Select->new($self);
+    sub can_read {
+	my($self, $timeout) = @_;
+	my $fbits = '';
+	vec($fbits, fileno($self), 1) = 1;
+	my $nfound = select($fbits, undef, undef, $timeout);
+	die "select failed: $!" unless defined $nfound;
+	return $nfound > 0;
     }
 
     sub ping {
 	my $self = shift;
-	!$self->io_sel->can_read(0);
+	!$self->can_read(0);
     }
 }
 
@@ -54,7 +56,7 @@ sub _new_socket
     my $conn_cache = $self->{ua}{conn_cache};
     if ($conn_cache) {
 	if (my $sock = $conn_cache->withdraw("http", "$host:$port")) {
-	    return $sock if $sock && !$sock->io_sel->can_read(0);
+	    return $sock if $sock && !$sock->can_read(0);
 	    # if the socket is readable, then either the peer has closed the
 	    # connection or there are some garbage bytes on it.  In either
 	    # case we abandon it.
@@ -255,7 +257,8 @@ sub request
 	    $eof = 1;
 	}
 
-	my $io_sel = $socket->io_sel;
+	my $fbits = '';
+	vec($fbits, fileno($socket), 1) = 1;
 
 	while ($woffset < length($$wbuf)) {
 
@@ -266,17 +269,19 @@ sub request
 		$sel_timeout = $write_wait if $write_wait < $sel_timeout;
 	    }
 
-	    my($r, $w) = IO::Select::select($io_sel,
-					    ($write_wait ? undef : $io_sel),
-					    undef,
-					    $sel_timeout);
+	    my $rbits = $fbits;
+	    my $wbits = $write_wait ? undef : $fbits;
+	    my $nfound = select($rbits, $wbits, undef, $sel_timeout);
+	    unless (defined $nfound) {
+		die "select failed: $!";
+	    }
 
 	    if ($write_wait) {
 		$write_wait -= time - $time_before;
 		$write_wait = 0 if $write_wait < 0;
 	    }
 
-	    if ($r && @$r) {
+	    if (defined($rbits) && $rbits =~ /[^\0]/) {
 		# readable
 		my $buf = $socket->_rbuf;
 		my $n = $socket->sysread($buf, 1024, length($buf));
@@ -298,7 +303,7 @@ sub request
 		    }
 		}
 	    }
-	    if ($w && @$w) {
+	    if (defined($wbits) && $wbits =~ /[^\0]/) {
 		my $n = $socket->syswrite($$wbuf, length($$wbuf), $woffset);
 		unless ($n) {
 		    die "syswrite: $!" unless defined $n;

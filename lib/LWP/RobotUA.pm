@@ -1,10 +1,10 @@
 package LWP::RobotUA;
 
-# $Id: RobotUA.pm,v 1.25 2004/04/06 11:37:30 gisle Exp $
+# $Id: RobotUA.pm,v 1.26 2004/04/06 12:14:08 gisle Exp $
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -28,26 +28,37 @@ use strict;
 
 sub new
 {
-    my($class,$name,$from,$rules) = @_;
+    my $class = shift;
+    my %cnf;
+    if (@_ < 4) {
+	# legacy args
+	@cnf{qw(agent from rules)} = @_;
+    }
+    else {
+	%cnf = @_;
+    }
 
-    Carp::croak('LWP::RobotUA name required') unless $name;
-    Carp::croak('LWP::RobotUA from address required') unless $from
-     and $from =~ m/\@/;
+    Carp::croak('LWP::RobotUA agent required') unless $cnf{agent};
+    Carp::croak('LWP::RobotUA from address required')
+	unless $cnf{from} && $cnf{from} =~ m/\@/;
 
-    my $self = new LWP::UserAgent;
+    my $delay = delete $cnf{delay} || 1;
+    my $use_sleep = delete $cnf{use_sleep};
+    $use_sleep = 1 unless defined($use_sleep);
+    my $rules = delete $cnf{rules};
+
+    my $self = LWP::UserAgent->new(%cnf);
     $self = bless $self, $class;
 
     $self->{'delay'} = 1;   # minutes
-    $self->{'agent'} = $name;
-    $self->{'from'}  = $from;
     $self->{'use_sleep'} = 1;
 
     if ($rules) {
-	$rules->agent($name);
+	$rules->agent($cnf{agent});
 	$self->{'rules'} = $rules;
     }
     else {
-	$self->{'rules'} = new WWW::RobotRules $name;
+	$self->{'rules'} = WWW::RobotRules->new($cnf{agent});
     }
 
     $self;
@@ -236,16 +247,20 @@ same methods. In addition the following methods are provided:
 
 =over 4
 
-=item $ua = LWP::RobotUA->new( $agent_name, $from )
+=item $ua = LWP::RobotUA->new( %options )
 
-=item $ua = LWP::RobotUA->new( $agent_name, $from, $rules )
+=item $ua = LWP::RobotUA->new( $agent, $from )
 
-Your robot's name and the mail address of the human responsible for
-the robot (i.e. you) are required by the constructor.
+=item $ua = LWP::RobotUA->new( $agent, $from, $rules )
 
-Optionally it allows you to specify the I<WWW::RobotRules> object to
-use.  If you don't provide one, then this user agent will make its own
-internal database of F<robots.txt> rules as needed.
+The LWP::UserAgent options C<agent> and C<from> are mandatory.  The
+options C<delay>, C<use_sleep> and C<rules> initialize attributes
+private to the RobotUA.  If C<rules> are not provided, then
+C<WWW::RobotRules> is instantiated providing an internal database of
+F<robots.txt>.
+
+It is also possible to just pass the value of C<agent>, C<from> and
+optionally C<rules> as plain positional arguments.
 
 =item $ua->delay
 

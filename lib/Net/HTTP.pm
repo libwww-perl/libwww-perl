@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.15 2001/04/13 06:49:30 gisle Exp $
+# $Id: HTTP.pm,v 1.16 2001/04/13 06:53:52 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -405,7 +405,13 @@ Read response headers from server.
 
 =item $n = $s->read_entity_body($buf, $size);
 
-Reads chunks of the entity body content.
+Reads chunks of the entity body content.  Basically the same interface
+as for read() and sysread(), but buffer offset is not supported yet.
+
+=item %headers = $s->get_trailers
+
+After read_entity_body() has returned 0 to indicate end of the entity
+body, you might call this method to pick up any trailers.
 
 =back
 

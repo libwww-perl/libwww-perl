@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.19 1996/05/26 10:40:27 aas Exp $
+# $Id: Response.pm,v 1.20 1996/07/16 10:15:13 aas Exp $
 
 package HTTP::Response;
 
@@ -45,6 +45,7 @@ require HTTP::Message;
 @ISA = qw(HTTP::Message);
 
 use HTTP::Status ();
+use URI::URL ();
 
 
 =head2 $r = new HTTP::Response ($rc [, $msg])
@@ -105,8 +106,10 @@ sub request   { shift->_elem('_request', @_); }
 
 =head2 $r->base
 
-Returns the base URL for this response.  The base URL can come from 3
-sources:
+Returns the base URL for this response.  The return value will be a
+reference to a URI::URL object.
+
+The base URL can have been obtained from the following 3 sources:
 
 =over 4
 
@@ -135,7 +138,9 @@ checked by this method.
 sub base
 {
     my $self = shift;
-    $self->header('Base') ||  $self->request->url;
+    my $base = $self->header('Base') ||  $self->request->url;
+    $base = URI::URL->new($base) unless ref $base;
+    $base;
 }
 
 

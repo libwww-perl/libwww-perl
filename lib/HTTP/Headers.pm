@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.4 1995/07/13 14:56:31 aas Exp $
+# $Id: Headers.pm,v 1.5 1995/07/14 00:23:03 aas Exp $
 
 package LWP::MIMEheader;
 
@@ -22,27 +22,95 @@ Instances of this class are usually created as member variables of the
 C<LWP::Request> and C<LWP::Response> classes, internally to the
 library.
 
-=head1 METHODS and FUNCTIONS
+=head1 METHODS
+
+=cut
+
+
+use Carp;
+
+
+# "Good Practice" order of HTTP message headers:
+#    - General-Headers
+#    - Request-Headers
+#    - Entity-Headers
+# (From draft-ietf-http-v10-spec-00.ps)
+
+my @header_order = qw( 
+   Date Forwarded Message-ID MIME-Version
+
+   Accept Accept-Charset Accept-Encoding Accept-Language
+   Authorization From If-Modified-Since Praga Referer User-Agent
+   
+   Content-Encoding Content-Language Content-Length
+   Content-Transfer-Encoding Content-Type Derived-From
+   Expires Last-Modified Link Location Title URI-Header
+   Version
+);
+
+# Make alternative representations of @header_order.  This is used
+# for sorting and case matching.
+my $i = 0;
+my %header_order;
+my %standard_case;  
+for (@header_order) {
+    my $lc = lc $_;
+    $header_order{$lc} = $i++;
+    $standard_case{$lc} = $_;
+}
+undef($i);
+
+
 
 =head2 new()
 
-Constructs a new C<LWP::MIMEheader> object.
+Constructs a new C<LWP::MIMEheader> object.  You might pass some
+initial headers as parameters to the constructor.  E.g.:
+
+ $h = new LWP::MIMEheader
+     'Content-Type'  => 'text/html',
+     'MIME-Version'  => '1.0',
+     'Date'          => 'Thu, 03 Feb 1994 00:00:00 GMT';
 
 =cut
-sub new {
-    my %headers = ();
-    bless {
-        '_header' => \%headers,
-    }, shift;
+
+sub new
+{
+    my($class) = shift;
+    my $self = bless {
+        '_header'   => { },
+    }, $class;
+
+    my($field, $val);
+    while (($field, $val) = splice(@_, 0, 2)) {
+	$self->header($field, $val);
+    }
+    $self;
+}
+
+
+=head2 clone()
+
+Returns a copy of the object.
+
+=cut
+
+sub clone
+{
+    my $self = shift;
+    my $clone = new LWP::MIMEheader;
+    $self->scan(sub { $clone->pushHeader(@_);} );
+    $clone;
 }
 
 =head2 header($field [, $val])
 
-Get/Set the value of a request header.  Note that case of the header
-field name is not touched.  The argument may be undefined (header is
-not modified), a scalar or a reference to a list of scalars.
+Get/Set the value of a request header.  The header field name is not
+case sensitive.  The value argument may be undefined (header is not
+modified), a scalar or a reference to a list of scalars.
 
-The list of previous values is returned
+The list of previous values is returned.  Only the first header value
+is returned in scalar context.
 
  $header->header('User-Agent', 'test/.01');
  $header->header('Accept', ['text/html', 'text/plain']);
@@ -50,31 +118,28 @@ The list of previous values is returned
 
 =cut
 
-require LWP::Debug;
-use Carp;
-
-sub header  {
-    my($self, $field, $val) = @_;
+sub header
+{
+    my($self, $field, $val, $push) = @_;
 
     croak('need a field name') unless defined $field;
+    croak('to many parameters') if @_ > 4;
 
-    LWP::Debug::trace("('$field', " .
-               (defined $val ? "'$val'" : 'undef') . ')');
+    my $thisHeader = \@{$self->{'_header'}{lc $field}};
 
     my @old = ();
-    if (exists $self->{'_header'}{$field}) {
-        @old = @{ $self->{'_header'}{$field} };
+    if (!$push && defined $thisHeader) {
+        @old = @$thisHeader;  # save it so we can return it
     }
     if (defined $val) {
+	@$thisHeader = () unless $push;
         if (!ref($val)) {
-                # scalar: create list with single value
-            @{ $self->{'_header'}{$field} } = ( $val );
-        }
-        elsif (ref($val) eq 'ARRAY') {
-                # list: copy list
-            @{ $self->{'_header'}{$field} } = @{ $val };
-        }
-        else {
+	    # scalar: create list with single value
+            push(@$thisHeader, $val);
+        } elsif (ref($val) eq 'ARRAY') {
+	    # list: copy list            
+            push(@$thisHeader, @$val);
+        } else {
             croak("Unexpected field value $val");
         }
     }
@@ -94,97 +159,102 @@ reference to a list of scalars.
 
 =cut
 
-sub pushHeader {
-    my($self, $field, $val) = @_;
-
-    LWP::Debug::trace("('$field', " .
-               (defined $val ? "'$val'" : 'undef') . ')');
-
-    # as per LWP::field()
-    if (exists $self->{'_header'}{$field}) {
-        if (!ref($val)) {
-            push( @{ $self->{'_header'}{$field} }, $val);
-        }
-        elsif (ref($val) eq 'ARRAY') {
-            push( @{ $self->{'_header'}{$field} }, @{ $val });
-        }
-        else {
-            croak("Unexpected field value $val");
-        }
-    }
-    else {
-        $self->header($field, $val);
-    }
+sub pushHeader
+{
+    croak 'Usage: $h->pushHeader($field, $val)'	if @_ != 3;
+    shift->header(@_, "PUSH");
 }
 
 
-=head2 asMIME()
+=head2 removeHeader($field)
 
-Return the header fields as a formatted MIME header, delimited with
-CRLF.
-
-See as_string() for details.
+This function removes the header with the spesified name.
 
 =cut
 
-sub asMIME {
-    LWP::Debug::trace('()');
-
-    shift->as_string("\r\n");
+sub removeHeader
+{
+    my($self, $field) = @_;
+    delete $self->{'_header'}{lc $field};
 }
 
 
-=head2 as_string()
+# Compare function which makes it easy to sort headers in the
+# recommended "Good Practice" order.
+sub _headerCmp
+{
+    # Unknown headers are assign a large value so that they are
+    # sorted last.  This also helps avoiding a warning from -w
+    # about comparing undefined values.
+    $header_order{$a} = 999 unless defined $header_order{$a};
+    $header_order{$b} = 999 unless defined $header_order{$b};
 
-Return the header fields as a formatted MIME header.  Uses case as
+    $header_order{$a} <=> $header_order{$b} || $a cmp $b;
+}
+
+
+=head2 scan(\&doit)
+
+Apply the subroutine to each header in turn.  The routine is called
+with two parameters; the name of the field and a single value.  If the
+header has more than one value, then the routine is called once for
+each value.  The C<scan()> routine uses case for the field name as
 suggested by HTTP Spec, and follows recommended "Good Practice" of
+ordering the header fields.
+
+=cut
+
+sub scan
+{
+    my($self, $sub) = @_;
+    my $field;
+    foreach $field (sort _headerCmp keys %{$self->{'_header'}} ) {
+	my $list = $self->{'_header'}{$field};
+	if (defined $list) {
+	    my $val;
+	    my $std_field = $standard_case{$field};
+	    unless (defined $std_field) {
+		# unknown header, determine suitable "casing" for it
+		$std_field = $field;
+		$std_field =~ s/\b(\w)/\u$1/g;
+		$standard_case{$field} = $std_field; # remeber it
+	    }
+	    for $val (@$list) {
+		&$sub($std_field, $val);
+	    }
+	}
+    }
+}
+
+
+=head2 asString([$endl])
+
+Return the header fields as a formatted MIME header.  Since it use
+C<scan()> to build the string, the result will use case as suggested
+by HTTP Spec, and it will follow recommended "Good Practice" of
 ordering the header fieds.
 
 =cut
 
-sub as_string {
-    my($self, $endl, $orderref) = shift;
-
-    LWP::Debug::trace('()');
-
+sub asString
+{
+    my($self, $endl) = @_;
     $endl = "\n" unless defined $endl;
 
-    # to do efficient case-insensitive association,
-    # build up a second hash indexed by lowercase keys
-    my %lcs = ();
-    for(keys %{ $self->{'_header'} }) {
-        @{ $lcs{lc($_)} } = @{ $self->{'_header'}{$_} };
-    }
+    my @result = ();
+    my $last_field = "";
 
-    my $result = '';
+    $self->scan(sub {
+	my($field, $val) = @_;
+	if ($field eq $last_field) {
+	    push(@result, " $val");  # continuation line
+	} else {
+	    push(@result, "$field: $val");
+	}
+	$last_field = $field;
+    } );
 
-    # now process header fields in order
-    if (defined $orderref) {
-        for(@$orderref) {
-            my $lc = lc($_);
-            my $list = $lcs{$lc};
-            if (defined $list) {
-                my $val;
-                for $val (@$list) {
-                    $result .= "$_: $val$endl";
-                }
-            }
-            delete $lcs{$lc};
-        }
-    }
-
-    # might have some extension-headers left
-    my @left = grep(exists $lcs{lc($_)}, keys %{ $self->{'_header'} });
-    for(sort @left) {
-        my $list = $self->{'_header'}{$_};
-        my $val;
-        for $val (@{ $list }) {
-            $result .= "$_: $val$endl";
-        }
-    }
-
-    LWP::Debug::debug("result: $result\n");
-    $result;
+    join($endl, @result, "");
 }
 
 1;

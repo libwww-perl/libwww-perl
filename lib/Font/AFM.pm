@@ -1,5 +1,5 @@
 # This -*- perl -*-  module is a simple parser for Adobe Font Metrics files.
-# $Id: AFM.pm,v 1.10 1996/05/08 16:19:52 aas Exp $
+# $Id: AFM.pm,v 1.11 1996/06/13 08:15:11 aas Exp $
 
 package Font::AFM;
 
@@ -38,7 +38,7 @@ croak if the font can not be found.
 
 =item latin1_wx_table()
 
-Returns an 256 elements array, where each element contains the width
+Returns a 256 element array, where each element contains the width
 of the corresponding character in the iso-8859-1 character set.
 
 =item stringwidth($string, [$fontsize])
@@ -85,7 +85,7 @@ A string of four numbers giving the lower-left x, lower-left y,
 upper-right x, and upper-right y of the font bounding box. The font
 bounding box is the smallest rectangle enclosing the shape that would
 result if all the characters of the font were placed with their
-origins coincident, and the painted.
+origins coincident, and then painted.
 
 =item UnderlinePosition
 
@@ -132,11 +132,11 @@ Typically the y-value of the bottom of the lowercase p.
 
 =item Wx
 
-Returns an hash table that maps from glyph names to the width of that glyph.
+Returns a hash table that maps from glyph names to the width of that glyph.
 
 =item BBox
 
-Returns an hash table that maps from glyph names to bounding box information.
+Returns a hash table that maps from glyph names to bounding box information.
 The bounding box consist of 4 numbers: llx, lly, urx, ury.
 
 =item dump
@@ -169,7 +169,7 @@ environment variable. The default path built into this library is:
 =head1 BUGS
 
 Kerning data and composite character data is not yet parsed.
-Lingature data is not parsed.
+Ligature data is not parsed.
 
 
 =head1 COPYRIGHT
@@ -185,7 +185,7 @@ it under the same terms as Perl itself.
 
 use Carp;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub ModuleVersion { $VERSION; }
 
 

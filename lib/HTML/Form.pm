@@ -176,7 +176,7 @@ sub push_input
     my $class = $type2class{$type};
     unless ($class) {
 	Carp::carp("Unknown input type '$type'") if $^W;
-	$class = "IgnoreInput";
+	$class = "TextInput";
     }
     $class = "IgnoreInput" if exists $attr->{disabled};
     $class = "HTML::Form::$class";

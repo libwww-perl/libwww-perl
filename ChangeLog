@@ -1,3 +1,27 @@
+2001-04-09   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.53
+
+    HTTP::Cookies does not request 2 dots on domain names any more.
+    New option to hide the Cookie2 header.  Cookie2 header now quote
+    the version number. Updated reference to RFC 2965.
+
+    Support for embedded userinfo in http proxy URIs.  It means that
+    you know can set up your proxy with things like:
+        http_proxy="http://proxyuser:proxypass@proxyhost:port"
+    Patch by John Klar <j.klar@xpedite.com>.
+
+    Experimental HTTP/1.1 support.  New module called Net::HTTP that
+    provide the lower level interface and a LWP::Protocol::http11
+    module that builds on it.  The HTTP/1.1 protocol module must be
+    loaded and registered explicitly, otherwise the old and trustworthy
+    HTTP/1.0 module will be used.
+
+    LWP::Protocol::GHTTP will try to use the get_headers() methods
+    so that it can actually extract all the headers.
+
+
+
 2001-03-29   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.52

@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.49 2000/04/09 19:06:46 gisle Exp $
+# $Id: http.pm,v 1.50 2000/05/24 09:41:13 gisle Exp $
 
 package LWP::Protocol::http;
 
@@ -74,7 +74,9 @@ sub _fixup_header
     # not really support specification of user and password, but
     # we allow it.
     if (defined($1) && not $h->header('Authorization')) {
-	$h->authorization_basic(split(":", $1));
+	require URI::Escape;
+	$h->authorization_basic(map URI::Escape::uri_unescape($_),
+				split(":", $1));
     }
 }
 

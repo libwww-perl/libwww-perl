@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.4 1996/04/09 15:44:19 aas Exp $
+# $Id: Negotiate.pm,v 1.5 1996/06/13 08:23:17 aas Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -281,7 +281,7 @@ __END__
 
 choose - choose a variant of a document to serve (HTTP content negotiation)
 
-=head1 SYNPSIS
+=head1 SYNOPSIS
 
  use HTTP::Negotiate;
 
@@ -298,7 +298,7 @@ choose - choose a variant of a document to serve (HTTP content negotiation)
 =head1 DESCRIPTION
 
 This module provide a complete implementation of the HTTP content
-negotiation algorithm specified in draft-ietf-http-v11-spec-00.ps
+negotiation algorithm specified in F<draft-ietf-http-v11-spec-00.ps>
 chapter 12.  Content negotiation allows for the selection of a
 preferred content representation based upon attributes of the
 negotiable variants and the value of the various Accept* header fields
@@ -322,18 +322,18 @@ parameter is missing, then the accept specification is initialized
 from the CGI environment variables HTTP_ACCEPT, HTTP_ACCEPT_CHARSET,
 HTTP_ACCEPT_ENCODING and HTTP_ACCEPT_LANGUAGE.
 
-In array context choose() returns a list of variant
+In array context, choose() returns a list of variant
 identifier/calculated quality pairs.  The values are sorted by
 quality, highest quality first.  If the calculated quality is the same
-for two variants, then they are sorted by size (smallest first). E.g.:
+for two variants, then they are sorted by size (smallest first). I<E.g.>:
 
   (['var1' => 1], ['var2', 0.3], ['var3' => 0]);
 
 Note that also zero quality variants are included in the return list
 even if these should never be served to the client.
 
-In scalar context it returns the identifier of the variant with the
-highest score or undef in none have non-zero quality.
+In scalar context, it returns the identifier of the variant with the
+highest score or C<undef> if none have non-zero quality.
 
 If the $HTTP::Negotiate::DEBUG variable is set to TRUE, then a lot of
 noise is generated on STDOUT during evaluation of choose().
@@ -342,7 +342,7 @@ noise is generated on STDOUT during evaluation of choose().
 
 A variant is described by a list of the following values.  If the
 attribute does not make sense or is unknown for a variant, then use
-undef instead.
+C<undef> instead.
 
 =over 3
 
@@ -354,12 +354,12 @@ identifier of the preferred variant is returned by choose().
 =item qs
 
 This is a number between 0.000 and 1.000 that describes the "source
-quality".  This is what draft-ietf-http-v11-spec-00.ps says about this
+quality".  This is what F<draft-ietf-http-v11-spec-00.ps> says about this
 value:
 
 Source quality is measured by the content provider as representing the
 amount of degradation from the original source.  For example, a
-picture in JPEG from would have a lower qs when translated to the XBM
+picture in JPEG form would have a lower qs when translated to the XBM
 format, and much lower qs when translated to an ASCII-art
 representation.  Note, however, that this is a function of the source
 - an original piece of ASCII-art may degrade in quality if it is
@@ -391,7 +391,7 @@ content media type.  The most common content encodings are:
 =item content-charset
 
 This is the character set used when the variant contains textual
-content.  The charset value should generally be undef or one of these:
+content.  The charset value should generally be C<undef> or one of these:
 
   us-ascii
   iso-8859-1 ... iso-8859-9
@@ -405,7 +405,7 @@ content.  The charset value should generally be undef or one of these:
 =item content-language
 
 This describes one or more languages that are used in the variant.
-Language is described like this in draft-ietf-http-v11-spec-00.ps: A
+Language is described like this in F<draft-ietf-http-v11-spec-00.ps>: A
 language is in this context a natural language spoken, written, or
 otherwise conveyed by human beings for communication of information to
 other human beings.  Computer languages are explicitly excluded.
@@ -428,14 +428,14 @@ This is the number of bytes used to represent the content.
 
 The following Accept* headers can be used for describing content
 preferences in a request (This description is an edited extract from
-draft-ietf-http-v11-spec-00.ps):
+F<draft-ietf-http-v11-spec-00.ps>):
 
 =over 3
 
 =item Accept
 
 This header can be used to indicate a list of media ranges which are
-acceptable as a repose to the request.  The "*" character is used to
+acceptable as a reponse to the request.  The "*" character is used to
 group media types into ranges, with "*/*" indicating all media types
 and "type/*" indicating all subtypes of that type.
 
@@ -450,7 +450,7 @@ For example:
   Accept: audio/*;q=0.2;mbx=200000, audio/basic
 
 would mean: "I prefer audio/basic (of any size), but send me any audio
-type if it is the best available after en 80% mark-down in quality and
+type if it is the best available after an 80% mark-down in quality and
 its size is less than 200000 bytes"
 
 
@@ -458,7 +458,7 @@ its size is less than 200000 bytes"
 
 Used to indicate what character sets are acceptable for the response.
 The "us-ascii" character set is assumed to be acceptable for all user
-agents.  If not Accept-Charset field is given, the default is that any
+agents.  If no Accept-Charset field is given, the default is that any
 charset is acceptable.  Example:
 
   Accept-Charset: iso-8859-1, unicode-1-1

@@ -1,4 +1,4 @@
-# $Id: Date.pm,v 1.18 1996/05/26 10:37:05 aas Exp $
+# $Id: Date.pm,v 1.19 1996/06/13 08:23:15 aas Exp $
 #
 package HTTP::Date;
 
@@ -10,17 +10,17 @@ time2str, str2time - date conversion routines
 
  use HTTP::Date;
 
- $stringGMT = time2str(time);   # Format as GMT ascii time
- $time = str2time($stringGMT);  # convert ascii date to machine time
+ $stringGMT = time2str(time);   # Format as GMT ASCII time
+ $time = str2time($stringGMT);  # convert ASCII date to machine time
 
 =head1 DESCRIPTION
 
-This module provides two function that deals with the HTTP date format.
+This module provides two functions that deal with the HTTP date format.
 
 =head2 time2str([$time])
 
 The time2str() function converts a machine time (seconds since epoch)
-to a string.  If the function is called without an argument it will
+to a string.  If the function is called without an argument, it will
 use the current time.
 
 The string returned is in the format defined by the HTTP/1.0
@@ -33,7 +33,7 @@ format is:
 =head2 str2time($str [, $zone])
 
 The str2time() function converts a string to machine time.  It returns
-undef if the format is unrecognized, or the year is not between 1970
+C<undef> if the format is unrecognized, or the year is not between 1970
 and 2038.  The function is able to parse the following formats:
 
  "Wed, 09 Feb 1994 22:23:32 GMT"       -- HTTP format
@@ -63,7 +63,7 @@ and 2038.  The function is able to parse the following formats:
  "Feb  3 17:03"  -- Unix 'ls -l' format
 
 The parser ignores leading and trailing whitespace.  It also allow the
-seconds to be missing and that the month is numerical in most formats.
+seconds to be missing and the month to be numerical in most formats.
 
 The str2time() function takes an optional second argument that
 specifies the default time zone to use when converting the date.  This
@@ -87,7 +87,7 @@ formats.  This makes the module name misleading :-)
 =cut
 
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;

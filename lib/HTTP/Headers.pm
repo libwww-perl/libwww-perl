@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.19 1996/05/26 10:38:55 aas Exp $
+# $Id: Headers.pm,v 1.20 1996/06/13 08:23:16 aas Exp $
 
 package HTTP::Headers;
 
@@ -14,12 +14,12 @@ HTTP::Headers - Class encapsulating HTTP Message headers
 
 =head1 DESCRIPTION
 
-The C<HTTP::Headers> class encapsulate HTTP style message headers.
-The headers consist of attribute value pairs which may be repeated,
+The C<HTTP::Headers> class encapsulates HTTP-style message headers.
+The headers consist of attribute-value pairs, which may be repeated,
 and which are printed in a particular order.
 
 Instances of this class are usually created as member variables of the
-C<HTTP::Request> and C<HTTP::Response> classes, internally to the
+C<HTTP::Request> and C<HTTP::Response> classes, internal to the
 library.
 
 =head1 METHODS
@@ -72,7 +72,7 @@ for (@header_order) {
 =head2 $h = new HTTP::Headers
 
 Constructs a new C<HTTP::Headers> object.  You might pass some initial
-attribute value pairs as parameters to the constructor.  E.g.:
+attribute-value pairs as parameters to the constructor.  I<E.g.>:
 
  $h = new HTTP::Headers
      'Content-Type' => 'text/html',
@@ -97,7 +97,7 @@ sub new
 
 Get/Set the value of a request header.  The header field name is not
 case sensitive.  The value argument may be a scalar or a reference to
-a list of scalars. If the value argument is not defined then the
+a list of scalars. If the value argument is not defined, then the
 header is not modified.
 
 The header() method accepts multiple ($field => $value) pairs.
@@ -261,14 +261,14 @@ following convenience methods.  These methods can both be used to read
 and to set the value of a header.  The header value is set if you pass
 an argument to the method.  The old header value is always returned.
 
-Methods that deal with dates/time always convert their value to system
+Methods that deal with dates/times always convert their value to system
 time (seconds since Jan 1, 1970) and they also expect this kind of
 value when the header value is set.
 
 =head2 $h->date
 
 This header represents the date and time at which the message was
-originated. E.g.:
+originated. I<E.g.>:
 
   $h->date(time);  # set current date
 
@@ -281,13 +281,13 @@ considered stale.
 
 This header is used to make a request conditional.  If the requested
 resource has not been modified since the time specified in this field,
-then the server til return a "304 Not Modified" response instead of
+then the server will return a C<"304 Not Modified"> response instead of
 the document itself.
 
 =head2 $h->last_modified
 
 This header indicates the date and time at which the resource was last
-modified. E.g.:
+modified. I<E.g.>:
 
   # check if document is more than 1 hour old
   if ($h->last_modified < time - 60*60) {
@@ -297,13 +297,13 @@ modified. E.g.:
 =head2 $h->content_type
 
 The Content-Type header field indicates the media type of the message
-content. E.g.:
+content. I<E.g.>:
 
   $h->content_type('text/html');
 
 The value returned will be converted to lower case, and potential
-parameters will be chopped off and returned as a separate value if
-array context.  This makes it safe to do the following:
+parameters will be chopped off and returned as a separate value if in
+an array context.  This makes it safe to do the following:
 
   if ($h->content_type eq 'text/html') {
      # we enter this place even if the real header value happens to
@@ -324,19 +324,19 @@ A decimal number indicating the size in bytes of the message content.
 =head2 $h->title
 
 The title of the document.  Will be obtained from the
-<TITLE>...</TITLE> element of HTML documentents.
+E<lt>TITLE>...E<lt>/TITLE> element of HTML documents.
 
 =head2 $h->user_agent
 
 This header field is used in request messages and contains information
-about the user agent originating the request.  E.g.:
+about the user agent originating the request.  I<E.g.>:
 
   $h->user_agent('Mozilla/1.2');
 
 =head2 $h->server
 
 The server header field contains information about the software being
-used by the origin server program handling the request.
+used by the originating server program handling the request.
 
 =head2 $h->from
 
@@ -369,7 +369,7 @@ This method is used to get or set an authorization header that use the
 values; the user name and the password.  In scalar context it will
 return I<"uname:password"> as a single string value.
 
-When used to set the header value, it expects two arguments.  E.g.:
+When used to set the header value, it expects two arguments.  I<E.g.>:
 
   $h->authorization_basic($uname, $password);
 

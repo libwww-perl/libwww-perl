@@ -45,22 +45,27 @@ lib/URI/URL/tn3270.pm		Implements tn3270 URLs
 lib/URI/URL/wais.pm		Implements wais URLs
 lib/URI/URL/webster.pm		Implements webster URLs
 lib/URI/URL/whois.pm		Implements whois URLs
-lib/WWW/RobotRules.pm           Parse robot.txt files
-t/autoload.t			Testing autoloading of protocols
-t/cgi-bin/lwp-test.html
-t/cgi-bin/lwp-test.pl
-t/cgi-bin/moved
-t/cgi-bin/timeout
-t/http-get-auth.t
-t/http-get.t
-t/http-post.t
-t/http-timeout.t
-t/local.t
-t/mirror.t
-t/moved.t
-t/proxy.t
-t/receiveHeaders-http.pl
-t/robot-rules.t			Test WWW::RobotRules module
-t/sendHeaders-http.pl
-t/uri.t				Test URI::URL module
+lib/WWW/RobotRules.pm		Parse robot.txt files
+t/README			How to run and set up tests
+t/TEST				Run tests
+t/base/base64.t			Test LWP::Base64 module
+t/base/date.t			Test HTTP::Date module
+t/base/headers.t		Test HTTP::Headers module
+t/base/mediatypes.t		Test LWP::MediaTypes module
+t/base/message.t		Test HTTP::Request/HTTP::Response
+t/base/robot-rules.t		Test WWW::RobotRules module
+t/base/status.t			Test HTTP::Status module
+t/base/uri.t			Test URI::URL module
+t/local/autoload.t		
+t/local/get.t			Try to get a local file
+t/net/cgi-bin/moved
+t/net/cgi-bin/test
+t/net/cgi-bin/timeout
+t/net/config.pl.dist		Suggested configuration for net tests
+t/net/http-get.t
+t/net/http-post.t
+t/net/http-timeout.t
+t/net/mirror.t
+t/net/moved.t
+t/net/proxy.t
 upgrade_from_v02		Script that does most of the upgrade job

@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.60 2004/05/21 08:56:11 gisle Exp $
+# $Id: Headers.pm,v 1.61 2004/06/14 16:26:42 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.60 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.61 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -114,7 +114,7 @@ sub remove_header
     my $field;
     my @values;
     foreach $field (@fields) {
-	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
+	$field =~ tr/_/-/ if $field !~ /^:/ && $TRANSLATE_UNDERSCORE;
 	my $v = delete $self->{lc $field};
 	push(@values, ref($v) eq 'ARRAY' ? @$v : $v) if defined $v;
     }
@@ -141,19 +141,22 @@ sub remove_content_headers
 sub _header
 {
     my($self, $field, $val, $op) = @_;
-    $field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 
     # $push is only used interally sub push_header
     Carp::croak('Need a field name') unless length($field);
 
-    my $lc_field = lc $field;
-    unless(defined $standard_case{$lc_field}) {
-	# generate a %standard_case entry for this field
-	$field =~ s/\b(\w)/\u$1/g;
-	$standard_case{$lc_field} = $field;
+    unless ($field =~ /^:/) {
+	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
+	my $old = $field;
+	$field = lc $field;
+	unless(defined $standard_case{$field}) {
+	    # generate a %standard_case entry for this field
+	    $old =~ s/\b(\w)/\u$1/g;
+	    $standard_case{$field} = $old;
+	}
     }
 
-    my $h = $self->{$lc_field};
+    my $h = $self->{$field};
     my @old = ref($h) eq 'ARRAY' ? @$h : (defined($h) ? ($h) : ());
 
     $op ||= "";
@@ -166,7 +169,7 @@ sub _header
 	else {
 	    push(@new, @$val);
 	}
-	$self->{$lc_field} = @new > 1 ? \@new : $new[0];
+	$self->{$field} = @new > 1 ? \@new : $new[0];
     }
     @old;
 }
@@ -182,7 +185,7 @@ sub _header_cmp
 
 sub header_field_names {
     my $self = shift;
-    return map $standard_case{$_}, sort _header_cmp keys %$self
+    return map $standard_case{$_} || $_, sort _header_cmp keys %$self
 	if wantarray;
     return keys %$self;
 }
@@ -216,6 +219,7 @@ sub as_string
     my @result = ();
     $self->scan(sub {
 	my($field, $val) = @_;
+	$field =~ s/^://;
 	if ($val =~ /\n/) {
 	    # must handle header values with embedded newlines with care
 	    $val =~ s/\s+$//;          # trailing newlines and space must go
@@ -358,7 +362,8 @@ HTTP::Headers - Class encapsulating HTTP Message headers
 
 The C<HTTP::Headers> class encapsulates HTTP-style message headers.
 The headers consist of attribute-value pairs also called fields, which
-may be repeated, and which are printed in a particular order.
+may be repeated, and which are printed in a particular order.  The
+field names are cases insensitive.
 
 Instances of this class are usually created as member variables of the
 C<HTTP::Request> and C<HTTP::Response> classes, internal to the
@@ -389,12 +394,10 @@ Returns a copy of this C<HTTP::Headers> object.
 
 =item $h->header( $field => $value, ... )
 
-Get or set the value of one or more header fields.  The header field name
-($field) is not case sensitive.  To make the life easier for perl
+Get or set the value of one or more header fields.  The header field
+name ($field) is not case sensitive.  To make the life easier for perl
 users who wants to avoid quoting before the => operator, you can use
-'_' as a replacement for '-' in header names (this behaviour can be
-suppressed by setting the $HTTP::Headers::TRANSLATE_UNDERSCORE
-variable to a FALSE value).
+'_' as a replacement for '-' in header names.
 
 The header() method accepts multiple ($field => $value) pairs, which
 means that you can update several fields with a single invocation.
@@ -687,6 +690,21 @@ Same as authorization_basic() but will set the "Proxy-Authorization"
 header instead.
 
 =back
+
+=head1 NON-CANONICALIZED FIELD NAMES
+
+The header field name spelling is normally canonicalized including the
+'_' to '-' translation.  There are some application where this is not
+appropriate.  Prefixing field names with ':' allow you to force a
+specific spelling.  For example if you really want a header field name
+to show up as C<foo_bar> instead of "Foo-Bar", you might set it like
+this:
+
+  $h->header(":foo_bar" => 1);
+
+These field names are returned with the ':' intact for
+$h->header_field_names and the $h->scan callback, but the colons do
+not show in $h->as_string.
 
 =head1 BUGS
 

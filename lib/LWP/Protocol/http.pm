@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.67 2004/03/10 20:10:18 gisle Exp $
+# $Id: http.pm,v 1.68 2004/06/14 16:26:46 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -160,6 +160,7 @@ sub request
 
     $request_headers->scan(sub {
 			       my($k, $v) = @_;
+			       $k =~ s/^://;
 			       $v =~ s/\n/ /g;
 			       push(@h, $k, $v);
 			   });

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 149;
+plan tests => 154;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -396,4 +396,18 @@ ok($c->as_string, <<EOT);
 Content-MD5: dummy
 Content-Type: text/plain
 Content-Foo: foo
+EOT
+
+$h = HTTP::Headers->new;
+$h->content_type("text/plain");
+$h->header(":foo_bar", 1);
+$h->push_header(":content_type", "text/html");
+ok(j($h->header_field_names), "Content-Type|:content_type|:foo_bar");
+ok($h->header('Content-Type'), "text/plain");
+ok($h->header(':Content_Type'), undef);
+ok($h->header(':content_type'), "text/html");
+ok($h->as_string, <<EOT);
+Content-Type: text/plain
+content_type: text/html
+foo_bar: 1
 EOT

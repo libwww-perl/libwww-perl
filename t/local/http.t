@@ -84,7 +84,7 @@ sub httpd_get_echo
 {
     my($c, $req) = @_;
     $c->send_basic_header(200);
-    print $c "Content-Type: text/plain\015\012";
+    print $c "Content-Type: message/http\015\012";
     $c->send_crlf;
     print $c $req->as_string;
 }
@@ -93,6 +93,7 @@ $req = new HTTP::Request GET => url("/echo/path_info?query", $base);
 $req->push_header(Accept => 'text/html');
 $req->push_header(Accept => 'text/plain; q=0.9');
 $req->push_header(Accept => 'image/*');
+$req->push_header(':foo_bar' => 1);
 $req->if_modified_since(time - 300);
 $req->header(Long_text => 'This is a very long header line
 which is broken between
@@ -117,6 +118,7 @@ print "not " unless /^From:\s*gisle\@aas\.no$/m
 	        and /^Accept:\s*image\/\*/m
 		and /^If-Modified-Since:\s*\w{3},\s+\d+/m
                 and /^Long-Text:\s*This.*broken between/m
+	        and /^Foo-Bar:\s*1$/m
 		and /^X-Foo:\s*Bar$/m
 		and /^User-Agent:\s*Mozilla\/0.01/m;
 print "ok 4\n";

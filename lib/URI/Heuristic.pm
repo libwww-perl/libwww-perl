@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.3 1997/10/13 23:28:02 aas Exp $
+# $Id: Heuristic.pm,v 4.4 1997/10/14 08:35:39 aas Exp $
 
 =head1 NAME
 
@@ -65,20 +65,21 @@ eval {
 
 %LOCAL_GUESSING =
 (
- 'us' => ['www.ACME.gov', 'www.ACME.mil'],
- 'uk' => ['www.ACME.co.uk', 'www.ACME.ac.uk'],
- 'au' => ['www.ACME.com.au', 'www.ACME.edu.au'],
+ 'us' => [qw(www.ACME.gov www.ACME.mil)],
+ 'uk' => [qw(www.ACME.co.uk www.ACME.ac.uk)],
+ 'au' => [qw(www.ACME.com.au www.ACME.org.au www.ACME.edu.au)],
+ 'il' => [qw(www.ACME.co.il www.ACME.org.il www.ACME.net.il)],
 );
 
 
-sub url ($)
+sub url ($)            # h_url(), url2(), uf_url()
 {
     require URI::URL;
     URI::URL->new(friendly_url($_[0]));
 }
 
 
-sub friendly_url ($)
+sub friendly_url ($)   # expand_url(), uf_urlstr()
 {
     local($_) = @_;
     return unless defined;
@@ -108,7 +109,8 @@ sub friendly_url ($)
 		if ($my_country) {
 		    my $special = $LOCAL_GUESSING{$my_country};
 		    if ($special) {
-			push(@guess, map { s/\bACME\b/$host/; $_ } @$special);
+			my @special = @$special;
+			push(@guess, map { s/\bACME\b/$host/; $_ } @special);
 		    } else {
 			push(@guess, "www.$host.$my_country");
 		    }

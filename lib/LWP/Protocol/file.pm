@@ -1,9 +1,13 @@
 #
-# $Id: file.pm,v 1.16 1997/01/13 14:23:16 aas Exp $
+# $Id: file.pm,v 1.16.2.1 1998/10/12 11:20:46 aas Exp $
 
 package LWP::Protocol::file;
 
 require LWP::Protocol;
+@ISA = qw(LWP::Protocol);
+
+use strict;
+
 require LWP::MediaTypes;
 require HTTP::Request;
 require HTTP::Response;
@@ -13,9 +17,6 @@ require HTTP::Date;
 require URI::Escape;
 require HTML::Entities;
 
-use Carp;
-
-@ISA = qw(LWP::Protocol);
 
 
 sub request
@@ -34,8 +35,7 @@ sub request
     }
 
     # check method
-    $method = $request->method;
-
+    my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD') {
 	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST,
 				  'Library does not allow method ' .
@@ -51,14 +51,8 @@ sub request
 				  "LWP::file::request called for '$scheme'";
     }
 
-    my $host = $url->host;
-    if ($host and $host !~ /^localhost$/i) {
-	return new HTTP::Response &HTTP::Status::RC_BAD_REQUEST_CLIENT,
-				  'Only file://localhost/ allowed';
-    }
-
     # URL OK, look at file
-    my $path  = $url->local_path;
+    my $path  = $url->file;
 
     # test file exists and is readable
     unless (-e $path) {
@@ -88,7 +82,7 @@ sub request
     }
 
     # Ok, should be an OK response by now...
-    $response = new HTTP::Response &HTTP::Status::RC_OK;
+    my $response = new HTTP::Response &HTTP::Status::RC_OK;
 
     # fill in response headers
     $response->header('Last-Modified', HTTP::Date::time2str($mtime));
@@ -124,21 +118,21 @@ sub request
 
 	$response->header('Content-Type',   'text/html');
 	$response->header('Content-Length', length $html);
+	$html = "" if $method eq "HEAD";
 
 	return $self->collect_once($arg, $response, $html);
 
-    } else {            # path is a regular file
-	my($type, @enc) = LWP::MediaTypes::guess_media_type($path);
-	$response->header('Content-Type',   $type) if $type;
-	$response->header('Content-Length', $filesize);
-	for (@enc) {
-	    $response->push_header('Content-Encoding', $_);
-	}
+    }
 
-	# read the file
+    # path is a regular file
+    $response->header('Content-Length', $filesize);
+    LWP::MediaTypes::guess_media_type($path, $response);
+
+    # read the file
+    if ($method ne "HEAD") {
 	open(F, $path) or return new
-	   HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-			  "Cannot read file '$path': $!");
+	    HTTP::Response(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+			   "Cannot read file '$path': $!");
 	$response =  $self->collect($arg, $response, sub {
 	    my $content = "";
 	    my $bytes = sysread(F, $content, $size);

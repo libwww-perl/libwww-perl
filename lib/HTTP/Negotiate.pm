@@ -1,9 +1,9 @@
-# $Id: Negotiate.pm,v 1.10 2001/11/27 22:15:15 gisle Exp $
+# $Id: Negotiate.pm,v 1.11 2001/11/27 22:41:33 gisle Exp $
 #
 
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.002;
@@ -45,17 +45,26 @@ sub choose ($;$)
 
     $request->scan(sub {
 	my($key, $val) = @_;
-	return unless $key =~ s/^Accept-?//;
-	my $type = lc $key;
-	$type = "type" unless length $key;
+
+	my $type;
+	if ($key =~ s/^Accept-//) {
+	    $type = lc($key);
+	}
+	elsif ($key eq "Accept") {
+	    $type = "type";
+	}
+	else {
+	    return;
+	}
+
 	$val =~ s/\s+//g;
-	my $name;
-	for $name (split(/,/, $val)) {
+	my $default_q = 1;
+	for my $name (split(/,/, $val)) {
 	    my(%param, $param);
 	    if ($name =~ s/;(.*)//) {
 		for $param (split(/;/, $1)) {
 		    my ($pk, $pv) = split(/=/, $param, 2);
-		    $param{$pk} = $pv;
+		    $param{lc $pk} = $pv;
 		}
 	    }
 	    $name = lc $name;
@@ -63,10 +72,12 @@ sub choose ($;$)
 		$param{'q'} = 1 if $param{'q'} > 1;
 		$param{'q'} = 0 if $param{'q'} < 0;
 	    } else {
-		$param{'q'} = 1;
-	    }
+		$param{'q'} = $default_q;
 
-	    $param{'q'} = 1 unless defined $param{'q'};
+		# This makes sure that the first ones are slightly better off
+		# and therefore more likely to be chosen.
+		$default_q -= 0.0001;
+	    }
 	    $accept{$type}{$name} = \%param;
 	}
     });
@@ -269,7 +280,7 @@ sub choose ($;$)
 
 	if ($DEBUG) {
 	    $mbx = "undef" unless defined $mbx;
-	    printf "Q=%.3f", $Q;
+	    printf "Q=%.4f", $Q;
 	    print "  (q=$q, mbx=$mbx, qe=$qe, qc=$qc, ql=$ql, qs=$qs)\n";
 	}
 

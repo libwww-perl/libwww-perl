@@ -1,5 +1,5 @@
 #
-# $Id: Simple.pm,v 1.3 1995/07/11 22:41:28 aas Exp $
+# $Id: Simple.pm,v 1.4 1995/07/13 14:59:57 aas Exp $
 
 =head1 NAME
 
@@ -11,19 +11,102 @@ get, head, getprint, getstore, mirror - Procedural LWP interface
 
  use LWP::Simple;
  $content = get("http://www.oslonett.no/")
+ if (mirror("http://www.oslonett.no/", "foo") == RC_NOT_MODIFIED) {
+     ...
+ }
+ if (isSuccess(getprint("http://www.oslonett.no/"))) {
+     ...
+ }
 
 =head1 DESCRIPTION
 
 This interface is intended for those who want a simplified view of the
 LWP library.  This interface should also be suitable for one-liners.
 
-A few convenience methods cover frequent uses: the C<getAndPrint>
-and C<getAndStore> methods print and save the results of a GET
-request.  The message is printed on STDERR unless succesful response.
-Both routines returns a C<LWP::Reponse> object.
+This following procedures are exported:
 
-The C<get> method returns the content of a ducument. It returns undef
-in case of errors.
+=over 3
+
+=item get($url)
+
+Gets a document.  Returns the document is successful.  Returns 'undef'
+if it fails.
+
+=item head($url)
+
+Get document headers. Returns the following values if successful:
+($content_type, $document_length, $modified_time, $expires, $server)
+
+Returns 'undef' if it fails.
+
+=item getprint($url)
+
+Get and print a document identified by a URL. The document is printet
+on STDOUT. The error message is printed on STDERR if it fails.
+It returns the response code.
+
+=item getstore($url, $file)
+
+Gets a document identified by a URL and stores it in the file. It
+returns the response code.
+
+=item mirror($url, $file)
+
+Get and store a document identified by a URL, using If-modified-since,
+and checking of the content-length.  Returns response code.
+
+=back
+
+This modules also exports the LWP::StatusCode constants and
+procedures.  These can be used when you check the response code from
+C<getprint>, C<getstore> and C<mirror>.  The constants are:
+
+   RC_OK
+   RC_CREATED
+   RC_ACCEPTED
+   RC_PROVISIONAL_INFORMATION
+   RC_NO_CONTENT
+   RC_MULTIPLE_CHOICES
+   RC_MOVED_PERMANENTLY
+   RC_MOVED_TEMPORARILY
+   RC_METHOD
+   RC_NOT_MODIFIED
+   RC_BAD_REQUEST
+   RC_UNAUTHORIZED
+   RC_PAYMENT_REQUIRED
+   RC_FORBIDDEN
+   RC_NOT_FOUND
+   RC_METHOD_NOT_ALLOWED
+   RC_NONE_ACCEPTABLE
+   RC_PROXY_AUTHENTICATION_REQUIRED
+   RC_REQUEST_TIMEOUT
+   RC_CONFLICT
+   RC_GONE
+   RC_INTERNAL_SERVER_ERROR
+   RC_NOT_IMPLEMENTED
+   RC_BAD_GATEWAY
+   RC_SERVICE_UNAVAILABLE
+   RC_GATEWAY_TIEOUT
+
+The LWP::StatusCode procedures are:
+
+=over 3
+
+=item isSuccess($rc)
+
+Check if response code indicated successfull request.
+
+=item isError($rc)
+
+Check if response code indicated that an error occured.
+
+=back
+
+The module will also export the $ua object if you insist.
+
+=head1 SEE ALSO
+
+L<LWP>, L<LWP::UserAgent>, L<get>, L<mirror>
 
 =cut
 
@@ -32,8 +115,12 @@ package LWP::Simple;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(get head getprint getstore mirror);
+@EXPORT = qw(get head getprint getstore mirror);  # note additions below
+@EXPORT_OK = qw($ua);
 
+# We also export everything from LWP::StatusCode
+use LWP::StatusCode @LWP::StatusCode::EXPORT_OK;
+push(@EXPORT, @LWP::StatusCode::EXPORT_OK);
 
 require LWP::UserAgent;
 $ua = new LWP::UserAgent;  # we create a global UserAgent object
@@ -41,13 +128,6 @@ $ua = new LWP::UserAgent;  # we create a global UserAgent object
 use LWP::Date qw(str2time);
 use Carp;
 
-
-=head2 get($url)
-
-Get a document.  Returns the document is successful.  Returns 'undef' if it
-fails.
-
-=cut
 
 sub get {
     my($url) = @_;
@@ -60,14 +140,6 @@ sub get {
     return undef;
 }
 
-=head2 head($url)
-
-Get document headers. Returns the following values if successful:
-($content_type, $document_length, $modified_time, $expires, $server)
-
-Returns 'undef' if it fails.
-
-=cut
 
 sub head {
     my($url) = @_;
@@ -88,13 +160,6 @@ sub head {
     }
 }
 
-=head2 getprint($url)
-
-Get and print a document identified by a URL. The document is printet
-on STDOUT. The error message is printed on STDERR if it fails. The
-return value is a reference to the LWP::Response object.
-
-=cut
 
 sub getprint {
     my($url) = @_;
@@ -112,14 +177,6 @@ sub getprint {
 }
 
 
-=head2 getstore($url, $file)
-
-Get and store a document identified by a URL. The return value is a
-reference to the LWP::Response object. You should check this for
-success.
-
-=cut
-
 sub getstore {
     my($url, $file) = @_;
     croak("getAndStore needs two arguments") unless @_ == 2;
@@ -132,15 +189,6 @@ sub getstore {
     $response->code;
 }
 
-
-=head2 mirror($url, $file)
-
-Get and store a document identified by a URL,
-using If-modified-since, and checking of the content-length.
-Returns response code.
-
-=cut
-
 sub mirror {
     croak("mirror needs two arguments") unless @_ == 2;
 
@@ -149,5 +197,4 @@ sub mirror {
     $response->code;
 }
 
-
-
+1;

@@ -2,6 +2,9 @@ print "1..1\n";
 
 use HTML::Parse;
 
+# This is a very simple test.  It basically just ensures that the
+# module is parsed ok by perl.
+
 $h = parse_html <<'EOT';
 
 <Title>Test page

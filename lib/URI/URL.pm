@@ -1,11 +1,11 @@
 #
-# $Id: URL.pm,v 3.8 1995/08/27 21:57:51 aas Exp $
+# $Id: URL.pm,v 3.9 1995/09/02 08:22:33 aas Exp $
 #
 package URI::URL;
 require 5.001;  # but it should really be 5.001e
 
 # Make the version number available
-$VERSION = "3.03";
+$VERSION = "3.04";
 sub Version { $VERSION; }
 
 #####################################################################
@@ -257,8 +257,6 @@ Non-http scheme specific escaping is not correct yet.
 =cut
 
 #####################################################################
-#
-# Perl resumes here
 
 
 require Carp;

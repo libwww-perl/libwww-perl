@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.8 1996/10/22 08:11:54 aas Exp $
+# $Id: Daemon.pm,v 1.9 1996/10/22 11:02:52 aas Exp $
 #
 
 use strict;
@@ -60,7 +60,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket ();
 @ISA=qw(IO::Socket::INET);
@@ -234,9 +234,9 @@ sub get_request
 		$chunk_head =~ /^([0-9A-Fa-f]+)/;
 		return undef unless length($1);
 		my $size = hex($1);
-		last CHUNK if $size == 0;
 
 		my $missing = $size - length($buf);
+		$missing += 2; # also read CRLF at chunk end
 		$body .= $buf;
 		$buf = "";
 		# must read rest of chunk and append it to the $body
@@ -248,6 +248,8 @@ sub get_request
 		    return undef if $n == 0;
 		    $missing -= $n;
 		}
+		substr($body, -2, 2) = ''; # remove CRLF at end
+		last CHUNK if $size == 0;
 	    } else {
 		# need more data in order to have a complete chunk header
 		if ($timeout) {
@@ -298,7 +300,7 @@ sub get_request
 
     } elsif ($ct && lc($ct) =~ m/^multipart\/\w+\s*;.*boundary\s*=\s*(\w+)/) {
 	# Handle multipart content type
-	my $boundary = "\012--$1--";
+	my $boundary = "$CRLF--$1--$CRLF";
 	while (index($buf, $boundary) < 0) {
 	    # end marker not yet found
 	    if ($timeout) {
@@ -307,6 +309,7 @@ sub get_request
 	    my $n = sysread($self, $buf, 2048, length($buf));
 	    return undef if $n == 0;
 	}
+	$r->content($buf);
 
     } elsif ($len) {
 	# Plain body specified by "Content-Length"

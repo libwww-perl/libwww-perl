@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.126 2003/10/15 08:44:20 gisle Exp $
+# $Id: LWP.pm,v 1.127 2003/10/15 19:00:24 gisle Exp $
 
 package LWP;
 
@@ -298,9 +298,9 @@ represented in actual perl code:
   $ua->agent("MyApp/0.1 ");
 
   # Create a request
-  my $req = HTTP::Request->new(POST => 'http://www.perl.com/cgi-bin/BugGlimpse');
+  my $req = HTTP::Request->new(POST => 'http://search.cpan.org/search');
   $req->content_type('application/x-www-form-urlencoded');
-  $req->content('match=www&errors=0');
+  $req->content('query=libwww-perl&mode=dist');
 
   # Pass request to the user agent and get a response back
   my $res = $ua->request($req);
@@ -309,7 +309,7 @@ represented in actual perl code:
   if ($res->is_success) {
       print $res->content;
   } else {
-      print "Bad luck this time\n";
+      print $res->status_line, "\n";
   }
 
 The $ua is created once when the application starts up.  New request

@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 1;
 
@@ -22,7 +22,7 @@ Digest::MD5        - Needed to do Digest authentication
 
 URI 1.10           - There are URIs everywhere
 
-Net::FTP 2.4       - If you want ftp://-support
+Net::FTP 2.58      - If you want ftp://-support
 
 HTML::Tagset       - Needed by HTML::Parser
 

@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.58 2001/10/26 18:14:53 gisle Exp $
+# $Id: Makefile.PL,v 1.59 2001/10/26 22:15:08 gisle Exp $
 
 require 5.005;
 use strict;
@@ -163,7 +163,7 @@ EOT
 print "Checking for Net::FTP......";
 eval {
     require Net::FTP;
-    Net::FTP->VERSION('2.00');
+    Net::FTP->VERSION('2.58');
 };
 if ($@) {
     print " failed\n";
@@ -218,7 +218,7 @@ WriteMakefile(
    EXE_FILES     => [ map {"bin/$_"} @programs_to_install ],
    PREREQ_PM     => { 'URI'              => "1.10",
                       'MIME::Base64'     => "2.1",
-                      'Net::FTP'         => "2.4",
+                      'Net::FTP'         => "2.58",
                       'HTML::HeadParser' => 0,
                       'Digest::MD5'      => 0,
                      },

@@ -1,0 +1,127 @@
+print "1..15\n";
+
+use HTTP::Request::Common;
+
+$r = GET 'http://www.sn.no/';
+print $r->as_string;
+
+print "not " unless $r->method eq "GET" and $r->url eq "http://www.sn.no/";
+print "ok 1\n";
+
+$r = HEAD "http://www.sn.no/",
+     If_Match => 'abc',
+     From => 'aas@sn.no';
+print $r->as_string;
+
+print "not " unless $r->method eq "HEAD" and $r->url->eq("http://www.sn.no");
+print "ok 2\n";
+
+print "not " unless $r->header('If-Match') eq "abc" and $r->header("from") eq "aas\@sn.no";
+print "ok 3\n";
+
+$r = PUT "http://www.sn.no",
+     Content => 'foo';
+print $r->as_string;
+
+print "not " unless $r->method eq "PUT" and $r->url->netloc eq "www.sn.no";
+print "ok 4\n";
+
+print "not " if defined($r->header("Content"));
+print "ok 5\n";
+
+print "not " unless ${$r->content_ref} eq "foo" and
+                    $r->content eq "foo";
+print "ok 6\n";
+
+#--- Test POST requests ---
+
+$r = POST "http://www.sn.no", [foo => 'bar',
+                               baz => [qw(a b c)],
+                               foo => 'zoo=&'
+                              ],
+                              bar => 'foo';
+print $r->as_string;
+
+print "not " unless $r->method eq "POST" and
+                    $r->content_type eq "application/x-www-form-urlencoded" and
+                    $r->content_length == 39 and
+                    $r->header("bar") eq "foo";
+print "ok 7\n";
+
+print "not " unless $r->content eq "foo=bar&baz=a&baz=b&baz=c&foo=zoo%3D%26";
+print "ok 8\n";
+
+$r = POST "mailto:gisle\@aas.no",
+     Subject => "Heisan",
+     Content_Type => "text/plain",
+     Content => "Howdy\n";
+print $r->as_string;
+
+print "not " unless $r->method eq "POST" and
+                    $r->header("Subject") eq "Heisan" and
+                    $r->content eq "Howdy\n" and
+	            $r->content_type eq "text/plain";
+print "ok 9\n";
+
+#
+# POST for File upload
+#
+$file = "test-$$";
+open(FILE, ">$file") or die "Can't create $file: $!";
+print FILE "foo\nbar\nbaz\n";
+close(FILE);
+
+$r = POST 'http://www.perl.org/survey.cgi',
+       Content_Type => 'form-data',
+       Content      => [ name  => 'Gisle Aas',
+                         email => 'gisle@aas.no',
+                         gender => 'm',
+                         born   => '1964',
+                         file   => [$file],
+                       ];
+print $r->as_string;
+
+unlink($file) or warn "Can't unlink $file: $!";
+
+print "not " unless $r->method eq "POST" and
+	            $r->url->path eq "/survey.cgi" and
+                    $r->content_type eq "multipart/form-data" and
+	            $r->header(Content_type) =~ /boundary="([^"]+)"/;
+print "ok 10\n";
+$boundary = $1;
+
+$c = $r->content;
+@c = split(/--$boundary/, $c);
+print "$c[5]\n";
+
+print "not " unless @c == 7 and $c[6] =~ /^--\n/;  # 5 parts + header & trailer
+print "ok 11\n";
+
+print "not " unless $c[2] =~ /^Content-Disposition:\s*form-data;\s*name="email"/m and
+                    $c[2] =~ /^gisle\@aas.no$/m;
+print "ok 12\n";
+
+print "not " unless $c[5] =~ /^Content-Disposition:\s*form-data;\s*name="file";\s*filename="$file"/m and
+	            $c[5] =~ /^Content-Type:\s*text\/plain$/m and
+	            $c[5] =~ /^foo\nbar\nbaz/m;
+print "ok 13\n";
+
+$r = POST 'http://www.perl.org/survey.cgi',
+      [ file => [ undef, "xxx", Content_type => "text/html", Content => "<h1>Hello, world!</h1>" ]],
+      Content_type => 'multipart/form-data';
+print $r->as_string;
+
+print "not " unless $r->content =~ /^--\S+\nContent-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+	            $r->content =~ /^Content-Type: text\/html/m and
+	            $r->content =~ /^<h1>Hello, world/m;
+print "ok 14\n";
+
+
+$r = POST 'http://www.perl.org/survey.cgi',
+      Content_type => 'multipart/form-data',
+      Content => [ file => [ undef, undef, Content => "foo"]];
+print $r->as_string;
+
+print "not " if $r->content =~ /filename=/;
+print "ok 15\n";
+

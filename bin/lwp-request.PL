@@ -1,6 +1,6 @@
 #!/local/bin/perl -w
 
-# $Id: lwp-request.PL,v 1.2 1995/07/13 14:10:54 aas Exp $
+# $Id: lwp-request.PL,v 1.3 1995/07/14 00:12:36 aas Exp $
 #
 # Simple user agent using LWP library.  It's interface is based on the
 # libwww-perl-0.40 program with the same name.
@@ -11,8 +11,8 @@ get - Simple WWW user agent
 
 =head1 SYNOPSIS
 
- get [-eEdvh] [-b <base URL>] [-t <timeout>] [-i <if-modified-since>]
-     [-c <content-type>] [-m method] <url>...
+ get [-eEdvh] [-m method] [-b <base URL>] [-t <timeout>]
+     [-i <if-modified-since>] [-c <content-type>] <url>...
 
 =head1 DESCRIPTION
 
@@ -26,22 +26,16 @@ The options are:
 
 =over 3
 
-=item -e
 
-Print response headers to stderr.  This option is always on for HEAD requests.
+=item -m <method>
 
-=item -E
-
-Print both request and response headers to stderr.
-
-=item -d
-
-Do not print the content.
+Set which method to use for the request.  If this option is not used,
+then the method is derived from the name of the program.
 
 =item -b <url>
 
-This URL will be used as the base URL.  The base URL only takes effect
-for relative URLs.
+This URL will be used as the base URL for the URLs that the method is
+applied to.  The base URL only takes effect for relative URLs.
 
 =item -t <timeout>
 
@@ -65,14 +59,35 @@ requests that take a content, i.e. POST, PUT and CHECKIN.  The default
 Content-Type for POST is C<application/x-www-form-urlencoded>.  The
 default Content-type for the others are C<text/plain>.
 
-=item -m <method>
+=back
 
-Set which method to use for the request.  If this option is not used,
-then the method is derived for the name of the program.
+The following options controls what is displayed by the program:
+
+=over 3
+
+=item -u
+
+Print request method and absolute URL as requests are made.
+
+=item -U
+
+Print requeset headers in addition to request method and absolute URL.
+
+=item -s
+
+Print response status code.
+
+=item -e
+
+Print response headers.  This option is always on for HEAD requests.
+
+=item -d
+
+Do B<not> print the content of the response.
 
 =item -v
 
-Print the version of the program and quit.
+Print the version number of the program and quit.
 
 =item -h
 
@@ -103,7 +118,7 @@ use Getopt::Std;
 
 $0 =~ s,.*/,,;  # use basename only
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 # "N" = Allowed without content in request
 # "C" = Allowed with content in request
@@ -123,18 +138,22 @@ $VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 $ua = new LWP::UserAgent;
 
-$opt_h = undef;  # print usage
-$opt_v = undef;  # print version
+$opt_m = undef;  # set method
 $opt_b = undef;  # base url
 $opt_t = undef;  # timeout
-$opt_d = undef;  # don't display content
-$opt_e = undef;  # display response headers (default for HEAD)
-$opt_E = undef;  # display headers on both request and response
 $opt_i = undef;  # if-modified-since
 $opt_c = undef;  # content type for POST
-$opt_m = undef;  # set method
 
-unless (getopts("hveEdb:t:i:c:m:")) {
+$opt_u = undef;  # display method, URL and headers of request
+$opt_U = undef;  # display request headers also
+$opt_s = undef;  # display status code
+$opt_e = undef;  # display response headers (default for HEAD)
+$opt_d = undef;  # don't display content
+
+$opt_h = undef;  # print usage
+$opt_v = undef;  # print version
+
+unless (getopts("hvuUsedb:t:i:c:m:")) {
     usage();
 }
 
@@ -182,6 +201,10 @@ if (defined $opt_i) {
     $opt_i = time2str($time);
 }
 
+if (defined $opt_b) {
+    $opt_b = new URI::URL $opt_b;
+}
+
 $content = undef;
 if ($allowed_methods{$method} eq "C") {
     # This request needs some content
@@ -203,37 +226,50 @@ if ($allowed_methods{$method} eq "C") {
 }
 
 
+# Set up a request.  We use the same request for all URLs.
+$request = new LWP::Request $method;
+$request->header('If-Modified-Since', $opt_i) if defined $opt_i;
+$request->header('User-Agent', "LWP $0/$VERSION");
+$request->header('Accept', '*/*');
+if ($opt_c) { # will always be set for request that wants content
+    $request->header('Content-Type', $opt_c);
+    $request->header('Content-Length', length $content);
+    $request->content($content);
+}
+
+
 $errors = 0;
+
 while ($url = shift) {
-    $url = new URI::URL $url, $opt_b;
-    $request = new LWP::Request($method, $url);
-
-    $request->header('If-Modified-Since', $opt_i) if defined $opt_i;
-    $request->header('User-Agent', "LWP $0/$VERSION");
-    $request->header('Accept', '*/*');
-    if ($opt_c) { # will always be set for request that wants content
-	$request->header('Content-Type', $opt_c);
-	$request->header('Content-Length', length $content);
-	$request->content($content);
-    }
-
-    if ($opt_E) {
-	print STDERR $request->headers->as_string;
-	print STDERR "----\n";  # 
-    }
+    $request->url(new URI::URL $url, $opt_b);
 
     $response = $ua->request($request);
 
-    if ($opt_E || $opt_e) {
+    if ($opt_u || $opt_U) {
+	my $url = $request->url->as_string;
+	print "$method $url\n";
+
+        print $request->headerAsString, "\n" if $opt_U;
+    }
+
+    if ($opt_s) {
+	# Display status code
+	require LWP::StatusCode;
+	my $code = $response->code;
+	print $code, " ", LWP::StatusCode::message($code), "\n";
+	
+    }
+
+    if ($opt_e) {
 	# Display headers
-	print STDERR $response->headers->as_string;
-	print STDERR "\n";  # separate headers and content
+	print $response->headerAsString;
+	print "\n";  # separate headers and content
     }
 
     if ($response->isSuccess) {
 	print $response->content unless $opt_d;
     } else {
-	print STDERR $response->errorAsHTML;
+	print STDERR $response->errorAsHTML unless $opt_d;
 	$errors++;
     }
 }
@@ -246,8 +282,10 @@ sub usage
 {
     die <<"EOT";
 Usage: $0 [-options] <url>...
+    -u            Display method and URL before any response
+    -U            Display request headers after method and URL
+    -s            Display response status code
     -e            Display response headers
-    -E            Display all headers (both request and response)
     -d            Don't display content
     -b <base>     Use the specified URL as base
     -t <timeout>  Set timeout value

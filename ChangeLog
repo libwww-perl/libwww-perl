@@ -1,3 +1,17 @@
+Fri Feb 13 1998   Gisle Aas <aas@sn.no>
+
+ o  Release 5.20
+
+ o  Fixed the "500 Offset outside string" bug that affected perl
+    5.004_03 and older version of Perl.
+
+ o  Fixed a documentation typo spotted by Michael Quaranta
+    <quaranta@vnet.IBM.COM>
+
+ o  HTTP::Date: Protect against croaking from timegm/timelocal.
+
+
+
 Mon Jan 26 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.19

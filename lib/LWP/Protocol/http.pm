@@ -1,5 +1,5 @@
 #
-# $Id: http.pm,v 1.38 1998/01/20 14:22:44 aas Exp $
+# $Id: http.pm,v 1.39 1998/02/12 22:24:11 aas Exp $
 
 package LWP::Protocol::http;
 
@@ -140,7 +140,7 @@ sub request
 		die "short write" unless $n == length($buf);
 		LWP::Debug::conns($buf);
 	    }
-	} else {
+	} elsif (length($$contRef)) {
 	    die "write timeout" if $timeout && !$sel->can_write($timeout);
 	    my $n = $socket->syswrite($$contRef, length($$contRef));
 	    die $! unless defined($n);

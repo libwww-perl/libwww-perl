@@ -1,44 +1,49 @@
-# $Id: RobotRules.pm,v 1.22 2001/04/20 18:38:22 gisle Exp $
+# $Id: RobotRules.pm,v 1.23 2002/08/18 03:32:07 gisle Exp $
 
 package WWW::RobotRules;
 
 =head1 NAME
 
-WWW::RobotsRules - Parse robots.txt files
+WWW::RobotRules - database of robots.txt-derived permissions
 
 =head1 SYNOPSIS
 
- require WWW::RobotRules;
- my $robotsrules = new WWW::RobotRules 'MOMspider/1.0';
+ use WWW::RobotRules;
+ my $rules = WWW::RobotRules->new('MOMspider/1.0');
 
  use LWP::Simple qw(get);
 
- $url = "http://some.place/robots.txt";
- my $robots_txt = get $url;
- $robotsrules->parse($url, $robots_txt);
+ {
+   my $url = "http://some.place/robots.txt";
+   my $robots_txt = get $url;
+   $rules->parse($url, $robots_txt) if defined $robots_txt;
+ }
 
- $url = "http://some.other.place/robots.txt";
- my $robots_txt = get $url;
- $robotsrules->parse($url, $robots_txt);
+ {
+   my $url = "http://some.other.place/robots.txt";
+   my $robots_txt = get $url;
+   $rules->parse($url, $robots_txt) if defined $robots_txt;
+ }
 
- # Now we are able to check if a URL is valid for those servers that
- # we have obtained and parsed "robots.txt" files for.
- if($robotsrules->allowed($url)) {
+ # Now we can check if a URL is valid for those servers
+ # whose "robots.txt" files we've gotten and parsed:
+ if($rules->allowed($url)) {
      $c = get $url;
      ...
  }
 
 =head1 DESCRIPTION
 
-This module parses a F</robots.txt> file as specified in
-"A Standard for Robot Exclusion", described in
-<http://info.webcrawler.com/mak/projects/robots/norobots.html>
-Webmasters can use the F</robots.txt> file to disallow conforming
-robots access to parts of their web site.
+This module parses F</robots.txt> files as specified in
+"A Standard for Robot Exclusion", at
+<http://www.robotstxt.org/wc/norobots.html>
+Webmasters can use the F</robots.txt> file to forbid conforming
+robots from accessing parts of their web site.
 
-The parsed file is kept in the WWW::RobotRules object, and this object
+The parsed files are kept in a WWW::RobotRules object, and this object
 provides methods to check if access to a given URL is prohibited.  The
-same WWW::RobotRules object can parse multiple F</robots.txt> files.
+same WWW::RobotRules object can be used for one or more parsed
+F</robots.txt> files on any number of hosts.
 
 The following methods are provided:
 
@@ -46,7 +51,7 @@ The following methods are provided:
 
 =cut
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -171,9 +176,21 @@ sub parse {
 # name of this robot
 #
 sub is_me {
-    my($self, $ua) = @_;
+    my($self, $ua_line) = @_;
     my $me = $self->agent;
-    return index(lc($me), lc($ua)) >= 0;
+
+    # See whether my short-name is a substring of the
+    #  "User-Agent: ..." line that we were passed:
+    
+    if(index(lc($ua_line), lc($me)) >= 0) {
+      LWP::Debug::debug("\"$ua_line\" applies to \"$me\"")
+       if defined &LWP::Debug::debug;
+      return 1;
+    } else {
+      LWP::Debug::debug("\"$ua_line\" does not apply to \"$me\"")
+       if defined &LWP::Debug::debug;
+      return '';
+    }
 }
 
 =item $rules->allowed($uri)
@@ -185,6 +202,10 @@ Returns TRUE if this robot is allowed to retrieve this URL.
 sub allowed {
     my($self, $uri) = @_;
     $uri = URI->new("$uri");
+    
+    return 1 unless $uri->scheme eq 'http' or $uri->scheme eq 'https';
+     # Robots.txt applies to only those schemes.
+    
     my $netloc = $uri->host . ":" . $uri->port;
 
     my $fresh_until = $self->fresh_until($netloc);
@@ -226,7 +247,13 @@ sub agent {
     my ($self, $name) = @_;
     my $old = $self->{'ua'};
     if ($name) {
+        # Strip it so that it's just the short name.
+        # I.e., "FooBot"                                      => "FooBot"
+        #       "FooBot/1.2"                                  => "FooBot"
+        #       "FooBot/1.2 [http://foobot.int; foo@bot.int]" => "FooBot"
+
 	delete $self->{'loc'};   # all old info is now stale
+	$name = $1 if $name =~ m/(\S+)/; # get first word
 	$name =~ s!/?\s*\d+.\d+\s*$!!;  # loose version
 	$self->{'ua'}=$name;
     }
@@ -235,6 +262,7 @@ sub agent {
 
 sub visit {
     my($self, $netloc, $time) = @_;
+    return unless $netloc;
     $time ||= time;
     $self->{'loc'}{$netloc}{'last'} = $time;
     my $count = \$self->{'loc'}{$netloc}{'count'};
@@ -306,7 +334,7 @@ __END__
 
 The format and semantics of the "/robots.txt" file are as follows
 (this is an edited abstract of
-<http://info.webcrawler.com/mak/projects/robots/norobots.html>):
+<http://www.robotstxt.org/wc/norobots.html> ):
 
 The file consists of one or more records separated by one or more
 blank lines. Each record contains lines of the form
@@ -367,3 +395,6 @@ This example indicates that no robots should visit this site further:
 L<LWP::RobotUA>, L<WWW::RobotRules::AnyDBM_File>
 
 =cut
+
+# Bender: "Well, I don't have anything else
+#          planned for today.  Let's get drunk!"

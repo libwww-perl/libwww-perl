@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 1.4 1995/08/23 15:27:07 aas Exp $
+# $Id: QuotedPrint.pm,v 1.5 1995/10/31 09:11:26 aas Exp $
 
 package MIME::QuotedPrint;
 
@@ -41,12 +41,12 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 sub encode_qp
 {
-    $res = shift;
+    my $res = shift;
     $res =~ s/([^ \t\n!-<>-~])/sprintf("=%02X", ord($1))/eg;  # rule #2,#3
     $res =~ s/([ \t]+)$/
       join('', map { sprintf("=%02X", ord($_)) }
@@ -66,7 +66,7 @@ sub encode_qp
 
 sub decode_qp
 {
-    $res = shift;
+    my $res = shift;
     $res =~ s/\s+(\r?\n)/$1/g; # rule #3 (trailing white space must be deleted)
     $res =~ s/=\r?\n//g;       # rule #5 (soft line breaks)
     $res =~ s/=([\da-fA-F]{2})/pack("C", hex($1))/ge;

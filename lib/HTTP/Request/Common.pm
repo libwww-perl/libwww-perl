@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.22 2003/10/23 19:11:32 uid39246 Exp $
+# $Id: Common.pm,v 1.23 2004/06/03 13:38:40 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -152,7 +152,6 @@ sub form_data   # RFC1867
 		    local($/) = undef; # slurp files
 		    $content = <$fh>;
 		    close($fh);
-		    $h->header("Content-Length" => length($content));
 		}
 		unless ($ct) {
 		    require LWP::MediaTypes;

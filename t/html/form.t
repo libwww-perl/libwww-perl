@@ -126,12 +126,11 @@ $f->value(f => $filename);
 
 ok($f->click->as_string, <<"EOT");
 POST http://localhost/
-Content-Length: 159
+Content-Length: 139
 Content-Type: multipart/form-data; boundary=xYzZY
 
 --xYzZY\r
 Content-Disposition: form-data; name="f"; filename="$filename"\r
-Content-Length: 18\r
 Content-Type: text/plain\r
 \r
 This is some text

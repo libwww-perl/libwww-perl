@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 2.6 2003/10/14 18:20:17 gisle Exp $
+# $Id: UserAgent.pm,v 2.7 2003/10/15 10:50:29 gisle Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -117,7 +117,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -425,7 +425,7 @@ sub prepare_request
 =item $ua->simple_request($request, [$arg [, $size]])
 
 This method dispatches a single WWW request on behalf of a user, and
-returns the response received.  If differs from C<send_request()> by
+returns the response received.  It differs from C<send_request()> by
 automatically calling the C<prepare_request()> method before the
 request is sent.
 

@@ -87,7 +87,7 @@ unlink($file) or warn "Can't unlink $file: $!";
 print "not " unless $r->method eq "POST" and
 	            $r->url->path eq "/survey.cgi" and
                     $r->content_type eq "multipart/form-data" and
-	            $r->header(Content_type) =~ /boundary="([^"]+)"/;
+	            $r->header(Content_type) =~ /boundary="?([^"]+)"?/;
 print "ok 10\n";
 $boundary = $1;
 

@@ -1,3 +1,39 @@
+Mon Sep  4 1995   Gisle Aas <aas@oslonett.no>
+
+ o  URI::URL.  Remove port from netloc if it is the default port.
+    Don't use anything, just require.
+
+ o  Implemented Mail::Cap which will become part of the MailTools
+    package.
+
+ o  Moved Base64 to LWP::MIME.  Implemented LWP::MIME::QuotedPrint for
+    completness sake.  Routine names has changed.
+
+ o  LWP::MediaType reads default types from media.types file.
+    guessMediaType() now also returns encodings.  New function mediaSuffix()
+
+ o  Provide function to validate redirects if LWP::UserAgent
+
+ o  LWP::Protocol::file now sets Content-Encoding headers
+
+ o  Allow request content to be provided by a callback.
+
+ o  Fix bug that prevented response callback to work.  Don't callback
+    unless successful response. 
+
+ o  LWP::Socket::open has been renamed top LWP::Socket::connect.
+    LWP::Socket::close has gone.  Implemented new function LWP::Socket::read
+    that returns as fast as it has some data to offer.  Implemented
+    LWP::Socket::pushback.
+
+ o  Does not die in LWP::UserAgent::request()
+
+ o  LWP::Socket now use LWP::IO for low level IO
+
+ o  Implemented LWP::TkIO
+
+
+
 Thu Aug 17 1995   Gisle Aas <aas@oslonett.no>
 
  o  $ua->redirectOK() for checking redirects

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# This script just locates files with <tab> in them.  We want all sources to
-# be "untabified".  My perl-mode seems to like tabs.
-
-find . -type f -print | xargs perl -ne 'print "$ARGV $.: $_" if /\t/' | grep -v Makefile

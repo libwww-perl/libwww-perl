@@ -1,5 +1,5 @@
 #
-# $Id: MediaTypes.pm,v 1.3 1995/07/14 00:15:59 aas Exp $
+# $Id: MediaTypes.pm,v 1.4 1995/07/16 07:23:42 aas Exp $
 
 package LWP::MIMEtypes;
 
@@ -9,13 +9,27 @@ LWP::MIMEtypes - Library for MIME types
 
 =head1 DESCRIPTION
 
-Not yet.
+This module is supposed to handle mailcap files so that we are able to
+determine MIME types for files and URLs.  Currently it does not no
+much.
 
 =head1 TO DO
 
+=over 3 
+
+=item * 
+
 Read mailcap
 
+=item *
+
 Read types from server config files.
+
+=item *
+
+Guess types for non http:-URLs.
+
+=back
 
 =cut
 

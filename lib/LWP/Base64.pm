@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Id: Base64.pm,v 1.6 1995/07/15 07:37:34 aas Exp $
+# $Id: Base64.pm,v 1.7 1995/08/17 13:43:48 aas Exp $
 
 
 package LWP::Base64;
@@ -62,7 +62,7 @@ require Exporter;
 @EXPORT_OK = qw(Base64encode Base64decode);
 
 $VERSION = $VERSION = # shut up -w
-    sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+    sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 @Base64CharacterSet  = ('A'..'Z', 'a'..'z', 0..9, '+', '/');
 $Base64CharacterString = join('', @Base64CharacterSet);
@@ -200,91 +200,4 @@ sub _Base64decodeAux
     $result;
 }
 
-
-#####################################################################
-#
-# S E L F   T E S T   S E C T I O N
-#
-#####################################################################
-#
-# If we're not use'd or require'd execute self-test.
-# Handy for regression testing and as a quick reference :)
-#
-# Test is kept behind __END__ so it doesn't take uptime
-# and memory  unless explicitly required. If you're working
-# on the code you might find it easier to comment out the
-# eval and __END__ so that error line numbers make more sense.
-
-package main;
-
-eval join('',<DATA>) || die $@ unless caller();
-
 1;
-
-__END__
-
-&encodeTest;
-&decodeTest;
-print "LWP::Base64 ", $LWP::Base64::VERSION, " ok\n";
-
-sub encodeTest
-{
-    print "encode test\n";
-
-    my @encode_tests = (
-        ['a'   => 'YQ=='],
-        ['aa'  => 'YWE='], 
-        ['aaa' => 'YWFh'],
-
-        ['aaa' => 'YWFh'],
-        ['aaa' => 'YWFh'],
-        ['aaa' => 'YWFh'],
-
-                 # from HTTP spec
-        ['Aladdin:open sesame' => 'QWxhZGRpbjpvcGVuIHNlc2FtZQ=='],
-
-        ['a' x 100 => 'YWFh' x 33 . 'YQ=='],
-    );
-
-    my $testno = 1;
-    for $test (@encode_tests) {
-        my($plain, $expected) = ($$test[0], $$test[1]);
-
-        my $encoded = &LWP::Base64::Base64encode($plain);
-        if ($encoded ne $expected) {
-            die "test $testno ($plain): expected $expected, got $encoded\n";
-        }
-        my $decoded = &LWP::Base64::Base64decode($encoded);
-        if ($decoded ne $plain) {
-            die "test $testno ($plain): expected $expected, got $encoded\n";
-        }
-
-        print "  test $testno ok\n";
-        $testno++;
-    }
-}
-
-sub decodeTest
-{
-    print "decode test:\n";
-
-    my @decode_tests = (
-        ['YWE='   => 'aa'],
-        [' YWE='  => 'aa'],
-        ['Y WE='  => 'aa'],
-        ['YWE= '  => 'aa'],
-        ['Y W E=' => 'aa'],
-    );
-
-    my $testno = 1;
-    for $test (@decode_tests) {
-        my($encoded, $expected) = ($$test[0], $$test[1]);
-
-        my $decoded = &LWP::Base64::Base64decode($encoded);
-        if ($decoded ne $expected) {
-            die "test $testno ($encoded): expected $expected, got $decoded\n";
-        }
-        print "  test $testno ok\n";
-        $testno++;
-    }
-}

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: Date.pm,v 1.7 1995/08/09 09:18:46 aas Exp $
+# $Id: Date.pm,v 1.8 1995/08/17 13:43:35 aas Exp $
 #
 package HTTP::Date;
 
@@ -27,8 +27,6 @@ to be the fixed length subset of the format defined by RFC 1123
 
  Thu, 03 Feb 1994 00:00:00 GMT
 
-Running this module standalone executes a self-test.
-
 =head1 SEE ALSO
 
 See L<LWP> for a complete overview of libwww-perl5.
@@ -49,7 +47,7 @@ module.
 
 ####################################################################
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 require 5.001;
@@ -192,65 +190,4 @@ sub str2time
     return (timegm($sec, $min, $hr, $day, $mon, $yr) + $offset);
 }
 
-
-
-####################################################################
-#
-# S E L F   T E S T   S E C T I O N
-#
-#####################################################################
-#
-# If we're not use'd or require'd execute self-test.
-# Handy for regression testing and as a quick reference :)
-#
-# Test is kept behind __END__ so it doesn't take uptime
-# and memory  unless explicitly required. If you're working
-# on the code you might find it easier to comment out the
-# eval and __END__ so that error line numbers make more sense.
-
-package main;
-
-eval join('',<DATA>) || die $@ unless caller();
-
 1;
-
-__END__
-
-import HTTP::Date @HTTP::Date::EXPORT_OK;
-
-# test str2time for supported dates
-my(@tests) =
-(
- 'Thu Feb  3 00:00:00 GMT 1994',        # ctime format
- 'Thu Feb  3 00:00:00 1994',            # same as ctime, except no TZ
- 'Thu, 03 Feb 1994 00:00:00 GMT',       # proposed new HTTP format
- 'Thursday, 03-Feb-94 00:00:00 GMT',    # old rfc850 HTTP format
- 'Thursday, 03-Feb-1994 00:00:00 GMT',  # broken rfc850 HTTP format
-
- '03/Feb/1994:00:00:00 0000',   # common logfile format
- '03 Feb 1994 00:00:00 GMT',    # HTTP format (no weekday)
- '03-Feb-94 00:00:00 GMT',      # old rfc850 (no weekday)
- '03-Feb-1994 00:00:00 GMT',    # broken rfc850 (no weekday)
-
- '03-Feb-94',    # old rfc850 HTTP format    (no weekday, no time)
- '03-Feb-1994',  # broken rfc850 HTTP format (no weekday, no time)
- '03 Feb 1994',  # proposed new HTTP format  (no weekday, no time)
- '03/Feb/1994',  # common logfile format     (no time, no offset)
-);
-
-my $time = 760233600;
-for (@tests) {
-    die "str2time('$_') failed" unless str2time($_) == $time;
-    print "ok: '$_'\n";
-}
-
-# test time2str
-die "time2str failed"
-    unless time2str($time) eq 'Thu, 03 Feb 1994 00:00:00 GMT';
-
-# try some out of bounds dates too.
-for ('03-Feb-1969', '03-Feb-2039') {
-    die "str2time('$_') failed" if defined str2time($_);
-    print "ok: '$_'\n";
-}
-print "HTTP::Date $HTTP::Date::VERSION ok\n";

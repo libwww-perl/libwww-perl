@@ -1,4 +1,4 @@
-# $Id: Daemon.pm,v 1.29 2003/10/15 19:42:05 gisle Exp $
+# $Id: Daemon.pm,v 1.30 2003/10/15 19:44:16 gisle Exp $
 #
 
 use strict;
@@ -64,7 +64,7 @@ to the I<IO::Socket::INET> base class.
 
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.30 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -607,13 +607,6 @@ sub send_response
 {
     my $self = shift;
     my $res = shift;
-    $self->send_response_body( $self->send_response_header($res) );
-}
-
-sub send_response_header
-{
-    my $self = shift;
-    my $res = shift;
     if (!ref $res) {
 	$res ||= RC_OK;
 	$res = HTTP::Response->new($res, @_);
@@ -644,35 +637,20 @@ sub send_response_header
 	print $self $res->headers_as_string($CRLF);
 	print $self $CRLF;  # separates headers and content
     }
-    return ($chunked, $content);
-}
-
-sub send_response_body
-{
-    my $self = shift;
-    my $chunked = shift;
-    my $content = shift;
     if (ref($content) eq "CODE") {
 	while (1) {
 	    my $chunk = &$content();
 	    last unless defined($chunk) && length($chunk);
 	    if ($chunked) {
-		$self->send_response_chunk($chunk);
+		printf $self "%x%s%s%s", length($chunk), $CRLF, $chunk, $CRLF;
 	    } else {
 		print $self $chunk;
 	    }
 	}
-	$self->send_response_chunk('') if $chunked;  # no trailers either
+	print $self "0$CRLF$CRLF" if $chunked;  # no trailers either
     } elsif (length $content) {
 	print $self $content;
     }
-}
-
-sub send_response_chunk
-{
-    my $self = shift;
-    my $chunk = shift;    
-    printf $self "%x%s%s%s", length($chunk), $CRLF, $chunk, $CRLF;
 }
 
 

@@ -18,7 +18,7 @@ $url = new URI::URL('http://web.nexor.co.uk/' .
 
 my $form = 'searchtype=Substring';
 
-my $request = new LWP::Request('POST', $url, $form);
+my $request = new LWP::Request('POST', $url, undef, $form);
 
 my $response = $ua->request($request, undef, undef);
 

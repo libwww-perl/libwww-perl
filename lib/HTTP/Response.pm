@@ -1,5 +1,5 @@
 #
-# $Id: Response.pm,v 1.28 1997/12/02 13:02:11 aas Exp $
+# $Id: Response.pm,v 1.29 1997/12/03 13:24:30 aas Exp $
 
 package HTTP::Response;
 
@@ -168,7 +168,7 @@ sub base
 
 =item $r->as_string()
 
-Method returning a textual representation of the request.  Mainly
+Method returning a textual representation of the response.  Mainly
 useful for debugging purposes. It takes no arguments.
 
 =cut

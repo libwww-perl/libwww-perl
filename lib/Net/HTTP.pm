@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.13 2001/04/13 03:50:49 gisle Exp $
+# $Id: HTTP.pm,v 1.14 2001/04/13 06:40:39 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -185,6 +185,8 @@ sub my_readline {
     }
 }
 
+
+
 sub read_header_lines {
     my $self = shift;
     my @headers;
@@ -229,7 +231,7 @@ sub read_response_headers {
     ${*$self}{'http_content_length'} = $content_length;
     ${*$self}{'http_first_body'}++;
     delete ${*$self}{'http_trailers'};
-    ($peer_ver, $code, $message, @headers);
+    return ($code, $message, @headers);
 }
 
 
@@ -313,3 +315,119 @@ sub get_trailers {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Net::HTTP - HTTP client connection
+
+=head1 SYNOPSIS
+
+ use Net::HTTP;
+ my $s = Net::HTTP->new(Host => "www.perl.com) || die $@;
+ $s->write_request(GET => "/", 'User-Agent' => "Mozilla/5.0");
+ my($code, $mess, %h) = $s->read_response_headers;
+
+ while (1) {
+    my $buf;
+    my $n = $s->read_entity_body($buf, 1024);
+    last unless $n;
+    print $buf;
+ }
+
+=head1 DESCRIPTION
+
+The C<Net::HTTP> class is a low-level HTTP client.  An instance of the
+C<Net::HTTP> class represents a connection to an HTTP server.  The
+HTTP protocol is described in RFC 2616.
+
+C<Net::HTTP> is a sub-class of C<IO::Socket::INET>.  You can mix the
+methods described below with reading and writing from the socket
+directly.
+
+The follwing methods are provided (in addition to those of
+C<IO::Socket::INET>):
+
+=over
+
+=item $s = Net::HTTP->new( %options )
+
+The C<Net::HTTP> constructor takes the same options as
+C<IO::Socket::INET> as well as these:
+
+  Host:            Initial host attribute value
+  KeepAlive:       Initial keep_alive attribute value
+  HTTPVersion:     Initial http_version attribute value
+  PeerHTTPVersion: Initial peer_http_version attribute value
+
+=item $s->host
+
+Get/set the default value of the C<Host> header to send.
+
+=item $s->keep_alive
+
+Get/set the I<keep-alive> value.  If this value is TRUE then the
+request will sendt with headers indicating that the server should try
+to keep the connection open.
+
+=item $s->http_version
+
+Get/set the HTTP version number that this client should announce.
+This value can only be set to "1.0" or "1.1".  The default is "1.1".
+
+=item $s->peer_http_version
+
+Get/set the protocol version number of our peer.  This value will
+initially be "1.0", but will be updated by a successful
+read_response_headers() method call.  The value of this header
+influence what headers are added to the request on I<keep-alive>.
+
+=item $s->format_request($method, $uri, %headers, [$content])
+
+Format a request message and return it as a string.  If the headers do
+not include a C<Host> header, then a header is inserted with the value
+of the C<host> attribute.  Headers like C<Connection> and
+C<Keep-Alive> might also be added depending on the I<keep-alive>
+status.
+
+If $content is given (and it is non-empty), then a C<Content-Length>
+header is automatically added unless it was already present.
+
+=item $s->write_request($method, $uri, %headers, [$content])
+
+Format and send a request message.  Arguments are the same as for
+format_request().  Returns true if successful.
+
+=item ($code, $mess, %headers) = $s->read_response_headers
+
+Read response headers from server.
+
+=item $n = $s->read_entity_body($buf, $size);
+
+Reads chunks of the entity body content.
+
+=back
+
+=head1 SUBCLASSING
+
+The read_response_headers() and read_entity_body() will invoke the
+method xread() when they need more data.  This method takes the same
+arguments as sysread() and the is in fact implemented as a call to
+sysread().  Subclasses might want to override this method to contol
+how reading takes place.
+
+The object itself is a glob.
+
+=head1 SEE ALSO
+
+L<LWP>, L<IO::Socket::INET>, L<Net::HTTP::NB>
+
+=head1 COPYRIGHT
+
+Copyright 2001 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

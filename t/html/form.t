@@ -1,6 +1,6 @@
 #!perl -w
 
-print "1..22\n";
+print "1..23\n";
 
 use strict;
 use HTML::Form;
@@ -219,10 +219,14 @@ $f = HTML::Form->parse(<<EOT, "http://www.example.com");
    <option value=2>two
    <option>3
 </select>
+<select name=y multiple>
+   <option value=1>
+</select>
 </form>
 EOT
 
 $f->value("x", "one");
+
 print "not " unless $f->click->as_string eq <<"EOT"; print "ok 20\n";
 GET http://www.example.com?x=1
 
@@ -238,3 +242,6 @@ EOT
 
 print "not " unless join(":", $f->find_input("x")->value_names) eq "one:two:3";
 print "ok 22\n";
+
+print "not " unless join(":", map $_->name, $f->find_input(undef, "option")) eq "x:y";
+print "ok 23\n";

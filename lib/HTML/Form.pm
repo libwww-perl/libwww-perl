@@ -6,7 +6,7 @@ use Carp ();
 
 use vars qw($VERSION);
 
-$VERSION='1.01';  # $Date: 2003/10/14 18:27:14 $
+$VERSION='1.01';  # $Date: 2003/10/14 18:48:59 $
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -271,11 +271,15 @@ sub inputs
 }
 
 
-=item $input = $form->find_input($name, $type, $index)
+=item $input = $form->find_input( $name )
 
-This method is used to locate some specific input within the form.  At
-least one of the arguments must be defined.  If no matching input is
-found, C<undef> is returned.
+=item $input = $form->find_input( $name, $type )
+
+=item $input = $form->find_input( $name, $type, $index )
+
+This method is used to locate specific inputs within the form.  All
+inputs that match the arguments given are returned.  In scalar context
+only the first is returned, or C<undef> if none match.
 
 If $name is specified, then the input must have the indicated name.
 
@@ -292,17 +296,35 @@ input with the given name and/or type.
 sub find_input
 {
     my($self, $name, $type, $no) = @_;
-    $no ||= 1;
-    for (@{$self->{'inputs'}}) {
-	if (defined $name) {
-	    next unless exists $_->{name};
-	    next if $name ne $_->{name};
+    if (wantarray) {
+	my @res;
+	my $c;
+	for (@{$self->{'inputs'}}) {
+	    if (defined $name) {
+		next unless exists $_->{name};
+		next if $name ne $_->{name};
+	    }
+	    next if $type && $type ne $_->{type};
+	    $c++;
+	    next if $no && $no != $c;
+	    push(@res, $_);
 	}
-	next if $type && $type ne $_->{type};
-	next if --$no;
-	return $_;
+	return @res;
+	
     }
-    return undef;
+    else {
+	$no ||= 1;
+	for (@{$self->{'inputs'}}) {
+	    if (defined $name) {
+		next unless exists $_->{name};
+		next if $name ne $_->{name};
+	    }
+	    next if $type && $type ne $_->{type};
+	    next if --$no;
+	    return $_;
+	}
+	return undef;
+    }
 }
 
 sub fixup

@@ -12,6 +12,10 @@
     or <input type=checkbox> and use that as the name of the checked
     value.
 
+    HTML::Form's find_input now returns all inputs that match in
+    array context.  Based on patch by Mark Stosberg <markstos@cpan.org>
+    in <http://rt.cpan.org/Ticket/Display.html?id=3320>.
+
     HTTP::Daemon's send_file() method did not work when given
     a file name.  Patch by Dave W. Smith <dws@postcognitive.com>.
 

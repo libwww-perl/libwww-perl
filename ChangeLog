@@ -2,6 +2,12 @@ Tue Aug  4 1998   Gisle Aas <aas@sn.no>
 
  o  Release 5.36
 
+ o  LWP::Protocol::http allow dynamic requests without any
+    Content-Length when Content-Type is multipart/*
+
+ o  HTTP::Request::Common can now upload infinite files.
+    (Controlled by the $DYNAMIC_FILE_UPLOAD configuration variable.)
+
  o  The lwp-download script will call $ua->env_proxy now.
 
  o  The lwp-request script allows content types (-c option) with

@@ -200,7 +200,7 @@ print "not " unless $i == 6;
 print "ok 11\n";
 
 #----------------------------------------------------------------
-print "Check authorization...\n";
+print "Check basic authorization...\n";
 sub httpd_get_basic
 {
     my($c, $r) = @_;
@@ -222,7 +222,7 @@ sub httpd_get_basic
 {
    package MyUA; @ISA=qw(LWP::UserAgent);
    sub get_basic_credentials {
-      my($self, $realm, $uri) = @_;
+      my($self, $realm, $uri, $proxy) = @_;
       my $x =  $uri->rel($base);
       if ($realm eq "libwww-perl" && $uri->rel($base) eq "basic") {
 	  return ("ok 12", "xyzzy");

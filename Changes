@@ -1,3 +1,24 @@
+2003-01-01   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.67
+
+    HTTP::Cookies::Microsoft contributed by Johnny Lee <typo_pl@hotmail.com>.
+    This module makes it possible for LWP to share MSIE's cookies.
+
+    HTML::Form supports file upload better now.  There are some
+    new methods on that kind of input; file(), filename(), content()
+    and headers().
+
+    Removed unfinished test that depended on Data::Dump.
+
+    Net::HTTP avoids exceptions in read_response_headers() with
+    laxed option.  It now always assumes HTTP/0.9 on unexpected
+    responses.
+
+    HTML::Form documentation reworked.
+
+
+
 2002-12-20   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.66

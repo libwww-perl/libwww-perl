@@ -1,5 +1,5 @@
 #
-# $Id: file.pm,v 1.4 1995/07/11 22:38:44 aas Exp $
+# $Id: file.pm,v 1.5 1995/07/14 00:16:54 aas Exp $
 
 package LWP::Protocol::file;
 
@@ -24,7 +24,8 @@ use Carp;
 
 # constructor inherited from LWP::Protocol
 
-sub request {
+sub request
+{
     my($self, $request, $proxy, $arg, $size) = @_;
 
     LWP::Debug::trace("LWP::file::request(" . 
@@ -148,7 +149,7 @@ sub request {
            LWP::Response(&LWP::StatusCode::RC_INTERNAL_SERVER_ERROR,
                     "Cannot read file '$path': $!");
         $response =  $self->collect($arg, $response, sub {
-            my $content;
+            my $content = "";
             my $bytes = sysread(F, $content, $size);
             return \$content if $bytes > 0;
             return \ "";

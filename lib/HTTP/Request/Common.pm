@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.12 1998/08/04 14:06:01 aas Exp $
+# $Id: Common.pm,v 1.13 1998/08/04 15:13:23 aas Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -366,7 +366,10 @@ value, then you get back a request object with a subroutine closure as
 the content attribute.  This subroutine will read the content of any
 files on demand and return it in suitable chunks.  This allow you to
 upload arbitrary big files without using lots of memory.  You can even
-upload infinite files like F</dev/audio> if you wish.
+upload infinite files like F</dev/audio> if you wish.  Another
+difference is that there will be no Content-Length header defined for
+the request if you use this feature.  Not all servers (or server
+applications) like this.
 
 =back
 

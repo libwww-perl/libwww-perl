@@ -1,6 +1,6 @@
 package HTML::Parser;
 
-# $Id: Parser.pm,v 2.3 1996/09/30 13:07:54 aas Exp $
+# $Id: Parser.pm,v 2.4 1996/10/07 10:11:28 aas Exp $
 
 =head1 NAME
 
@@ -47,13 +47,16 @@ likely to find is <!DOCTYPE ...>.  The initial "<!" and ending ">" is
 not part of the string passed as argument.  Comments are removed and
 entities have B<not> been expanded yet.
 
-=item $self->start($tag, $attr)
+=item $self->start($tag, $attr, $attrseq, $origtext)
 
 This method is called when a complete start tag has been recognized.
 The first argument is the tag name (in lower case) and the second
 argument is a reference to a hash that contain all attributes found
 within the start tag.  The attribute keys are converted to lower case.
-Entities found in the attribute values are already expanded.
+Entities found in the attribute values are already expanded.  The
+third argument is a reference to an array with the lower case
+attribute keys in the original order.  The fourth argument is the
+original HTML text.
 
 
 =item $self->end($tag)
@@ -87,7 +90,7 @@ that prevent us from renaming this module as C<SGML::Parse>.
 =head1 BUGS
 
 You can instruct the parser to parse comments the way Netscape does it
-by calling the netscape_buggy_comment method with a TRUE argument.
+by calling the netscape_buggy_comment() method with a TRUE argument.
 This means that comments will always be terminated by the first
 occurence of "-->".
 
@@ -113,7 +116,7 @@ use strict;
 
 use HTML::Entities ();
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
 
 
 sub new
@@ -250,6 +253,7 @@ sub parse
 		$eaten .= $1;
 		my $tag = lc $2;
 		my %attr;
+		my @attrseq;
 
 		# Then we would like to find some attributes
 		while ($$buf =~ s|^(([a-zA-Z][a-zA-Z0-9\.\-]*)\s*)||) {
@@ -277,11 +281,12 @@ sub parse
 			$val = $attr;
 		    }
 		    $attr{$attr} = $val;
+		    push(@attrseq, $attr);
 		}
 
 		# At the end there should be a closing ">"
 		if ($$buf =~ s|^>||) {
-		    $self->start($tag, \%attr);
+		    $self->start($tag, \%attr, \@attrseq, "$eaten>");
 		} elsif (length $$buf) {
 		    # Not a conforming start tag, regard it as normal text
 		    $self->text($eaten);
@@ -350,7 +355,8 @@ sub comment
 
 sub start
 {
-    my($self, $tag, $attr) = @_;  # $attr is reference to a HASH
+    my($self, $tag, $attr, $attrseq, $origtext) = @_;
+    # $attr is reference to a HASH, $attrseq is reference to an ARRAY
 }
 
 sub end

@@ -42,13 +42,16 @@ use HTTP::Response;
 # most specific cookie must be sent first.  SHIPPING=FEDEX is the
 # most specific and should thus be first.
 
+my $year_plus_one = (localtime)[5] + 1900 + 1;
+
 $c = HTTP::Cookies->new;
 
 $req = HTTP::Request->new(GET => "http://www.acme.com/");
 
 $res = HTTP::Response->new(200, "OK");
 $res->request($req);
-$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/; expires=Wednesday, 09-Nov-99 23:12:40 GMT");
+$res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE; path=/; expires=Wednesday, 09-Nov-$year_plus_one 23:12:40 GMT");
+#print $res->as_string;
 $c->extract_cookies($res);
 
 $req = HTTP::Request->new(GET => "http://www.acme.com/");

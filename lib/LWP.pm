@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.18 1995/12/29 15:20:31 aas Exp $
+# $Id: LWP.pm,v 1.19 1996/02/05 17:56:12 aas Exp $
 
 package LWP;
 
@@ -7,7 +7,7 @@ $VERSION = "0.07";
 
 sub Version { $VERSION; }
 
-require 5.001;
+require 5.002;
 require LWP::UserAgent;  # this should load everything you need
 
 1;
@@ -76,7 +76,7 @@ That package used work from Alberto Accomazzi, James Casey, Brooks
 Cutter, Martijn Koster, Oscar Nierstrasz, Mel Melchner, Gertjan van
 Oosten, Jared Rhine, Jack Shirazi, Gene Spafford, Marc VanHeyningen,
 Steven E. Brenner, Marion Hakanson, Waldemar Kebsch, Tony Sanders, and
-Larry Wall; see the libwww-perl library for details.
+Larry Wall; see the libwww-perl-0.40 library for details.
 
 The primary architect for this Perl 5 library is Martijn Koster and
 Gisle Aas, with lots of help from Graham Barr, Tim Bunce, Andreas
@@ -86,7 +86,7 @@ Koenig, Jared Rhine, and Jack Shirazi.
 =head1 COPYRIGHT
 
 Copyright (c) 1995 Martijn Koster. All rights reserved.
-Copyright (c) 1995 Gisle Aas. All rights reserved.
+Copyright (c) 1995, 1996 Gisle Aas. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -95,10 +95,10 @@ modify it under the same terms as Perl itself.
 
 The latest version of this library is likly to be available from:
 
- http://www.oslonett.no/home/aas/perl/www/
+ http://www.sn.no/libwww-perl/
 
 The best place to discuss this code is on the
 <libwww-perl@ics.uci.edu> mailing list.  The email addresses of the
-principal authors are <m.koster@webcrawler.com> and <aas@oslonett.no>.
+principal authors are <m.koster@webcrawler.com> and <aas@sn.no>.
 
 =cut

@@ -1,11 +1,11 @@
 package HTTP::Daemon;
 
-# $Id: Daemon.pm,v 1.34 2004/04/09 15:07:04 gisle Exp $
+# $Id: Daemon.pm,v 1.35 2004/04/09 20:21:43 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.35 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -836,7 +836,7 @@ Return a reference to the corresponding C<HTTP::Daemon> object.
 
 =head1 SEE ALSO
 
-RFC 2068
+RFC 2616
 
 L<IO::Socket::INET>, L<IO::Socket>
 

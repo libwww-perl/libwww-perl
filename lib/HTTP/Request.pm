@@ -1,5 +1,5 @@
 #
-# $Id: Request.pm,v 1.20 1997/12/02 13:02:11 aas Exp $
+# $Id: Request.pm,v 1.21 1997/12/03 21:07:08 aas Exp $
 
 package HTTP::Request;
 
@@ -10,24 +10,24 @@ HTTP::Request - Class encapsulating HTTP Requests
 =head1 SYNOPSIS
 
  require HTTP::Request;
- $request = new HTTP::Request GET => 'http://www.oslonett.no/';
+ $request = HTTP::Request->new(GET => 'http://www.oslonett.no/');
 
 =head1 DESCRIPTION
 
 C<HTTP::Request> is a class encapsulating HTTP style requests,
-consisting of a request line, a MIME header, and optional
+consisting of a request line, some headers, and some (potentially empty)
 content. Note that the LWP library also uses this HTTP style requests
 for non-HTTP protocols.
 
 Instances of this class are usually passed to the C<request()> method
 of an C<LWP::UserAgent> object:
 
- $ua = new LWP::UserAgent;
- $request = new HTTP::Request GET => 'http://www.oslonett.no/';
+ $ua = LWP::UserAgent->new;
+ $request = HTTP::Request->new(GET => 'http://www.oslonett.no/');
  $response = $ua->request($request);
 
 C<HTTP::Request> is a subclass of C<HTTP::Message> and therefore
-inherits its methods.  The inherited methods are header(),
+inherits its methods.  The inherited methods often used are header(),
 push_header(), remove_header(), headers_as_string() and content().
 See L<HTTP::Message> for details.
 
@@ -43,14 +43,12 @@ require HTTP::Message;
 use URI::URL ();
 use strict;
 
-=item $r = new HTTP::Request $method, $url, [$header, [$content]]
+=item $r = HTTP::Request->new($method, $url, [$header, [$content]])
 
 Constructs a new C<HTTP::Request> object describing a request on the
 object C<$url> using method C<$method>.  The C<$url> argument can be
 either a string, or a reference to a C<URI::URL> object.  The $header
-argument should be a reference to a HTTP::Headers object.
-
- $request = new HTTP::Request GET => 'http://www.oslonett.no/';
+argument should be a reference to an C<HTTP::Headers> object.
 
 =cut
 
@@ -67,7 +65,7 @@ sub new
 sub clone
 {
     my $self = shift;
-    my $clone = bless $self->HTTP::Message::clone;
+    my $clone = bless $self->SUPER::clone, ref($self);
     $clone->method($self->method);
     $clone->url($self->url);
     $clone;
@@ -97,18 +95,19 @@ sub method  { shift->_elem('_method', @_); }
 sub url
 {
     my $self = shift;
-    my($url) = @_;
+    my $old = $self->{'_url'};
     if (@_) {
+	my $url = shift;
 	if (!defined $url) {
 	    # that's ok
 	} elsif (ref $url) {
 	    $url = $url->abs;
 	} else {
-	    eval {  $url = URI::URL->new($url); };
-	    $url = undef if $@;
+	    $url = eval { URI::URL->new($url) };
 	}
+	$self->{'_url'} = $url;
     }
-    $self->_elem('_url', $url);
+    $old;
 }
 
 *uri = \&url;  # this is the same for now
@@ -123,16 +122,22 @@ Mainly useful for debugging purposes. It takes no arguments.
 sub as_string
 {
     my $self = shift;
-    my @result = ("--- $self ---");
+    my @result;
+    #push(@result, "---- $self -----");
+    my $req_line = $self->method || "[NO METHOD]";
     my $url = $self->url;
     $url = (defined $url) ? $url->as_string : "[NO URL]";
-    push(@result, $self->method . " $url");
+    $req_line .= " $url";
+    my $proto = $self->protocol;
+    $req_line .= " $proto" if $proto;
+
+    push(@result, $req_line);
     push(@result, $self->headers_as_string);
     my $content = $self->content;
-    if ($content) {
-	push(@result, $self->content);
+    if (defined $content) {
+	push(@result, $content);
     }
-    push(@result, ("-" x 35));
+    #push(@result, ("-" x 40));
     join("\n", @result, "");
 }
 

@@ -1,13 +1,15 @@
-2003-10-16   Gisle Aas <gisle@ActiveState.com>
+2003-10-19   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.73
     
     Takanori Ugai <ugai@jp.fujitsu.com> found that 'max_redirect'
-    introduced in 5.72 was broken an provided a patch for that.
+    introduced in 5.72 was broken and provided a patch for that.
 
     Not all ftp servers return 550 responses when trying to
     to RETR a directory.  Microsofts IIS is one of those.
     Patch provided by Thomas Lotterer <thl@dev.de.cw.com>.
+    
+    Some documentation tweaks.
 
 
 

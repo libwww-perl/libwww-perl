@@ -281,6 +281,8 @@ sub attr {
 
 This method returns the list of inputs in the form.  If called in
 scalar context it returns the number of inputs contained in the form.
+See L</INPUTS> for what methods are available for the input objects
+returned.
 
 =cut
 
@@ -299,7 +301,7 @@ found, C<undef> is returned.
 
 If $name is specified, then the input must have the indicated name.
 
-If $type is specified then the input must have the specified type.
+If $type is specified, then the input must have the specified type.
 The following type names are used: "text", "password", "hidden",
 "textarea", "file", "image", "submit", "radio", "checkbox" and "option".
 
@@ -626,10 +628,29 @@ package HTML::Form::Input;
 
 =head1 INPUTS
 
-An C<HTML::Form> contains a sequence of inputs.  References to the
-inputs can be obtained with the $form->inputs or $form->find_input
-methods.  Once you have such a reference, then one of the following
-methods can be used on it:
+An C<HTML::Form> objects contains a sequence of I<inputs>.  References to
+the inputs can be obtained with the $form->inputs or $form->find_input
+methods.
+
+Note that there is I<not> a one-to-one correspondence between input
+I<objects> and E<lt>inputE<gt> I<elements> in the HTML document.  An
+input object basically represents a name/value pair, so when multiple
+HTML elements contribute to the same name/value pair in the submitted
+form they are combined.
+
+The input elements that are mapped one-to-one are "text", "textarea",
+"password", "hidden", "file", "image", "submit" and "checkbox".  For
+the "radio" and "option" inputs the story is not as simple: All
+E<lt>input type="radio"E<gt> elements with the same name will
+contribute to the same input radio object.  The number of radio input
+objects will be the same as the number of distinct names used for the
+E<lt>input type="radio"E<gt> elements.  For a E<lt>selectE<gt> element
+without the C<multiple> attribute there will be one input object of
+type of "option".  For a E<lt>select multipleE<gt> element there will
+be one input object for each contained E<lt>optionE<gt> element.  Each
+one of these option objects will have the same name.
+
+The following methods are available for the I<input> objects:
 
 =over 4
 
@@ -680,8 +701,10 @@ input.
 
 If the input only can take an enumerated list of values, then it is an
 error to try to set it to something else and the method will croak if
-you try.  A croak will also be triggered if you try to set the value
-of a read-only input.
+you try.
+
+You will also be able to set the value of read-only inputs, but a
+warning will be generated if running under 'perl -w'.
 
 =cut
 

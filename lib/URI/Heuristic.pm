@@ -1,6 +1,6 @@
 package URI::Heuristic;
 
-# $Id: Heuristic.pm,v 4.7 1998/01/06 10:05:56 aas Exp $
+# $Id: Heuristic.pm,v 4.8 1998/04/25 06:46:49 aas Exp $
 
 =head1 NAME
 
@@ -10,16 +10,19 @@ uf_urlstr - Expand URL using heuristics
 
  use URI::Heuristic qw(uf_urlstr);
  $url = uf_urlstr("perl");             # http://www.perl.com
- $url = uf_urlstr("www.sol.no/sol");   # http://www.sol.no/no
+ $url = uf_urlstr("www.sol.no/sol");   # http://www.sol.no/sol
  $url = uf_urlstr("aas");              # http://www.aas.no
  $url = uf_urlstr("ftp.funet.fi");     # ftp://ftp.funet.fi
  $url = uf_urlstr("/etc/passwd");      # file:/etc/passwd
 
 =head1 DESCRIPTION
 
-This module provide functions that expand strings into real URLs using
-some (random) heuristics.  Already expanded URLs are not modified and
-are returned unchanged.
+This module provide functions that expand strings into real absolute
+URLs using some builtin heuristics.  Strings that already represent
+absolute URLs (i.e. start with a C<scheme:> part) are never modified
+and are returned unchanged.  The main use of these functions are to
+allow abbreviated URLs similar to what many web browsers allow for URLs
+typed in by the user.
 
 The following functions are provided:
 
@@ -41,7 +44,7 @@ return a C<URI::URL> object.
 =head1 ENVIRONMENT
 
 If the hostname portion of a URL does not contain any dots, then
-centain qualified guesses will be made.  These guesses are governed be
+certain qualified guesses will be made.  These guesses are governed be
 the following two environment variables.
 
 =over 10
@@ -55,8 +58,8 @@ to be the default country. See also L<Locale::Country>.
 =item URL_GUESS_PATTERN
 
 Contain a space separated list of URL patterns to try.  The string
-"ACME" is used as a placeholder for the host name in the URL provided.
-Example:
+"ACME" is for some reason used as a placeholder for the host name in
+the URL provided.  Example:
 
  URL_GUESS_PATTERN="www.ACME.no www.ACME.se www.ACME.com"
  export URL_GUESS_PATTERN
@@ -69,7 +72,7 @@ involves host name lookups.
 
 =head1 COPYRIGHT
 
-Copyright 1997, Gisle Aas
+Copyright 1997-1998, Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -83,7 +86,7 @@ use vars qw(@EXPORT_OK $VERSION $MY_COUNTRY %LOCAL_GUESSING $DEBUG);
 require Exporter;
 *import = \&Exporter::import;
 @EXPORT_OK = qw(uf_url uf_urlstr);
-$VERSION = sprintf("%d.%02d", q$Revision: 4.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 4.8 $ =~ /(\d+)\.(\d+)/);
 
 eval {
     require Net::Domain;

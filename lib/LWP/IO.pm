@@ -1,6 +1,6 @@
 package LWP::IO;
 
-# $Id: IO.pm,v 1.4 1995/11/05 11:16:03 aas Exp $
+# $Id: IO.pm,v 1.5 1996/02/05 18:21:20 aas Exp $
 
 require LWP::Debug;
 
@@ -19,6 +19,10 @@ LWP library.  These routines will only be installed if they are not
 already defined.  This fact can be used by programs that need to
 override these functions.  Just provide replacement functions before
 you require LWP. See also L<LWP::TkIO>.
+
+=head1 BUGS
+
+Should really use standard autoloading.
 
 =cut
 

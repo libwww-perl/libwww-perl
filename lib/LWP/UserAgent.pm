@@ -1,4 +1,4 @@
-# $Id: UserAgent.pm,v 1.58 1998/01/21 12:53:21 aas Exp $
+# $Id: UserAgent.pm,v 1.59 1998/03/20 05:50:32 aas Exp $
 
 package LWP::UserAgent;
 use strict;
@@ -92,7 +92,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.58 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.59 $ =~ /(\d+)\.(\d+)/);
 
 
 require URI::URL;
@@ -266,7 +266,7 @@ sub request
 	# Some servers erroneously return a relative URL for redirects,
 	# so make it absolute if it not already is.
 	my $referral_uri = (URI::URL->new($response->header('Location'),
-					  $response->base))->abs();
+					  $response->base))->abs(undef,1);
 
 	$referral->url($referral_uri);
 

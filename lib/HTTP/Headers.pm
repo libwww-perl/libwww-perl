@@ -1,5 +1,5 @@
 #
-# $Id: Headers.pm,v 1.18 1996/04/09 15:44:17 aas Exp $
+# $Id: Headers.pm,v 1.19 1996/05/26 10:38:55 aas Exp $
 
 package HTTP::Headers;
 
@@ -14,9 +14,9 @@ HTTP::Headers - Class encapsulating HTTP Message headers
 
 =head1 DESCRIPTION
 
-C<HTTP::Headers> is a class encapsulating HTTP style message headers.
-The headers contain attribute value pairs which may be repeated, and
-are printed in a particular order.
+The C<HTTP::Headers> class encapsulate HTTP style message headers.
+The headers consist of attribute value pairs which may be repeated,
+and which are printed in a particular order.
 
 Instances of this class are usually created as member variables of the
 C<HTTP::Request> and C<HTTP::Response> classes, internally to the
@@ -69,10 +69,10 @@ for (@header_order) {
 
 
 
-=head2 new()
+=head2 $h = new HTTP::Headers
 
-Constructs a new C<HTTP::Headers> object.  You might pass some
-initial headers as parameters to the constructor.  E.g.:
+Constructs a new C<HTTP::Headers> object.  You might pass some initial
+attribute value pairs as parameters to the constructor.  E.g.:
 
  $h = new HTTP::Headers
      'Content-Type' => 'text/html',
@@ -93,14 +93,14 @@ sub new
 }
 
 
-=head2 $h->header($field [, $val],...)
+=head2 $h->header($field [=> $val],...)
 
 Get/Set the value of a request header.  The header field name is not
 case sensitive.  The value argument may be a scalar or a reference to
-a list of scalars. If the value argument is not defined the header is
-not modified.
+a list of scalars. If the value argument is not defined then the
+header is not modified.
 
-The method also accepts multiple ($field => $value) pairs.
+The header() method accepts multiple ($field => $value) pairs.
 
 The list of previous values for the last $field is returned.  Only the
 first header value is returned in scalar context.
@@ -133,6 +133,7 @@ sub _header
 
     my $lc_field = lc $field;
     unless(defined $standard_case{$lc_field}) {
+	# generate a %stadard_case entry for this field
 	$field =~ s/\b(\w)/\u$1/g;
 	$standard_case{$lc_field} = $field;
     }
@@ -175,12 +176,12 @@ sub _header_cmp
 
 =head2 $h->scan(\&doit)
 
-Apply the subroutine to each header in turn.  The routine is called
-with two parameters; the name of the field and a single value.  If the
-header has more than one value, then the routine is called once for
-each value.  The C<scan()> routine uses case for the field name as
-suggested by HTTP Spec, and follows recommended "Good Practice" of
-ordering the header fields.
+Apply a subroutine to each header in turn.  The callback routine is
+called with two parameters; the name of the field and a single value.
+If the header has more than one value, then the routine is called once
+for each value.  The field name passed to the callback routine has
+case as suggested by HTTP Spec, and the headers will be visited in the
+recommended "Good Practice" order.
 
 =cut
 
@@ -202,10 +203,11 @@ sub scan
 
 =head2 $h->as_string([$endl])
 
-Return the header fields as a formatted MIME header.  Since it uses
-C<scan()> to build the string, the result will use case as suggested
-by HTTP Spec, and it will follow recommended "Good Practice" of
-ordering the header fieds.  Long header values are I<not> folded.
+Return the header fields as a formatted MIME header.  Since it
+internally uses the C<scan()> method to build the string, the result
+will use case as suggested by HTTP Spec, and it will follow
+recommended "Good Practice" of ordering the header fieds.  Long header
+values are I<never> folded.
 
 The optional parameter specifies the line ending sequence to use.  The
 default is C<"\n">.
@@ -237,10 +239,10 @@ sub as_string
 
 =head2 $h->push_header($field, $val)
 
-Add a new value to a field of the request header.  The header field
-name is not case sensitive.  The field need not already have a
-value. Duplicates are retained.  The argument may be a scalar or a
-reference to a list of scalars.
+Add a new field value of the specified header.  The header field name
+is not case sensitive.  The field need not already have a
+value. Previous values for the same field are retained.  The argument
+may be a scalar or a reference to a list of scalars.
 
  $header->push_header('Accept' => 'image/jpeg');
 
@@ -250,7 +252,7 @@ This function removes the headers with the specified names.
 
 =head2 $h->clone
 
-Returns a copy of the HTTP::Headers object.
+Returns a copy of this HTTP::Headers object.
 
 =head1 CONVENIENCE METHODS
 
@@ -294,20 +296,35 @@ modified. E.g.:
 
 =head2 $h->content_type
 
-The content-type header field indicates the media type of the message
+The Content-Type header field indicates the media type of the message
 content. E.g.:
 
   $h->content_type('text/html');
 
+The value returned will be converted to lower case, and potential
+parameters will be chopped off and returned as a separate value if
+array context.  This makes it safe to do the following:
+
+  if ($h->content_type eq 'text/html') {
+     # we enter this place even if the real header value happens to
+     # be 'TEXT/HTML; version=3.0'
+     ...
+  }
+
 =head2 $h->content_encoding
 
-The content-encoding header field is used as a modifier to the
+The Content-Encoding header field is used as a modifier to the
 media type.  When present, its value indicates what additional
 encoding mechanism has been applied to the resource.
 
 =head2 $h->content_length
 
 A decimal number indicating the size in bytes of the message content.
+
+=head2 $h->title
+
+The title of the document.  Will be obtained from the
+<TITLE>...</TITLE> element of HTML documentents.
 
 =head2 $h->user_agent
 
@@ -347,12 +364,14 @@ so by including this header.
 
 =head2 $h->authorization_basic
 
-This methods lets you get/set an authorization header that use the
-"Basic Authentication Scheme".  It will return a list of two values.
-The first is the user name and the second the password.  It also
-expects two arguments when it is used to set the header value.  E.g.:
+This method is used to get or set an authorization header that use the
+"Basic Authentication Scheme".  In array context it will return two
+values; the user name and the password.  In scalar context it will
+return I<"uname:password"> as a single string value.
 
-  $h->authorization_basic('user', 'passwd');
+When used to set the header value, it expects two arguments.  E.g.:
+
+  $h->authorization_basic($uname, $password);
 
 =cut
 
@@ -415,6 +434,7 @@ sub content_type      {
   wantarray ? @ct : $ct[0];
 }
 
+sub title             { (shift->_header('Title',            @_))[0] }
 sub content_encoding  { (shift->_header('Content-Encoding', @_))[0] }
 sub content_length    { (shift->_header('Content-Length',   @_))[0] }
 
@@ -437,7 +457,9 @@ sub authorization_basic {
 		       'Basic ' . MIME::Base64::encode("$user:$passwd", ''));
     }
     if (defined $old && $old =~ s/^\s*Basic\s+//) {
-	return split(/:/, MIME::Base64::decode($old), 2);
+	my $val = MIME::Base64::decode($old);
+	return $val unless wantarray;
+	return split(/:/, $val, 2);
     }
     undef;
 }

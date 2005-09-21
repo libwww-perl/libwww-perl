@@ -1,8 +1,8 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.32 2004/11/12 16:14:25 gisle Exp $
+# $Id: RobotRules.pm,v 1.33 2005/09/21 19:36:19 gisle Exp $
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 sub Version { $VERSION; }
 
 use strict;
@@ -34,6 +34,7 @@ sub parse {
     my $ua;
     my $is_me = 0;		# 1 iff this record is for me
     my $is_anon = 0;		# 1 iff this record is for *
+    my $seen_disallow = 0;      # watch for missing record separators
     my @me_disallowed = ();	# rules disallowed for me
     my @anon_disallowed = ();	# rules disallowed for *
 
@@ -53,10 +54,19 @@ sub parse {
 	if (/^\s*$/) {	    # blank line
 	    last if $is_me; # That was our record. No need to read the rest.
 	    $is_anon = 0;
+	    $seen_disallow = 0;
 	}
         elsif (/^\s*User-Agent\s*:\s*(.*)/i) {
 	    $ua = $1;
 	    $ua =~ s/\s+$//;
+
+	    if ($seen_disallow) {
+		# treat as start of a new record
+		$seen_disallow = 0;
+		last if $is_me; # That was our record. No need to read the rest.
+		$is_anon = 0;
+	    }
+
 	    if ($is_me) {
 		# This record already had a User-agent that
 		# we matched, so just continue.
@@ -75,6 +85,7 @@ sub parse {
 	    }
 	    my $disallow = $1;
 	    $disallow =~ s/\s+$//;
+	    $seen_disallow = 1;
 	    if (length $disallow) {
 		my $ignore;
 		eval {
@@ -372,6 +383,14 @@ one robot. At least one field needs to be present per record.  If the
 value is '*', the record describes the default access policy for any
 robot that has not not matched any of the other records.
 
+The I<User-Agent> fields must occur before the I<Disallow> fields.  If a
+record contains a I<User-Agent> field after a I<Disallow> field, that
+constitutes a malformed record.  This parser will assume that a blank
+line should have been placed before that I<User-Agent> field, and will
+break the record into two.  All the fields before the I<User-Agent> field
+will constitute a record, and the I<User-Agent> field will be the first
+field in a new record.
+
 =item Disallow
 
 The value of this field specifies a partial URL that is not to be
@@ -405,6 +424,22 @@ This example indicates that no robots should visit this site further:
   # go away
   User-agent: *
   Disallow: /
+
+This is an example of a malformed robots.txt file.
+
+  # robots.txt for ancientcastle.example.com
+  # I've locked myself away.
+  User-agent: *
+  Disallow: /
+  # The castle is your home now, so you can go anywhere you like.
+  User-agent: Belle
+  Disallow: /west-wing/ # except the west wing!
+  # It's good to be the Prince...
+  User-agent: Beast
+  Disallow: 
+
+This file is missing the required blank lines between records.
+However, the intention is clear.
 
 =head1 SEE ALSO
 

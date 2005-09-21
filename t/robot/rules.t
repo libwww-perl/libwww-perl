@@ -15,7 +15,7 @@ require WWW::RobotRules;
 use Carp;
 use strict;
 
-print "1..38\n"; # for Test::Harness
+print "1..50\n"; # for Test::Harness
 
 # We test a number of different /robots.txt files,
 #
@@ -62,6 +62,31 @@ User-Agent: SvartEnke2
 Disallow: ftp://foo
 Disallow: http://foo:8080/
 Disallow: http://bar/
+EOM
+
+my $content5 = <<EOM;
+# I've locked myself away
+User-agent: *
+Disallow: /
+# The castle is your home now, so you can go anywhere you like.
+User-agent: Belle
+Disallow: /west-wing/ # except the west wing!
+# It's good to be the Prince...
+User-agent: Beast
+Disallow: 
+EOM
+
+# same thing backwards
+my $content6 = <<EOM;
+# It's good to be the Prince...
+User-agent: Beast
+Disallow: 
+# The castle is your home now, so you can go anywhere you like.
+User-agent: Belle
+Disallow: /west-wing/ # except the west wing!
+# I've locked myself away
+User-agent: *
+Disallow: /
 EOM
 
 # and a number of different robots:
@@ -145,6 +170,36 @@ my @tests1 = (
 	    36 => "http://foo/" => 1,
 	    37 => "http://foo/private/" => 0,
 	    38 => "http://bar/" => 1,
+	   ],
+
+	   [$content5, 'Villager/1.0' =>
+	    39 => 'http://foo/west-wing/' => 0,
+	    40 => 'http://foo/' => 0,
+	   ],
+
+	   [$content5, 'Belle/2.0' =>
+	    41 => 'http://foo/west-wing/' => 0,
+	    42 => 'http://foo/' => 1,
+	   ],
+
+	   [$content5, 'Beast/3.0' =>
+	    43 => 'http://foo/west-wing/' => 1,
+	    44 => 'http://foo/' => 1,
+	   ],
+
+	   [$content6, 'Villager/1.0' =>
+	    45 => 'http://foo/west-wing/' => 0,
+	    46 => 'http://foo/' => 0,
+	   ],
+
+	   [$content6, 'Belle/2.0' =>
+	    47 => 'http://foo/west-wing/' => 0,
+	    48 => 'http://foo/' => 1,
+	   ],
+
+	   [$content6, 'Beast/3.0' =>
+	    49 => 'http://foo/west-wing/' => 1,
+	    50 => 'http://foo/' => 1,
 	   ],
 
 	   # when adding tests, remember to increase

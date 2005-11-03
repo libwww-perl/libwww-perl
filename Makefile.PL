@@ -1,5 +1,5 @@
 # This -*- perl -*- script writes the Makefile for libwww-perl
-# $Id: Makefile.PL,v 1.75 2004/11/30 11:51:58 gisle Exp $
+# $Id: Makefile.PL,v 1.76 2005/11/03 17:26:39 gisle Exp $
 
 require 5.005;
 use strict;
@@ -265,7 +265,8 @@ if (@request_aliases) {
 # Ok, now it is time to really generate the Makefile
 
 WriteMakefile(
-   NAME          => 'libwww-perl',
+   NAME          => 'LWP',
+   DISTNAME      => 'libwww-perl',
    VERSION_FROM  => 'lib/LWP.pm',
    EXE_FILES     => [ map "bin/$_", @programs_to_install ],
    PREREQ_PM     => { 'URI'              => "1.10",

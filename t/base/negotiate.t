@@ -1,4 +1,4 @@
-print "1..4\n";
+print "1..5\n";
 
 use HTTP::Request;
 use HTTP::Negotiate;
@@ -84,6 +84,20 @@ else {
 }
 
 
+$variants = [
+  [ 'Canadian English' => 1.0, 'text/html', undef, undef, 'en-CA', undef ],
+  [ 'Generic English'  => 1.0, 'text/html', undef, undef, 'en',    undef ],
+  [ 'Non-Specific'     => 1.0, 'text/html', undef, undef, undef,   undef ],
+];
+
+$ENV{HTTP_ACCEPT_LANGUAGE}='en-US';
+$a = choose($variants);
+if ($a eq 'Generic English') {
+    ok;
+}
+else {
+    not_ok;
+}
 
 #------------------
 

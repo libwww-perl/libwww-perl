@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.6 2003/10/26 14:39:18 gisle Exp $
+# $Id: lwp-request,v 2.7 2005/12/06 12:16:28 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -135,6 +135,10 @@ Relative links will be expanded to absolute ones.
 The I<html> format will reformat the HTML code and the I<dump> format
 will just dump the HTML syntax tree.
 
+Note that the C<HTML-Tree> distribution needs to be installed for this
+option to work.  In addition the C<HTML-Format> distribution needs to
+be installed for I<-o text> or I<-o ps> to work.
+
 =item -v
 
 Print the version number of the program and quit.
@@ -178,7 +182,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -438,7 +442,17 @@ while ($url = shift) {
     unless ($options{'d'}) {
 	if ($options{'o'} &&
 	    $response->content_type eq 'text/html') {
-	    require HTML::Parse;
+	    eval {
+		require HTML::Parse;
+	    };
+	    if ($@) {
+		if ($@ =~ m,^Can't locate HTML/Parse.pm in \@INC,) {
+		    die "The HTML-Tree distribution need to be installed for the -o option to be used.\n";
+		}
+		else {
+		    die $@;
+		}
+	    }
 	    my $html = HTML::Parse::parse_html($response->content);
 	    {
 		$options{'o'} eq 'ps' && do {

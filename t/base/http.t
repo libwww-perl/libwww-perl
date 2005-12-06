@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..12\n";
+print "1..14\n";
 
 use strict;
 #use Data::Dump ();
@@ -188,3 +188,11 @@ print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello\n";
 print "ok 12\n";
 #use Data::Dump; Data::Dump::dump($res);
 
+
+$h = HTTP->new(Host => undef, PeerAddr => "a", );
+$h->http_version("1.0");
+print "not " if defined $h->host;
+print "ok 13\n";
+$res = $h->request(TRACE => "/");
+print "not " unless $res->{code} eq "200" && $res->{content} eq "TRACE / HTTP/1.0\r\n\r\n";
+print "ok 14\n";

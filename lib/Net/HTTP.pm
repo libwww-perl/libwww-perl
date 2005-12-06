@@ -1,6 +1,6 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.46 2004/12/30 12:17:03 gisle Exp $
+# $Id: HTTP.pm,v 1.47 2005/12/06 12:02:22 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -87,7 +87,7 @@ connect, a C<Net:HTTP> object is returned.
 =item $s->host
 
 Get/set the default value of the C<Host> header to send.  The $host
-should not be set to an empty string (or C<undef>).
+must not be set to an empty string (or C<undef>) for HTTP/1.1.
 
 =item $s->keep_alive
 

@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.62 2004/11/12 15:38:38 gisle Exp $
+# $Id: Headers.pm,v 1.63 2005/12/06 10:39:07 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.62 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.63 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -79,8 +79,11 @@ sub header
     my $self = shift;
     Carp::croak('Usage: $h->header($field, ...)') unless @_;
     my(@old);
-    while (my($field, $val) = splice(@_, 0, 2)) {
-	@old = $self->_header($field, $val);
+    my %seen;
+    while (@_) {
+	my $field = shift;
+        my $op = @_ ? ($seen{lc($field)}++ ? 'PUSH' : 'SET') : 'GET';
+	@old = $self->_header($field, shift, $op);
     }
     return @old if wantarray;
     return $old[0] if @old <= 1;
@@ -159,17 +162,21 @@ sub _header
     my $h = $self->{$field};
     my @old = ref($h) eq 'ARRAY' ? @$h : (defined($h) ? ($h) : ());
 
-    $op ||= "";
-    $val = undef if $op eq 'INIT' && @old;
-    if (defined($val)) {
-	my @new = ($op eq 'PUSH') ? @old : ();
-	if (ref($val) ne 'ARRAY') {
-	    push(@new, $val);
+    $op ||= defined($val) ? 'SET' : 'GET';
+    unless ($op eq 'GET' || ($op eq 'INIT' && @old)) {
+	if (defined($val)) {
+	    my @new = ($op eq 'PUSH') ? @old : ();
+	    if (ref($val) ne 'ARRAY') {
+		push(@new, $val);
+	    }
+	    else {
+		push(@new, @$val);
+	    }
+	    $self->{$field} = @new > 1 ? \@new : $new[0];
 	}
-	else {
-	    push(@new, @$val);
+	elsif ($op ne 'PUSH') {
+	    delete $self->{$field};
 	}
-	$self->{$field} = @new > 1 ? \@new : $new[0];
     }
     @old;
 }
@@ -708,19 +715,9 @@ These field names are returned with the ':' intact for
 $h->header_field_names and the $h->scan callback, but the colons do
 not show in $h->as_string.
 
-=head1 BUGS
-
-In the argument list to the constructor or header() method, the same
-field name should not occur multiple times.  The result of doing so,
-it that only the last of these fields will be present in the header
-after the call.  All values ought to be kept.
-
-Passing a value of C<undef> to header() or any of the convenience
-methods, does not delete that field.  It ought to do that.
-
 =head1 COPYRIGHT
 
-Copyright 1995-2004 Gisle Aas.
+Copyright 1995-2005 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

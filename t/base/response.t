@@ -3,7 +3,7 @@
 # message.t test suite.
 
 
-print "1..7\n";
+print "1..8\n";
 
 
 use HTTP::Date;
@@ -84,3 +84,8 @@ print "ok 6\n";
 
 print "not " unless $r->fresh_until;  # should return something
 print "ok 7\n";
+
+my $r2 = HTTP::Response->parse($r->as_string);
+my @h = $r2->header('Cache-Control');
+print "not " unless scalar @h == 2;
+print "ok 8\n" 

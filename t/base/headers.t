@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 154;
+plan tests => 156;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -15,8 +15,8 @@ ok($h);
 ok(ref($h), "HTTP::Headers");
 ok($h->as_string, "");
 
-$h = HTTP::Headers->new(foo => "bar");
-ok($h->as_string, "Foo: bar\n");
+$h = HTTP::Headers->new(foo => "bar", foo => "baaaaz", Foo => "baz");
+ok($h->as_string, "Foo: bar\nFoo: baaaaz\nFoo: baz\n");
 
 $h = HTTP::Headers->new(foo => ["bar", "baz"]);
 ok($h->as_string, "Foo: bar\nFoo: baz\n");
@@ -39,9 +39,11 @@ ok($h->header("Foo", 11), 1);
 ok($h->header("Foo", [1, 1]), 11);
 ok($h->header("Foo"), "1, 1");
 ok(j($h->header("Foo")), "1|1");
-ok($h->header(foo => 11, bar => 22), 2);
-ok($h->header("Foo"), 11);
+ok($h->header(foo => 11, Foo => 12, bar => 22), 2);
+ok($h->header("Foo"), "11, 12");
 ok($h->header("Bar"), 22);
+ok($h->header("Bar", undef), 22);
+ok(j($h->header("bar", 22)), "");
 
 $h->push_header(Bar => 22);
 ok($h->header("Bar"), "22, 22");

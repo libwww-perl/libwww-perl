@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.50 2004/12/30 12:16:59 gisle Exp $
+# $Id: Form.pm,v 1.51 2005/12/06 09:17:35 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.50 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.51 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -96,7 +96,7 @@ sub parse
     my $p = HTML::TokeParser->new(ref($html) ? $html->decoded_content(ref => 1) : \$html);
     eval {
 	# optimization
-	#$p->report_tags(qw(form input textarea select optgroup option keygen label));
+	$p->report_tags(qw(form input textarea select optgroup option keygen label));
     };
 
     unless (defined $base_uri) {
@@ -113,7 +113,6 @@ sub parse
 
     while (my $t = $p->get_tag) {
 	my($tag,$attr) = @$t;
-	print "XXX $tag\n";
 	if ($tag eq "form") {
 	    my $action = delete $attr->{'action'};
 	    $action = "" unless defined $action;
@@ -126,7 +125,6 @@ sub parse
 	    my(%labels, $current_label);
 	    while (my $t = $p->get_tag) {
 		my($tag, $attr) = @$t;
-		print " XX $tag\n";
 		last if $tag eq "/form";
 
 		# if we are inside a label tag, then keep

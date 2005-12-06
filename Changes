@@ -2,7 +2,30 @@
 
     Release 5.804
 
-    ???
+    HTTP::Message->parse did not work when the first line of the body
+    was something that looked like a header.
+
+    HTTP::Header::Auth needs HTTP::Headers to be loaded before
+    it replace its functions.
+
+    LWP::Protocol::nntp improvements by Ville Skyttä <ville.skytta@iki.fi>:
+     - Support the nntp: scheme.
+     - Support hostname in news: and nntp: URIs.
+     - Close connection and preserve headers also in non-OK responses.
+     - HEAD support for URIs identifying a newsgroup.
+     - Comment spelling fixes.
+
+    Fix quotes in Net::HTTP example.
+    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=283916
+
+    Detect EOF when expecting a chunk header.  Should address the
+    warnings shown in http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=286775
+
+    WWW::RobotRules: Improved parsing of not strictly valid robots.txt files
+    contributed by <Matthew.van.Eerde@hbinc.com>.
+
+    Makefile.PL: Set name to LWP so that the .packlist ends up in the
+    expected place.
 
 
 

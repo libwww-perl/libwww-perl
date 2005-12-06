@@ -1,10 +1,10 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.52 2004/12/11 15:10:43 gisle Exp $
+# $Id: Response.pm,v 1.53 2005/12/06 13:19:09 gisle Exp $
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use HTTP::Status ();
@@ -70,7 +70,7 @@ sub status_line
 {
     my $self = shift;
     my $code = $self->{'_rc'}  || "000";
-    my $mess = $self->{'_msg'} || HTTP::Status::status_message($code) || "?";
+    my $mess = $self->{'_msg'} || HTTP::Status::status_message($code) || "Unknown code";
     return "$code $mess";
 }
 
@@ -105,15 +105,9 @@ sub as_string
     my($eol) = @_;
     $eol = "\n" unless defined $eol;
 
-    my $code = $self->code;
-    my $status_message = HTTP::Status::status_message($code) || "Unknown code";
-    my $message = $self->message || "";
-
-    my $status_line = "$code";
+    my $status_line = $self->status_line;
     my $proto = $self->protocol;
     $status_line = "$proto $status_line" if $proto;
-    $status_line .= " ($status_message)" if $status_message ne $message;
-    $status_line .= " $message";
 
     return join($eol, $status_line, $self->SUPER::as_string(@_));
 }

@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.18 2004/12/30 12:28:14 gisle Exp $
+# $Id: Methods.pm,v 1.19 2005/12/06 11:31:43 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -49,7 +49,7 @@ sub http_configure {
 
     unless ($host =~ /:/) {
 	my $p = $self->peerport;
-	$host .= ":$p";
+	$host .= ":$p" if $p != $self->http_default_port;
     }
     $self->host($host);
     $self->keep_alive($keep_alive);

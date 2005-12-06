@@ -37,7 +37,7 @@ for (1..1) {
     $buf =~ s/\r//g;
 
     $err++ unless $buf eq "TRACE /libwww-perl HTTP/1.1
-Host: ftp.activestate.com:80
+Host: ftp.activestate.com
 User-Agent: Mozilla/5.0
 Accept-Language: no,en
 Accept: */*

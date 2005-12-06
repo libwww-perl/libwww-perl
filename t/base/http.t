@@ -131,14 +131,14 @@ print "ok 2\n";
 
 $res = $h->request(TRACE => "/foo");
 print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Keep-Alive: 300${CRLF}Connection: Keep-Alive${CRLF}Host: a:80${CRLF}${CRLF}";
+                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Keep-Alive: 300${CRLF}Connection: Keep-Alive${CRLF}Host: a${CRLF}${CRLF}";
 print "ok 3\n";
 
 # try to turn off keep alive
 $h->keep_alive(0);
 $res = $h->request(TRACE => "/foo");
 print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Connection: close${CRLF}Host: a:80${CRLF}${CRLF}";
+                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Connection: close${CRLF}Host: a${CRLF}${CRLF}";
 print "ok 4\n";
 
 # try a bad one

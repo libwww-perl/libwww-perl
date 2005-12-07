@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.53 2005/12/07 09:33:34 gisle Exp $
+# $Id: Form.pm,v 1.54 2005/12/07 14:32:27 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.54 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -1035,13 +1035,13 @@ sub add_to_form
 	if $type eq "checkbox";
 
     if ($type eq "option" && exists $self->{multiple}) {
-	$self->{disabled} ||= $self->{option_disabled};
+	$self->{disabled} ||= delete $self->{option_disabled};
 	return $self->SUPER::add_to_form($form);
     }
 
     die "Assert" if @{$self->{menu}} != 1;
     my $m = $self->{menu}[0];
-    $m->{disabled}++ if $self->{option_disabled};
+    $m->{disabled}++ if delete $self->{option_disabled};
 
     my $prev = $form->find_input($self->{name}, $self->{type});
     return $self->SUPER::add_to_form($form) unless $prev;
@@ -1058,6 +1058,29 @@ sub fixup
 	$self->{current} = 0;
     }
     $self->{menu}[$self->{current}]{seen}++ if exists $self->{current};
+}
+
+sub disabled
+{
+    my $self = shift;
+    my $type = $self->type;
+
+    my $old = $self->{disabled} || _menu_all_disabled(@{$self->{menu}});
+    if (@_) {
+	my $v = shift;
+	$self->{disabled} = $v;
+        for (@{$self->{menu}}) {
+            $_->{disabled} = $v;
+        }
+    }
+    return $old;
+}
+
+sub _menu_all_disabled {
+    for (@_) {
+	return 0 unless $_->{disabled};
+    }
+    return 1;
 }
 
 sub value

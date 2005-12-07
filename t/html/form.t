@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 103;
+plan tests => 122;
 
 use HTML::Form;
 
@@ -358,20 +358,33 @@ $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 
 EOT
 #print $f->dump;
-ok(!$f->find_input("r0")->disabled);
+ok($f->find_input("r0")->disabled);
 ok(!eval {$f->value("r0", 1);});
 ok($@ && $@ =~ /^The value '1' has been disabled for field 'r0'/);
+ok($f->find_input("r0")->disabled(0));
+ok(!$f->find_input("r0")->disabled);
+ok($f->value("r0", 1), undef);
+ok($f->value("r0"), 1);
+
 ok(!$f->find_input("r1")->disabled);
 ok($f->value("r1", 2), undef);
 ok($f->value("r1"), 2);
 ok(!eval {$f->value("r1", 1);});
 ok($@ && $@ =~ /^The value '1' has been disabled for field 'r1'/);
+
+ok($f->value("r2", 1), undef);
 ok(!eval {$f->value("r2", 2);});
 ok($@ && $@ =~ /^The value '2' has been disabled for field 'r2'/);
 ok(!eval {$f->value("r2", "two");});
 ok($@ && $@ =~ /^The value 'two' has been disabled for field 'r2'/);
+ok(!$f->find_input("r2")->disabled(1));
+ok(!eval {$f->value("r2", 1);});
+ok($@ && $@ =~ /^The value '1' has been disabled for field 'r2'/);
+ok($f->find_input("r2")->disabled(0));
+ok(!$f->find_input("r2")->disabled);
+ok($f->value("r2", 2), 1);
 
-ok(!$f->find_input("s0")->disabled);
+ok($f->find_input("s0")->disabled);
 ok(!$f->find_input("s1")->disabled);
 ok(!$f->find_input("s2")->disabled);
 ok($f->find_input("s3")->disabled);
@@ -391,6 +404,18 @@ ok(!$f->find_input("m2", undef, 3)->disabled);
 ok($f->find_input("m3", undef, 1)->disabled);
 ok($f->find_input("m3", undef, 2)->disabled);
 ok($f->find_input("m3", undef, 3)->disabled);
+
+$f->find_input("m3", undef, 2)->disabled(0);
+ok(!$f->find_input("m3", undef, 2)->disabled);
+ok($f->find_input("m3", undef, 2)->value(2), undef);
+ok($f->find_input("m3", undef, 2)->value(undef), 2);
+
+$f->find_input("m3", undef, 2)->disabled(1);
+ok($f->find_input("m3", undef, 2)->disabled);
+ok(eval{$f->find_input("m3", undef, 2)->value(2)}, undef);
+ok($@ && $@ =~ /^The value '2' has been disabled/);
+ok(eval{$f->find_input("m3", undef, 2)->value(undef)}, undef);
+ok($@ && $@ =~ /^The 'm3' field can't be unchecked/);
 
 $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 <!-- from http://www.blooberry.com/indexdot/html/tagpages/k/keygen.htm -->

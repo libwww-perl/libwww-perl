@@ -1,13 +1,13 @@
 package HTML::Form;
 
-# $Id: Form.pm,v 1.52 2005/12/06 14:22:20 gisle Exp $
+# $Id: Form.pm,v 1.53 2005/12/07 09:33:34 gisle Exp $
 
 use strict;
 use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%03d", q$Revision: 1.52 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -1034,7 +1034,7 @@ sub add_to_form
     return $self->SUPER::add_to_form($form)
 	if $type eq "checkbox";
 
-    if ($type eq "option" && $self->{multiple}) {
+    if ($type eq "option" && exists $self->{multiple}) {
 	$self->{disabled} ||= $self->{option_disabled};
 	return $self->SUPER::add_to_form($form);
     }

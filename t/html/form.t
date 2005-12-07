@@ -336,7 +336,7 @@ $f = HTML::Form->parse(<<EOT, "http://www.example.com");
  <option disabled>1
 </select>
 
-<select name=m1 multiple>
+<select name=m1 multiple="">
  <option disabled>1
  <option>2
  <option>3

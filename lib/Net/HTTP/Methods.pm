@@ -1,6 +1,6 @@
 package Net::HTTP::Methods;
 
-# $Id: Methods.pm,v 1.21 2005/12/06 13:27:38 gisle Exp $
+# $Id: Methods.pm,v 1.22 2005/12/07 10:01:37 gisle Exp $
 
 require 5.005;  # 4-arg substr
 
@@ -338,7 +338,10 @@ sub read_response_headers {
 	    push(@te, $te) if length($te);
 	}
 	elsif ($h eq 'content-length') {
-	    $content_length = int($headers[$i+1]);
+	    # ignore bogus and overflow values
+	    if ($headers[$i+1] =~ /^\s*(\d{1,15})(?:\s|$)/) {
+		$content_length = $1;
+	    }
 	}
     }
     ${*$self}{'http_te'} = join(",", @te);

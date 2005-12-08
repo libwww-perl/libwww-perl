@@ -1,4 +1,4 @@
-# $Id: http.pm,v 1.69 2004/12/14 12:38:45 gisle Exp $
+# $Id: http.pm,v 1.70 2005/12/08 10:28:01 gisle Exp $
 #
 
 package LWP::Protocol::http;
@@ -183,13 +183,13 @@ sub request
 	# Set (or override) Content-Length header
 	my $clen = $request_headers->header('Content-Length');
 	if (defined($$content_ref) && length($$content_ref)) {
-	    $has_content++;
-	    if (!defined($clen) || $clen ne length($$content_ref)) {
+	    $has_content = length($$content_ref);
+	    if (!defined($clen) || $clen ne $has_content) {
 		if (defined $clen) {
 		    warn "Content-Length header value was wrong, fixed";
 		    hlist_remove(\@h, 'Content-Length');
 		}
-		push(@h, 'Content-Length' => length($$content_ref));
+		push(@h, 'Content-Length' => $has_content);
 	    }
 	}
 	elsif ($clen) {
@@ -198,25 +198,26 @@ sub request
 	}
     }
 
+    my $write_wait = 0;
+    $write_wait = 2
+	if ($request_headers->header("Expect") || "") =~ /100-continue/;
+
     my $req_buf = $socket->format_request($method, $fullpath, @h);
     #print "------\n$req_buf\n------\n";
 
-    # XXX need to watch out for write timeouts
-    {
+    if (!$has_content || $write_wait || $has_content > 8*1024) {
+	# XXX need to watch out for write timeouts
 	my $n = $socket->syswrite($req_buf, length($req_buf));
 	die $! unless defined($n);
 	die "short write" unless $n == length($req_buf);
 	#LWP::Debug::conns($req_buf);
+	$req_buf = "";
     }
 
     my($code, $mess, @junk);
     my $drop_connection;
 
     if ($has_content) {
-	my $write_wait = 0;
-	$write_wait = 2
-	    if ($request_headers->header("Expect") || "") =~ /100-continue/;
-
 	my $eof;
 	my $wbuf;
 	my $woffset = 0;
@@ -225,10 +226,17 @@ sub request
 	    $buf = "" unless defined($buf);
 	    $buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
 		if $chunked;
+	    substr($buf, 0, 0) = $req_buf if $req_buf;
 	    $wbuf = \$buf;
 	}
 	else {
-	    $wbuf = $content_ref;
+	    if ($req_buf) {
+		my $buf = $req_buf . $$content_ref;
+		$wbuf = \$buf;
+	    }
+	    else {
+		$wbuf = $content_ref;
+	    }
 	    $eof = 1;
 	}
 

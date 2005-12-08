@@ -1,5 +1,5 @@
 #
-# $Id: LWP.pm,v 1.148 2005/12/08 12:00:16 gisle Exp $
+# $Id: LWP.pm,v 1.149 2005/12/08 12:06:22 gisle Exp $
 
 package LWP;
 
@@ -639,7 +639,7 @@ libwww-perl-0.40 library for details.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-2004, Gisle Aas
+  Copyright 1995-2005, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

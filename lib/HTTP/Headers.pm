@@ -1,12 +1,12 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.63 2005/12/06 10:39:07 gisle Exp $
+# $Id: Headers.pm,v 1.64 2005/12/08 12:11:48 gisle Exp $
 
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.63 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.64 $ =~ /(\d+)\.(\d+)/);
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -412,8 +412,9 @@ The header() method accepts multiple ($field => $value) pairs, which
 means that you can update several fields with a single invocation.
 
 The $value argument may be a plain string or a reference to an array
-of strings for a multi-valued field. If the $value is undefined or not
-given, then that header field will remain unchanged.
+of strings for a multi-valued field. If the $value is provided as
+C<undef> then the field is removed.  If the $value is not given, then
+that header field will remain unchanged.
 
 The old value (or values) of the last of the header fields is returned.
 If no such field exists C<undef> will be returned.

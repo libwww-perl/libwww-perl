@@ -1,3 +1,50 @@
+2005-12-08   Gisle Aas <gisle@ActiveState.com>
+
+    Release 5.805
+
+    HTTP::Date: The str2time function returned wrong values for
+    with years in the early 20th century, because timelocal() expects
+    the year to be provided in a different format than what
+    localtime() returns.
+
+    HTTP::Headers can now be constructed with repeating fields.
+    The $h->header function now also accept repeating field
+    names and can also remove headers by passing undef as value.
+
+    HTML::Form: The parse method now takes hash style optional
+    arguments and the old verbose behaviour is now off by default.
+    
+    HTML::Form: Accept <select multiple="">.  Patch by Josh Rai
+    <josh@rai.name>.
+
+    HTML::Form: Sane handling of 'disabled' for ListInput.
+    Based on patch by Joao Lopes <developer@st3tailor.com.br>.
+
+    HTTP::Negotiate: Fixed matching of partial language tags.
+    Patch provided by Dan Kubb.
+
+    HTTP::Response as string now returns a status_line that
+    agree with what.  This improves the ability to roundtrip
+    response objects via HTTP::Response->parse($res->as_string).
+
+    Net::HTTP: The host attribute can now be set undef in
+    order to suppress this header for HTTP/1.0 requests.
+
+    Net::HTTP: The default Host: header does not include the
+    port number if it is the default (80).
+
+    Net::HTTP: Ignore bogus Content-Length headers. Don't get
+    confused by leading or trailing whitespace.
+
+    LWP::Protocol::http: More efficient sending of small PUT/POST
+    requests.
+
+    lwp-request now give better error messages if you used the 
+    -o option without having the HTML-Tree distribution installed.
+    Also document this dependency.
+
+
+
 2005-12-06   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.804

@@ -1,9 +1,9 @@
 #
-# $Id: LWP.pm,v 1.147 2005/12/06 09:11:57 gisle Exp $
+# $Id: LWP.pm,v 1.148 2005/12/08 12:00:16 gisle Exp $
 
 package LWP;
 
-$VERSION = "5.804";
+$VERSION = "5.805";
 sub Version { $VERSION; }
 
 require 5.005;
@@ -612,21 +612,22 @@ Kubb, Dave Dunkin, Dave W. Smith, David Coppit, David Dick, David
 D. Kilzer, Doug MacEachern, Edward Avis, erik, Gary Shea, Gisle Aas,
 Graham Barr, Gurusamy Sarathy, Hans de Graaff, Harald Joerg, Harry
 Bochner, Hugo, Ilya Zakharevich, INOUE Yoshinari, Ivan Panchenko, Jack
-Shirazi, James Tillman, Jan Dubois, Jared Rhine, Jim Stern, John Klar,
-Johnny Lee, Josh Kronengold, Joshua Chamas, Joshua Hoblitt, Kartik
-Subbarao, Keiichiro Nagano, Ken Williams, KONISHI Katsuhiro, Lee T
-Lindley, Liam Quinn, Marc Hedlund, Marc Langheinrich, Mark
-D. Anderson, Marko Asplund, Mark Stosberg, Markus B Krüger, Markus
-Laker, Martijn Koster, Martin Thurn, Matthew Eldridge, Matt Sergeant,
-Michael A. Chase, Michael Quaranta, Michael Thompson, Mike Schilli,
-Moshe Kaminsky, Nathan Torkington, Nicolai Langfeldt, Norton Allen,
-Olly Betts, Paul J. Schinder, peterm, Philip GuentherDaniel Buenzli,
-Pon Hwa Lin, Radoslaw Zielinski, Radu Greab, Randal L. Schwartz,
-Richard Chen, Robin Barker, Roy Fielding, Sander van Zoest, Sean
-M. Burke, shildreth, Slaven Rezic, Steve A Fink, Steve Hay, Steven
-Butler, Steve_Kilbane, Takanori Ugai, Thomas Lotterer, Tim Bunce, Tom
-Hughes, Tony Finch, Ville Skyttä, Ward Vandewege, William York, Yale
-Huang, and Yitzchak Scott-Thoennes.
+Shirazi, James Tillman, Jan Dubois, Jared Rhine, Jim Stern, Joao
+Lopes, John Klar, Johnny Lee, Josh Kronengold, Josh Rai, Joshua
+Chamas, Joshua Hoblitt, Kartik Subbarao, Keiichiro Nagano, Ken
+Williams, KONISHI Katsuhiro, Lee T Lindley, Liam Quinn, Marc Hedlund,
+Marc Langheinrich, Mark D. Anderson, Marko Asplund, Mark Stosberg,
+Markus B Krüger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
+Eldridge, Matthew.van.Eerde, Matt Sergeant, Michael A. Chase, Michael
+Quaranta, Michael Thompson, Mike Schilli, Moshe Kaminsky, Nathan
+Torkington, Nicolai Langfeldt, Norton Allen, Olly Betts, Paul
+J. Schinder, peterm, Philip GuentherDaniel Buenzli, Pon Hwa Lin,
+Radoslaw Zielinski, Radu Greab, Randal L. Schwartz, Richard Chen,
+Robin Barker, Roy Fielding, Sander van Zoest, Sean M. Burke,
+shildreth, Slaven Rezic, Steve A Fink, Steve Hay, Steven Butler,
+Steve_Kilbane, Takanori Ugai, Thomas Lotterer, Tim Bunce, Tom Hughes,
+Tony Finch, Ville Skyttä, Ward Vandewege, William York, Yale Huang,
+and Yitzchak Scott-Thoennes.
 
 LWP owes a lot in motivation, design, and code, to the libwww-perl
 library for Perl4 by Roy Fielding, which included work from Alberto

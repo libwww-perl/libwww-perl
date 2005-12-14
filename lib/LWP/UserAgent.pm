@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.34 2005/12/14 21:03:18 gisle Exp $
+# $Id: UserAgent.pm,v 2.35 2005/12/14 21:12:20 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.34 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.35 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -1209,6 +1209,12 @@ Otherwise it works like the get() method described above.
 =item $ua->post( $url, \@form )
 
 =item $ua->post( $url, \%form, $field_name => $value, ... )
+
+=item $ua->post( $url, $field_name => $value,... Content => \%form )
+
+=item $ua->post( $url, $field_name => $value,... Content => \@form )
+
+=item $ua->post( $url, $field_name => $value,... Content => $content )
 
 This method will dispatch a C<POST> request on the given $url, with
 %form or @form providing the key/value pairs for the fill-in form

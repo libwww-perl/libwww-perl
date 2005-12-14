@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.33 2004/09/16 09:28:22 gisle Exp $
+# $Id: UserAgent.pm,v 2.34 2005/12/14 21:03:18 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.34 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -423,7 +423,7 @@ sub get {
 sub post {
     require HTTP::Request::Common;
     my($self, @parameters) = @_;
-    my @suff = $self->_process_colonic_headers(\@parameters,2);
+    my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
     return $self->request( HTTP::Request::Common::POST( @parameters ), @suff );
 }
 

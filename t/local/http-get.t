@@ -50,7 +50,7 @@ else {
     open(DAEMON, "$perl local/http-get.t daemon |") or die "Can't exec daemon: $!";
 }
 
-print "1..20\n";
+print "1..21\n";
 
 
 my $greeting = <DAEMON>;
@@ -384,6 +384,28 @@ print "ok 19\n";
 
 }
 
+{
+
+my $content;
+
+$res = $ua->post(
+  url("/echo/foo", $base),
+  Content_Type   => 'text/plain',
+  Content        => "Plain Text",
+  ':content_cb'  => sub { $content .= $_[0]; return; },
+);
+
+$_ = $content;
+print "not " unless $res->is_success
+                and /^Content-Length:\s*10$/mi
+		and /^Content-Type:\s*text\/plain$/mi
+		and /^Plain Text$/m
+		and ! $res->content
+;
+print "ok 20\n";		
+
+}
+
 #----------------------------------------------------------------
 print "#------------Testing: Terminating server...\n";
 sub httpd_get_quit
@@ -396,5 +418,5 @@ sub httpd_get_quit
 $res = $ua->get( url("/quit", $base) );
 
 print "not " unless $res->code == 503 and $res->content =~ /Bye, bye/;
-print "ok 20\n";
+print "ok 21\n";
 

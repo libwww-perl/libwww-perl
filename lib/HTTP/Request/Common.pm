@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.26 2004/11/15 14:52:37 gisle Exp $
+# $Id: Common.pm,v 1.27 2005/12/14 21:02:26 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -343,6 +343,12 @@ $ua->request(HEAD ...).
 
 Like GET() but the method in the request is "PUT".
 
+The content of the request can be specified using the "Content"
+pseudo-header.  This steals a bit of the header field namespace as
+there is no way to directly specify a header that is actually called
+"Content".  If you really need this you must update the request
+returned in a separate statement.
+
 =item POST $url
 
 =item POST $url, Header => Value,...
@@ -351,10 +357,16 @@ Like GET() but the method in the request is "PUT".
 
 =item POST $url, Header => Value,..., Content => $form_ref
 
-This works mostly like GET() with "POST" as the method, but this function
-also takes a second optional array or hash reference parameter
-($form_ref).  This argument can be used to pass key/value pairs for
-the form content.  By default we will initialize a request using the
+=item POST $url, Header => Value,..., Content => $content
+
+This works mostly like PUT() with "POST" as the method, but this
+function also takes a second optional array or hash reference
+parameter $form_ref.  As for PUT() the content can also be specified
+directly using the "Content" pseudo-header, and you may also provide
+the $form_ref this way.
+
+The $form_ref argument can be used to pass key/value pairs for the
+form content.  By default we will initialize a request using the
 C<application/x-www-form-urlencoded> content type.  This means that
 you can emulate a HTML E<lt>form> POSTing like this:
 

@@ -1,10 +1,10 @@
 package LWP::Protocol;
 
-# $Id: Protocol.pm,v 1.43 2004/11/12 13:34:10 gisle Exp $
+# $Id: Protocol.pm,v 1.44 2006/04/26 16:34:21 gisle Exp $
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.43 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -119,8 +119,6 @@ sub collect
 	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
 		$response->push_header("Client-Aborted", "max_size");
-		#my $tot = $response->header("Content-Length") || 0;
-		#$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
 	}
@@ -142,8 +140,6 @@ sub collect
 	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
 		$response->push_header("Client-Aborted", "max_size");
-		#my $tot = $response->header("Content-Length") || 0;
-		#$response->header("X-Content-Range", "bytes 0-$content_size/$tot");
 		last;
 	    }
 	}

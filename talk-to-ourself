@@ -1,7 +1,7 @@
 #!perl -w
 
 # This program check if we are able to talk to ourself.  Misconfigured
-# systems that can't talk to their own 'hostname' has the most commonly
+# systems that can't talk to their own 'hostname' was the most commonly
 # reported libwww-failure.
 
 use strict;

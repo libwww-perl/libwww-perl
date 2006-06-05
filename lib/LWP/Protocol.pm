@@ -1,10 +1,10 @@
 package LWP::Protocol;
 
-# $Id: Protocol.pm,v 1.44 2006/04/26 16:34:21 gisle Exp $
+# $Id: Protocol.pm,v 1.45 2006/06/05 08:36:37 gisle Exp $
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.44 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.45 $ =~ /(\d+)\.(\d+)/);
 
 use strict;
 use Carp ();
@@ -98,7 +98,7 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
-    my($parse_head, $max_size) = @{$self}{qw(parse_head max_size)};
+    my($ua, $parse_head, $max_size) = @{$self}{qw(ua parse_head max_size)};
 
     my $parser;
     if ($parse_head && $response->content_type eq 'text/html') {
@@ -106,6 +106,7 @@ sub collect
 	$parser = HTML::HeadParser->new($response->{'_headers'});
     }
     my $content_size = 0;
+    my $length = $response->content_length;
 
     if (!defined($arg) || !$response->is_success) {
 	# scalar
@@ -116,6 +117,7 @@ sub collect
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    $response->add_content($$content);
 	    $content_size += length($$content);
+	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
 	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
 		$response->push_header("Client-Aborted", "max_size");
@@ -137,6 +139,7 @@ sub collect
 	    LWP::Debug::debug("read " . length($$content) . " bytes");
 	    print OUT $$content or die "Can't write to '$arg': $!";
 	    $content_size += length($$content);
+	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
 	    if (defined($max_size) && $content_size > $max_size) {
 		LWP::Debug::debug("Aborting because size limit exceeded");
 		$response->push_header("Client-Aborted", "max_size");
@@ -161,6 +164,8 @@ sub collect
 		$response->push_header("Client-Aborted", "die");
 		last;
 	    }
+	    $content_size += length($$content);
+	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
 	}
     }
     else {

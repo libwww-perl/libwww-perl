@@ -1,13 +1,13 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.35 2005/12/14 21:12:20 gisle Exp $
+# $Id: UserAgent.pm,v 2.36 2006/06/05 08:36:37 gisle Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.35 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%03d", q$Revision: 2.36 $ =~ /(\d+)\.(\d+)/);
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -209,6 +209,7 @@ EOT
       @{$self}{qw(timeout cookie_jar use_eval parse_head max_size)};
 
     my $response;
+    $self->progress("begin");
     if ($use_eval) {
 	# we eval, and turn dies into responses below
 	eval {
@@ -231,6 +232,8 @@ EOT
     $response->request($request);  # record request for reference
     $cookie_jar->extract_cookies($response) if $cookie_jar;
     $response->header("Client-Date" => HTTP::Date::time2str(time));
+
+    $self->progress("end", $response);
     return $response;
 }
 
@@ -483,6 +486,11 @@ sub _process_colonic_headers {
     return             unless defined $arg;
     return $arg, $size if     defined $size;
     return $arg;
+}
+
+sub progress {
+    my($self, $status, $response) = @_;
+    # subclasses might override this
 }
 
 
@@ -1344,6 +1352,15 @@ with this library.
 
 The base implementation simply checks a set of pre-stored member
 variables, set up with the credentials() method.
+
+=item $ua->progress( $status, $response )
+
+This is called frequently as the response is received regardless of
+how the content is processed.  The method is called with $status
+"begin" at the start of processing the request and with $state "end"
+before the request method returns.  In between these $status will be
+the fraction of the response currently received or the string "tick"
+if the fraction can't be calculated.
 
 =back
 

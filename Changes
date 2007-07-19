@@ -1,3 +1,31 @@
+2007-07-17   
+
+     Add support for HTTP Expect header to HTTP::Daemon (CPAN RT #27933)
+
+     Fix t/base/message.t so tests are skipped if Encode is not
+     installed.  (CPAN RT #25286)
+
+     Add HTML::Tagset as a prerequisite to Makefile.PL
+
+     Do not clobber $_ in LWP::Protocol::nntp (CPAN RT #25132)
+
+     Fix lwp-download so it can download files with an "_" in the filename
+         (CPAN RT#26207)
+
+     Quiet complaints from HTML::HeadParser when dealing with undecoded
+     UTF-8 data.  (CPAN RT#20274)
+
+     When both IO::Socket::SSL and Net::SSL are loaded, use the latter
+         (CPAN RT #26152)
+
+     Some clients hang when Content-length is not specified or 0 on SSL. 
+         (CPAN RT #23372)
+
+     Allow text/vnd.wap.wml and application/vnd.oasis.opendocument.text
+         in content-type field in lwp-request (CPAN RT #26151)
+
+     Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
+
 2005-12-08   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.805

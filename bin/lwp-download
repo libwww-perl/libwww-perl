@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.15 2004/12/11 14:02:59 gisle Exp $
+# $Id: lwp-download,v 2.16 2007/07/19 20:26:11 gisle Exp $
 
 =head1 NAME
 
@@ -75,7 +75,7 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.15 $;
+my $version = q$Revision: 2.16 $;
 $version =~ s/[^\d.]//g;
 
 my $ua = LWP::UserAgent->new(
@@ -150,7 +150,7 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 	      # validate that we don't have a harmful filename now.  The server
 	      # might try to trick us into doing something bad.
 	      if (!length($file) ||
-                  $file =~ s/([^a-zA-Z0-9\.\-\+\~])/sprintf "\\x%02x", ord($1)/ge)
+                  $file =~ s/([^a-zA-Z0-9_\.\-\+\~])/sprintf "\\x%02x", ord($1)/ge)
               {
 		  die "Will not save <$url> as \"$file\".\nPlease override file name on the command line.\n";
 	      }

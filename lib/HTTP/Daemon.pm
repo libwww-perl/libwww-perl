@@ -1,11 +1,11 @@
 package HTTP::Daemon;
 
-# $Id: Daemon.pm,v 1.36 2004/12/11 14:13:16 gisle Exp $
+# $Id: Daemon.pm,v 1.37 2007/07/19 20:26:11 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -190,6 +190,18 @@ sub get_request
     my $te  = $r->header('Transfer-Encoding');
     my $ct  = $r->header('Content-Type');
     my $len = $r->header('Content-Length');
+
+    # Act on the Expect header, if it's there
+    for my $e ( $r->header('Expect') ) {
+        if( lc($e) eq '100-continue' ) {
+            $self->send_status_line(100);
+        }
+        else {
+            $self->send_error(417);
+            $self->reason("Unsupported Expect header value");
+            return;
+        }
+    }
 
     if ($te && lc($te) eq 'chunked') {
 	# Handle chunked transfer encoding
@@ -435,11 +447,12 @@ sub send_response
 		$self->force_last_request;
 	    }
 	}
-	elsif (length($content)) {
+	elsif ($res->header('content-length') eq '0' || length($content) > 0) {
 	    $res->header("Content-Length" => length($content));
 	}
 	else {
 	    $self->force_last_request;
+            $res->header('connection','close'); 
 	}
 	print $self $res->headers_as_string($CRLF);
 	print $self $CRLF;  # separates headers and content

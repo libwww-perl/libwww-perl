@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-request,v 2.7 2005/12/06 12:16:28 gisle Exp $
+# $Id: lwp-request,v 2.8 2007/07/19 20:26:11 gisle Exp $
 #
 # Simple user agent using LWP library.
 
@@ -182,7 +182,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.8 $ =~ /(\d+)\.(\d+)/);
 
 
 require LWP;
@@ -366,7 +366,7 @@ if ($allowed_methods{$method} eq "C") {
     }
     else {
         die "$progname: Illegal Content-type format\n"
-            unless $options{'c'} =~ m,^[\w\-]+/[\w\-]+(?:\s*;.*)?$,
+            unless $options{'c'} =~ m,^[\w\-]+/[\w\-.+]+(?:\s*;.*)?$,
     }
     print "Please enter content ($options{'c'}) to be ${method}ed:\n"
         if -t;

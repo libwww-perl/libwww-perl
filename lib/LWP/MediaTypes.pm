@@ -1,12 +1,12 @@
 package LWP::MediaTypes;
 
-# $Id: MediaTypes.pm,v 1.32 2004/11/17 11:04:09 gisle Exp $
+# $Id: MediaTypes.pm,v 1.33 2007/07/19 20:26:11 gisle Exp $
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(guess_media_type media_suffix);
 @EXPORT_OK = qw(add_type add_encoding read_media_types);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.32 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
 
 require LWP::Debug;
 use strict;
@@ -19,6 +19,7 @@ my %suffixType = (
     'html'  => 'text/html',
     'gif'   => 'image/gif',
     'jpg'   => 'image/jpeg',
+    'xml'   => 'text/xml',
 );
 
 my %suffixExt = (
@@ -26,6 +27,7 @@ my %suffixExt = (
     'text/html'  => 'html',
     'image/gif'  => 'gif',
     'image/jpeg' => 'jpg',
+    'text/xml'   => 'xml',
 );
 
 #XXX: there should be some way to define this in the media.types files.

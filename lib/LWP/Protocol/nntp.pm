@@ -1,5 +1,5 @@
 #
-# $Id: nntp.pm,v 1.10 2005/10/31 15:10:33 gisle Exp $
+# $Id: nntp.pm,v 1.11 2007/07/19 20:26:11 gisle Exp $
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 #
@@ -116,6 +116,7 @@ sub request
 
     # Parse headers
     my($key, $val);
+    local $_;
     while ($_ = shift @$art) {
 	if (/^\s+$/) {
 	    last;  # end of headers

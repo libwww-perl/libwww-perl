@@ -6,6 +6,7 @@ use Test qw(plan ok skip);
 plan tests => 95;
 
 require HTTP::Message;
+require Config;
 
 my($m, $m2, @parts);
 
@@ -339,7 +340,8 @@ $m->content_type("text/plain; charset=UTF-8");
 $m->content("H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
 
 $@ = "";
-skip($] < 5.008 ? "No Encode module" : "",
+skip($] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
+           ? "No Encode module" : "",
      sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, "H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
@@ -348,7 +350,8 @@ my $tmp = MIME::Base64::decode($m->content);
 $m->content($tmp);
 $m->header("Content-Encoding", "gzip");
 $@ = "";
-skip($] < 5.008 ? "No Encode module" : "",
+skip($] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
+           ? "No Encode module" : "",
      sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, $tmp);

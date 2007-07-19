@@ -31,6 +31,8 @@
          in content-type field in lwp-request (CPAN RT #26151)
 
      Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
+     
+     Added chunked test by Andreas J. Koenig
 
 
 

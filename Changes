@@ -24,7 +24,7 @@
      When both IO::Socket::SSL and Net::SSL are loaded, use the latter
          (CPAN RT #26152)
 
-     Some clients hang when Content-length is not specified or 0 on SSL. 
+     Allows SSL to work much more reliably:
          (CPAN RT #23372)
 
      Allow text/vnd.wap.wml and application/vnd.oasis.opendocument.text

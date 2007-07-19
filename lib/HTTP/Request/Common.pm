@@ -1,4 +1,4 @@
-# $Id: Common.pm,v 1.27 2005/12/14 21:02:26 gisle Exp $
+# $Id: Common.pm,v 1.28 2007/07/19 20:46:48 gisle Exp $
 #
 package HTTP::Request::Common;
 
@@ -15,7 +15,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
@@ -434,24 +434,24 @@ different):
 
   --6G+f
   Content-Disposition: form-data; name="name"
-  
+
   Gisle Aas
   --6G+f
   Content-Disposition: form-data; name="email"
-  
+
   gisle@aas.no
   --6G+f
   Content-Disposition: form-data; name="gender"
-  
+
   M
   --6G+f
   Content-Disposition: form-data; name="born"
-  
+
   1964
   --6G+f
   Content-Disposition: form-data; name="init"; filename=".profile"
   Content-Type: text/plain
-  
+
   PATH=/local/perl/bin:$PATH
   export PATH
 

@@ -1,11 +1,11 @@
 package HTTP::Daemon;
 
-# $Id: Daemon.pm,v 1.37 2007/07/19 20:26:11 gisle Exp $
+# $Id: Daemon.pm,v 1.38 2007/07/19 20:47:22 gisle Exp $
 
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.37 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.38 $ =~ /(\d+)\.(\d+)/);
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);
@@ -150,6 +150,7 @@ sub get_request
     my $r = HTTP::Request->new($method, $uri);
     $r->protocol($proto);
     ${*$self}{'httpd_client_proto'} = $proto = _http_version($proto);
+    ${*$self}{'httpd_head'} = ($method eq "HEAD");
 
     if ($proto >= $HTTP_1_0) {
 	# we expect to find some headers
@@ -387,6 +388,12 @@ sub force_last_request
     ${*$self}{'httpd_nomore'}++;
 }
 
+sub head_request
+{
+    my $self = shift;
+    ${*$self}{'httpd_head'};
+}
+
 
 sub send_status_line
 {
@@ -457,7 +464,10 @@ sub send_response
 	print $self $res->headers_as_string($CRLF);
 	print $self $CRLF;  # separates headers and content
     }
-    if (ref($content) eq "CODE") {
+    if ($self->head_request) {
+	# no content
+    }
+    elsif (ref($content) eq "CODE") {
 	while (1) {
 	    my $chunk = &$content();
 	    last unless defined($chunk) && length($chunk);
@@ -491,7 +501,7 @@ sub send_redirect
 	print $self "Content-Type: $ct$CRLF";
     }
     print $self $CRLF;
-    print $self $content if $content;
+    print $self $content if $content && !$self->head_request;
     $self->force_last_request;  # no use keeping the connection open
 }
 
@@ -514,7 +524,7 @@ EOT
 	print $self "Content-Length: " . length($mess) . $CRLF;
         print $self $CRLF;
     }
-    print $self $mess;
+    print $self $mess unless $self->head_request;
     $status;
 }
 
@@ -541,7 +551,7 @@ sub send_file_response
 	    print $self "Last-Modified: ", time2str($mtime), "$CRLF" if $mtime;
 	    print $self $CRLF;
 	}
-	$self->send_file(\*F);
+	$self->send_file(\*F) unless $self->head_request;
 	return RC_OK;
     }
     else {
@@ -760,6 +770,11 @@ string like "HTTP/1.1" or just "1.1".
 Return TRUE if the client speaks the HTTP/0.9 protocol.  No status
 code and no headers should be returned to such a client.  This should
 be the same as !$c->proto_ge("HTTP/1.0").
+
+=item $c->head_request
+
+Return TRUE if the last request was a C<HEAD> request.  No content
+body must be generated for these requests.
 
 =item $c->force_last_request
 

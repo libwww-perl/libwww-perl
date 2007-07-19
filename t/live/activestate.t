@@ -4,7 +4,7 @@ use strict;
 use Net::HTTP;
 
 
-my $s = Net::HTTP->new(Host => "ftp.activestate.com",
+my $s = Net::HTTP->new(Host => "www.apache.org",
 		       KeepAlive => 1,
 		       Timeout => 15,
 		       PeerHTTPVersion => "1.1",
@@ -37,7 +37,7 @@ for (1..1) {
     $buf =~ s/\r//g;
 
     $err++ unless $buf eq "TRACE /libwww-perl HTTP/1.1
-Host: ftp.activestate.com
+Host: www.apache.org
 User-Agent: Mozilla/5.0
 Accept-Language: no,en
 Accept: */*

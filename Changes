@@ -1,4 +1,10 @@
-2007-07-17   
+2007-07-17   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.806
+
+     Added progress callback to LWP::UserAgent.
+     
+     HTTP::Daemon didn't avoid content in responses to HEAD requests
 
      Add support for HTTP Expect header to HTTP::Daemon (CPAN RT #27933)
 
@@ -25,6 +31,8 @@
          in content-type field in lwp-request (CPAN RT #26151)
 
      Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
+
+
 
 2005-12-08   Gisle Aas <gisle@ActiveState.com>
 

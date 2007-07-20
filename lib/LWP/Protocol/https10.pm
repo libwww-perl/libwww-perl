@@ -1,5 +1,5 @@
 #
-# $Id: https10.pm,v 1.3 2007/07/19 20:26:11 gisle Exp $
+# $Id: https10.pm,v 1.4 2007/07/20 06:16:58 gisle Exp $
 
 use strict;
 
@@ -8,7 +8,7 @@ package LWP::Protocol::https10;
 # Figure out which SSL implementation to use
 use vars qw($SSL_CLASS);
 if ($Net::SSL::VERSION) {
-    $SSL_SOCKET_CLASS = "Net::SSL";
+    $SSL_CLASS = "Net::SSL";
 }
 elsif ($IO::Socket::SSL::VERSION) {
     $SSL_CLASS = "IO::Socket::SSL"; # it was already loaded

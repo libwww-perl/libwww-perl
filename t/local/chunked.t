@@ -5,7 +5,7 @@ use warnings;
 
 use HTTP::Daemon;
 use Test::More;
-use Time::HiRes qw(sleep);
+# use Time::HiRes qw(sleep);
 our $CRLF;
 use Socket qw($CRLF);
 

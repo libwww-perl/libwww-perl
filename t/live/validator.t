@@ -1,5 +1,3 @@
-print "1..2\n";
-
 use strict;
 
 use LWP::UserAgent;
@@ -14,8 +12,15 @@ $req = HTTP::Request->new(GET => $uri);
 $res = $ua->request($req);
 
 my $f = HTML::Form->parse($res->content, $res->base);
+unless (defined $f) {
+    print "1..0 # Skipped: Can't parse validator form\n";
+    exit;
+}
+
 
 #$f->dump;
+
+print "1..2\n";
 
 my $file = <<'EOT';
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">

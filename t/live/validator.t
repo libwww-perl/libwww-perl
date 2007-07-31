@@ -40,7 +40,7 @@ $req->header(Connection => "close");
 $res = $ua->request($req);
 #print $res->as_string;
 
-unless ($res->content =~ /found to be valid/) {
+unless ($res->content =~ /found\s+to\s+be\s+valid/) {
     print $res->as_string;
     print "\nnot ";
 }

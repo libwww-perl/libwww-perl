@@ -95,7 +95,6 @@ t/live/jigsaw-md5.t
 t/live/jigsaw-neg-get.t
 t/live/jigsaw-neg.t
 t/live/jigsaw-te.t
-t/live/validator.t
 t/local/autoload-get.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/chunked.t

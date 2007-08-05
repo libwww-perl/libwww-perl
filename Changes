@@ -1,3 +1,12 @@
+2007-08-05   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.808
+     
+     Get rid of t/live/validator test.  Too much JavaScript madness
+     for it to be a sane LWP test.
+
+
+
 2007-07-31   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.807

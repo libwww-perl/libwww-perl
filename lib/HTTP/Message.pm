@@ -601,7 +601,7 @@ This override the default charset of "ISO-8859-1".
 
 If TRUE then raise an exception if not able to decode content.  Reason
 might be that the specified C<Content-Encoding> or C<charset> is not
-supported.  If this option is FALSE, then decode_content() will return
+supported.  If this option is FALSE, then decoded_content() will return
 C<undef> on errors, but will still set $@.
 
 =item C<ref>

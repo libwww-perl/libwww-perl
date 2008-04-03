@@ -964,7 +964,11 @@ sub value
     if (@_) {
         Carp::carp("Input '$self->{name}' is readonly")
 	    if $^W && $self->{readonly};
-	$self->{value} = shift;
+        my $new = shift;
+        my $n = exists $self->{maxlength} ? $self->{maxlength} : undef;
+        Carp::carp("Input '$self->{name}' has maxlength '$n'")
+	    if $^W && defined($n) && defined($new) && length($new) > $n;
+	$self->{value} = $new;
     }
     $old;
 }

@@ -6,13 +6,13 @@
 
 =head1 NAME
 
-lwp-request - Simple command line user agent
+lwp-request, GET, POST, HEAD - Simple command line user agent
 
 =head1 SYNOPSIS
 
- lwp-request [-aeEdvhx] [-m method] [-b <base URL>] [-t <timeout>]
-             [-i <if-modified-since>] [-c <content-type>] [-C <credentials>]
-             [-p <proxy-url>] [-o <format>] <url>...
+B<lwp-request> [B<-afPuUsSedvhx>] [B<-m> I<method>] [B<-b> I<base URL>] [B<-t> I<timeout>]
+            [B<-i> I<if-modified-since>] [B<-c> I<content-type>]
+            [B<-C> I<credentials>] [B<-p> I<proxy-url>] [B<-o> I<format>] I<url>...
 
 =head1 DESCRIPTION
 
@@ -70,6 +70,10 @@ the others is C<text/plain>.
 Set the proxy to be used for the requests.  The program also loads
 proxy settings from the environment.  You can disable this with the
 C<-P> option.
+
+=item -P
+
+Don't load proxy settings from environment.
 
 =item -H <header>
 
@@ -527,6 +531,8 @@ Usage: $progname [-options] <url>...
     -p <proxyurl> use this as a proxy
     -P            don't load proxy settings from environment
     -H <header>   send this HTTP header (you can specify several)
+    -C <username>:<password>
+                  provide credentials for basic authentication
 
     -u            Display method and URL before any response
     -U            Display request headers (implies -u)

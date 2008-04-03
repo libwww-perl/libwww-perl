@@ -199,7 +199,7 @@ sub extract_cookies
 
     if (@ns_set) {
 	# The old Netscape cookie format for Set-Cookie
-        # http://www.netscape.com/newsref/std/cookie_spec.html
+	# http://wp.netscape.com/newsref/std/cookie_spec.html
 	# can for instance contain an unquoted "," in the expires
 	# field, so we have to use this ad-hoc parser.
 	my $now = time();
@@ -626,7 +626,7 @@ knows about.
 Cookies are a general mechanism which server side connections can use
 to both store and retrieve information on the client side of the
 connection.  For more information about cookies refer to
-<URL:http://www.netscape.com/newsref/std/cookie_spec.html> and
+<URL:http://wp.netscape.com/newsref/std/cookie_spec.html> and
 <URL:http://www.cookiecentral.com/>.  This module also implements the
 new style cookies described in I<RFC 2965>.
 The two variants of cookies are supposed to be able to coexist happily.

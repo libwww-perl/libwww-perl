@@ -292,6 +292,19 @@ sub content_type      {
   wantarray ? @ct : $ct[0];
 }
 
+sub _is_html          {
+    my $self = shift;
+    return $self->content_type eq 'text/html' || $self->_is_xhtml;
+}
+
+sub _is_xhtml         {
+    my $ct = shift->content_type;
+    for (qw(application/xhtml+xml application/vnd.wap.xhtml+xml)) {
+        return 1 if $_ eq $ct;
+    }
+    return 0;
+}
+
 sub referer           {
     my $self = shift;
     if (@_ && $_[0] =~ /#/) {

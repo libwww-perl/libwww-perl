@@ -101,9 +101,10 @@ sub collect
     my($ua, $parse_head, $max_size) = @{$self}{qw(ua parse_head max_size)};
 
     my $parser;
-    if ($parse_head && $response->content_type eq 'text/html') {
+    if ($parse_head && $response->_is_html) {
 	require HTML::HeadParser;
 	$parser = HTML::HeadParser->new($response->{'_headers'});
+        $parser->xml_mode(1) if $response->_is_xhtml;
         $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
     }
     my $content_size = 0;

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 122;
+plan tests => 123;
 
 use HTML::Form;
 
@@ -416,6 +416,20 @@ ok(eval{$f->find_input("m3", undef, 2)->value(2)}, undef);
 ok($@ && $@ =~ /^The value '2' has been disabled/);
 ok(eval{$f->find_input("m3", undef, 2)->value(undef)}, undef);
 ok($@ && $@ =~ /^The 'm3' field can't be unchecked/);
+
+# Try a disabled radiobutton:
+$f = HTML::Form->parse(<<EOT, "http://localhost/");
+<form>
+ <input disabled checked type=radio name=f value=a>
+ <input type=hidden name=f value=b>
+</form>
+
+EOT
+
+ok($f->click->as_string, <<'EOT');
+GET http://localhost/?f=b
+
+EOT
 
 $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 <!-- from http://www.blooberry.com/indexdot/html/tagpages/k/keygen.htm -->

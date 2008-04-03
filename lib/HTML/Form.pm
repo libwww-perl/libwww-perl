@@ -907,7 +907,7 @@ sub form_name_value
     my $self = shift;
     my $name = $self->{'name'};
     return unless defined $name;
-    return if $self->{disabled};
+    return if $self->disabled;
     my $value = $self->value;
     return unless defined $value;
     return ($name => $value);

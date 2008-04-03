@@ -121,17 +121,18 @@ sub is_error    { HTTP::Status::is_error    (shift->{'_rc'}); }
 
 sub error_as_HTML
 {
+    require HTML::Entities;
     my $self = shift;
     my $title = 'An Error Occurred';
-    my $body  = $self->status_line;
+    my $body  = HTML::Entities::encode($self->status_line);
     return <<EOM;
-<HTML>
-<HEAD><TITLE>$title</TITLE></HEAD>
-<BODY>
-<H1>$title</H1>
-$body
-</BODY>
-</HTML>
+<html>
+<head><title>$title</title></head>
+<body>
+<h1>$title</h1>
+<p>$body</p>
+</body>
+</html>
 EOM
 }
 

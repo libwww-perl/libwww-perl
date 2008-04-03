@@ -17,13 +17,13 @@ my %type2class = (
  hidden   => "TextInput",
  textarea => "TextInput",
 
- button   => "IgnoreInput",
  "reset"  => "IgnoreInput",
 
  radio    => "ListInput",
  checkbox => "ListInput",
  option   => "ListInput",
 
+ button   => "SubmitInput",
  submit   => "SubmitInput",
  image    => "ImageInput",
  file     => "FileInput",
@@ -117,7 +117,7 @@ sub parse
     my $p = HTML::TokeParser->new(ref($html) ? $html->decoded_content(ref => 1) : \$html);
     eval {
 	# optimization
-	$p->report_tags(qw(form input textarea select optgroup option keygen label));
+	$p->report_tags(qw(form input textarea select optgroup option keygen label button));
     };
 
     my $base_uri = delete $opt{base};
@@ -183,6 +183,10 @@ sub parse
 		    my $type = delete $attr->{type} || "text";
 		    $f->push_input($type, $attr);
 		}
+                elsif ($tag eq "button") {
+                    my $type = delete $attr->{type} || "submit";
+                    $f->push_input($type, $attr);
+                }
 		elsif ($tag eq "textarea") {
 		    $attr->{textarea_value} = $attr->{value}
 		        if exists $attr->{value};

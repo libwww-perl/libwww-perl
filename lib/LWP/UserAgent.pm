@@ -32,6 +32,10 @@ if ($ENV{PERL_LWP_USE_HTTP_10}) {
 
 sub new
 {
+    # Check for common user mistake
+    Carp::croak("Options to LWP::UserAgent should be key/value pairs, not hash reference") 
+        if ref($_[1]) eq 'HASH'; 
+
     my($class, %cnf) = @_;
     LWP::Debug::trace('()');
 

@@ -174,7 +174,7 @@ if ($@) {
 $@
 The HTML::Parser is needed to extract correct base URI information from
 HTML so that we can resolve relative links correctly.  The HTML::Form
-module also need HTML::TokeParser to work.
+module also needs HTML::TokeParser to work.
 
 EOT
     sleep(2);  # Don't hurry too much

@@ -320,7 +320,7 @@ other methods that can be used to access the content.
 =item $r->decoded_content( %options )
 
 This will return the content after any C<Content-Encoding> and
-charsets has been decoded.  See L<HTTP::Message> for details.
+charsets have been decoded.  See L<HTTP::Message> for details.
 
 =item $r->request
 

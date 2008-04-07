@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 156;
+plan tests => 157;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -420,3 +420,9 @@ Content-Type: text/plain
 content_type: text/html
 foo_bar: 1
 EOT
+
+# [RT#30579] IE6 appens "; length = NNNN" on If-Modified-Since (can we handle it)
+$h = HTTP::Headers->new(
+    if_modified_since => "Sat, 29 Oct 1994 19:43:31 GMT; length=34343"
+);
+ok(gmtime($h->if_modified_since), "Sat Oct 29 19:43:31 1994");

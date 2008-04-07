@@ -260,6 +260,7 @@ sub _date_header
     if (defined $time) {
 	$self->_header($header, HTTP::Date::time2str($time));
     }
+    $old =~ s/;.*// if defined($old);
     HTTP::Date::str2time($old);
 }
 

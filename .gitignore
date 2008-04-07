@@ -1,5 +1,6 @@
-.cvsignore
 Makefile
 blib
 pm_to_blib
 SSL
+t/CAN_TALK_TO_OURSELF
+*.tar.gz

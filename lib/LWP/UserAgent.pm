@@ -1016,6 +1016,11 @@ for details.
 Set the user name and password to be used for a realm.  It is often more
 useful to specialize the get_basic_credentials() method instead.
 
+The $netloc a string of the form "<host>:<port>".  The username and
+password will only be passed to this server.  Example:
+
+  $ua->credenticals("www.example.com:80", "Some Realm", "foo", "secret");
+
 =item $ua->max_size
 
 =item $ua->max_size( $bytes )

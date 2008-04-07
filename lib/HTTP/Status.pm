@@ -13,10 +13,13 @@ $VERSION = "5.810";
 
 # Note also addition of mnemonics to @EXPORT below
 
+# Unmarked codes are from RFC 2616
+# See also: http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+
 my %StatusCode = (
     100 => 'Continue',
     101 => 'Switching Protocols',
-    102 => 'Processing',                      # WebDAV
+    102 => 'Processing',                      # RFC 2518 (WebDAV)
     200 => 'OK',
     201 => 'Created',
     202 => 'Accepted',
@@ -24,7 +27,7 @@ my %StatusCode = (
     204 => 'No Content',
     205 => 'Reset Content',
     206 => 'Partial Content',
-    207 => 'Multi-Status',                    # WebDAV
+    207 => 'Multi-Status',                    # RFC 2518 (WebDAV)
     300 => 'Multiple Choices',
     301 => 'Moved Permanently',
     302 => 'Found',
@@ -50,16 +53,22 @@ my %StatusCode = (
     415 => 'Unsupported Media Type',
     416 => 'Request Range Not Satisfiable',
     417 => 'Expectation Failed',
-    422 => 'Unprocessable Entity',            # WebDAV
-    423 => 'Locked',                          # WebDAV
-    424 => 'Failed Dependency',               # WebDAV
+    422 => 'Unprocessable Entity',            # RFC 2518 (WebDAV)
+    423 => 'Locked',                          # RFC 2518 (WebDAV)
+    424 => 'Failed Dependency',               # RFC 2518 (WebDAV)
+    425 => 'No code',                         # WebDAV Advanced Collections
+    426 => 'Upgrade Required',                # RFC 2817
+    449 => 'Retry with',                      # unofficial Microsoft
     500 => 'Internal Server Error',
     501 => 'Not Implemented',
     502 => 'Bad Gateway',
     503 => 'Service Unavailable',
     504 => 'Gateway Timeout',
     505 => 'HTTP Version Not Supported',
-    507 => 'Insufficient Storage',            # WebDAV
+    506 => 'Variant Also Negotiates',         # RFC 2295
+    507 => 'Insufficient Storage',            # RFC 2518 (WebDAV)
+    509 => 'Bandwidth Limit Exceeded',        # unofficial
+    510 => 'Not Extended',                    # RFC 2774
 );
 
 my $mnemonicCode = '';
@@ -164,6 +173,9 @@ names:
    RC_UNPROCESSABLE_ENTITY              (422)
    RC_LOCKED                            (423)
    RC_FAILED_DEPENDENCY                 (424)
+   RC_NO_CODE                           (425)
+   RC_UPGRADE_REQUIRED                  (426)
+   RC_RETRY_WITH                        (449)
 
    RC_INTERNAL_SERVER_ERROR		(500)
    RC_NOT_IMPLEMENTED			(501)
@@ -171,7 +183,10 @@ names:
    RC_SERVICE_UNAVAILABLE		(503)
    RC_GATEWAY_TIMEOUT			(504)
    RC_HTTP_VERSION_NOT_SUPPORTED	(505)
+   RC_VARIANT_ALSO_NEGOTIATES           (506)
    RC_INSUFFICIENT_STORAGE              (507)
+   RC_BANDWIDTH_LIMIT_EXCEEDED          (509)
+   RC_NOT_EXTENDED                      (510)
 
 =head1 FUNCTIONS
 

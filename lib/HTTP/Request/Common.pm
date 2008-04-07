@@ -134,8 +134,12 @@ sub form_data   # RFC1867
 		$usename = $file;
 		$usename =~ s,.*/,, if defined($usename);
 	    }
+            $k =~ s/([\\\"])/\\$1/g;
 	    my $disp = qq(form-data; name="$k");
-	    $disp .= qq(; filename="$usename") if $usename;
+            if ($usename) {
+                $usename =~ s/([\\\"])/\\$1/g;
+                $disp .= qq(; filename="$usename");
+            }
 	    my $content = "";
 	    my $h = HTTP::Headers->new(@headers);
 	    if ($file) {

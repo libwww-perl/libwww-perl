@@ -109,17 +109,17 @@ print "not " unless $c[5] =~ /^Content-Disposition:\s*form-data;\s*name="file";\
 print "ok 13\n";
 
 $r = POST 'http://www.perl.org/survey.cgi',
-      [ file => [ undef, "xxx", Content_type => "text/html", Content => "<h1>Hello, world!</h1>" ]],
+      [ file => [ undef, "xxy\"", Content_type => "text/html", Content => "<h1>Hello, world!</h1>" ]],
       Content_type => 'multipart/form-data';
 print $r->as_string;
 
 if($^O eq "MacOS") {
-    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxy\\"/m and
 		        $r->content =~ /^\012Content-Type: text\/html/m and
 	        	$r->content =~ /^\012<h1>Hello, world/m;
 }
 else {
-    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxx"/m and
+    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxy\\"/m and
 	                $r->content =~ /^Content-Type: text\/html/m and
 	                $r->content =~ /^<h1>Hello, world/m;
 }

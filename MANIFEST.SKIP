@@ -13,7 +13,8 @@
 ^bin/lwp-rget$
 ^find-tab$
 \b(RCS|CVS)/[^/]+$
-.cvsignore$
+^.git/
+^.gitignore$
 ^t/misc/
 ^html/
 ^doc/

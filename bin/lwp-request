@@ -477,6 +477,7 @@ while ($url = shift) {
 		};
 		$options{'o'} eq 'links' && do {
 		    my $base = $response->base;
+		    $base = $options{'b'} if $options{'b'};
 		    for ( @{ $html->extract_links } ) {
 			my($link, $elem) = @$_;
 			my $tag = uc $elem->tag;

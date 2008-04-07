@@ -240,6 +240,7 @@ sub extract_cookies
 		}
 		$first_param = 0;
 	    }
+            next unless @cur;
 	    next if $in_set2{$cur[0]};
 
 #	    push(@cur, "Port" => $req_port);

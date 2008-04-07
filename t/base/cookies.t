@@ -1,4 +1,4 @@
-print "1..42\n";
+print "1..43\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -658,6 +658,15 @@ print "not " unless $c->as_string eq <<'EOT';  print "ok 42\n";
 Set-Cookie3: Expires=10101; path="/"; domain=example.com; discard; version=0
 EOT
 
+# Test empty cookie header [RT#29401]
+$c = HTTP::Cookies->new;
+$res->header("Set-Cookie" => ["CUSTOMER=WILE_E_COYOTE; path=/;", ""]);
+#print $res->as_string;
+$c->extract_cookies($res);
+#print $c->as_string;
+print "not " unless $c->as_string eq <<'EOT';  print "ok 43\n";
+Set-Cookie3: CUSTOMER=WILE_E_COYOTE; path="/"; domain=example.com; path_spec; discard; version=0
+EOT
 
 
 #-------------------------------------------------------------------

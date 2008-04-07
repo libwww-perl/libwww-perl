@@ -1,10 +1,6 @@
-#
-# $Id: nntp.pm,v 1.11 2007/07/19 20:26:11 gisle Exp $
+package LWP::Protocol::nntp;
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
-#
-
-package LWP::Protocol::nntp;
 
 require LWP::Protocol;
 @ISA = qw(LWP::Protocol);

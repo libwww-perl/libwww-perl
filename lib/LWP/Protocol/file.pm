@@ -1,6 +1,3 @@
-#
-# $Id: file.pm,v 1.23 2004/11/15 22:53:36 gisle Exp $
-
 package LWP::Protocol::file;
 
 require LWP::Protocol;

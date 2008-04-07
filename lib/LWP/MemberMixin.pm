@@ -1,7 +1,5 @@
 package LWP::MemberMixin;
 
-# $Id: MemberMixin.pm,v 1.8 2004/04/09 15:07:04 gisle Exp $
-
 sub _elem
 {
     my $self = shift;

@@ -1,9 +1,6 @@
-# $Id: Negotiate.pm,v 1.16 2005/12/06 13:51:46 gisle Exp $
-#
-
 package HTTP::Negotiate;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 sub Version { $VERSION; }
 
 require 5.002;

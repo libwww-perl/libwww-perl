@@ -1,10 +1,8 @@
 package HTTP::Message;
 
-# $Id: Message.pm,v 1.57 2005/02/18 20:29:01 gisle Exp $
-
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.57 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require HTTP::Headers;
 require Carp;

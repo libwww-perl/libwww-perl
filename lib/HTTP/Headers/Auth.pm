@@ -2,7 +2,7 @@ package HTTP::Headers::Auth;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use HTTP::Headers;
 

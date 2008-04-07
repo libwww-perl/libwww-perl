@@ -1,10 +1,8 @@
-# $Id: DB_File.pm,v 1.5 2004/04/09 15:07:05 gisle Exp $
-
 package WWW::RobotRules::DB_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use Carp ();
 use DB_File;

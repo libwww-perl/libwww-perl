@@ -1,5 +1,3 @@
-# $Id: Common.pm,v 1.28 2007/07/19 20:46:48 gisle Exp $
-#
 package HTTP::Request::Common;
 
 use strict;
@@ -15,7 +13,7 @@ require Exporter;
 require HTTP::Request;
 use Carp();
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 

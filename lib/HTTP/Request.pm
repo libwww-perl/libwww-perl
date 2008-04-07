@@ -1,10 +1,8 @@
 package HTTP::Request;
 
-# $Id: Request.pm,v 1.40 2004/04/07 10:44:47 gisle Exp $
-
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.40 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use strict;
 

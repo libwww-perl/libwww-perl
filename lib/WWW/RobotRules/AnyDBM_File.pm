@@ -1,10 +1,8 @@
-# $Id: AnyDBM_File.pm,v 1.11 2003/10/23 19:11:33 uid39246 Exp $
-
 package WWW::RobotRules::AnyDBM_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use Carp ();
 use AnyDBM_File;

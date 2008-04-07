@@ -1,8 +1,6 @@
 package WWW::RobotRules;
 
-# $Id: RobotRules.pm,v 1.33 2005/09/21 19:36:19 gisle Exp $
-
-$VERSION = sprintf("%d.%02d", q$Revision: 1.33 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 sub Version { $VERSION; }
 
 use strict;

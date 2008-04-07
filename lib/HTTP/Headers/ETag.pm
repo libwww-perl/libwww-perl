@@ -2,7 +2,7 @@ package HTTP::Headers::ETag;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require HTTP::Date;
 

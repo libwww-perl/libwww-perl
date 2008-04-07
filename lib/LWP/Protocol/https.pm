@@ -1,7 +1,4 @@
-#
 package LWP::Protocol::https;
-
-# $Id: https.pm,v 1.12 2003/10/15 10:35:47 gisle Exp $
 
 use strict;
 

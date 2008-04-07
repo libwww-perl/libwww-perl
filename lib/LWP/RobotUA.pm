@@ -1,10 +1,8 @@
 package LWP::RobotUA;
 
-# $Id: RobotUA.pm,v 1.27 2004/04/06 13:14:37 gisle Exp $
-
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require WWW::RobotRules;
 require HTTP::Request;

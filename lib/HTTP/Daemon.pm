@@ -1,11 +1,9 @@
 package HTTP::Daemon;
 
-# $Id: Daemon.pm,v 1.39 2007/07/19 21:24:31 gisle Exp $
-
 use strict;
 use vars qw($VERSION @ISA $PROTO $DEBUG);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.39 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use IO::Socket qw(AF_INET INADDR_ANY inet_ntoa);
 @ISA=qw(IO::Socket::INET);

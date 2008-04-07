@@ -1,9 +1,7 @@
 package File::Listing;
 
-# $Id: Listing.pm,v 1.15 2003/10/26 14:24:22 gisle Exp $
-
 sub Version { $VERSION; }
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require Exporter;
 @ISA = qw(Exporter);

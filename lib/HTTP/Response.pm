@@ -1,10 +1,8 @@
 package HTTP::Response;
 
-# $Id: Response.pm,v 1.53 2005/12/06 13:19:09 gisle Exp $
-
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.53 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use strict;
 use HTTP::Status ();

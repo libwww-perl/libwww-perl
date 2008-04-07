@@ -1,6 +1,3 @@
-#
-# $Id: http10.pm,v 1.3 2003/10/23 19:11:33 uid39246 Exp $
-
 package LWP::Protocol::http10;
 
 use strict;

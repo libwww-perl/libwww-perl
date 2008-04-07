@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-download,v 2.16 2007/07/19 20:26:11 gisle Exp $
-
 =head1 NAME
 
 lwp-download - Fetch large files from the web
@@ -75,11 +73,10 @@ unless (getopts('a', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $version = q$Revision: 2.16 $;
-$version =~ s/[^\d.]//g;
+my $VERSION = "5.810";
 
 my $ua = LWP::UserAgent->new(
-   agent => "lwp-download/$version ",
+   agent => "lwp-download/$VERSION ",
    keep_alive => 1,
    env_proxy => 1,
 );

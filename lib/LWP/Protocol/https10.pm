@@ -1,9 +1,6 @@
-#
-# $Id: https10.pm,v 1.4 2007/07/20 06:16:58 gisle Exp $
+package LWP::Protocol::https10;
 
 use strict;
-
-package LWP::Protocol::https10;
 
 # Figure out which SSL implementation to use
 use vars qw($SSL_CLASS);

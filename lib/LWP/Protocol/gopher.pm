@@ -1,5 +1,4 @@
-#
-# $Id: gopher.pm,v 1.20 2003/10/23 19:11:33 uid39246 Exp $
+package LWP::Protocol::gopher;
 
 # Implementation of the gopher protocol (RFC 1436)
 #
@@ -7,9 +6,6 @@
 # which in turn is a vastly modified version of Oscar's http'get()
 # dated 28/3/94 in <ftp://cui.unige.ch/PUBLIC/oscar/scripts/http.pl>
 # including contributions from Marc van Heyningen and Martijn Koster.
-#
-
-package LWP::Protocol::gopher;
 
 use strict;
 use vars qw(@ISA);

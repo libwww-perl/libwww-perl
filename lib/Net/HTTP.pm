@@ -1,11 +1,9 @@
 package Net::HTTP;
 
-# $Id: HTTP.pm,v 1.47 2005/12/06 12:02:22 gisle Exp $
-
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "1.00";
+$VERSION = "5.810";
 eval { require IO::Socket::INET } || require IO::Socket;
 require Net::HTTP::Methods;
 

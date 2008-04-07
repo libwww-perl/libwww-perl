@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: lwp-mirror,v 2.3 2004/04/10 11:19:33 gisle Exp $
-#
 # Simple mirror utility using LWP
 
 =head1 NAME
@@ -47,7 +45,7 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version

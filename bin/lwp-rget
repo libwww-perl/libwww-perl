@@ -152,7 +152,7 @@ my $progname = $0;
 $progname =~ s|.*/||;  # only basename left
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 #$Getopt::Long::debug = 1;
 #$Getopt::Long::ignorecase = 0;

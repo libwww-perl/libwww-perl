@@ -1,10 +1,8 @@
 package LWP::Protocol;
 
-# $Id: Protocol.pm,v 1.46 2007/07/19 20:26:11 gisle Exp $
-
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.46 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use strict;
 use Carp ();

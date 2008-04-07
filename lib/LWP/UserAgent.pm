@@ -1,13 +1,11 @@
 package LWP::UserAgent;
 
-# $Id: UserAgent.pm,v 2.36 2006/06/05 08:36:37 gisle Exp $
-
 use strict;
 use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = sprintf("%d.%03d", q$Revision: 2.36 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 use HTTP::Request ();
 use HTTP::Response ();

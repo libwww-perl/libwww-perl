@@ -1,12 +1,10 @@
 package HTTP::Headers;
 
-# $Id: Headers.pm,v 1.64 2005/12/08 12:11:48 gisle Exp $
-
 use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.64 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -543,7 +541,7 @@ values will be substituted with this line ending sequence.
 =head1 CONVENIENCE METHODS
 
 The most frequently used headers can also be accessed through the
-following convenience methods.  These methods can both be used to read
+following convenience Methods.  These methods can both be used to read
 and to set the value of a header.  The header value is set if you pass
 an argument to the method.  The old header value is always returned.
 If the given header did not exist then C<undef> is returned.

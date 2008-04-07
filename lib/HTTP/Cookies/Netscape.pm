@@ -3,7 +3,7 @@ package HTTP::Cookies::Netscape;
 use strict;
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);

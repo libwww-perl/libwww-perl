@@ -1,11 +1,8 @@
-#
-# $Id: mailto.pm,v 1.12 2004/05/21 08:56:15 gisle Exp $
-#
+package LWP::Protocol::mailto;
+
 # This module implements the mailto protocol.  It is just a simple
 # frontend to the Unix sendmail program except on MacOS, where it uses
 # Mail::Internet.
-
-package LWP::Protocol::mailto;
 
 require LWP::Protocol;
 require HTTP::Request;

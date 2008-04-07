@@ -1,6 +1,3 @@
-# $Id: http.pm,v 1.70 2005/12/08 10:28:01 gisle Exp $
-#
-
 package LWP::Protocol::http;
 
 use strict;

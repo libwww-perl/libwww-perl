@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 1;
 

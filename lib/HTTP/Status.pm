@@ -1,7 +1,5 @@
 package HTTP::Status;
 
-# $Id: Status.pm,v 1.28 2003/10/23 18:56:01 uid39246 Exp $
-
 use strict;
 require 5.002;   # becase we use prototypes
 
@@ -11,7 +9,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(is_info is_success is_redirect is_error status_message);
 @EXPORT_OK = qw(is_client_error is_server_error);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 # Note also addition of mnemonics to @EXPORT below
 

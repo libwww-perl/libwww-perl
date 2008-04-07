@@ -1,11 +1,9 @@
 package Net::HTTPS;
 
-# $Id: HTTPS.pm,v 1.4 2007/07/19 20:26:11 gisle Exp $
-
 use strict;
 use vars qw($VERSION $SSL_SOCKET_CLASS @ISA);
 
-$VERSION = "1.00";
+$VERSION = "5.810";
 
 # Figure out which SSL implementation to use
 if ($Net::SSL::VERSION) {

@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = "5.810";
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);

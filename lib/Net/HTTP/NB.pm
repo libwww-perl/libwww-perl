@@ -1,11 +1,10 @@
 package Net::HTTP::NB;
 
-# $Id: NB.pm,v 1.6 2004/11/12 16:18:11 gisle Exp $
-
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "0.03";
+$VERSION = "5.810";
+
 require Net::HTTP;
 @ISA=qw(Net::HTTP);
 

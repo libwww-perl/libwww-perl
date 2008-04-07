@@ -636,7 +636,7 @@ libwww-perl-0.40 library for details.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-2005, Gisle Aas
+  Copyright 1995-2008, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

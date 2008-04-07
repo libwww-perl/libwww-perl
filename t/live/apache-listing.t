@@ -8,9 +8,7 @@ my $ok = 1;
 
 # some sample URLs
 my @urls = (
-	    "http://www.apache.org/~jon/scarab/nightly/",
 	    "http://www.apache.org/dist/apr/?C=N&O=D",
-	    "http://xml.apache.org/dist/batik/",
 	    "http://perl.apache.org/rpm/distrib/",
 	    "http://stein.cshl.org/WWW/software/",
 	    "http://www.cpan.org/modules/by-module/",

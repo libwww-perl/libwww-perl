@@ -104,13 +104,18 @@ You can join the mailing list by sending a message to
 
 AVAILABILITY
 
-The latest version of libwww-perl should always be available from:
+The latest version of libwww-perl is available from CPAN:
 
-     http://www.linpro.no/lwp/
+     http://search.cpan.org/dist/libwww-perl/
 
-The library is also available from the Comprehensive Perl Archive
-Network (CPAN).  Visit <URL:http://www.perl.com/CPAN/> to find a CPAN
-site near you.
+If you want to hack on the source it might be a good idea to grab the
+latest version with git using the command:
+
+     git clone git://gitorious.org/libwww-perl/mainline.git lwp
+
+You can also browse the git repository at:
+
+     http://gitorious.org/projects/libwww-perl
 
 
 

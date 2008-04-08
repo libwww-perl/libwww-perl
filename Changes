@@ -1,7 +1,48 @@
-2008-04-07   Gisle Aas <gisle@ActiveState.com>
+2008-04-08   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.810
 
+     Gisle Aas (10):
+           Small documentation issues [RT#31346]
+           Explain $netloc argument to $ua->credentials [RT#31969]
+           Make lwp-request honour option -b while dumping links [RT#31347]
+           Ignore params for date convenience methods [RT#30579]
+           Get rid of all the old CVS $Keyword:...$ templates.  Set $VERSION to 5.810.
+           Update Copyright year.
+           Drop some sample URLs that were failing.
+           Complement the HTTP::Status codes [RT#29619]
+           Don't allow HTTP::Message content to be set to Unicode strings.
+           Refactor test for Encode.pm
+     
+     Ville Skytta (3):
+           Spelling fixes [RT#33272]
+           Trigger HTML::HeadParser for XHTML [RT#33271]
+           Escape status line in error_as_HTML, convert to lowercase [RT#33270]
+     
+     Alexey Tourbin (2):
+           Typo fix [RT#33843]
+           Protocol/file.pm: postpone load of URI::Escape and HTML::Entities [RT#33842]
+     
+     Daniel Hedlund (1):
+           HTML::Form Module and <button> element clicks
+     
+     Adam Kennedy (1):
+           HTTP::Cookies handle malformed empty Set-Cookie badly [RT#29401]
+     
+     Jacob J (1):
+           [HTTP::Request::Common] Does not handle filenames containing " [RT#30538]
+     
+     Rolf Grossmann (1):
+           Allow malformed chars in $mess->decoded_content [RT#17368]
+     
+     FWILES (1):
+           Croak if LWP::UserAgent is constructed with hash ref as argument [RT#28597]
+     
+     Adam Sjogren (1):
+           Disabled, checked radiobutton being submitted [RT#33512]
+     
+     DAVIDRW (1):
+           warn if TextInput's maxlength exceeded [RT#32239]
 
 
 2007-08-05   Gisle Aas <gisle@ActiveState.com>

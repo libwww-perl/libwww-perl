@@ -281,7 +281,7 @@ sub decoded_content
 		    $content_ref_iscopy++;
 		}
 		$content_ref = \Encode::decode($charset, $$content_ref,
-					       Encode::FB_CROAK() | Encode::LEAVE_SRC());
+		     ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());
 	    }
 	}
     };
@@ -608,6 +608,12 @@ C<none> can used to suppress decoding of the charset.
 =item C<default_charset>
 
 This override the default charset of "ISO-8859-1".
+
+=item C<charset_strict>
+
+Abort decoding when if malformed characters is found in the content.  By
+default you get the substitution character ("\x{FFFD}") in place of
+mailformed characters.
 
 =item C<raise_error>
 

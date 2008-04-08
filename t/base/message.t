@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 98;
+plan tests => 100;
 
 require HTTP::Message;
 require Config;
@@ -355,6 +355,17 @@ skip($] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
      sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, $tmp);
+
+$m->remove_header("Content-Encoding");
+$m->content("a\xFF");
+
+skip($] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
+           ? "No Encode module" : "",
+     sub { $m->decoded_content }, "a\x{FFFD}");
+
+skip($] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
+           ? "No Encode module" : "",
+     sub { $m->decoded_content(charset_strict => 1) }, undef);
 
 $m->header("Content-Encoding", "foobar");
 ok($m->decoded_content, undef);

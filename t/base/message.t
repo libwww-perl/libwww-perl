@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 95;
+plan tests => 98;
 
 require HTTP::Message;
 require Config;
@@ -367,3 +367,22 @@ eval {
 };
 ok($@ =~ /Don't know how to decode Content-Encoding 'foobar'/);
 ok($err, 0);
+
+if ($] >= 5.008001) {
+    eval {
+        HTTP::Message->new([], "\x{263A}");
+    };
+    ok($@ =~ /bytes/);
+    $m = HTTP::Message->new;
+    eval {
+        $m->add_content("\x{263A}");
+    };
+    ok($@ =~ /bytes/);
+    eval {
+        $m->content("\x{263A}");
+    };
+    ok($@ =~ /bytes/);
+}
+else {
+    skip("Missing is_utf8 test") for 1..3;
+}

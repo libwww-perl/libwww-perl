@@ -11,7 +11,7 @@ my $CRLF = "\015\012";   # "\r\n" is not portable
 $HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
 eval "require $HTTP::URI_CLASS"; die $@ if $@;
 
-
+*_is_utf8 = defined &utf8::is_utf8 ? \&utf8::is_utf8 : sub { 0 };
 
 sub new
 {
@@ -28,7 +28,14 @@ sub new
     else {
 	$header = HTTP::Headers->new;
     }
-    $content = '' unless defined $content;
+    if (defined $content) {
+        if (_is_utf8($content)) {
+            Carp::croak("HTTP::Message content not bytes");
+        }
+    }
+    else {
+        $content = '';
+    }
 
     bless {
 	'_headers' => $header,
@@ -103,6 +110,9 @@ sub content  {
 
 sub _set_content {
     my $self = $_[0];
+    if (_is_utf8($_[1])) {
+        Carp::croak("HTTP::Message content not bytes")
+    }
     if (!ref($_[1]) && ref($self->{_content}) eq "SCALAR") {
 	${$self->{_content}} = $_[1];
     }
@@ -121,6 +131,10 @@ sub add_content
     $self->_content unless exists $self->{_content};
     my $chunkref = \$_[0];
     $chunkref = $$chunkref if ref($$chunkref);  # legacy
+
+    if (_is_utf8($$chunkref)) {
+        Carp::croak("HTTP::Message added content not bytes");
+    }
 
     my $ref = ref($self->{_content});
     if (!$ref) {

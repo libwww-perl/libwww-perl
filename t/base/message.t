@@ -6,7 +6,7 @@ use Test qw(plan ok skip);
 plan tests => 100;
 
 require HTTP::Message;
-require Config;
+use Config qw(%Config);
 
 my($m, $m2, @parts);
 
@@ -339,7 +339,7 @@ $m->header("Content-Encoding", "gzip, base64");
 $m->content_type("text/plain; charset=UTF-8");
 $m->content("H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
 
-my $NO_ENCODE = $] < 5.008 || ($Config::Config{'extensions'} !~ /\bEncode\b/)
+my $NO_ENCODE = $] < 5.008 || ($Config{'extensions'} !~ /\bEncode\b/)
     ? "No Encode module" : "";
 $@ = "";
 skip($NO_ENCODE, sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");

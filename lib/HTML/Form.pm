@@ -137,6 +137,8 @@ sub parse
     my @forms;
     my $f;  # current form
 
+    my %openselect; # index to the open instance of a select
+
     while (my $t = $p->get_tag) {
 	my($tag,$attr) = @$t;
 	if ($tag eq "form") {
@@ -198,6 +200,9 @@ sub parse
 			$attr->{"select_$_"} = delete $attr->{$_}
 			    if exists $attr->{$_};
 		    }
+		    # count this new select option separately
+		    $openselect{$attr->{name}}++;
+
 		    while ($t = $p->get_tag) {
 			my $tag = shift @$t;
 			last if $tag eq "/select";
@@ -216,6 +221,7 @@ sub parse
 			    $a{value_name} = $p->get_trimmed_text;
 			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
+			    $a{idx} = $openselect{$attr->{name}};
 			    $f->push_input("option", \%a);
 			}
 			else {
@@ -1049,7 +1055,7 @@ sub add_to_form
     my $m = $self->{menu}[0];
     $m->{disabled}++ if delete $self->{option_disabled};
 
-    my $prev = $form->find_input($self->{name}, $self->{type});
+    my $prev = $form->find_input($self->{name}, $self->{type}, $self->{idx});
     return $self->SUPER::add_to_form($form) unless $prev;
 
     # merge menues

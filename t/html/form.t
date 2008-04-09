@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 123;
+plan tests => 124;
 
 use HTML::Form;
 
@@ -416,6 +416,24 @@ ok(eval{$f->find_input("m3", undef, 2)->value(2)}, undef);
 ok($@ && $@ =~ /^The value '2' has been disabled/);
 ok(eval{$f->find_input("m3", undef, 2)->value(undef)}, undef);
 ok($@ && $@ =~ /^The 'm3' field can't be unchecked/);
+
+# multiple select with the same name [RT#18993]
+$f = HTML::Form->parse(<<EOT, "http://localhost/");
+<form action="target.html" method="get">
+<select name="bug">
+<option selected value=hi>hi
+<option value=mom>mom
+</select>
+<select name="bug">
+<option value=hi>hi
+<option selected value=mom>mom
+</select>
+<select name="nobug">
+<option value=hi>hi
+<option selected value=mom>mom
+</select>
+EOT
+ok(join("|", $f->form), "bug|hi|bug|mom|nobug|mom");
 
 # Try a disabled radiobutton:
 $f = HTML::Form->parse(<<EOT, "http://localhost/");

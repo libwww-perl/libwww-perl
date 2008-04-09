@@ -104,6 +104,7 @@ sub _simple_req
     while (($k,$v) = splice(@_, 0, 2)) {
 	if (lc($k) eq 'content') {
 	    $req->add_content($v);
+            $req->header("Content-Length", length(${$req->content_ref}));
 	}
 	else {
 	    $req->push_header($k, $v);

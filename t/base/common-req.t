@@ -30,7 +30,7 @@ print "not " if defined($r->header("Content"));
 print "ok 5\n";
 
 print "not " unless ${$r->content_ref} eq "foo" and
-                    $r->content eq "foo";
+                    $r->content eq "foo" and $r->content_length == 3;
 print "ok 6\n";
 
 #--- Test POST requests ---

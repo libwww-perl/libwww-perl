@@ -203,12 +203,26 @@ sub request
     #print "------\n$req_buf\n------\n";
 
     if (!$has_content || $write_wait || $has_content > 8*1024) {
-	# XXX need to watch out for write timeouts
-	my $n = $socket->syswrite($req_buf, length($req_buf));
-	die $! unless defined($n);
-	die "short write" unless $n == length($req_buf);
-	#LWP::Debug::conns($req_buf);
-	$req_buf = "";
+        do {
+            # Since this just writes out the header block it should almost
+            # always succeed to send the whole buffer in a single write call.
+            my $n = syswrite($socket, $req_buf, length($req_buf));
+            unless (defined $n) {
+                redo if $!{EINTR};
+                if ($!{EAGAIN}) {
+                    select(undef, undef, undef, 0.1);
+                    redo;
+                }
+                die "write failed: $!";
+            }
+            if ($n) {
+                substr($req_buf, 0, $n, "");
+            }
+            else {
+                select(undef, undef, undef, 0.5);
+            }
+        }
+        while (length $req_buf);
     }
 
     my($code, $mess, @junk);
@@ -240,20 +254,32 @@ sub request
 	my $fbits = '';
 	vec($fbits, fileno($socket), 1) = 1;
 
+      WRITE:
 	while ($woffset < length($$wbuf)) {
 
-	    my $time_before;
 	    my $sel_timeout = $timeout;
 	    if ($write_wait) {
-		$time_before = time;
 		$sel_timeout = $write_wait if $write_wait < $sel_timeout;
 	    }
+	    my $time_before;
+            $time_before = time if $sel_timeout;
 
 	    my $rbits = $fbits;
 	    my $wbits = $write_wait ? undef : $fbits;
-	    my $nfound = select($rbits, $wbits, undef, $sel_timeout);
-	    unless (defined $nfound) {
-		die "select failed: $!";
+            my $sel_timeout_before = $sel_timeout;
+          SELECT:
+            {
+                my $nfound = select($rbits, $wbits, undef, $sel_timeout);
+                unless (defined $nfound) {
+                    if ($!{EINTR} || $!{EAGAIN}) {
+                        if ($time_before) {
+                            $sel_timeout = $sel_timeout_before - (time - $time_before);
+                            $sel_timeout = 0 if $sel_timeout < 0;
+                        }
+                        redo SELECT;
+                    }
+                    die "select failed: $!";
+                }
 	    }
 
 	    if ($write_wait) {
@@ -264,13 +290,21 @@ sub request
 	    if (defined($rbits) && $rbits =~ /[^\0]/) {
 		# readable
 		my $buf = $socket->_rbuf;
-		my $n = $socket->sysread($buf, 1024, length($buf));
-		unless ($n) {
-		    die "EOF";
+		my $n = sysread($socket, $buf, 1024, length($buf));
+                unless (defined $n) {
+                    die "read failed: $!" unless  $!{EINTR} || $!{EAGAIN};
+                    # if we get here the rest of the block will do nothing
+                    # and we will retry the read on the next round
+                }
+		elsif ($n == 0) {
+                    # the server closed the connection before we finished
+                    # writing all the request content.  No need to write any more.
+                    $drop_connection++;
+                    last WRITE;
 		}
 		$socket->_rbuf($buf);
-		if ($buf =~ /\015?\012\015?\012/) {
-		    # a whole response present
+		if (!$code && $buf =~ /\015?\012\015?\012/) {
+		    # a whole response header is present, so we can read it without blocking
 		    ($code, $mess, @h) = $socket->read_response_headers(laxed => 1,
 									junk_out => \@junk,
 								       );
@@ -280,16 +314,19 @@ sub request
 		    }
 		    else {
 			$drop_connection++;
-			last;
+			last WRITE;
 			# XXX should perhaps try to abort write in a nice way too
 		    }
 		}
 	    }
 	    if (defined($wbits) && $wbits =~ /[^\0]/) {
-		my $n = $socket->syswrite($$wbuf, length($$wbuf), $woffset);
-		unless ($n) {
-		    die "syswrite: $!" unless defined $n;
-		    die "syswrite: no bytes written";
+		my $n = syswrite($socket, $$wbuf, length($$wbuf), $woffset);
+                unless (defined $n) {
+                    die "write failed: $!" unless $!{EINTR} || $!{EAGAIN};
+                    $n = 0;  # will retry write on the next round
+                }
+                elsif ($n == 0) {
+		    die "write failed: no bytes written";
 		}
 		$woffset += $n;
 
@@ -304,7 +341,7 @@ sub request
 		    $woffset = 0;
 		}
 	    }
-	}
+	} # WRITE
     }
 
     ($code, $mess, @h) = $socket->read_response_headers(laxed => 1, junk_out => \@junk)
@@ -341,7 +378,10 @@ sub request
       READ:
 	{
 	    $n = $socket->read_entity_body($buf, $size);
-	    die "Can't read entity body: $!" unless defined $n;
+            unless (defined $n) {
+                redo READ if $!{EINTR} || $!{EAGAIN};
+                die "read failed: $!";
+            }
 	    redo READ if $n == -1;
 	}
 	$complete++ if !$n;
@@ -393,9 +433,24 @@ sub can_read {
     my($self, $timeout) = @_;
     my $fbits = '';
     vec($fbits, fileno($self), 1) = 1;
-    my $nfound = select($fbits, undef, undef, $timeout);
-    die "select failed: $!" unless defined $nfound;
-    return $nfound > 0;
+  SELECT:
+    {
+        my $before;
+        $before = time if $timeout;
+        my $nfound = select($fbits, undef, undef, $timeout);
+        unless (defined $nfound) {
+            if ($!{EINTR} || $!{EAGAIN}) {
+                # don't really think EAGAIN can happen here
+                if ($timeout) {
+                    $timeout -= time - $before;
+                    $timeout = 0 if $timeout < 0;
+                }
+                redo SELECT;
+            }
+            die "select failed: $!";
+        }
+        return $nfound > 0;
+    }
 }
 
 sub ping {

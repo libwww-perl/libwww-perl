@@ -227,11 +227,26 @@ sub my_readline {
 		if $max_line_length && length($_) > $max_line_length;
 
 	    # need to read more data to find a line ending
-	    my $n = $self->sysread($_, 1024, length);
-	    if (!$n) {
-		return undef unless length;
-		return substr($_, 0, length, "");
-	    }
+          READ:
+            {
+                my $n = $self->sysread($_, 1024, length);
+                unless (defined $n) {
+                    redo READ if $!{EINTR};
+                    if ($!{EAGAIN}) {
+                        # Hmm, we must be reading from a non-blocking socket
+                        # XXX Should really wait until this socket is readable,...
+                        select(undef, undef, undef, 0.1);  # but this will do for now
+                        redo READ;
+                    }
+                    # if we have already accumulated some data let's at least
+                    # return that as a line
+                    die "read failed: $!" unless length;
+                }
+                unless ($n) {
+                    return undef unless length;
+                    return substr($_, 0, length, "");
+                }
+            }
 	}
 	die "Line too long ($pos; limit is $max_line_length)"
 	    if $max_line_length && $pos > $max_line_length;

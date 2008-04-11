@@ -1,7 +1,7 @@
 package HTTP::Status;
 
 use strict;
-require 5.002;   # becase we use prototypes
+require 5.002;   # because we use prototypes
 
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
@@ -203,28 +203,28 @@ names above.  If the $code is unknown, then C<undef> is returned.
 
 =item is_info( $code )
 
-Return TRUE if C<$code> is an I<Informational> status code.  This
+Return TRUE if C<$code> is an I<Informational> status code (1xx).  This
 class of status code indicates a provisional response which can't have
 any content.
 
 =item is_success( $code )
 
-Return TRUE if C<$code> is a I<Successful> status code.
+Return TRUE if C<$code> is a I<Successful> status code (2xx).
 
 =item is_redirect( $code )
 
-Return TRUE if C<$code> is a I<Redirection> status code. This class of
+Return TRUE if C<$code> is a I<Redirection> status code (3xx). This class of
 status code indicates that further action needs to be taken by the
 user agent in order to fulfill the request.
 
 =item is_error( $code )
 
-Return TRUE if C<$code> is an I<Error> status code.  The function
+Return TRUE if C<$code> is an I<Error> status code (4xx or 5xx).  The function
 return TRUE for both client error or a server error status codes.
 
 =item is_client_error( $code )
 
-Return TRUE if C<$code> is an I<Client Error> status code. This class
+Return TRUE if C<$code> is an I<Client Error> status code (4xx). This class
 of status code is intended for cases in which the client seems to have
 erred.
 
@@ -232,7 +232,7 @@ This function is B<not> exported by default.
 
 =item is_server_error( $code )
 
-Return TRUE if C<$code> is an I<Server Error> status code. This class
+Return TRUE if C<$code> is an I<Server Error> status code (5xx). This class
 of status codes is intended for cases in which the server is aware
 that it has erred or is incapable of performing the request.
 

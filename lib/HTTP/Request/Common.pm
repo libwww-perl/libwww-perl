@@ -135,7 +135,7 @@ sub form_data   # RFC1867
 	    }
             $k =~ s/([\\\"])/\\$1/g;
 	    my $disp = qq(form-data; name="$k");
-            if ($usename) {
+            if (defined($usename) and length($usename)) {
                 $usename =~ s/([\\\"])/\\$1/g;
                 $disp .= qq(; filename="$usename");
             }

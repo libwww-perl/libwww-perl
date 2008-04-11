@@ -624,7 +624,7 @@ This override the default charset of "ISO-8859-1".
 
 Abort decoding when if malformed characters is found in the content.  By
 default you get the substitution character ("\x{FFFD}") in place of
-mailformed characters.
+malformed characters.
 
 =item C<raise_error>
 

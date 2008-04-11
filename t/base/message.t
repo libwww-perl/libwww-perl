@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 100;
+plan tests => 102;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -389,4 +389,16 @@ if ($] >= 5.008001) {
 }
 else {
     skip("Missing is_utf8 test") for 1..3;
+}
+
+# test the add_content_utf8 method
+if ($] >= 5.008001) {
+    $m = HTTP::Message->new(["Content-Type", "text/plain; charset=UTF-8"]);
+    $m->add_content_utf8("\x{263A}");
+    $m->add_content_utf8("-\xC5");
+    ok($m->content, "\xE2\x98\xBA-\xC3\x85");
+    ok($m->decoded_content, "\x{263A}-\x{00C5}");
+}
+else {
+    skip("Missing is_utf8 test") for 1..2;
 }

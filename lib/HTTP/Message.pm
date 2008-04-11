@@ -149,6 +149,12 @@ sub add_content
     delete $self->{_parts};
 }
 
+sub add_content_utf8 {
+    my($self, $buf)  = @_;
+    utf8::upgrade($buf);
+    utf8::encode($buf);
+    $self->add_content($buf);
+}
 
 sub content_ref
 {
@@ -555,7 +561,7 @@ but it will make your program a whole character shorter :-)
 
 =item $mess->content
 
-=item $mess->content( $content )
+=item $mess->content( $bytes )
 
 The content() method sets the raw content if an argument is given.  If no
 argument is given the content is not touched.  In either case the
@@ -565,14 +571,19 @@ Note that the content should be a string of bytes.  Strings in perl
 can contain characters outside the range of a byte.  The C<Encode>
 module can be used to turn such strings into a string of bytes.
 
-=item $mess->add_content( $data )
+=item $mess->add_content( $bytes )
 
-The add_content() methods appends more data to the end of the current
-content buffer.
+The add_content() methods appends more data bytes to the end of the
+current content buffer.
+
+=item $mess->add_content_utf8( $string )
+
+The add_content_utf8() method appends the UTF-8 bytes representing the
+string to the end of the current content buffer.
 
 =item $mess->content_ref
 
-=item $mess->content_ref( \$content )
+=item $mess->content_ref( \$bytes )
 
 The content_ref() method will return a reference to content buffer string.
 It can be more efficient to access the content this way if the content
@@ -591,9 +602,9 @@ add_content() will refuse to do anything.
 
 =item $mess->decoded_content( %options )
 
-Returns the content with any C<Content-Encoding> undone and strings
-mapped to perl's Unicode strings.  If the C<Content-Encoding> or
-C<charset> of the message is unknown this method will fail by
+Returns the content with any C<Content-Encoding> undone and the raw
+content encoded to perl's Unicode strings.  If the C<Content-Encoding>
+or C<charset> of the message is unknown this method will fail by
 returning C<undef>.
 
 The following options can be specified.

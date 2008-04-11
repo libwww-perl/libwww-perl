@@ -381,8 +381,8 @@ sub read_entity_body {
 	delete ${*$self}{'http_bytes'};
 	my $method = shift(@{${*$self}{'http_request_method'}});
 	my $status = ${*$self}{'http_status'};
-	if ($method eq "HEAD" || $status =~ /^(?:1|[23]04)/) {
-	    # these responses are always empty
+	if ($method eq "HEAD") {
+	    # this response is always empty regardless of other headers
 	    $bytes = 0;
 	}
 	elsif (my $te = ${*$self}{'http_te'}) {
@@ -422,6 +422,11 @@ sub read_entity_body {
 	elsif (defined(my $content_length = ${*$self}{'http_content_length'})) {
 	    $bytes = $content_length;
 	}
+        elsif ($status =~ /^(?:1|[23]04)/) {
+            # RFC 2616 says that these responses should always be empty
+            # but that does not appear to be true in practice [RT#17907]
+            $bytes = 0;
+        }
 	else {
 	    # XXX Multi-Part types are self delimiting, but RFC 2616 says we
 	    # only has to deal with 'multipart/byteranges'

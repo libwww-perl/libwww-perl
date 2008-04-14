@@ -623,7 +623,7 @@ This override the default charset of "ISO-8859-1".
 
 =item C<charset_strict>
 
-Abort decoding when if malformed characters is found in the content.  By
+Abort decoding if malformed characters is found in the content.  By
 default you get the substitution character ("\x{FFFD}") in place of
 malformed characters.
 
@@ -665,7 +665,7 @@ one part returned.
 If the content type is C<message/http>, then the return value will be
 either an C<HTTP::Request> or an C<HTTP::Response> object.
 
-If an @parts argument is given, then the content of the message will
+If an @parts argument is given, then the content of the message will be
 modified. The array reference form is provided so that an empty list
 can be provided.  The @parts array should contain C<HTTP::Message>
 objects.  The @parts objects are owned by $mess after this call and

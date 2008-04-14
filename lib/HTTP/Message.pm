@@ -11,7 +11,14 @@ my $CRLF = "\015\012";   # "\r\n" is not portable
 $HTTP::URI_CLASS ||= $ENV{PERL_HTTP_URI_CLASS} || "URI";
 eval "require $HTTP::URI_CLASS"; die $@ if $@;
 
-*_is_utf8 = defined &utf8::is_utf8 ? \&utf8::is_utf8 : sub { 0 };
+*_utf8_downgrade = defined(&utf8::downgrade) ?
+    sub {
+        utf8::downgrade($_[0], 1) or
+            Carp::croak("HTTP::Message content must be bytes")
+    }
+    :
+    sub {
+    };
 
 sub new
 {
@@ -29,9 +36,7 @@ sub new
 	$header = HTTP::Headers->new;
     }
     if (defined $content) {
-        if (_is_utf8($content)) {
-            Carp::croak("HTTP::Message content not bytes");
-        }
+        _utf8_downgrade($content);
     }
     else {
         $content = '';
@@ -110,9 +115,7 @@ sub content  {
 
 sub _set_content {
     my $self = $_[0];
-    if (_is_utf8($_[1])) {
-        Carp::croak("HTTP::Message content not bytes")
-    }
+    _utf8_downgrade($_[1]);
     if (!ref($_[1]) && ref($self->{_content}) eq "SCALAR") {
 	${$self->{_content}} = $_[1];
     }
@@ -132,9 +135,7 @@ sub add_content
     my $chunkref = \$_[0];
     $chunkref = $$chunkref if ref($$chunkref);  # legacy
 
-    if (_is_utf8($$chunkref)) {
-        Carp::croak("HTTP::Message added content not bytes");
-    }
+    _utf8_downgrade($$chunkref);
 
     my $ref = ref($self->{_content});
     if (!$ref) {

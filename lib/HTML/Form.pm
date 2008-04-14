@@ -5,7 +5,7 @@ use URI;
 use Carp ();
 
 use vars qw($VERSION);
-$VERSION = "5.810";
+$VERSION = "5.811";
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 

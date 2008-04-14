@@ -1,3 +1,29 @@
+2008-04-14   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.811
+
+     Gisle Aas (6):
+           Avoid "used only once" warning for $Config::Config.
+           Make HTTP::Request::Common::PUT set Content-Length header [RT#34772]
+           Added the add_content_utf8 method to HTTP::Message.
+           Typo fix.
+           Retry syscalls when they fail with EINTR or EAGAIN [RT#34093,32356]
+           Allow HTTP::Content content that can be downgraded to bytes.
+     
+     Gavin Peters (1):
+           HTML::Form does not recognise multiple select items with same name [RT#18993]
+     
+     Mark Stosberg (1):
+           Document how HTTP::Status codes correspond to the classification functions [RT#20819]
+     
+     Robert Stone (1):
+           Allow 100, 204, 304 responses to have content [RT#17907]
+     
+     sasao (1):
+           HTTP::Request::Common::POST suppressed filename="0" in Content-Disposition [RT#18887]
+
+
+
 2008-04-08   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.810

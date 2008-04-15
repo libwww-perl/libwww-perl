@@ -10,7 +10,9 @@ $VERSION = "5.811";
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
 sub new {
-    my($class, %cnf) = @_;
+    my $class = shift;
+    unshift(@_, "Host") if @_ == 1;
+    my %cnf = @_;
     require Symbol;
     my $self = bless Symbol::gensym(), $class;
     return $self->http_configure(\%cnf);

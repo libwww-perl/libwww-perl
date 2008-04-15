@@ -153,7 +153,7 @@ print "not " unless $res->{error} =~ /Bad header/ && !$res->{code};
 print "ok 6\n";
 $h = undef;  # it is in a bad state now
 
-$h = HTTP->new(Host => "a") || die;  # reconnect
+$h = HTTP->new("a") || die;  # reconnect
 $res = $h->request(GET => "/09", [], {laxed => 1});
 print "not " unless $res->{code} eq "200" && $res->{message} eq "Assumed OK" &&
                     $res->{content} eq "Hello${CRLF}World!${CRLF}" &&

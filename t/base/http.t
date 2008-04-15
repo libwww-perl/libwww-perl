@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..14\n";
+print "1..15\n";
 
 use strict;
 #use Data::Dump ();
@@ -196,3 +196,12 @@ print "ok 13\n";
 $res = $h->request(TRACE => "/");
 print "not " unless $res->{code} eq "200" && $res->{content} eq "TRACE / HTTP/1.0\r\n\r\n";
 print "ok 14\n";
+
+require Net::HTTP;
+eval {
+    $h = Net::HTTP->new;
+};
+print "# $@";
+print "not " unless $@;
+print "ok 15\n";
+

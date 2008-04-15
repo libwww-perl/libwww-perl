@@ -28,7 +28,7 @@ sub authenticate
     push(@digest, $auth_param->{nonce});
 
     if ($auth_param->{qop}) {
-	push(@digest, $nc, $cnonce, $auth_param->{qop});
+	push(@digest, $nc, $cnonce, ($auth_param->{qop} =~ m|^auth[,;]auth-int$|) ? 'auth' : $auth_param->{qop});
     }
 
     $md5->add(join(":", $request->method, $uri));
@@ -42,7 +42,7 @@ sub authenticate
     my %resp = map { $_ => $auth_param->{$_} } qw(realm nonce opaque);
     @resp{qw(username uri response algorithm)} = ($user, $uri, $digest, "MD5");
 
-    if (($auth_param->{qop} || "") eq "auth") {
+    if (($auth_param->{qop} || "") =~ m|^auth([,;]auth-int)?$|) {
 	@resp{qw(qop cnonce nc)} = ("auth", $cnonce, $nc);
     }
 

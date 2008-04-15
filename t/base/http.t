@@ -31,10 +31,6 @@ my $LF   = "\012";
 	return $self;
     }
 
-    sub peerport {
-	return 80;
-    }
-
     sub print {
 	my $self = shift;
 	#Data::Dump::dump("PRINT", @_);

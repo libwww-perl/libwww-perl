@@ -25,14 +25,27 @@ sub http_configure {
     my $explict_host = (exists $cnf->{Host});
     my $host = delete $cnf->{Host};
     my $peer = $cnf->{PeerAddr} || $cnf->{PeerHost};
-    if ($host) {
-	$cnf->{PeerAddr} = $host unless $peer;
+    if (!$peer) {
+	die "No Host option provided" unless $host;
+	$cnf->{PeerAddr} = $peer = $host;
     }
-    elsif (!$explict_host) {
+
+    if ($peer =~ s,:(\d+)$,,) {
+	$cnf->{PeerPort} = int($1);  # always override
+    }
+    if (!$cnf->{PeerPort}) {
+	$cnf->{PeerPort} = $self->http_default_port;
+    }
+
+    if (!$explict_host) {
 	$host = $peer;
 	$host =~ s/:.*//;
     }
-    $cnf->{PeerPort} = $self->http_default_port unless $cnf->{PeerPort};
+    if ($host && $host !~ /:/) {
+	my $p = $cnf->{PeerPort};
+	$host .= ":$p" if $p != $self->http_default_port;
+    }
+
     $cnf->{Proto} = 'tcp';
 
     my $keep_alive = delete $cnf->{KeepAlive};
@@ -48,10 +61,6 @@ sub http_configure {
 
     return undef unless $self->http_connect($cnf);
 
-    if ($host && $host !~ /:/) {
-	my $p = $self->peerport;
-	$host .= ":$p" if $p != $self->http_default_port;
-    }
     $self->host($host);
     $self->keep_alive($keep_alive);
     $self->send_te($send_te);

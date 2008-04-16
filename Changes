@@ -1,3 +1,20 @@
+2008-04-16   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.812
+
+     Gisle Aas (6):
+           Typo fix.
+           Simplified Net::HTTP::Methods constructor call.
+           Croak if Net::HTTP constructor called with no argument.
+           Avoid calling $self->peerport to figure out what the port is.
+           5.811 breaks SSL requests [RT#35090]
+           Make test suite compatible with perl-5.6.1.
+     
+     Toru Yamaguchi (1):
+           Wrong treatment of qop value in Digest Authentication [RT#35055]
+     
+
+
 2008-04-14   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.811

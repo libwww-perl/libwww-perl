@@ -3,7 +3,7 @@ package Net::HTTP;
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = "5.811";
+$VERSION = "5.812";
 eval { require IO::Socket::INET } || require IO::Socket;
 require Net::HTTP::Methods;
 require Carp;

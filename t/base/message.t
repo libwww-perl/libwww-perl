@@ -388,7 +388,7 @@ if ($] >= 5.008001) {
     ok($@ =~ /bytes/);
 }
 else {
-    skip("Missing is_utf8 test") for 1..3;
+    skip("Missing is_utf8 test", undef) for 1..3;
 }
 
 # test the add_content_utf8 method
@@ -400,5 +400,5 @@ if ($] >= 5.008001) {
     ok($m->decoded_content, "\x{263A}-\x{00C5}");
 }
 else {
-    skip("Missing is_utf8 test") for 1..2;
+    skip("Missing is_utf8 test", undef) for 1..2;
 }

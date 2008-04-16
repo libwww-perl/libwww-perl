@@ -206,7 +206,7 @@ sub request
         do {
             # Since this just writes out the header block it should almost
             # always succeed to send the whole buffer in a single write call.
-            my $n = syswrite($socket, $req_buf, length($req_buf));
+            my $n = $socket->syswrite($req_buf, length($req_buf));
             unless (defined $n) {
                 redo if $!{EINTR};
                 if ($!{EAGAIN}) {
@@ -290,7 +290,7 @@ sub request
 	    if (defined($rbits) && $rbits =~ /[^\0]/) {
 		# readable
 		my $buf = $socket->_rbuf;
-		my $n = sysread($socket, $buf, 1024, length($buf));
+		my $n = $socket->sysread($buf, 1024, length($buf));
                 unless (defined $n) {
                     die "read failed: $!" unless  $!{EINTR} || $!{EAGAIN};
                     # if we get here the rest of the block will do nothing
@@ -320,7 +320,7 @@ sub request
 		}
 	    }
 	    if (defined($wbits) && $wbits =~ /[^\0]/) {
-		my $n = syswrite($socket, $$wbuf, length($$wbuf), $woffset);
+		my $n = $socket->syswrite($$wbuf, length($$wbuf), $woffset);
                 unless (defined $n) {
                     die "write failed: $!" unless $!{EINTR} || $!{EAGAIN};
                     $n = 0;  # will retry write on the next round

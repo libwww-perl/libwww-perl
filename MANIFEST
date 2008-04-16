@@ -88,6 +88,7 @@ t/html/form-param.t		More HTML::Form tests.
 t/html/form-maxlength.t         More HTML::Form tests
 t/live/apache.t
 t/live/apache-listing.t		Test File::Listing::apache package
+t/live/https.t
 t/live/jigsaw-auth-b.t
 t/live/jigsaw-auth-d.t
 t/live/jigsaw-chunk.t

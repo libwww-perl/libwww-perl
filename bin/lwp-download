@@ -105,17 +105,8 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 	  }
 
 	  unless (defined $argfile) {
-	      # must find a suitable name to use.  First thing
-	      # to do is to look for the "Content-Disposition"
-	      # header defined by RFC1806.  This is also supported
-	      # by Netscape
-	      my $cd = $res->header("Content-Disposition");
-	      if ($cd && $cd =~ /\bfilename\s*=\s*(\S+)/) {
-		  $file = $1;
-		  $file =~ s/;$//;
-		  $file =~ s/^([\"\'])(.*)\1$/$2/;
-		  $file =~ s,.*[\\/],,;  # basename
-	      }
+	      # find a suitable name to use
+	      $file = $res->filename;
 
 	      # if this fails we try to make something from the URL
 	      unless ($file) {

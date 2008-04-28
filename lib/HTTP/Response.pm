@@ -96,6 +96,78 @@ sub base
 }
 
 
+sub filename
+{
+    my $self = shift;
+    my $file;
+
+    my $cd = $self->header('Content-Disposition');
+    if ($cd) {
+	require HTTP::Headers::Util;
+	if (my @cd = HTTP::Headers::Util::split_header_words($cd)) {
+	    my ($disposition, undef, %cd_param) = @{$cd[-1]};
+	    $file = $cd_param{filename};
+
+	    # RFC 2047 encoded?
+	    if ($file && $file =~ /^=\?(.+?)\?(.+?)\?(.+)\?=$/) {
+		my $charset = $1;
+		my $encoding = uc($2);
+		my $encfile = $3;
+
+		if ($encoding eq 'Q' || $encoding eq 'B') {
+		    local($SIG{__DIE__});
+		    eval {
+			if ($encoding eq 'Q') {
+			    $encfile =~ s/_/ /g;
+			    require MIME::QuotedPrint;
+			    $encfile = MIME::QuotedPrint::decode($encfile);
+			}
+			else { # $encoding eq 'B'
+			    require MIME::Base64;
+			    $encfile = MIME::Base64::decode($encfile);
+			}
+
+			require Encode;
+			require encoding;
+			# This is ugly use of non-public API, but is there
+			# a better way to accomplish what we want (locally
+			# as-is usable filename string)?
+			my $locale_charset = encoding::_get_locale_encoding();
+			Encode::from_to($encfile, $charset, $locale_charset);
+		    };
+
+		    $file = $encfile unless $@;
+		}
+	    }
+	}
+    }
+
+    my $uri;
+    unless (defined($file) && length($file)) {
+	if (my $cl = $self->header('Content-Location')) {
+	    $uri = URI->new($cl);
+	}
+	elsif (my $request = $self->request) {
+	    $uri = $request->uri;
+	}
+
+	if ($uri) {
+	    $file = ($uri->path_segments)[-1];
+	}
+    }
+
+    if ($file) {
+	$file =~ s,.*[\\/],,;  # basename
+    }
+
+    if ($file && !length($file)) {
+	$file = undef;
+    }
+
+    $file;
+}
+
+
 sub as_string
 {
     require HTTP::Status;
@@ -383,6 +455,41 @@ any base URI embedded in the document (step 1) will already have
 initialized the "Content-Base:" header. This means that this method
 only performs the last 2 steps (the content is not always available
 either).
+
+=item $r->filename
+
+Returns a filename for this response.  Note that doing sanity checks
+on the returned filename (eg. removing characters that cannot be used
+on the target filesystem where the filename would be used, and
+laundering it for security purposes) are the caller's responsibility;
+the only related thing done by this method is that it makes a simple
+attempt to return a plain filename with no preceding path segments.
+
+The filename is obtained from one the following sources (in priority
+order):
+
+=over 4
+
+=item 1.
+
+A "Content-Disposition:" header in the response.  Proper decoding of
+RFC 2047 encoded filenames requires the C<MIME::QuotedPrint> (for "Q"
+encoding), C<MIME::Base64> (for "B" encoding), and C<Encode> modules.
+
+=item 2.
+
+A "Content-Location:" header in the response.
+
+=item 3.
+
+The URI used to request this response. This might not be the original
+URI that was passed to $ua->request() method, because we might have
+received some redirect responses first.
+
+=back
+
+If a filename cannot be derived from any of these sources, undef is
+returned.
 
 =item $r->as_string
 

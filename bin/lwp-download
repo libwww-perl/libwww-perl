@@ -119,7 +119,7 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 
 	      # if this fails we try to make something from the URL
 	      unless ($file) {
-		  my $req = $res->request;  # now always there
+		  my $req = $res->request;  # not always there
 		  my $rurl = $req ? $req->url : $url;
 
 		  $file = ($rurl->path_segments)[-1];

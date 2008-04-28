@@ -18,7 +18,7 @@ sub choose ($;$)
     my(%accept);
 
     unless (defined $request) {
-	# Create a request object from the CGI envirionment variables
+	# Create a request object from the CGI environment variables
 	$request = new HTTP::Headers;
 	$request->header('Accept', $ENV{HTTP_ACCEPT})
 	  if $ENV{HTTP_ACCEPT};
@@ -105,7 +105,7 @@ sub choose ($;$)
     }
 
     my @Q = ();  # This is where we collect the results of the
-		 # quality calcualtions
+		 # quality calculations
 
     # Calculate quality for all the variants that are available.
     for (@$variants) {
@@ -126,9 +126,9 @@ sub choose ($;$)
 
 	# Calculate encoding quality
 	my $qe = 1;
-	# If the variant has no assignes Content-Encoding, or if no
+	# If the variant has no assigned Content-Encoding, or if no
 	# Accept-Encoding field is present, then the value assigned
-	# is "qe=1".  If *all* of the variant's content encoddings
+	# is "qe=1".  If *all* of the variant's content encodings
 	# are listed in the Accept-Encoding field, then the value
 	# assigned is "qw=1".  If *any* of the variant's content
 	# encodings are not listed in the provided Accept-Encoding
@@ -150,7 +150,7 @@ sub choose ($;$)
 
 	# Calculate charset quality
 	my $qc  = 1;
-	# If the variant's media-type has not charset parameter,
+	# If the variant's media-type has no charset parameter,
 	# or the variant's charset is US-ASCII, or if no Accept-Charset
 	# field is present, then the value assigned is "qc=1".  If the
 	# variant's charset is listed in the Accept-Charset field,
@@ -167,7 +167,7 @@ sub choose ($;$)
 	    my @lang = ref($lang) ? @$lang : ($lang);
 	    # If any of the variant's content languages are listed
 	    # in the Accept-Language field, the the value assigned is
-	    # the maximus of the "q" paramet values for thos language
+	    # the largest of the "q" parameter values for those language
 	    # tags.
 	    my $q = undef;
 	    for (@lang) {
@@ -319,8 +319,8 @@ HTTP::Negotiate - choose a variant to serve
    ['var3',  0.3,   'image/gif',   undef,   undef,          undef, 43555],
   ];
 
- @prefered = choose($variants, $request_headers);
- $the_one  = choose($variants);
+ @preferred = choose($variants, $request_headers);
+ $the_one   = choose($variants);
 
 =head1 DESCRIPTION
 

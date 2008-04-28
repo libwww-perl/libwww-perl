@@ -48,8 +48,8 @@ sub new
     my $self = LWP::UserAgent->new(%cnf);
     $self = bless $self, $class;
 
-    $self->{'delay'} = 1;   # minutes
-    $self->{'use_sleep'} = 1;
+    $self->{'delay'} = $delay;   # minutes
+    $self->{'use_sleep'} = $use_sleep;
 
     if ($rules) {
 	$rules->agent($cnf{agent});

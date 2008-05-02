@@ -47,6 +47,7 @@ sub new
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
     $parse_head = 1 unless defined $parse_head;
+    my $show_progress = delete $cnf{show_progress};
     my $max_size = delete $cnf{max_size};
     my $max_redirect = delete $cnf{max_redirect};
     $max_redirect = 7 unless defined $max_redirect;
@@ -86,6 +87,7 @@ sub new
 		      timeout      => $timeout,
 		      use_eval     => $use_eval,
 		      parse_head   => $parse_head,
+                      show_progress=> $show_progress,
 		      max_size     => $max_size,
 		      max_redirect => $max_redirect,
 		      proxy        => {},
@@ -211,7 +213,7 @@ EOT
       @{$self}{qw(timeout cookie_jar use_eval parse_head max_size)};
 
     my $response;
-    $self->progress("begin");
+    $self->progress("begin", $request);
     if ($use_eval) {
 	# we eval, and turn dies into responses below
 	eval {
@@ -490,9 +492,36 @@ sub _process_colonic_headers {
     return $arg;
 }
 
+my @ANI = qw(- \ | /);
+
 sub progress {
-    my($self, $status, $response) = @_;
-    # subclasses might override this
+    my($self, $status, $m) = @_;
+    return unless $self->{show_progress};
+    if ($status eq "begin") {
+        print STDERR "** ", $m->method, " ", $m->uri, " ==> ";
+        $self->{progress_start} = time;
+        $self->{progress_lastp} = "";
+        $self->{progress_ani} = 0;
+    }
+    elsif ($status eq "end") {
+        delete $self->{progress_lastp};
+        delete $self->{progress_ani};
+        print STDERR $m->status_line;
+        my $t = time - delete $self->{progress_start};
+        print STDERR " (${t}s)" if $t;
+        print STDERR "\n";
+    }
+    elsif ($status eq "tick") {
+        print STDERR "$ANI[$self->{progress_ani}++]\b";
+        $self->{progress_ani} %= @ANI;
+    }
+    else {
+        my $p = sprintf "%3.0f%%", $status * 100;
+        return if $p eq $self->{progress_lastp};
+        print STDERR "$p\b\b\b\b";
+        $self->{progress_lastp} = $p;
+    }
+    STDERR->flush;
 }
 
 
@@ -1360,7 +1389,7 @@ with this library.
 The base implementation simply checks a set of pre-stored member
 variables, set up with the credentials() method.
 
-=item $ua->progress( $status, $response )
+=item $ua->progress( $status, $request_or_response )
 
 This is called frequently as the response is received regardless of
 how the content is processed.  The method is called with $status
@@ -1368,6 +1397,9 @@ how the content is processed.  The method is called with $status
 before the request method returns.  In between these $status will be
 the fraction of the response currently received or the string "tick"
 if the fraction can't be calculated.
+
+When $status is "begin" the second argument is the request object,
+otherwise it is the response object.
 
 =back
 

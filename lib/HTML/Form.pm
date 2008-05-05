@@ -150,6 +150,7 @@ sub parse
 			     $action,
 			     $attr->{'enctype'});
 	    $f->{attr} = $attr;
+            %openselect = ();
 	    push(@forms, $f);
 	    my(%labels, $current_label);
 	    while (my $t = $p->get_tag) {

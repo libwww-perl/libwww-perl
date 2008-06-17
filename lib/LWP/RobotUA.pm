@@ -2,7 +2,7 @@ package LWP::RobotUA;
 
 require LWP::UserAgent;
 @ISA = qw(LWP::UserAgent);
-$VERSION = "5.810";
+$VERSION = "5.813";
 
 require WWW::RobotRules;
 require HTTP::Request;

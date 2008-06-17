@@ -1,3 +1,24 @@
+2008-06-17   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.813
+
+     Ville Skytta (3):
+           RobotUA constructor ignores delay, use_sleep [RT#35456]
+           Spelling fixes [RT#35457]
+           Add HTTP::Response->filename [RT#35458]
+     
+     Mark Stosberg (2):
+           Better diagnostics when the HTML::TokeParser constructor fails [RT#35607]
+           Multiple forms with same-named <select> parse wrongly [RT#35607]
+     
+     Gisle Aas (1):
+           Provide a progress method that does something that might be useful.
+     
+     Spiros Denaxas (1):
+           Documentation typo fix [RT#36132]
+
+
+
 2008-04-16   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.812

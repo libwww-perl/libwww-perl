@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 102;
+plan tests => 103;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -345,6 +345,8 @@ $@ = "";
 skip($NO_ENCODE, sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, "H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
+
+ok(grep { $_ eq "gzip" } $m->decodable);
 
 my $tmp = MIME::Base64::decode($m->content);
 $m->content($tmp);

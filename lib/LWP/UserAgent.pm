@@ -1018,9 +1018,7 @@ is really just a shortcut for:
 
 Get/set the headers object that will provide default header values for
 any requests sent.  By default this will be an empty C<HTTP::Headers>
-object.  Example:
-
-  $ua->default_headers->push_header('Accept-Language' => "no, en");
+object.
 
 =item $ua->default_header( $field )
 
@@ -1029,6 +1027,7 @@ object.  Example:
 This is just a short-cut for $ua->default_headers->header( $field =>
 $value ). Example:
 
+  $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
   $ua->default_header('Accept-Language' => "no, en");
 
 =item $ua->conn_cache

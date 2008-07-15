@@ -301,6 +301,26 @@ sub decoded_content
 }
 
 
+sub decodable
+{
+    # should match the Content-Encoding values that decoded_content can deal with
+    my $self = shift;
+    my @enc;
+    # XXX preferably we should deterine if the modules are available without loading
+    # them here
+    eval {
+        require Compress::Zlib;
+        push(@enc, "gzip", "x-gzip", "deflate");
+    };
+    eval {
+        require Compess::Bzip2;
+        push(@enc, "x-bzip2");
+    };
+    # we don't care about announcing the 'base64' and 'quoted-printable' stuff
+    return wantarray ? @enc : join(", ", @enc);
+}
+
+
 sub as_string
 {
     my($self, $eol) = @_;
@@ -641,6 +661,17 @@ be more efficient in cases where the decoded content is identical to
 the raw content as no data copying is required in this case.
 
 =back
+
+=item $mess->decodeable
+
+=item HTTP::Message::decodeable()
+
+This returns the encoding identifiers that decoded_content() can
+process.  In scalar context returns a comma separated string of
+identifiers.
+
+This value is suitable for initializing the C<Accept-Encoding> request
+header field.
 
 =item $mess->parts
 

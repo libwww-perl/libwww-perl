@@ -864,7 +864,7 @@ LWP::UserAgent - Web user agent class
  my $response = $ua->get('http://search.cpan.org/');
  
  if ($response->is_success) {
-     print $response->content;  # or whatever
+     print $response->decoded_content;  # or whatever
  }
  else {
      die $response->status_line;

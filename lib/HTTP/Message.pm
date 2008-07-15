@@ -656,7 +656,7 @@ The argumentless form will return a list of C<HTTP::Message> objects.
 If the content type of $msg is not C<multipart/*> or C<message/*> then
 this will return the empty list.  In scalar context only the first
 object is returned.  The returned message parts should be regarded as
-are read only (future versions of this library might make it possible
+read-only (future versions of this library might make it possible
 to modify the parent by modifying the parts).
 
 If the content type of $msg is C<message/*> then there will only be

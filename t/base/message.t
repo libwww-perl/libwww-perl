@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 103;
+plan tests => 104;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -277,6 +277,22 @@ B: 2<CR>
 B: 3<CR>
 <CR>
 b<CR>
+--xYzZY--<CR>
+EOT
+
+$m = HTTP::Message->new;
+$m->add_part(HTTP::Message->new([a=>[1..3]], "a"));
+$str = $m->as_string;
+$str =~ s/\r/<CR>/g;
+ok($str, <<EOT);
+Content-Type: multipart/mixed; boundary=xYzZY
+
+--xYzZY<CR>
+A: 1<CR>
+A: 2<CR>
+A: 3<CR>
+<CR>
+a<CR>
 --xYzZY--<CR>
 EOT
 

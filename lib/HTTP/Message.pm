@@ -373,7 +373,10 @@ sub add_part {
 	my $p = HTTP::Message->new($self->remove_content_headers,
 				   $self->content(""));
 	$self->content_type("multipart/mixed");
-	$self->{_parts} = [$p];
+	$self->{_parts} = [];
+        if ($p->headers->header_field_names || $p->content ne "") {
+            push(@{$self->{_parts}}, $p);
+        }
     }
     elsif (!exists $self->{_parts} || ref($self->{_content}) eq "SCALAR") {
 	$self->_parts;

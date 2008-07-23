@@ -1186,13 +1186,13 @@ sub check
 sub possible_values
 {
     my $self = shift;
-    map $_->{value}, @{$self->{menu}};
+    map $_->{value}, grep !$_->{disabled}, @{$self->{menu}};
 }
 
 sub other_possible_values
 {
     my $self = shift;
-    map $_->{value}, grep !$_->{seen}, @{$self->{menu}};
+    map $_->{value}, grep !$_->{seen} && !$_->{disabled}, @{$self->{menu}};
 }
 
 sub value_names {

@@ -8,7 +8,7 @@ $DYNAMIC_FILE_UPLOAD ||= 0;  # make it defined (don't know why)
 require Exporter;
 *import = \&Exporter::import;
 @EXPORT =qw(GET HEAD PUT POST);
-@EXPORT_OK = qw($DYNAMIC_FILE_UPLOAD);
+@EXPORT_OK = qw($DYNAMIC_FILE_UPLOAD DELETE);
 
 require HTTP::Request;
 use Carp();
@@ -20,6 +20,7 @@ my $CRLF = "\015\012";   # "\r\n" is not portable
 sub GET  { _simple_req('GET',  @_); }
 sub HEAD { _simple_req('HEAD', @_); }
 sub PUT  { _simple_req('PUT' , @_); }
+sub DELETE { _simple_req('DELETE', @_); }
 
 sub POST
 {
@@ -351,6 +352,13 @@ pseudo-header.  This steals a bit of the header field namespace as
 there is no way to directly specify a header that is actually called
 "Content".  If you really need this you must update the request
 returned in a separate statement.
+
+=item DELETE $url
+
+=item DELETE $url, Header => Value,...
+
+Like GET() but the method in the request is "DELETE".  This funciton
+is not exported by default.
 
 =item POST $url
 

@@ -1,4 +1,4 @@
-print "1..22\n";
+print "1..23\n";
 
 use HTTP::Request::Common;
 
@@ -223,3 +223,6 @@ Content-Type: multipart/form-data
 
 EOT
 
+$r = HTTP::Request::Common::DELETE 'http://www.example.com';
+print "not " unless $r->method eq "DELETE";
+print "ok 23\n";

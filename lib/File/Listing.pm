@@ -355,6 +355,7 @@ File::Listing - parse directory listing
 =head1 SYNOPSIS
 
  use File::Listing qw(parse_dir);
+ $ENV{LANG} = "C";  # dates in non-English locales not supported
  for (parse_dir(`ls -l`)) {
      ($name, $type, $size, $mtime, $mode) = @$_;
      next if $type ne 'f'; # plain file

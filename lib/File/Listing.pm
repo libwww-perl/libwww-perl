@@ -142,7 +142,7 @@ sub line
 	 .*                                       # Graps
 	 \D(\d+)                                  # File size
 	 \s+                                      # Some space
-	 (\w{3}\s+\d+\s+(?:\d{1,2}:\d{2}|\d{4}))  # Date
+	 (\w{3}\s+\d+\s+(?:\d{1,2}:\d{2}|\d{4})|\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})  # Date
 	 \s+                                      # Some more space
 	 (.*)$                                    # File name
 	/x )

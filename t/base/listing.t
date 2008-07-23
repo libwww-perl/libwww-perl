@@ -1,4 +1,4 @@
-print "1..6\n";
+print "1..10\n";
 
 
 use File::Listing;
@@ -84,3 +84,21 @@ print "ok 5\n";
 
 $mode == 0100644 || print "not ";
 print "ok 6\n";
+
+@dir = parse_dir(<<'EOT');
+drwxr-xr-x 21 root root 704 2007-03-22 21:48 dir
+EOT
+
+print "not " unless @dir == 1;
+print "ok 7\n";
+
+print "not " unless $dir[0][0] eq "dir";
+print "ok 8\n";
+
+print "not " unless $dir[0][1] eq "d";
+print "ok 9\n";
+
+$timestring = scalar(localtime($dir[0][3]));
+print "# $timestring\n";
+print "not " unless $timestring =~ /^Thu Mar 22 21:48/;
+print "ok 10\n";

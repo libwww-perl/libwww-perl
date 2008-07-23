@@ -1,37 +1,39 @@
-print "1..23\n";
+#perl -w
+
+use Test;
+plan tests => 51;
 
 use HTTP::Request::Common;
 
 $r = GET 'http://www.sn.no/';
 print $r->as_string;
 
-print "not " unless $r->method eq "GET" and $r->url eq "http://www.sn.no/";
-print "ok 1\n";
+ok($r->method, "GET");
+ok($r->url, "http://www.sn.no/");
 
 $r = HEAD "http://www.sn.no/",
      If_Match => 'abc',
      From => 'aas@sn.no';
 print $r->as_string;
 
-print "not " unless $r->method eq "HEAD" and $r->url->eq("http://www.sn.no");
-print "ok 2\n";
+ok($r->method, "HEAD");
+ok($r->url->eq("http://www.sn.no"));
 
-print "not " unless $r->header('If-Match') eq "abc" and $r->header("from") eq "aas\@sn.no";
-print "ok 3\n";
+ok($r->header('If-Match'), "abc");
+ok($r->header("from"), "aas\@sn.no");
 
 $r = PUT "http://www.sn.no",
      Content => 'foo';
 print $r->as_string, "\n";
 
-print "not " unless $r->method eq "PUT" and $r->uri->host eq "www.sn.no";
-print "ok 4\n";
+ok($r->method, "PUT");
+ok($r->uri->host, "www.sn.no");
 
-print "not " if defined($r->header("Content"));
-print "ok 5\n";
+ok(!defined($r->header("Content")));
 
-print "not " unless ${$r->content_ref} eq "foo" and
-                    $r->content eq "foo" and $r->content_length == 3;
-print "ok 6\n";
+ok(${$r->content_ref}, "foo");
+ok($r->content, "foo");
+ok($r->content_length, 3);
 
 #--- Test POST requests ---
 
@@ -43,26 +45,22 @@ $r = POST "http://www.sn.no", [foo => 'bar;baz',
                               bar => 'foo';
 print $r->as_string, "\n";
 
-print "not " unless $r->method eq "POST" and
-                    $r->content_type eq "application/x-www-form-urlencoded" and
-                    $r->content_length == 58 and
-                    $r->header("bar") eq "foo";
-print "ok 7\n";
-
-print "not " unless $r->content eq "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space+=+%2B+";
-print "ok 8\n";
+ok($r->method, "POST");
+ok($r->content_type, "application/x-www-form-urlencoded");
+ok($r->content_length, 58);
+ok($r->header("bar"), "foo");
+ok($r->content, "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space+=+%2B+");
 
 $r = POST "mailto:gisle\@aas.no",
      Subject => "Heisan",
      Content_Type => "text/plain",
      Content => "Howdy\n";
-print $r->as_string;
+#print $r->as_string;
 
-print "not " unless $r->method eq "POST" and
-                    $r->header("Subject") eq "Heisan" and
-                    $r->content eq "Howdy\n" and
-	            $r->content_type eq "text/plain";
-print "ok 9\n";
+ok($r->method, "POST");
+ok($r->header("Subject"), "Heisan");
+ok($r->content, "Howdy\n");
+ok($r->content_type, "text/plain");
 
 #
 # POST for File upload
@@ -80,15 +78,14 @@ $r = POST 'http://www.perl.org/survey.cgi',
                          born   => '1964',
                          file   => [$file],
                        ];
-print $r->as_string;
+#print $r->as_string;
 
 unlink($file) or warn "Can't unlink $file: $!";
 
-print "not " unless $r->method eq "POST" and
-	            $r->url->path eq "/survey.cgi" and
-                    $r->content_type eq "multipart/form-data" and
-	            $r->header(Content_type) =~ /boundary="?([^"]+)"?/;
-print "ok 10\n";
+ok($r->method, "POST");
+ok($r->url->path, "/survey.cgi");
+ok($r->content_type, "multipart/form-data");
+ok($r->header(Content_type) =~ /boundary="?([^"]+)"?/);
 $boundary = $1;
 
 $c = $r->content;
@@ -96,54 +93,40 @@ $c =~ s/\r//g;
 @c = split(/--\Q$boundary/, $c);
 print "$c[5]\n";
 
-print "not " unless @c == 7 and $c[6] =~ /^--\n/;  # 5 parts + header & trailer
-print "ok 11\n";
+ok(@c == 7 and $c[6] =~ /^--\n/);  # 5 parts + header & trailer
 
-print "not " unless $c[2] =~ /^Content-Disposition:\s*form-data;\s*name="email"/m and
-                    $c[2] =~ /^gisle\@aas.no$/m;
-print "ok 12\n";
+ok($c[2] =~ /^Content-Disposition:\s*form-data;\s*name="email"/m);
+ok($c[2] =~ /^gisle\@aas.no$/m);
 
-print "not " unless $c[5] =~ /^Content-Disposition:\s*form-data;\s*name="file";\s*filename="$file"/m and
-	            $c[5] =~ /^Content-Type:\s*text\/plain$/m and
-	            $c[5] =~ /^foo\nbar\nbaz/m;
-print "ok 13\n";
+ok($c[5] =~ /^Content-Disposition:\s*form-data;\s*name="file";\s*filename="$file"/m);
+ok($c[5] =~ /^Content-Type:\s*text\/plain$/m);
+ok($c[5] =~ /^foo\nbar\nbaz/m);
 
 $r = POST 'http://www.perl.org/survey.cgi',
       [ file => [ undef, "xxy\"", Content_type => "text/html", Content => "<h1>Hello, world!</h1>" ]],
       Content_type => 'multipart/form-data';
 print $r->as_string;
 
-if($^O eq "MacOS") {
-    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxy\\"/m and
-		        $r->content =~ /^\012Content-Type: text\/html/m and
-	        	$r->content =~ /^\012<h1>Hello, world/m;
-}
-else {
-    print "not " unless $r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxy\\"/m and
-	                $r->content =~ /^Content-Type: text\/html/m and
-	                $r->content =~ /^<h1>Hello, world/m;
-}
-print "ok 14\n";
-
+ok($r->content =~ /^--\S+\015\012Content-Disposition:\s*form-data;\s*name="file";\s*filename="xxy\\"/m);
+ok($r->content =~ /^Content-Type: text\/html/m);
+ok($r->content =~ /^<h1>Hello, world/m);
 
 $r = POST 'http://www.perl.org/survey.cgi',
       Content_type => 'multipart/form-data',
       Content => [ file => [ undef, undef, Content => "foo"]];
-print $r->as_string;
+#print $r->as_string;
 
-print "not " if $r->content =~ /filename=/;
-print "ok 15\n";
+ok($r->content !~ /filename=/);
 
 
 # The POST routine can now also take a hash reference.
 my %hash = (foo => 42, bar => 24);
 $r = POST 'http://www.perl.org/survey.cgi', \%hash;
-print $r->as_string, "\n";
-print "not " unless $r->content =~ /foo=42/ &&
-                    $r->content =~ /bar=24/ &&
-                    $r->content_type eq "application/x-www-form-urlencoded" &&
-                    $r->content_length == 13;
-print "ok 16\n";
+#print $r->as_string, "\n";
+ok($r->content =~ /foo=42/);
+ok($r->content =~ /bar=24/);
+ok($r->content_type, "application/x-www-form-urlencoded");
+ok($r->content_length, 13);
 
  
 #
@@ -169,16 +152,14 @@ $r = POST 'http://www.perl.org/survey.cgi',
                        ];
 print $r->as_string, "\n";
 
-print "not " unless $r->method eq "POST" and
-	            $r->url->path eq "/survey.cgi" and
-                    $r->content_type eq "multipart/form-data" and
-	            $r->header(Content_type) =~ /boundary="?([^"]+)"?/ and
-		    ref($r->content) eq "CODE";
-print "ok 17\n";
+ok($r->method, "POST");
+ok($r->url->path, "/survey.cgi");
+ok($r->content_type, "multipart/form-data");
+ok($r->header(Content_type) =~ /boundary="?([^"]+)"?/);
 $boundary = $1;
+ok(ref($r->content), "CODE");
 
-print "not " unless length($boundary) > 10;
-print "ok 18\n";
+ok(length($boundary) > 10);
 
 $code = $r->content;
 my $chunk;
@@ -194,12 +175,11 @@ $_ = join("", @chunks);
 print int(@chunks), " chunks, total size is ", length($_), " bytes\n";
 
 # should be close to expected size and number of chunks
-print "not " unless abs(@chunks - 15 < 3) and
-                    abs(length($_) - 26589) < 20;
-print "ok 19\n";
+ok(abs(@chunks - 15 < 3));
+ok(abs(length($_) - 26589) < 20);
 
 $r = POST 'http://www.example.com';
-print "not " unless $r->as_string eq <<EOT; print "ok 20\n";
+ok($r->as_string, <<EOT);
 POST http://www.example.com
 Content-Length: 0
 Content-Type: application/x-www-form-urlencoded
@@ -207,7 +187,7 @@ Content-Type: application/x-www-form-urlencoded
 EOT
 
 $r = POST 'http://www.example.com', Content_Type => 'form-data', Content => [];
-print "not " unless $r->as_string eq <<EOT; print "ok 21\n";
+ok($r->as_string, <<EOT);
 POST http://www.example.com
 Content-Length: 0
 Content-Type: multipart/form-data; boundary=none
@@ -216,7 +196,7 @@ EOT
 
 $r = POST 'http://www.example.com', Content_Type => 'form-data';
 #print $r->as_string;
-print "not " unless $r->as_string eq <<EOT; print "ok 22\n";
+ok($r->as_string, <<EOT);
 POST http://www.example.com
 Content-Length: 0
 Content-Type: multipart/form-data
@@ -224,5 +204,4 @@ Content-Type: multipart/form-data
 EOT
 
 $r = HTTP::Request::Common::DELETE 'http://www.example.com';
-print "not " unless $r->method eq "DELETE";
-print "ok 23\n";
+ok($r->method, "DELETE");

@@ -114,8 +114,7 @@ package File::Listing::unix;
 use HTTP::Date qw(str2time);
 
 # A place to remember current directory from last line parsed.
-use vars qw($curdir);
-no strict qw(vars);
+use vars qw($curdir @ISA);
 
 @ISA = qw(File::Listing);
 
@@ -197,6 +196,7 @@ sub line
     }
     else {
         # parse failed, check if the dosftp parse understands it
+        File::Listing::dosftp->init();
         return(File::Listing::dosftp->line($_,$tz,$error));
     }
 
@@ -209,8 +209,7 @@ package File::Listing::dosftp;
 use HTTP::Date qw(str2time);
 
 # A place to remember current directory from last line parsed.
-use vars qw($curdir);
-no strict qw(vars);
+use vars qw($curdir @ISA);
 
 @ISA = qw(File::Listing);
 
@@ -230,11 +229,11 @@ sub line
 
     s/\015//g;
 
-    my ($kind, $size, $date, $name);
+    my ($date, $size_or_dir, $name, $size);
 
     # 02-05-96  10:48AM                 1415 src.slf
     # 09-10-96  09:18AM       <DIR>          sl_util
-    if (($date,$size_or_dir,$name) =
+    if (($date, $size_or_dir, $name) =
         /^(\d\d-\d\d-\d\d\s+\d\d:\d\d\wM)         # Date and time info
          \s+                                      # Some space
          (<\w{3}>|\d+)                            # Dir or Size
@@ -253,9 +252,7 @@ sub line
 	    $type = 'f';
             $size = $size_or_dir;
 	}
-	return [$name, $type, $size, str2time($date, $tz),
-              File::Listing::file_mode($kind)];
-
+	return [$name, $type, $size, str2time($date, $tz), undef];
     }
     else {
 	return () unless defined $error;
@@ -277,6 +274,8 @@ package File::Listing::netware;
 
 
 package File::Listing::apache;
+
+use vars qw(@ISA);
 
 @ISA = qw(File::Listing);
 

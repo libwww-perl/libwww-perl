@@ -369,10 +369,7 @@ File::Listing - parse directory listing
 =head1 DESCRIPTION
 
 This module exports a single function called parse_dir(), which can be
-used to parse directory listings. Currently it only understand Unix
-C<'ls -l'> and C<'ls -lR'> format.  It should eventually be able to
-most things you might get back from a ftp server file listing (LIST
-command), i.e. VMS listings, NT listings, DOS listings,...
+used to parse directory listings.
 
 The first parameter to parse_dir() is the directory listing to parse.
 It can be a scalar, a reference to an array of directory lines or a
@@ -382,10 +379,10 @@ The second parameter is the time zone to use when parsing time stamps
 in the listing. If this value is undefined, then the local time zone is
 assumed.
 
-The third parameter is the type of listing to assume.  The values will
-be strings like 'unix', 'vms', 'dos'.  Currently only 'unix' is
-implemented and this is also the default value.  Ideally, the listing
-type should be determined automatically.
+The third parameter is the type of listing to assume.  Currently
+supported formats are 'unix', 'apache' and 'dosftp'.  The default
+value 'unix'.  Ideally, the listing type should be determined
+automatically.
 
 The fourth parameter specifies how unparseable lines should be treated.
 Values can be 'ignore', 'warn' or a code reference.  Warn means that

@@ -27,7 +27,7 @@ if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {
 }
 
 system($^X, "talk-to-ourself");
-flag_file("t/CAN_TALK_TO_OUTSELF", $? == 0);
+flag_file("t/CAN_TALK_TO_OURSELF", $? == 0);
 flag_file("t/live/ENABLED", $opt{'live-tests'});
 
 WriteMakefile(

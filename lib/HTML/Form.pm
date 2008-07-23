@@ -114,10 +114,6 @@ sub parse
     require HTML::TokeParser;
     my $p = HTML::TokeParser->new(ref($html) ? $html->decoded_content(ref => 1) : \$html);
     die "Failed to create HTML::TokeParser object" unless $p;
-    eval {
-	# optimization
-	$p->report_tags(qw(form input textarea select optgroup option keygen label button));
-    };
 
     my $base_uri = delete $opt{base};
     my $verbose = delete $opt{verbose};

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 124;
+plan tests => 125;
 
 use HTML::Form;
 
@@ -535,3 +535,33 @@ ok(join(":", $f->find_input("r1")->value_names), "one");
 ok(join(":", $f->find_input("r2")->value_names), "two");
 ok(join(":", $f->find_input("r3")->value_names), "nested");
 ok(join(":", $f->find_input("r4")->value_names), "before and after");
+
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form>
+  <table>
+    <TR>
+      <TD align="left" colspan="2">
+	&nbsp;&nbsp;&nbsp;&nbsp;Keep me informed on the progress of this election
+	<INPUT type="checkbox" id="keep_informed" name="keep_informed" value="yes" checked>
+      </TD>
+    </TR>
+    <TR>
+      <TD align=left colspan=2>
+	<BR><B>The place you are registered to vote:</B>
+      </TD>
+    </TR>
+    <TR>
+      <TD valign="middle" height="2" align="right">
+	<A name="Note1back">County or Parish</A>
+      </TD>
+      <TD align="left">
+	<INPUT type="text" id="reg_county" size="40" name="reg_county" value="">
+      </TD>
+      <TD align="left" width="10">
+	<A href="#Note2" class="c2" tabindex="-1">Note&nbsp;2</A>
+      </TD>
+    </TR>
+  </table>
+</form>
+EOT
+ok(join(":", $f->find_input("keep_informed")->value_names), "off:");

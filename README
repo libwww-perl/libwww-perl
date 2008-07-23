@@ -10,42 +10,26 @@ and functions that allow you to write WWW clients. The library also
 contain modules that are of more general use and even classes that
 help you implement simple HTTP servers.
 
-There are actually two versions of libwww-perl: one for Perl4, and one
-for Perl5. Both have a similar architecture, loosely based on the CERN
-Library of Common Code (nowadays known as 'w3c-libwww').
-
-The Perl4 version was maintained by Roy Fielding, and was the
-basis for tools such as MOMSpider. The perl4 version of libwww-perl
-and much more information about its libraries can still be found at:
-http://www.ics.uci.edu/pub/websoft/libwww-perl/
-
-The Perl5 version (this package) is a complete rewrite for Perl5: the
-code is organized in Modules, provides an Object Oriented API, and
-offers lots of extended functionality.
-
-
 
 PREREQUISITES
 
 In order to install and use this package you will need Perl version
-5.005 or better.  Some modules within this package depend on other
+5.6 or better.  Some modules within this package depend on other
 packages that are distributed separately from Perl.  We recommend that
 you have the following packages installed before you install
 libwww-perl:
 
   URI
   MIME-Base64
+  HTML-Tagset
   HTML-Parser
   libnet
   Digest-MD5
   Compress-Zlib
 
-These packages should be available on CPAN (see below).
-
 If you want to access sites using the https protocol, then you need to
 install the Crypt::SSLeay or the IO::Socket::SSL module.  The
 README.SSL file will tell you more about how libwww-perl supports SSL.
-
 
 
 INSTALLATION
@@ -57,29 +41,16 @@ You install libwww-perl using the normal perl module distribution drill:
    make test
    make install
 
-You can edit the configuration section of Makefile.PL to select which
-programs to install in addition to the library itself.  If you don't
-want to install any programs (only the library files) and don't want
-to mess with the Makefile.PL then pass the '-n' option to Makefile.PL:
+If you don't want to install any programs (only the library files) then
+pass the '--no-programs' option to Makefile.PL:
 
-   perl Makefile.PL -n
-
-If you want to install a private copy of libwww-perl in your home
-directory, then you should try to produce the initial Makefile with
-something like this command:
-
-  perl Makefile.PL LIB=~/perl
-
-The Makefile.PL program will start out by checking your perl
-installation for a few packages that are recommended to be installed
-together with libwww-perl.
-
+   perl Makefile.PL --no-programs
 
 
 DOCUMENTATION
 
-See ./lib/LWP.pm for an overview of the library. See ./ChangeLog for
-recent changes.
+See the lib/LWP.pm file for an overview of the library. See the
+Changes file for recent changes.
 
 POD style documentation is included in all modules and scripts.  These
 are normally converted to manual pages and installed as part of the
@@ -88,18 +59,11 @@ utility to extract and read documentation from the module files
 directly.
 
 
-
 SUPPORT
 
-Questions about how to use this library should be directed to the
-comp.lang.perl.modules USENET Newsgroup.  Bug reports and suggestions
-for improvements can be sent to the <libwww@perl.org> mailing
-list.  This mailing list is also the place for general discussions and
-development of the libwww-perl package.
-
-You can join the mailing list by sending a message to
-<libwww-subscribe@perl.org>.
-       ^^^^^^^^^^
+Bug reports and suggestions for improvements can be sent to the
+<libwww@perl.org> mailing list.  This mailing list is also the place
+for general discussions and development of the libwww-perl package.
 
 
 AVAILABILITY
@@ -116,7 +80,6 @@ latest version with git using the command:
 You can also browse the git repository at:
 
      http://gitorious.org/projects/libwww-perl
-
 
 
 COPYRIGHT

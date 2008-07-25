@@ -1,7 +1,7 @@
 package File::Listing;
 
 sub Version { $VERSION; }
-$VERSION = "5.810";
+$VERSION = "5.814";
 
 require Exporter;
 @ISA = qw(Exporter);

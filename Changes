@@ -1,3 +1,30 @@
+2008-07-25   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.814
+
+     Gisle Aas (13):
+           Typo fix.
+           Add HTTP::Message::decodable()
+           Use decoded_content in the synposis
+           Avoid adding an empty first part in $mess->add_part()
+           Get rid of all the manual dependency tests.
+           Simplify the Makefile.PL (no interactivity)
+           Provide DELETE method in HTTP::Request::Common [RT#37481]
+           Checkbox picks up nearby text in description of alternates [RT#36771]
+           HTML::Form::possible_values() should not returned disabled values [RT#35248]
+           File::Listing documentation claimed only 'unix' format was supported [RT#22021]
+           File::Listing only support English locales [RT#28879]
+           Make common-req.t use Test.pm
+           Typo; CAN_TALK_TO_OUTSELF
+     
+     Bill Mann (1):
+           Fix up File::Listings fallback to dosftp [RT#23540]
+     
+     Hans-H. Froehlich (1):
+           File::Listing parse failure on BSD Linux based systems [RT#26724]
+
+
+
 2008-06-17   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.813

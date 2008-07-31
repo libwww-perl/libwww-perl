@@ -54,7 +54,7 @@ sub MY::test
     q(
 TEST_VERBOSE=0
 
-test: all
+test : pure_all
 	$(FULLPERL) t/TEST $(TEST_VERBOSE)
 
 );

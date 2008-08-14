@@ -1,13 +1,12 @@
 #!/usr/local/bin/perl -w
 
 use strict;
+use Test::Harness;
+$Test::Harness::verbose = shift
+  if defined $ARGV[0] and $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
 
-# This script is run Test::Harness on the tests found under the
-# "t" directory.
-
-# First we check if we already are within the "t" directory
+# make sure we are in the "t" directory
 unless (-d "base") {
-    # try to move into test directory
     chdir "t" or die "Can't chdir: $!";
 
     # fix all relative library locations
@@ -15,27 +14,22 @@ unless (-d "base") {
 	$_ = "../$_" unless m,^([a-z]:)?[/\\],i;
     }
 }
-# Pick up the library files from the ../blib directory
+
 unshift(@INC, "../blib/lib", "../blib/arch");
-#print "@INC\n";
-
-
-use Test::Harness;
-$Test::Harness::verbose = shift
-  if defined $ARGV[0] and $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
 
 my @tests;
-
 if (@ARGV) {
     for (@ARGV) {
 	if (-d $_) {
 	    push(@tests, <$_/*.t>);
-	} else {
+	}
+        else {
             $_ .= ".t" unless /\.t$/;
 	    push(@tests, $_);
 	}
     }
-} else {
+}
+else {
     @tests = (<base/*.t>, <html/*.t>, <robot/*.t>, <local/*.t>);
     push(@tests,  <live/*.t>) if -f "live/ENABLED";
     push(@tests, <net/*.t>) if -f "net/config.pl";

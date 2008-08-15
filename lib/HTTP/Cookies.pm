@@ -214,11 +214,13 @@ sub extract_cookies
 
 	my $set;
 	for $set (@ns_set) {
+            $set =~ s/^\s+//;
 	    my @cur;
 	    my $param;
 	    my $expires;
 	    my $first_param = 1;
 	    for $param (split(/;\s*/, $set)) {
+                next unless length($param);
 		my($k,$v) = split(/\s*=\s*/, $param, 2);
 		if (defined $v) {
 		    $v =~ s/\s+$//;

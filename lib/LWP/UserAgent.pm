@@ -237,6 +237,11 @@ EOT
     $cookie_jar->extract_cookies($response) if $cookie_jar;
     $response->header("Client-Date" => HTTP::Date::time2str(time));
 
+    # run handlers
+    for my $h ($self->handlers("response_ready", $response)) {
+        $h->($response);
+    }
+
     $self->progress("end", $response);
     return $response;
 }
@@ -265,6 +270,11 @@ sub prepare_request
 	for my $h ($def_headers->header_field_names) {
 	    $request->init_header($h => [$def_headers->header($h)]);
 	}
+    }
+
+    # run handlers
+    for my $h ($self->handlers("prepare_request", $request)) {
+        $h->($request);
     }
 
     return($request);
@@ -672,6 +682,33 @@ sub conn_cache {
 	$self->{conn_cache} = $cache;
     }
     $old;
+}
+
+
+sub add_handler {
+    my($self, $phase, $cb, %spec) = @_;
+    my $conf = $self->{handlers}{$phase} ||= do {
+        require HTTP::Config;
+        HTTP::Config->new;
+    };
+    $conf->add_item($cb, %spec);
+}
+
+sub remove_handler {
+    my($self, $phase, %spec) = @_;
+    if ($phase) {
+        my $conf = $self->{handlers}{$phase} || return;
+        return $conf->remove_items(%spec);
+    }
+
+    return unless $self->{handlers};
+    return map $self->remove_handler($_), sort keys %{$self->{handlers}};
+}
+
+sub handlers {
+    my($self, $phase, $o) = @_;
+    my $conf = $self->{handlers}{$phase} || return;
+    return $conf->matching_items($o);
 }
 
 
@@ -1189,6 +1226,60 @@ name clash between the CGI environment variables and the C<HTTP_PROXY>
 environment variable normally picked up by env_proxy().  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The
 C<CGI_HTTP_PROXY> environment variable can be used instead.
+
+=back
+
+=head2 Handlers
+
+Handlers are code that injected at various phases during the
+processing of requests.
+
+=over
+
+=item $ua->add_handler( $phase => \&cb, %matchspec )
+
+Add handler to be invoked in the given processing phase.  For how to
+specify %matchspec see L<HTTP::Config>.
+
+The possible values $phase are:
+
+=over
+
+=item prepare_request => sub { my $request = shift; ... }
+
+The handler is called before the request is sent and can modify the
+request any way it see hit.  This can for instance be used to add
+certain headers to specific requests.
+
+The method can assign a new request object to $_[0] to replace the
+request that is sent fully.
+
+The return value from the callback is ignored.  Exceptions are
+not trapped and are propagated to the outer request method.
+
+=item response_ready => sub { my $response = shift; ... }
+
+The handler is called after the response has been fully received, but
+before any redirect handling is attempted.  The handler can be used to
+extract information or modify the response.
+
+=back
+
+=item $ua->remove_handler( undef, %matchspec )
+
+=item $ua->remove_handler( $phase, %matchspec )
+
+Remove handlers that match the given %matchspec.  If $phase is not
+provided remove handlers from all phases.
+
+The removed handlers are returned.
+
+=item $ua->handlers( $phase, $request )
+
+=item $ua->handlers( $phase, $response )
+
+Returns the handlers that apply to the given request or response at
+the given processing phase.
 
 =back
 

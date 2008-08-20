@@ -313,7 +313,7 @@ sub decodable
         push(@enc, "gzip", "x-gzip", "deflate");
     };
     eval {
-        require Compess::Bzip2;
+        require Compress::Bzip2;
         push(@enc, "x-bzip2");
     };
     # we don't care about announcing the 'base64' and 'quoted-printable' stuff

@@ -1,0 +1,376 @@
+package HTTP::Config;
+
+use strict;
+use URI;
+
+sub new {
+    my $class = shift;
+    return bless [], $class;
+}
+
+sub entries {
+    my $self = shift;
+    @$self;
+}
+
+sub add {
+    if (@_ == 2) {
+        my $self = shift;
+        push(@$self, shift);
+        return;
+    }
+    my($self, %spec) = @_;
+    push(@$self, \%spec);
+    return;
+}
+
+sub remove {
+    my($self, %spec) = @_;
+    my @removed;
+    my @rest;
+ ITEM:
+    for my $item (@$self) {
+        for my $k (keys %spec) {
+            if (!exists $item->{$k} || $spec{$k} ne $item->{$k}) {
+                push(@rest, $item);
+                next ITEM;
+            }
+        }
+        push(@removed, $item);
+    }
+    @$self = @rest if @removed;
+    return @removed;
+}
+
+my %MATCH = (
+    scheme => sub {
+        my($v, $uri) = @_;
+        return $uri->_scheme eq $v;  # URI known to be canonical
+    },
+    secure => sub {
+        my($v, $uri) = @_;
+        my $secure = $uri->_scheme eq "https";
+        return $secure == !!$v;
+    },
+    host_port => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("host_port");
+        return $uri->host_port eq $v, 7;
+    },
+    host => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("host");
+        return $uri->host eq $v, 6;
+    },
+    port => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("port");
+        return $uri->port eq $v;
+    },
+    domain => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("host");
+        my $h = $uri->host;
+        $h = "$h.local" unless $h =~ /\./;
+        $v = ".$v" unless $v =~ /^\./;
+        return length($v), 5 if substr($h, -length($v)) eq $v;
+        return 0;
+    },
+    path => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("path");
+        return $uri->path eq $v, 4;
+    },
+    path_prefix => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("path");
+        my $path = $uri->path;
+        my $len = length($v);
+        return $len, 3 if $path eq $v || (length($path) > $len && substr($path, 0, $len + 1) eq "$v/");
+        return 0;
+    },
+    path_match => sub {
+        my($v, $uri) = @_;
+        return unless $uri->can("path");
+        return $uri->path =~ $v;
+    },
+    uri__ => sub {
+        my($v, $k, $uri) = @_;
+        return unless $uri->can($k);
+        return 1 unless defined $v;
+        return $uri->$k eq $v;
+    },
+    method => sub {
+        my($v, $uri, $request) = @_;
+        return $request && $request->method eq $v;
+    },
+    code => sub {
+        my($v, $uri, $request, $response) = @_;
+        $v =~ s/xx\z//;
+        return unless $response;
+        return length($v), 2 if substr($response->code, 0, length($v)) eq $v;
+    },
+    media_type => sub {  # for request too??
+        my($v, $uri, $request, $response) = @_;
+        return unless $response;
+        return 1, 1 if $v eq "*/*";
+        my $ct = $response->content_type;
+        return 2, 1 if $v =~ s,/\*\z,, && $ct =~ m,^\Q$v\E/,;
+        return 3, 1 if $v eq "html" && $response->_is_html;
+        return 4, 1 if $v eq "html" && $response->_is_xhtml;
+        return 10, 1 if $v eq $ct;
+        return 0;
+    },
+    header__ => sub {
+        my($v, $k, $uri, $request, $response) = @_;
+        return unless $request;
+        return 1 if $request->header($k) eq $v;
+        return 1 if $response && $response->header($k) eq $v;
+        return 0;
+    },
+    response_attr__ => sub {
+        my($v, $k, $uri, $request, $response) = @_;
+        return unless $response;
+        return 1 if !defined($v) && exists $response->{$k};
+        return 0 unless exists $response->{$k};
+        return 1 if $response->{$k} eq $v;
+        return 0;
+    },
+);
+
+sub matching {
+    my $self = shift;
+    if (@_ == 1) {
+        unshift(@_, $_[0]->request) if $_[0]->can("request");
+        unshift(@_, $_[0]->uri_canonical) if $_[0]->can("uri_canonical");
+    }
+    my($uri, $request, $response) = @_;
+    $uri = URI->new($uri) unless ref($uri);
+
+    my %seen;
+    my @m;
+ ITEM:
+    for my $item (@$self) {
+        my $order;
+        for my $ikey (keys %$item) {
+            my $mkey = $ikey;
+            my $k;
+            $k = $1 if $mkey =~ s/__(.*)/__/;
+            if (my $m = $MATCH{$mkey}) {
+                #print "$ikey $mkey\n";
+                my($c, $o);
+                my @arg = (
+                    defined($k) ? $k : (),
+                    $uri, $request, $response
+                );
+                my $v = $item->{$ikey};
+                $v = [$v] unless ref($v) eq "ARRAY";
+                for (@$v) {
+                    ($c, $o) = $m->($_, @arg);
+                    #print "  - $_ ==> $c $o\n";
+                    last if $c;
+                }
+                next ITEM unless $c;
+                $order->[$o || 0] += $c;
+            }
+        }
+        next if $item->{once} && $seen{$item->{once}}++;
+        $order->[7] ||= 0;
+        $item->{_order} = join(".", reverse map sprintf("%03d", $_ || 0), @$order);
+        push(@m, $item);
+    }
+    @m = sort { $b->{_order} cmp $a->{_order} } @m;
+    delete $_->{_order} for @m;
+    return @m;
+}
+
+sub add_item {
+    my $self = shift;
+    my $item = shift;
+    return $self->add(item => $item, @_);
+}
+
+sub remove_items {
+    my $self = shift;
+    return map $_->{item}, $self->remove(@_);
+}
+
+sub matching_items {
+    my $self = shift;
+    return map $_->{item}, $self->matching(@_);
+}
+
+1;
+
+__END__
+
+=head1 NAME
+
+HTTP::Config - 
+
+=head1 SYNOPSIS
+
+ use HTTP::Config;
+
+=head1 DESCRIPTION
+
+An C<HTTP::Config> object is basically a list of entries (hashes) that
+can be matched against requests or request/response pairs.  It's
+purpose is to hold configuration data that can be looked up given a
+request or response object.
+
+Each configuration entry is a hash.  Some keys specify matching to
+occur against attributes of request/response objects.  Other keys can
+be used to hold user data.
+
+The following methods are provided:
+
+=over 4
+
+=item $conf = HTTP::Config->new
+
+Constructor
+
+=item $conf->entries
+
+Returns the list of entries in the configuration object.
+
+=item $conf->add( %matchspec, %other )
+
+=item $conf->add( \%entry )
+
+Adds a new entry to the configuration.
+
+=item $conf->remove( %spec )
+
+Removes (and returns) the entries that match.
+
+=item $conf->matching( $uri, $request, $response )
+
+=item $conf->matching( $uri )
+
+=item $conf->matching( $request )
+
+=item $conf->matching( $response )
+
+Returns the entries that match the given $uri, $request and $response triplet.
+
+The entries are returned with the most specific matches first.
+
+For entries with the key 'once' only the first of the specified kind
+is returned.
+
+=item $conf->add_item( $item, %matchspec )
+
+=item $conf->remove_items( %spec )
+
+=item $conf->matching_items( $uri, $request, $response )
+
+Wrappers that hides the entries themselves.
+
+=back
+
+=head2 Matching
+
+The following keys on a configuration entry specify matching.  For all
+of these you can provide an array of values instead of a single value.
+The entry matches if at least one of the values in the array matches.
+
+=over
+
+=item scheme => $scheme
+
+Matches if the URI uses the specified scheme; e.g. "http".
+
+=item secure => $bool
+
+If $bool is TRUE; matches if the URI uses a secure scheme.  If $bool
+is FALSE; matches if the URI does not use a secure scheme.  An example
+of a secure scheme is "https".
+
+=item host_port => "$hostname:$port"
+
+Matches if the URI's host_port method return the specified value.
+
+=item host => $hostname
+
+Matches if the URI's host method returns the specified value.
+
+=item port => $port
+
+Matches if the URI's port method returns the specified value.
+
+=item domain => ".$domain"
+
+Matches if the URI's host method return a value that within the given
+domain.  The hostname "www.example.com" will for instance match the
+domain ".com".
+
+=item path => $path
+
+Matches if the URI's path method returns the specified value.
+
+=item path_prefix => $path
+
+Matches if the URI's path is the specified path or has the specified
+path as prefix.
+
+=item path_match => $Regexp
+
+Matches if the regular expression matches the URI's path.  Eg. qr/\.html$/.
+
+=item method => $method
+
+Matches if the request method matches the specified value. Eg. "GET" or "POST".
+
+=item code => $digit
+
+=item code => $status_code
+
+Matches if the response status code matches.  If a single digit is
+specified; matches for all response status codes beginning with that digit.
+
+=item media_type => "*/*"
+
+=item media_type => "text/*"
+
+=item media_type => "html"
+
+=item media_type => "xhtml"
+
+=item media_type => "text/html"
+
+Matches if the response media type matches.
+
+=item uri__I<$method> => undef
+
+Matches if the URI object provide the method
+
+=item uri__I<$method> => $string
+
+Matches if the URI's $method method returns the given value.
+
+=item header__I<$field> => $string
+
+Matches if either the request or the response have a header $field with the given value.
+
+=item response_attr__I<$key> => undef
+
+=item response_attr__I<$key> => $string
+
+Matches if the response object has a that key; or the entry has the given value.
+
+=back
+
+=head1 SEE ALSO
+
+L<URI>, L<HTTP::Request>, L<HTTP::Response>
+
+=head1 COPYRIGHT
+
+Copyright 2008, Gisle Aas
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut

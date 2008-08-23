@@ -194,6 +194,7 @@ sub get_request
     for my $e ( $r->header('Expect') ) {
         if( lc($e) eq '100-continue' ) {
             $self->send_status_line(100);
+            $self->send_crlf;
         }
         else {
             $self->send_error(417);

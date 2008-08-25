@@ -143,13 +143,13 @@ sub form_data   # RFC1867
 	    my $content = "";
 	    my $h = HTTP::Headers->new(@headers);
 	    if ($file) {
-		require Symbol;
-		my $fh = Symbol::gensym();
-		open($fh, $file) or Carp::croak("Can't open file $file: $!");
+		open(my $fh, "<", $file) or Carp::croak("Can't open file $file: $!");
 		binmode($fh);
 		if ($DYNAMIC_FILE_UPLOAD) {
-		    # will read file later
-		    $content = $fh;
+		    # will read file later, close it now in order to
+                    # not accumulate to many open file handles
+                    close($fh);
+		    $content = \$file;
 		}
 		else {
 		    local($/) = undef; # slurp files
@@ -174,7 +174,7 @@ sub form_data   # RFC1867
 			           $h->as_string($CRLF),
 			           "");
 	    if (ref $content) {
-		push(@parts, [$head, $content]);
+		push(@parts, [$head, $$content]);
 		$fhparts++;
 	    }
 	    else {
@@ -234,6 +234,12 @@ sub form_data   # RFC1867
 		    return $p;
 		}
 		my($buf, $fh) = @$p;
+                unless (ref($fh)) {
+                    my $file = $fh;
+                    undef($fh);
+                    open($fh, "<", $file) || Carp::croak("Can't open file $file: $!");
+                    binmode($fh);
+                }
 		my $buflength = length $buf;
 		my $n = read($fh, $buf, 2048, $buflength);
 		if ($n) {

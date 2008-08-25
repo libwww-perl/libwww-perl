@@ -639,6 +639,7 @@ sub from         { shift->_elem('from',         @_); }
 sub parse_head   { shift->_elem('parse_head',   @_); }
 sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
+sub show_progress{ shift->_elem('show_progress', @_); }
 
 
 sub cookie_jar {
@@ -1163,6 +1164,13 @@ default, this is C<['GET', 'HEAD']>, as per RFC 2616.  To
 change to include 'POST', consider:
 
    push @{ $ua->requests_redirectable }, 'POST';
+
+=item $ua->show_progress
+
+=item $ua->show_progress( $boolean )
+
+Get/set a value indicating whether a progress bar should be displayed
+on on the terminal as requests are processed. The default is FALSE.
 
 =item $ua->timeout
 

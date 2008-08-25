@@ -127,7 +127,7 @@ sub collect
     }
     elsif (!ref($arg)) {
 	# filename
-	open(OUT, ">$arg") or
+	open(OUT, ">", $arg) or
 	    return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 			  "Cannot write to '$arg': $!");
         binmode(OUT);

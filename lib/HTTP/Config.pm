@@ -57,31 +57,31 @@ sub remove {
 }
 
 my %MATCH = (
-    scheme => sub {
+    m_scheme => sub {
         my($v, $uri) = @_;
         return $uri->_scheme eq $v;  # URI known to be canonical
     },
-    secure => sub {
+    m_secure => sub {
         my($v, $uri) = @_;
         my $secure = $uri->_scheme eq "https";
         return $secure == !!$v;
     },
-    host_port => sub {
+    m_host_port => sub {
         my($v, $uri) = @_;
         return unless $uri->can("host_port");
         return $uri->host_port eq $v, 7;
     },
-    host => sub {
+    m_host => sub {
         my($v, $uri) = @_;
         return unless $uri->can("host");
         return $uri->host eq $v, 6;
     },
-    port => sub {
+    m_port => sub {
         my($v, $uri) = @_;
         return unless $uri->can("port");
         return $uri->port eq $v;
     },
-    domain => sub {
+    m_domain => sub {
         my($v, $uri) = @_;
         return unless $uri->can("host");
         my $h = $uri->host;
@@ -90,12 +90,12 @@ my %MATCH = (
         return length($v), 5 if substr($h, -length($v)) eq $v;
         return 0;
     },
-    path => sub {
+    m_path => sub {
         my($v, $uri) = @_;
         return unless $uri->can("path");
         return $uri->path eq $v, 4;
     },
-    path_prefix => sub {
+    m_path_prefix => sub {
         my($v, $uri) = @_;
         return unless $uri->can("path");
         my $path = $uri->path;
@@ -103,28 +103,28 @@ my %MATCH = (
         return $len, 3 if $path eq $v || (length($path) > $len && substr($path, 0, $len + 1) eq "$v/");
         return 0;
     },
-    path_match => sub {
+    m_path_match => sub {
         my($v, $uri) = @_;
         return unless $uri->can("path");
         return $uri->path =~ $v;
     },
-    uri__ => sub {
+    m_uri__ => sub {
         my($v, $k, $uri) = @_;
         return unless $uri->can($k);
         return 1 unless defined $v;
         return $uri->$k eq $v;
     },
-    method => sub {
+    m_method => sub {
         my($v, $uri, $request) = @_;
         return $request && $request->method eq $v;
     },
-    code => sub {
+    m_code => sub {
         my($v, $uri, $request, $response) = @_;
         $v =~ s/xx\z//;
         return unless $response;
         return length($v), 2 if substr($response->code, 0, length($v)) eq $v;
     },
-    media_type => sub {  # for request too??
+    m_media_type => sub {  # for request too??
         my($v, $uri, $request, $response) = @_;
         return unless $response;
         return 1, 1 if $v eq "*/*";
@@ -135,14 +135,14 @@ my %MATCH = (
         return 10, 1 if $v eq $ct;
         return 0;
     },
-    header__ => sub {
+    m_header__ => sub {
         my($v, $k, $uri, $request, $response) = @_;
         return unless $request;
         return 1 if $request->header($k) eq $v;
         return 1 if $response && $response->header($k) eq $v;
         return 0;
     },
-    response_attr__ => sub {
+    m_response_attr__ => sub {
         my($v, $k, $uri, $request, $response) = @_;
         return unless $response;
         return 1 if !defined($v) && exists $response->{$k};
@@ -188,7 +188,7 @@ sub matching {
                 $order->[$o || 0] += $c;
             }
         }
-        next if $item->{once} && $seen{$item->{once}}++;
+        next if $item->{m_once} && $seen{$item->{m_once}}++;
         $order->[7] ||= 0;
         $item->{_order} = join(".", reverse map sprintf("%03d", $_ || 0), @$order);
         push(@m, $item);
@@ -292,85 +292,85 @@ The entry matches if at least one of the values in the array matches.
 
 =over
 
-=item scheme => $scheme
+=item m_scheme => $scheme
 
 Matches if the URI uses the specified scheme; e.g. "http".
 
-=item secure => $bool
+=item m_secure => $bool
 
 If $bool is TRUE; matches if the URI uses a secure scheme.  If $bool
 is FALSE; matches if the URI does not use a secure scheme.  An example
 of a secure scheme is "https".
 
-=item host_port => "$hostname:$port"
+=item m_host_port => "$hostname:$port"
 
 Matches if the URI's host_port method return the specified value.
 
-=item host => $hostname
+=item m_host => $hostname
 
 Matches if the URI's host method returns the specified value.
 
-=item port => $port
+=item m_port => $port
 
 Matches if the URI's port method returns the specified value.
 
-=item domain => ".$domain"
+=item m_domain => ".$domain"
 
 Matches if the URI's host method return a value that within the given
 domain.  The hostname "www.example.com" will for instance match the
 domain ".com".
 
-=item path => $path
+=item m_path => $path
 
 Matches if the URI's path method returns the specified value.
 
-=item path_prefix => $path
+=item m_path_prefix => $path
 
 Matches if the URI's path is the specified path or has the specified
 path as prefix.
 
-=item path_match => $Regexp
+=item m_path_match => $Regexp
 
 Matches if the regular expression matches the URI's path.  Eg. qr/\.html$/.
 
-=item method => $method
+=item m_method => $method
 
 Matches if the request method matches the specified value. Eg. "GET" or "POST".
 
-=item code => $digit
+=item m_code => $digit
 
-=item code => $status_code
+=item m_code => $status_code
 
 Matches if the response status code matches.  If a single digit is
 specified; matches for all response status codes beginning with that digit.
 
-=item media_type => "*/*"
+=item m_media_type => "*/*"
 
-=item media_type => "text/*"
+=item m_media_type => "text/*"
 
-=item media_type => "html"
+=item m_media_type => "html"
 
-=item media_type => "xhtml"
+=item m_media_type => "xhtml"
 
-=item media_type => "text/html"
+=item m_media_type => "text/html"
 
 Matches if the response media type matches.
 
-=item uri__I<$method> => undef
+=item m_uri__I<$method> => undef
 
 Matches if the URI object provide the method
 
-=item uri__I<$method> => $string
+=item m_uri__I<$method> => $string
 
 Matches if the URI's $method method returns the given value.
 
-=item header__I<$field> => $string
+=item m_header__I<$field> => $string
 
 Matches if either the request or the response have a header $field with the given value.
 
-=item response_attr__I<$key> => undef
+=item m_response_attr__I<$key> => undef
 
-=item response_attr__I<$key> => $string
+=item m_response_attr__I<$key> => $string
 
 Matches if the response object has a that key; or the entry has the given value.
 

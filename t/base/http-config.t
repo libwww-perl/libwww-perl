@@ -17,13 +17,13 @@ ok($conf->matching_items("http://www.example.com/foo"), 0);
 $conf = HTTP::Config->new;
 
 $conf->add_item("always");
-$conf->add_item("GET", method => ["GET", "HEAD"]);
-$conf->add_item("POST", method => "POST");
-$conf->add_item(".com", domain => ".com");
-$conf->add_item("secure", secure => 1);
-$conf->add_item("not secure", secure => 0);
-$conf->add_item("u:p", host_port => "www.example.com:80", path_prefix => "/foo");
-$conf->add_item("success", code => "2xx");
+$conf->add_item("GET", m_method => ["GET", "HEAD"]);
+$conf->add_item("POST", m_method => "POST");
+$conf->add_item(".com", m_domain => ".com");
+$conf->add_item("secure", m_secure => 1);
+$conf->add_item("not secure", m_secure => 0);
+$conf->add_item("u:p", m_host_port => "www.example.com:80", m_path_prefix => "/foo");
+$conf->add_item("success", m_code => "2xx");
 
 use HTTP::Request;
 my $request = HTTP::Request->new(HEAD => "http://www.example.com/foo/bar");
@@ -46,17 +46,17 @@ $response->request($request);
 
 ok(j($conf->matching_items($response)), ".com|success|GET|secure|always");
 
-$conf->remove_items(secure => 1);
-$conf->remove_items(domain => ".com");
+$conf->remove_items(m_secure => 1);
+$conf->remove_items(m_domain => ".com");
 ok(j($conf->matching_items($response)), "success|GET|always");
 
 $conf->remove_items;  # start fresh
 ok(j($conf->matching_items($response)), "");
 
-$conf->add_item("any", "media_type" => "*/*");
-$conf->add_item("text", media_type => "text/*");
-$conf->add_item("html", media_type => "html");
-$conf->add_item("HTML", media_type => "text/html");
+$conf->add_item("any", "m_media_type" => "*/*");
+$conf->add_item("text", m_media_type => "text/*");
+$conf->add_item("html", m_media_type => "html");
+$conf->add_item("HTML", m_media_type => "text/html");
 
 ok(j($conf->matching_items($response)), "text|any");
 

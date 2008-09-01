@@ -155,8 +155,11 @@ my %MATCH = (
 sub matching {
     my $self = shift;
     if (@_ == 1) {
-        unshift(@_, $_[0]->request) if $_[0]->can("request");
-        unshift(@_, $_[0]->uri_canonical) if $_[0]->can("uri_canonical");
+        if ($_[0]->can("request")) {
+            unshift(@_, $_[0]->request);
+            unshift(@_, undef) unless defined $_[0];
+        }
+        unshift(@_, $_[0]->uri_canonical) if $_[0] && $_[0]->can("uri_canonical");
     }
     my($uri, $request, $response) = @_;
     $uri = URI->new($uri) unless ref($uri);

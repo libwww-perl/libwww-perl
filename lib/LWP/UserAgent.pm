@@ -237,6 +237,11 @@ sub prepare_request
     Carp::croak("Bad request: URL missing") unless $url;
     Carp::croak("Bad request: URL must be absolute") unless $url->scheme;
 
+    # run handlers
+    for my $h ($self->handlers("request_preprepare", $request)) {
+        $h->($request, $self);
+    }
+
     my $max_size = $self->{max_size};
     if (defined $max_size) {
 	my $last = $max_size - 1;
@@ -887,7 +892,7 @@ sub proxy
     my $old = $self->{'proxy'}{$key};
     if (@_) {
         $self->{proxy}{$key} = shift;
-        $self->set_my_handler("request_prepare", \&_need_proxy)
+        $self->set_my_handler("request_preprepare", \&_need_proxy)
     }
     return $old;
 }
@@ -1308,6 +1313,14 @@ specify %matchspec see L<HTTP::Config>.
 The possible values $phase are:
 
 =over
+
+=item request_preprepare => sub { my($request, $ua) = @_; ... }
+
+The handler is called before the C<request_prepare> and other standard
+initialization of of the request.  This can be used to set up headers
+and attributes that the C<request_prepare> handler depends on.  Proxy
+initialization should take place here; but in general don't register
+handlers for this phase.
 
 =item request_prepare => sub { my($request, $ua) = @_; ... }
 

@@ -105,7 +105,10 @@ my %MATCH = (
         return unless $uri->can("path");
         my $path = $uri->path;
         my $len = length($v);
-        return $len, 3 if $path eq $v || (length($path) > $len && substr($path, 0, $len + 1) eq "$v/");
+        return $len, 3 if $path eq $v;
+        return 0 if length($path) <= $len;
+        $v .= "/" unless $v =~ m,/\z,,;
+        return $len, 3 if substr($path, 0, length($v)) eq $v;
         return 0;
     },
     m_path_match => sub {

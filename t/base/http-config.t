@@ -24,6 +24,7 @@ $conf->add_item("POST", m_method => "POST");
 $conf->add_item(".com", m_domain => ".com");
 $conf->add_item("secure", m_secure => 1);
 $conf->add_item("not secure", m_secure => 0);
+$conf->add_item("slash", m_host_port => "www.example.com:80", m_path_prefix => "/");
 $conf->add_item("u:p", m_host_port => "www.example.com:80", m_path_prefix => "/foo");
 $conf->add_item("success", m_code => "2xx");
 
@@ -31,7 +32,7 @@ use HTTP::Request;
 my $request = HTTP::Request->new(HEAD => "http://www.example.com/foo/bar");
 $request->header("User-Agent" => "Moz/1.0");
 
-ok(j($conf->matching_items($request)), "u:p|.com|GET|not secure|always");
+ok(j($conf->matching_items($request)), "u:p|slash|.com|GET|not secure|always");
 
 $request->method("HEAD");
 $request->url->scheme("https");

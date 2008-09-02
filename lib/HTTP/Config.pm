@@ -172,7 +172,6 @@ sub matching {
     my($uri, $request, $response) = @_;
     $uri = URI->new($uri) unless ref($uri);
 
-    my %seen;
     my @m;
  ITEM:
     for my $item (@$self) {
@@ -199,7 +198,6 @@ sub matching {
                 $order->[$o || 0] += $c;
             }
         }
-        next if $item->{m_once} && $seen{$item->{m_once}}++;
         $order->[7] ||= 0;
         $item->{_order} = join(".", reverse map sprintf("%03d", $_ || 0), @$order);
         push(@m, $item);
@@ -285,9 +283,6 @@ Removes (and returns) the entries that match.
 Returns the entries that match the given $uri, $request and $response triplet.
 
 The entries are returned with the most specific matches first.
-
-For entries with the key 'once' only the first of the specified kind
-is returned.
 
 =item $conf->add_item( $item, %matchspec )
 

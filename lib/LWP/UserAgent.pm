@@ -38,8 +38,6 @@ sub new
     LWP::Debug::trace('()');
 
     my $agent = delete $cnf{agent};
-    $agent = $class->_agent unless defined $agent;
-
     my $from  = delete $cnf{from};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
@@ -82,23 +80,23 @@ sub new
     }
 
     my $self = bless {
-		      from         => $from,
 		      def_headers  => undef,
 		      timeout      => $timeout,
 		      use_eval     => $use_eval,
-		      parse_head   => $parse_head,
                       show_progress=> $show_progress,
 		      max_size     => $max_size,
 		      max_redirect => $max_redirect,
-		      proxy        => {},
+                      proxy        => {},
 		      no_proxy     => [],
                       protocols_allowed     => $protocols_allowed,
                       protocols_forbidden   => $protocols_forbidden,
                       requests_redirectable => $requests_redirectable,
 		     }, $class;
 
-    $self->agent($agent) if $agent;
+    $self->agent($agent || $class->_agent);
+    $self->from($from) if $from;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
+    $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
 
     $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;
@@ -113,10 +111,114 @@ sub new
 }
 
 
-# private method.  check sanity of given $request
-sub _request_sanity_check {
+sub send_request
+{
+    my($self, $request, $arg, $size) = @_;
+    my($method, $url) = ($request->method, $request->uri);
+    my $scheme = $url->scheme;
+
+    local($SIG{__DIE__});  # protect against user defined die handlers
+
+    LWP::Debug::trace("$method $url");
+
+    $self->progress("begin", $request);
+
+    # run handlers
+    my $response;
+    for my $h ($self->handlers("request_send", $request)) {
+        $response = $h->($request, $self);
+        last if $response;
+    }
+
+    unless ($response) {
+        my $protocol;
+
+        {
+            # Honor object-specific restrictions by forcing protocol objects
+            #  into class LWP::Protocol::nogo.
+            my $x;
+            if($x = $self->protocols_allowed) {
+                if (grep lc($_) eq $scheme, @$x) {
+                    LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
+                }
+                else {
+                    LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
+                    require LWP::Protocol::nogo;
+                    $protocol = LWP::Protocol::nogo->new;
+                }
+            }
+            elsif ($x = $self->protocols_forbidden) {
+                if(grep lc($_) eq $scheme, @$x) {
+                    LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
+                    require LWP::Protocol::nogo;
+                    $protocol = LWP::Protocol::nogo->new;
+                }
+                else {
+                    LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
+                }
+            }
+            # else fall thru and create the protocol object normally
+        }
+
+        # Locate protocol to use
+        my $proxy = $request->{proxy};
+        if ($proxy) {
+            $scheme = $proxy->scheme;
+        }
+
+        unless ($protocol) {
+            $protocol = eval { LWP::Protocol::create($scheme, $self) };
+            if ($@) {
+                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
+                my $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
+                if ($scheme eq "https") {
+                    $response->message($response->message . " (Crypt::SSLeay not installed)");
+                    $response->content_type("text/plain");
+                    $response->content(<<EOT);
+LWP will support https URLs if the Crypt::SSLeay module is installed.
+More information at <http://www.linpro.no/lwp/libwww-perl/README.SSL>.
+EOT
+                }
+            }
+        }
+
+        if (!$response && $self->{use_eval}) {
+            # we eval, and turn dies into responses below
+            eval {
+                $response = $protocol->request($request, $proxy,
+                                               $arg, $size, $self->{timeout});
+            };
+            if ($@) {
+                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
+                    $response = _new_response($request,
+                                              &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+                                              $@);
+            }
+        }
+        elsif (!$response) {
+            $response = $protocol->request($request, $proxy,
+                                           $arg, $size, $self->{timeout});
+            # XXX: Should we die unless $response->is_success ???
+        }
+    }
+
+    $response->request($request);  # record request for reference
+    $response->header("Client-Date" => HTTP::Date::time2str(time));
+
+    # run handlers
+    for my $h ($self->handlers("response_done", $response)) {
+        $h->($response, $self);
+    }
+
+    $self->progress("end", $response);
+    return $response;
+}
+
+
+sub prepare_request
+{
     my($self, $request) = @_;
-    # some sanity checking
+    # sanity check the request passed in
     if (defined $request) {
 	if (ref $request) {
 	    Carp::croak("You need a request object, not a " . ref($request) . " object")
@@ -130,163 +232,38 @@ sub _request_sanity_check {
     else {
         Carp::croak("No request object passed in");
     }
-}
+    Carp::croak("Bad request: Method missing") unless $request->method;
+    my $url = $request->url;
+    Carp::croak("Bad request: URL missing") unless $url;
+    Carp::croak("Bad request: URL must be absolute") unless $url->scheme;
 
-
-sub send_request
-{
-    my($self, $request, $arg, $size) = @_;
-    $self->_request_sanity_check($request);
-
-    my($method, $url) = ($request->method, $request->uri);
-
-    local($SIG{__DIE__});  # protect against user defined die handlers
-
-    # Check that we have a METHOD and a URL first
-    return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, "Method missing")
-	unless $method;
-    return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, "URL missing")
-	unless $url;
-    return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, "URL must be absolute")
-	unless $url->scheme;
-
-    LWP::Debug::trace("$method $url");
-
-    # Locate protocol to use
-    my $scheme = '';
-    my $proxy = $self->_need_proxy($url);
-    if (defined $proxy) {
-	$scheme = $proxy->scheme;
-    }
-    else {
-	$scheme = $url->scheme;
-    }
-
-    my $protocol;
-
-    {
-      # Honor object-specific restrictions by forcing protocol objects
-      #  into class LWP::Protocol::nogo.
-      my $x;
-      if($x       = $self->protocols_allowed) {
-        if(grep lc($_) eq $scheme, @$x) {
-          LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
-        }
-        else {
-          LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
-          require LWP::Protocol::nogo;
-          $protocol = LWP::Protocol::nogo->new;
-        }
-      }
-      elsif ($x = $self->protocols_forbidden) {
-        if(grep lc($_) eq $scheme, @$x) {
-          LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
-          require LWP::Protocol::nogo;
-          $protocol = LWP::Protocol::nogo->new;
-        }
-        else {
-          LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
-        }
-      }
-      # else fall thru and create the protocol object normally
-    }
-
-    unless($protocol) {
-      $protocol = eval { LWP::Protocol::create($scheme, $self) };
-      if ($@) {
-	$@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-	my $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
-	if ($scheme eq "https") {
-	    $response->message($response->message . " (Crypt::SSLeay not installed)");
-	    $response->content_type("text/plain");
-	    $response->content(<<EOT);
-LWP will support https URLs if the Crypt::SSLeay module is installed.
-More information at <http://www.linpro.no/lwp/libwww-perl/README.SSL>.
-EOT
-	}
-	return $response;
-      }
-    }
-
-    # Extract fields that will be used below
-    my ($timeout, $cookie_jar, $use_eval, $parse_head, $max_size) =
-      @{$self}{qw(timeout cookie_jar use_eval parse_head max_size)};
-
-    my $response;
-    $self->progress("begin", $request);
-    if ($use_eval) {
-	# we eval, and turn dies into responses below
-	eval {
-	    $response = $protocol->request($request, $proxy,
-					   $arg, $size, $timeout);
-	};
-	if ($@) {
-	    $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-	    $response = _new_response($request,
-				      &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-				      $@);
-	}
-    }
-    else {
-	$response = $protocol->request($request, $proxy,
-				       $arg, $size, $timeout);
-	# XXX: Should we die unless $response->is_success ???
-    }
-
-    $response->request($request);  # record request for reference
-    $cookie_jar->extract_cookies($response) if $cookie_jar;
-    $response->header("Client-Date" => HTTP::Date::time2str(time));
-
-    # run handlers
-    for my $h ($self->handlers("response_ready", $response)) {
-        $h->($response);
-    }
-
-    $self->progress("end", $response);
-    return $response;
-}
-
-
-sub prepare_request
-{
-    my($self, $request) = @_;
-    $self->_request_sanity_check($request);
-
-    # Extract fields that will be used below
-    my ($agent, $from, $cookie_jar, $max_size, $def_headers) =
-      @{$self}{qw(agent from cookie_jar max_size def_headers)};
-
-    # Set User-Agent and From headers if they are defined
-    $request->init_header('User-Agent' => $agent) if $agent;
-    $request->init_header('From' => $from) if $from;
+    my $max_size = $self->{max_size};
     if (defined $max_size) {
 	my $last = $max_size - 1;
 	$last = 0 if $last < 0;  # there is no way to actually request no content
 	$request->init_header('Range' => "bytes=0-$last");
     }
-    $cookie_jar->add_cookie_header($request) if $cookie_jar;
 
-    if ($def_headers) {
+    if (my $def_headers = $self->{def_headers}) {
 	for my $h ($def_headers->header_field_names) {
 	    $request->init_header($h => [$def_headers->header($h)]);
 	}
     }
 
     # run handlers
-    for my $h ($self->handlers("prepare_request", $request)) {
-        $h->($request);
+    for my $h ($self->handlers("request_prepare", $request)) {
+        $h->($request, $self);
     }
 
-    return($request);
+    return $request;
 }
 
 
 sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
-    $self->_request_sanity_check($request);
-    my $new_request = $self->prepare_request($request);
-    return($self->send_request($new_request, $arg, $size));
+    $request = $self->prepare_request($request);
+    return $self->send_request($request, $arg, $size);
 }
 
 
@@ -298,9 +275,30 @@ sub request
 
     my $response = $self->simple_request($request, $arg, $size);
 
-    my $code = $response->code;
-    $response->previous($previous) if defined $previous;
+    if ($previous) {
+        $response->previous($previous);
 
+	# Check for loop in the redirects, we only count
+	my $count = 0;
+	my $r = $response;
+	while ($r) {
+	    if (++$count > $self->{max_redirect}) {
+		$response->header("Client-Warning" =>
+				  "Redirect loop detected (max_redirect = $self->{max_redirect})");
+		return $response;
+	    }
+	    $r = $r->previous;
+	}
+    }
+
+    for my $h ($self->handlers("response_redirect", $response)) {
+        if (my $req = $h->($response, $self)) {
+            return $self->request($req, $arg, $size, $response);
+        }
+    }
+
+
+    my $code = $response->code;
     LWP::Debug::debug('Simple response: ' .
 		      (HTTP::Status::status_message($code) ||
 		       "Unknown code $code"));
@@ -347,18 +345,6 @@ sub request
 		            ->abs($base);
 	}
 	$referral->url($referral_uri);
-
-	# Check for loop in the redirects, we only count
-	my $count = 0;
-	my $r = $response;
-	while ($r) {
-	    if (++$count > $self->{max_redirect}) {
-		$response->header("Client-Warning" =>
-				  "Redirect loop detected (max_redirect = $self->{max_redirect})");
-		return $response;
-	    }
-	    $r = $r->previous;
-	}
 
 	return $response unless $self->redirect_ok($referral, $response);
 	return $self->request($referral, $arg, $size, $response);
@@ -620,27 +606,38 @@ sub get_basic_credentials
 }
 
 
-sub agent {
-    my $self = shift;
-    my $old = $self->{agent};
-    if (@_) {
-	my $agent = shift;
-	$agent .= $self->_agent if $agent && $agent =~ /\s+$/;
-	$self->{agent} = $agent;
-    }
-    $old;
-}
-
-
-sub _agent       { "libwww-perl/$LWP::VERSION" }
-
 sub timeout      { shift->_elem('timeout',      @_); }
-sub from         { shift->_elem('from',         @_); }
-sub parse_head   { shift->_elem('parse_head',   @_); }
 sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
 sub show_progress{ shift->_elem('show_progress', @_); }
 
+sub parse_head {
+    my $self = shift;
+    if (@_) {
+        my $flag = shift;
+        my $parser;
+        my $old = $self->set_my_handler("response_header", $flag ? sub {
+               my($response, $ua) = @_;
+               require HTML::HeadParser;
+               $parser = HTML::HeadParser->new($response->{'_headers'});
+               $parser->xml_mode(1) if $response->_is_xhtml;
+               $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
+
+               push(@{$response->{handlers}{response_data}}, sub {
+                   print "P\n";
+                   return unless $parser;
+                   $parser->parse($_[2]) or undef($parser);
+               });
+
+            } : undef,
+            m_media_type => "html",
+        );
+        return !!$old;
+    }
+    else {
+        return !!$self->get_my_handler("response_header");
+    }
+}
 
 sub cookie_jar {
     my $self = shift;
@@ -652,6 +649,12 @@ sub cookie_jar {
 	    $jar = HTTP::Cookies->new(%$jar);
 	}
 	$self->{cookie_jar} = $jar;
+        $self->set_my_handler("request_prepare",
+            $jar ? sub { $jar->add_cookie_header($_[0]); } : undef,
+        );
+        $self->set_my_handler("response_done",
+            $jar ? sub { $jar->extract_cookies($_[0]); } : undef,
+        );
     }
     $old;
 }
@@ -668,6 +671,28 @@ sub default_headers {
 sub default_header {
     my $self = shift;
     return $self->default_headers->header(@_);
+}
+
+sub _agent       { "libwww-perl/$LWP::VERSION" }
+
+sub agent {
+    my $self = shift;
+    if (@_) {
+	my $agent = shift;
+        if ($agent) {
+            $agent .= $self->_agent if $agent =~ /\s+$/;
+        }
+        else {
+            undef($agent)
+        }
+        return $self->default_header("User-Agent", $agent);
+    }
+    return $self->default_header("User-Agent");
+}
+
+sub from {  # legacy
+    my $self = shift;
+    return $self->default_header("From", @_);
 }
 
 
@@ -688,18 +713,42 @@ sub conn_cache {
 
 sub add_handler {
     my($self, $phase, $cb, %spec) = @_;
+    $spec{line} ||= join(":", (caller)[1,2]);
     my $conf = $self->{handlers}{$phase} ||= do {
         require HTTP::Config;
         HTTP::Config->new;
     };
-    $conf->add_item($cb, %spec);
+    if (my $args = $spec{args}) {
+        my $old_cb = $cb;
+        $cb = sub {
+            return $old_cb->(@$args, @_);
+        };
+    }
+    $conf->add(%spec, callback => $cb);
+}
+
+sub set_my_handler {
+    my($self, $phase, $cb, %spec) = @_;
+    $spec{owner} = (caller(1))[3] unless exists $spec{owner};
+    $self->remove_handler($phase, %spec);
+    $spec{line} ||= join(":", (caller)[1,2]);
+    $self->add_handler($phase, $cb, %spec) if $cb;
+}
+
+sub get_my_handler {
+    my($self, $phase, %spec) = @_;
+    my $conf = $self->{handlers}{$phase} || return;
+    $spec{owner} = (caller(1))[3] unless exists $spec{owner};
+    return $conf->find(%spec);
 }
 
 sub remove_handler {
     my($self, $phase, %spec) = @_;
     if ($phase) {
         my $conf = $self->{handlers}{$phase} || return;
-        return $conf->remove_items(%spec);
+        my @h = $conf->remove(%spec);
+        delete $self->{handlers}{$phase} if $conf->empty;
+        return @h;
     }
 
     return unless $self->{handlers};
@@ -708,8 +757,14 @@ sub remove_handler {
 
 sub handlers {
     my($self, $phase, $o) = @_;
-    my $conf = $self->{handlers}{$phase} || return;
-    return $conf->matching_items($o);
+    my @h;
+    if ($o->{handlers} && $o->{handlers}{$phase}) {
+        push(@h, @{$o->{handlers}{$phase}});
+    }
+    if (my $conf = $self->{handlers}{$phase}) {
+        push(@h, map { $_->{callback} } $conf->matching($o));
+    }
+    return @h;
 }
 
 
@@ -728,13 +783,29 @@ sub clone
     my $self = shift;
     my $copy = bless { %$self }, ref $self;  # copy most fields
 
-    # elements that are references must be handled in a special way
-    $copy->{'proxy'} = { %{$self->{'proxy'}} };
-    $copy->{'no_proxy'} = [ @{$self->{'no_proxy'}} ];  # copy array
-
-    # remove reference to objects for now
-    delete $copy->{cookie_jar};
+    delete $copy->{handlers};
     delete $copy->{conn_cache};
+
+    # copy any plain arrays and hashes; known not to need recursive copy
+    for my $k (qw(proxy no_proxy requests_redirectable)) {
+        next unless $copy->{$k};
+        if (ref($copy->{$k}) eq "ARRAY") {
+            $copy->{$k} = [ @{$copy->{$k}} ];
+        }
+        elsif (ref($copy->{$k}) eq "HASH") {
+            $copy->{$k} = { %{$copy->{$k}} };
+        }
+    }
+
+    if ($self->{def_headers}) {
+        $copy->{def_headers} = $self->{def_headers}->clone;
+    }
+
+    # re-enable standard handlers
+    $copy->parse_head($self->parse_head);
+
+    # no easy way to clone the cookie jar; so let's just remove it for now
+    $copy->cookie_jar(undef);
 
     $copy;
 }
@@ -795,17 +866,34 @@ sub mirror
 }
 
 
+sub _need_proxy {
+    my($req, $ua) = @_;
+    return if exists $req->{proxy};
+    my $proxy = $ua->{proxy}{$req->url->scheme} || return;
+    if ($ua->{no_proxy}) {
+        if (my $host = eval { $req->url->host }) {
+            for my $domain (@{$ua->{no_proxy}}) {
+                if ($host =~ /\Q$domain\E$/) {
+                    return;
+                }
+            }
+        }
+    }
+    $req->{proxy} = $HTTP::URI_CLASS->new($proxy);
+}
+
+
 sub proxy
 {
     my $self = shift;
     my $key  = shift;
-
-    LWP::Debug::trace("$key @_");
-
     return map $self->proxy($_, @_), @$key if ref $key;
 
     my $old = $self->{'proxy'}{$key};
-    $self->{'proxy'}{$key} = shift if @_;
+    if (@_) {
+        $self->{proxy}{$key} = shift;
+        $self->set_my_handler("request_prepare", \&_need_proxy)
+    }
     return $old;
 }
 
@@ -841,33 +929,6 @@ sub no_proxy {
     else {
 	$self->{'no_proxy'} = [];
     }
-}
-
-
-# Private method which returns the URL of the Proxy configured for this
-# URL, or undefined if none is configured.
-sub _need_proxy
-{
-    my($self, $url) = @_;
-    $url = $HTTP::URI_CLASS->new($url) unless ref $url;
-
-    my $scheme = $url->scheme || return;
-    if (my $proxy = $self->{'proxy'}{$scheme}) {
-	if (@{ $self->{'no_proxy'} }) {
-	    if (my $host = eval { $url->host }) {
-		for my $domain (@{ $self->{'no_proxy'} }) {
-		    if ($host =~ /\Q$domain\E$/) {
-			LWP::Debug::trace("no_proxy configured");
-			return;
-		    }
-		}
-	    }
-	}
-	LWP::Debug::debug("Proxied to $proxy");
-	return $HTTP::URI_CLASS->new($proxy);
-    }
-    LWP::Debug::debug('Not proxied');
-    undef;
 }
 
 
@@ -1253,7 +1314,7 @@ The possible values $phase are:
 
 =over
 
-=item prepare_request => sub { my $request = shift; ... }
+=item request_prepare => sub { my($request, $ua) = @_; ... }
 
 The handler is called before the request is sent and can modify the
 request any way it see hit.  This can for instance be used to add
@@ -1265,11 +1326,46 @@ request that is sent fully.
 The return value from the callback is ignored.  Exceptions are
 not trapped and are propagated to the outer request method.
 
-=item response_ready => sub { my $response = shift; ... }
+=item request_send => sub { my($request, $ua) = @_; ... }
+
+This handler get a chance of handling requests before it's sent to the
+protocol handlers.  It should return an HTTP::Response object if it
+wishes to terminate the processing; otherwise it should return nothing.
+
+The C<response_header> and C<response_data> handlers will not be
+invoked for this response, but the C<response_done> will be.
+
+=item response_header => sub { my($response, $ua) = @_; ... }
+
+This handler is called right after the response headers have been
+received, but before any content data.  The handler might set up
+handlers for data and might croak to abort the request.
+
+The handler might set the $response->{default_add_content} value to
+control if any received data should be added to the response object
+directly.  This will initially be false if the $ua->request() method
+was called with a ':content_filename' or ':content_callbak' argument;
+otherwise true.
+
+=item response_data => sub { my($response, $ua, $data) = @_; ... }
+
+This handlers is called for each chunk of data received for the
+response.  The handler might croak to abort the request.
+
+This handler need to return a TRUE value to be called again for
+subsequent chunks for the same request.
+
+=item response_done => sub { my($response, $ua) = @_; ... }
 
 The handler is called after the response has been fully received, but
 before any redirect handling is attempted.  The handler can be used to
 extract information or modify the response.
+
+=item response_redirect => sub { my($response, $ua) = @_; ... }
+
+The handler is called in $ua->request after C<response_done>.  If the
+handler return an HTTP::Request object we'll start over with processing
+this request instead.
 
 =back
 
@@ -1281,6 +1377,16 @@ Remove handlers that match the given %matchspec.  If $phase is not
 provided remove handlers from all phases.
 
 The removed handlers are returned.
+
+=item $ua->set_my_handler( $phase, $cb, %matchspec )
+
+=item $ua->get_my_handler( $phase, %matchspec )
+
+Set handlers private to the executing subroutine.  Works by defaulting
+an C<owner> field to the %matchhspec that holds the name of the called
+subroutine.  You might pass an explicit C<owner> to override this.
+
+If $cb is passed as C<undef>, remove the handler.
 
 =item $ua->handlers( $phase, $request )
 

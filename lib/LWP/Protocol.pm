@@ -22,7 +22,6 @@ sub new
 	ua => $ua,
 
 	# historical/redundant
-        parse_head => $ua->{parse_head},
         max_size => $ua->{max_size},
     }, $class;
 
@@ -88,7 +87,6 @@ sub request
 
 # legacy
 sub timeout    { shift->_elem('timeout',    @_); }
-sub parse_head { shift->_elem('parse_head', @_); }
 sub max_size   { shift->_elem('max_size',   @_); }
 
 
@@ -96,83 +94,74 @@ sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
     my $content;
-    my($ua, $parse_head, $max_size) = @{$self}{qw(ua parse_head max_size)};
+    my($ua, $max_size) = @{$self}{qw(ua max_size)};
 
-    my $parser;
-    if ($parse_head && $response->_is_html) {
-	require HTML::HeadParser;
-	$parser = HTML::HeadParser->new($response->{'_headers'});
-        $parser->xml_mode(1) if $response->_is_xhtml;
-        $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
-    }
-    my $content_size = 0;
-    my $length = $response->content_length;
+    eval {
+        if (!defined($arg) || !$response->is_success) {
+            $response->{default_add_content} = 1;
+        }
+        elsif (!ref($arg) && length($arg)) {
+            open(my $fh, ">", $arg) || die "Can't write to '$arg': $!";
+            push(@{$response->{handlers}{response_data}}, sub {
+                print $fh $_[2] || die "Can't write to '$arg': $!";
+                1;
+            });
+            push(@{$response->{handlers}{response_done}}, sub {
+                close($fh) || die "Can't write to '$arg': $!";
+                undef($fh);
+            });
+        }
+        elsif (ref($arg) eq 'CODE') {
+            push(@{$response->{handlers}{response_data}}, sub {
+                &$arg($_[2], $_[0], $self);
+                1;
+            });
+        }
+        else {
+            die "Unexpected collect argument '$arg'";
+        }
 
-    if (!defined($arg) || !$response->is_success) {
-	# scalar
-	while ($content = &$collector, length $$content) {
-	    if ($parser) {
-		$parser->parse($$content) or undef($parser);
-	    }
-	    LWP::Debug::debug("read " . length($$content) . " bytes");
-	    $response->add_content($$content);
-	    $content_size += length($$content);
-	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
-	    if (defined($max_size) && $content_size > $max_size) {
-		LWP::Debug::debug("Aborting because size limit exceeded");
-		$response->push_header("Client-Aborted", "max_size");
-		last;
-	    }
-	}
+        for my $h ($ua->handlers("response_header", $response)) {
+            $h->($response, $ua);
+        }
+
+        if (delete $response->{default_add_content}) {
+            push(@{$response->{handlers}{response_data}}, sub {
+                $_[0]->add_content($_[2]);
+                1;
+            });
+        }
+
+
+        my $content_size = 0;
+        my $length = $response->content_length;
+        my %skip_h;
+
+        while ($content = &$collector, length $$content) {
+            for my $h ($ua->handlers("response_data", $response)) {
+                next if $skip_h{$h};
+                unless ($h->($response, $ua, $$content)) {
+                    # XXX remove from $response->{handlers}{response_data} if present
+                    $skip_h{$h}++;
+                }
+            }
+            $content_size += length($$content);
+            $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
+            if (defined($max_size) && $content_size > $max_size) {
+                LWP::Debug::debug("Aborting because size limit exceeded");
+                $response->push_header("Client-Aborted", "max_size");
+                last;
+            }
+        }
+    };
+    if ($@) {
+        chomp($@);
+        $response->push_header('X-Died' => $@);
+        $response->push_header("Client-Aborted", "die");
+        return $response;
     }
-    elsif (!ref($arg)) {
-	# filename
-	open(OUT, ">", $arg) or
-	    return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-			  "Cannot write to '$arg': $!");
-        binmode(OUT);
-        local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
-	while ($content = &$collector, length $$content) {
-	    if ($parser) {
-		$parser->parse($$content) or undef($parser);
-	    }
-	    LWP::Debug::debug("read " . length($$content) . " bytes");
-	    print OUT $$content or die "Can't write to '$arg': $!";
-	    $content_size += length($$content);
-	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
-	    if (defined($max_size) && $content_size > $max_size) {
-		LWP::Debug::debug("Aborting because size limit exceeded");
-		$response->push_header("Client-Aborted", "max_size");
-		last;
-	    }
-	}
-	close(OUT) or die "Can't write to '$arg': $!";
-    }
-    elsif (ref($arg) eq 'CODE') {
-	# read into callback
-	while ($content = &$collector, length $$content) {
-	    if ($parser) {
-		$parser->parse($$content) or undef($parser);
-	    }
-	    LWP::Debug::debug("read " . length($$content) . " bytes");
-            eval {
-		&$arg($$content, $response, $self);
-	    };
-	    if ($@) {
-	        chomp($@);
-		$response->push_header('X-Died' => $@);
-		$response->push_header("Client-Aborted", "die");
-		last;
-	    }
-	    $content_size += length($$content);
-	    $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
-	}
-    }
-    else {
-	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-				  "Unexpected collect argument  '$arg'");
-    }
-    $response;
+
+    return $response;
 }
 
 

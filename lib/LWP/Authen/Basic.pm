@@ -19,18 +19,14 @@ sub authenticate
         @m = (m_proxy => $url);
     }
 
-    my $h = $ua->get_my_handler("request_prepare", @m);
-    unless ($h) {
-        my $_handler = sub {
+    my $h = $ua->get_my_handler("request_prepare", @m, sub {
+        $_[0]{callback} = sub {
             my($req, $ua) = @_;
             my($user, $pass) = $ua->credentials($host_port, $realm);
             my $auth_value = "Basic " . MIME::Base64::encode("$user:$pass", "");
             $req->header($auth_header => $auth_value);
-        };
-        $ua->set_my_handler("request_prepare", $_handler, @m);
-        $h = $ua->get_my_handler("request_prepare", @m);
-        die unless $h;
-    }
+        }
+    });
 
     if (!$request->header($auth_header)) {
         if ($ua->credentials($host_port, $realm)) {

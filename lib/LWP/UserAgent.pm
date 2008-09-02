@@ -736,10 +736,33 @@ sub set_my_handler {
 }
 
 sub get_my_handler {
-    my($self, $phase, %spec) = @_;
-    my $conf = $self->{handlers}{$phase} || return;
+    my $self = shift;
+    my $phase = shift;
+    my $init = pop if @_ % 2;
+    my %spec = @_;
+    my $conf = $self->{handlers}{$phase};
+    unless ($conf) {
+        return unless $init;
+        require HTTP::Config;
+        $conf = $self->{handlers}{$phase} = HTTP::Config->new;
+    }
     $spec{owner} = (caller(1))[3] unless exists $spec{owner};
-    return $conf->find(%spec);
+    my @h = $conf->find(%spec);
+    unless (@h && $init) {
+        if (ref($init) eq "CODE") {
+            $init->(\%spec);
+        }
+        elsif (ref($init) eq "HASH") {
+            while (my($k, $v) = each %$init) {
+                $spec{$k} = $v;
+            }
+        }
+        $spec{callback} ||= sub {};
+        $spec{line} ||= join(":", (caller)[1,2]);
+        $conf->add(\%spec);
+        return \%spec;
+    }
+    return wantarray ? @h : $h[0];
 }
 
 sub remove_handler {
@@ -1388,13 +1411,23 @@ The removed handlers are returned.
 
 =item $ua->set_my_handler( $phase, $cb, %matchspec )
 
-=item $ua->get_my_handler( $phase, %matchspec )
-
 Set handlers private to the executing subroutine.  Works by defaulting
 an C<owner> field to the %matchhspec that holds the name of the called
 subroutine.  You might pass an explicit C<owner> to override this.
 
 If $cb is passed as C<undef>, remove the handler.
+
+=item $ua->get_my_handler( $phase, %matchspec )
+
+=item $ua->get_my_handler( $phase, %matchspec, $init )
+
+The retrieve the matching handler as hash ref.
+
+If C<$init> is passed passed as a TRUE value, create and add the
+handler if it's not found.  If $init is a subroutine reference, then
+it's called with the created handler hash as argument.  This sub might
+populate the hash with extra fields; especially the callback.  If
+$init is a hash reference, merge the hashes.
 
 =item $ua->handlers( $phase, $request )
 

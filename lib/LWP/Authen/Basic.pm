@@ -8,29 +8,45 @@ sub authenticate
     my($class, $ua, $proxy, $auth_param, $response,
        $request, $arg, $size) = @_;
 
-    my($user, $pass) = $ua->get_basic_credentials($auth_param->{realm},
-                                                  $request->url, $proxy);
-    return $response unless defined $user and defined $pass;
-
+    my $realm = $auth_param->{realm} || "";
+    my $url = $request->uri_canonical;
+    my $host_port = $url->host_port;
     my $auth_header = $proxy ? "Proxy-Authorization" : "Authorization";
-    my $auth_value = "Basic " . MIME::Base64::encode("$user:$pass", "");
 
-    # Need to check this isn't a repeated fail!
-    my $r = $response;
-    while ($r) {
-	my $auth = $r->request->header($auth_header);
-	if ($auth && $auth eq $auth_value) {
-	    # here we know this failed before
-	    $response->header("Client-Warning" =>
-			      "Credentials for '$user' failed before");
-	    return $response;
-	}
-	$r = $r->previous;
+    my $h = $ua->get_my_handler("request_prepare", m_host_port => $host_port, realm => $realm);
+    unless ($h) {
+        my $_handler = sub {
+            my($req, $ua) = @_;
+            my($user, $pass) = $ua->credentials($host_port, $realm);
+            my $auth_value = "Basic " . MIME::Base64::encode("$user:$pass", "");
+            $req->header($auth_header => $auth_value);
+        };
+        $ua->set_my_handler("request_prepare", $_handler, m_host_port => $host_port, realm => $realm);
+        $h = $ua->get_my_handler("request_prepare", m_host_port => $host_port, realm => $realm);
+        die unless $h;
     }
 
-    my $referral = $request->clone;
-    $referral->header($auth_header => $auth_value);
-    return $ua->request($referral, $arg, $size, $response);
+    if (!$request->header($auth_header)) {
+        if ($ua->credentials($host_port, $realm)) {
+            add_path($h, $url->path);
+            return $ua->request($request->clone, $arg, $size, $response);
+        }
+    }
+
+    my($user, $pass) = $ua->get_basic_credentials($realm, $url, $proxy);
+    return $response unless defined $user and defined $pass;
+
+    # XXXX check for repeated fail
+
+    $ua->credentials($host_port, $realm, $user, $pass);
+    add_path($h, $url->path);
+    return $ua->request($request->clone, $arg, $size, $response);
+}
+
+sub add_path {
+    my($h, $path) = @_;
+    $path =~ s,[^/]+\z,,;
+    push(@{$h->{m_path_prefix}}, $path);
 }
 
 1;

@@ -126,6 +126,10 @@ my %MATCH = (
         my($v, $uri, $request) = @_;
         return $request && $request->method eq $v;
     },
+    m_proxy => sub {
+        my($v, $uri, $request) = @_;
+        return $request && ($request->{proxy} || "") eq $v;
+    },
     m_code => sub {
         my($v, $uri, $request, $response) = @_;
         $v =~ s/xx\z//;
@@ -353,6 +357,10 @@ Matches if the request method matches the specified value. Eg. "GET" or "POST".
 
 Matches if the response status code matches.  If a single digit is
 specified; matches for all response status codes beginning with that digit.
+
+=item m_proxy => $url
+
+Matches if the request is to be sent to the given Proxy server.
 
 =item m_media_type => "*/*"
 

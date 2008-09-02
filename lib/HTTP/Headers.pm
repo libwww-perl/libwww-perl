@@ -291,12 +291,12 @@ sub content_type      {
   wantarray ? @ct : $ct[0];
 }
 
-sub _is_html          {
+sub content_is_html {
     my $self = shift;
-    return $self->content_type eq 'text/html' || $self->_is_xhtml;
+    return $self->content_type eq 'text/html' || $self->content_is_xhtml;
 }
 
-sub _is_xhtml         {
+sub content_is_xhtml {
     my $ct = shift->content_type;
     for (qw(application/xhtml+xml application/vnd.wap.xhtml+xml)) {
         return 1 if $_ eq $ct;
@@ -541,7 +541,7 @@ values will be substituted with this line ending sequence.
 =head1 CONVENIENCE METHODS
 
 The most frequently used headers can also be accessed through the
-following convenience Methods.  These methods can both be used to read
+following convenience Methods.  Most of these methods can both be used to read
 and to set the value of a header.  The header value is set if you pass
 an argument to the method.  The old header value is always returned.
 If the given header did not exist then C<undef> is returned.
@@ -602,6 +602,17 @@ string is returned.  This makes it safe to do the following:
      # be 'TEXT/HTML; version=3.0'
      ...
   }
+
+=item $h->content_is_html
+
+Returns TRUE if the Content-Type header field indicate that the
+content is some kind of HTML (including XHTML).  This method can't be
+used to set Content-Type.
+
+=item $h->content_is_xhtml
+
+Returns TRUE if the Content-Type header field indicate that the
+content is XHTML.  This method can't be used to set Content-Type.
 
 =item $h->content_encoding
 

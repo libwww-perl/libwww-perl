@@ -135,8 +135,8 @@ my %MATCH = (
         return 1, 1 if $v eq "*/*";
         my $ct = $response->content_type;
         return 2, 1 if $v =~ s,/\*\z,, && $ct =~ m,^\Q$v\E/,;
-        return 3, 1 if $v eq "html" && $response->_is_html;
-        return 4, 1 if $v eq "html" && $response->_is_xhtml;
+        return 3, 1 if $v eq "html" && $response->content_is_html;
+        return 4, 1 if $v eq "html" && $response->content_is_xhtml;
         return 10, 1 if $v eq $ct;
         return 0;
     },

@@ -2,14 +2,16 @@
 
 use strict;
 use Test;
-plan tests => 12;
+plan tests => 14;
 
 use HTTP::Config;
 
 sub j { join("|", @_) }
 
 my $conf = HTTP::Config->new;
+ok($conf->empty);
 $conf->add_item(42);
+ok(!$conf->empty);
 ok(j($conf->matching_items("http://www.example.com/foo")), 42);
 ok(j($conf->remove_items), 42);
 ok($conf->matching_items("http://www.example.com/foo"), 0);

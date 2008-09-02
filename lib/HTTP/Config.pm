@@ -13,6 +13,11 @@ sub entries {
     @$self;
 }
 
+sub empty {
+    my $self = shift;
+    not @$self;
+}
+
 sub add {
     if (@_ == 2) {
         my $self = shift;
@@ -251,6 +256,10 @@ Constructor
 =item $conf->entries
 
 Returns the list of entries in the configuration object.
+
+=item $conf->empty
+
+Return true if there are no entries in the configuration object.
 
 =item $conf->add( %matchspec, %other )
 

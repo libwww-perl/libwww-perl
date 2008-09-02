@@ -586,9 +586,16 @@ sub redirect_ok
 
 sub credentials
 {
-    my($self, $netloc, $realm, $uid, $pass) = @_;
-    @{ $self->{'basic_authentication'}{lc($netloc)}{$realm} } =
-	($uid, $pass);
+    my $self = shift;
+    my $netloc = lc(shift);
+    my $realm = shift || "";
+    my $old = $self->{basic_authentication}{$netloc}{$realm};
+    if (@_) {
+        $self->{basic_authentication}{$netloc}{$realm} = [@_];
+    }
+    return unless $old;
+    return @$old if wantarray;
+    return join(":", @$old);
 }
 
 
@@ -596,13 +603,7 @@ sub get_basic_credentials
 {
     my($self, $realm, $uri, $proxy) = @_;
     return if $proxy;
-
-    my $host_port = lc($uri->host_port);
-    if (exists $self->{'basic_authentication'}{$host_port}{$realm}) {
-	return @{ $self->{'basic_authentication'}{$host_port}{$realm} };
-    }
-
-    return (undef, undef);
+    return $self->credentials($uri->host_port, $realm);
 }
 
 

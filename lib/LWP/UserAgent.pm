@@ -123,12 +123,7 @@ sub send_request
 
     $self->progress("begin", $request);
 
-    # run handlers
-    my $response;
-    for my $h ($self->handlers("request_send", $request)) {
-        $response = $h->($request, $self);
-        last if $response;
-    }
+    my $response = $self->run_handlers("request_send", $request);
 
     unless ($response) {
         my $protocol;
@@ -205,10 +200,7 @@ EOT
     $response->request($request);  # record request for reference
     $response->header("Client-Date" => HTTP::Date::time2str(time));
 
-    # run handlers
-    for my $h ($self->handlers("response_done", $response)) {
-        $h->($response, $self);
-    }
+    $self->run_handlers("response_done", $response);
 
     $self->progress("end", $response);
     return $response;
@@ -237,10 +229,7 @@ sub prepare_request
     Carp::croak("Bad request: URL missing") unless $url;
     Carp::croak("Bad request: URL must be absolute") unless $url->scheme;
 
-    # run handlers
-    for my $h ($self->handlers("request_preprepare", $request)) {
-        $h->($request, $self);
-    }
+    $self->run_handlers("request_preprepare", $request);
 
     my $max_size = $self->{max_size};
     if (defined $max_size) {
@@ -255,10 +244,7 @@ sub prepare_request
 	}
     }
 
-    # run handlers
-    for my $h ($self->handlers("request_prepare", $request)) {
-        $h->($request, $self);
-    }
+    $self->run_handlers("request_prepare", $request);
 
     return $request;
 }
@@ -296,10 +282,8 @@ sub request
 	}
     }
 
-    for my $h ($self->handlers("response_redirect", $response)) {
-        if (my $req = $h->($response, $self)) {
-            return $self->request($req, $arg, $size, $response);
-        }
+    if (my $req = $self->run_handlers("response_redirect", $response)) {
+        return $self->request($req, $arg, $size, $response);
     }
 
 
@@ -788,6 +772,21 @@ sub handlers {
         push(@h, map { $_->{callback} } $conf->matching($o));
     }
     return @h;
+}
+
+sub run_handlers {
+    my($self, $phase, $o) = @_;
+    if (defined(wantarray)) {
+        for my $h ($self->handlers($phase, $o)) {
+            my $ret = $h->($o, $self);
+            return $ret if $ret;
+        }
+        return undef;
+    }
+
+    for my $h ($self->handlers($phase, $o)) {
+        $h->($o, $self);
+    }
 }
 
 

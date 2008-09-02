@@ -121,9 +121,7 @@ sub collect
             die "Unexpected collect argument '$arg'";
         }
 
-        for my $h ($ua->handlers("response_header", $response)) {
-            $h->($response, $ua);
-        }
+        $ua->run_handlers("response_header", $response);
 
         if (delete $response->{default_add_content}) {
             push(@{$response->{handlers}{response_data}}, sub {

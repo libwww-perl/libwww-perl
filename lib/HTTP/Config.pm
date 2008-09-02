@@ -24,9 +24,9 @@ sub add {
     return;
 }
 
-sub remove {
+sub find2 {
     my($self, %spec) = @_;
-    my @removed;
+    my @found;
     my @rest;
  ITEM:
     for my $item (@$self) {
@@ -36,10 +36,24 @@ sub remove {
                 next ITEM;
             }
         }
-        push(@removed, $item);
+        push(@found, $item);
     }
-    @$self = @rest if @removed;
-    return @removed;
+    return \@found unless wantarray;
+    return \@found, \@rest;
+}
+
+sub find {
+    my $self = shift;
+    my $f = $self->find2(@_);
+    return @$f if wantarray;
+    return $f->[0];
+}
+
+sub remove {
+    my($self, %spec) = @_;
+    my($removed, $rest) = $self->find2(%spec);
+    @$self = @$rest if @$removed;
+    return @$removed;
 }
 
 my %MATCH = (

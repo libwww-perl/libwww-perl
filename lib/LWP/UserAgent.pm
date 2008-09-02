@@ -766,10 +766,10 @@ sub handlers {
     my($self, $phase, $o) = @_;
     my @h;
     if ($o->{handlers} && $o->{handlers}{$phase}) {
-        push(@h, @{$o->{handlers}{$phase}});
+        push(@h, map +{ callback => $_ }, @{$o->{handlers}{$phase}});
     }
     if (my $conf = $self->{handlers}{$phase}) {
-        push(@h, map { $_->{callback} } $conf->matching($o));
+        push(@h, $conf->matching($o));
     }
     return @h;
 }
@@ -778,14 +778,14 @@ sub run_handlers {
     my($self, $phase, $o) = @_;
     if (defined(wantarray)) {
         for my $h ($self->handlers($phase, $o)) {
-            my $ret = $h->($o, $self);
+            my $ret = $h->{callback}->($o, $self, $h);
             return $ret if $ret;
         }
         return undef;
     }
 
     for my $h ($self->handlers($phase, $o)) {
-        $h->($o, $self);
+        $h->{callback}->($o, $self, $h);
     }
 }
 
@@ -1336,7 +1336,7 @@ The possible values $phase are:
 
 =over
 
-=item request_preprepare => sub { my($request, $ua) = @_; ... }
+=item request_preprepare => sub { my($request, $ua, $h) = @_; ... }
 
 The handler is called before the C<request_prepare> and other standard
 initialization of of the request.  This can be used to set up headers
@@ -1344,7 +1344,7 @@ and attributes that the C<request_prepare> handler depends on.  Proxy
 initialization should take place here; but in general don't register
 handlers for this phase.
 
-=item request_prepare => sub { my($request, $ua) = @_; ... }
+=item request_prepare => sub { my($request, $ua, $h) = @_; ... }
 
 The handler is called before the request is sent and can modify the
 request any way it see hit.  This can for instance be used to add
@@ -1356,7 +1356,7 @@ request that is sent fully.
 The return value from the callback is ignored.  Exceptions are
 not trapped and are propagated to the outer request method.
 
-=item request_send => sub { my($request, $ua) = @_; ... }
+=item request_send => sub { my($request, $ua, $h) = @_; ... }
 
 This handler get a chance of handling requests before it's sent to the
 protocol handlers.  It should return an HTTP::Response object if it
@@ -1365,7 +1365,7 @@ wishes to terminate the processing; otherwise it should return nothing.
 The C<response_header> and C<response_data> handlers will not be
 invoked for this response, but the C<response_done> will be.
 
-=item response_header => sub { my($response, $ua) = @_; ... }
+=item response_header => sub { my($response, $ua, $h) = @_; ... }
 
 This handler is called right after the response headers have been
 received, but before any content data.  The handler might set up
@@ -1377,7 +1377,7 @@ directly.  This will initially be false if the $ua->request() method
 was called with a ':content_filename' or ':content_callbak' argument;
 otherwise true.
 
-=item response_data => sub { my($response, $ua, $data) = @_; ... }
+=item response_data => sub { my($response, $ua, $h, $data) = @_; ... }
 
 This handlers is called for each chunk of data received for the
 response.  The handler might croak to abort the request.
@@ -1385,13 +1385,13 @@ response.  The handler might croak to abort the request.
 This handler need to return a TRUE value to be called again for
 subsequent chunks for the same request.
 
-=item response_done => sub { my($response, $ua) = @_; ... }
+=item response_done => sub { my($response, $ua, $h) = @_; ... }
 
 The handler is called after the response has been fully received, but
 before any redirect handling is attempted.  The handler can be used to
 extract information or modify the response.
 
-=item response_redirect => sub { my($response, $ua) = @_; ... }
+=item response_redirect => sub { my($response, $ua, $h) = @_; ... }
 
 The handler is called in $ua->request after C<response_done>.  If the
 handler return an HTTP::Request object we'll start over with processing

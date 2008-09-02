@@ -125,7 +125,7 @@ sub collect
 
         if (delete $response->{default_add_content}) {
             push(@{$response->{handlers}{response_data}}, sub {
-                $_[0]->add_content($_[2]);
+                $_[0]->add_content($_[3]);
                 1;
             });
         }
@@ -138,7 +138,7 @@ sub collect
         while ($content = &$collector, length $$content) {
             for my $h ($ua->handlers("response_data", $response)) {
                 next if $skip_h{$h};
-                unless ($h->($response, $ua, $$content)) {
+                unless ($h->{callback}->($response, $ua, $h, $$content)) {
                     # XXX remove from $response->{handlers}{response_data} if present
                     $skip_h{$h}++;
                 }

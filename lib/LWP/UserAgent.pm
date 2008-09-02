@@ -718,12 +718,6 @@ sub add_handler {
         require HTTP::Config;
         HTTP::Config->new;
     };
-    if (my $args = $spec{args}) {
-        my $old_cb = $cb;
-        $cb = sub {
-            return $old_cb->(@$args, @_);
-        };
-    }
     $conf->add(%spec, callback => $cb);
 }
 

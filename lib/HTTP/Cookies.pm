@@ -237,6 +237,9 @@ sub extract_cookies
 			$expires++;
 		    }
 		}
+                elsif (!$first_param && lc($k) =~ /^(?:version|discard|ns-cookie)/) {
+                    # ignore
+                }
 		else {
 		    push(@cur, $k => $v);
 		}

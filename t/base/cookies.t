@@ -1,4 +1,4 @@
-print "1..44\n";
+print "1..45\n";
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -678,6 +678,17 @@ print "not " unless $c->as_string eq <<'EOT';  print "ok 44\n";
 Set-Cookie3: CUSTOMER=WILE_E_COYOTE; path="/"; domain=example.com; path_spec; discard; version=0
 EOT
 
+# Test Set-Cookie with version set
+$c = HTTP::Cookies->new;
+$res->header("Set-Cookie" => "foo=\"bar\";version=1");
+#print $res->as_string;
+$c->extract_cookies($res);
+#print $c->as_string;
+$req = HTTP::Request->new(GET => "http://www.example.com/foo");
+$c->add_cookie_header($req);
+#print $req->as_string;
+print "not " unless $req->header("Cookie") eq "foo=\"bar\"";
+print "ok 45\n";
 
 #-------------------------------------------------------------------
 

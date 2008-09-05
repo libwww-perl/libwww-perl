@@ -12,6 +12,7 @@ talk-to-ourself			Are we able to run tests talk HTTP to local server?
 lib/Bundle/LWP.pm               Defines prereq modules
 lib/File/Listing.pm		Parse directory listings
 lib/HTML/Form.pm                Parse <form>...</form>
+lib/HTTP/Config.pm              Look up stuff based on request/reponse properties
 lib/HTTP/Cookies.pm             Cookie storage and management
 lib/HTTP/Cookies/Netscape.pm    Deal with the Netscape cookie file format
 lib/HTTP/Cookies/Microsoft.pm   Deal with the Microsoft MSIE cookie file format
@@ -66,6 +67,7 @@ lwptut.pod			Libwww-perl tutorial
 t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/common-req.t		Test HTTP::Request::Common module
+t/base/config.t                 Test HTTP::Config module
 t/base/cookies.t                Test HTTP::Cookies module
 t/base/date.t			Test HTTP::Date module
 t/base/headers-auth.t		Test HTTP::Headers::Auth module

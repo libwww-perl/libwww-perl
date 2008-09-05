@@ -1,8 +1,8 @@
 ^blib/
 \.old$
 ^Makefile$
-^MANIFEST.bak$
-^MANIFEST.SKIP$
+^MANIFEST\.bak$
+^MANIFEST\.SKIP$
 ^pm_to_blib$
 ^#
 /#
@@ -19,3 +19,6 @@
 ^html/
 ^doc/
 ^SSL/
+^m/
+^xx
+\.tar\.gz$

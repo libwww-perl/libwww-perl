@@ -208,7 +208,8 @@ sub matching {
     }
     @m = sort { $b->{_order} cmp $a->{_order} } @m;
     delete $_->{_order} for @m;
-    return @m;
+    return @m if wantarray;
+    return $m[0];
 }
 
 sub add_item {
@@ -233,16 +234,25 @@ __END__
 
 =head1 NAME
 
-HTTP::Config - 
+HTTP::Config - Configuration for request and response objects
 
 =head1 SYNOPSIS
 
  use HTTP::Config;
+ my $c = HTTP::Config->new;
+ $c->add(m_domain => ".example.com", m_scheme => "http", verbose => 1);
+ 
+ use HTTP::Request;
+ my $request = HTTP::Request->new(GET => "http://www.example.com");
+ 
+ if (my @m = $c->matching($request)) {
+    print "Yadayada\n" if $m[0]->{verbose};
+ }
 
 =head1 DESCRIPTION
 
-An C<HTTP::Config> object is basically a list of entries (hashes) that
-can be matched against requests or request/response pairs.  It's
+An C<HTTP::Config> object is a list of entries that
+can be matched against request or request/response pairs.  Its
 purpose is to hold configuration data that can be looked up given a
 request or response object.
 
@@ -256,25 +266,29 @@ The following methods are provided:
 
 =item $conf = HTTP::Config->new
 
-Constructor
+Constructs a new empty C<HTTP::Config> object and returns it.
 
 =item $conf->entries
 
 Returns the list of entries in the configuration object.
+In scalar context returns the number of entries.
 
 =item $conf->empty
 
 Return true if there are no entries in the configuration object.
+This is just a shorthand for C<< not $conf->entries >>.
 
 =item $conf->add( %matchspec, %other )
 
 =item $conf->add( \%entry )
 
 Adds a new entry to the configuration.
+You can either pass separate key/value pairs or a hash reference.
 
 =item $conf->remove( %spec )
 
-Removes (and returns) the entries that match.
+Removes (and returns) the entries that have matches for all the key/value pairs in %spec.
+If %spec is empty this will match all entries; so it will empty the configuation object.
 
 =item $conf->matching( $uri, $request, $response )
 
@@ -286,7 +300,12 @@ Removes (and returns) the entries that match.
 
 Returns the entries that match the given $uri, $request and $response triplet.
 
+If called with a single $request object then the $uri is obtained by calling its 'uri_canonical' method.
+If called with a single $response object, then the request object is obtained by calling its 'request' method;
+and then the $uri is obtained as if a single $request was provided.
+
 The entries are returned with the most specific matches first.
+In scalar context returns the most specific match or C<undef> in none match.
 
 =item $conf->add_item( $item, %matchspec )
 
@@ -303,6 +322,9 @@ Wrappers that hides the entries themselves.
 The following keys on a configuration entry specify matching.  For all
 of these you can provide an array of values instead of a single value.
 The entry matches if at least one of the values in the array matches.
+
+Entries that require match against a response object attribute will never match
+unless a response object was provided.
 
 =over
 
@@ -373,6 +395,9 @@ Matches if the request is to be sent to the given Proxy server.
 =item m_media_type => "text/html"
 
 Matches if the response media type matches.
+
+With a value of "html" matches if $response->content_is_html returns TRUE.
+With a value of "xhtml" matches if $response->content_is_xhtml returns TRUE.
 
 =item m_uri__I<$method> => undef
 

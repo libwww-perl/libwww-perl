@@ -298,7 +298,7 @@ sub _read_header_lines {
     my $line_count = 0;
     my $max_header_lines = ${*$self}{'http_max_header_lines'};
     while (my $line = my_readline($self)) {
-	if ($line =~ /^(\S+)\s*:\s*(.*)/s) {
+	if ($line =~ /^(\S+?)\s*:\s*(.*)/s) {
 	    push(@headers, $1, $2);
 	}
 	elsif (@headers && $line =~ s/^\s+//) {

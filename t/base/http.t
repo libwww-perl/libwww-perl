@@ -1,6 +1,6 @@
 #!./perl -w
 
-print "1..15\n";
+print "1..16\n";
 
 use strict;
 #use Data::Dump ();
@@ -20,6 +20,7 @@ my $LF   = "\012";
 	     "/09" => "Hello${CRLF}World!${CRLF}",
 	     "/chunked" => "HTTP/1.1 200 OK${CRLF}Transfer-Encoding: chunked${CRLF}${CRLF}0002; foo=3; bar${CRLF}He${CRLF}1${CRLF}l${CRLF}2${CRLF}lo${CRLF}0000${CRLF}Content-MD5: xxx${CRLF}${CRLF}",
 	     "/head" => "HTTP/1.1 200 OK${CRLF}Content-Length: 16${CRLF}Content-Type: text/plain${CRLF}${CRLF}",
+	     "/colon-header" => "HTTP/1.1 200 OK${CRLF}Content-Type: text/plain${CRLF}Content-Length: 6${CRLF}Bad-Header: :foo${CRLF}${CRLF}Hello\n",
 	   },
     );
 
@@ -193,11 +194,16 @@ $res = $h->request(TRACE => "/");
 print "not " unless $res->{code} eq "200" && $res->{content} eq "TRACE / HTTP/1.0\r\n\r\n";
 print "ok 14\n";
 
+# check that headers with colons at the start of values don't break
+$res = $h->request(GET => '/colon-header');
+print "not " unless "@{$res->{headers}}" eq "Content-Type text/plain Content-Length 6 Bad-Header :foo";
+print "ok 15\n";
+
 require Net::HTTP;
 eval {
     $h = Net::HTTP->new;
 };
 print "# $@";
 print "not " unless $@;
-print "ok 15\n";
+print "ok 16\n";
 

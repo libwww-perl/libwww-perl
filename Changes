@@ -1,3 +1,47 @@
+2008-09-24   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.815
+
+     Gisle Aas (23):
+           We don't need to build the docs to run the tests.
+           Style tweaks.
+           The jigsaw service isn't up to much good these days.
+           HTTP::Cookies produces warnings for undefined cookie param names [RT#38480]
+           Typo fix; HTTP::Message will never include x-bzip2 in Accept-Encoding [RT#38617]
+           Added HTTP::Config module
+           Add methods to configure processing handlers.
+           100 Continue response not complete.
+           Use 3-arg open when response content to files.
+           Make the show_progress attribute official (by documenting it).
+           Start using handlers for driving the inner logic of LWP::UserAgent.
+           Expose the content_is_html and content_is_xhtml methods from HTTP::Headers.
+           Make credentials method able to get/set values.
+           An auth handler per realm.
+           Match proxy setting for request.
+           Set up separate handler for adding proxy authentication.
+           Add request_preprepare to be able to initialize proxy early enough.
+           Smarter get_my_handler() that can also create handlers.
+           Refactor; introduce run_handlers method
+           Pass in handler hash to the handler callback.
+           Don't let version=1 override behaviour if specified with a plan Set-Cookie header.
+           Remove handler when we don't have a username/password for the realm.
+           Make tests use Test.pm
+
+     Bron Gondwana (2):
+           Double-check that username or password has changed after a failed login.
+           Update Digest Authen to subclass Basic.
+
+     Ondrej Hanak (1):
+           Avoid running out of filehandles with DYNAMIC_FILE_UPLOAD.
+
+     Todd Lipcon (1):
+           Fixed parsing of header values starting with ':' [RT#39367]
+
+     amire80 (1):
+           Documentation typo fixes [RT#38203]
+
+
+
 2008-07-25   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.814

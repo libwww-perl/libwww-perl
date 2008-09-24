@@ -5,7 +5,7 @@ require 5.005;  # 4-arg substr
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "5.812";
+$VERSION = "5.815";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 

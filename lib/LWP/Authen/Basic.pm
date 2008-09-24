@@ -45,7 +45,10 @@ sub authenticate
 	return $response;
     }
 
-    # XXXX check for repeated fail
+    # check that the password has changed
+    my ($olduser, $oldpass) = $ua->credentials($host_port, $realm);
+    return $response if (defined $olduser and defined $oldpass and
+                         $user eq $olduser and $pass eq $oldpass);
 
     $ua->credentials($host_port, $realm, $user, $pass);
     add_path($h, $url->path) unless $proxy;

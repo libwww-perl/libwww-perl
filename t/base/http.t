@@ -1,8 +1,9 @@
-#!./perl -w
-
-print "1..16\n";
+#!perl -w
 
 use strict;
+use Test;
+
+plan tests => 34;
 #use Data::Dump ();
 
 my $CRLF = "\015\012";
@@ -119,91 +120,82 @@ $res = $h->request(GET => "/");
 
 #Data::Dump::dump($res);
 
-print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello\n";
-print "ok 1\n";
+ok($res->{code}, 200);
+ok($res->{content}, "Hello\n");
 
 $res = $h->request(GET => "/404");
-print "not " unless $res->{code} eq "404";
-print "ok 2\n";
+ok($res->{code}, 404);
 
 $res = $h->request(TRACE => "/foo");
-print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Keep-Alive: 300${CRLF}Connection: Keep-Alive${CRLF}Host: a${CRLF}${CRLF}";
-print "ok 3\n";
+ok($res->{code}, 200);
+ok($res->{content}, "TRACE /foo HTTP/1.1${CRLF}Keep-Alive: 300${CRLF}Connection: Keep-Alive${CRLF}Host: a${CRLF}${CRLF}");
 
 # try to turn off keep alive
 $h->keep_alive(0);
 $res = $h->request(TRACE => "/foo");
-print "not " unless $res->{code} eq "200" &&
-                    $res->{content} eq "TRACE /foo HTTP/1.1${CRLF}Connection: close${CRLF}Host: a${CRLF}${CRLF}";
-print "ok 4\n";
+ok($res->{code}, "200");
+ok($res->{content}, "TRACE /foo HTTP/1.1${CRLF}Connection: close${CRLF}Host: a${CRLF}${CRLF}");
 
 # try a bad one
 $res = $h->request(GET => "/bad1", [], {laxed => 1});
-print "not " unless $res->{code} eq "200" && $res->{message} eq "OK" &&
-                    "@{$res->{headers}}" eq "Server foo Content-type text/foo" &&
-                    $res->{content} eq "abc\n";
-print "ok 5\n";
+ok($res->{code}, "200");
+ok($res->{message}, "OK");
+ok("@{$res->{headers}}", "Server foo Content-type text/foo");
+ok($res->{content}, "abc\n");
 
 $res = $h->request(GET => "/bad1");
-print "not " unless $res->{error} =~ /Bad header/ && !$res->{code};
-print "ok 6\n";
+ok($res->{error} =~ /Bad header/);
+ok(!$res->{code});
 $h = undef;  # it is in a bad state now
 
 $h = HTTP->new("a") || die;  # reconnect
 $res = $h->request(GET => "/09", [], {laxed => 1});
-print "not " unless $res->{code} eq "200" && $res->{message} eq "Assumed OK" &&
-                    $res->{content} eq "Hello${CRLF}World!${CRLF}" &&
-                    $h->peer_http_version eq "0.9";
-print "ok 7\n";
+ok($res->{code}, "200");
+ok($res->{message}, "Assumed OK");
+ok($res->{content}, "Hello${CRLF}World!${CRLF}");
+ok($h->peer_http_version, "0.9");
 
 $res = $h->request(GET => "/09");
-print "not " unless $res->{error} =~ /^Bad response status line: 'Hello'/;
-print "ok 8\n";
+ok($res->{error} =~ /^Bad response status line: 'Hello'/);
 $h = undef;  # it's in a bad state again
 
 $h = HTTP->new(Host => "a", KeepAlive => 1, ReadChunkSize => 1) || die;  # reconnect
 $res = $h->request(GET => "/chunked");
-print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello" &&
-                    "@{$res->{headers}}" eq "Transfer-Encoding chunked Content-MD5 xxx";
-print "ok 9\n";
+ok($res->{code}, 200);
+ok($res->{content}, "Hello");
+ok("@{$res->{headers}}", "Transfer-Encoding chunked Content-MD5 xxx");
 
 # once more
 $res = $h->request(GET => "/chunked");
-print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello" &&
-                    "@{$res->{headers}}" eq "Transfer-Encoding chunked Content-MD5 xxx";
-print "ok 10\n";
+ok($res->{code}, "200");
+ok($res->{content}, "Hello");
+ok("@{$res->{headers}}", "Transfer-Encoding chunked Content-MD5 xxx");
 
 # test head
 $res = $h->request(HEAD => "/head");
-print "not " unless $res->{code} eq "200" && $res->{content} eq "" &&
-                    "@{$res->{headers}}"  eq "Content-Length 16 Content-Type text/plain";
-print "ok 11\n";
+ok($res->{code}, "200");
+ok($res->{content}, "");
+ok("@{$res->{headers}}", "Content-Length 16 Content-Type text/plain");
 
 $res = $h->request(GET => "/");
-print "not " unless $res->{code} eq "200" && $res->{content} eq "Hello\n";
-print "ok 12\n";
-#use Data::Dump; Data::Dump::dump($res);
-
+ok($res->{code}, "200");
+ok($res->{content}, "Hello\n");
 
 $h = HTTP->new(Host => undef, PeerAddr => "a", );
 $h->http_version("1.0");
-print "not " if defined $h->host;
-print "ok 13\n";
+ok(!defined $h->host);
 $res = $h->request(TRACE => "/");
-print "not " unless $res->{code} eq "200" && $res->{content} eq "TRACE / HTTP/1.0\r\n\r\n";
-print "ok 14\n";
+ok($res->{code}, "200");
+ok($res->{content}, "TRACE / HTTP/1.0\r\n\r\n");
 
 # check that headers with colons at the start of values don't break
 $res = $h->request(GET => '/colon-header');
-print "not " unless "@{$res->{headers}}" eq "Content-Type text/plain Content-Length 6 Bad-Header :foo";
-print "ok 15\n";
+ok("@{$res->{headers}}", "Content-Type text/plain Content-Length 6 Bad-Header :foo");
 
 require Net::HTTP;
 eval {
     $h = Net::HTTP->new;
 };
 print "# $@";
-print "not " unless $@;
-print "ok 16\n";
+ok($@);
 

@@ -1,4 +1,7 @@
-print "1..45\n";
+#!perl -w
+
+use Test;
+plan tests => 62;
 
 #use LWP::Debug '+';
 use HTTP::Cookies;
@@ -57,9 +60,8 @@ $c->extract_cookies($res);
 $req = HTTP::Request->new(GET => "http://www.acme.com/");
 $c->add_cookie_header($req);
 
-print "not " unless $req->header("Cookie") eq "CUSTOMER=WILE_E_COYOTE" &&
-                    $req->header("Cookie2") eq "\$Version=\"1\"";
-print "ok 1\n";
+ok($req->header("Cookie"), "CUSTOMER=WILE_E_COYOTE");
+ok($req->header("Cookie2"), "\$Version=\"1\"");
 
 $res->request($req);
 $res->header("Set-Cookie" => "PART_NUMBER=ROCKET_LAUNCHER_0001; path=/");
@@ -69,9 +71,8 @@ $req = HTTP::Request->new(GET => "http://www.acme.com/foo/bar");
 $c->add_cookie_header($req);
 
 $h = $req->header("Cookie");
-print "not " unless $h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/ &&
-                    $h =~ /CUSTOMER=WILE_E_COYOTE/;
-print "ok 2\n";
+ok($h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/);
+ok($h =~ /CUSTOMER=WILE_E_COYOTE/);
 
 $res->request($req);
 $res->header("Set-Cookie", "SHIPPING=FEDEX; path=/foo");
@@ -81,20 +82,18 @@ $req = HTTP::Request->new(GET => "http://www.acme.com/");
 $c->add_cookie_header($req);
 
 $h = $req->header("Cookie");
-print "not " unless $h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/ &&
-	            $h =~ /CUSTOMER=WILE_E_COYOTE/ &&
-	            $h !~ /SHIPPING=FEDEX/;
-print "ok 3\n";
+ok($h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/);
+ok($h =~ /CUSTOMER=WILE_E_COYOTE/);
+ok($h !~ /SHIPPING=FEDEX/);
 
 
 $req = HTTP::Request->new(GET => "http://www.acme.com/foo/");
 $c->add_cookie_header($req);
 
 $h = $req->header("Cookie");
-print "not " unless $h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/ &&
-	            $h =~ /CUSTOMER=WILE_E_COYOTE/ &&
-		    $h =~ /^SHIPPING=FEDEX;/;
-print "ok 4\n";
+ok($h =~ /PART_NUMBER=ROCKET_LAUNCHER_0001/);
+ok($h =~ /CUSTOMER=WILE_E_COYOTE/);
+ok($h =~ /^SHIPPING=FEDEX;/);
 
 print $c->as_string;
 
@@ -134,8 +133,7 @@ $c->extract_cookies($res);
 $req = HTTP::Request->new(GET => "http://www.acme.com/");
 $c->add_cookie_header($req);
 
-print "not " unless $req->header("Cookie") eq "PART_NUMBER=ROCKET_LAUNCHER_0001";
-print "ok 5\n";
+ok($req->header("Cookie"), "PART_NUMBER=ROCKET_LAUNCHER_0001");
 
 $res->request($req);
 $res->header("Set-Cookie", "PART_NUMBER=RIDING_ROCKET_0023; path=/ammo");
@@ -144,9 +142,8 @@ $c->extract_cookies($res);
 $req = HTTP::Request->new(GET => "http://www.acme.com/ammo");
 $c->add_cookie_header($req);
 
-print "not " unless $req->header("Cookie") =~
-       /^PART_NUMBER=RIDING_ROCKET_0023;\s*PART_NUMBER=ROCKET_LAUNCHER_0001/;
-print "ok 6\n";
+ok($req->header("Cookie") =~
+       /^PART_NUMBER=RIDING_ROCKET_0023;\s*PART_NUMBER=ROCKET_LAUNCHER_0001/);
 
 print $c->as_string;
 undef($c);
@@ -158,8 +155,7 @@ undef($c);
 
 $c = HTTP::Cookies->new;
 $c->extract_cookies(HTTP::Response->new("200", "OK"));
-print "not " if count_cookies($c) != 0;
-print "ok 7\n";
+ok(count_cookies($c), 0);
 
 
 #-------------------------------------------------------------------
@@ -191,8 +187,7 @@ $c = HTTP::Cookies->new;
 
 $cookie = interact($c, 'http://www.acme.com/acme/login',
                        'Customer="WILE_E_COYOTE"; Version="1"; Path="/acme"');
-print "not " if $cookie;
-print "ok 8\n";
+ok(!$cookie);
 
 # 
 #   3.  User Agent -> Server
@@ -213,8 +208,7 @@ print "ok 8\n";
 
 $cookie = interact($c, 'http://www.acme.com/acme/pickitem',
 		       'Part_Number="Rocket_Launcher_0001"; Version="1"; Path="/acme"');
-print "not " unless $cookie =~ m(^\$Version="?1"?; Customer="?WILE_E_COYOTE"?; \$Path="/acme"$);
-print "ok 9\n";
+ok($cookie =~ m(^\$Version="?1"?; Customer="?WILE_E_COYOTE"?; \$Path="/acme"$));
 
 # 
 #   5.  User Agent -> Server
@@ -237,10 +231,9 @@ print "ok 9\n";
 $cookie = interact($c, "http://www.acme.com/acme/shipping",
 		   'Shipping="FedEx"; Version="1"; Path="/acme"');
 
-print "not " unless $cookie =~ /^\$Version="?1"?;/ &&
-     $cookie =~ /Part_Number="?Rocket_Launcher_0001"?;\s*\$Path="\/acme"/ &&
-     $cookie =~ /Customer="?WILE_E_COYOTE"?;\s*\$Path="\/acme"/;
-print "ok 10\n";
+ok($cookie =~ /^\$Version="?1"?;/);
+ok($cookie =~ /Part_Number="?Rocket_Launcher_0001"?;\s*\$Path="\/acme"/);
+ok($cookie =~ /Customer="?WILE_E_COYOTE"?;\s*\$Path="\/acme"/);
 
 # 
 #   7.  User Agent -> Server
@@ -262,9 +255,8 @@ print "ok 10\n";
 
 $cookie = interact($c, "http://www.acme.com/acme/process");
 print "FINAL COOKIE: $cookie\n";
-print "not " unless $cookie =~ /Shipping="?FedEx"?;\s*\$Path="\/acme"/ &&
-                    $cookie =~ /WILE_E_COYOTE/;
-print "ok 11\n";
+ok($cookie =~ /Shipping="?FedEx"?;\s*\$Path="\/acme"/);
+ok($cookie =~ /WILE_E_COYOTE/);
 
 # 
 # The user agent makes a series of requests on the origin server, after
@@ -312,8 +304,7 @@ interact($c, "http://www.acme.com/acme/ammo/specific",
 # than once.
 
 $cookie = interact($c, "http://www.acme.com/acme/ammo/...");
-print "not " unless $cookie =~ /Riding_Rocket_0023.*Rocket_Launcher_0001/;
-print "ok 12\n";
+ok($cookie =~ /Riding_Rocket_0023.*Rocket_Launcher_0001/);
 
 # A subsequent request by the user agent to the (same) server for a URL of
 # the form /acme/parts/ would include the following request header:
@@ -325,9 +316,8 @@ print "ok 12\n";
 # the server.
 
 $cookie = interact($c, "http://www.acme.com/acme/parts/");
-print "not " unless $cookie =~ /Rocket_Launcher_0001/ &&
-		    $cookie !~ /Riding_Rocket_0023/;
-print "ok 13\n";
+ok($cookie =~ /Rocket_Launcher_0001/);
+ok($cookie !~ /Riding_Rocket_0023/);
 
 print $c->as_string;
 
@@ -339,58 +329,47 @@ $c = HTTP::Cookies->new;
 
 # illegal domain (no embedded dots)
 $cookie = interact($c, "http://www.acme.com", 'foo=bar; domain=".com"');
-print "not " if count_cookies($c) > 0;
-print "ok 14\n";
+ok(count_cookies($c), 0);
 
 # legal domain
 $cookie = interact($c, "http://www.acme.com", 'foo=bar; domain="acme.com"');
-print "not " if count_cookies($c) != 1;
-print "ok 15\n";
+ok(count_cookies($c), 1);
 
 # illegal domain (host prefix "www.a" contains a dot)
 $cookie = interact($c, "http://www.a.acme.com", 'foo=bar; domain="acme.com"');
-print "not " if count_cookies($c) != 1;
-print "ok 16\n";
+ok(count_cookies($c), 1);
 
 # legal domain
 $cookie = interact($c, "http://www.a.acme.com", 'foo=bar; domain=".a.acme.com"');
-print "not " if count_cookies($c) != 2;
-print "ok 17\n";
+ok(count_cookies($c), 2);
 
 # can't use a IP-address as domain
 $cookie = interact($c, "http://125.125.125.125", 'foo=bar; domain="125.125.125"');
-print "not " if count_cookies($c) != 2;
-print "ok 18\n";
+ok(count_cookies($c), 2);
 
 # illegal path (must be prefix of request path)
 $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; path="/foo"');
-print "not " if count_cookies($c) != 2;
-print "ok 19\n";
+ok(count_cookies($c), 2);
 
 # legal path
 $cookie = interact($c, "http://www.sol.no/foo/bar", 'foo=bar; domain=".sol.no"; path="/foo"');
-print "not " if count_cookies($c) != 3;
-print "ok 20\n";
+ok(count_cookies($c), 3);
 
 # illegal port (request-port not in list)
 $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90,100"');
-print "not " if count_cookies($c) != 3;
-print "ok 21\n";
+ok(count_cookies($c), 3);
 
 # legal port
 $cookie = interact($c, "http://www.sol.no", 'foo=bar; domain=".sol.no"; port="90,100, 80,8080"; max-age=100; Comment = "Just kidding! (\"|\\\\) "');
-print "not " if count_cookies($c) != 4;
-print "ok 22\n";
+ok(count_cookies($c), 4);
 
 # port attribute without any value (current port)
 $cookie = interact($c, "http://www.sol.no", 'foo9=bar; domain=".sol.no"; port; max-age=100;');
-print "not " if count_cookies($c) != 5;
-print "ok 23\n";
+ok(count_cookies($c), 5);
 
 # encoded path
 $cookie = interact($c, "http://www.sol.no/foo/", 'foo8=bar; path="/%66oo"');
-print "not " if count_cookies($c) != 6;
-print "ok 24\n";
+ok(count_cookies($c), 6);
 
 my $file = "lwp-cookies-$$.txt";
 $c->save($file);
@@ -401,8 +380,7 @@ $c = HTTP::Cookies->new;
 $c->load($file);
 unlink($file) || warn "Can't unlink $file: $!";
 
-print "not " unless $old eq $c->as_string;
-print "ok 25\n";
+ok($old, $c->as_string);
 
 undef($c);
 
@@ -414,12 +392,11 @@ interact($c, "http://www.acme.com/foo%2f%25/%40%40%0Anew%E5/%E5", 'foo  =   bar;
 print $c->as_string;
 
 $cookie = interact($c, "http://www.acme.com/foo%2f%25/@@%0anewå/æøå", "bar=baz; path=\"/foo/\"; version=1");
-print "not " unless $cookie =~ /foo=bar/ && $cookie =~ /^\$version=\"?1\"?/i;
-print "ok 26\n";
+ok($cookie =~ /foo=bar/);
+ok($cookie =~ /^\$version=\"?1\"?/i);
 
 $cookie = interact($c, "http://www.acme.com/foo/%25/@@%0anewå/æøå");
-print "not " if $cookie;
-print "ok 27\n";
+ok(!$cookie);
 
 undef($c);
 
@@ -435,11 +412,9 @@ $c->save;
 undef($c);
 
 $c = HTTP::Cookies::Netscape->new(file => $file);
-print "not " unless count_cookies($c) == 1;     # 2 of them discarded on save
-print "ok 28\n";
+ok(count_cookies($c), 1);     # 2 of them discarded on save
 
-print "not " unless $c->as_string =~ /foo1=bar/;
-print "ok 29\n";
+ok($c->as_string =~ /foo1=bar/);
 undef($c);
 unlink($file);
 
@@ -470,10 +445,8 @@ require URI;
 $req = HTTP::Request->new(POST => URI->new("http://foo.bar.acme.com/foo"));
 $c->add_cookie_header($req);
 #print $req->as_string;
-print "not " unless $req->header("Cookie") =~ /PART_NUMBER=3,4/ &&
-	            $req->header("Cookie") =~ /Customer=WILE_E_COYOTE/;
-print "ok 30\n";
-
+ok($req->header("Cookie") =~ /PART_NUMBER=3,4/);
+ok($req->header("Cookie") =~ /Customer=WILE_E_COYOTE/);
 
 
 # Test handling of local intranet hostnames without a dot
@@ -484,14 +457,13 @@ print "---\n";
 
 interact($c, "http://example/", "foo1=bar; PORT; Discard;");
 $_=interact($c, "http://example/", 'foo2=bar; domain=".local"');
-print "not " unless /foo1=bar/;
-print "ok 31\n";
+ok(/foo1=bar/);
 
 $_=interact($c, "http://example/", 'foo3=bar');
 $_=interact($c, "http://example/");
 print "Cookie: $_\n";
-print "not " unless /foo2=bar/ && count_cookies($c) == 3;
-print "ok 32\n";
+ok(/foo2=bar/);
+ok(count_cookies($c), 3);
 print $c->as_string;
 
 # Test for empty path
@@ -518,9 +490,8 @@ $req = HTTP::Request->new(GET => "http://www.ants.com/");
 $c->add_cookie_header($req);
 #print $req->as_string;
 
-print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
-                    $req->header("Cookie2") eq "\$Version=\"1\"";
-print "ok 33\n";
+ok($req->header("Cookie"), "JSESSIONID=ABCDERANDOM123");
+ok($req->header("Cookie2"), "\$Version=\"1\"");
 
 
 # missing path in the request URI
@@ -528,9 +499,8 @@ $req = HTTP::Request->new(GET => URI->new("http://www.ants.com:8080"));
 $c->add_cookie_header($req);
 #print $req->as_string;
 
-print "not " unless $req->header("Cookie") eq "JSESSIONID=ABCDERANDOM123" &&
-                    $req->header("Cookie2") eq "\$Version=\"1\"";
-print "ok 34\n";
+ok($req->header("Cookie"), "JSESSIONID=ABCDERANDOM123");
+ok($req->header("Cookie2"), "\$Version=\"1\"");
 
 # test mixing of Set-Cookie and Set-Cookie2 headers.
 # Example from http://www.trip.com/trs/trip/flighttracker/flight_tracker_home.xsl
@@ -562,7 +532,7 @@ $res->push_header("Set-Cookie2" => qq(JSESSIONID=fkumjm7nt1.JS24;Version=1;Disca
 $c = HTTP::Cookies->new;  # clear it
 $c->extract_cookies($res);
 print $c->as_string;
-print "not " unless $c->as_string eq <<'EOT'; print "ok 35\n";
+ok($c->as_string, <<'EOT');
 Set-Cookie3: trip.appServer=1111-0000-x-024; path="/"; domain=.trip.com; path_spec; discard; version=0
 Set-Cookie3: JSESSIONID=fkumjm7nt1.JS24; path="/trs"; domain=www.trip.com; path_spec; discard; version=1
 EOT
@@ -590,14 +560,10 @@ $c->scan( sub { $counter{"${_[2]}_before"}++ } );
 $c->clear_temporary_cookies();
 # How many now?
 $c->scan( sub { $counter{"${_[2]}_after"}++ } );
-print "not " if   # a permanent cookie got lost accidently
-                $counter{"perm_after"} != $counter{"perm_before"} or
-                  # a session cookie hasn't been cleared
-                $counter{"session_after"} != 0 or
-                  # we didn't have session cookies in the first place
-                $counter{"session_before"} == 0;
+ok($counter{"perm_after"}, $counter{"perm_before"}); # a permanent cookie got lost accidently
+ok($counter{"session_after"}, 0); # a session cookie hasn't been cleared
+ok($counter{"session_before"}, 3);  # we didn't have session cookies in the first place
 #print $c->as_string;
-print "ok 36\n";
 
 
 # Test handling of 'secure ' attribute for classic cookies
@@ -614,14 +580,12 @@ $c->extract_cookies($res);
 $req = HTTP::Request->new(GET => "http://www.acme.com/");
 $c->add_cookie_header($req);
 
-print "not " if $req->header("Cookie");
-print "ok 37\n";
+ok(!$req->header("Cookie"));
 
 $req->uri->scheme("https");
 $c->add_cookie_header($req);
 
-print "not " unless $req->header("Cookie") eq "CUSTOMER=WILE_E_COYOTE";
-print "ok 38\n";
+ok($req->header("Cookie"), "CUSTOMER=WILE_E_COYOTE");
 
 #print $req->as_string;
 #print $c->as_string;
@@ -629,21 +593,15 @@ print "ok 38\n";
 
 $req = HTTP::Request->new(GET => "ftp://ftp.activestate.com/");
 $c->add_cookie_header($req);
-
-print "not " if $req->header("Cookie");
-print "ok 39\n";
+ok(!$req->header("Cookie"));
 
 $req = HTTP::Request->new(GET => "file:/etc/motd");
 $c->add_cookie_header($req);
-
-print "not " if $req->header("Cookie");
-print "ok 40\n";
+ok(!$req->header("Cookie"));
 
 $req = HTTP::Request->new(GET => "mailto:gisle\@aas.no");
 $c->add_cookie_header($req);
-
-print "not " if $req->header("Cookie");
-print "ok 41\n";
+ok(!$req->header("Cookie"));
 
 
 # Test cookie called 'exipres' <https://rt.cpan.org/Ticket/Display.html?id=8108>
@@ -654,7 +612,7 @@ $res->request($req);
 $res->header("Set-Cookie" => "Expires=10101");
 $c->extract_cookies($res);
 #print $c->as_string;
-print "not " unless $c->as_string eq <<'EOT';  print "ok 42\n";
+ok($c->as_string, <<'EOT');
 Set-Cookie3: Expires=10101; path="/"; domain=example.com; discard; version=0
 EOT
 
@@ -664,7 +622,7 @@ $res->header("Set-Cookie" => ["CUSTOMER=WILE_E_COYOTE; path=/;", ""]);
 #print $res->as_string;
 $c->extract_cookies($res);
 #print $c->as_string;
-print "not " unless $c->as_string eq <<'EOT';  print "ok 43\n";
+ok($c->as_string, <<'EOT');
 Set-Cookie3: CUSTOMER=WILE_E_COYOTE; path="/"; domain=example.com; path_spec; discard; version=0
 EOT
 
@@ -674,7 +632,7 @@ $res->header("Set-Cookie" => "CUSTOMER=WILE_E_COYOTE;;path=/;");
 #print $res->as_string;
 $c->extract_cookies($res);
 #print $c->as_string;
-print "not " unless $c->as_string eq <<'EOT';  print "ok 44\n";
+ok($c->as_string, <<'EOT');
 Set-Cookie3: CUSTOMER=WILE_E_COYOTE; path="/"; domain=example.com; path_spec; discard; version=0
 EOT
 
@@ -687,8 +645,7 @@ $c->extract_cookies($res);
 $req = HTTP::Request->new(GET => "http://www.example.com/foo");
 $c->add_cookie_header($req);
 #print $req->as_string;
-print "not " unless $req->header("Cookie") eq "foo=\"bar\"";
-print "ok 45\n";
+ok($req->header("Cookie"), "foo=\"bar\"");
 
 #-------------------------------------------------------------------
 

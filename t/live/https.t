@@ -1,6 +1,8 @@
 #!perl -w
 
 use strict;
+use Test;
+
 use LWP::UserAgent;
 
 my $ua = LWP::UserAgent->new();
@@ -11,12 +13,9 @@ if ($res->code == 501 && $res->message =~ /Protocol scheme 'https' is not suppor
     exit;
 }
 
-print "1..2\n";
-print "not " unless $res->is_success;
-print "ok 1\n";
-
-print "not " unless $res->content =~ /Sun Microsystems/;
-print "ok 2\n";
+plan tests => 2;
+ok($res->is_success);
+ok($res->content =~ /Sun Microsystems/);
 
 my $cref = $res->content_ref;
 substr($$cref, 100) = "..." if length($$cref) > 100;

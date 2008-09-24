@@ -1,20 +1,10 @@
-print "1..5\n";
+#!perl -w
+
+use Test;
+plan tests => 5;
 
 use HTTP::Request;
 use HTTP::Negotiate;
-
-
-$no = 1;
-sub ok
-{
-    print "ok " . $no++ . "\n";
-}
-
-sub not_ok
-{
-    print "not ";
-    ok;
-}
 
 
  #  ID       QS     Content-Type             Encoding     Char-Set      Lang    Size
@@ -40,12 +30,7 @@ expect(\@a, [['var2' => 1],
 
 $a = choose($variants, $request);
 print "The chosen one is '$a'\n";
-if ($a eq 'var2') {
-    ok;
-}
-else {
-    not_ok;
-}
+ok($a, "var2");
 
 #------------------
 
@@ -76,12 +61,7 @@ $ENV{HTTP_ACCEPT_LANGUAGE}='DE,en,fr;Q=0.5,es;q=0.1';
 
 $a = choose($variants);
 
-if ($a eq 'var-de') {
-     ok;
-}
-else {
-     not_ok
-}
+ok($a, 'var-de');
 
 
 $variants = [
@@ -92,12 +72,7 @@ $variants = [
 
 $ENV{HTTP_ACCEPT_LANGUAGE}='en-US';
 $a = choose($variants);
-if ($a eq 'Generic English') {
-    ok;
-}
-else {
-    not_ok;
-}
+ok($a, 'Generic English');
 
 #------------------
 
@@ -113,19 +88,18 @@ sub expect
 	    ($vb, $qb) = @$b;
 	    if ($va ne $vb) {
 		print "$va == $vb ?\n";
-		not_ok;
+		ok(0);
 		return;
 	    }
 	    if (abs($qa - $qb) > 0.002) {
 		print "$qa ~= $qb ?\n";
-		not_ok;
+		ok(0);
 		return;
 	    }
 	}
 
     } until (!defined($a) || !defined($b));
-    return not_ok if defined($a) ne defined($b);
-    ok;
+    ok(defined($a), defined($b));
 }
 
 sub show_res

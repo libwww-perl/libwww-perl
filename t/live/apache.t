@@ -1,6 +1,9 @@
-print "1..1\n";
+#!perl -w
 
 use strict;
+use Test;
+plan tests => 6;
+
 use Net::HTTP;
 
 
@@ -10,7 +13,7 @@ my $s = Net::HTTP->new(Host => "www.apache.org",
 		       PeerHTTPVersion => "1.1",
 		       MaxLineLength => 512) || die "$@";
 
-for (1..1) {
+for (1..2) {
     $s->write_request(TRACE => "/libwww-perl",
 		      'User-Agent' => 'Mozilla/5.0',
 		      'Accept-Language' => 'no,en',
@@ -23,9 +26,8 @@ for (1..1) {
     }
     print "\n";
 
-    my $err;
-    $err++ unless $code eq "200";
-    $err++ unless $h{'Content-Type'} eq "message/http";
+    ok($code, "200");
+    ok($h{'Content-Type'}, "message/http");
 
     my $buf;
     while (1) {
@@ -36,15 +38,13 @@ for (1..1) {
     }
     $buf =~ s/\r//g;
 
-    $err++ unless $buf eq "TRACE /libwww-perl HTTP/1.1
+    ok($buf, <<EOT);
+TRACE /libwww-perl HTTP/1.1
 Host: www.apache.org
 User-Agent: Mozilla/5.0
 Accept-Language: no,en
 Accept: */*
 
-";
-
-    print "not " if $err;
-    print "ok $_\n";
+EOT
 }
 

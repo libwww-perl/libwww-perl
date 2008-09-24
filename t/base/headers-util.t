@@ -1,7 +1,9 @@
-use strict;
-use HTTP::Headers::Util qw(split_header_words join_header_words);
+#!perl -w
 
-my $extra_tests = 2;
+use strict;
+use Test;
+
+use HTTP::Headers::Util qw(split_header_words join_header_words);
 
 my @s_tests = (
 
@@ -26,36 +28,18 @@ my @s_tests = (
     'Basic; realm="\"foo\\\\bar\""'],
 );
 
-print "1..", @s_tests + $extra_tests, "\n";
+plan tests => @s_tests + 2;
 
-my $testno = 1;
-
-print "split_header_words() tests\n";
 for (@s_tests) {
    my($arg, $expect) = @$_;
    my @arg = ref($arg) ? @$arg : $arg;
 
    my $res = join_header_words(split_header_words(@arg));
-   if ($res ne $expect) {
-       print "\nUnexpected result: '$res'\n";
-       print "         Expected: '$expect'\n";
-       print "  when parsing '", join(", ", @arg), "'\n";
-       eval {
-	   require Data::Dumper;
-           my @p = split_header_words(@arg);
-           print Data::Dumper::Dumper(\@p);
-       };
-       print "not ";
-   }
-   print "ok ", $testno++, "\n";
+   ok($res, $expect);
 }
 
 
-print "Extra tests\n";
+print "# Extra tests\n";
 # some extra tests
-print "not " unless join_header_words("foo" => undef, "bar" => "baz")
-                    eq "foo; bar=baz";
-print "ok ", $testno++, "\n";
-
-print "not " unless join_header_words() eq "";
-print "ok ", $testno++, "\n";
+ok(join_header_words("foo" => undef, "bar" => "baz"), "foo; bar=baz");
+ok(join_header_words(), "");

@@ -1,6 +1,8 @@
-print "1..3\n";
-
 use strict;
+use Test;
+
+plan tests => 5;
+
 use LWP::UserAgent;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
@@ -11,15 +13,16 @@ my $res = $ua->request($req);
 
 #print $res->as_string;
 
-print "not " unless $res->code eq "401";
-print "ok 1\n";
+ok($res->code, 401);
 
 $req->authorization_basic('guest', 'guest');
-$res = $ua->request($req);
+$res = $ua->simple_request($req);
+
+print $req->as_string, "\n";
 
 #print $res->as_string;
-print "not " unless $res->code eq "200" && $res->content =~ /Your browser made it!/;
-print "ok 2\n";
+ok($res->code, 200);
+ok($res->content =~ /Your browser made it!/);
 
 {
    package MyUA;
@@ -30,9 +33,9 @@ print "ok 2\n";
 
    sub get_basic_credentials {
 	my($self,$realm, $uri, $proxy) = @_;
-	print "$realm/$uri/$proxy\n";
+	#print "$realm/$uri/$proxy\n";
 	my $p = shift @try;
-	print join("/", @$p), "\n";
+	#print join("/", @$p), "\n";
 	return @$p;
    }
 
@@ -45,7 +48,6 @@ $res = $ua->request($req);
 
 #print $res->as_string;
 
-print "not " unless $res->content =~ /Your browser made it!/ &&
-	            $res->header("Client-Response-Num") == 5;
-print "ok 3\n";
+ok($res->content =~ /Your browser made it!/);
+ok($res->header("Client-Response-Num"), 5);
 

@@ -1,3 +1,7 @@
+#!perl -w
+
+use Test;
+
 use LWP::MediaTypes;
 
 require URI::URL;
@@ -42,8 +46,7 @@ else {
  ["x.ppm.Z.UU"		=> "image/x-portable-pixmap","compress","x-uuencode",],
 );
 
-$notests = @tests + 3;
-print "1..$notests\n";
+plan tests => @tests * 3 + 4;
 
 if ($ENV{HOME} and -f "$ENV{HOME}/.mime.types") {
    warn "
@@ -53,44 +56,29 @@ If you get a failed test, try to move it away while testing.
 }
 
 
-$testno = 1;
 for (@tests) {
     ($file, $expectedtype, @expectedEnc) = @$_;
     $type1 = guess_media_type($file);
     ($type, @enc) = guess_media_type($file);
-    if ($type1 ne $type) {
-       print "guess_media_type does not return same content-type in scalar and array conext.\n";
-	next;
-    }
-    $type = "undef" unless defined $type;
-    if ($type eq $expectedtype and "@enc" eq "@expectedEnc") {
-	print "ok $testno\n";
-    }
-    else {
-	print "expected '$expectedtype' for '$file', got '$type'\n";
-	print "encoding: expected: '@expectedEnc', got '@enc'\n"
-	  if @expectedEnc || @enc;
-	print "nok ok $testno\n";
-    }
-    $testno++;
+    ok($type1, $type);
+    ok($type, $expectedtype);
+    ok("@enc", "@expectedEnc");
 }
 
 @imgSuffix = media_suffix('image/*');
-print "Image suffixes: @imgSuffix\n";
+print "# Image suffixes: @imgSuffix\n";
+ok(grep $_ eq "gif", @imgSuffix);
 
-print "\n";
 require HTTP::Response;
 $r = new HTTP::Response 200, "Document follows";
 $r->title("file.tar.gz.uu");
 guess_media_type($r->title, $r);
-print $r->as_string;
+#print $r->as_string;
 
-print "not " unless $r->content_type eq "application/x-tar";
-print "ok $testno\n"; $testno++;
+ok($r->content_type, "application/x-tar");
 
 @enc = $r->header("Content-Encoding");
-print "not " unless "@enc" eq "gzip x-uuencode";
-print "ok $testno\n"; $testno++;
+ok("@enc", "gzip x-uuencode");
 
 #
 use LWP::MediaTypes qw(add_type add_encoding);
@@ -100,8 +88,7 @@ add_encoding(rot13 => "r13");
 
 @x = guess_media_type("foo.vrml.r13.gz");
 #print "@x\n";
-print "not " unless "@x" eq "x-world/x-vrml rot13 x-gzip";
-print "ok $testno\n"; $testno++;
+ok("@x", "x-world/x-vrml rot13 x-gzip");
 
 #print LWP::MediaTypes::_dump();
 

@@ -1,28 +1,29 @@
-print "1..4\n";
+#!perl -w
+
+use strict;
+use Test;
+
+plan tests => 4;
 
 require HTTP::Headers::ETag;
 
-$h = HTTP::Headers->new;
+my $h = HTTP::Headers->new;
+
 $h->etag("tag1");
-print "not " unless $h->etag eq qq("tag1");
-print "ok 1\n";
+ok($h->etag, qq("tag1"));
 
 $h->etag("w/tag2");
-print "not " unless $h->etag eq qq(W/"tag2");
-print "ok 2\n";
+ok($h->etag, qq(W/"tag2"));
 
 $h->if_match(qq(W/"foo", bar, baz), "bar");
 $h->if_none_match(333);
 
 $h->if_range("tag3");
-print "not " unless $h->if_range eq qq("tag3");
-print "ok 3\n";
+ok($h->if_range, qq("tag3"));
 
-$t = time;
+my $t = time;
 $h->if_range($t);
-print "not " unless $h->if_range == $t;
-print "ok 4\n";
-
+ok($h->if_range, $t);
 
 print $h->as_string;
 

@@ -26,7 +26,9 @@ unless ($TMPDIR) {
    exit;
 }
 $TMPDIR =~ tr|\\|/|;
-print "1..2\n";
+
+use Test;
+plan tests => 2;
 
 use LWP::Simple;
 require LWP::Protocol::file;
@@ -37,7 +39,7 @@ my $copy = "$TMPDIR/lwp-copy-$$"; 	    # downloaded copy
 # First we create the original
 open(OUT, ">$orig") or die "Cannot open $orig: $!";
 binmode(OUT);
-for (1..100) {
+for (1..5) {
     print OUT "This is line $_ of $orig\n";
 }
 close(OUT);
@@ -65,12 +67,7 @@ close(IN);
 
 unlink($copy);
 
-if ($origtext eq $copytext) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
+ok($copytext, $origtext);
 
 
 # Test getstore() function
@@ -86,9 +83,4 @@ close(IN);
 unlink($orig);
 unlink($copy);
 
-if ($origtext eq $copytext) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
+ok($copytext, $origtext);

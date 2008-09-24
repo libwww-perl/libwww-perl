@@ -1,41 +1,42 @@
-print "1..4\n";
+#!perl -w
+
+use strict;
+use Test;
+
+plan tests => 6;
 
 use HTTP::Response;
 use HTTP::Headers::Auth;
 
-$res = HTTP::Response->new(401);
+my $res = HTTP::Response->new(401);
 $res->push_header(WWW_Authenticate => qq(Foo realm="WallyWorld", foo=bar, Bar realm="WallyWorld2"));
 $res->push_header(WWW_Authenticate => qq(Basic Realm="WallyWorld", foo=bar, bar=baz));
 
 print $res->as_string;
 
-%auth = $res->www_authenticate;
+my %auth = $res->www_authenticate;
 
-print "not " unless keys(%auth) == 3;
-print "ok 1\n";
+ok(keys(%auth), 3);
 
-print "not " unless $auth{basic}{realm} eq "WallyWorld" &&
-                    $auth{bar}{realm} eq "WallyWorld2";
-print "ok 2\n";
+ok($auth{basic}{realm}, "WallyWorld");
+ok($auth{bar}{realm}, "WallyWorld2");
 
 $a = $res->www_authenticate;
-print "not " unless $a eq 'Foo realm="WallyWorld", foo=bar, Bar realm="WallyWorld2", Basic Realm="WallyWorld", foo=bar, bar=baz';
-print "ok 3\n";
+ok($a, 'Foo realm="WallyWorld", foo=bar, Bar realm="WallyWorld2", Basic Realm="WallyWorld", foo=bar, bar=baz');
 
 $res->www_authenticate("Basic realm=foo1");
 print $res->as_string;
 
-$res->www_authenticate(Basic => {realm => foo2});
+$res->www_authenticate(Basic => {realm => "foo2"});
 print $res->as_string;
 
-$res->www_authenticate(Basic => [realm => foo3, foo=>33],
+$res->www_authenticate(Basic => [realm => "foo3", foo=>33],
                        Digest => {nonce=>"bar", foo=>'foo'});
 print $res->as_string;
 
 $_ = $res->as_string;
 
-print "not " unless /WWW-Authenticate: Basic realm="foo3", foo=33/ &&
-                    (/WWW-Authenticate: Digest nonce=bar, foo=foo/ ||
-                     /WWW-Authenticate: Digest foo=foo, nonce=bar/);
-print "ok 4\n";
+ok(/WWW-Authenticate: Basic realm="foo3", foo=33/);
+ok(/WWW-Authenticate: Digest nonce=bar, foo=foo/ ||
+   /WWW-Authenticate: Digest foo=foo, nonce=bar/);
 

@@ -1,5 +1,7 @@
-print "1..10\n";
+#!perl -w
 
+use Test;
+plan tests => 10;
 
 use File::Listing;
 
@@ -51,14 +53,12 @@ EOL
 
 @dir = parse_dir($dir, undef, 'unix');
 
-print int(@dir) ." lines found\n";
-@dir != 25 && print "not ";
-print "ok 1\n";
+ok(@dir, 25);
 
 for (@dir) {
    ($name, $type, $size, $mtime, $mode) = @$_;
    $size ||= 0;  # ensure that it is defined
-   printf "%-25s $type %6d  ", $name, $size;
+   printf "# %-25s $type %6d  ", $name, $size;
    print scalar(localtime($mtime));
    printf "  %06o", $mode;
    print "\n";
@@ -67,38 +67,25 @@ for (@dir) {
 # Pick out the Socket.pm line as the sample we check carefully
 ($name, $type, $size, $mtime, $mode) = @{$dir[9]};
 
-$name eq "Socket.pm" || print "not ";
-print "ok 2\n";
-
-$type eq "f" || print "not ";
-print "ok 3\n";
-
-$size == 8817 || print "not ";
-print "ok 4\n";
+ok($name, "Socket.pm");
+ok($type, "f");
+ok($size, 8817);
 
 # Must be careful when checking the time stamps because we don't know
 # which year if this script lives for a long time.
 $timestring = scalar(localtime($mtime));
-$timestring =~ /Mar\s+15\s+18:05/ or print "not ";
-print "ok 5\n";
+ok($timestring =~ /Mar\s+15\s+18:05/);
 
-$mode == 0100644 || print "not ";
-print "ok 6\n";
+ok($mode, 0100644);
 
 @dir = parse_dir(<<'EOT');
 drwxr-xr-x 21 root root 704 2007-03-22 21:48 dir
 EOT
 
-print "not " unless @dir == 1;
-print "ok 7\n";
-
-print "not " unless $dir[0][0] eq "dir";
-print "ok 8\n";
-
-print "not " unless $dir[0][1] eq "d";
-print "ok 9\n";
+ok(@dir, 1);
+ok($dir[0][0], "dir");
+ok($dir[0][1], "d");
 
 $timestring = scalar(localtime($dir[0][3]));
 print "# $timestring\n";
-print "not " unless $timestring =~ /^Thu Mar 22 21:48/;
-print "ok 10\n";
+ok($timestring =~ /^Thu Mar 22 21:48/);

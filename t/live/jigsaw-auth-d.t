@@ -1,6 +1,8 @@
-print "1..1\n";
-
 use strict;
+use Test;
+
+plan tests => 2;
+
 use LWP::UserAgent;
 
 {
@@ -12,7 +14,7 @@ use LWP::UserAgent;
 
    sub get_basic_credentials {
 	my($self,$realm, $uri, $proxy) = @_;
-	print "$realm/$uri/$proxy\n";
+	print "$realm:$uri:$proxy => ";
 	my $p = shift @try;
 	print join("/", @$p), "\n";
 	return @$p;
@@ -27,7 +29,5 @@ my $res = $ua->request($req);
 
 #print $res->as_string;
 
-print "not " unless $res->content =~ /Your browser made it!/ &&
-	            $res->header("Client-Response-Num") == 5;
-print "ok 1\n";
-
+ok($res->content =~ /Your browser made it!/);
+ok($res->header("Client-Response-Num"), 5);

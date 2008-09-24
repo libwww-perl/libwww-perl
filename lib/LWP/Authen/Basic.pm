@@ -3,6 +3,11 @@ use strict;
 
 require MIME::Base64;
 
+sub auth_header {
+    my($class, $user, $pass) = @_;
+    return "Basic " . MIME::Base64::encode("$user:$pass", "");
+}
+
 sub authenticate
 {
     my($class, $ua, $proxy, $auth_param, $response,
@@ -14,29 +19,31 @@ sub authenticate
     my $host_port = $url->host_port;
     my $auth_header = $proxy ? "Proxy-Authorization" : "Authorization";
 
-    my @m = (m_host_port => $host_port, realm => $realm);
-    if ($proxy) {
-        @m = (m_proxy => $url);
-    }
+    my @m = $proxy ? (m_proxy => $url) : (m_host_port => $host_port);
+    push(@m, realm => $realm);
 
     my $h = $ua->get_my_handler("request_prepare", @m, sub {
         $_[0]{callback} = sub {
-            my($req, $ua) = @_;
-            my($user, $pass) = $ua->credentials($host_port, $realm);
-            my $auth_value = "Basic " . MIME::Base64::encode("$user:$pass", "");
-            $req->header($auth_header => $auth_value);
-        }
+            my($req, $ua, $h) = @_;
+            my($user, $pass) = $ua->credentials($host_port, $h->{realm});
+	    if (defined $user) {
+		my $auth_value = $class->auth_header($user, $pass, $h);
+		$req->header($auth_header => $auth_value);
+	    }
+        };
     });
 
-    if (!$request->header($auth_header)) {
-        if ($ua->credentials($host_port, $realm)) {
-            add_path($h, $url->path) unless $proxy;
-            return $ua->request($request->clone, $arg, $size, $response);
-        }
+    if (!$proxy && !$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
+	# we can make sure this handler applies and retry
+        add_path($h, $url->path);
+        return $ua->request($request->clone, $arg, $size, $response);
     }
 
     my($user, $pass) = $ua->get_basic_credentials($realm, $url, $proxy);
-    return $response unless defined $user and defined $pass;
+    unless (defined $user and defined $pass) {
+	$ua->set_my_handler("request_prepare", undef, @m);  # delete handler
+	return $response;
+    }
 
     # XXXX check for repeated fail
 

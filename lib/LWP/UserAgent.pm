@@ -731,7 +731,7 @@ sub get_my_handler {
     }
     $spec{owner} = (caller(1))[3] unless exists $spec{owner};
     my @h = $conf->find(%spec);
-    unless (@h && $init) {
+    if (!@h && $init) {
         if (ref($init) eq "CODE") {
             $init->(\%spec);
         }

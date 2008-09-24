@@ -103,7 +103,7 @@ sub collect
         elsif (!ref($arg) && length($arg)) {
             open(my $fh, ">", $arg) || die "Can't write to '$arg': $!";
             push(@{$response->{handlers}{response_data}}, sub {
-                print $fh $_[2] || die "Can't write to '$arg': $!";
+                print $fh $_[3] || die "Can't write to '$arg': $!";
                 1;
             });
             push(@{$response->{handlers}{response_done}}, sub {
@@ -113,7 +113,7 @@ sub collect
         }
         elsif (ref($arg) eq 'CODE') {
             push(@{$response->{handlers}{response_data}}, sub {
-                &$arg($_[2], $_[0], $self);
+                &$arg($_[3], $_[0], $self);
                 1;
             });
         }

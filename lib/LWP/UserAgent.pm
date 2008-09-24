@@ -616,7 +616,7 @@ sub parse_head {
                push(@{$response->{handlers}{response_data}}, sub {
                    print "P\n";
                    return unless $parser;
-                   $parser->parse($_[2]) or undef($parser);
+                   $parser->parse($_[3]) or undef($parser);
                });
 
             } : undef,

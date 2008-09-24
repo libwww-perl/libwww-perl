@@ -614,7 +614,6 @@ sub parse_head {
                $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
 
                push(@{$response->{handlers}{response_data}}, sub {
-                   print "P\n";
                    return unless $parser;
                    $parser->parse($_[3]) or undef($parser);
                });

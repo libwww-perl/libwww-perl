@@ -27,11 +27,12 @@ sub authenticate
             my($req, $ua, $h) = @_;
             my($user, $pass) = $ua->credentials($host_port, $h->{realm});
 	    if (defined $user) {
-		my $auth_value = $class->auth_header($user, $pass, $h);
+		my $auth_value = $class->auth_header($user, $pass, $req, $ua, $h);
 		$req->header($auth_header => $auth_value);
 	    }
         };
     });
+    $h->{auth_param} = $auth_param;
 
     if (!$proxy && !$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
 	# we can make sure this handler applies and retry

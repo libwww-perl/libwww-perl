@@ -1,16 +1,14 @@
 package LWP::Authen::Digest;
+
 use strict;
+use base 'LWP::Authen::Basic';
 
 require Digest::MD5;
 
-sub authenticate
-{
-    my($class, $ua, $proxy, $auth_param, $response,
-       $request, $arg, $size) = @_;
+sub auth_header {
+    my($class, $user, $pass, $request, $ua, $h) = @_;
 
-    my($user, $pass) = $ua->get_basic_credentials($auth_param->{realm},
-                                                  $request->url, $proxy);
-    return $response unless defined $user and defined $pass;
+    my $auth_param = $h->{auth_param};
 
     my $nc = sprintf "%08X", ++$ua->{authen_md5_nonce_count}{$auth_param->{nonce}};
     my $cnonce = sprintf "%8x", time;
@@ -63,28 +61,8 @@ sub authenticate
 	push(@pairs, "$_=" . qq("$resp{$_}"));
     }
 
-    my $auth_header = $proxy ? "Proxy-Authorization" : "Authorization";
     my $auth_value  = "Digest " . join(", ", @pairs);
-
-    # Need to check this isn't a repeated fail!
-    my $r = $response;
-    while ($r) {
-	my $u = $r->request->{digest_user_pass};
-	if ($u && $u->[0] eq $user && $u->[1] eq $pass) {
-	    # here we know this failed before
-	    $response->header("Client-Warning" =>
-			      "Credentials for '$user' failed before");
-	    return $response;
-	}
-	$r = $r->previous;
-    }
-
-    my $referral = $request->clone;
-    $referral->header($auth_header => $auth_value);
-    # we shouldn't really do this, but...
-    $referral->{digest_user_pass} = [$user, $pass];
-
-    return $ua->request($referral, $arg, $size, $response);
+    return $auth_value;
 }
 
 1;

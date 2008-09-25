@@ -1026,7 +1026,7 @@ The following options correspond to attribute methods described below:
 
    KEY                     DEFAULT
    -----------             --------------------
-   agent                   "libwww-perl/#.##"
+   agent                   "libwww-perl/#.###"
    from                    undef
    conn_cache              undef
    cookie_jar              undef
@@ -1089,7 +1089,7 @@ Examples are:
 =item $ua->_agent
 
 Returns the default agent identifier.  This is a string of the form
-"libwww-perl/#.##", where "#.##" is substituted with the version number
+"libwww-perl/#.###", where "#.###" is substituted with the version number
 of this library.
 
 =item $ua->from
@@ -1157,12 +1157,13 @@ $value ). Example:
 Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache>
 for details.
 
+=item $ua->credentials( $netloc, $realm )
+
 =item $ua->credentials( $netloc, $realm, $uname, $pass )
 
-Set the user name and password to be used for a realm.  It is often more
-useful to specialize the get_basic_credentials() method instead.
+Get/set the user name and password to be used for a realm.
 
-The $netloc a string of the form "<host>:<port>".  The username and
+The $netloc is a string of the form "<host>:<port>".  The username and
 password will only be passed to this server.  Example:
 
   $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
@@ -1322,16 +1323,17 @@ C<CGI_HTTP_PROXY> environment variable can be used instead.
 =head2 Handlers
 
 Handlers are code that injected at various phases during the
-processing of requests.
+processing of requests.  The following methods are provided to manage
+the active handlers:
 
 =over
 
 =item $ua->add_handler( $phase => \&cb, %matchspec )
 
 Add handler to be invoked in the given processing phase.  For how to
-specify %matchspec see L<HTTP::Config>.
+specify %matchspec see L<HTTP::Config/"Matching">.
 
-The possible values $phase are:
+The possible values $phase and the corresponding callback signatures are:
 
 =over
 
@@ -1404,6 +1406,10 @@ this request instead.
 
 Remove handlers that match the given %matchspec.  If $phase is not
 provided remove handlers from all phases.
+
+Be careful as calling this function with %matchspec that is not not
+specific enough can remove handlers not owned by you.  It's probably
+better to use the set_my_handler() method instead.
 
 The removed handlers are returned.
 

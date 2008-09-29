@@ -1,3 +1,13 @@
+2008-09-29   Gisle Aas <gisle@ActiveState.com>
+
+     Release 5.816
+
+     Gisle Aas (2):
+           Add missing binmode() [RT#39668]
+           Doc tweaks
+
+
+
 2008-09-24   Gisle Aas <gisle@ActiveState.com>
 
      Release 5.815

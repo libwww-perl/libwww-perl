@@ -354,6 +354,7 @@ sub request
     $response->protocol("HTTP/$peer_http_version");
     while (@h) {
 	my($k, $v) = splice(@h, 0, 2);
+	local $HTTP::Headers::TRANSLATE_UNDERSCORE;
 	$response->push_header($k, $v);
     }
     $response->push_header("Client-Junk" => \@junk) if @junk;
@@ -392,6 +393,7 @@ sub request
     @h = $socket->get_trailers;
     while (@h) {
 	my($k, $v) = splice(@h, 0, 2);
+	local $HTTP::Headers::TRANSLATE_UNDERSCORE;
 	$response->push_header($k, $v);
     }
 

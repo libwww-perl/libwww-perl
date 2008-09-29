@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 104;
+plan tests => 105;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -48,6 +48,8 @@ $m = HTTP::Message->parse("foo");
 ok($m->as_string, "\nfoo\n");
 $m = HTTP::Message->parse("foo: 1");
 ok($m->as_string, "Foo: 1\n\n");
+$m = HTTP::Message->parse("foo_bar: 1");
+ok($m->as_string, "Foo_bar: 1\n\n");
 $m = HTTP::Message->parse("foo: 1\n\nfoo");
 ok($m->as_string, "Foo: 1\n\nfoo\n");
 $m = HTTP::Message->parse(<<EOT);

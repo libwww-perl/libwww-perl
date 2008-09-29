@@ -68,7 +68,7 @@ sub parse
 	    last;
 	}
     }
-
+    local $HTTP::Headers::TRANSLATE_UNDERSCORE;
     new($class, \@hdr, $str);
 }
 

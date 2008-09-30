@@ -3,7 +3,7 @@ package HTTP::Status;
 use strict;
 require 5.002;   # because we use prototypes
 
-use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -76,17 +76,22 @@ my ($code, $message);
 while (($code, $message) = each %StatusCode) {
     # create mnemonic subroutines
     $message =~ tr/a-z \-/A-Z__/;
-    $mnemonicCode .= "sub RC_$message () { $code }\t";
-    # make them exportable
+    $mnemonicCode .= "sub HTTP_$message () { $code }\n";
+    $mnemonicCode .= "*RC_$message = \\&HTTP_$message;\n";  # legacy
+    $mnemonicCode .= "push(\@EXPORT_OK, 'HTTP_$message');\n";
     $mnemonicCode .= "push(\@EXPORT, 'RC_$message');\n";
 }
-# warn $mnemonicCode; # for development
 eval $mnemonicCode; # only one eval for speed
 die if $@;
 
 # backwards compatibility
 *RC_MOVED_TEMPORARILY = \&RC_FOUND;  # 302 was renamed in the standard
 push(@EXPORT, "RC_MOVED_TEMPORARILY");
+
+%EXPORT_TAGS = (
+   constants => [grep /^HTTP_/, @EXPORT_OK],
+   is => [grep /^is_/, @EXPORT, @EXPORT_OK],
+);
 
 
 sub status_message  ($) { $StatusCode{$_[0]}; }
@@ -109,9 +114,9 @@ HTTP::Status - HTTP Status code processing
 
 =head1 SYNOPSIS
 
- use HTTP::Status;
+ use HTTP::Status qw(:constants :is status_message);
 
- if ($rc != RC_OK) {
+ if ($rc != HTTP_OK) {
      print status_message($rc), "\n";
  }
 
@@ -129,69 +134,71 @@ correspond to those defined in RFC 2616 and RFC 2518.
 =head1 CONSTANTS
 
 The following constant functions can be used as mnemonic status code
-names:
+names.  None of these are exported by default.  Use the C<:constants>
+tag to import them all.
 
-   RC_CONTINUE				(100)
-   RC_SWITCHING_PROTOCOLS		(101)
-   RC_PROCESSING                        (102)
+   HTTP_CONTINUE                        (100)
+   HTTP_SWITCHING_PROTOCOLS             (101)
+   HTTP_PROCESSING                      (102)
 
-   RC_OK				(200)
-   RC_CREATED				(201)
-   RC_ACCEPTED				(202)
-   RC_NON_AUTHORITATIVE_INFORMATION	(203)
-   RC_NO_CONTENT			(204)
-   RC_RESET_CONTENT			(205)
-   RC_PARTIAL_CONTENT			(206)
-   RC_MULTI_STATUS                      (207)
+   HTTP_OK                              (200)
+   HTTP_CREATED                         (201)
+   HTTP_ACCEPTED                        (202)
+   HTTP_NON_AUTHORITATIVE_INFORMATION   (203)
+   HTTP_NO_CONTENT                      (204)
+   HTTP_RESET_CONTENT                   (205)
+   HTTP_PARTIAL_CONTENT                 (206)
+   HTTP_MULTI_STATUS                    (207)
 
-   RC_MULTIPLE_CHOICES			(300)
-   RC_MOVED_PERMANENTLY			(301)
-   RC_FOUND				(302)
-   RC_SEE_OTHER				(303)
-   RC_NOT_MODIFIED			(304)
-   RC_USE_PROXY				(305)
-   RC_TEMPORARY_REDIRECT		(307)
+   HTTP_MULTIPLE_CHOICES                (300)
+   HTTP_MOVED_PERMANENTLY               (301)
+   HTTP_FOUND                           (302)
+   HTTP_SEE_OTHER                       (303)
+   HTTP_NOT_MODIFIED                    (304)
+   HTTP_USE_PROXY                       (305)
+   HTTP_TEMPORARY_REDIRECT              (307)
 
-   RC_BAD_REQUEST			(400)
-   RC_UNAUTHORIZED			(401)
-   RC_PAYMENT_REQUIRED			(402)
-   RC_FORBIDDEN				(403)
-   RC_NOT_FOUND				(404)
-   RC_METHOD_NOT_ALLOWED		(405)
-   RC_NOT_ACCEPTABLE			(406)
-   RC_PROXY_AUTHENTICATION_REQUIRED	(407)
-   RC_REQUEST_TIMEOUT			(408)
-   RC_CONFLICT				(409)
-   RC_GONE				(410)
-   RC_LENGTH_REQUIRED			(411)
-   RC_PRECONDITION_FAILED		(412)
-   RC_REQUEST_ENTITY_TOO_LARGE		(413)
-   RC_REQUEST_URI_TOO_LARGE		(414)
-   RC_UNSUPPORTED_MEDIA_TYPE		(415)
-   RC_REQUEST_RANGE_NOT_SATISFIABLE     (416)
-   RC_EXPECTATION_FAILED		(417)
-   RC_UNPROCESSABLE_ENTITY              (422)
-   RC_LOCKED                            (423)
-   RC_FAILED_DEPENDENCY                 (424)
-   RC_NO_CODE                           (425)
-   RC_UPGRADE_REQUIRED                  (426)
-   RC_RETRY_WITH                        (449)
+   HTTP_BAD_REQUEST                     (400)
+   HTTP_UNAUTHORIZED                    (401)
+   HTTP_PAYMENT_REQUIRED                (402)
+   HTTP_FORBIDDEN                       (403)
+   HTTP_NOT_FOUND                       (404)
+   HTTP_METHOD_NOT_ALLOWED              (405)
+   HTTP_NOT_ACCEPTABLE                  (406)
+   HTTP_PROXY_AUTHENTICATION_REQUIRED   (407)
+   HTTP_REQUEST_TIMEOUT                 (408)
+   HTTP_CONFLICT                        (409)
+   HTTP_GONE                            (410)
+   HTTP_LENGTH_REQUIRED                 (411)
+   HTTP_PRECONDITION_FAILED             (412)
+   HTTP_REQUEST_ENTITY_TOO_LARGE        (413)
+   HTTP_REQUEST_URI_TOO_LARGE           (414)
+   HTTP_UNSUPPORTED_MEDIA_TYPE          (415)
+   HTTP_REQUEST_RANGE_NOT_SATISFIABLE   (416)
+   HTTP_EXPECTATION_FAILED              (417)
+   HTTP_UNPROCESSABLE_ENTITY            (422)
+   HTTP_LOCKED                          (423)
+   HTTP_FAILED_DEPENDENCY               (424)
+   HTTP_NO_CODE                         (425)
+   HTTP_UPGRADE_REQUIRED                (426)
+   HTTP_RETRY_WITH                      (449)
 
-   RC_INTERNAL_SERVER_ERROR		(500)
-   RC_NOT_IMPLEMENTED			(501)
-   RC_BAD_GATEWAY			(502)
-   RC_SERVICE_UNAVAILABLE		(503)
-   RC_GATEWAY_TIMEOUT			(504)
-   RC_HTTP_VERSION_NOT_SUPPORTED	(505)
-   RC_VARIANT_ALSO_NEGOTIATES           (506)
-   RC_INSUFFICIENT_STORAGE              (507)
-   RC_BANDWIDTH_LIMIT_EXCEEDED          (509)
-   RC_NOT_EXTENDED                      (510)
+   HTTP_INTERNAL_SERVER_ERROR           (500)
+   HTTP_NOT_IMPLEMENTED                 (501)
+   HTTP_BAD_GATEWAY                     (502)
+   HTTP_SERVICE_UNAVAILABLE             (503)
+   HTTP_GATEWAY_TIMEOUT                 (504)
+   HTTP_HTTP_VERSION_NOT_SUPPORTED      (505)
+   HTTP_VARIANT_ALSO_NEGOTIATES         (506)
+   HTTP_INSUFFICIENT_STORAGE            (507)
+   HTTP_BANDWIDTH_LIMIT_EXCEEDED        (509)
+   HTTP_NOT_EXTENDED                    (510)
 
 =head1 FUNCTIONS
 
 The following additional functions are provided.  Most of them are
-exported by default.
+exported by default.  The C<:is> import tag can be used to import all
+the classification functions.
 
 =over 4
 
@@ -242,6 +249,6 @@ This function is B<not> exported by default.
 
 =head1 BUGS
 
-Wished @EXPORT_OK had been used instead of @EXPORT in the beginning.
-Now too much is exported by default.
-
+For legacy reasons all the C<HTTP_> constants are exported by default
+with the prefix C<RC_>.  It's recommended to use explict imports and
+the C<:constants> tag instead of relying on this.

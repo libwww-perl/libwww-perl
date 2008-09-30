@@ -85,6 +85,7 @@ t/base/protocols.t		Test protocol methods of LWP::UserAgent
 t/base/request.t                Test additional HTTP::Request methods
 t/base/response.t		Test additional HTTP::Response methods
 t/base/status.t			Test HTTP::Status module
+t/base/status-old.t		Test HTTP::Status module
 t/base/ua.t			Basic LWP::UserAgent tests
 t/html/form.t			Test HTML::Form module
 t/html/form-param.t		More HTML::Form tests.

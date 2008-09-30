@@ -3,16 +3,16 @@
 use Test;
 plan tests => 8;
 
-use HTTP::Status;
+use HTTP::Status qw(:constants :is status_message);
 
-ok(RC_OK, 200);
+ok(HTTP_OK, 200);
 
-ok(is_info(RC_CONTINUE));
-ok(is_success(RC_ACCEPTED));
-ok(is_error(RC_BAD_REQUEST));
-ok(is_redirect(RC_MOVED_PERMANENTLY));
+ok(is_info(HTTP_CONTINUE));
+ok(is_success(HTTP_ACCEPTED));
+ok(is_error(HTTP_BAD_REQUEST));
+ok(is_redirect(HTTP_MOVED_PERMANENTLY));
 
-ok(!is_success(RC_NOT_FOUND));
+ok(!is_success(HTTP_NOT_FOUND));
 
 ok(status_message(0), undef);
 ok(status_message(200), "OK");

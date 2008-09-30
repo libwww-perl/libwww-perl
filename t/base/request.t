@@ -4,7 +4,7 @@
 use strict;
 
 use Test;
-plan tests => 7;
+plan tests => 11;
 
 use HTTP::Request;
 
@@ -24,3 +24,10 @@ ok($req->method, "DELETE");
 ok($req->uri("http:"), "http://www.example.com");
 ok($req->uri, "http:");
 
+$req->protocol("HTTP/1.1");
+
+my $r2 = HTTP::Request->parse($req->as_string);
+ok($r2->method, "DELETE");
+ok($r2->uri, "http:");
+ok($r2->protocol, "HTTP/1.1");
+ok($r2->header("Accept-Encoding"), $req->header("Accept-Encoding"));

@@ -165,7 +165,7 @@ sub send_request
             $protocol = eval { LWP::Protocol::create($scheme, $self) };
             if ($@) {
                 $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-                my $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
+                $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
                 if ($scheme eq "https") {
                     $response->message($response->message . " (Crypt::SSLeay not installed)");
                     $response->content_type("text/plain");

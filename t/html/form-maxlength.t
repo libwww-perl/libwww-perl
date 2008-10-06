@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use lib '.';
-use Test::More tests => 16;
+use Test::More tests => 12;
 use HTML::Form;
 
 my $html = do { local $/ = undef; <DATA> };
@@ -22,26 +22,18 @@ sub set_value {
 }
 
 {
-  my @warnings;
-  local $SIG{__WARN__} = sub { push @warnings, @_; };
   is( $input->{maxlength}, 8, 'got maxlength: 8' );
 
-  $^W = 0;
-
   set_value( $input, '1234' );
-  is( @warnings, 0, "No warnings so far" );
-
   set_value( $input, '1234567890' );
-  is( @warnings, 0, "No warnings so far" );
-
-  $^W = 1;
-
+  ok(!$input->strict, "not strict by default");
+  $form->strict(1);
+  ok($input->strict, "input strict change when form strict change");
   set_value( $input, '1234' );
-  is( @warnings, 0, "No warnings so far" );
-
-  set_value( $input, '1234567890' );
-  is( @warnings, 1, "Got warning" );
-  like( $warnings[0], qr/^Input 'passwd' has maxlength '8' at /, "Got warning message" );
+  eval {
+      set_value( $input, '1234567890' );
+  };
+  like($@, qr/^Input 'passwd' has maxlength '8' at /, "Exception raised");
 }
 
 __DATA__

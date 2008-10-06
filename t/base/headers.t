@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 157;
+plan tests => 164;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -200,6 +200,14 @@ ok($h->content_type("text/html;\n charSet = \"ISO-8859-1\"; Foo=1 "), "text/html
 ok($h->content_type, "text/html");
 ok(j($h->content_type), "text/html|charSet = \"ISO-8859-1\"; Foo=1 ");
 ok($h->header("content_type"), "text/html;\n charSet = \"ISO-8859-1\"; Foo=1 ");
+ok($h->content_is_html);
+ok(!$h->content_is_xhtml);
+ok(!$h->content_is_xml);
+$h->content_type("application/xhtml+xml");
+ok($h->content_is_html);
+ok($h->content_is_xhtml);
+ok($h->content_is_xml);
+ok($h->content_type("text/html;\n charSet = \"ISO-8859-1\"; Foo=1 "), "application/xhtml+xml");
 
 ok($h->content_encoding, undef);
 ok($h->content_encoding("gzip"), undef);

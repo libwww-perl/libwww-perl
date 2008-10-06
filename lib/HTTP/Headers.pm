@@ -304,6 +304,14 @@ sub content_is_xhtml {
     return 0;
 }
 
+sub content_is_xml {
+    my $ct = shift->content_type;
+    return 1 if $ct eq "text/xml";
+    return 1 if $ct eq "application/xml";
+    return 1 if $ct =~ /\+xml$/;
+    return 0;
+}
+
 sub referer           {
     my $self = shift;
     if (@_ && $_[0] =~ /#/) {
@@ -613,6 +621,11 @@ used to set Content-Type.
 
 Returns TRUE if the Content-Type header field indicate that the
 content is XHTML.  This method can't be used to set Content-Type.
+
+=item $h->content_is_xml
+
+Returns TRUE if the Content-Type header field indicate that the
+content is XML.  This method can't be used to set Content-Type.
 
 =item $h->content_encoding
 

@@ -18,14 +18,14 @@ my @s_tests = (
    ['foo,,,bar'               => 'foo, bar'],
    ['foo=bar,bar=baz'         => 'foo=bar, bar=baz'],
 
-   ['text/html; charset=iso-8859-1' =>
-    'text/html; charset=iso-8859-1'],
+   ['TEXT/HTML; CHARSET=ISO-8859-1' =>
+    'text/html; charset=ISO-8859-1'],
 
    ['foo="bar"; port="80,81"; discard, bar=baz' =>
     'foo=bar; port="80,81"; discard, bar=baz'],
 
    ['Basic realm="\"foo\\\\bar\""' =>
-    'Basic; realm="\"foo\\\\bar\""'],
+    'basic; realm="\"foo\\\\bar\""'],
 );
 
 plan tests => @s_tests + 2;

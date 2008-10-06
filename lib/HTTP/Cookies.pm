@@ -2,7 +2,7 @@ package HTTP::Cookies;
 
 use strict;
 use HTTP::Date qw(str2time time2str);
-use HTTP::Headers::Util qw(split_header_words join_header_words);
+use HTTP::Headers::Util qw(_split_header_words join_header_words);
 use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
@@ -184,7 +184,7 @@ sub extract_cookies
     my $self = shift;
     my $response = shift || return;
 
-    my @set = split_header_words($response->_header("Set-Cookie2"));
+    my @set = _split_header_words($response->_header("Set-Cookie2"));
     my @ns_set = $response->_header("Set-Cookie");
 
     return $response unless @set || @ns_set;  # quick exit
@@ -436,7 +436,7 @@ sub load
 	next unless s/^Set-Cookie3:\s*//;
 	chomp;
 	my $cookie;
-	for $cookie (split_header_words($_)) {
+	for $cookie (_split_header_words($_)) {
 	    my($key,$val) = splice(@$cookie, 0, 2);
 	    my %hash;
 	    while (@$cookie) {

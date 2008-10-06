@@ -364,12 +364,9 @@ sub request
 	CHALLENGE: for my $challenge (@challenge) {
 	    $challenge =~ tr/,/;/;  # "," is used to separate auth-params!!
 	    ($challenge) = HTTP::Headers::Util::split_header_words($challenge);
-	    my $scheme = lc(shift(@$challenge));
+	    my $scheme = shift(@$challenge);
 	    shift(@$challenge); # no value
 	    $challenge = { @$challenge };  # make rest into a hash
-	    for (keys %$challenge) {       # make sure all keys are lower case
-		$challenge->{lc $_} = delete $challenge->{$_};
-	    }
 
 	    unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
 		$response->header("Client-Warning" => 

@@ -56,7 +56,7 @@ sub POST
 	    my $boundary_index;
 	    for (my @tmp = @v; @tmp;) {
 		my($k, $v) = splice(@tmp, 0, 2);
-		if (lc($k) eq "boundary") {
+		if ($k eq "boundary") {
 		    $boundary = $v;
 		    $boundary_index = @v - @tmp - 1;
 		    last;

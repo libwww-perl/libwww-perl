@@ -22,13 +22,13 @@ sub _parse_authenticate
     for (HTTP::Headers::Util::split_header_words(@_)) {
 	if (!defined($_->[1])) {
 	    # this is a new auth scheme
-	    push(@ret, lc(shift @$_) => {});
+	    push(@ret, shift(@$_) => {});
 	    shift @$_;
 	}
 	if (@ret) {
 	    # this a new parameter pair for the last auth scheme
 	    while (@$_) {
-		my $k = lc(shift @$_);
+		my $k = shift @$_;
 		my $v = shift @$_;
 	        $ret[-1]{$k} = $v;
 	    }

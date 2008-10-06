@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 127;
+plan tests => 126;
 
 use HTML::Form;
 
@@ -45,7 +45,7 @@ ok($f->enctype, "application/x-www-form-urlencoded");
 ok($f->dump, "GET http://localhost/\n");
 
 # try some more advanced inputs
-$f = HTML::Form->parse(<<'EOT', "http://localhost/");
+$f = HTML::Form->parse(<<'EOT', base => "http://localhost/", verbose => 1);
 <form method=post>
    <input name=i type="image" src="foo.gif">
    <input name=c type="checkbox" checked>
@@ -257,19 +257,20 @@ $input = $f->find_input("y");
 ok($input->type, "text");
 ok($input->readonly);
 ok(!$input->disabled);
-
 $input->value(22);
 ok($f->click->uri->query, "x=1&y=22&z=3");
-ok(@warn, 1);
-ok($warn[0] =~ /^Input 'y' is readonly/);
-@warn = ();
+
+$input->strict(1);
+eval {
+    $input->value(23);
+};
+ok($@ =~ /^Input 'y' is readonly/);
 
 ok($input->readonly(0));
 ok(!$input->readonly);
 
 $input->value(222);
 ok(@warn, 0);
-print @warn;
 ok($f->click->uri->query, "x=1&y=222&z=3");
 
 $input = $f->find_input("z");
@@ -297,7 +298,7 @@ ok($f->value("s"), "bar");
 ok(join(":", $f->find_input("s")->other_possible_values), "");
 
 
-$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+$f = HTML::Form->parse(<<EOT, base => "http://www.example.com", strict => 1);
 <form>
 
 <input type=radio name=r0 value=1 disabled>one

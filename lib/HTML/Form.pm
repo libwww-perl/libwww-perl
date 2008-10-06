@@ -92,13 +92,18 @@ behaves.  The following options are currently recognized:
 
 =over
 
-=item C<base>
+=item C<< base => $uri >>
 
 Another way to provide the base URI.
 
-=item C<verbose>
+=item C<< verbose => $bool >>
 
-Print messages to STDERR about any bad HTML form constructs found.
+Warn (print messages to STDERR) about any bad HTML form constructs found.
+You can trap these with $SIG{__WARN__}.
+
+=item C<< strict => $bool >>
+
+Initialize any form objects with the given strict attribute.
 
 =back
 
@@ -116,6 +121,7 @@ sub parse
     die "Failed to create HTML::TokeParser object" unless $p;
 
     my $base_uri = delete $opt{base};
+    my $strict = delete $opt{strict};
     my $verbose = delete $opt{verbose};
 
     if ($^W) {
@@ -146,6 +152,7 @@ sub parse
 			     $action,
 			     $attr->{'enctype'});
 	    $f->{attr} = $attr;
+	    $f->strict(1) if $strict;
             %openselect = ();
 	    push(@forms, $f);
 	    my(%labels, $current_label);
@@ -179,18 +186,18 @@ sub parse
 		}
 		elsif ($tag eq "input") {
 		    my $type = delete $attr->{type} || "text";
-		    $f->push_input($type, $attr);
+		    $f->push_input($type, $attr, $verbose);
 		}
                 elsif ($tag eq "button") {
                     my $type = delete $attr->{type} || "submit";
-                    $f->push_input($type, $attr);
+                    $f->push_input($type, $attr, $verbose);
                 }
 		elsif ($tag eq "textarea") {
 		    $attr->{textarea_value} = $attr->{value}
 		        if exists $attr->{value};
 		    my $text = $p->get_text("/textarea");
 		    $attr->{value} = $text;
-		    $f->push_input("textarea", $attr);
+		    $f->push_input("textarea", $attr, $verbose);
 		}
 		elsif ($tag eq "select") {
 		    # rename attributes reserved to come for the option tag
@@ -220,7 +227,7 @@ sub parse
 			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
 			    $a{idx} = $openselect{$attr->{name}};
-			    $f->push_input("option", \%a);
+			    $f->push_input("option", \%a, $verbose);
 			}
 			else {
 			    warn("Bad <select> tag '$tag' in $base_uri\n") if $verbose;
@@ -243,7 +250,7 @@ sub parse
 		    }
 		}
 		elsif ($tag eq "keygen") {
-		    $f->push_input("keygen", $attr);
+		    $f->push_input("keygen", $attr, $verbose);
 		}
 	    }
 	}
@@ -271,16 +278,17 @@ sub new {
 
 sub push_input
 {
-    my($self, $type, $attr) = @_;
+    my($self, $type, $attr, $verbose) = @_;
     $type = lc $type;
     my $class = $type2class{$type};
     unless ($class) {
-	Carp::carp("Unknown input type '$type'") if $^W;
+	Carp::carp("Unknown input type '$type'") if $verbose;
 	$class = "TextInput";
     }
     $class = "HTML::Form::$class";
     my @extra;
     push(@extra, readonly => 1) if $type eq "hidden";
+    push(@extra, strict => 1) if $self->{strict};
 
     delete $attr->{type}; # don't confuse the type argument
     my $input = $class->new(type => $type, %$attr, @extra);
@@ -351,6 +359,29 @@ sub attr {
     $self->{attr}{$name} = shift if @_;
     return $old;
 }
+
+=item $bool = $form->strict
+
+=item $form->strict( $bool )
+
+Gets/sets the strict attribute of a form.  If the strict is turned on
+the methods that change values of the form will croak if you try to
+set illegal values or modify readonly fields.  The default is not to be strict.
+
+=cut
+
+sub strict {
+    my $self = shift;
+    my $old = $self->{strict};
+    if (@_) {
+	$self->{strict} = shift;
+	for my $input (@{$self->{inputs}}) {
+	    $input->strict($self->{strict});
+	}
+    }
+    return $old;
+}
+
 
 =item @inputs = $form->inputs
 
@@ -438,7 +469,7 @@ sub fixup
 =item $form->value( $name, $new_value )
 
 The value() method can be used to get/set the value of some input.  If
-no input has the indicated name, then this method will croak.
+strict is enabled and no input has the indicated name, then this method will croak.
 
 If multiple inputs have the same name, only the first one will be
 affected.
@@ -447,7 +478,7 @@ The call:
 
     $form->value('foo')
 
-is a short-hand for:
+is basically a short-hand for:
 
     $form->find_input('foo')->value;
 
@@ -458,7 +489,11 @@ sub value
     my $self = shift;
     my $key  = shift;
     my $input = $self->find_input($key);
-    Carp::croak("No such field '$key'") unless $input;
+    unless ($input) {
+	Carp::croak("No such field '$key'") if $self->{strict};
+	return undef unless @_;
+	$input = $self->push_input("text", { name => $key, value => "" });
+    }
     local $Carp::CarpLevel = 1;
     $input->value(@_);
 }
@@ -770,6 +805,15 @@ sub add_to_form
     $self;
 }
 
+sub strict {
+    my $self = shift;
+    my $old = $self->{strict};
+    if (@_) {
+	$self->{strict} = shift;
+    }
+    $old;
+}
+
 sub fixup {}
 
 
@@ -799,9 +843,9 @@ This method can be used to get/set the current name of the input.
 This method can be used to get/set the current value of an
 input.
 
-If the input only can take an enumerated list of values, then it is an
-error to try to set it to something else and the method will croak if
-you try.
+If strict is enabled and the input only can take an enumerated list of values,
+then it is an error to try to set it to something else and the method will
+croak if you try.
 
 You will also be able to set the value of read-only inputs, but a
 warning will be generated if running under C<perl -w>.
@@ -968,12 +1012,12 @@ sub value
     my $old = $self->{value};
     $old = "" unless defined $old;
     if (@_) {
-        Carp::carp("Input '$self->{name}' is readonly")
-	    if $^W && $self->{readonly};
+        Carp::croak("Input '$self->{name}' is readonly")
+	    if $self->{strict} && $self->{readonly};
         my $new = shift;
         my $n = exists $self->{maxlength} ? $self->{maxlength} : undef;
-        Carp::carp("Input '$self->{name}' has maxlength '$n'")
-	    if $^W && defined($n) && defined($new) && length($new) > $n;
+        Carp::croak("Input '$self->{name}' has maxlength '$n'")
+	    if $self->{strict} && defined($n) && defined($new) && length($new) > $n;
 	$self->{value} = $new;
     }
     $old;
@@ -1098,6 +1142,7 @@ sub value
     my $self = shift;
     my $old;
     $old = $self->{menu}[$self->{current}]{value} if exists $self->{current};
+    $old = $self->{value} if exists $self->{value};
     if (@_) {
 	my $i = 0;
 	my $val = shift;
@@ -1138,23 +1183,30 @@ sub value
 		    if (defined $cur) {
 			$disabled = $self->{menu}[$cur]{disabled};
 		    }
-		    else {
+		    elsif ($self->{strict}) {
 			my $n = $self->name;
 		        Carp::croak("Illegal value '$val' for field '$n'");
 		    }
 		}
 	    }
-	    else {
+	    elsif ($self->{strict}) {
 		my $n = $self->name;
 	        Carp::croak("The '$n' field can't be unchecked");
 	    }
 	}
-	if ($disabled) {
+	if ($self->{strict} && $disabled) {
 	    my $n = $self->name;
 	    Carp::croak("The value '$val' has been disabled for field '$n'");
 	}
-	$self->{current} = $cur;
-	$self->{menu}[$cur]{seen}++;
+	if (defined $cur) {
+	    $self->{current} = $cur;
+	    $self->{menu}[$cur]{seen}++;
+	    delete $self->{value};
+	}
+	else {
+	    $self->{value} = $val;
+	    delete $self->{current};
+	}
     }
     $old;
 }
@@ -1388,7 +1440,7 @@ L<LWP>, L<LWP::UserAgent>, L<HTML::Parser>
 
 =head1 COPYRIGHT
 
-Copyright 1998-2005 Gisle Aas.
+Copyright 1998-2008 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

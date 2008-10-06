@@ -410,7 +410,7 @@ sub AUTOLOAD
     # We create the function here so that it will not need to be
     # autoloaded the next time.
     no strict 'refs';
-    *$method = eval "sub { shift->{'_headers'}->$method(\@_) }";
+    *$method = sub { shift->{'_headers'}->$method(@_) };
     goto &$method;
 }
 

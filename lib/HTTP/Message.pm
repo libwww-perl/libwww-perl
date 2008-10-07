@@ -403,7 +403,6 @@ sub _stale_content {
 sub AUTOLOAD
 {
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    return if $method eq "DESTROY";
 
     # We create the function here so that it will not need to be
     # autoloaded the next time.
@@ -411,6 +410,9 @@ sub AUTOLOAD
     *$method = sub { shift->{'_headers'}->$method(@_) };
     goto &$method;
 }
+
+
+sub DESTROY {}  # avoid AUTOLOADing it
 
 
 # Private method to access members in %$self

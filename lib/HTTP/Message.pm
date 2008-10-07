@@ -319,6 +319,19 @@ sub decodable
 }
 
 
+sub decode
+{
+    my $self = shift;
+    return 1 unless $self->header("Content-Encoding");
+    if (defined(my $content = $self->decoded_content(charset => "none"))) {
+	$self->remove_header("Content-Encoding");
+	$self->content($content);
+	return 1;
+    }
+    return 0;
+}
+
+
 sub as_string
 {
     my($self, $eol) = @_;
@@ -675,6 +688,19 @@ identifiers.
 
 This value is suitable for initializing the C<Accept-Encoding> request
 header field.
+
+=item $mess->decode
+
+This method tries to replace the content of the message with the
+decoded version and removes the C<Content-Encoding> header.  Return
+TRUE if successful and FALSE if not.
+
+If the message does not have a C<Content-Encoding> header this method
+does nothing and returns TRUE.
+
+Note that the content of the message is still bytes after this method
+has been called and you still need to call decoded_content() if you
+want to process its content as a string.
 
 =item $mess->parts
 

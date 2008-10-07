@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 105;
+plan tests => 108;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -363,6 +363,11 @@ $@ = "";
 skip($NO_ENCODE, sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, "H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
+
+$m2 = $m->clone;
+ok($m2->decode);
+ok($m2->header("Content-Encoding"), undef);
+ok($m2->content, qr/Hi there/);
 
 ok(grep { $_ eq "gzip" } $m->decodable);
 

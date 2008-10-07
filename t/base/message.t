@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 108;
+plan tests => 110;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -427,3 +427,18 @@ if ($] >= 5.008001) {
 else {
     skip("Missing is_utf8 test", undef) for 1..2;
 }
+
+$m = HTTP::Message->new([
+    "Content-Type", "text/plain"
+    ],
+    "Hello world!"
+);
+$m->encode("gzip");
+$m->encode("base64", "identity");
+ok($m->as_string, <<'EOT');
+Content-Encoding: gzip, base64, identity
+Content-Type: text/plain
+
+H4sIAAAAAAAA//NIzcnJVyjPL8pJUQQAlRmFGwwAAAA=
+EOT
+ok($m->decoded_content, "Hello world!");

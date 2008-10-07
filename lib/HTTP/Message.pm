@@ -198,7 +198,8 @@ sub decoded_content
 	    $h =~ s/^\s+//;
 	    $h =~ s/\s+$//;
 	    for my $ce (reverse split(/\s*,\s*/, lc($h))) {
-		next unless $ce || $ce eq "identity";
+		next unless $ce;
+		next if $ce eq "identity";
 		if ($ce eq "gzip" || $ce eq "x-gzip") {
 		    require Compress::Zlib;
 		    unless ($content_ref_iscopy) {
@@ -329,6 +330,47 @@ sub decode
 	return 1;
     }
     return 0;
+}
+
+
+sub encode
+{
+    my($self, @enc) = @_;
+
+    Carp::croak("Can't encode multipart/* messages") if $self->content_type =~ m,^multipart/,;
+    Carp::croak("Can't encode message/* messages") if $self->content_type =~ m,^message/,;
+
+    return 1 unless @enc;  # nothing to do
+
+    my $content = $self->content;
+    for my $encoding (@enc) {
+	if ($encoding eq "identity") {
+	    # noting to do
+	}
+	elsif ($encoding eq "base64") {
+	    require MIME::Base64;
+	    $content = MIME::Base64::encode($content);
+	}
+	elsif ($encoding eq "gzip" || $encoding eq "x-gzip") {
+	    require Compress::Zlib;
+	    $content = Compress::Zlib::memGzip($content);
+	}
+	elsif ($encoding eq "deflate") {
+	    require Compress::Zlib;
+	    $content = Compress::Zlib::compress($content);
+	}
+	elsif ($encoding eq "rot13") {  # for the fun of it
+	    $content =~ tr/A-Za-z/N-ZA-Mn-za-m/;
+	}
+	else {
+	    return 0;
+	}
+    }
+    my $h = $self->header("Content-Encoding");
+    unshift(@enc, $h) if $h;
+    $self->header("Content-Encoding", join(", ", @enc));
+    $self->content($content);
+    return 1;
 }
 
 
@@ -701,6 +743,18 @@ does nothing and returns TRUE.
 Note that the content of the message is still bytes after this method
 has been called and you still need to call decoded_content() if you
 want to process its content as a string.
+
+=item $mess->encode( $encoding, ... )
+
+Apply the given encodings to the content of the message.  Returns TRUE
+if successful. Currently supported encodings are "gzip", "deflate" and
+"base64".
+
+A successful call to this function will set the C<Content-Encoding>
+header.
+
+Note that C<multipart/*> or C<message/*> messages can't be encoded and
+this method will croak if you try.
 
 =item $mess->parts
 

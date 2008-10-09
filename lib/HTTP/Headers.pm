@@ -17,34 +17,34 @@ $TRANSLATE_UNDERSCORE = 1 unless defined $TRANSLATE_UNDERSCORE;
 #    - Entity-Headers
 
 my @general_headers = qw(
-   Cache-Control Connection Date Pragma Trailer Transfer-Encoding Upgrade
-   Via Warning
+    Cache-Control Connection Date Pragma Trailer Transfer-Encoding Upgrade
+    Via Warning
 );
 
 my @request_headers = qw(
-   Accept Accept-Charset Accept-Encoding Accept-Language
-   Authorization Expect From Host
-   If-Match If-Modified-Since If-None-Match If-Range If-Unmodified-Since
-   Max-Forwards Proxy-Authorization Range Referer TE User-Agent
+    Accept Accept-Charset Accept-Encoding Accept-Language
+    Authorization Expect From Host
+    If-Match If-Modified-Since If-None-Match If-Range If-Unmodified-Since
+    Max-Forwards Proxy-Authorization Range Referer TE User-Agent
 );
 
 my @response_headers = qw(
-   Accept-Ranges Age ETag Location Proxy-Authenticate Retry-After Server
-   Vary WWW-Authenticate
+    Accept-Ranges Age ETag Location Proxy-Authenticate Retry-After Server
+    Vary WWW-Authenticate
 );
 
 my @entity_headers = qw(
-   Allow Content-Encoding Content-Language Content-Length Content-Location
-   Content-MD5 Content-Range Content-Type Expires Last-Modified
+    Allow Content-Encoding Content-Language Content-Length Content-Location
+    Content-MD5 Content-Range Content-Type Expires Last-Modified
 );
 
 my %entity_header = map { lc($_) => 1 } @entity_headers;
 
 my @header_order = (
-   @general_headers,
-   @request_headers,
-   @response_headers,
-   @entity_headers,
+    @general_headers,
+    @request_headers,
+    @response_headers,
+    @entity_headers,
 );
 
 # Make alternative representations of @header_order.  This is used
@@ -282,14 +282,14 @@ sub client_date         { shift->_date_header('Client-Date',         @_); }
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
 sub content_type      {
-  my $ct = (shift->_header('Content-Type', @_))[0];
-  return '' unless defined($ct) && length($ct);
-  my @ct = split(/;\s*/, $ct, 2);
-  for ($ct[0]) {
-      s/\s+//g;
-      $_ = lc($_);
-  }
-  wantarray ? @ct : $ct[0];
+    my $ct = (shift->_header('Content-Type', @_))[0];
+    return '' unless defined($ct) && length($ct);
+    my @ct = split(/;\s*/, $ct, 2);
+    for ($ct[0]) {
+	s/\s+//g;
+	$_ = lc($_);
+    }
+    wantarray ? @ct : $ct[0];
 }
 
 sub content_is_html {

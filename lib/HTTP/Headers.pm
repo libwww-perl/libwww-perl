@@ -97,8 +97,10 @@ sub clear
 
 sub push_header
 {
-    Carp::croak('Usage: $h->push_header($field, $val)') if @_ != 3;
-    shift->_header(@_, 'PUSH');
+    my $self = shift;
+    while (@_) {
+	$self->_header(splice(@_, 0, 2), 'PUSH');
+    }
 }
 
 
@@ -420,7 +422,9 @@ Returns a copy of this C<HTTP::Headers> object.
 
 =item $h->header( $field )
 
-=item $h->header( $field => $value, ... )
+=item $h->header( $field => $value )
+
+=item $h->header( $f1 => $v1, $f2 => $v2, ... )
 
 Get or set the value of one or more header fields.  The header field
 name ($field) is not case sensitive.  To make the life easier for perl
@@ -456,6 +460,8 @@ Examples:
  $accepts = $header->header('Accept');  # get values as a single string
 
 =item $h->push_header( $field => $value )
+
+=item $h->push_header( $f1 => $v1, $f2 => $v2, ... )
 
 Add a new field value for the specified header field.  Previous values
 for the same field are retained.

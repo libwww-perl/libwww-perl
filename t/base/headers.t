@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 164;
+plan tests => 163;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -49,8 +49,6 @@ $h->push_header(Bar => 22);
 ok($h->header("Bar"), "22, 22");
 $h->push_header(Bar => [23 .. 25]);
 ok($h->header("Bar"), "22, 22, 23, 24, 25");
-eval { $h->push_header(Bar => 23 .. 25) };
-ok($@);
 ok(j($h->header("Bar")), "22|22|23|24|25");
 
 $h->clear;

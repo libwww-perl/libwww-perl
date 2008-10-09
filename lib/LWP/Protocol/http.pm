@@ -352,10 +352,9 @@ sub request
     my $response = HTTP::Response->new($code, $mess);
     my $peer_http_version = $socket->peer_http_version;
     $response->protocol("HTTP/$peer_http_version");
-    while (@h) {
-	my($k, $v) = splice(@h, 0, 2);
+    {
 	local $HTTP::Headers::TRANSLATE_UNDERSCORE;
-	$response->push_header($k, $v);
+	$response->push_header(@h);
     }
     $response->push_header("Client-Junk" => \@junk) if @junk;
 
@@ -391,10 +390,9 @@ sub request
     $drop_connection++ unless $complete;
 
     @h = $socket->get_trailers;
-    while (@h) {
-	my($k, $v) = splice(@h, 0, 2);
+    if (@h) {
 	local $HTTP::Headers::TRANSLATE_UNDERSCORE;
-	$response->push_header($k, $v);
+	$response->push_header(@h);
     }
 
     # keep-alive support

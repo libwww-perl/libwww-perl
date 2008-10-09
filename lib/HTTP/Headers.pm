@@ -143,7 +143,6 @@ sub _header
 {
     my($self, $field, $val, $op) = @_;
 
-    # $push is only used interally sub push_header
     Carp::croak('Need a field name') unless length($field);
 
     unless ($field =~ /^:/) {

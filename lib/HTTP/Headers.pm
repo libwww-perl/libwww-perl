@@ -282,7 +282,10 @@ sub client_date         { shift->_date_header('Client-Date',         @_); }
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
 sub content_type      {
-    my $ct = (shift->_header('Content-Type', @_))[0];
+    my $self = shift;
+    my $ct = $self->{'content-type'};
+    $self->{'content-type'} = shift if @_;
+    $ct = $ct->[0] if ref($ct) eq 'ARRAY';
     return '' unless defined($ct) && length($ct);
     my @ct = split(/;\s*/, $ct, 2);
     for ($ct[0]) {
@@ -299,10 +302,8 @@ sub content_is_html {
 
 sub content_is_xhtml {
     my $ct = shift->content_type;
-    for (qw(application/xhtml+xml application/vnd.wap.xhtml+xml)) {
-        return 1 if $_ eq $ct;
-    }
-    return 0;
+    return $ct eq "application/xhtml+xml" ||
+           $ct eq "application/vnd.wap.xhtml+xml";
 }
 
 sub content_is_xml {

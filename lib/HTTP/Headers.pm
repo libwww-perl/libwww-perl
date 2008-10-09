@@ -98,8 +98,9 @@ sub clear
 sub push_header
 {
     my $self = shift;
+    return $self->_header(@_, 'PUSH_H') if @_ == 2;
     while (@_) {
-	$self->_header(splice(@_, 0, 2), 'PUSH');
+	$self->_header(splice(@_, 0, 2), 'PUSH_H');
     }
 }
 
@@ -145,8 +146,6 @@ sub _header
 {
     my($self, $field, $val, $op) = @_;
 
-    Carp::croak('Need a field name') unless length($field);
-
     unless ($field =~ /^:/) {
 	$field =~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
 	my $old = $field;
@@ -158,10 +157,26 @@ sub _header
 	}
     }
 
+    $op ||= defined($val) ? 'SET' : 'GET';
+    if ($op eq 'PUSH_H') {
+	# Like PUSH but where we don't care about the return value
+	if (exists $self->{$field}) {
+	    my $h = $self->{$field};
+	    if (ref($h) eq 'ARRAY') {
+		push(@$h, ref($val) eq "ARRAY" ? @$val : $val);
+	    }
+	    else {
+		$self->{$field} = [$h, ref($val) eq "ARRAY" ? @$val : $val]
+	    }
+	    return;
+	}
+	$self->{$field} = $val;
+	return;
+    }
+
     my $h = $self->{$field};
     my @old = ref($h) eq 'ARRAY' ? @$h : (defined($h) ? ($h) : ());
 
-    $op ||= defined($val) ? 'SET' : 'GET';
     unless ($op eq 'GET' || ($op eq 'INIT' && @old)) {
 	if (defined($val)) {
 	    my @new = ($op eq 'PUSH') ? @old : ();

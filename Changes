@@ -1,4 +1,28 @@
-2008-09-29   Gisle Aas <gisle@ActiveState.com>
+2008-10-10
+
+     Release 5.817
+
+     Gisle Aas (16):
+           Should store "wire" headers field names with _ without translation.
+           Test HTTP::Request->parse().
+           Restore pre-5.815 behaviour of returning "400 Bad Request" [RT#39694]
+           Rename the HTTP::Status constants to have HTTP_ prefix
+           Detection of unsupported schemes was broken [RT#37637]
+           Allow tainted methods to be forwarded to HTTP::Headers [RT#38736]
+           Add strict mode to HTML::Form
+           Fix test now that less warnings are generated.
+           Add content_is_xml method
+           Make split_header_words() lower case returned tokens/keys
+           Avoid invoking AUTOLOAD on object destruction [RT#39852]
+           Add decode() method to HTTP::Message
+           Add encode() method to HTTP::Message
+           Allow multiple fields to be set with push_header().
+           Make content_type and content_is_xhtml methods faster
+           Faster push_header()
+
+
+
+2008-09-29
 
      Release 5.816
 
@@ -8,7 +32,7 @@
 
 
 
-2008-09-24   Gisle Aas <gisle@ActiveState.com>
+2008-09-24
 
      Release 5.815
 
@@ -52,7 +76,7 @@
 
 
 
-2008-07-25   Gisle Aas <gisle@ActiveState.com>
+2008-07-25
 
      Release 5.814
 
@@ -79,7 +103,7 @@
 
 
 
-2008-06-17   Gisle Aas <gisle@ActiveState.com>
+2008-06-17
 
      Release 5.813
 
@@ -100,7 +124,7 @@
 
 
 
-2008-04-16   Gisle Aas <gisle@ActiveState.com>
+2008-04-16
 
      Release 5.812
 
@@ -117,7 +141,7 @@
      
 
 
-2008-04-14   Gisle Aas <gisle@ActiveState.com>
+2008-04-14
 
      Release 5.811
 
@@ -143,7 +167,7 @@
 
 
 
-2008-04-08   Gisle Aas <gisle@ActiveState.com>
+2008-04-08
 
      Release 5.810
 

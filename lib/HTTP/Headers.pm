@@ -3,15 +3,12 @@ package HTTP::Headers;
 use strict;
 use Carp ();
 
-use vars qw($VERSION $TRANSLATE_UNDERSCORE $USE_STORABLE_DCLONE);
+use vars qw($VERSION $TRANSLATE_UNDERSCORE);
 $VERSION = "5.817";
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
 $TRANSLATE_UNDERSCORE = 1 unless defined $TRANSLATE_UNDERSCORE;
-# Whether we use Storable's dclone for clone(). If Storable is not
-# available, then the old (slower) clone() method will be used.
-$USE_STORABLE_DCLONE = 1 unless defined $USE_STORABLE_DCLONE;
 
 # "Good Practice" order of HTTP message headers:
 #    - General-Headers
@@ -260,7 +257,7 @@ sub as_string
 }
 
 
-if ($USE_STORABLE_DCLONE && eval { require Storable; 1 }) {
+if (eval { require Storable; 1 }) {
     *clone = \&Storable::dclone;
 } else {
     *clone = sub {

@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 110;
+plan tests => 112;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -26,6 +26,7 @@ $m2 = HTTP::Message->new($m->headers);
 $m2->header(bar => 2);
 ok($m->as_string, "Foo: 1\n\n");
 ok($m2->as_string, "Bar: 2\nFoo: 1\n\n");
+ok($m2->dump, "Bar: 2\nFoo: 1\n\n(no content)\n");
 
 $m2 = HTTP::Message->new($m->headers, "foo");
 ok($m2->as_string, "Foo: 1\n\nfoo\n");
@@ -434,6 +435,13 @@ $m = HTTP::Message->new([
     "Hello world!"
 );
 $m->encode("deflate");
+$m->dump(prefix => "# ");
+ok($m->dump(prefix => "| "), <<'EOT');
+| Content-Encoding: deflate
+| Content-Type: text/plain
+| 
+| x\x9C\xF3H\xCD\xC9\xC9W(\xCF/\xCAIQ\4\0\35\t\4^
+EOT
 $m->encode("base64", "identity");
 ok($m->as_string, <<'EOT');
 Content-Encoding: deflate, base64, identity

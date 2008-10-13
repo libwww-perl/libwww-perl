@@ -183,6 +183,21 @@ sub as_string
 }
 
 
+sub dump
+{
+    my $self = shift;
+
+    my $status_line = $self->status_line;
+    my $proto = $self->protocol;
+    $status_line = "$proto $status_line" if $proto;
+
+    return $self->SUPER::dump(
+	preheader => $status_line,
+        @_,
+    );
+}
+
+
 sub is_info     { HTTP::Status::is_info     (shift->{'_rc'}); }
 sub is_success  { HTTP::Status::is_success  (shift->{'_rc'}); }
 sub is_redirect { HTTP::Status::is_redirect (shift->{'_rc'}); }

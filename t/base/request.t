@@ -15,8 +15,7 @@ ok($req->method, "GET");
 ok($req->uri, "http://www.example.com");
 ok($req->header("Accept-Encoding") =~ /\bgzip\b/);  # assuming Compress::Zlib is there
 
-($_ = $req->as_string) =~ s/^/# /gm;
-print;
+$req->dump(prefix => "# ");
 
 ok($req->method("DELETE"), "GET");
 ok($req->method, "DELETE");

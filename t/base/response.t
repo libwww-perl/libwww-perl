@@ -46,7 +46,7 @@ print " more seconds\n";
 
 # OK, now we add an Expires header
 $r->expires($time);
-#print $r->as_string;
+print $r->dump(prefix => "# ");
 
 $freshness_lifetime = $r->freshness_lifetime;
 ok($freshness_lifetime, 25);

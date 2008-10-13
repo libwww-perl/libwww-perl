@@ -116,6 +116,20 @@ sub as_string
     return join($eol, $req_line, $self->SUPER::as_string(@_));
 }
 
+sub dump
+{
+    my $self = shift;
+    my @pre = ($self->method || "-", $self->url || "-");
+    if (my $prot = $self->protocol) {
+	push(@pre, $prot);
+    }
+
+    return $self->SUPER::dump(
+        preheader => join(" ", @pre),
+	@_,
+    );
+}
+
 
 1;
 

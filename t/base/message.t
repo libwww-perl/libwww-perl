@@ -433,12 +433,12 @@ $m = HTTP::Message->new([
     ],
     "Hello world!"
 );
-$m->encode("gzip");
+$m->encode("deflate");
 $m->encode("base64", "identity");
 ok($m->as_string, <<'EOT');
-Content-Encoding: gzip, base64, identity
+Content-Encoding: deflate, base64, identity
 Content-Type: text/plain
 
-H4sIAAAAAAAA//NIzcnJVyjPL8pJUQQAlRmFGwwAAAA=
+eJzzSM3JyVcozy/KSVEEAB0JBF4=
 EOT
 ok($m->decoded_content, "Hello world!");

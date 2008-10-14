@@ -225,9 +225,14 @@ sub decoded_content
 		}
 		elsif ($ce eq "x-bzip2") {
 		    require Compress::Bzip2;
-		    $content_ref = Compress::Bzip2::decompress($$content_ref);
+		    unless ($content_ref_iscopy) {
+			# memBunzip is documented to destroy its buffer argument
+			my $copy = $$content_ref;
+			$content_ref = \$copy;
+			$content_ref_iscopy++;
+		    }
+		    $content_ref = \Compress::Bzip2::memBunzip($$content_ref);
 		    die "Can't bunzip content" unless defined $$content_ref;
-		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "deflate") {
 		    require Compress::Zlib;
@@ -370,6 +375,10 @@ sub encode
 	elsif ($encoding eq "deflate") {
 	    require Compress::Zlib;
 	    $content = Compress::Zlib::compress($content);
+	}
+	elsif ($encoding eq "x-bzip2") {
+	    require Compress::Bzip2;
+	    $content = Compress::Bzip2::memGzip($content);
 	}
 	elsif ($encoding eq "rot13") {  # for the fun of it
 	    $content =~ tr/A-Za-z/N-ZA-Mn-za-m/;
@@ -806,8 +815,8 @@ want to process its content as a string.
 =item $mess->encode( $encoding, ... )
 
 Apply the given encodings to the content of the message.  Returns TRUE
-if successful. Currently supported encodings are "gzip", "deflate" and
-"base64".
+if successful. Currently supported encodings are "gzip", "deflate",
+"x-bzip2" and "base64".
 
 A successful call to this function will set the C<Content-Encoding>
 header.

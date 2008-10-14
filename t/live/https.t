@@ -17,6 +17,4 @@ plan tests => 2;
 ok($res->is_success);
 ok($res->content =~ /Sun Microsystems/);
 
-my $cref = $res->content_ref;
-substr($$cref, 100) = "..." if length($$cref) > 100;
-print "\n", $res->as_string;
+$res->dump(prefix => "# ");

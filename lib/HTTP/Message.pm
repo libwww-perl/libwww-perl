@@ -92,7 +92,18 @@ sub clear {
 }
 
 
-sub protocol { shift->_elem('_protocol',  @_); }
+sub protocol {
+    shift->_elem('_protocol',  @_);
+}
+
+sub headers {
+    shift->{'_headers'};
+}
+
+sub headers_as_string {
+    shift->{'_headers'}->as_string(@_);
+}
+
 
 sub content  {
 
@@ -112,6 +123,7 @@ sub content  {
 	Carp::carp("Useless content call in void context") if $^W;
     }
 }
+
 
 sub _set_content {
     my $self = $_[0];
@@ -441,9 +453,6 @@ sub dump
     print $dump unless defined wantarray;
     return $dump;
 }
-
-sub headers            { shift->{'_headers'};                }
-sub headers_as_string  { shift->{'_headers'}->as_string(@_); }
 
 
 sub parts {

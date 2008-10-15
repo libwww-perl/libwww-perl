@@ -224,7 +224,7 @@ use HTTP::Date qw(time2str str2time);
     sub new
     { 
 	my $self = LWP::UserAgent::new(@_);
-	$self->agent("lwp-request/$main::VERSION");
+	$self->agent("lwp-request/$main::VERSION ");
 	$self;
     }
 

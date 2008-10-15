@@ -197,7 +197,7 @@ usage() if @ARGV;
 
 require LWP::UserAgent;
 my $ua = new LWP::UserAgent;
-$ua->agent("$progname/$VERSION " . $ua->agent);
+$ua->agent("$progname/$VERSION ");
 $ua->env_proxy;
 
 unless (defined $PREFIX) {

@@ -423,6 +423,17 @@ sub send_basic_header
 }
 
 
+sub send_header
+{
+    my $self = shift;
+    while (@_) {
+	my($k, $v) = splice(@_, 0, 2);
+	$v = "" unless defined($v);
+	print $self "$k: $v$CRLF";
+    }
+}
+
+
 sub send_response
 {
     my $self = shift;
@@ -817,6 +828,12 @@ with an empty CRLF line.
 
 See the description of send_status_line() for the description of the
 accepted arguments.
+
+=item $c->send_header( $field, $value )
+
+=item $c->send_header( $field1, $value1, $field2, $value2, ... )
+
+Send one or more header lines.
 
 =item $c->send_response( $res )
 

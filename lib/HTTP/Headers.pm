@@ -4,7 +4,7 @@ use strict;
 use Carp ();
 
 use vars qw($VERSION $TRANSLATE_UNDERSCORE);
-$VERSION = "5.817";
+$VERSION = "5.818";
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.

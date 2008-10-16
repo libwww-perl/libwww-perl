@@ -1,3 +1,22 @@
+2008-10-16
+
+     Release 5.818
+
+     Gisle Aas (8):
+           Use deflate compression instead of gzip for the test
+           Simplify; Get rid of the $USE_STORABLE_DCLONE configuration
+           Add dump method to HTTP::Message.
+           Use $res->dump instead of rolling our own.
+           Layout change; move headers() methods to a more logical place.
+           Add support for x-bzip2 encoding; fix bzip2 decoding.
+           Add send_header method to HTTP::Daemon
+           Make the lwp-request User-Agent string include the LWP version.
+
+     Slaven Rezic (1):
+           clone implemented in terms of Storable::dclone [RT#39611]
+
+
+
 2008-10-10
 
      Release 5.817

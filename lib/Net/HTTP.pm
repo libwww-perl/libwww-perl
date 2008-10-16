@@ -1,14 +1,17 @@
 package Net::HTTP;
 
 use strict;
-use vars qw($VERSION @ISA);
+use vars qw($VERSION @ISA $SOCKET_CLASS);
 
 $VERSION = "5.812";
-eval { require IO::Socket::INET } || require IO::Socket;
+unless ($SOCKET_CLASS) {
+    eval { require IO::Socket::INET } || require IO::Socket;
+    $SOCKET_CLASS = "IO::Socket::INET";
+}
 require Net::HTTP::Methods;
 require Carp;
 
-@ISA=qw(IO::Socket::INET Net::HTTP::Methods);
+@ISA = ($SOCKET_CLASS, 'Net::HTTP::Methods');
 
 sub new {
     my $class = shift;

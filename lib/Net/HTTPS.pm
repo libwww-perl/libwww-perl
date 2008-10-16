@@ -6,7 +6,10 @@ use vars qw($VERSION $SSL_SOCKET_CLASS @ISA);
 $VERSION = "5.810";
 
 # Figure out which SSL implementation to use
-if ($Net::SSL::VERSION) {
+if ($SSL_SOCKET_CLASS) {
+    # somebody already set it
+}
+elsif ($Net::SSL::VERSION) {
     $SSL_SOCKET_CLASS = "Net::SSL";
 }
 elsif ($IO::Socket::SSL::VERSION) {

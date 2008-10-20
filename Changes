@@ -1,302 +1,284 @@
-2008-10-20
+_______________________________________________________________________________
+2008-10-20  Release 5.819
 
-     Release 5.819
-
-     Gisle Aas (2):
-           Don't override $Net::HTTPS::SSL_SOCKET_CLASS if it's already set.
-           Wrong content handlers would sometimes be skipped [RT#40187]
-
+Gisle Aas (2):
+      Don't override $Net::HTTPS::SSL_SOCKET_CLASS if it's already set.
+      Wrong content handlers would sometimes be skipped [RT#40187]
 
 
-2008-10-16
+_______________________________________________________________________________
+2008-10-16  Release 5.818
 
-     Release 5.818
+Gisle Aas (8):
+      Use deflate compression instead of gzip for the test
+      Simplify; Get rid of the $USE_STORABLE_DCLONE configuration
+      Add dump method to HTTP::Message.
+      Use $res->dump instead of rolling our own.
+      Layout change; move headers() methods to a more logical place.
+      Add support for x-bzip2 encoding; fix bzip2 decoding.
+      Add send_header method to HTTP::Daemon
+      Make the lwp-request User-Agent string include the LWP version.
 
-     Gisle Aas (8):
-           Use deflate compression instead of gzip for the test
-           Simplify; Get rid of the $USE_STORABLE_DCLONE configuration
-           Add dump method to HTTP::Message.
-           Use $res->dump instead of rolling our own.
-           Layout change; move headers() methods to a more logical place.
-           Add support for x-bzip2 encoding; fix bzip2 decoding.
-           Add send_header method to HTTP::Daemon
-           Make the lwp-request User-Agent string include the LWP version.
-
-     Slaven Rezic (1):
-           clone implemented in terms of Storable::dclone [RT#39611]
-
+Slaven Rezic (1):
+      clone implemented in terms of Storable::dclone [RT#39611]
 
 
-2008-10-10
+_______________________________________________________________________________
+2008-10-10  Release 5.817
 
-     Release 5.817
-
-     Gisle Aas (16):
-           Should store "wire" headers field names with _ without translation.
-           Test HTTP::Request->parse().
-           Restore pre-5.815 behaviour of returning "400 Bad Request" [RT#39694]
-           Rename the HTTP::Status constants to have HTTP_ prefix
-           Detection of unsupported schemes was broken [RT#37637]
-           Allow tainted methods to be forwarded to HTTP::Headers [RT#38736]
-           Add strict mode to HTML::Form
-           Fix test now that less warnings are generated.
-           Add content_is_xml method
-           Make split_header_words() lower case returned tokens/keys
-           Avoid invoking AUTOLOAD on object destruction [RT#39852]
-           Add decode() method to HTTP::Message
-           Add encode() method to HTTP::Message
-           Allow multiple fields to be set with push_header().
-           Make content_type and content_is_xhtml methods faster
-           Faster push_header()
-
+Gisle Aas (16):
+      Should store "wire" headers field names with _ without translation.
+      Test HTTP::Request->parse().
+      Restore pre-5.815 behaviour of returning "400 Bad Request" [RT#39694]
+      Rename the HTTP::Status constants to have HTTP_ prefix
+      Detection of unsupported schemes was broken [RT#37637]
+      Allow tainted methods to be forwarded to HTTP::Headers [RT#38736]
+      Add strict mode to HTML::Form
+      Fix test now that less warnings are generated.
+      Add content_is_xml method
+      Make split_header_words() lower case returned tokens/keys
+      Avoid invoking AUTOLOAD on object destruction [RT#39852]
+      Add decode() method to HTTP::Message
+      Add encode() method to HTTP::Message
+      Allow multiple fields to be set with push_header().
+      Make content_type and content_is_xhtml methods faster
+      Faster push_header()
 
 
-2008-09-29
+_______________________________________________________________________________
+2008-09-29  Release 5.816
 
-     Release 5.816
-
-     Gisle Aas (2):
-           Add missing binmode() [RT#39668]
-           Doc tweaks
-
+Gisle Aas (2):
+      Add missing binmode() [RT#39668]
+      Doc tweaks
 
 
-2008-09-24
+_______________________________________________________________________________
+2008-09-24  Release 5.815
 
-     Release 5.815
+Gisle Aas (23):
+      We don't need to build the docs to run the tests.
+      Style tweaks.
+      The jigsaw service isn't up to much good these days.
+      HTTP::Cookies produces warnings for undefined cookie param names [RT#38480]
+      Typo fix; HTTP::Message will never include x-bzip2 in Accept-Encoding [RT#38617]
+      Added HTTP::Config module
+      Add methods to configure processing handlers.
+      100 Continue response not complete.
+      Use 3-arg open when response content to files.
+      Make the show_progress attribute official (by documenting it).
+      Start using handlers for driving the inner logic of LWP::UserAgent.
+      Expose the content_is_html and content_is_xhtml methods from HTTP::Headers.
+      Make credentials method able to get/set values.
+      An auth handler per realm.
+      Match proxy setting for request.
+      Set up separate handler for adding proxy authentication.
+      Add request_preprepare to be able to initialize proxy early enough.
+      Smarter get_my_handler() that can also create handlers.
+      Refactor; introduce run_handlers method
+      Pass in handler hash to the handler callback.
+      Don't let version=1 override behaviour if specified with a plan Set-Cookie header.
+      Remove handler when we don't have a username/password for the realm.
+      Make tests use Test.pm
 
-     Gisle Aas (23):
-           We don't need to build the docs to run the tests.
-           Style tweaks.
-           The jigsaw service isn't up to much good these days.
-           HTTP::Cookies produces warnings for undefined cookie param names [RT#38480]
-           Typo fix; HTTP::Message will never include x-bzip2 in Accept-Encoding [RT#38617]
-           Added HTTP::Config module
-           Add methods to configure processing handlers.
-           100 Continue response not complete.
-           Use 3-arg open when response content to files.
-           Make the show_progress attribute official (by documenting it).
-           Start using handlers for driving the inner logic of LWP::UserAgent.
-           Expose the content_is_html and content_is_xhtml methods from HTTP::Headers.
-           Make credentials method able to get/set values.
-           An auth handler per realm.
-           Match proxy setting for request.
-           Set up separate handler for adding proxy authentication.
-           Add request_preprepare to be able to initialize proxy early enough.
-           Smarter get_my_handler() that can also create handlers.
-           Refactor; introduce run_handlers method
-           Pass in handler hash to the handler callback.
-           Don't let version=1 override behaviour if specified with a plan Set-Cookie header.
-           Remove handler when we don't have a username/password for the realm.
-           Make tests use Test.pm
+Bron Gondwana (2):
+      Double-check that username or password has changed after a failed login.
+      Update Digest Authen to subclass Basic.
 
-     Bron Gondwana (2):
-           Double-check that username or password has changed after a failed login.
-           Update Digest Authen to subclass Basic.
+Ondrej Hanak (1):
+      Avoid running out of filehandles with DYNAMIC_FILE_UPLOAD.
 
-     Ondrej Hanak (1):
-           Avoid running out of filehandles with DYNAMIC_FILE_UPLOAD.
+Todd Lipcon (1):
+      Fixed parsing of header values starting with ':' [RT#39367]
 
-     Todd Lipcon (1):
-           Fixed parsing of header values starting with ':' [RT#39367]
-
-     amire80 (1):
-           Documentation typo fixes [RT#38203]
-
+amire80 (1):
+      Documentation typo fixes [RT#38203]
 
 
-2008-07-25
+_______________________________________________________________________________
+2008-07-25  Release 5.814
 
-     Release 5.814
+Gisle Aas (13):
+      Typo fix.
+      Add HTTP::Message::decodable()
+      Use decoded_content in the synposis
+      Avoid adding an empty first part in $mess->add_part()
+      Get rid of all the manual dependency tests.
+      Simplify the Makefile.PL (no interactivity)
+      Provide DELETE method in HTTP::Request::Common [RT#37481]
+      Checkbox picks up nearby text in description of alternates [RT#36771]
+      HTML::Form::possible_values() should not returned disabled values [RT#35248]
+      File::Listing documentation claimed only 'unix' format was supported [RT#22021]
+      File::Listing only support English locales [RT#28879]
+      Make common-req.t use Test.pm
+      Typo; CAN_TALK_TO_OUTSELF
 
-     Gisle Aas (13):
-           Typo fix.
-           Add HTTP::Message::decodable()
-           Use decoded_content in the synposis
-           Avoid adding an empty first part in $mess->add_part()
-           Get rid of all the manual dependency tests.
-           Simplify the Makefile.PL (no interactivity)
-           Provide DELETE method in HTTP::Request::Common [RT#37481]
-           Checkbox picks up nearby text in description of alternates [RT#36771]
-           HTML::Form::possible_values() should not returned disabled values [RT#35248]
-           File::Listing documentation claimed only 'unix' format was supported [RT#22021]
-           File::Listing only support English locales [RT#28879]
-           Make common-req.t use Test.pm
-           Typo; CAN_TALK_TO_OUTSELF
-     
-     Bill Mann (1):
-           Fix up File::Listings fallback to dosftp [RT#23540]
-     
-     Hans-H. Froehlich (1):
-           File::Listing parse failure on BSD Linux based systems [RT#26724]
+Bill Mann (1):
+      Fix up File::Listings fallback to dosftp [RT#23540]
 
+Hans-H. Froehlich (1):
+      File::Listing parse failure on BSD Linux based systems [RT#26724]
 
 
-2008-06-17
+_______________________________________________________________________________
+2008-06-17  Release 5.813
 
-     Release 5.813
+Ville Skytta (3):
+      RobotUA constructor ignores delay, use_sleep [RT#35456]
+      Spelling fixes [RT#35457]
+      Add HTTP::Response->filename [RT#35458]
 
-     Ville Skytta (3):
-           RobotUA constructor ignores delay, use_sleep [RT#35456]
-           Spelling fixes [RT#35457]
-           Add HTTP::Response->filename [RT#35458]
-     
-     Mark Stosberg (2):
-           Better diagnostics when the HTML::TokeParser constructor fails [RT#35607]
-           Multiple forms with same-named <select> parse wrongly [RT#35607]
-     
-     Gisle Aas (1):
-           Provide a progress method that does something that might be useful.
-     
-     Spiros Denaxas (1):
-           Documentation typo fix [RT#36132]
+Mark Stosberg (2):
+      Better diagnostics when the HTML::TokeParser constructor fails [RT#35607]
+      Multiple forms with same-named <select> parse wrongly [RT#35607]
 
+Gisle Aas (1):
+      Provide a progress method that does something that might be useful.
+
+Spiros Denaxas (1):
+      Documentation typo fix [RT#36132]
 
 
-2008-04-16
+_______________________________________________________________________________
+2008-04-16  Release 5.812
 
-     Release 5.812
+Gisle Aas (6):
+      Typo fix.
+      Simplified Net::HTTP::Methods constructor call.
+      Croak if Net::HTTP constructor called with no argument.
+      Avoid calling $self->peerport to figure out what the port is.
+      5.811 breaks SSL requests [RT#35090]
+      Make test suite compatible with perl-5.6.1.
 
-     Gisle Aas (6):
-           Typo fix.
-           Simplified Net::HTTP::Methods constructor call.
-           Croak if Net::HTTP constructor called with no argument.
-           Avoid calling $self->peerport to figure out what the port is.
-           5.811 breaks SSL requests [RT#35090]
-           Make test suite compatible with perl-5.6.1.
-     
-     Toru Yamaguchi (1):
-           Wrong treatment of qop value in Digest Authentication [RT#35055]
-     
+Toru Yamaguchi (1):
+      Wrong treatment of qop value in Digest Authentication [RT#35055]
 
 
-2008-04-14
+_______________________________________________________________________________
+2008-04-14  Release 5.811
 
-     Release 5.811
+Gisle Aas (6):
+      Avoid "used only once" warning for $Config::Config.
+      Make HTTP::Request::Common::PUT set Content-Length header [RT#34772]
+      Added the add_content_utf8 method to HTTP::Message.
+      Typo fix.
+      Retry syscalls when they fail with EINTR or EAGAIN [RT#34093,32356]
+      Allow HTTP::Content content that can be downgraded to bytes.
 
-     Gisle Aas (6):
-           Avoid "used only once" warning for $Config::Config.
-           Make HTTP::Request::Common::PUT set Content-Length header [RT#34772]
-           Added the add_content_utf8 method to HTTP::Message.
-           Typo fix.
-           Retry syscalls when they fail with EINTR or EAGAIN [RT#34093,32356]
-           Allow HTTP::Content content that can be downgraded to bytes.
-     
-     Gavin Peters (1):
-           HTML::Form does not recognise multiple select items with same name [RT#18993]
-     
-     Mark Stosberg (1):
-           Document how HTTP::Status codes correspond to the classification functions [RT#20819]
-     
-     Robert Stone (1):
-           Allow 100, 204, 304 responses to have content [RT#17907]
-     
-     sasao (1):
-           HTTP::Request::Common::POST suppressed filename="0" in Content-Disposition [RT#18887]
+Gavin Peters (1):
+      HTML::Form does not recognise multiple select items with same name [RT#18993]
 
+Mark Stosberg (1):
+      Document how HTTP::Status codes correspond to the classification functions [RT#20819]
+
+Robert Stone (1):
+      Allow 100, 204, 304 responses to have content [RT#17907]
+
+sasao (1):
+      HTTP::Request::Common::POST suppressed filename="0" in Content-Disposition [RT#18887]
 
 
-2008-04-08
+_______________________________________________________________________________
+2008-04-08  Release 5.810
 
-     Release 5.810
+Gisle Aas (10):
+      Small documentation issues [RT#31346]
+      Explain $netloc argument to $ua->credentials [RT#31969]
+      Make lwp-request honour option -b while dumping links [RT#31347]
+      Ignore params for date convenience methods [RT#30579]
+      Get rid of all the old CVS $Keyword:...$ templates.  Set $VERSION to 5.810.
+      Update Copyright year.
+      Drop some sample URLs that were failing.
+      Complement the HTTP::Status codes [RT#29619]
+      Don't allow HTTP::Message content to be set to Unicode strings.
+      Refactor test for Encode.pm
 
-     Gisle Aas (10):
-           Small documentation issues [RT#31346]
-           Explain $netloc argument to $ua->credentials [RT#31969]
-           Make lwp-request honour option -b while dumping links [RT#31347]
-           Ignore params for date convenience methods [RT#30579]
-           Get rid of all the old CVS $Keyword:...$ templates.  Set $VERSION to 5.810.
-           Update Copyright year.
-           Drop some sample URLs that were failing.
-           Complement the HTTP::Status codes [RT#29619]
-           Don't allow HTTP::Message content to be set to Unicode strings.
-           Refactor test for Encode.pm
-     
-     Ville Skytta (3):
-           Spelling fixes [RT#33272]
-           Trigger HTML::HeadParser for XHTML [RT#33271]
-           Escape status line in error_as_HTML, convert to lowercase [RT#33270]
-     
-     Alexey Tourbin (2):
-           Typo fix [RT#33843]
-           Protocol/file.pm: postpone load of URI::Escape and HTML::Entities [RT#33842]
-     
-     Daniel Hedlund (1):
-           HTML::Form Module and <button> element clicks
-     
-     Adam Kennedy (1):
-           HTTP::Cookies handle malformed empty Set-Cookie badly [RT#29401]
-     
-     Jacob J (1):
-           [HTTP::Request::Common] Does not handle filenames containing " [RT#30538]
-     
-     Rolf Grossmann (1):
-           Allow malformed chars in $mess->decoded_content [RT#17368]
-     
-     FWILES (1):
-           Croak if LWP::UserAgent is constructed with hash ref as argument [RT#28597]
-     
-     Adam Sjogren (1):
-           Disabled, checked radiobutton being submitted [RT#33512]
-     
-     DAVIDRW (1):
-           warn if TextInput's maxlength exceeded [RT#32239]
+Ville Skytta (3):
+      Spelling fixes [RT#33272]
+      Trigger HTML::HeadParser for XHTML [RT#33271]
+      Escape status line in error_as_HTML, convert to lowercase [RT#33270]
+
+Alexey Tourbin (2):
+      Typo fix [RT#33843]
+      Protocol/file.pm: postpone load of URI::Escape and HTML::Entities [RT#33842]
+
+Daniel Hedlund (1):
+      HTML::Form Module and <button> element clicks
+
+Adam Kennedy (1):
+      HTTP::Cookies handle malformed empty Set-Cookie badly [RT#29401]
+
+Jacob J (1):
+      [HTTP::Request::Common] Does not handle filenames containing " [RT#30538]
+
+Rolf Grossmann (1):
+      Allow malformed chars in $mess->decoded_content [RT#17368]
+
+FWILES (1):
+      Croak if LWP::UserAgent is constructed with hash ref as argument [RT#28597]
+
+Adam Sjogren (1):
+      Disabled, checked radiobutton being submitted [RT#33512]
+
+DAVIDRW (1):
+      warn if TextInput's maxlength exceeded [RT#32239]
 
 
+_______________________________________________________________________________
 2007-08-05   Gisle Aas <gisle@ActiveState.com>
 
-     Release 5.808
+    Release 5.808
      
-     Get rid of t/live/validator test.  Too much JavaScript madness
-     for it to be a sane LWP test.
+    Get rid of t/live/validator test.  Too much JavaScript madness
+    for it to be a sane LWP test.
 
 
 
 2007-07-31   Gisle Aas <gisle@ActiveState.com>
 
-     Release 5.807
+    Release 5.807
      
-     Apply patch correction from CPAN RT #26152
-     
-     More laxed t/live/validator test.
+    Apply patch correction from CPAN RT #26152
+
+    More laxed t/live/validator test.
 
 
 
 2007-07-19   Gisle Aas <gisle@ActiveState.com>
 
-     Release 5.806
+    Release 5.806
 
-     Added progress callback to LWP::UserAgent.
+    Added progress callback to LWP::UserAgent.
      
-     HTTP::Daemon didn't avoid content in responses to HEAD requests
+    HTTP::Daemon didn't avoid content in responses to HEAD requests
 
-     Add support for HTTP Expect header to HTTP::Daemon (CPAN RT #27933)
+    Add support for HTTP Expect header to HTTP::Daemon (CPAN RT #27933)
 
-     Fix t/base/message.t so tests are skipped if Encode is not
-     installed.  (CPAN RT #25286)
+    Fix t/base/message.t so tests are skipped if Encode is not
+    installed.  (CPAN RT #25286)
 
-     Add HTML::Tagset as a prerequisite to Makefile.PL
+    Add HTML::Tagset as a prerequisite to Makefile.PL
 
-     Do not clobber $_ in LWP::Protocol::nntp (CPAN RT #25132)
+    Do not clobber $_ in LWP::Protocol::nntp (CPAN RT #25132)
 
-     Fix lwp-download so it can download files with an "_" in the filename
-         (CPAN RT#26207)
+    Fix lwp-download so it can download files with an "_" in the filename
+        (CPAN RT#26207)
 
-     Quiet complaints from HTML::HeadParser when dealing with undecoded
-     UTF-8 data.  (CPAN RT#20274)
+    Quiet complaints from HTML::HeadParser when dealing with undecoded
+    UTF-8 data.  (CPAN RT#20274)
 
-     When both IO::Socket::SSL and Net::SSL are loaded, use the latter
-         (CPAN RT #26152)
+    When both IO::Socket::SSL and Net::SSL are loaded, use the latter
+        (CPAN RT #26152)
 
-     Allows SSL to work much more reliably:
-         (CPAN RT #23372)
+    Allows SSL to work much more reliably:
+        (CPAN RT #23372)
 
-     Allow text/vnd.wap.wml and application/vnd.oasis.opendocument.text
-         in content-type field in lwp-request (CPAN RT #26151)
+    Allow text/vnd.wap.wml and application/vnd.oasis.opendocument.text
+        in content-type field in lwp-request (CPAN RT #26151)
 
-     Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
+    Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
      
-     Added chunked test by Andreas J. Koenig
+    Added chunked test by Andreas J. Koenig
 
 
 

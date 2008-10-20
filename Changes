@@ -1,3 +1,13 @@
+2008-10-20
+
+     Release 5.819
+
+     Gisle Aas (2):
+           Don't override $Net::HTTPS::SSL_SOCKET_CLASS if it's already set.
+           Wrong content handlers would sometimes be skipped [RT#40187]
+
+
+
 2008-10-16
 
      Release 5.818

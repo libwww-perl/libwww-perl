@@ -103,19 +103,25 @@ sub collect
         elsif (!ref($arg) && length($arg)) {
             open(my $fh, ">", $arg) || die "Can't write to '$arg': $!";
 	    binmode($fh);
-            push(@{$response->{handlers}{response_data}}, sub {
-                print $fh $_[3] || die "Can't write to '$arg': $!";
-                1;
+            push(@{$response->{handlers}{response_data}}, {
+                callback => sub {
+                    print $fh $_[3] || die "Can't write to '$arg': $!";
+                    1;
+                },
             });
-            push(@{$response->{handlers}{response_done}}, sub {
-                close($fh) || die "Can't write to '$arg': $!";
-                undef($fh);
-            });
+            push(@{$response->{handlers}{response_done}}, {
+                callback => sub {
+		    close($fh) || die "Can't write to '$arg': $!";
+		    undef($fh);
+		},
+	    });
         }
         elsif (ref($arg) eq 'CODE') {
-            push(@{$response->{handlers}{response_data}}, sub {
-                &$arg($_[3], $_[0], $self);
-                1;
+            push(@{$response->{handlers}{response_data}}, {
+                callback => sub {
+		    &$arg($_[3], $_[0], $self);
+		    1;
+                },
             });
         }
         else {
@@ -125,10 +131,12 @@ sub collect
         $ua->run_handlers("response_header", $response);
 
         if (delete $response->{default_add_content}) {
-            push(@{$response->{handlers}{response_data}}, sub {
-                $_[0]->add_content($_[3]);
-                1;
-            });
+            push(@{$response->{handlers}{response_data}}, {
+		callback => sub {
+		    $_[0]->add_content($_[3]);
+		    1;
+		},
+	    });
         }
 
 

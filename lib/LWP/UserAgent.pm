@@ -618,10 +618,12 @@ sub parse_head {
                $parser->xml_mode(1) if $response->content_is_xhtml;
                $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
 
-               push(@{$response->{handlers}{response_data}}, sub {
-                   return unless $parser;
-                   $parser->parse($_[3]) or undef($parser);
-               });
+               push(@{$response->{handlers}{response_data}}, {
+		   callback => sub {
+		       return unless $parser;
+		       $parser->parse($_[3]) or undef($parser);
+		   },
+	       });
 
             } : undef,
             m_media_type => "html",
@@ -770,7 +772,7 @@ sub handlers {
     my($self, $phase, $o) = @_;
     my @h;
     if ($o->{handlers} && $o->{handlers}{$phase}) {
-        push(@h, map +{ callback => $_ }, @{$o->{handlers}{$phase}});
+        push(@h, @{$o->{handlers}{$phase}});
     }
     if (my $conf = $self->{handlers}{$phase}) {
         push(@h, $conf->matching($o));

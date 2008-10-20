@@ -273,6 +273,8 @@ $content.  This will invoke collect() with a collector callback that
 returns a reference to $content the first time and an empty string the
 next.
 
+=back
+
 =head1 SEE ALSO
 
 Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files

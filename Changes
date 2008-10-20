@@ -1,6 +1,11 @@
 _______________________________________________________________________________
 2008-10-20  Release 5.819
 
+Release 5.815 to 5.818 had a severe bug that sometimes made LWP not
+collect all data for the responses it received.  This release is
+strongly recommended as an upgrade for those releases.
+
+
 Gisle Aas (2):
       Don't override $Net::HTTPS::SSL_SOCKET_CLASS if it's already set.
       Wrong content handlers would sometimes be skipped [RT#40187]
@@ -8,6 +13,13 @@ Gisle Aas (2):
 
 _______________________________________________________________________________
 2008-10-16  Release 5.818
+
+Main news in this release is the addition of the dump() method to the
+request and response objects.  If found that I often ended up printing
+$resp->as_string for debugging and then regretting after the terminal
+got into a strange mode or just kept on scrolling for the longest
+time.
+
 
 Gisle Aas (8):
       Use deflate compression instead of gzip for the test
@@ -25,6 +37,15 @@ Slaven Rezic (1):
 
 _______________________________________________________________________________
 2008-10-10  Release 5.817
+
+This is the release where I played around with Devel::NYTProf to
+figure where time was actually spent during the processing of requests
+with LWP.  The methods that manipulated header objects stood out, so
+this release contains a few tweaks to make those parts faster.
+
+I also figured a few convenience methods to encode and decode the
+content of request/response objects would be in order.
+
 
 Gisle Aas (16):
       Should store "wire" headers field names with _ without translation.
@@ -48,6 +69,9 @@ Gisle Aas (16):
 _______________________________________________________________________________
 2008-09-29  Release 5.816
 
+Oops, release 5.815 broke download-to-file on Windows.
+
+
 Gisle Aas (2):
       Add missing binmode() [RT#39668]
       Doc tweaks
@@ -55,6 +79,22 @@ Gisle Aas (2):
 
 _______________________________________________________________________________
 2008-09-24  Release 5.815
+
+The main change this time is the introduction of handlers to drive the
+processing of requests in LWP::UserAgent.  You can also register your
+own handlers for modifying and processing requests or responses on
+their way, which I think is a much more flexible approach that trying
+to subclass LWP::UserAgent to customize it.  If we have had these
+early on then the LWP::UserAgent API could have been so much simpler
+as the effect of most current attributes can easily be set up with
+trivial handlers.
+
+Also thanks to contributions by Bron Gondwana LWP's Basic/Digest
+authenticate modules now registers handlers which allow them to
+automatically fill in the Authorization headers without first taking
+the round-trip of a 401 response when LWP knows the credentials for a
+given realm.
+
 
 Gisle Aas (23):
       We don't need to build the docs to run the tests.

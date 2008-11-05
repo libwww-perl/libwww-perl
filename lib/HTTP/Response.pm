@@ -241,15 +241,15 @@ sub current_age
 	$age = $age_v;   # corrected_received_age
     }
 
-    my $request = $self->request;
-    if ($request) {
-	my $request_time = $request->date;
-	if ($request_time) {
-	    # Add response_delay to age to get 'corrected_initial_age'
-	    $age += $response_time - $request_time;
-	}
-    }
     if ($response_time) {
+	my $request = $self->request;
+	if ($request) {
+	    my $request_time = $request->date;
+	    if ($request_time && $request_time < $response_time) {
+		# Add response_delay to age to get 'corrected_initial_age'
+		$age += $response_time - $request_time;
+	    }
+	}
 	$age += time - $response_time;
     }
     return $age;

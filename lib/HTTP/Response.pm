@@ -225,6 +225,8 @@ EOM
 sub current_age
 {
     my $self = shift;
+    my $time = shift;
+
     # Implementation of RFC 2616 section 13.2.3
     # (age calculations)
     my $response_time = $self->client_date;
@@ -250,7 +252,7 @@ sub current_age
 		$age += $response_time - $request_time;
 	    }
 	}
-	$age += time - $response_time;
+	$age += ($time || time) - $response_time;
     }
     return $age;
 }
@@ -259,6 +261,7 @@ sub current_age
 sub freshness_lifetime
 {
     my $self = shift;
+    my $time = shift;
 
     # First look for the Cache-Control: max-age=n header
     my @cc = $self->header('Cache-Control');
@@ -275,7 +278,7 @@ sub freshness_lifetime
     }
 
     # Next possibility is to look at the "Expires" header
-    my $date = $self->date || $self->client_date || time;      
+    my $date = $self->date || $self->client_date || $time || time;
     my $expires = $self->expires;
     unless ($expires) {
 	# Must apply heuristic expiration
@@ -305,14 +308,16 @@ sub freshness_lifetime
 sub is_fresh
 {
     my $self = shift;
-    $self->freshness_lifetime > $self->current_age;
+    my $time = shift || time;
+    $self->freshness_lifetime($time) > $self->current_age($time);
 }
 
 
 sub fresh_until
 {
     my $self = shift;
-    return $self->freshness_lifetime - $self->current_age + time;
+    my $time = shift || time;
+    return $self->freshness_lifetime($time) - $self->current_age($time) + $time;
 }
 
 1;

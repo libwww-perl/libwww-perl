@@ -270,7 +270,7 @@ sub freshness_lifetime
 	for $cc (@cc) {
 	    my $cc_dir;
 	    for $cc_dir (split(/\s*,\s*/, $cc)) {
-		if ($cc_dir =~ /max-age\s*=\s*(\d+)/i) {
+		if ($cc_dir =~ /^max-age\s*=\s*(\d+)/i) {
 		    return $1;
 		}
 	    }

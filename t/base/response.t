@@ -5,7 +5,7 @@
 
 use strict;
 use Test;
-plan tests => 8;
+plan tests => 13;
 
 use HTTP::Date;
 use HTTP::Request;
@@ -30,9 +30,11 @@ ok($current_age >= 35  && $current_age <= 40);
 
 my $freshness_lifetime = $r->freshness_lifetime;
 ok($freshness_lifetime >= 12 * 3600);
+ok($r->freshness_lifetime(heuristic_expiry => 0), undef);
 
 my $is_fresh = $r->is_fresh;
 ok($is_fresh);
+ok($r->is_fresh(heuristic_expiry => 0), undef);
 
 print "# current_age        = $current_age\n";
 print "# freshness_lifetime = $freshness_lifetime\n";
@@ -46,7 +48,7 @@ print " more seconds\n";
 
 # OK, now we add an Expires header
 $r->expires($time);
-print $r->dump(prefix => "# ");
+print "\n", $r->dump(prefix => "# ");
 
 $freshness_lifetime = $r->freshness_lifetime;
 ok($freshness_lifetime, 25);
@@ -69,7 +71,13 @@ ok($current_age >= 300);
 ok($freshness_lifetime, 10);
 
 ok($r->fresh_until);  # should return something
+ok($r->fresh_until(heuristic_expiry => 0));  # should return something
 
 my $r2 = HTTP::Response->parse($r->as_string);
 my @h = $r2->header('Cache-Control');
 ok(@h, 2);
+
+$r->remove_header("Cache-Control");
+
+ok($r->fresh_until);  # should still return something
+ok($r->fresh_until(heuristic_expiry => 0), undef);

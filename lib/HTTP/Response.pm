@@ -260,64 +260,64 @@ sub current_age
 
 sub freshness_lifetime
 {
-    my $self = shift;
-    my $time = shift;
+    my($self, %opt) = @_;
 
     # First look for the Cache-Control: max-age=n header
-    my @cc = $self->header('Cache-Control');
-    if (@cc) {
-	my $cc;
-	for $cc (@cc) {
-	    my $cc_dir;
-	    for $cc_dir (split(/\s*,\s*/, $cc)) {
-		if ($cc_dir =~ /^max-age\s*=\s*(\d+)/i) {
-		    return $1;
-		}
-	    }
+    for my $cc ($self->header('Cache-Control')) {
+	for my $cc_dir (split(/\s*,\s*/, $cc)) {
+	    return $1 if $cc_dir =~ /^max-age\s*=\s*(\d+)/i;
 	}
     }
 
     # Next possibility is to look at the "Expires" header
-    my $date = $self->date || $self->client_date || $time || time;
-    my $expires = $self->expires;
-    unless ($expires) {
-	# Must apply heuristic expiration
-	my $last_modified = $self->last_modified;
-	if ($last_modified) {
-	    my $h_exp = ($date - $last_modified) * 0.10;  # 10% since last-mod
-	    if ($h_exp < 60) {
-		return 60;  # minimum
-	    }
-	    elsif ($h_exp > 24 * 3600) {
-		# Should give a warning if more than 24 hours according to
-		# RFC 2616 section 13.2.4, but I don't know how to do it
-		# from this function interface, so I just make this the
-		# maximum value.
-		return 24 * 3600;
-	    }
-	    return $h_exp;
-	}
-	else {
-	    return 3600;  # 1 hour is fallback when all else fails
-	}
+    my $date = $self->date || $self->client_date || $opt{time} || time;
+    if (my $expires = $self->expires) {
+	return $expires - $date;
     }
-    return $expires - $date;
+
+    # Must apply heuristic expiration
+    return undef if exists $opt{heuristic_expiry} && !$opt{heuristic_expiry};
+
+    # Default heuristic expiration parameters
+    $opt{h_min} ||= 60;
+    $opt{h_max} ||= 24 * 3600;
+    $opt{h_lastmod_fraction} ||= 0.10; # 10% since last-mod suggested by RFC2616
+    $opt{h_default} ||= 3600;
+
+    # Should give a warning if more than 24 hours according to
+    # RFC 2616 section 13.2.4.  Here we just make this the default
+    # maximum value.
+
+    if (my $last_modified = $self->last_modified) {
+	my $h_exp = ($date - $last_modified) * $opt{h_lastmod_fraction};
+	return $opt{h_min} if $h_exp < $opt{h_min};
+	return $opt{h_max} if $h_exp > $opt{h_max};
+	return $h_exp;
+    }
+
+    # default when all else fails
+    return $opt{h_min} if $opt{h_min} > $opt{h_default};
+    return $opt{h_default};
 }
 
 
 sub is_fresh
 {
-    my $self = shift;
-    my $time = shift || time;
-    $self->freshness_lifetime($time) > $self->current_age($time);
+    my($self, %opt) = @_;
+    $opt{time} ||= time;
+    my $f = $self->freshness_lifetime(%opt);
+    return undef unless defined($f);
+    return $f > $self->current_age($opt{time});
 }
 
 
 sub fresh_until
 {
-    my $self = shift;
-    my $time = shift || time;
-    return $self->freshness_lifetime($time) - $self->current_age($time) + $time;
+    my($self, %opt) = @_;
+    $opt{time} ||= time;
+    my $f = $self->freshness_lifetime(%opt);
+    return undef unless defined($f);
+    return $f - $self->current_age($opt{time}) + $opt{time};
 }
 
 1;
@@ -541,28 +541,64 @@ section 13.2.3.  The age of a response is the time since it was sent
 by the origin server.  The returned value is a number representing the
 age in seconds.
 
-=item $r->freshness_lifetime
+=item $r->freshness_lifetime( %opt )
 
 Calculates the "freshness lifetime" of the response as specified by
 RFC 2616 section 13.2.4.  The "freshness lifetime" is the length of
 time between the generation of a response and its expiration time.
-The returned value is a number representing the freshness lifetime in
-seconds.
+The returned value is the number of seconds until expiry.
 
 If the response does not contain an "Expires" or a "Cache-Control"
 header, then this function will apply some simple heuristic based on
-'Last-Modified' to determine a suitable lifetime.
+the "Last-Modified" header to determine a suitable lifetime.  The
+following options might be passed to control the heuristics:
 
-=item $r->is_fresh
+=over
+
+=item heuristic_expiry => $bool
+
+If passed as a FALSE value, don't apply heuristics and just return
+C<undef> when "Expires" or "Cache-Control" is lacking.
+
+=item h_lastmod_fraction => $num
+
+This number represent the fraction of the difference since the
+"Last-Modified" timestamp to make the expiry time.  The default is
+C<0.10>, the suggested typical setting of 10% in RFC 2616.
+
+=item h_min => $sec
+
+This is the lower limit of the heuristic expiry age to use.  The
+default is C<60> (1 minute).
+
+=item h_max => $sec
+
+This is the upper limit of the heuristic expiry age to use.  The
+default is C<86400> (24 hours).
+
+=item h_default => $sec
+
+This is the expiry age to use when nothing else applies.  The default
+is C<3600> (1 hour) or "h_min" if greater.
+
+=back
+
+=item $r->is_fresh( %opt )
 
 Returns TRUE if the response is fresh, based on the values of
 freshness_lifetime() and current_age().  If the response is no longer
-fresh, then it has to be refetched or revalidated by the origin
+fresh, then it has to be re-fetched or re-validated by the origin
 server.
 
-=item $r->fresh_until
+Options might be passed to control expiry heuristics, see the
+description of freshness_lifetime().
 
-Returns the time when this entity is no longer fresh.
+=item $r->fresh_until( %opt )
+
+Returns the time (seconds since epoch) when this entity is no longer fresh.
+
+Options might be passed to control expiry heuristics, see the
+description of freshness_lifetime().
 
 =back
 

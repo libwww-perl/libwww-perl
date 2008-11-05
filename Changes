@@ -1,4 +1,22 @@
 _______________________________________________________________________________
+2008-11-05  Release 5.820
+
+Main news is the ability to control the heuristics used to determine
+the expiry time for response objects.
+
+
+Gisle Aas (8):
+      Reformat later parts of Changes
+      Add a paragraph to summarize the motivation for releases since 5.815
+      all_pod_files_ok();
+      Fix POD markup error
+      Calculation of current_age with missing Client-Date.
+      The age/freshness methods now take an optional 'time' argument
+      More correct matching of 'max-age' in freshness_lifetime method
+      The freshness_lifetime method now support options to control its heuristics
+
+
+_______________________________________________________________________________
 2008-10-20  Release 5.819
 
 Release 5.815 to 5.818 had a severe bug that sometimes made LWP not

@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+use strict;
+use LWP::UserAgent ();
+use Getopt::Long qw(GetOptions);
+
+GetOptions(\my %opt,
+    'parse-head',
+    'max-length=n',
+    'keep-client-headers',
+) || usage();
+
+my $url = shift || usage();
+@ARGV && usage();
+
+sub usage {
+    (my $progname = $0) =~ s,.*/,,;
+    die <<"EOT";
+Usage: $progname [options] <url>
+
+Recognized options are:
+   --parse-head
+   --max-length <n>
+
+EOT
+}
+
+my $ua = LWP::UserAgent->new(
+    parse_head => $opt{'parse-head'} || 0,
+    keep_alive => 1,
+    env_proxy => 1,
+);
+
+my $res = $ua->get($url);
+$res->remove_header(grep /^Client-/, $res->header_field_names)
+    unless $opt{'keep-client-headers'};
+
+$res->dump(maxlength => $opt{'max-length'});
+

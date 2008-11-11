@@ -342,7 +342,7 @@ sub decode
     my $self = shift;
     return 1 unless $self->header("Content-Encoding");
     if (defined(my $content = $self->decoded_content(charset => "none"))) {
-	$self->remove_header("Content-Encoding");
+	$self->remove_header("Content-Encoding", "Content-Length", "Content-MD5");
 	$self->content($content);
 	return 1;
     }
@@ -390,6 +390,7 @@ sub encode
     my $h = $self->header("Content-Encoding");
     unshift(@enc, $h) if $h;
     $self->header("Content-Encoding", join(", ", @enc));
+    $self->remove_header("Content-Length", "Content-MD5");
     $self->content($content);
     return 1;
 }

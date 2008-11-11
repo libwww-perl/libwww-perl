@@ -430,10 +430,11 @@ else {
 }
 
 $m = HTTP::Message->new([
-    "Content-Type", "text/plain"
+    "Content-Type", "text/plain",
     ],
     "Hello world!"
 );
+$m->content_length(length $m->content);
 $m->encode("deflate");
 $m->dump(prefix => "# ");
 ok($m->dump(prefix => "| "), <<'EOT');

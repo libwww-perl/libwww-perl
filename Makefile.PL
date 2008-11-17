@@ -2,7 +2,7 @@
 
 require 5.006;
 use strict;
-use ExtUtils::MakeMaker qw(WriteMakefile);
+use ExtUtils::MakeMaker;
 use Getopt::Long qw(GetOptions);
 
 GetOptions(\my %opt,
@@ -34,7 +34,11 @@ WriteMakefile(
     NAME => 'LWP',
     DISTNAME => 'libwww-perl',
     VERSION_FROM => 'lib/LWP.pm',
+    ABSTRACT => 'The World-Wide Web library for Perl',
+    AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     EXE_FILES => [ map "bin/$_", @prog ],
+    LICENSE => "perl",
+    MIN_PERL_VERSION => 5.006,
     PREREQ_PM => {
         'URI'            => "1.10",
         'MIME::Base64'   => "2.1",
@@ -43,6 +47,15 @@ WriteMakefile(
         'HTML::Parser'   => "3.33",
         'Digest::MD5'    => 0,
         'Compress::Zlib' => "1.10",
+    },
+    META_MERGE => {
+        recommends => {
+            'Crypt::SSLeay' => 0,
+        },
+	resources => {
+            repository => 'http://gitorious.org/projects/libwww-perl',
+	    MailingList => 'mailto:libwww@perl.org',
+        }
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
 );
@@ -69,4 +82,26 @@ sub flag_file {
     else {
         unlink($file);
     }
+}
+
+BEGIN {
+    # compatibility with older versions of MakeMaker
+    my $developer = -f "NOTES.txt";
+    my %mm_req = (
+        LICENCE => 6.31,
+        META_MERGE => 6.45,
+        META_ADD => 6.45,
+        MIN_PERL_VERSION => 6.48,
+    );
+    undef(*WriteMakefile);
+    *WriteMakefile = sub {
+        my %arg = @_;
+        for (keys %mm_req) {
+            unless (eval { ExtUtils::MakeMaker->VERSION($mm_req{$_}) }) {
+                warn "$_ $@" if $developer;
+                delete $arg{$_};
+            }
+        }
+        ExtUtils::MakeMaker::WriteMakefile(%arg);
+    };
 }

@@ -101,17 +101,17 @@ sub collect
             $response->{default_add_content} = 1;
         }
         elsif (!ref($arg) && length($arg)) {
-            open(my $fh, ">", $arg) || die "Can't write to '$arg': $!";
+            open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
 	    binmode($fh);
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
-                    print $fh $_[3] || die "Can't write to '$arg': $!";
+                    print $fh $_[3] or die "Can't write to '$arg': $!";
                     1;
                 },
             });
             push(@{$response->{handlers}{response_done}}, {
                 callback => sub {
-		    close($fh) || die "Can't write to '$arg': $!";
+		    close($fh) or die "Can't write to '$arg': $!";
 		    undef($fh);
 		},
 	    });

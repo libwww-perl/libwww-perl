@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use Config;
 use HTTP::Daemon;
 use Test::More;
 # use Time::HiRes qw(sleep);
@@ -87,8 +88,18 @@ JSR-205=0;font_small=15;png=1;jpg=1;jsr184_dithering=0;CLEAR/DELETE=-8;JSR-82=0;
              );
 
 
+my $can_fork = $Config{d_fork} ||
+  (($^O eq 'MSWin32' || $^O eq 'NetWare') and
+   $Config{useithreads} and $Config{ccflags} =~ /-DPERL_IMPLICIT_SYS/);
+
 my $tests = @TESTS;
-plan tests => $tests;
+
+if (!$can_fork) {
+  plan skip_all => "This system cannot fork";
+}
+else {
+  plan tests => $tests;
+}
 
 sub mywarn ($) {
   return unless $LOGGING;

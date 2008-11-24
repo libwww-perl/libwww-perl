@@ -203,15 +203,16 @@ sub request
     #print "------\n$req_buf\n------\n";
 
     if (!$has_content || $write_wait || $has_content > 8*1024) {
-        do {
+      WRITE:
+        {
             # Since this just writes out the header block it should almost
             # always succeed to send the whole buffer in a single write call.
             my $n = $socket->syswrite($req_buf, length($req_buf));
             unless (defined $n) {
-                redo if $!{EINTR};
+                redo WRITE if $!{EINTR};
                 if ($!{EAGAIN}) {
                     select(undef, undef, undef, 0.1);
-                    redo;
+                    redo WRITE;
                 }
                 die "write failed: $!";
             }
@@ -221,8 +222,8 @@ sub request
             else {
                 select(undef, undef, undef, 0.5);
             }
+            redo WRITE if length $req_buf;
         }
-        while (length $req_buf);
     }
 
     my($code, $mess, @junk);

@@ -225,7 +225,8 @@ sub load
 			}
 		}
 
-		if ($data =~ /Cookie\:$user_name\@([\x21-\xFF]+).*?($user_name\@[\x21-\xFF]+\.txt)/)
+                (my $user_name2 = $user_name) =~ s/ /_/g;
+		if ($data =~ /Cookie\:\Q$user_name\E\@([\x21-\xFF]+).*?((?:\Q$user_name\E|\Q$user_name2\E)\@[\x21-\xFF]+\.txt)/)
 		{
 			my $cookie_file = $cookie_dir . $2; # form full pathname
 

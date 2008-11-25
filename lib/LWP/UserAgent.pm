@@ -917,9 +917,13 @@ sub proxy
     my $key  = shift;
     return map $self->proxy($_, @_), @$key if ref $key;
 
+    Carp::croak("'$key' is not a valid URI scheme") unless $key =~ /^$URI::scheme_re\z/;
     my $old = $self->{'proxy'}{$key};
     if (@_) {
-        $self->{proxy}{$key} = shift;
+        my $url = shift;
+        Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
+        Carp::croak("Bad http proxy specification '$url'") if $url =~ /^https?:/ && $url !~ m,^https?://\w,;
+        $self->{proxy}{$key} = $url;
         $self->set_my_handler("request_preprepare", \&_need_proxy)
     }
     return $old;

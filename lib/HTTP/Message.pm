@@ -2,7 +2,7 @@ package HTTP::Message;
 
 use strict;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = "5.818";
+$VERSION = "5.821";
 
 require HTTP::Headers;
 require Carp;

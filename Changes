@@ -1,4 +1,32 @@
 _______________________________________________________________________________
+2008-11-25  Release 5.821
+
+Various bug fixes.
+
+
+Gisle Aas (3):
+      The Content-Length and Content-MD5 headers are no longer valid after encode/decode
+      Add META information
+      croak on bad proxy args [RT#39919]
+
+Slaven Rezic (1):
+      Skip a failing decoded_content on systems without Encode.pm [RT#40735]
+
+Steve Hay (1):
+      Skip LWP test when fork() is unimplemented
+
+Yuri Karaban (1):
+      redo used incorrectly in LWP::Protocol::http [RT#41116]
+
+jefflee (1):
+      HTTP::Cookies::Microsoft now handles user names with space [RT#40917]
+
+ruff (1):
+      Avoid aborting requests saved to file early [RT#40985]
+
+
+
+_______________________________________________________________________________
 2008-11-05  Release 5.820
 
 Main news is the ability to control the heuristics used to determine

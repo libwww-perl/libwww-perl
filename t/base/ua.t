@@ -3,7 +3,7 @@
 use strict;
 use Test;
 
-plan tests => 10;
+plan tests => 12;
 
 use LWP::UserAgent;
 
@@ -40,3 +40,6 @@ X: y
 EOT
 
 ok(ref($clone->{proxy}), 'HASH');
+
+ok($ua->proxy(http => undef), "loopback:");
+ok($ua->proxy('http'), undef);

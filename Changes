@@ -1,4 +1,15 @@
 _______________________________________________________________________________
+2008-12-05  Release 5.822
+
+Gisle Aas (4):
+      A more modern user_agent example.
+      Make it possible to unset the proxy settings again
+      Prefer use specified Content-Length header [RT#41462]
+      Deprecate LWP::Debug
+
+
+
+_______________________________________________________________________________
 2008-11-25  Release 5.821
 
 Various bug fixes.

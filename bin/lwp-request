@@ -180,7 +180,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = "5.818";
+$VERSION = "5.822";
 
 
 require LWP;

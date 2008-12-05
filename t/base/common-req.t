@@ -1,7 +1,7 @@
 #perl -w
 
 use Test;
-plan tests => 51;
+plan tests => 52;
 
 use HTTP::Request::Common;
 
@@ -205,3 +205,9 @@ EOT
 
 $r = HTTP::Request::Common::DELETE 'http://www.example.com';
 ok($r->method, "DELETE");
+
+$r = HTTP::Request::Common::PUT 'http://www.example.com',
+    'Content-Type' => 'application/octet-steam',
+    'Content' => 'foobarbaz',
+    'Content-Length' => 12;   # a slight lie
+ok($r->header('Content-Length'), 12);

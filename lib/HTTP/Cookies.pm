@@ -3,7 +3,6 @@ package HTTP::Cookies;
 use strict;
 use HTTP::Date qw(str2time time2str);
 use HTTP::Headers::Util qw(_split_header_words join_header_words);
-use LWP::Debug ();
 
 use vars qw($VERSION $EPOCH_OFFSET);
 $VERSION = "5.817";
@@ -43,7 +42,6 @@ sub add_cookie_header
     my $url = $request->url;
     my $scheme = $url->scheme;
     unless ($scheme =~ /^https?\z/) {
-	LWP::Debug::debug("Will not add cookies to non-HTTP requests");
 	return;
     }
 
@@ -60,8 +58,7 @@ sub add_cookie_header
     my $netscape_only = 0; # An exact domain match applies to any cookie
 
     while ($domain =~ /\./) {
-
-        LWP::Debug::debug("Checking $domain for cookies");
+        # Checking $domain for cookies"
 	my $cookies = $self->{COOKIES}{$domain};
 	next unless $cookies;
 	if ($self->{delayload} && defined($cookies->{'//+delayload'})) {
@@ -76,22 +73,17 @@ sub add_cookie_header
 	# first (i.e. longest path first)
 	my $path;
 	for $path (sort {length($b) <=> length($a) } keys %$cookies) {
-            LWP::Debug::debug("- checking cookie path=$path");
 	    if (index($req_path, $path) != 0) {
-	        LWP::Debug::debug("  path $path:$req_path does not fit");
 		next;
 	    }
 
 	    my($key,$array);
 	    while (($key,$array) = each %{$cookies->{$path}}) {
 		my($version,$val,$port,$path_spec,$secure,$expires) = @$array;
-	        LWP::Debug::debug(" - checking cookie $key=$val");
 		if ($secure && !$secure_request) {
-		    LWP::Debug::debug("   not a secure requests");
 		    next;
 		}
 		if ($expires && $expires < $now) {
-		    LWP::Debug::debug("   expired");
 		    next;
 		}
 		if ($port) {
@@ -108,17 +100,12 @@ sub add_cookie_header
 			}
 		    }
 		    unless ($found) {
-		        LWP::Debug::debug("   port $port:$req_port does not fit");
 			next;
 		    }
 		}
 		if ($version > 0 && $netscape_only) {
-		    LWP::Debug::debug("   domain $domain applies to " .
-				      "Netscape-style cookies only");
 		    next;
 		}
-
-	        LWP::Debug::debug("   it's a match");
 
 		# set version number of cookie header.
 	        # XXX: What should it be if multiple matching
@@ -263,8 +250,6 @@ sub extract_cookies
 	my $key = shift @$set;
 	my $val = shift @$set;
 
-        LWP::Debug::debug("Set cookie $key => $val");
-
 	my %hash;
 	while (@$set) {
 	    my $k = shift @$set;
@@ -294,22 +279,18 @@ sub extract_cookies
 	if (defined($domain)
 	    && $domain ne $req_host && $domain ne ".$req_host") {
 	    if ($domain !~ /\./ && $domain ne "local") {
-	        LWP::Debug::debug("Domain $domain contains no dot");
 		next SET_COOKIE;
 	    }
 	    $domain = ".$domain" unless $domain =~ /^\./;
 	    if ($domain =~ /\.\d+$/) {
-	        LWP::Debug::debug("IP-address $domain illeagal as domain");
 		next SET_COOKIE;
 	    }
 	    my $len = length($domain);
 	    unless (substr($req_host, -$len) eq $domain) {
-	        LWP::Debug::debug("Domain $domain does not match host $req_host");
 		next SET_COOKIE;
 	    }
 	    my $hostpre = substr($req_host, 0, length($req_host) - $len);
 	    if ($hostpre =~ /\./ && !$ns_cookie) {
-	        LWP::Debug::debug("Host prefix contain a dot: $hostpre => $domain");
 		next SET_COOKIE;
 	    }
 	}
@@ -324,7 +305,6 @@ sub extract_cookies
 	    _normalize_path($path) if $path =~ /%/;
 	    if (!$ns_cookie &&
                 substr($req_path, 0, length($path)) ne $path) {
-	        LWP::Debug::debug("Path $path is not a prefix of $req_path");
 		next SET_COOKIE;
 	    }
 	}
@@ -342,13 +322,11 @@ sub extract_cookies
 		my $found;
 		for my $p (split(/,/, $port)) {
 		    unless ($p =~ /^\d+$/) {
-		      LWP::Debug::debug("Bad port $port (not numeric)");
 			next SET_COOKIE;
 		    }
 		    $found++ if $p eq $req_port;
 		}
 		unless ($found) {
-		    LWP::Debug::debug("Request port ($req_port) not found in $port");
 		    next SET_COOKIE;
 		}
 	    }

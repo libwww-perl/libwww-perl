@@ -19,19 +19,15 @@ sub load
     my $magic = <FILE>;
     unless ($magic =~ /^\#(?: Netscape)? HTTP Cookie File/) {
 	warn "$file does not look like a netscape cookies file" if $^W;
-	LWP::Debug::debug("$file doesn't look like a netscape cookies file. Skipping.");
 	close(FILE);
 	return;
     }
-    LWP::Debug::debug("Okay, $file is a netscape cookies file.  Parsing.");
     my $now = time() - $HTTP::Cookies::EPOCH_OFFSET;
     while (<FILE>) {
 	next if /^\s*\#/;
 	next if /^\s*$/;
 	tr/\n\r//d;
 	my($domain,$bool1,$path,$secure, $expires,$key,$val) = split(/\t/, $_);
-	LWP::Debug::debug(join '', "-Reading NS cookie: ",
-	  map(" <$_>", split(/\t/, $_)));
 	$secure = ($secure eq "TRUE");
 	$self->set_cookie(undef,$key,$val,$path,$domain,undef,
 			  0,$secure,$expires-$now, 0);

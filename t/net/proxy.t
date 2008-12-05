@@ -12,10 +12,7 @@ unless (defined $net::ftp_proxy) {
     exit 0;
 }
 
-require LWP::Debug;
 require LWP::UserAgent;
-
-#LWP::Debug::level('+');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 

@@ -9,7 +9,6 @@ require HTTP::Request;
 require HTTP::Response;
 
 use Carp ();
-use LWP::Debug ();
 use HTTP::Status ();
 use HTTP::Date qw(time2str);
 use strict;
@@ -114,18 +113,14 @@ sub simple_request
 {
     my($self, $request, $arg, $size) = @_;
 
-    LWP::Debug::trace('()');
-
     # Do we try to access a new server?
     my $allowed = $self->{'rules'}->allowed($request->url);
 
     if ($allowed < 0) {
-	LWP::Debug::debug("Host is not visited before, or robots.txt expired.");
-	# fetch "robots.txt"
+	# Host is not visited before, or robots.txt expired; fetch "robots.txt"
 	my $robot_url = $request->url->clone;
 	$robot_url->path("robots.txt");
 	$robot_url->query(undef);
-	LWP::Debug::debug("Requesting $robot_url");
 
 	# make access to robot.txt legal since this will be a recursive call
 	$self->{'rules'}->parse($robot_url, ""); 
@@ -136,17 +131,14 @@ sub simple_request
 	if ($robot_res->is_success) {
 	    my $c = $robot_res->content;
 	    if ($robot_res->content_type =~ m,^text/, && $c =~ /^\s*Disallow\s*:/mi) {
-		LWP::Debug::debug("Parsing robot rules");
 		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
 	    }
 	    else {
-		LWP::Debug::debug("Ignoring robots.txt");
 		$self->{'rules'}->parse($robot_url, "", $fresh_until);
 	    }
 
 	}
 	else {
-	    LWP::Debug::debug("No robots.txt file found");
 	    $self->{'rules'}->parse($robot_url, "", $fresh_until);
 	}
 
@@ -166,7 +158,6 @@ sub simple_request
     my $wait = $self->host_wait($netloc);
 
     if ($wait) {
-	LWP::Debug::debug("Must wait $wait seconds");
 	if ($self->{'use_sleep'}) {
 	    sleep($wait)
 	}

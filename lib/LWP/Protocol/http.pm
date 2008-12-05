@@ -2,7 +2,6 @@ package LWP::Protocol::http;
 
 use strict;
 
-require LWP::Debug;
 require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
@@ -116,7 +115,6 @@ sub hlist_remove {
 sub request
 {
     my($self, $request, $proxy, $arg, $size, $timeout) = @_;
-    LWP::Debug::trace('()');
 
     $size ||= 4096;
 
@@ -404,7 +402,6 @@ sub request
 	    if (($peer_http_version eq "1.1" && !$connection{close}) ||
 		$connection{"keep-alive"})
 	    {
-		LWP::Debug::debug("Keep the http connection to $host:$port");
 		$conn_cache->deposit("http", "$host:$port", $socket);
 	    }
 	}

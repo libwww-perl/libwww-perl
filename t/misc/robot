@@ -5,8 +5,6 @@ $ua = LWP::RobotUA->new('testbot/1.0', 'aas@sn.no');
 
 print $ua->as_string;
 
-use LWP::Debug qw(+ -conns);
-
 $req = HTTP::Request->new(GET => "http://localhost:8080/");
 
 $res = $ua->request($req);

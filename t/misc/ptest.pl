@@ -2,8 +2,6 @@
 
 use lib 'blib/lib';
 
-use LWP::Debug '+';
-
 use LWP::UserAgent;
 
 $ua = new LWP::UserAgent;

@@ -543,7 +543,6 @@ The following modules provide various functions and definitions.
 
  LWP                -- This file.  Library version number and documentation.
  LWP::MediaTypes    -- MIME types configuration (text/html etc.)
- LWP::Debug         -- Debug logging module
  LWP::Simple        -- Simplified procedural interface for common functions
  HTTP::Status       -- HTTP status code (200 OK etc)
  HTTP::Date         -- Date parsing module for HTTP date formats

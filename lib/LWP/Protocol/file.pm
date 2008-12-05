@@ -16,8 +16,6 @@ sub request
 {
     my($self, $request, $proxy, $arg, $size) = @_;
 
-    LWP::Debug::trace('()');
-
     $size = 4096 unless defined $size and $size > 0;
 
     # check proxy

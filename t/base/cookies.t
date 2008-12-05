@@ -3,7 +3,6 @@
 use Test;
 plan tests => 62;
 
-#use LWP::Debug '+';
 use HTTP::Cookies;
 use HTTP::Request;
 use HTTP::Response;
@@ -452,8 +451,6 @@ ok($req->header("Cookie") =~ /Customer=WILE_E_COYOTE/);
 # Test handling of local intranet hostnames without a dot
 $c->clear;
 print "---\n";
-#require LWP::Debug;
-#LWP::Debug::level('+');
 
 interact($c, "http://example/", "foo1=bar; PORT; Discard;");
 $_=interact($c, "http://example/", 'foo2=bar; domain=".local"');

@@ -4,8 +4,6 @@ $to = $file;
 $to =~ s|.*/||;  # only basename
 $to = "index.html" unless length $to;
 
-use LWP::Debug qw(+);
-
 use LWP::UserAgent;
 
 $ua = new LWP::UserAgent;

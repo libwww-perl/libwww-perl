@@ -4,12 +4,9 @@
 print "1..1\n";
 
 require "net/config.pl";
-require LWP::Debug;
 require LWP::UserAgent;
 
 $url = "http://$net::httpserver$net::cgidir/moved";
-
-#LWP::Debug::level('+trace');
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 $ua->timeout(30);               # timeout in seconds

@@ -149,10 +149,6 @@ Print the version number of the program and quit.
 
 Print usage message and quit.
 
-=item -x
-
-Extra debugging output.
-
 =item -a
 
 Set text(ascii) mode for content input and output.  If this option is not
@@ -188,7 +184,6 @@ $VERSION = "5.818";
 
 
 require LWP;
-require LWP::Debug;
 
 use URI;
 use URI::Heuristic qw(uf_uri);
@@ -280,7 +275,6 @@ my @getopt_args = (
     'h', # print usage
     'v', # print version
     #
-    'x', # extra debugging info
     'p=s', # proxy URL
     'P', # don't load proxy setting from environment
     #
@@ -305,8 +299,6 @@ EOT
 }
 
 usage() if $options{'h'} || !@ARGV;
-
-LWP::Debug::level('+') if $options{'x'};
 
 # Create the user agent object
 $ua = RequestAgent->new;
@@ -543,7 +535,5 @@ Usage: $progname [-options] <url>...
 
     -v            Show program version
     -h            Print this message
-
-    -x            Extra debugging output
 EOT
 }

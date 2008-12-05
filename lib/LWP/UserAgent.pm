@@ -12,7 +12,6 @@ use HTTP::Response ();
 use HTTP::Date ();
 
 use LWP ();
-use LWP::Debug ();
 use LWP::Protocol ();
 
 use Carp ();
@@ -35,7 +34,6 @@ sub new
         if ref($_[1]) eq 'HASH'; 
 
     my($class, %cnf) = @_;
-    LWP::Debug::trace('()');
 
     my $agent = delete $cnf{agent};
     my $from  = delete $cnf{from};
@@ -119,8 +117,6 @@ sub send_request
 
     local($SIG{__DIE__});  # protect against user defined die handlers
 
-    LWP::Debug::trace("$method $url");
-
     $self->progress("begin", $request);
 
     my $response = $self->run_handlers("request_send", $request);
@@ -134,22 +130,16 @@ sub send_request
             my $x;
             if($x = $self->protocols_allowed) {
                 if (grep lc($_) eq $scheme, @$x) {
-                    LWP::Debug::trace("$scheme URLs are among $self\'s allowed protocols (@$x)");
                 }
                 else {
-                    LWP::Debug::trace("$scheme URLs aren't among $self\'s allowed protocols (@$x)");
                     require LWP::Protocol::nogo;
                     $protocol = LWP::Protocol::nogo->new;
                 }
             }
             elsif ($x = $self->protocols_forbidden) {
                 if(grep lc($_) eq $scheme, @$x) {
-                    LWP::Debug::trace("$scheme URLs are among $self\'s forbidden protocols (@$x)");
                     require LWP::Protocol::nogo;
                     $protocol = LWP::Protocol::nogo->new;
-                }
-                else {
-                    LWP::Debug::trace("$scheme URLs aren't among $self\'s forbidden protocols (@$x)");
                 }
             }
             # else fall thru and create the protocol object normally
@@ -270,8 +260,6 @@ sub request
 {
     my($self, $request, $arg, $size, $previous) = @_;
 
-    LWP::Debug::trace('()');
-
     my $response = $self->simple_request($request, $arg, $size);
 
     if ($previous) {
@@ -294,11 +282,7 @@ sub request
         return $self->request($req, $arg, $size, $response);
     }
 
-
     my $code = $response->code;
-    LWP::Debug::debug('Simple response: ' .
-		      (HTTP::Status::status_message($code) ||
-		       "Unknown code $code"));
 
     if ($code == &HTTP::Status::RC_MOVED_PERMANENTLY or
 	$code == &HTTP::Status::RC_FOUND or
@@ -315,7 +299,7 @@ sub request
 	    $referral->url->scheme eq 'http')
 	{
 	    # RFC 2616, section 15.1.3.
-	    LWP::Debug::trace("https -> http redirect, suppressing Referer");
+	    # https -> http redirect, suppressing Referer
 	    $referral->remove_header('Referer');
 	}
 
@@ -843,7 +827,6 @@ sub mirror
 {
     my($self, $url, $file) = @_;
 
-    LWP::Debug::trace('()');
     my $request = HTTP::Request->new('GET', $url);
 
     if (-e $file) {

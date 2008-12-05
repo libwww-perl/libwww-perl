@@ -155,7 +155,6 @@ sub collect
             $content_size += length($$content);
             $ua->progress(($length ? ($content_size / $length) : "tick"), $response);
             if (defined($max_size) && $content_size > $max_size) {
-                LWP::Debug::debug("Aborting because size limit exceeded");
                 $response->push_header("Client-Aborted", "max_size");
                 last;
             }

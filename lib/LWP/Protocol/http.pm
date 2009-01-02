@@ -368,7 +368,7 @@ sub request
     if (my @te = $response->remove_header('Transfer-Encoding')) {
 	$response->push_header('Client-Transfer-Encoding', \@te);
     }
-    $response->push_header('Client-Response-Num', $socket->increment_response_count);
+    $response->push_header('Client-Response-Num', scalar $socket->increment_response_count);
 
     my $complete;
     $response = $self->collect($arg, $response, sub {

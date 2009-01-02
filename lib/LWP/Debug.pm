@@ -74,5 +74,37 @@ LWP::Debug - deprecated
 =head1 DESCRIPTION
 
 LWP::Debug used to provide tracing facilities, but these are not used
-by LWP any more.  This code is kept around so that 3rd party code that
-happen to use it continue to run.
+by LWP any more.  The code in this module is kept around
+(undocumented) so that 3rd party code that happen to use the old
+interfaces continue to run.
+
+One useful feature that LWP::Debug provided (in an imprecise and
+troublesome way) was network traffic monitoring.  The following
+section provide some hints about recommened replacements.
+
+=head2 Network traffic monitoring
+
+The best way to monitor the network traffic that LWP generates is to
+use an external TCP monitoring program.  The Wireshark program
+(L<http://www.wireshark.org/>) is higly recommended for this.
+
+Another approach it to use a debugging HTTP proxy server and make
+LWP direct all its traffic via this one.  Call C<< $ua->proxy >> to
+set it up and then just use LWP as before.
+
+For less precise monitoring needs just setting up a few simple
+handlers might do.  The following example sets up handlers to dump the
+request and response objects that pass through LWP:
+
+  use LWP::UserAgent;
+  $ua = LWP::UserAgent->new;
+  $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
+
+  $ua->add_handler("request_send",  sub { shift->dump; return });
+  $ua->add_handler("response_done", sub { shift->dump; return });
+
+  $ua->get("http://www.example.com");
+
+=head1 SEE ALSO
+
+L<LWP::UserAgent>

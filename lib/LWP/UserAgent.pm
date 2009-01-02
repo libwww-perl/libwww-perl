@@ -1344,7 +1344,7 @@ handlers for this phase.
 =item request_prepare => sub { my($request, $ua, $h) = @_; ... }
 
 The handler is called before the request is sent and can modify the
-request any way it see hit.  This can for instance be used to add
+request any way it see fit.  This can for instance be used to add
 certain headers to specific requests.
 
 The method can assign a new request object to $_[0] to replace the
@@ -1422,7 +1422,7 @@ If $cb is passed as C<undef>, remove the handler.
 
 =item $ua->get_my_handler( $phase, %matchspec, $init )
 
-The retrieve the matching handler as hash ref.
+Will retrieve the matching handler as hash ref.
 
 If C<$init> is passed passed as a TRUE value, create and add the
 handler if it's not found.  If $init is a subroutine reference, then

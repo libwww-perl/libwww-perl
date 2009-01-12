@@ -1,4 +1,15 @@
 _______________________________________________________________________________
+2008-12-05  Release 5.823
+
+Gisle Aas (4):
+      Bring back the LWP::Debug code [RT#41759]
+      Add documentation section about 'Network traffic monitoring'.
+      Typo fixes
+      Want to ensure we get a single value back here.
+
+
+
+_______________________________________________________________________________
 2008-12-05  Release 5.822
 
 Gisle Aas (4):

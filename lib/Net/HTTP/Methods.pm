@@ -9,6 +9,20 @@ $VERSION = "5.815";
 
 my $CRLF = "\015\012";   # "\r\n" is not portable
 
+*_bytes = defined(&utf8::downgrade) ?
+    sub {
+        unless (utf8::downgrade($_[0], 1)) {
+            require Carp;
+            Carp::croak("Wide character in HTTP request (bytes required)");
+        }
+        return $_[0];
+    }
+    :
+    sub {
+        return $_[0];
+    };
+
+
 sub new {
     my $class = shift;
     unshift(@_, "Host") if @_ == 1;
@@ -173,13 +187,7 @@ sub format_request {
 	push(@h2, "Host: $h") if $h;
     }
 
-    my $req = join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content);
-    return $req unless defined &utf8::downgrade;
-    unless (utf8::downgrade($req, 1)) {
-        require Carp;
-        Carp::croak("Wide character in HTTP request (bytes required)");
-    }
-    return $req;
+    return _bytes(join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content));
 }
 
 
@@ -191,13 +199,13 @@ sub write_request {
 sub format_chunk {
     my $self = shift;
     return $_[0] unless defined($_[0]) && length($_[0]);
-    return sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF;
+    return _bytes(sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF);
 }
 
 sub write_chunk {
     my $self = shift;
     return 1 unless defined($_[0]) && length($_[0]);
-    $self->print(sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF);
+    $self->print(_bytes(sprintf("%x", length($_[0])) . $CRLF . $_[0] . $CRLF));
 }
 
 sub format_chunk_eof {
@@ -206,7 +214,7 @@ sub format_chunk_eof {
     while (@_) {
 	push(@h, sprintf "%s: %s$CRLF", splice(@_, 0, 2));
     }
-    return join("", "0$CRLF", @h, $CRLF);
+    return _bytes(join("", "0$CRLF", @h, $CRLF));
 }
 
 sub write_chunk_eof {

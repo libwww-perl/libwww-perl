@@ -173,7 +173,13 @@ sub format_request {
 	push(@h2, "Host: $h") if $h;
     }
 
-    return join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content);
+    my $req = join($CRLF, "$method $uri HTTP/$ver", @h2, @h, "", $content);
+    return $req unless defined &utf8::downgrade;
+    unless (utf8::downgrade($req, 1)) {
+        require Carp;
+        Carp::croak("Wide character in HTTP request (bytes required)");
+    }
+    return $req;
 }
 
 

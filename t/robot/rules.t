@@ -62,6 +62,8 @@ User-Agent: SvartEnke2
 Disallow: ftp://foo
 Disallow: http://foo:8080/
 Disallow: http://bar/
+
+Sitemap: http://www.adobe.com/sitemap.xml
 EOM
 
 my $content5 = <<EOM;

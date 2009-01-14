@@ -105,6 +105,9 @@ sub parse {
 		push(@anon_disallowed, $disallow);
 	    }
 	}
+        elsif (/^\s*Sitemap\s*:/i) {
+             # ignore
+        }
 	else {
 	    warn "RobotRules <$robot_txt_uri>: Unexpected line: $_\n" if $^W;
 	}

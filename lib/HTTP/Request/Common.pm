@@ -367,7 +367,7 @@ returned in a separate statement.
 
 =item DELETE $url, Header => Value,...
 
-Like GET() but the method in the request is "DELETE".  This funciton
+Like GET() but the method in the request is "DELETE".  This function
 is not exported by default.
 
 =item POST $url

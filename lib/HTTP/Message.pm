@@ -322,7 +322,7 @@ sub decodable
     # should match the Content-Encoding values that decoded_content can deal with
     my $self = shift;
     my @enc;
-    # XXX preferably we should deterine if the modules are available without loading
+    # XXX preferably we should determine if the modules are available without loading
     # them here
     eval {
         require Compress::Zlib;
@@ -332,7 +332,8 @@ sub decodable
         require Compress::Bzip2;
         push(@enc, "x-bzip2");
     };
-    # we don't care about announcing the 'base64' and 'quoted-printable' stuff
+    # we don't care about announcing the 'identity', 'base64' and
+    # 'quoted-printable' stuff
     return wantarray ? @enc : join(", ", @enc);
 }
 
@@ -362,7 +363,7 @@ sub encode
     my $content = $self->content;
     for my $encoding (@enc) {
 	if ($encoding eq "identity") {
-	    # noting to do
+	    # nothing to do
 	}
 	elsif ($encoding eq "base64") {
 	    require MIME::Base64;
@@ -789,9 +790,9 @@ the raw content as no data copying is required in this case.
 
 =back
 
-=item $mess->decodeable
+=item $mess->decodable
 
-=item HTTP::Message::decodeable()
+=item HTTP::Message::decodable()
 
 This returns the encoding identifiers that decoded_content() can
 process.  In scalar context returns a comma separated string of
@@ -803,7 +804,7 @@ header field.
 =item $mess->decode
 
 This method tries to replace the content of the message with the
-decoded version and removes the C<Content-Encoding> header.  Return
+decoded version and removes the C<Content-Encoding> header.  Returns
 TRUE if successful and FALSE if not.
 
 If the message does not have a C<Content-Encoding> header this method
@@ -816,8 +817,9 @@ want to process its content as a string.
 =item $mess->encode( $encoding, ... )
 
 Apply the given encodings to the content of the message.  Returns TRUE
-if successful. Currently supported encodings are "gzip", "deflate",
-"x-bzip2" and "base64".
+if successful. The "identity" (non-)encoding is always supported; other
+currently supported encodings, subject to availability of required
+additional modules, are "gzip", "deflate", "x-bzip2" and "base64".
 
 A successful call to this function will set the C<Content-Encoding>
 header.

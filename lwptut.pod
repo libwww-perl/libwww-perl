@@ -49,7 +49,7 @@ to STDOUT; otherwise it complains to STDERR.
 
   % perl -MLWP::Simple -e "getprint 'http://cpan.org/RECENT'"
 
-That is the URL of a plaintext file that lists new files in CPAN in
+That is the URL of a plain text file that lists new files in CPAN in
 the past two weeks.  You can easily make it part of a tidy little
 shell command, like this one that mails you the list of new
 C<Acme::> modules:
@@ -155,8 +155,8 @@ GIF data.
 =item *
 
 And dozens of other convenient and more specific methods that are
-documented in the docs for L<HTML::Response>, and its superclasses
-L<HTML::Message> and L<HTML::Headers>.
+documented in the docs for L<HTTP::Response>, and its superclasses
+L<HTTP::Message> and L<HTTP::Headers>.
 
 =back
 
@@ -309,7 +309,7 @@ the HTML the report of the number of matches:
   die "$url error: ", $response->status_line
    unless $response->is_success;
   die "Weird content type at $url -- ", $response->content_type
-   unless $response->content_type eq 'text/html';
+   unless $response->content_is_html;
 
   if( $response->decoded_content =~ m{AltaVista found ([0-9,]+) results} ) {
     # The substring will be like "AltaVista found 2,345 results"

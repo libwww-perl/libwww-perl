@@ -94,10 +94,18 @@ my $can_fork = $Config{d_fork} ||
 
 my $tests = @TESTS;
 
+my $tsock = IO::Socket::INET->new(LocalAddr => '0.0.0.0',
+                                  LocalPort => 8333,
+                                  Listen    => 1,
+                                  ReuseAddr => 1);
 if (!$can_fork) {
   plan skip_all => "This system cannot fork";
 }
+elsif (!$tsock) {
+  plan skip_all => "Cannot listen on 0.0.0.0:8333";
+}
 else {
+  close $tsock;
   plan tests => $tests;
 }
 

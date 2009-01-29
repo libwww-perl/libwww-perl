@@ -93,16 +93,17 @@ my $can_fork = $Config{d_fork} ||
    $Config{useithreads} and $Config{ccflags} =~ /-DPERL_IMPLICIT_SYS/);
 
 my $tests = @TESTS;
+my $tport = 8333;
 
 my $tsock = IO::Socket::INET->new(LocalAddr => '0.0.0.0',
-                                  LocalPort => 8333,
+                                  LocalPort => $tport,
                                   Listen    => 1,
                                   ReuseAddr => 1);
 if (!$can_fork) {
   plan skip_all => "This system cannot fork";
 }
 elsif (!$tsock) {
-  plan skip_all => "Cannot listen on 0.0.0.0:8333";
+  plan skip_all => "Cannot listen on 0.0.0.0:$tport";
 }
 else {
   close $tsock;
@@ -128,13 +129,13 @@ if ($pid = fork) {
     my $raw = $test->{raw};
     $raw =~ s/\r?\n/$CRLF/mg;
     if (0) {
-      open my $fh, "| socket localhost 8333" or die;
+      open my $fh, "| socket localhost $tport" or die;
       print $fh $test;
     }
     use IO::Socket::INET;
     my $sock = IO::Socket::INET->new(
                                      PeerAddr => "127.0.0.1",
-                                     PeerPort => 8333,
+                                     PeerPort => $tport,
                                     ) or die;
     if (0) {
       for my $pos (0..length($raw)-1) {
@@ -158,7 +159,7 @@ if ($pid = fork) {
   die "cannot fork: $!" unless defined $pid;
   my $d = HTTP::Daemon->new(
                             LocalAddr => '0.0.0.0',
-                            LocalPort => 8333,
+                            LocalPort => $tport,
                             ReuseAddr => 1,
                            ) or die;
   mywarn "Starting new daemon as '$$'";

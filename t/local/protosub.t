@@ -1,6 +1,8 @@
 #!perl
 
-print "1..6\n";
+use strict;
+use Test;
+plan tests => 6;
 
 # This test tries to make a custom protocol implementation by
 # subclassing of LWP::Protocol.
@@ -11,27 +13,27 @@ use LWP::Protocol ();
 
 LWP::Protocol::implementor(http => 'myhttp');
 
-$ua = LWP::UserAgent->new;
+my $ua = LWP::UserAgent->new;
 $ua->proxy('ftp' => "http://www.sn.no/");
 
-$req = HTTP::Request->new(GET => 'ftp://foo/');
+my $req = HTTP::Request->new(GET => 'ftp://foo/');
 $req->header(Cookie => "perl=cool");
 
-$res = $ua->request($req);
+my $res = $ua->request($req);
 
-print $res->as_string;
-
-print "not " unless $res->code == 200;
-print "ok 5\n";
-print "not " unless $res->content eq "Howdy\n";
-print "ok 6\n";
+#print $res->as_string;
+ok($res->code, 200);
+ok($res->content, "Howdy\n");
 exit;
 
 
 #----------------------------------
 package myhttp;
 
+use Test qw(ok);
+
 BEGIN {
+   use vars qw(@ISA);
    @ISA=qw(LWP::Protocol);
 }
 
@@ -40,8 +42,7 @@ sub new
     my $class = shift;
     print "CTOR: $class->new(@_)\n";
     my($prot) = @_;
-    print "not " unless $prot eq "http";
-    print "ok 1\n";
+    ok($prot, "http");
     my $self = $class->SUPER::new(@_);
     for (keys %$self) {
 	my $v = $self->{$_};
@@ -54,18 +55,12 @@ sub new
 sub request
 {
     my $self = shift;
-    print "REQUEST: $self->request(",
-       join(",", (map defined($_)? $_ : "UNDEF", @_)), ")\n";
-
     my($request, $proxy, $arg, $size, $timeout) = @_;
-    print $request->as_string;
+    #print $request->as_string;
 
-    print "not " unless $proxy eq "http://www.sn.no/";
-    print "ok 2\n";
-    print "not " unless $request->url eq "ftp://foo/";
-    print "ok 3\n";
-    print "not " unless $request->header("cookie") eq "perl=cool";
-    print "ok 4\n";
+    ok($proxy, "http://www.sn.no/");
+    ok($request->url, "ftp://foo/");
+    ok($request->header("cookie"), "perl=cool");
 
     my $res = HTTP::Response->new(200 => "OK");
     $res->content_type("text/plain");

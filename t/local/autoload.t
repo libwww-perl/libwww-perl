@@ -2,7 +2,8 @@
 # See if autoloading of protocol schemes work
 #
 
-print "1..1\n";
+use Test;
+plan tests => 1;
 
 require LWP::UserAgent;
 # note no LWP::Protocol::file;
@@ -18,11 +19,4 @@ $ua->timeout(30);               # timeout in seconds
 my $request = HTTP::Request->new(GET => $url);
 
 my $response = $ua->request($request);
-if ($response->is_success) {
-    print "ok 1\n";
-    print $response->as_string;
-}
-else {
-    print "not ok 1\n";
-    print $response->error_as_HTML;
-}
+ok($response->is_success);

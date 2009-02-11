@@ -47,8 +47,8 @@ else {
     open(DAEMON, "$perl local/http.t daemon |") or die "Can't exec daemon: $!";
 }
 
-print "1..18\n";
-
+use Test;
+plan tests => 45;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -75,13 +75,12 @@ $req = new HTTP::Request GET => url("/not_found", $base);
 $req->header(X_Foo => "Bar");
 $res = $ua->request($req);
 
-print "not " unless $res->is_error
-                and $res->code == 404
-                and $res->message =~ /not\s+found/i;
-print "ok 1\n";
+ok($res->is_error);
+ok($res->code, 404);
+ok($res->message, qr/not\s+found/i);
 # we also expect a few headers
-print "not " if !$res->server and !$res->date;
-print "ok 2\n";
+ok($res->server);
+ok($res->date);
 
 #----------------------------------------------------------------
 print "Simple echo...\n";
@@ -108,25 +107,24 @@ $req->header(X_Foo => "Bar");
 $res = $ua->request($req);
 #print $res->as_string;
 
-print "not " unless $res->is_success
-               and  $res->code == 200 && $res->message eq "OK";
-print "ok 3\n";
+ok($res->is_success);
+ok($res->code, 200);
+ok($res->message, "OK");
 
 $_ = $res->content;
 @accept = /^Accept:\s*(.*)/mg;
 
-print "not " unless /^From:\s*gisle\@aas\.no$/m
-                and /^Host:/m
-                and @accept == 3
-	        and /^Accept:\s*text\/html/m
-	        and /^Accept:\s*text\/plain/m
-	        and /^Accept:\s*image\/\*/m
-		and /^If-Modified-Since:\s*\w{3},\s+\d+/m
-                and /^Long-Text:\s*This.*broken between/m
-	        and /^Foo-Bar:\s*1$/m
-		and /^X-Foo:\s*Bar$/m
-		and /^User-Agent:\s*Mozilla\/0.01/m;
-print "ok 4\n";
+ok($_, qr/^From:\s*gisle\@aas\.no$/m);
+ok($_, qr/^Host:/m);
+ok(@accept, 3);
+ok($_, qr/^Accept:\s*text\/html/m);
+ok($_, qr/^Accept:\s*text\/plain/m);
+ok($_, qr/^Accept:\s*image\/\*/m);
+ok($_, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m);
+ok($_, qr/^Long-Text:\s*This.*broken between/m);
+ok($_, qr/^Foo-Bar:\s*1$/m);
+ok($_, qr/^X-Foo:\s*Bar$/m);
+ok($_, qr/^User-Agent:\s*Mozilla\/0.01/m);
 
 #----------------------------------------------------------------
 print "Send file...\n";
@@ -155,27 +153,23 @@ $req = new HTTP::Request GET => url("/file?name=$file", $base);
 $res = $ua->request($req);
 #print $res->as_string;
 
-print "not " unless $res->is_success
-                and $res->content_type eq 'text/html'
-		and $res->content_length == 147
-		and $res->title eq 'En prøve'
-		and $res->content =~ /å være/;
-print "ok 5\n";		
-
+ok($res->is_success);
+ok($res->content_type, 'text/html');
+ok($res->content_length, 147);
+ok($res->title, 'En prøve');
+ok($res->content, qr/å være/);
 
 # A second try on the same file, should fail because we unlink it
 $res = $ua->request($req);
 #print $res->as_string;
-print "not " unless $res->is_error
-                and $res->code == 404;   # not found
-print "ok 6\n";
+ok($res->is_error);
+ok($res->code, 404);   # not found
 		
 # Then try to list current directory
 $req = new HTTP::Request GET => url("/file?name=.", $base);
 $res = $ua->request($req);
 #print $res->as_string;
-print "not " unless $res->code == 501;   # NYI
-print "ok 7\n";
+ok($res->code, 501);   # NYI
 
 
 #----------------------------------------------------------------
@@ -190,12 +184,10 @@ $req = new HTTP::Request GET => url("/redirect/foo", $base);
 $res = $ua->request($req);
 #print $res->as_string;
 
-print "not " unless $res->is_success
-                and $res->content =~ m|/echo/redirect|;
-print "ok 8\n";
-print "not " unless $res->previous->is_redirect
-                and $res->previous->code == 301;
-print "ok 9\n";
+ok($res->is_success);
+ok($res->content, qr|/echo/redirect|);
+ok($res->previous->is_redirect);
+ok($res->previous->code, 301);
 
 # Let's test a redirect loop too
 sub httpd_get_redirect2 { shift->send_redirect("/redirect3/") }
@@ -205,17 +197,14 @@ $req->url(url("/redirect2", $base));
 $ua->max_redirect(5);
 $res = $ua->request($req);
 #print $res->as_string;
-print "not " unless $res->is_redirect
-                and $res->header("Client-Warning") =~ /loop detected/i;
-print "ok 10\n";
+ok($res->is_redirect);
+ok($res->header("Client-Warning"), qr/loop detected/i);
 $i = 0;
 while ($res->previous) {
    $i++;
    $res = $res->previous;
 }
-
-print "not " unless $i == 5;
-print "ok 11\n";
+ok($i, 5);
 
 #----------------------------------------------------------------
 print "Check basic authorization...\n";
@@ -254,25 +243,22 @@ $req = new HTTP::Request GET => url("/basic", $base);
 $res = MyUA->new->request($req);
 #print $res->as_string;
 
-print "not " unless $res->is_success;
-print $res->content;
+ok($res->is_success);
+#print $res->content;
 
 # Let's try with a $ua that does not pass out credentials
 $res = $ua->request($req);
-print "not " unless $res->code == 401;
-print "ok 13\n";
+ok($res->code, 401);
 
 # Let's try to set credentials for this realm
 $ua->credentials($req->url->host_port, "libwww-perl", "ok 12", "xyzzy");
 $res = $ua->request($req);
-print "not " unless $res->is_success;
-print "ok 14\n";
+ok($res->is_success);
 
 # Then illegal credentials
 $ua->credentials($req->url->host_port, "libwww-perl", "user", "passwd");
 $res = $ua->request($req);
-print "not " unless $res->code == 401;
-print "ok 15\n";
+ok($res->code, 401);
 
 
 #----------------------------------------------------------------
@@ -294,8 +280,7 @@ $ua->proxy(ftp => $base);
 $req = new HTTP::Request GET => "ftp://ftp.perl.com/proxy";
 $res = $ua->request($req);
 #print $res->as_string;
-print "not " unless $res->is_success;
-print "ok 16\n";
+ok($res->is_success);
 
 #----------------------------------------------------------------
 print "Check POSTing...\n";
@@ -325,11 +310,10 @@ $res = $ua->request($req);
 #print $res->as_string;
 
 $_ = $res->content;
-print "not " unless $res->is_success
-                and /^Content-Length:\s*16$/mi
-		and /^Content-Type:\s*application\/x-www-form-urlencoded$/mi
-		and /^foo=bar&bar=test$/m;
-print "ok 17\n";		
+ok($res->is_success);
+ok($_, qr/^Content-Length:\s*16$/mi);
+ok($_, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi);
+ok($_, qr/^foo=bar&bar=test$/m);
 
 #----------------------------------------------------------------
 print "Terminating server...\n";
@@ -343,6 +327,5 @@ sub httpd_get_quit
 $req = new HTTP::Request GET => url("/quit", $base);
 $res = $ua->request($req);
 
-print "not " unless $res->code == 503 and $res->content =~ /Bye, bye/;
-print "ok 18\n";
-
+ok($res->code, 503);
+ok($res->content, qr/Bye, bye/);

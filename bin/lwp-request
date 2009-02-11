@@ -421,7 +421,11 @@ while ($url = shift) {
     }
 
     if ($options{'S'}) {
-	printResponseChain($response);
+        for my $r ($response->redirects, $response) {
+            my $method = $r->request->method;
+            my $url = $r->request->url->as_string;
+            print "$method $url --> ", $r->status_line, "\n";
+        }
     }
     elsif ($options{'s'}) {
         print $response->status_line, "\n";
@@ -494,18 +498,6 @@ while ($url = shift) {
 }
 
 exit $errors;
-
-
-sub printResponseChain
-{
-    my($response) = @_;
-    return unless defined $response;
-    printResponseChain($response->previous);
-    my $method = $response->request->method;
-    my $url = $response->request->url->as_string;
-    my $code = $response->code;
-    print "$method $url --> ", $response->status_line, "\n";
-}
 
 
 sub usage

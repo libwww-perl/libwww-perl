@@ -210,12 +210,7 @@ $res = $ua->request($req);
 #print $res->as_string;
 ok($res->is_redirect);
 ok($res->header("Client-Warning"), qr/loop detected/i);
-$i = 0;
-while ($res->previous) {
-   $i++;
-   $res = $res->previous;
-}
-ok($i, 5);
+ok($res->redirects, 5);
 
 #----------------------------------------------------------------
 print "Check basic authorization...\n";

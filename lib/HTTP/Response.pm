@@ -96,6 +96,19 @@ sub base
 }
 
 
+sub redirects {
+    my $self = shift;
+    my @r;
+    my $r = $self;
+    while (my $p = $r->previous) {
+        push(@r, $p);
+        $r = $p;
+    }
+    return @r unless wantarray;
+    return reverse @r;
+}
+
+
 sub filename
 {
     my $self = shift;
@@ -432,6 +445,9 @@ attribute is used to link together chains of responses.  You get
 chains of responses if the first response is redirect or unauthorized.
 The value is C<undef> if this is the first response in a chain.
 
+Note that the method $r->redirects is provided as a more convenient
+way to access the response chain.
+
 =item $r->status_line
 
 Returns the string "E<lt>code> E<lt>message>".  If the message attribute
@@ -533,6 +549,14 @@ redirection, or an error.  See L<HTTP::Status> for the meaning of these.
 Returns a string containing a complete HTML document indicating what
 error occurred.  This method should only be called when $r->is_error
 is TRUE.
+
+=item $r->redirects
+
+Returns the list of redirect responses that lead up to this response
+by following the $r->previous chain.  The list order is oldest first.
+
+In scalar context return the number of redirect responses leading up
+to this one.
 
 =item $r->current_age
 

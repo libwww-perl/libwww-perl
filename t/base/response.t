@@ -5,7 +5,7 @@
 
 use strict;
 use Test;
-plan tests => 13;
+plan tests => 19;
 
 use HTTP::Date;
 use HTTP::Request;
@@ -81,3 +81,14 @@ $r->remove_header("Cache-Control");
 
 ok($r->fresh_until);  # should still return something
 ok($r->fresh_until(heuristic_expiry => 0), undef);
+
+ok($r->redirects, 0);
+$r->previous($r2);
+ok($r->previous, $r2);
+ok($r->redirects, 1);
+
+$r2->previous($r->clone);
+ok($r->redirects, 2);
+for ($r->redirects) {
+    ok($_->is_success);
+}

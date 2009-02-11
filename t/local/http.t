@@ -48,7 +48,7 @@ else {
 }
 
 use Test;
-plan tests => 45;
+plan tests => 47;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -125,6 +125,17 @@ ok($_, qr/^Long-Text:\s*This.*broken between/m);
 ok($_, qr/^Foo-Bar:\s*1$/m);
 ok($_, qr/^X-Foo:\s*Bar$/m);
 ok($_, qr/^User-Agent:\s*Mozilla\/0.01/m);
+
+# Try it with the higher level 'get' interface
+$res = $ua->get(url("/echo/path_info?query", $base),
+    Accept => 'text/html',
+    Accept => 'text/plain; q=0.9',
+    Accept => 'image/*',
+    X_Foo => "Bar",
+);
+#$res->dump;
+ok($res->code, 200);
+ok($res->content, qr/^From: gisle\@aas.no$/m);
 
 #----------------------------------------------------------------
 print "Send file...\n";

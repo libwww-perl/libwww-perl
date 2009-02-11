@@ -261,21 +261,12 @@ sub request
     my($self, $request, $arg, $size, $previous) = @_;
 
     my $response = $self->simple_request($request, $arg, $size);
+    $response->previous($previous) if $previous;
 
-    if ($previous) {
-        $response->previous($previous);
-
-	# Check for loop in the redirects, we only count
-	my $count = 0;
-	my $r = $response;
-	while ($r) {
-	    if (++$count > $self->{max_redirect}) {
-		$response->header("Client-Warning" =>
-				  "Redirect loop detected (max_redirect = $self->{max_redirect})");
-		return $response;
-	    }
-	    $r = $r->previous;
-	}
+    if ($response->redirects >= $self->{max_redirect}) {
+        $response->header("Client-Warning" =>
+                          "Redirect loop detected (max_redirect = $self->{max_redirect})");
+        return $response;
     }
 
     if (my $req = $self->run_handlers("response_redirect", $response)) {

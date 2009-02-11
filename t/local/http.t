@@ -48,7 +48,7 @@ else {
 }
 
 use Test;
-plan tests => 47;
+plan tests => 49;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -211,6 +211,12 @@ $res = $ua->request($req);
 ok($res->is_redirect);
 ok($res->header("Client-Warning"), qr/loop detected/i);
 ok($res->redirects, 5);
+
+$ua->max_redirect(0);
+$res = $ua->request($req);
+ok($res->previous, undef);
+ok($res->redirects, 0);
+$ua->max_redirect(5);
 
 #----------------------------------------------------------------
 print "Check basic authorization...\n";

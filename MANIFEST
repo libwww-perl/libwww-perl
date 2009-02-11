@@ -106,7 +106,6 @@ t/local/autoload-get.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/chunked.t
 t/local/get.t			Try to get a local file
-t/local/http-get.t
 t/local/http.t			Test http to local server
 t/local/protosub.t              Test with other protocol module
 t/net/cgi-bin/moved

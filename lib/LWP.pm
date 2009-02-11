@@ -599,7 +599,7 @@ You might want to set it to C<URI::URL> for compatibility with old times.
 =head1 AUTHORS
 
 LWP was made possible by contributions from Adam Newby, Albert
-Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas König,
+Dvornik, Alexandre Duret-Lutz, Andreas Gustafsson, Andreas KÃ¶nig,
 Andrew Pimlott, Andy Lester, Ben Coleman, Benjamin Low, Ben Low, Ben
 Tilly, Blair Zajac, Bob Dalgleish, BooK, Brad Hughes, Brian
 J. Murrell, Brian McCauley, Charles C. Fu, Charles Lane, Chris Nandor,
@@ -613,7 +613,7 @@ Lopes, John Klar, Johnny Lee, Josh Kronengold, Josh Rai, Joshua
 Chamas, Joshua Hoblitt, Kartik Subbarao, Keiichiro Nagano, Ken
 Williams, KONISHI Katsuhiro, Lee T Lindley, Liam Quinn, Marc Hedlund,
 Marc Langheinrich, Mark D. Anderson, Marko Asplund, Mark Stosberg,
-Markus B Krüger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
+Markus B KrÃ¼ger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
 Eldridge, Matthew.van.Eerde, Matt Sergeant, Michael A. Chase, Michael
 Quaranta, Michael Thompson, Mike Schilli, Moshe Kaminsky, Nathan
 Torkington, Nicolai Langfeldt, Norton Allen, Olly Betts, Paul
@@ -622,7 +622,7 @@ Radoslaw Zielinski, Radu Greab, Randal L. Schwartz, Richard Chen,
 Robin Barker, Roy Fielding, Sander van Zoest, Sean M. Burke,
 shildreth, Slaven Rezic, Steve A Fink, Steve Hay, Steven Butler,
 Steve_Kilbane, Takanori Ugai, Thomas Lotterer, Tim Bunce, Tom Hughes,
-Tony Finch, Ville Skyttä, Ward Vandewege, William York, Yale Huang,
+Tony Finch, Ville SkyttÃ¤, Ward Vandewege, William York, Yale Huang,
 and Yitzchak Scott-Thoennes.
 
 LWP owes a lot in motivation, design, and code, to the libwww-perl

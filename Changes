@@ -451,7 +451,7 @@ _______________________________________________________________________________
     HTTP::Header::Auth needs HTTP::Headers to be loaded before
     it replace its functions.
 
-    LWP::Protocol::nntp improvements by Ville Skytt‰ <ville.skytta@iki.fi>:
+    LWP::Protocol::nntp improvements by Ville Skytt√§ <ville.skytta@iki.fi>:
      - Support the nntp: scheme.
      - Support hostname in news: and nntp: URIs.
      - Close connection and preserve headers also in non-OK responses.
@@ -574,7 +574,7 @@ _______________________________________________________________________________
     patch by Bill Moseley.
 
     WWW::RobotRules: Don't empty cache when agent() is called if the
-    agent name does not change.  Patch by Ville Skytt‰ <ville.skytta@iki.fi>.
+    agent name does not change.  Patch by Ville Skytt√§ <ville.skytta@iki.fi>.
 
 
 
@@ -620,7 +620,7 @@ _______________________________________________________________________________
     are automatically added to requests as they are sent.  This
     can for instance be used to initialize various Accept headers.
 
-    Various typo fixes by Ville Skytt‰ <ville.skytta@iki.fi>.
+    Various typo fixes by Ville Skytt√§ <ville.skytta@iki.fi>.
 
     Fixed test failure under perl-5.005.
     
@@ -643,12 +643,12 @@ _______________________________________________________________________________
     RFC 2616 says that http: referer should not be sent with
     https: requests.  The lwp-rget program, the $req->referer method
     and the redirect handling code now try to enforce this.
-    Patch by Ville Skytt‰ <ville.skytta@iki.fi>.
+    Patch by Ville Skytt√§ <ville.skytta@iki.fi>.
 
     WWW::RobotRules now look for the string found in
     robots.txt as a case insensitive substring from its own
     User-Agent string, not the other way around.
-    Patch by Ville Skytt‰ <ville.skytta@iki.fi>.
+    Patch by Ville Skytt√§ <ville.skytta@iki.fi>.
 
     HTTP::Headers: New method 'header_field_names' that
     return a list of names as suggested by its name.
@@ -670,7 +670,7 @@ _______________________________________________________________________________
     few bugs discovered during testing.
 
     Typo fixes to the documentation all over the place
-    by Ville Skytt‰ <ville.skytta@iki.fi>.
+    by Ville Skytt√§ <ville.skytta@iki.fi>.
 
     Updated tests.
 
@@ -707,7 +707,7 @@ _______________________________________________________________________________
     Patch by Ward Vandewege <ward@pong.be>.
 
     LWP::UserAgent passed the wrong request to redirect_ok().
-    Patch by Ville Skytt‰ <ville.skytta@iki.fi>.
+    Patch by Ville Skytt√§ <ville.skytta@iki.fi>.
     https://rt.cpan.org/Ticket/Display.html?id=5828
 
     LWP did not handle URLs like http://www.example.com?foo=bar
@@ -918,10 +918,10 @@ _______________________________________________________________________________
     File::Listing::apache by Slaven Rezic <slaven@rezic.de>
 
     HEAD requests now work properly for ftp: URLs.
-    Patch by Ville Skytt‰ <ville.skytta@iki.fi>.
+    Patch by Ville Skytt√§ <ville.skytta@iki.fi>.
 
     LWP::UserAgent: The protocols_allowed() and protocols_forbidden()
-    methods are now case insensitive.  Patch by Ville Skytt‰
+    methods are now case insensitive.  Patch by Ville Skytt√§
     <ville.skytta@iki.fi>.
 
     Avoid warning from HTTP::Date on certain invalid dates.
@@ -1588,7 +1588,7 @@ _______________________________________________________________________________
     Added cookie example to lwpcook.pod
 
     HTTP::Date::str2time returns undef on failure instead
-    of an empty list as suggested by Markus B Kr¸ger <markusk@pvv.org>
+    of an empty list as suggested by Markus B Kr√ºger <markusk@pvv.org>
 
     $request->uri($uri) will now always store a copy of the $uri.
 
@@ -2440,7 +2440,7 @@ Wed Dec  4 1996   Gisle Aas <aas@sn.no>
 
  o  t/robot/rules-dbm.t clean up better and will use AnyDBM for dumping
 
- o  File::CounterFile: $/ strikes again by Andreas Kˆnig
+ o  File::CounterFile: $/ strikes again by Andreas K√∂nig
 
  o  File::Listing updates from William York <william@mathworks.com>. We
     can now parse the MS-Windows ftp server listings.

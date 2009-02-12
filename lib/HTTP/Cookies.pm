@@ -491,6 +491,7 @@ sub clear_temporary_cookies
 sub DESTROY
 {
     my $self = shift;
+    local($., $@, $!, $^E, $?);
     $self->save if $self->{'autosave'};
 }
 

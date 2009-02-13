@@ -305,6 +305,7 @@ sub decoded_content
 		}
 		$content_ref = \Encode::decode($charset, $$content_ref,
 		     ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());
+		die "Encode::decode() returned undef improperly" unless defined $$content_ref;
 	    }
 	}
     };

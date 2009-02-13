@@ -383,8 +383,10 @@ ok($m->content, $tmp);
 $m->remove_header("Content-Encoding");
 $m->content("a\xFF");
 
-skip($NO_ENCODE, sub { $m->decoded_content }, "a\x{FFFD}");
-skip($NO_ENCODE, sub { $m->decoded_content(charset_strict => 1) }, undef);
+my $BAD_ENCODE = $NO_ENCODE || !(eval { require Encode; defined(Encode::decode("UTF-8", "\xff")) });
+
+skip($BAD_ENCODE, sub { $m->decoded_content }, "a\x{FFFD}");
+skip($BAD_ENCODE, sub { $m->decoded_content(charset_strict => 1) }, undef);
 
 $m->header("Content-Encoding", "foobar");
 ok($m->decoded_content, undef);

@@ -59,6 +59,14 @@ WriteMakefile(
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
 );
+
+if($] >= 5.008 && !(eval { require Encode; defined(Encode::decode("UTF-8", "\xff")) })) {
+    warn "\nYou lack a working Encode module, and so you will miss out on\n".
+           "lots of character set goodness from LWP.  However, your perl is\n".
+           "sufficiently recent to support it.  It is recommended that you\n".
+           "install the latest Encode from CPAN.\n\n";
+}
+
 exit;
 
 

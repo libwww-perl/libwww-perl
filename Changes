@@ -1,4 +1,28 @@
 _______________________________________________________________________________
+2009-02-13  Release 5.824
+
+Gisle Aas (7):
+      Make format_request() ensure that it returns bytes [RT#42396]
+      Force bytes in all the format_* methods.
+      Ignore Sitemap: lines in robots.txt [RT#42420]
+      Refactor; use variable to hold the test port
+      Add redirects method to HTTP::Message
+      Setting $ua->max_redirect(0) didn't work [RT#40260]
+      Convert files to UTF-8
+
+Zefram (2):
+      HTTP::Cookies destructor should not clobber $! and other globals.
+      Deal with the Encode module distributed with perl-5.8.0
+
+Ian Kilgore (1):
+      Avoid failure if 127.0.0.1:8333 is in use [RT#42866]
+
+Ville Skyttä (1):
+      Documentation improvements, spelling fixes.
+
+
+
+_______________________________________________________________________________
 2008-12-05  Release 5.823
 
 Gisle Aas (4):

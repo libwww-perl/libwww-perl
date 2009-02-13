@@ -1,6 +1,6 @@
 package LWP;
 
-$VERSION = "5.823";
+$VERSION = "5.824";
 sub Version { $VERSION; }
 
 require 5.005;
@@ -635,7 +635,7 @@ libwww-perl-0.40 library for details.
 
 =head1 COPYRIGHT
 
-  Copyright 1995-2008, Gisle Aas
+  Copyright 1995-2009, Gisle Aas
   Copyright 1995, Martijn Koster
 
 This library is free software; you can redistribute it and/or

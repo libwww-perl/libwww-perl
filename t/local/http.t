@@ -114,7 +114,7 @@ ok($res->message, "OK");
 $_ = $res->content;
 @accept = /^Accept:\s*(.*)/mg;
 
-ok($_, qr/^From:\s*gisle\@aas\.no$/m);
+ok($_, qr/^From:\s*gisle\@aas\.no\n/m);
 ok($_, qr/^Host:/m);
 ok(@accept, 3);
 ok($_, qr/^Accept:\s*text\/html/m);
@@ -122,8 +122,8 @@ ok($_, qr/^Accept:\s*text\/plain/m);
 ok($_, qr/^Accept:\s*image\/\*/m);
 ok($_, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m);
 ok($_, qr/^Long-Text:\s*This.*broken between/m);
-ok($_, qr/^Foo-Bar:\s*1$/m);
-ok($_, qr/^X-Foo:\s*Bar$/m);
+ok($_, qr/^Foo-Bar:\s*1\n/m);
+ok($_, qr/^X-Foo:\s*Bar\n/m);
 ok($_, qr/^User-Agent:\s*Mozilla\/0.01/m);
 
 # Try it with the higher level 'get' interface

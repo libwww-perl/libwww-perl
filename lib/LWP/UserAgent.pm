@@ -37,6 +37,7 @@ sub new
 
     my $agent = delete $cnf{agent};
     my $from  = delete $cnf{from};
+    my $def_headers = delete $cnf{default_headers};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $use_eval = delete $cnf{use_eval};
@@ -78,7 +79,7 @@ sub new
     }
 
     my $self = bless {
-		      def_headers  => undef,
+		      def_headers  => $def_headers,
 		      timeout      => $timeout,
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,

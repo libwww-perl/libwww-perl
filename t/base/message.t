@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 118;
+plan tests => 119;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -285,6 +285,7 @@ EOT
 
 $m = HTTP::Message->new;
 $m->add_part(HTTP::Message->new([a=>[1..3]], "a"));
+ok($m->header("Content-Type"), "multipart/mixed; boundary=xYzZY");
 $str = $m->as_string;
 $str =~ s/\r/<CR>/g;
 ok($str, <<EOT);

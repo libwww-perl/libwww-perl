@@ -97,11 +97,17 @@ sub protocol {
 }
 
 sub headers {
-    shift->{'_headers'};
+    my $self = shift;
+
+    # recalculation of _content might change headers, so we
+    # need to force it now
+    $self->_content unless exists $self->{_content};
+
+    $self->{_headers};
 }
 
 sub headers_as_string {
-    shift->{'_headers'}->as_string(@_);
+    shift->headers->as_string(@_);
 }
 
 
@@ -525,7 +531,7 @@ sub _stale_content {
 }
 
 
-# delegate all other method calls the the _headers object.
+# delegate all other method calls the the headers object.
 sub AUTOLOAD
 {
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
@@ -533,7 +539,7 @@ sub AUTOLOAD
     # We create the function here so that it will not need to be
     # autoloaded the next time.
     no strict 'refs';
-    *$method = sub { shift->{'_headers'}->$method(@_) };
+    *$method = sub { shift->headers->$method(@_) };
     goto &$method;
 }
 
@@ -589,7 +595,7 @@ sub _parts {
 # Create private _content attribute from current _parts
 sub _content {
     my $self = shift;
-    my $ct = $self->header("Content-Type") || "multipart/mixed";
+    my $ct = $self->{_headers}->header("Content-Type") || "multipart/mixed";
     if ($ct =~ m,^\s*message/,i) {
 	_set_content($self, $self->{_parts}[0]->as_string($CRLF), 1);
 	return;
@@ -634,7 +640,7 @@ sub _content {
     }
 
     $ct = HTTP::Headers::Util::join_header_words(@v);
-    $self->header("Content-Type", $ct);
+    $self->{_headers}->header("Content-Type", $ct);
 
     _set_content($self, "--$boundary$CRLF" .
 	                join("$CRLF--$boundary$CRLF", @parts) .

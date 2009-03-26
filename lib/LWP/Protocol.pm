@@ -97,6 +97,7 @@ sub collect
     my($ua, $max_size) = @{$self}{qw(ua max_size)};
 
     eval {
+	local $\; # protect the print below from surprises
         if (!defined($arg) || !$response->is_success) {
             $response->{default_add_content} = 1;
         }

@@ -463,6 +463,8 @@ my @ANI = qw(- \ | /);
 sub progress {
     my($self, $status, $m) = @_;
     return unless $self->{show_progress};
+
+    local($,, $\);
     if ($status eq "begin") {
         print STDERR "** ", $m->method, " ", $m->uri, " ==> ";
         $self->{progress_start} = time;

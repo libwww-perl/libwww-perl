@@ -158,11 +158,12 @@ sub send_request
                 $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
                 $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
                 if ($scheme eq "https") {
-                    $response->message($response->message . " (Crypt::SSLeay not installed)");
+                    $response->message($response->message . " (Crypt::SSLeay or IO::Socket::SSL not installed)");
                     $response->content_type("text/plain");
                     $response->content(<<EOT);
-LWP will support https URLs if the Crypt::SSLeay module is installed.
-More information at <http://www.linpro.no/lwp/libwww-perl/README.SSL>.
+LWP will support https URLs if either Crypt::SSLeay or IO::Socket::SSL
+is installed. More information at
+<http://search.cpan.org/dist/libwww-perl/README.SSL>.
 EOT
                 }
             }

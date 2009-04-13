@@ -927,6 +927,8 @@ sub env_proxy {
 	    $self->no_proxy(split(/\s*,\s*/, $v));
 	}
 	else {
+            # Ignore random _proxy variables, allow only valid schemes
+            next unless $k =~ /^$URI::scheme_re\z/;
 	    $self->proxy($k, $v);
 	}
     }

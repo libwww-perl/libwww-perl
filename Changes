@@ -1,3 +1,6 @@
+Mike Schilli (1):
+      Ignore random _proxy env variables, allow only valid schemes
+
 _______________________________________________________________________________
 2009-02-16  Release 5.825
 

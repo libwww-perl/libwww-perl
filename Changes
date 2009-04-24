@@ -1,5 +1,22 @@
+_______________________________________________________________________________
+2009-04-24  Release 5.826
+
+Gisle Aas (2):
+      Avoid returning stale Content-Type header after message parts have been updated
+      Don't let content saved to file be affected by the $\ setting
+
+Graeme Thompson (1):
+      Issues around multipart boundaries [RT#28970]
+
 Mike Schilli (1):
       Ignore random _proxy env variables, allow only valid schemes
+
+Slaven Rezic (1):
+      README.SSL is not anymore available at the linpro.no URL.
+
+john9art (1):
+      Make LWP::UserAgent constructor honor the default_headers option [RT#16637]
+
 
 _______________________________________________________________________________
 2009-02-16  Release 5.825

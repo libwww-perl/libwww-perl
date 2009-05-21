@@ -48,7 +48,7 @@ else {
 }
 
 use Test;
-plan tests => 49;
+plan tests => 52;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -326,6 +326,34 @@ ok($res->is_success);
 ok($_, qr/^Content-Length:\s*16$/mi);
 ok($_, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi);
 ok($_, qr/^foo=bar&bar=test$/m);
+
+#----------------------------------------------------------------
+print "Check partial content response...\n";
+sub httpd_get_partial
+{
+   my($c) = @_;
+    $c->send_basic_header(206);
+    print $c "Content-Type: image/jpeg\015\012";
+    $c->send_crlf;
+    print $c "some fake JPEG content";
+
+}
+
+{
+    $req = HTTP::Request->new(  GET => url("/partial", $base) );
+    $res = $ua->request($req);
+    ok($res->is_success); # "a 206 response is considered successful"
+}
+{
+    $ua->max_size(3);
+    $req = HTTP::Request->new(  GET => url("/partial", $base) );
+    $res = $ua->request($req);
+    ok($res->is_success); # "a 206 response is considered successful"
+    # Put max_size back how we found it. 
+    $ua->max_size(undef);
+    ok($res->as_string, qr/Client-Aborted: max_size/); # Client-Aborted is returned when max_size is given
+}
+
 
 #----------------------------------------------------------------
 print "Terminating server...\n";

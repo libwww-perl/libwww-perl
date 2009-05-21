@@ -15,7 +15,7 @@ my $req = $c->get_request;
 
 die "No request" unless $req;
 
-my $abs = $req->url->abs;
+my $abs = $req->uri->abs;
 
 print $req->as_string;
 

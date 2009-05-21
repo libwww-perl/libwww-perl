@@ -25,7 +25,7 @@ sub request
     }
 
     # Check that the scheme is as expected
-    my $url = $request->url;
+    my $url = $request->uri;
     my $scheme = $url->scheme;
     unless ($scheme eq 'news' || $scheme eq 'nntp') {
 	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,

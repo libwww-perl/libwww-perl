@@ -411,11 +411,11 @@ while ($url = shift) {
     $ua->proxy($url->scheme, $options{'p'}) if $options{'p'};
 
     # Send the request and get a response back from the server
-    $request->url($url);
+    $request->uri($url);
     $response = $ua->request($request);
 
     if ($options{'u'} || $options{'U'}) {
-        my $url = $response->request->url->as_string;
+        my $url = $response->request->uri->as_string;
         print "$method $url\n";
         print $response->request->headers_as_string, "\n" if $options{'U'};
     }
@@ -423,7 +423,7 @@ while ($url = shift) {
     if ($options{'S'}) {
         for my $r ($response->redirects, $response) {
             my $method = $r->request->method;
-            my $url = $r->request->url->as_string;
+            my $url = $r->request->uri->as_string;
             print "$method $url --> ", $r->status_line, "\n";
         }
     }

@@ -133,7 +133,7 @@ sub request
 				   'You can not proxy through the ftp');
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     if ($url->scheme ne 'ftp') {
 	my $scheme = $url->scheme;
 	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
@@ -347,7 +347,7 @@ sub request
 	    elsif ($prefer eq 'html') {
 		$response->header('Content-Type' => 'text/html');
 		$content = "<HEAD><TITLE>File Listing</TITLE>\n";
-		my $base = $request->url->clone;
+		my $base = $request->uri->clone;
 		my $path = $base->path;
 		$base->path("$path/") unless $path =~ m|/$|;
 		$content .= qq(<BASE HREF="$base">\n</HEAD>\n);

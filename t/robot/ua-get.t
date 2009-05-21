@@ -25,7 +25,7 @@ if ($D eq 'daemon') {
     while ($c = $d->accept) {
 	$r = $c->get_request;
 	if ($r) {
-	    my $p = ($r->url->path_segments)[1];
+	    my $p = ($r->uri->path_segments)[1];
 	    $p =~ s/\W//g;
 	    my $func = lc("httpd_" . $r->method . "_$p");
 	    #print STDERR "Calling $func...\n";

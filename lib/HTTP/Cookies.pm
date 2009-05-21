@@ -39,7 +39,7 @@ sub add_cookie_header
 {
     my $self = shift;
     my $request = shift || return;
-    my $url = $request->url;
+    my $url = $request->uri;
     my $scheme = $url->scheme;
     unless ($scheme =~ /^https?\z/) {
 	return;
@@ -177,7 +177,7 @@ sub extract_cookies
     return $response unless @set || @ns_set;  # quick exit
 
     my $request = $response->request;
-    my $url = $request->url;
+    my $url = $request->uri;
     my $req_host = _host($request, $url);
     $req_host = "$req_host.local" unless $req_host =~ /\./;
     my $req_port = $url->port;

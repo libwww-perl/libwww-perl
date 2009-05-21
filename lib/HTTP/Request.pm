@@ -119,7 +119,7 @@ sub as_string
 sub dump
 {
     my $self = shift;
-    my @pre = ($self->method || "-", $self->url || "-");
+    my @pre = ($self->method || "-", $self->uri || "-");
     if (my $prot = $self->protocol) {
 	push(@pre, $prot);
     }

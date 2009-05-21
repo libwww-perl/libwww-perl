@@ -13,7 +13,7 @@ sub auth_header {
     my $nc = sprintf "%08X", ++$ua->{authen_md5_nonce_count}{$auth_param->{nonce}};
     my $cnonce = sprintf "%8x", time;
 
-    my $uri = $request->url->path_query;
+    my $uri = $request->uri->path_query;
     $uri = "/" unless length $uri;
 
     my $md5 = Digest::MD5->new;

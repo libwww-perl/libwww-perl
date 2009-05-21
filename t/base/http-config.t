@@ -35,7 +35,7 @@ $request->header("User-Agent" => "Moz/1.0");
 ok(j($conf->matching_items($request)), "u:p|slash|.com|GET|not secure|always");
 
 $request->method("HEAD");
-$request->url->scheme("https");
+$request->uri->scheme("https");
 
 ok(j($conf->matching_items($request)), ".com|GET|secure|always");
 

@@ -59,7 +59,7 @@ sub request
     #print $request->as_string;
 
     ok($proxy, "http://www.sn.no/");
-    ok($request->url, "ftp://foo/");
+    ok($request->uri, "ftp://foo/");
     ok($request->header("cookie"), "perl=cool");
 
     my $res = HTTP::Response->new(200 => "OK");

@@ -203,7 +203,7 @@ sub prepare_request
 {
     my($self, $request) = @_;
     die "Method missing" unless $request->method;
-    my $url = $request->url;
+    my $url = $request->uri;
     die "URL missing" unless $url;
     die "URL must be absolute" unless $url->scheme;
 
@@ -288,8 +288,8 @@ sub request
 	$referral->remove_header('Host', 'Cookie');
 	
 	if ($referral->header('Referer') &&
-	    $request->url->scheme eq 'https' &&
-	    $referral->url->scheme eq 'http')
+	    $request->uri->scheme eq 'https' &&
+	    $referral->uri->scheme eq 'http')
 	{
 	    # RFC 2616, section 15.1.3.
 	    # https -> http redirect, suppressing Referer
@@ -318,7 +318,7 @@ sub request
 	    $referral_uri = $HTTP::URI_CLASS->new($referral_uri, $base)
 		            ->abs($base);
 	}
-	$referral->url($referral_uri);
+	$referral->uri($referral_uri);
 
 	return $response unless $self->redirect_ok($referral, $response);
 	return $self->request($referral, $arg, $size, $response);
@@ -546,7 +546,7 @@ sub redirect_ok
     return 0 unless grep $_ eq $method,
       @{ $self->requests_redirectable || [] };
     
-    if ($new_request->url->scheme eq 'file') {
+    if ($new_request->uri->scheme eq 'file') {
       $response->header("Client-Warning" =>
 			"Can't redirect to a file:// URL!");
       return 0;
@@ -875,9 +875,9 @@ sub mirror
 sub _need_proxy {
     my($req, $ua) = @_;
     return if exists $req->{proxy};
-    my $proxy = $ua->{proxy}{$req->url->scheme} || return;
+    my $proxy = $ua->{proxy}{$req->uri->scheme} || return;
     if ($ua->{no_proxy}) {
-        if (my $host = eval { $req->url->host }) {
+        if (my $host = eval { $req->uri->host }) {
             for my $domain (@{$ua->{no_proxy}}) {
                 if ($host =~ /\Q$domain\E$/) {
                     return;

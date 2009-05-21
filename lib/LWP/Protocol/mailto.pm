@@ -53,7 +53,7 @@ sub request
     }
 
     # check url
-    my $url = $request->url;
+    my $url = $request->uri;
 
     my $scheme = $url->scheme;
     if ($scheme ne 'mailto') {

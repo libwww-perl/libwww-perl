@@ -33,7 +33,7 @@ sub request
 				  "$method for 'data:' URLs";
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     my $response = new HTTP::Response &HTTP::Status::RC_OK, "Document follows";
 
     my $media_type = $url->media_type;

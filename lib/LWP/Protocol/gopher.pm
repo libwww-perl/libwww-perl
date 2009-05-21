@@ -51,7 +51,7 @@ sub request
 				   'You can not proxy through the gopher');
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     die "bad scheme" if $url->scheme ne 'gopher';
 
 

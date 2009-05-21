@@ -26,7 +26,7 @@ if ($D eq 'daemon') {
     while ($c = $d->accept) {
 	$r = $c->get_request;
 	if ($r) {
-	    my $p = ($r->url->path_segments)[1];
+	    my $p = ($r->uri->path_segments)[1];
 	    my $func = lc("httpd_" . $r->method . "_$p");
 	    if (defined &$func) {
 		&$func($c, $r);
@@ -154,7 +154,7 @@ close(FILE);
 sub httpd_get_file
 {
     my($c, $r) = @_;
-    my %form = $r->url->query_form;
+    my %form = $r->uri->query_form;
     my $file = $form{'name'};
     $c->send_file_response($file);
     unlink($file) if $file =~ /^test-/;
@@ -204,7 +204,7 @@ ok($res->previous->code, 301);
 sub httpd_get_redirect2 { shift->send_redirect("/redirect3/") }
 sub httpd_get_redirect3 { shift->send_redirect("/redirect2/") }
 
-$req->url(url("/redirect2", $base));
+$req->uri(url("/redirect2", $base));
 $ua->max_redirect(5);
 $res = $ua->request($req);
 #print $res->as_string;
@@ -263,12 +263,12 @@ $res = $ua->request($req);
 ok($res->code, 401);
 
 # Let's try to set credentials for this realm
-$ua->credentials($req->url->host_port, "libwww-perl", "ok 12", "xyzzy");
+$ua->credentials($req->uri->host_port, "libwww-perl", "ok 12", "xyzzy");
 $res = $ua->request($req);
 ok($res->is_success);
 
 # Then illegal credentials
-$ua->credentials($req->url->host_port, "libwww-perl", "user", "passwd");
+$ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
 $res = $ua->request($req);
 ok($res->code, 401);
 
@@ -279,7 +279,7 @@ sub httpd_get_proxy
 {
    my($c,$r) = @_;
    if ($r->method eq "GET" and
-       $r->url->scheme eq "ftp") {
+       $r->uri->scheme eq "ftp") {
        $c->send_basic_header(200);
        $c->send_crlf;
    }

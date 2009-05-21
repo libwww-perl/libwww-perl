@@ -9,7 +9,7 @@ $r = GET 'http://www.sn.no/';
 print $r->as_string;
 
 ok($r->method, "GET");
-ok($r->url, "http://www.sn.no/");
+ok($r->uri, "http://www.sn.no/");
 
 $r = HEAD "http://www.sn.no/",
      If_Match => 'abc',
@@ -17,7 +17,7 @@ $r = HEAD "http://www.sn.no/",
 print $r->as_string;
 
 ok($r->method, "HEAD");
-ok($r->url->eq("http://www.sn.no"));
+ok($r->uri->eq("http://www.sn.no"));
 
 ok($r->header('If-Match'), "abc");
 ok($r->header("from"), "aas\@sn.no");
@@ -83,7 +83,7 @@ $r = POST 'http://www.perl.org/survey.cgi',
 unlink($file) or warn "Can't unlink $file: $!";
 
 ok($r->method, "POST");
-ok($r->url->path, "/survey.cgi");
+ok($r->uri->path, "/survey.cgi");
 ok($r->content_type, "multipart/form-data");
 ok($r->header(Content_type) =~ /boundary="?([^"]+)"?/);
 $boundary = $1;
@@ -153,7 +153,7 @@ $r = POST 'http://www.perl.org/survey.cgi',
 print $r->as_string, "\n";
 
 ok($r->method, "POST");
-ok($r->url->path, "/survey.cgi");
+ok($r->uri->path, "/survey.cgi");
 ok($r->content_type, "multipart/form-data");
 ok($r->header(Content_type) =~ /boundary="?([^"]+)"?/);
 $boundary = $1;

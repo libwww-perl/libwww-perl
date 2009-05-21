@@ -114,11 +114,11 @@ sub simple_request
     my($self, $request, $arg, $size) = @_;
 
     # Do we try to access a new server?
-    my $allowed = $self->{'rules'}->allowed($request->url);
+    my $allowed = $self->{'rules'}->allowed($request->uri);
 
     if ($allowed < 0) {
 	# Host is not visited before, or robots.txt expired; fetch "robots.txt"
-	my $robot_url = $request->url->clone;
+	my $robot_url = $request->uri->clone;
 	$robot_url->path("robots.txt");
 	$robot_url->query(undef);
 
@@ -143,7 +143,7 @@ sub simple_request
 	}
 
 	# recalculate allowed...
-	$allowed = $self->{'rules'}->allowed($request->url);
+	$allowed = $self->{'rules'}->allowed($request->uri);
     }
 
     # Check rules
@@ -154,7 +154,7 @@ sub simple_request
 	return $res;
     }
 
-    my $netloc = eval { local $SIG{__DIE__}; $request->url->host_port; };
+    my $netloc = eval { local $SIG{__DIE__}; $request->uri->host_port; };
     my $wait = $self->host_wait($netloc);
 
     if ($wait) {

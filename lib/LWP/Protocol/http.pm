@@ -126,7 +126,7 @@ sub request
 				  "$method for 'http:' URLs";
     }
 
-    my $url = $request->url;
+    my $url = $request->uri;
     my($host, $port, $fullpath);
 
     # Check if we're proxy'ing

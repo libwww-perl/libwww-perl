@@ -4,8 +4,11 @@ use strict;
 use URI;
 use Carp ();
 
-use vars qw($VERSION);
+use vars qw($VERSION $Encode_available);
 $VERSION = "5.817";
+
+eval { require Encode };
+$Encode_available = !$@;
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -151,6 +154,7 @@ sub parse
 	    $f = $class->new($attr->{'method'},
 			     $action,
 			     $attr->{'enctype'});
+            $f->accept_charset($attr->{'accept-charset'}) if $attr->{'accept-charset'};
 	    $f->{attr} = $attr;
 	    $f->strict(1) if $strict;
             %openselect = ();
@@ -271,6 +275,7 @@ sub new {
     $self->{method} = uc(shift  || "GET");
     $self->{action} = shift  || Carp::croak("No action defined");
     $self->{enctype} = lc(shift || "application/x-www-form-urlencoded");
+    $self->{accept_charset} = "UNKNOWN";
     $self->{inputs} = [@_];
     $self;
 }
@@ -317,11 +322,22 @@ I<method> to.
 This method gets/sets the encoding type for the form data.  It is a
 string like "application/x-www-form-urlencoded" or "multipart/form-data".
 
+=item $accept = $form->accept_charset
+
+=item $form->accept_charset( $new_accept )
+
+This method gets/sets the list of charset encodings that the server
+processing the form accepts. Current implementation supports only
+one-element lists. Default value is "UNKNOWN" which we interpret as a
+request to use UTF-8 encoding. To encode character strings you should
+have modern perl with Encode module. On older perls this method has no
+effect.
+
 =cut
 
 BEGIN {
     # Set up some accesor
-    for (qw(method action enctype)) {
+    for (qw(method action enctype accept_charset)) {
 	my $m = $_;
 	no strict 'refs';
 	*{$m} = sub {
@@ -640,6 +656,13 @@ sub make_request
     my $uri     = $self->{'action'};
     my $enctype = $self->{'enctype'};
     my @form    = $self->form;
+
+    my $charset = $self->accept_charset eq "UNKNOWN" ? 'utf-8' : $self->accept_charset;
+    if ($Encode_available) {
+        foreach my $fi (@form) {
+            $fi = Encode::encode($charset, $fi) if utf8::is_utf8($fi);
+        }
+    }
 
     if ($method eq "GET") {
 	require HTTP::Request;

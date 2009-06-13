@@ -8,6 +8,7 @@ GetOptions(\my %opt,
     'parse-head',
     'max-length=n',
     'keep-client-headers',
+    'method=s',
 ) || usage();
 
 my $url = shift || usage();
@@ -31,7 +32,8 @@ my $ua = LWP::UserAgent->new(
     env_proxy => 1,
 );
 
-my $res = $ua->simple_request(HTTP::Request->new(GET => $url));
+my $req = HTTP::Request->new($opt{method} || 'GET' => $url);
+my $res = $ua->simple_request($req);
 $res->remove_header(grep /^Client-/, $res->header_field_names)
     unless $opt{'keep-client-headers'};
 

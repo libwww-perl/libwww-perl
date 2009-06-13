@@ -664,7 +664,7 @@ sub make_request
     my $charset = $self->accept_charset eq "UNKNOWN" ? 'utf-8' : $self->accept_charset;
     if ($Encode_available) {
         foreach my $fi (@form) {
-            $fi = Encode::encode($charset, $fi);
+            $fi = Encode::encode($charset, $fi) unless ref($fi);
         }
     }
 

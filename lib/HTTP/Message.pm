@@ -194,6 +194,20 @@ sub content_ref
 }
 
 
+sub content_charset
+{
+    my $self = shift;
+    require HTTP::Headers::Util;
+    my $charset;
+    for my $v (HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
+	my($ct, undef, %ct_param) = @$v;
+	$charset = $ct_param{charset};
+	last if $charset;
+    }
+    return $charset;
+}
+
+
 sub decoded_content
 {
     my($self, %opt) = @_;
@@ -755,6 +769,15 @@ external source.  The content() and add_content() methods
 will automatically dereference scalar references passed this way.  For
 other references content() will return the reference itself and
 add_content() will refuse to do anything.
+
+=item $mess->content_charset
+
+This returns the charset used by the content in the message.  The
+charset is either found as the charset attribute of the
+C<Content-Type> header or by guessing.
+
+See L<http://www.w3.org/TR/REC-html40/charset.html#spec-char-encoding>
+for details about how charset is determined.
 
 =item $mess->decoded_content( %options )
 

@@ -23,8 +23,11 @@ sub usage {
 Usage: $progname [options] <url>
 
 Recognized options are:
-   --parse-head
+   --agent <str>
+   --keep-client-headers
    --max-length <n>
+   --method <str>
+   --parse-head
 
 EOT
 }
@@ -70,11 +73,11 @@ The following options are recognized:
 
 Override the user agent string passed to the server.
 
-=item B<--parse-head>
+=item B<--keep-client-headers>
 
-By default B<lwp-dump> will not try to initialize headers by looking at the
-head section of HTML documents.  This option enables this.  This corresponds to
-L<LWP::UserAgent/"parse_head">.
+LWP internally generate various C<Client-*> headers that are stripped by
+B<lwp-dump> in order to show the headers exactly as the server provided them.
+This option will suppress this.
 
 =item B<--max-length> I<n>
 
@@ -85,11 +88,15 @@ If the content is longer then the string is chopped at the
 limit and the string "...\n(### more bytes not shown)"
 appended.
 
-=item B<--keep-client-headers>
+=item B<--method> I<str>
 
-LWP internally generate various C<Client-*> headers that are stripped by
-B<lwp-dump> in order to show the headers exactly as the server provided them.
-This option will suppress this.
+Use the given method for the request instead of the default "GET".
+
+=item B<--parse-head>
+
+By default B<lwp-dump> will not try to initialize headers by looking at the
+head section of HTML documents.  This option enables this.  This corresponds to
+L<LWP::UserAgent/"parse_head">.
 
 =back
 

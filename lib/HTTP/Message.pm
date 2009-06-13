@@ -219,10 +219,12 @@ sub content_charset
     }
 
     if ($self->content_is_xml) {
-	# ...
+	# implement guessing similar to what's implemented in HTML::Encoding
+	# or simply call out to that module
     }
-    if ($self->content_is_html) {
-	# ...
+    elsif ($self->content_is_html) {
+	# look for <META charset="..."> or <META ... content="...">
+	# http://dev.w3.org/html5/spec/Overview.html#determining-the-character-encoding
     }
     if ($self->content_type =~ /^text\//) {
 	for ($$cref) {

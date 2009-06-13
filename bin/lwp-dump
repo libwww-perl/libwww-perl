@@ -31,7 +31,7 @@ my $ua = LWP::UserAgent->new(
     env_proxy => 1,
 );
 
-my $res = $ua->get($url);
+my $res = $ua->simple_request(HTTP::Request->new(GET => $url));
 $res->remove_header(grep /^Client-/, $res->header_field_names)
     unless $opt{'keep-client-headers'};
 

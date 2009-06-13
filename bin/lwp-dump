@@ -4,11 +4,14 @@ use strict;
 use LWP::UserAgent ();
 use Getopt::Long qw(GetOptions);
 
+my $VERSION = "5.827";
+
 GetOptions(\my %opt,
     'parse-head',
     'max-length=n',
     'keep-client-headers',
     'method=s',
+    'agent=s',
 ) || usage();
 
 my $url = shift || usage();
@@ -30,6 +33,7 @@ my $ua = LWP::UserAgent->new(
     parse_head => $opt{'parse-head'} || 0,
     keep_alive => 1,
     env_proxy => 1,
+    agent => $opt{agent} || "lwp-dump/$VERSION ",
 );
 
 my $req = HTTP::Request->new($opt{method} || 'GET' => $url);
@@ -61,6 +65,10 @@ its place.
 The following options are recognized:
 
 =over
+
+=item B<--agent> I<str>
+
+Override the user agent string passed to the server.
 
 =item B<--parse-head>
 

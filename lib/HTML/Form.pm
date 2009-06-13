@@ -294,7 +294,11 @@ sub push_input
     my @extra;
     push(@extra, readonly => 1) if $type eq "hidden";
     push(@extra, strict => 1) if $self->{strict};
-
+    if ($type eq "file" && exists $attr->{value}) {
+	# it's not safe to trust the value set by the server
+	# the user always need to explictly set the names of files to upload
+	$attr->{orig_value} = delete $attr->{value};
+    }
     delete $attr->{type}; # don't confuse the type argument
     my $input = $class->new(type => $type, %$attr, @extra);
     $input->add_to_form($self);
@@ -1344,6 +1348,10 @@ If the input is of type C<file>, then it has these additional methods:
 
 This is just an alias for the value() method.  It sets the filename to
 read data from.
+
+For security reasons this field will never be initialized from the parsing
+of a form.  This prevents the server from triggering stealth uploads of
+arbitrary files from the client machine.
 
 =cut
 

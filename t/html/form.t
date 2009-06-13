@@ -81,10 +81,10 @@ EOT
 
 ok($f->click->as_string, <<'EOT');
 POST http://localhost/
-Content-Length: 76
+Content-Length: 69
 Content-Type: application/x-www-form-urlencoded
 
-i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=foo.txt&x=&a=%0Aabc%0A+++&s=bar&m=a&m=b
+i.x=1&i.y=1&c=on&r=b&t=&p=&h=xyzzy&f=&x=&a=%0Aabc%0A+++&s=bar&m=a&m=b
 EOT
 
 ok(@warn, 1);
@@ -108,7 +108,7 @@ EOT
 # test file upload
 $f = HTML::Form->parse(<<'EOT', "http://localhost/");
 <form method=post enctype="MULTIPART/FORM-DATA">
-   <input name=f type=file value=>
+   <input name=f type=file value="/etc/passwd">
    <input type=submit value="Upload it!">
 </form>
 EOT

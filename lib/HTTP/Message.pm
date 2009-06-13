@@ -202,9 +202,43 @@ sub content_charset
     for my $v (HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
 	my($ct, undef, %ct_param) = @$v;
 	$charset = $ct_param{charset};
-	last if $charset;
+	return $charset if $charset;
     }
-    return $charset;
+
+    # time to start guessing
+    my $cref = $self->decoded_content(ref => 1, charset => "none");
+
+    # Unicode BOM
+    local $_;
+    for ($$cref) {
+	return "UTF-8"     if /^\xEF\xBB\xBF/;
+	return "UTF-32-LE" if /^\xFF\xFE\x00\x00/;
+	return "UTF-32-BE" if /^\x00\x00\xFE\xFF/;
+	return "UTF-16-LE" if /^\xFF\xFE/;
+	return "UTF-16-BE" if /^\xFE\xFF/;
+    }
+
+    if ($self->content_is_xml) {
+	# ...
+    }
+    if ($self->content_is_html) {
+	# ...
+    }
+    if ($self->content_type =~ /^text\//) {
+	for ($$cref) {
+	    if (length) {
+		return "US-ASCII" unless /[\x80-\xFF]/;
+		require Encode;
+		eval {
+		    Encode::decode_utf8($_, Encode::FB_CROAK());
+		};
+		return "UTF-8" unless $@;
+		return "ISO-8859-1";
+	    }
+	}
+    }
+
+    return undef;
 }
 
 

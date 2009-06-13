@@ -5,6 +5,7 @@ Makefile.PL			Makefile generator
 README				Get you started with this package
 README.SSL			When you need SSL support
 bin/lwp-download             	Writes bin/lwp-download script
+bin/lwp-dump			Writes bin/lwp-dump script
 bin/lwp-mirror			Writes bin/lwp-mirror script
 bin/lwp-request			Writes bin/lwp-request script
 bin/lwp-rget			Writes bin/lwp-rget script

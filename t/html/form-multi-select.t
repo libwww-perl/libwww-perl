@@ -30,6 +30,9 @@ sub new {
 sub base {
     return "http://foo.com"
 }
+sub content_charset {
+    return "iso-8859-1";
+}
 sub decoded_content {
     my $html = qq{
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"

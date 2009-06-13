@@ -344,8 +344,8 @@ sub decoded_content
 	    }
 	}
 
-	if ($ct && $ct =~ m,^text/,,) {
-	    my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || "ISO-8859-1";
+	if ($ct && ($ct =~ m,^text/, || $self->content_is_xml)) {
+	    my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || $self->content_charset || "ISO-8859-1";
 	    $charset = lc($charset);
 	    if ($charset ne "none") {
 		require Encode;
@@ -831,7 +831,8 @@ C<none> can used to suppress decoding of the charset.
 
 =item C<default_charset>
 
-This override the default charset of "ISO-8859-1".
+This override the default charset guessed by content_charset() or
+if that fails "ISO-8859-1".
 
 =item C<charset_strict>
 

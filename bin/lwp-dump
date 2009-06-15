@@ -42,7 +42,8 @@ my $ua = LWP::UserAgent->new(
 my $req = HTTP::Request->new($opt{method} || 'GET' => $url);
 my $res = $ua->simple_request($req);
 $res->remove_header(grep /^Client-/, $res->header_field_names)
-    unless $opt{'keep-client-headers'};
+    unless $opt{'keep-client-headers'} or
+        ($res->header("Client-Warning") || "") eq "Internal response";
 
 $res->dump(maxlength => $opt{'max-length'});
 

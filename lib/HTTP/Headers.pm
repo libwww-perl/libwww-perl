@@ -339,6 +339,11 @@ sub content_type_charset {
     return undef;
 }
 
+sub content_is_text {
+    my $self = shift;
+    return $self->content_type =~ m,^text/,;
+}
+
 sub content_is_html {
     my $self = shift;
     return $self->content_type eq 'text/html' || $self->content_is_xhtml;
@@ -666,6 +671,11 @@ string is returned.  This makes it safe to do the following:
 Returns the upper-cased charset specified in the Content-Type header.  In list
 context return the lower-cased bare content type followed by the upper-cased
 charset.  Both values will be C<undef> if not specified in the header.
+
+=item $h->content_is_text
+
+Returns TRUE if the Content-Type header field indicate that the
+content is textual.
 
 =item $h->content_is_html
 

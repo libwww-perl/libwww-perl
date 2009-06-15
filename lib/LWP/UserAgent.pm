@@ -593,14 +593,20 @@ sub parse_head {
         my $old = $self->set_my_handler("response_header", $flag ? sub {
                my($response, $ua) = @_;
                require HTML::HeadParser;
-               $parser = HTML::HeadParser->new($response->{'_headers'});
+               $parser = HTML::HeadParser->new;
                $parser->xml_mode(1) if $response->content_is_xhtml;
                $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
 
                push(@{$response->{handlers}{response_data}}, {
 		   callback => sub {
 		       return unless $parser;
-		       $parser->parse($_[3]) or undef($parser);
+		       unless ($parser->parse($_[3])) {
+			   my $h = $parser->header;
+			   for my $f ($h->header_field_names) {
+			       $response->init_header($f, [$h->header($f)]);
+			   }
+			   undef($parser);
+		       }
 		   },
 	       });
 

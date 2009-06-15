@@ -67,7 +67,6 @@ if($] >= 5.008 && !(eval { require Encode; defined(Encode::decode("UTF-8", "\xff
            "install the latest Encode from CPAN.\n\n";
 }
 
-exit;
 
 
 sub MY::test

@@ -209,13 +209,6 @@ sub prepare_request
 
     $self->run_handlers("request_preprepare", $request);
 
-    my $max_size = $self->{max_size};
-    if (defined $max_size) {
-	my $last = $max_size - 1;
-	$last = 0 if $last < 0;  # there is no way to actually request no content
-	$request->init_header('Range' => "bytes=0-$last");
-    }
-
     if (my $def_headers = $self->{def_headers}) {
 	for my $h ($def_headers->header_field_names) {
 	    $request->init_header($h => [$def_headers->header($h)]);

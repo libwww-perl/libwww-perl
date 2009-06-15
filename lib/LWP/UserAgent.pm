@@ -1446,6 +1446,15 @@ are given as separate name/value pairs.  The return value is a
 response object.  See L<HTTP::Response> for a description of the
 interface it provides.
 
+There will still be a response object returned when LWP can't connect to the
+server specified in the URL or other failures in protocol handlers.  Error
+responses that LWP generates internally will have the "Client-Warning" header
+set to the value "Internal response".  If you need to differentiate these
+reponses from responsens that a remote server actually generated you need to
+test this header value.  These internal responses uses the standard HTTP status
+codes, so the responses can't be differentiated by testing the response status
+code alone.
+
 Fields names that start with ":" are special.  These will not
 initialize headers of the request but will determine how the response
 content is treated.  The following special field names are recognized:

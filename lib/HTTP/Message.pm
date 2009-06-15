@@ -289,14 +289,6 @@ sub decoded_content
     my $content_ref_iscopy;
 
     eval {
-
-	require HTTP::Headers::Util;
-	my($ct, %ct_param);
-	if (my @ct = HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
-	    ($ct, undef, %ct_param) = @{$ct[-1]};
-	    die "Can't decode multipart content" if $ct =~ m,^multipart/,;
-	}
-
 	$content_ref = $self->content_ref;
 	die "Can't decode ref content" if ref($content_ref) ne "SCALAR";
 
@@ -384,9 +376,14 @@ sub decoded_content
 	    }
 	}
 
-	if ($ct && ($ct =~ m,^text/, || $self->content_is_xml)) {
-	    my $charset = $opt{charset} || $ct_param{charset} || $opt{default_charset} || $self->content_charset || "ISO-8859-1";
-	    $charset = lc($charset);
+	if ($self->content_is_text || $self->content_is_xml) {
+	    my $charset = lc(
+	        $opt{charset} ||
+		$self->content_type_charset ||
+		$opt{default_charset} ||
+		$self->content_charset ||
+		"ISO-8859-1"
+	    );
 	    if ($charset ne "none") {
 		require Encode;
 		if (do{my $v = $Encode::VERSION; $v =~ s/_//g; $v} < 2.0901 &&

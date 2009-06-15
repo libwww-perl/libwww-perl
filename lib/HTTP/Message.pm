@@ -197,12 +197,8 @@ sub content_ref
 sub content_charset
 {
     my $self = shift;
-    require HTTP::Headers::Util;
-    my $charset;
-    for my $v (HTTP::Headers::Util::split_header_words($self->header("Content-Type"))) {
-	my($ct, undef, %ct_param) = @$v;
-	$charset = $ct_param{charset};
-	return $charset if $charset;
+    if (my $charset = $self->content_type_charset) {
+	return $charset;
     }
 
     # time to start guessing
@@ -250,6 +246,7 @@ sub content_charset
 		unless ($charset) {
 		    # look at $attr->{content} ...
 		    if (my $c = $attr->{content}) {
+			require HTTP::Headers::Util;
 			my @v = HTTP::Headers::Util::split_header_words($c);
 			my($ct, undef, %ct_param) = @{$v[0]};
 			$charset = $ct_param{charset};

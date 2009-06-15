@@ -2,12 +2,12 @@
 
 use strict;
 use Test;
-plan tests => 18;
+plan tests => 21;
 
 use HTTP::Response;
 my $r = HTTP::Response->new(200, "OK");
-
 ok($r->content_charset, undef);
+ok($r->content_type_charset, undef);
 
 $r->content_type("text/plain");
 ok($r->content_charset, undef);
@@ -43,6 +43,10 @@ $r->content(<<'EOT');
 <meta content="text/plain; charset=UTF-8">
 EOT
 ok($r->content_charset, "UTF-8");
+
+$r->content_type('text/plain; charset="iso-8859-1"');
+ok($r->content_charset, "ISO-8859-1");
+ok($r->content_type_charset, "ISO-8859-1");
 
 $r->content_type("application/xml");
 $r->content("<foo>..</foo>");

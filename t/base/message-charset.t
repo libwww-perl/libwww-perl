@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-plan tests => 9;
+plan tests => 18;
 
 use HTTP::Response;
 my $r = HTTP::Response->new(200, "OK");
@@ -44,3 +44,33 @@ $r->content(<<'EOT');
 EOT
 ok($r->content_charset, "UTF-8");
 
+$r->content_type("application/xml");
+$r->content("<foo>..</foo>");
+ok($r->content_charset, "UTF-8");
+
+require Encode;
+for my $enc ("UTF-16-BE", "UTF-16-LE", "UTF-32-BE", "UTF-32-LE") {
+    $r->content(Encode::encode($enc, "<foo>..</foo>"));
+    ok($r->content_charset, $enc);
+}
+
+$r->content(<<'EOT');
+<?xml version="1.0" encoding="utf8" ?>
+EOT
+ok($r->content_charset, "utf8");
+
+$r->content(<<'EOT');
+<?xml version="1.0" encoding=" "?>
+EOT
+ok($r->content_charset, "UTF-8");
+
+$r->content(<<'EOT');
+<?xml version="1.0" encoding="  ISO-8859-1 "?>
+EOT
+ok($r->content_charset, "ISO-8859-1");
+
+$r->content(<<'EOT');
+<?xml version="1.0"
+encoding="US-ASCII" ?>
+EOT
+ok($r->content_charset, "US-ASCII");

@@ -219,8 +219,24 @@ sub content_charset
     }
 
     if ($self->content_is_xml) {
-	# implement guessing similar to what's implemented in HTML::Encoding
-	# or simply call out to that module
+	# http://www.w3.org/TR/2006/REC-xml-20060816/#sec-guessing
+	# XML entity not accompanied by external encoding information and not
+	# in UTF-8 or UTF-16 encoding must begin with an XML encoding declaration,
+	# in which the first characters must be '<?xml'
+	for ($$cref) {
+	    return "UTF-32-BE" if /^\x00\x00\x00</;
+	    return "UTF-32-LE" if /^<\x00\x00\x00/;
+	    return "UTF-16-BE" if /^(?:\x00\s)*\x00</;
+	    return "UTF-16-LE" if /^(?:\s\x00)*<\x00/;
+	    if (/^\s*(<\?xml[^\x00]*?\?>)/) {
+		if ($1 =~ /\sencoding\s*=\s*(["'])(.*?)\1/) {
+		    my $enc = $2;
+		    $enc =~ s/^\s+//; $enc =~ s/\s+\z//;
+		    return $enc if $enc;
+		}
+	    }
+	}
+	return "UTF-8";
     }
     elsif ($self->content_is_html) {
 	# look for <META charset="..."> or <META content="...">

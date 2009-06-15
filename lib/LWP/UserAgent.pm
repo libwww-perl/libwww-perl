@@ -1283,7 +1283,7 @@ proxy URL for a single access scheme.
 Do not proxy requests to the given domains.  Calling no_proxy without
 any domains clears the list of domains. Eg:
 
- $ua->no_proxy('localhost', 'no', ...);
+ $ua->no_proxy('localhost', 'example.com');
 
 =item $ua->env_proxy
 
@@ -1292,7 +1292,7 @@ specify proxies like this (sh-syntax):
 
   gopher_proxy=http://proxy.my.place/
   wais_proxy=http://proxy.my.place/
-  no_proxy="localhost,my.domain"
+  no_proxy="localhost,example.com"
   export gopher_proxy wais_proxy no_proxy
 
 csh or tcsh users should use the C<setenv> command to define these

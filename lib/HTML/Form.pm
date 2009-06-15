@@ -59,45 +59,67 @@ The following methods are available:
 
 =over 4
 
-=item @forms = HTML::Form->parse( $response )
+=item @forms = HTML::Form->parse( $html_document, $base_uri )
 
-=item @forms = HTML::Form->parse( $html_document, $base )
+=item @forms = HTML::Form->parse( $html_document, base => $base_uri, %opt )
 
-=item @forms = HTML::Form->parse( $html_document, %opt )
+=item @forms = HTML::Form->parse( $response, %opt )
 
 The parse() class method will parse an HTML document and build up
 C<HTML::Form> objects for each <form> element found.  If called in scalar
 context only returns the first <form>.  Returns an empty list if there
 are no forms to be found.
 
-The $base is the URI used to retrieve the $html_document.  It is
-needed to resolve relative action URIs.  If the document was retrieved
-with LWP then this this parameter is obtained from the
-$response->base() method, as shown by the following example:
+The required arguments is the HTML document to parse ($html_document) and the
+URI used to retrieve the document ($base_uri).  The base URI is needed to resolve
+relative action URIs.  The provided HTML document should be a Unicode string
+(or US-ASCII).
+
+By default HTML::Form assumes that the original document was UTF-8 encoded and
+thus encode forms that don't specify an explict I<accept-charset> as UTF-8.
+The charset assumed can be overridden by providing the C<charset> option to
+parse().  It's a good idea to be explict about this parameter as well, thus
+the recommended simplest invocation becomes:
+
+    my @forms = HTML::Form->parse(
+        Encode::decode($encoding, $html_document_bytes),
+        base => $base_uri,
+	charset => $encoding,
+    );
+
+If the document was retrieved with LWP then the response object provide methods
+to obtain a proper value for C<base> and C<charset>:
 
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get("http://www.example.com/form.html");
     my @forms = HTML::Form->parse($response->decoded_content,
-				  $response->base);
+	base => $response->base,
+	charset => $response->content_charset,
+    );
 
-The parse() method can parse from an C<HTTP::Response> object
+In fact, the parse() method can parse from an C<HTTP::Response> object
 directly, so the example above can be more conveniently written as:
 
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get("http://www.example.com/form.html");
     my @forms = HTML::Form->parse($response);
 
-Note that any object that implements a decoded_content() and base() method
-with similar behaviour as C<HTTP::Response> will do.
+Note that any object that implements a decoded_content(), base() and
+content_charset() method with similar behaviour as C<HTTP::Response> will do.
 
-Finally options might be passed in to control how the parse method
-behaves.  The following options are currently recognized:
+Additional options might be passed in to control how the parse method
+behaves.  The following are all the options currently recognized:
 
 =over
 
 =item C<< base => $uri >>
 
-Another way to provide the base URI.
+This is the URI used to retrive the original document.  This option is not optional ;-)
+
+=item C<< charset => $str >>
+
+Specify what charset the original document was encoded in.  This is used as
+the default for accept_charset.  If not provided this defaults to "UTF-8".
 
 =item C<< verbose => $bool >>
 
@@ -124,6 +146,7 @@ sub parse
     die "Failed to create HTML::TokeParser object" unless $p;
 
     my $base_uri = delete $opt{base};
+    my $charset = delete $opt{charset};
     my $strict = delete $opt{strict};
     my $verbose = delete $opt{verbose};
 
@@ -137,6 +160,14 @@ sub parse
 	}
 	else {
 	    Carp::croak("HTML::Form::parse: No \$base_uri provided");
+	}
+    }
+    unless (defined $charset) {
+	if (ref($html) and $html->can("content_charset")) {
+	    $charset = $html->content_charset;
+	}
+	unless ($charset) {
+	    $charset = "UTF-8";
 	}
     }
 
@@ -155,6 +186,7 @@ sub parse
 			     $action,
 			     $attr->{'enctype'});
             $f->accept_charset($attr->{'accept-charset'}) if $attr->{'accept-charset'};
+	    $f->{default_charset} = $charset;
 	    $f->{attr} = $attr;
 	    $f->strict(1) if $strict;
             %openselect = ();
@@ -276,6 +308,7 @@ sub new {
     $self->{action} = shift  || Carp::croak("No action defined");
     $self->{enctype} = lc(shift || "application/x-www-form-urlencoded");
     $self->{accept_charset} = "UNKNOWN";
+    $self->{default_charset} = "UTF-8";
     $self->{inputs} = [@_];
     $self;
 }
@@ -330,12 +363,12 @@ string like "application/x-www-form-urlencoded" or "multipart/form-data".
 
 =item $form->accept_charset( $new_accept )
 
-This method gets/sets the list of charset encodings that the server
-processing the form accepts. Current implementation supports only
-one-element lists. Default value is "UNKNOWN" which we interpret as a
-request to use UTF-8 encoding. To encode character strings you should
-have modern perl with Encode module. On older perls this method has no
-effect.
+This method gets/sets the list of charset encodings that the server processing
+the form accepts. Current implementation supports only one-element lists.
+Default value is "UNKNOWN" which we interpret as a request to use document
+charset as specified by the 'charset' parameter of the parse() method. To
+encode character strings you should have modern perl with Encode module. On
+older perls the setting of this attribute has no effect.
 
 =cut
 
@@ -661,7 +694,7 @@ sub make_request
     my $enctype = $self->{'enctype'};
     my @form    = $self->form;
 
-    my $charset = $self->accept_charset eq "UNKNOWN" ? 'utf-8' : $self->accept_charset;
+    my $charset = $self->accept_charset eq "UNKNOWN" ? $self->{default_charset} : $self->accept_charset;
     if ($Encode_available) {
         foreach my $fi (@form) {
             $fi = Encode::encode($charset, $fi) unless ref($fi);

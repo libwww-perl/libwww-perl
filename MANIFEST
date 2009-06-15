@@ -79,6 +79,7 @@ t/base/http-config.t            Test HTTP::Config module
 t/base/listing.t		Test File::Listing module
 t/base/mediatypes.t		Test LWP::MediaTypes module
 t/base/message.t		Test HTTP::Message
+t/base/message-charset.t	Test HTTP::Message content_charset method
 t/base/message-old.t		Test HTTP::Request/HTTP::Response
 t/base/message-parts.t		Test HTTP::Message parts method
 t/base/negotiate.t		Test HTTP::Negotiation module

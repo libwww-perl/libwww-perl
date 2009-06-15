@@ -313,6 +313,37 @@ sub content_type      {
     wantarray ? @ct : $ct[0];
 }
 
+sub content_type_charset {
+    my $self = shift;
+    require HTTP::Headers::Util;
+    my $h = $self->{'content-type'};
+    $h = $h->[0] if ref($h);
+    $h = "" unless defined $h;
+    my @v = HTTP::Headers::Util::split_header_words($h);
+    if (@v) {
+	my($ct, undef, %ct_param) = @{$v[0]};
+	my $charset = $ct_param{charset};
+	if ($ct) {
+	    $ct = lc($ct);
+	    $ct =~ s/\s+//;
+	}
+	if ($charset) {
+	    $charset = uc($charset);
+	    $charset =~ s/^\s+//;  $charset =~ s/\s+\z//;
+	    undef($charset) if $charset eq "";
+	}
+	return $ct, $charset if wantarray;
+	return $charset;
+    }
+    return undef, undef if wantarray;
+    return undef;
+}
+
+sub content_is_text {
+    my $self = shift;
+    return $self->content_type =~ m,^text/,;
+}
+
 sub content_is_html {
     my $self = shift;
     return $self->content_type eq 'text/html' || $self->content_is_xhtml;
@@ -634,6 +665,17 @@ string is returned.  This makes it safe to do the following:
      # be 'TEXT/HTML; version=3.0'
      ...
   }
+
+=item $h->content_type_charset
+
+Returns the upper-cased charset specified in the Content-Type header.  In list
+context return the lower-cased bare content type followed by the upper-cased
+charset.  Both values will be C<undef> if not specified in the header.
+
+=item $h->content_is_text
+
+Returns TRUE if the Content-Type header field indicate that the
+content is textual.
 
 =item $h->content_is_html
 

@@ -1,4 +1,55 @@
 _______________________________________________________________________________
+2009-06-15  Release 5.827
+
+The main news this time is better detection of what character set the document
+in a response uses and the addition of the lwp-dump script that I found useful.
+
+
+Gisle Aas (31):
+      Added lwp-dump script
+      Replace calls to $req->url with $req->uri
+      Also need to encode strings in the latin1 range
+      Ignore the value set for file inputs [RT#46911]
+      Add docs to lwp-dump
+      Don't let lwp-dump follow redirects
+      Support --method options
+      Implement the --agent option
+      Dictionary order for the option docs; document --method
+      Merge branch 'dump'
+      Files are passed as an array and we must not stringify it.
+      Add content_charset method to HTTP::Message
+      Start guessing the charset for a message
+      Let content_charset guess the charset to use for decoded_content
+      Specify what's missing for the XML and HTML case
+      Provide charset parameter for HTML::Form->parse()
+      Make content_charset sniff for <meta> elements specifying the charset.
+      Determine charset of XML documents
+      Get rid of the _trivial_http_get() implementation
+      Update the bundled media.types file
+      LWP::Simple::get() now returns decoded_content [RT#44435]
+      Implement content_type_charset method for HTTP::Headers
+      Implement content_is_text method for HTTP::Headers
+      Make use of content_is_text and content_type_charset in decoded_content
+      Don't let the parse_head callback append to the HTTP headers
+      Don't set Range header on request when max_size is used [RT#17208]
+      Still show client headers for internal responses
+      Document Client-Warning: Internal response
+      Don't use 'no' as example domain for no_proxy docs [RT#43728]
+      Drop exit from the Makefile.PL [RT#43060]
+      Merge branch 'content_charset'
+
+Alex Kapranoff (1):
+      Support "accept-charset" attribute in HTML::Form
+
+Mark Stosberg (1):
+      new tests for max_size and 206 responses [RT#46230]
+
+murphy (1):
+      Reformulation of Client-Warning: Internal documentation
+
+
+
+_______________________________________________________________________________
 2009-04-24  Release 5.826
 
 Gisle Aas (2):

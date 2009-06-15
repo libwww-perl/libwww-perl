@@ -5,7 +5,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "5.826";
+$VERSION = "5.827";
 
 use HTTP::Request ();
 use HTTP::Response ();

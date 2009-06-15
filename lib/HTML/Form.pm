@@ -5,7 +5,7 @@ use URI;
 use Carp ();
 
 use vars qw($VERSION $Encode_available);
-$VERSION = "5.817";
+$VERSION = "5.827";
 
 eval { require Encode };
 $Encode_available = !$@;

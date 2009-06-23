@@ -312,7 +312,7 @@ _______________________________________________________________________________
 Gisle Aas (13):
       Typo fix.
       Add HTTP::Message::decodable()
-      Use decoded_content in the synposis
+      Use decoded_content in the synopsis
       Avoid adding an empty first part in $mess->add_part()
       Get rid of all the manual dependency tests.
       Simplify the Makefile.PL (no interactivity)
@@ -509,7 +509,7 @@ _______________________________________________________________________________
     HTML::Form: The parse method now takes hash style optional
     arguments and the old verbose behaviour is now off by default.
     
-    HTML::Form: Accept <select multiple=""> for compatibilty with
+    HTML::Form: Accept <select multiple=""> for compatibility with
     other browsers.  Patch by Josh Rai <josh@rai.name>.
 
     HTML::Form: Sane handling of 'disabled' for ListInput.
@@ -613,9 +613,9 @@ _______________________________________________________________________________
 
     Release 5.802
 
-    The HTTP::Message object now have a decoded_content() method.
+    The HTTP::Message object now has a decoded_content() method.
     This will return the content after any Content-Encodings and
-    charsets has been decoded.
+    charsets have been decoded.
 
     Compress::Zlib is now a prerequisite module.
 
@@ -909,7 +909,7 @@ _______________________________________________________________________________
     introduced in 5.72 was broken and provided a patch for that.
 
     Not all ftp servers return 550 responses when trying to
-    to RETR a directory.  Microsofts IIS is one of those.
+    to RETR a directory.  Microsoft's IIS is one of those.
     Patch provided by Thomas Lotterer <thl@dev.de.cw.com>.
     
     Some documentation tweaks.
@@ -950,7 +950,7 @@ _______________________________________________________________________________
     redirects to the same URL to get a cookie set did not work.
     Based on a patch by Sean M. Burke <sburke@cpan.org>.
 
-    NTML authentication should continue to fail if the Authen::NTLM
+    NTLM authentication should continue to fail if the Authen::NTLM
     module can't be loaded.  LWP used to think the scheme was
     available as soon as the module stash showed up.  Not it looks
     for the authenticate method to be defined.  Patch by Jan Dubois.
@@ -978,7 +978,7 @@ _______________________________________________________________________________
     Patch by Matthew Eldridge <eldridge@Graphics.Stanford.EDU>.
 
     lwp-request now prints unsuccessful responses in the same way
-    as successsful ones.  The status will still indicate failures.
+    as successful ones.  The status will still indicate failures.
     Based on a patch by Steve Hay <steve.hay@uk.radan.com>.
 
     HTML::Form's dump now also print alternative value names.
@@ -1900,7 +1900,7 @@ Tue Aug  4 1998   Gisle Aas <aas@sn.no>
 
  o  LWP::UserAgent will lowercase all authentication parameter names
     before passing it to the authentication module.  Previous releases
-    ignored parameters like; Realm="Foo" (bacause Realm contained
+    ignored parameters like; Realm="Foo" (because Realm contained
     upper case letters).
 
  o  LWP::Protocol::ftp test for If-Modified-Since was wrong.
@@ -2183,7 +2183,7 @@ Tue Dec 16 1997   Gisle Aas <aas@sn.no>
 
  o  LWP::Protocol::ftp patch from  Tony Finch <fanf@demon.net>.
 
- o  Removed depreciated modules from the distibution; HTML::Parse,
+ o  Removed deprecated modules from the distribution; HTML::Parse,
     LWP::Socket, LWP::SecureSocket, LWP::IO, LWP::TkIO.
 
 
@@ -2198,7 +2198,7 @@ Fri Dec 12 1997   Gisle Aas <aas@sn.no>
  o  HTML::Parser patch by Brian McCauley <B.A.McCauley@bham.ac.uk>.
     Pass original text to end() method.
 
- o  The HTML::Parser->netscape_buggy_comment method is depreciated.
+ o  The HTML::Parser->netscape_buggy_comment method is deprecated.
     Use HTML::Parser->strict_comment instead.  The default value
     has changed with the name.
 
@@ -2640,7 +2640,7 @@ Wed Sep 11 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.02
 
- o  lwp-rget:  Initialize proxy settings from envirionment
+ o  lwp-rget:  Initialize proxy settings from environment
 
  o  HTML::Entities::encode_entities: Don't encode $ and %
 
@@ -2778,7 +2778,7 @@ Wed Apr 24 1996   Gisle Aas <aas@sn.no>
 
  o  Trap exceptions (die) from the response callback routine
 
- o  The RobotUA now requires an e-mail address of the person reponsible
+ o  The RobotUA now requires an e-mail address of the person responsible
     for the robot.
 
  o  New $ua->from() method.
@@ -2841,7 +2841,7 @@ Thu Mar 14 1996   Gisle Aas <aas@sn.no>
 
  o  GET ftp://host/doc was never successful for normal files.
 
- o  LWP::Socket: read_until() did not notice EOF condidtion.  I.e. if
+ o  LWP::Socket: read_until() did not notice EOF condition.  I.e. if
     a HTTP server closed the connection before any output was generated,
     the we continued to read 0 bytes in a busy loop until the alarm()
     killed us.
@@ -2853,7 +2853,7 @@ Thu Mar 14 1996   Gisle Aas <aas@sn.no>
 
  o  No longer print message content in HTTP::Response::error_as_HTML()
 
- o  Access to "file:/path" gave warning when the envirionment variable
+ o  Access to "file:/path" gave warning when the environment variable
     no_proxy was set.
 
  o  The http-post test sends a Content-Type header.  Some servers hang
@@ -2882,7 +2882,7 @@ Tue Mar  5 1996   Gisle Aas <aas@sn.no>
  o  Does not try generate password for ftp-URLs unless the username is
     "anonymous" or "ftp"
 
- o  The LWP::Simple user agent proxy settings are intialized from
+ o  The LWP::Simple user agent proxy settings are initialized from
     the proxy environment variables. 
 
  o  LWP::Protocol::ftp: Use the Net::FTP library to access ftp servers.
@@ -2986,7 +2986,7 @@ Mon Feb  5 1996   Gisle Aas <aas@sn.no>
            vms_path
 
  o  URI::Escape now semi-compile regular expressions (by evaling an
-    anonymous sub).  Same techinque is also used in HTML::Entities.
+    anonymous sub).  Same technique is also used in HTML::Entities.
 
  o  HTTP::Date parser rewritten using regular expressions.
 
@@ -3007,7 +3007,7 @@ Mon Feb  5 1996   Gisle Aas <aas@sn.no>
  o  The HTML::Formatter now knows about <menu> and <dir> tags
 
  o  The construct "defined ref($arg)" did not work on perl5.002
-    becase ref now always return something defined.
+    because ref now always return something defined.
 
  o  LWP::UserAgent sends by default an 'User-Agent' header.
 
@@ -3033,7 +3033,7 @@ Mon Nov  6 1995   Gisle Aas <aas@oslonett.no>
     perl4 as 'perl'.  The mirror script is not installed by
     default.
 
- o  LWP::Socket::_getaddress() Numerical IP adresses did not work.
+ o  LWP::Socket::_getaddress() Numerical IP addresses did not work.
 
  o  LWP::Socket::pushback() did not work.  This also avoids the bad
     pp_select() core dump from perl.
@@ -3066,9 +3066,9 @@ Sat Sep 16 1995   Gisle Aas <aas@oslonett.no>
 Thu Sep 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  Speedups and bug fixes in the HTML parser.  The parser now
-    understands some more depreciated tags (like <xmp> and <listing>).
+    understands some more deprecated tags (like <xmp> and <listing>).
 
- o  HTML::Elements are now stingified using perl overloading.
+ o  HTML::Elements are now stringified using perl overloading.
     The interface to the traverse() callback has changed.
 
  o  Implemented HTML formatters for plain text and Postscript.
@@ -3108,7 +3108,7 @@ Mon Sep  4 1995   Gisle Aas <aas@oslonett.no>
 
  o  Moved Base64 to MIME::Base64.  Reimplemented MIME::Base64 by using
     [un]pack("u",...)   Implemented LWP::MIME::QuotedPrint for
-    completness sake.  Routine names has changed as suggested by Tim
+    completeness' sake.  Routine names has changed as suggested by Tim
     Bunce.
 
  o  LWP::MediaType reads default types from media.types file.
@@ -3231,7 +3231,7 @@ Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
  o  Use "\015\012" instead of "\r\n" in protocol modules.  Some systems
     define \r and \n differently.
 
- o  request program can now handle documents that needs autorization by
+ o  request program can now handle documents that needs authorization by
     prompting the user for username/password. Added new -S option to print
     request/response chain.
 
@@ -3305,7 +3305,7 @@ Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
 Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  Reorganized directories.  Moved LWP.pm up.  Moved file.pm and http.pm
-    into the LWP::Protocol direcotory.  Moved LWP out of the lib directory
+    into the LWP::Protocol directory.  Moved LWP out of the lib directory
     and removed lib.
 
  o  Implemented the "get" and "mirror" scripts in the "bin" directory.
@@ -3338,7 +3338,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
     "use LWP 1.0;" if you need at least this version.
 
  o  Various cleanups and arranging layout as I like it.  Use fooBar-style
-    (as opposed to foo_bar stype) everywhere.  This means that as_string()
+    (as opposed to foo_bar style) everywhere.  This means that as_string()
     now is called asString().
 
  o  Added more documentation.
@@ -3347,7 +3347,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
 
 Wed Jun 14 1995   Gisle Aas <aas@oslonett.no>
 
- o  Removed lot of rendundant & before function calls.
+ o  Removed lot of redundant & before function calls.
 
  o  $this --> $self
 

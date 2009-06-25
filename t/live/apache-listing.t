@@ -17,6 +17,12 @@ plan tests => scalar(@urls);
 
 for my $url (@urls) {
     print "# $url\n";
-    my @listing = parse_dir(get($url),undef,"apache");
+    my $dir = get($url);
+    unless ($dir) {
+	print "# Can't get document at $url\n";
+	ok(0);
+	next;
+    }
+    my @listing = parse_dir($dir, undef, "apache");
     ok(@listing);
 }

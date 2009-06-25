@@ -384,7 +384,7 @@ sub decoded_content
 		$self->content_charset ||
 		"ISO-8859-1"
 	    );
-	    if ($charset ne "none") {
+	    unless ($charset =~ /^(?:none|us-ascii|iso-8859-1)\z/) {
 		require Encode;
 		if (do{my $v = $Encode::VERSION; $v =~ s/_//g; $v} < 2.0901 &&
 		    !$content_ref_iscopy)

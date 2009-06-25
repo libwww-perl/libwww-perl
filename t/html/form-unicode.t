@@ -1,17 +1,19 @@
 #!perl -w
 
 use strict;
-use Test qw(plan ok skip);
+BEGIN {
+    eval {
+	require Encode;
+    };
+    if ($@) {
+	print "1..0 # Skipped: Encode not available\n";
+	print $@;
+	exit;
+    }
+}
 
-eval { require Encode };
-if ($@) {
-    plan tests => 1;
-    skip('Skip: Encode not available', 0);
-    exit;
-}
-else {
-    plan tests => 15;
-}
+use Test qw(plan ok);
+plan tests => 15;
 
 use HTML::Form;
 

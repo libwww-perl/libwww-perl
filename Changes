@@ -1,4 +1,21 @@
 _______________________________________________________________________________
+2009-06-25  Release 5.828
+
+A quick new release to restore compatiblity with perl-5.6.
+
+
+Gisle Aas (4):
+      Less noisy behaviour when we can't download the documents
+      Restore perl-5.6 compatiblity [RT#47054]
+      Don't decode US-ASCII and ISO-8859-1 content
+      Some versions of Encode don't support UTF-16-BE [RT#47152]
+
+Ville Skyttä (1):
+      Spelling fixes.
+
+
+
+_______________________________________________________________________________
 2009-06-15  Release 5.827
 
 The main news this time is better detection of what character set the document
@@ -67,6 +84,7 @@ Slaven Rezic (1):
 
 john9art (1):
       Make LWP::UserAgent constructor honor the default_headers option [RT#16637]
+
 
 
 _______________________________________________________________________________

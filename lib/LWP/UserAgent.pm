@@ -595,8 +595,9 @@ sub parse_head {
 		       return unless $parser;
 		       unless ($parser->parse($_[3])) {
 			   my $h = $parser->header;
+			   my $r = $_[0];
 			   for my $f ($h->header_field_names) {
-			       $response->init_header($f, [$h->header($f)]);
+			       $r->init_header($f, [$h->header($f)]);
 			   }
 			   undef($parser);
 		       }

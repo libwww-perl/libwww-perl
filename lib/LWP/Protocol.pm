@@ -161,9 +161,12 @@ sub collect
             }
         }
     };
-    if ($@) {
-        chomp($@);
-        $response->push_header('X-Died' => $@);
+    my $err = $@;
+    delete $response->{handlers}{response_data};
+    delete $response->{handlers} unless %{$response->{handlers}};
+    if ($err) {
+        chomp($err);
+        $response->push_header('X-Died' => $err);
         $response->push_header("Client-Aborted", "die");
         return $response;
     }

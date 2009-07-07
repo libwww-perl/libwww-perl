@@ -93,6 +93,7 @@ t/html/form.t			Test HTML::Form module
 t/html/form-param.t		More HTML::Form tests.
 t/html/form-multi-select.t      More HTML::Form tests
 t/html/form-maxlength.t         More HTML::Form tests
+t/html/form-selector.t		More HTML::Form tests
 t/live/apache.t
 t/live/apache-listing.t		Test File::Listing::apache package
 t/live/https.t

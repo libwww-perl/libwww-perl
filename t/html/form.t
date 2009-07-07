@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 126;
+plan tests => 127;
 
 use HTML::Form;
 
@@ -581,3 +581,15 @@ $f = HTML::Form->parse(<<EOT, "http://www.example.com");
 EOT
 ok(join(":", $f->find_input("test")->possible_values), "1:2");
 ok(join(":", $f->find_input("test")->other_possible_values), "2");
+
+@warn = ();
+$f = HTML::Form->parse(<<EOT, "http://www.example.com");
+<form>
+<select id="myselect">
+<option>one</option>
+<option>two</option>
+<option>three</option>
+</select>
+</form>
+EOT
+ok(@warn, 0);

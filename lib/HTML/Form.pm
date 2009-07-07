@@ -242,7 +242,9 @@ sub parse
 			    if exists $attr->{$_};
 		    }
 		    # count this new select option separately
-		    $openselect{$attr->{name}}++;
+		    my $name = $attr->{name};
+		    $name = "" unless defined $name;
+		    $openselect{$name}++;
 
 		    while ($t = $p->get_tag) {
 			my $tag = shift @$t;
@@ -262,7 +264,7 @@ sub parse
 			    $a{value_name} = $p->get_trimmed_text;
 			    $a{value} = delete $a{value_name}
 				unless defined $a{value};
-			    $a{idx} = $openselect{$attr->{name}};
+			    $a{idx} = $openselect{$name};
 			    $f->push_input("option", \%a, $verbose);
 			}
 			else {

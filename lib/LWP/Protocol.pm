@@ -2,7 +2,7 @@ package LWP::Protocol;
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "5.826";
+$VERSION = "5.829";
 
 use strict;
 use Carp ();

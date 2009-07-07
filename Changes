@@ -1,4 +1,33 @@
 _______________________________________________________________________________
+2009-07-07  Release 5.829
+
+This release removes callback handlers that were left over on the returned
+HTTP::Responses.  This was problematic because it created reference loops
+preventing the Perl garbage collector from releasing their memory.  Another
+problem was that Storable by default would not serialize these objects any
+more.
+
+This release also adds support for locating HTML::Form inputs by id or class
+attribute; for instance $form->value("#foo", 42) will set the value on the
+input with the ID of "foo".
+
+
+Gisle Aas (5):
+      Make the example code 'use strict' clean by adding a my
+      Avoid cycle in response
+      Clean up handlers has from response after data processing is done
+      Support finding inputs by id or class in HTML::Form
+      Test HTML::Form selectors
+
+Mark Stosberg (1):
+      Tidy and document the internals of mirror() better [RT#23450]
+
+phrstbrn (1):
+      Avoid warnings from HTML::Form [RT#42654]
+
+
+
+_______________________________________________________________________________
 2009-06-25  Release 5.828
 
 A quick new release to restore compatiblity with perl-5.6.

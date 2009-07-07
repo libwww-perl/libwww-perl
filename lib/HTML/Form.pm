@@ -454,17 +454,20 @@ sub inputs
 }
 
 
-=item $input = $form->find_input( $name )
+=item $input = $form->find_input( $selector )
 
-=item $input = $form->find_input( $name, $type )
+=item $input = $form->find_input( $selector, $type )
 
-=item $input = $form->find_input( $name, $type, $index )
+=item $input = $form->find_input( $selector, $type, $index )
 
 This method is used to locate specific inputs within the form.  All
 inputs that match the arguments given are returned.  In scalar context
 only the first is returned, or C<undef> if none match.
 
-If $name is specified, then the input must have the indicated name.
+If $selector is specified, then the input's name, id, class attribute must
+match.  A selector prefixed with '#' must match the id attribute of the input.
+A selector prefixed with '.' matches the class attribute.  A selector prefixed
+with '^' or with no prefix matches the name attribute.
 
 If $type is specified, then the input must have the specified type.
 The following type names are used: "text", "password", "hidden",
@@ -483,10 +486,7 @@ sub find_input
 	my @res;
 	my $c;
 	for (@{$self->{'inputs'}}) {
-	    if (defined $name) {
-		next unless exists $_->{name};
-		next if $name ne $_->{name};
-	    }
+	    next if defined($name) && !$_->selected($name);
 	    next if $type && $type ne $_->{type};
 	    $c++;
 	    next if $no && $no != $c;
@@ -498,10 +498,7 @@ sub find_input
     else {
 	$no ||= 1;
 	for (@{$self->{'inputs'}}) {
-	    if (defined $name) {
-		next unless exists $_->{name};
-		next if $name ne $_->{name};
-	    }
+	    next if defined($name) && !$_->selected($name);
 	    next if $type && $type ne $_->{type};
 	    next if --$no;
 	    return $_;
@@ -519,9 +516,9 @@ sub fixup
 }
 
 
-=item $value = $form->value( $name )
+=item $value = $form->value( $selector )
 
-=item $form->value( $name, $new_value )
+=item $form->value( $selector, $new_value )
 
 The value() method can be used to get/set the value of some input.  If
 strict is enabled and no input has the indicated name, then this method will croak.
@@ -722,23 +719,24 @@ sub make_request
 
 =item $request = $form->click
 
-=item $request = $form->click( $name )
+=item $request = $form->click( $selector )
 
 =item $request = $form->click( $x, $y )
 
-=item $request = $form->click( $name, $x, $y )
+=item $request = $form->click( $selector, $x, $y )
 
 Will "click" on the first clickable input (which will be of type
 C<submit> or C<image>).  The result of clicking is an C<HTTP::Request>
 object that can then be passed to C<LWP::UserAgent> if you want to
 obtain the server response.
 
-If a $name is specified, we will click on the first clickable input
-with the given name, and the method will croak if no clickable input
-with the given name is found.  If $name is I<not> specified, then it
+If a $selector is specified, we will click on the first clickable input
+matching the selector, and the method will croak if no matching clickable
+input is found.  If $selector is I<not> specified, then it
 is ok if the form contains no clickable inputs.  In this case the
 click() method returns the same request as the make_request() method
-would do.
+would do.  See description of the find_input() method above for how
+the $selector is specified.
 
 If there are multiple clickable inputs with the same name, then there
 is no way to get the click() method of the C<HTML::Form> to click on
@@ -763,7 +761,7 @@ sub click
     # try to find first submit button to activate
     for (@{$self->{'inputs'}}) {
         next unless $_->can("click");
-        next if $name && $_->name ne $name;
+        next if $name && !$_->selected($name);
 	next if $_->disabled;
 	return $_->click($self, @_);
     }
@@ -898,6 +896,17 @@ sub type
 
 This method can be used to get/set the current name of the input.
 
+=item $input->id
+
+=item $input->class
+
+These methods can be used to get/set the current id or class attribute for the input.
+
+=item $input->selected( $selector )
+
+Returns TRUE if the given selector matched the input.  See the description of
+the find_input() method above for a description of the selector syntax.
+
 =item $value = $input->value
 
 =item $input->value( $new_value )
@@ -920,6 +929,34 @@ sub name
     my $old = $self->{name};
     $self->{name} = shift if @_;
     $old;
+}
+
+sub id
+{
+    my $self = shift;
+    my $old = $self->{id};
+    $self->{id} = shift if @_;
+    $old;
+}
+
+sub class
+{
+    my $self = shift;
+    my $old = $self->{class};
+    $self->{class} = shift if @_;
+    $old;
+}
+
+sub selected {
+    my($self, $sel) = @_;
+    return undef unless defined $sel;
+    my $attr =
+        $sel =~ s/^\^// ? "name"  :
+        $sel =~ s/^#//  ? "id"    :
+        $sel =~ s/^\.// ? "class" :
+	                  "name";
+    return 0 unless defined $self->{$attr};
+    return $self->{$attr} eq $sel;
 }
 
 sub value

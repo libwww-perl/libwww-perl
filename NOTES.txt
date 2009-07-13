@@ -48,18 +48,9 @@ HTTP::Message
 - decode stream (reusable in LWP::Protocol)
 - registry of encoders for encode/decode
 
-- content_charset method (which knows the stuff HTML::Encoding knows)
-- decoded_content should sniff on content to determine charset
-
-
 LWP::UserAgent
 --------------
 - raise HTTP::Response objects as exceptions
-
-
-HTML::Form
-----------
-- deal with charset issues
 
 
 Data::Sink/Source

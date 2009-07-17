@@ -269,7 +269,7 @@ sub request
           SELECT:
             {
                 my $nfound = select($rbits, $wbits, undef, $sel_timeout);
-                unless (defined $nfound) {
+                if ($nfound < 0) {
                     if ($!{EINTR} || $!{EAGAIN}) {
                         if ($time_before) {
                             $sel_timeout = $sel_timeout_before - (time - $time_before);
@@ -436,7 +436,7 @@ sub can_read {
         my $before;
         $before = time if $timeout;
         my $nfound = select($fbits, undef, undef, $timeout);
-        unless (defined $nfound) {
+        if ($nfound < 0) {
             if ($!{EINTR} || $!{EAGAIN}) {
                 # don't really think EAGAIN can happen here
                 if ($timeout) {

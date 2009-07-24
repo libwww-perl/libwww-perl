@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 119;
+plan tests => 121;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -458,6 +458,16 @@ if (eval { require Encode; 1 }) {
 } else {
     skip('Needs Encode.pm for this test', undef);
 }
+
+# Raw RFC 1951 deflate
+$m = HTTP::Message->new([
+    "Content-Type" => "text/plain",
+    "Content-Encoding" => "deflate, base64",
+    ],
+    "80jNyclXCM8vyklRBAA="
+    );
+ok($m->decoded_content, "Hello World!");
+ok(!$m->header("Client-Warning"));
 
 if (eval "require Compress::Bzip2") {
     $m = HTTP::Message->new([

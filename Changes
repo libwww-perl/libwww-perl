@@ -1,4 +1,15 @@
 _______________________________________________________________________________
+2009-07-26  Release 5.830
+
+Gisle Aas (1):
+      select doesn't return undef on failure [RT#32356]
+
+Ville Skyttä (1):
+      Add raw RFC 1951 deflate test case.
+
+
+
+_______________________________________________________________________________
 2009-07-07  Release 5.829
 
 This release removes callback handlers that were left over on the returned

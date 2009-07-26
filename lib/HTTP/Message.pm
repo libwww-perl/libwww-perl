@@ -311,14 +311,35 @@ sub decoded_content
 		}
 		elsif ($ce eq "x-bzip2") {
 		    require Compress::Bzip2;
+		    my $i = Compress::Bzip2::bzinflateInit() or
+			die "Can't init bzip2 inflater: $Compress::Bzip2::bzerrno";
 		    unless ($content_ref_iscopy) {
-			# memBunzip is documented to destroy its buffer argument
+			# the $i->bzinflate method is documented to destroy its
+			# buffer argument
 			my $copy = $$content_ref;
 			$content_ref = \$copy;
 			$content_ref_iscopy++;
 		    }
-		    $content_ref = \Compress::Bzip2::memBunzip($$content_ref);
-		    die "Can't bunzip content" unless defined $$content_ref;
+		    # TODO: operate on the ref when rt#48124 is fixed
+		    my ($out, $status) = $i->bzinflate($$content_ref);
+		    my $bzerr = "";
+		    # TODO: drop $out definedness part when rt#48124 is fixed
+		    if (!defined($out) &&
+			$status != Compress::Bzip2::BZ_STREAM_END()) {
+			if ($status == Compress::Bzip2::BZ_OK()) {
+			    $self->push_header("Client-Warning" =>
+			       "Content might be truncated; incomplete bzip2 stream");
+			}
+			else {
+			    # something went bad, can't trust $out any more
+			    $out = undef;
+			    # $bzerrno has more info than $i->bzerror or $status
+			    $bzerr = ": $Compress::Bzip2::bzerrno";
+			}
+		    }
+		    die "Can't bunzip content$bzerr" unless defined $out;
+		    $content_ref = \$out;
+		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "deflate") {
 		    require Compress::Zlib;
@@ -471,7 +492,15 @@ sub encode
 	}
 	elsif ($encoding eq "x-bzip2") {
 	    require Compress::Bzip2;
-	    $content = Compress::Bzip2::memGzip($content);
+	    my $d = Compress::Bzip2::bzdeflateInit() or
+		die "Can't init bzip2 deflater: $Compress::Bzip2::bzerrno";
+	    ($content, my $status) = $d->bzdeflate($content);
+	    die "Can't bzip content: $Compress::Bzip2::bzerrno"
+		unless $status == Compress::Bzip2::BZ_OK();
+	    (my $rest, $status) = $d->bzclose;
+	    die "Can't bzip content: $Compress::Bzip2::bzerrno"
+		unless $status == Compress::Bzip2::BZ_OK();
+	    $content .= $rest if defined $rest;
 	}
 	elsif ($encoding eq "rot13") {  # for the fun of it
 	    $content =~ tr/A-Za-z/N-ZA-Mn-za-m/;

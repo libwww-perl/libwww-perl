@@ -835,6 +835,9 @@ sub mirror
     my $tmpfile = "$file-$$";
 
     my $response = $self->request($request, $tmpfile);
+    if ( $response->header('X-Died') ) {
+	die $response->header('X-Died');
+    }
 
     # Only fetching a fresh copy of the would be considered success.
     # If the file was not modified, "304" would returned, which 

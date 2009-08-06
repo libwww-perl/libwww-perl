@@ -283,8 +283,8 @@ time2str() and str2time(), are exported by default.
 =item time2str( [$time] )
 
 The time2str() function converts a machine time (seconds since epoch)
-to a string.  If the function is called without an argument, it will
-use the current time.
+to a string.  If the function is called without an argument or with an
+undefined argument, it will use the current time.
 
 The string returned is in the format preferred for the HTTP protocol.
 This is a fixed length subset of the format defined by RFC 1123,

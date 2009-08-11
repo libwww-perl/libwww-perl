@@ -260,6 +260,7 @@ sub content_charset
 		$self->eof;
 	    }, "tagname, attr, self"],
 	    report_tags => [qw(meta)],
+	    utf8_mode => 1,
 	);
 	$p->parse($$cref);
 	return $charset if $charset;

@@ -1,6 +1,6 @@
 package HTTP::Date;
 
-$VERSION = "5.810";
+$VERSION = "5.831";
 
 require 5.004;
 require Exporter;

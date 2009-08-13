@@ -1,4 +1,18 @@
 _______________________________________________________________________________
+2009-08-13  Release 5.831
+
+
+Ville Skyttä (3):
+      Fix bzip2 content encoding/decoding.
+      send_te() doc grammar fix.
+      Document time2str() behavior with an undefined argument.
+
+Gisle Aas (1):
+      HTML::Message's content_charset trigger warnings from HTML::Parser [RT#48621]
+
+
+
+_______________________________________________________________________________
 2009-07-26  Release 5.830
 
 Gisle Aas (1):

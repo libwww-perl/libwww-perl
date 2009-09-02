@@ -1,3 +1,9 @@
+Mike Schilli (1):
+      Allow xxx_proxy environment variables in env_proxy() only if they're
+      using implemented schemes. (Add-on to previous fix, which just checked
+      names against a schema regex, which caused env settings like 
+      'MY_PROXY=1' to crash "use LWP::Simple").
+
 _______________________________________________________________________________
 2009-08-13  Release 5.831
 

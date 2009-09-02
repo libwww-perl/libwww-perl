@@ -932,6 +932,8 @@ sub env_proxy {
 	else {
             # Ignore random _proxy variables, allow only valid schemes
             next unless $k =~ /^$URI::scheme_re\z/;
+            # Ignore xxx_proxy variables if xxx isn't a supported protocol
+            next unless LWP::Protocol::implementor($k);
 	    $self->proxy($k, $v);
 	}
     }

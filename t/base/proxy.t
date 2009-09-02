@@ -3,12 +3,15 @@
 use strict;
 use Test;
 
-plan tests => 1;
+plan tests => 2;
 
 use LWP::UserAgent;
 
-$ENV{ABSURDLY_NAMED_PROXY} = "foobar";
+for my $varname ( qw(ABSURDLY_NAMED_PROXY MY_PROXY) ) {
 
-my $ua = LWP::UserAgent->new;
-eval { $ua->env_proxy(); };
-ok($@, "");
+    $ENV{ $varname } = "foobar";
+
+    my $ua = LWP::UserAgent->new;
+    eval { $ua->env_proxy(); };
+    ok($@, "");
+}

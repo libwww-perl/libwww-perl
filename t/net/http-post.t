@@ -6,7 +6,7 @@
 print "1..2\n";
 
 require "net/config.pl";
-require LWP::Protocol::http;
+require HTTP::Request;
 require LWP::UserAgent;
 
 $netloc = $net::httpserver;
@@ -14,7 +14,7 @@ $script = $net::cgidir . "/test";
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
 
-$url = new URI::URL("http://$netloc$script");
+$url = "http://$netloc$script";
 
 my $form = 'searchtype=Substring';
 

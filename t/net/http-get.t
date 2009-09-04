@@ -6,7 +6,7 @@
 print "1..2\n";
 
 require "net/config.pl";
-require LWP::Protocol::http;
+require HTTP::Request;
 require LWP::UserAgent;
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
@@ -14,7 +14,7 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 $netloc = $net::httpserver;
 $script = $net::cgidir . "/test";
 
-$url = new URI::URL("http://$netloc$script?query");
+$url = "http://$netloc$script?query";
 
 my $request = new HTTP::Request('GET', $url);
 

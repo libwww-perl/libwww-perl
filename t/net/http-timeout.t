@@ -5,8 +5,7 @@
 print "1..1\n";
 
 require "net/config.pl";
-require HTTP::Status;
-require LWP::Protocol::http;
+require HTTP::Request;
 require LWP::UserAgent;
 
 my $ua = new LWP::UserAgent;    # create a useragent to test
@@ -16,7 +15,7 @@ $ua->timeout(4);
 $netloc = $net::httpserver;
 $script = $net::cgidir . "/timeout";
 
-$url = new URI::URL("http://$netloc$script");
+$url = "http://$netloc$script";
 
 my $request = new HTTP::Request('GET', $url);
 

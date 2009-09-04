@@ -3,7 +3,6 @@
 #
 
 require "net/config.pl";
-require LWP::Protocol::http;
 require LWP::UserAgent;
 require HTTP::Status;
 
@@ -29,7 +28,7 @@ if ($response->code == &HTTP::Status::RC_NOT_MODIFIED) {
     print "ok 2\n";
 }
 else {
-    print "nok ok 2\n";
+    print "not ok 2\n";
 }
 unlink($copy);
 

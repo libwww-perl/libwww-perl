@@ -1,6 +1,6 @@
 package net;
 
-# Configure these for you local system
+# Configure these for your local system
 $httpserver  = "localhost:80";
 $cgidir      = "/cgi-bin/lwp";
 

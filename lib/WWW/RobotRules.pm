@@ -105,11 +105,11 @@ sub parse {
 		push(@anon_disallowed, $disallow);
 	    }
 	}
-        elsif (/^\s*Sitemap\s*:/i) {
+        elsif (/\S\s*:/) {
              # ignore
         }
 	else {
-	    warn "RobotRules <$robot_txt_uri>: Unexpected line: $_\n" if $^W;
+	    warn "RobotRules <$robot_txt_uri>: Malformed record: <$_>\n" if $^W;
 	}
     }
 
@@ -132,7 +132,7 @@ sub is_me {
 
     # See whether my short-name is a substring of the
     #  "User-Agent: ..." line that we were passed:
-    
+
     if(index(lc($me), lc($ua_line)) >= 0) {
       return 1;
     }
@@ -145,10 +145,10 @@ sub is_me {
 sub allowed {
     my($self, $uri) = @_;
     $uri = URI->new("$uri");
-    
+
     return 1 unless $uri->scheme eq 'http' or $uri->scheme eq 'https';
      # Robots.txt applies to only those schemes.
-    
+
     my $netloc = $uri->host . ":" . $uri->port;
 
     my $fresh_until = $self->fresh_until($netloc);
@@ -358,7 +358,7 @@ rules and expire times out of the cache.
 
 The format and semantics of the "/robots.txt" file are as follows
 (this is an edited abstract of
-<http://www.robotstxt.org/wc/norobots.html> ):
+<http://www.robotstxt.org/wc/norobots.html>):
 
 The file consists of one or more records separated by one or more
 blank lines. Each record contains lines of the form
@@ -395,6 +395,8 @@ visited. This can be a full path, or a partial path; any URL that
 starts with this value will not be retrieved
 
 =back
+
+Unrecognized records are ignored.
 
 =head1 ROBOTS.TXT EXAMPLES
 
@@ -433,7 +435,7 @@ This is an example of a malformed robots.txt file.
   Disallow: /west-wing/ # except the west wing!
   # It's good to be the Prince...
   User-agent: Beast
-  Disallow: 
+  Disallow:
 
 This file is missing the required blank lines between records.
 However, the intention is clear.

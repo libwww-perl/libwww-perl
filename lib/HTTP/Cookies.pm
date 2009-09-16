@@ -89,7 +89,7 @@ sub add_cookie_header
 		if ($port) {
 		    my $found;
 		    if ($port =~ s/^_//) {
-			# The correponding Set-Cookie attribute was empty
+			# The corresponding Set-Cookie attribute was empty
 			$found++ if $port eq $req_port;
 			$port = "";
 		    }
@@ -261,7 +261,7 @@ sub extract_cookies
 	    if ($k eq "discard" || $k eq "secure") {
 		$v = 1 unless defined $v;
 	    }
-	    next if exists $hash{$k};  # only first value is signigicant
+	    next if exists $hash{$k};  # only first value is significant
 	    $hash{$k} = $v;
 	};
 

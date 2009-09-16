@@ -9,7 +9,7 @@ use HTTP::Response;
 
 #-------------------------------------------------------------------
 # First we check that it works for the original example at
-# http://www.netscape.com/newsref/std/cookie_spec.html
+# http://curl.haxx.se/rfc/cookie_spec.html
 
 # Client requests a document, and receives in the response:
 # 

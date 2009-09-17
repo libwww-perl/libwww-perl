@@ -241,6 +241,7 @@ sub my_read {
 
 sub my_readline {
     my $self = shift;
+    my $what = shift;
     for (${*$self}{'http_buf'}) {
 	my $max_line_length = ${*$self}{'http_max_line_length'};
 	my $pos;
@@ -248,7 +249,7 @@ sub my_readline {
 	    # find line ending
 	    $pos = index($_, "\012");
 	    last if $pos >= 0;
-	    die "Line too long (limit is $max_line_length)"
+	    die "$what line too long (limit is $max_line_length)"
 		if $max_line_length && length($_) > $max_line_length;
 
 	    # need to read more data to find a line ending
@@ -265,7 +266,7 @@ sub my_readline {
                     }
                     # if we have already accumulated some data let's at least
                     # return that as a line
-                    die "read failed: $!" unless length;
+                    die "$what read failed: $!" unless length;
                 }
                 unless ($n) {
                     return undef unless length;
@@ -273,7 +274,7 @@ sub my_readline {
                 }
             }
 	}
-	die "Line too long ($pos; limit is $max_line_length)"
+	die "$what line too long ($pos; limit is $max_line_length)"
 	    if $max_line_length && $pos > $max_line_length;
 
 	my $line = substr($_, 0, $pos+1, "");
@@ -311,7 +312,7 @@ sub _read_header_lines {
     my @headers;
     my $line_count = 0;
     my $max_header_lines = ${*$self}{'http_max_header_lines'};
-    while (my $line = my_readline($self)) {
+    while (my $line = my_readline($self, 'Header')) {
 	if ($line =~ /^(\S+?)\s*:\s*(.*)/s) {
 	    push(@headers, $1, $2);
 	}
@@ -339,7 +340,7 @@ sub read_response_headers {
     my($self, %opt) = @_;
     my $laxed = $opt{laxed};
 
-    my($status, $eol) = my_readline($self);
+    my($status, $eol) = my_readline($self, 'Status');
     unless (defined $status) {
 	die "Server closed connection without sending any data back";
     }
@@ -471,11 +472,11 @@ sub read_entity_body {
 	#   $chunked > 0:    bytes left in current chunk to read
 
 	if ($chunked <= 0) {
-	    my $line = my_readline($self);
+	    my $line = my_readline($self, 'Entity body');
 	    if ($chunked == 0) {
 		die "Missing newline after chunk data: '$line'"
 		    if !defined($line) || $line ne "";
-		$line = my_readline($self);
+		$line = my_readline($self, 'Entity body');
 	    }
 	    die "EOF when chunk header expected" unless defined($line);
 	    my $chunk_len = $line;

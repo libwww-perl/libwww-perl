@@ -1057,7 +1057,7 @@ The settings of the configuration attributes modify the behaviour of the
 C<LWP::UserAgent> when it dispatches requests.  Most of these can also
 be initialized by options passed to the constructor method.
 
-The following attributes methods are provided.  The attribute value is
+The following attribute methods are provided.  The attribute value is
 left unchanged if no argument is given.  The return value from each
 method is the old attribute value.
 

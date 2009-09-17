@@ -57,7 +57,7 @@ Net::HTTP - Low-level HTTP connection (client)
 The C<Net::HTTP> class is a low-level HTTP client.  An instance of the
 C<Net::HTTP> class represents a connection to an HTTP server.  The
 HTTP protocol is described in RFC 2616.  The C<Net::HTTP> class
-support C<HTTP/1.0> and C<HTTP/1.1>.
+supports C<HTTP/1.0> and C<HTTP/1.1>.
 
 C<Net::HTTP> is a sub-class of C<IO::Socket::INET>.  You can mix the
 methods described below with reading and writing from the socket
@@ -132,7 +132,7 @@ lines.  The default is 4096.  A value of 0 means no limit.
 
 =item $s->max_header_length
 
-Get/set a limit on the number of headers lines that a response can
+Get/set a limit on the number of header lines that a response can
 have.  The default is 128.  A value of 0 means no limit.
 
 =item $s->format_request($method, $uri, %headers, [$content])

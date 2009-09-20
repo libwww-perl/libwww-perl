@@ -69,7 +69,7 @@ sub http_configure {
     $peer_http_version = "1.0" unless defined $peer_http_version;
     my $send_te = delete $cnf->{SendTE};
     my $max_line_length = delete $cnf->{MaxLineLength};
-    $max_line_length = 4*1024 unless defined $max_line_length;
+    $max_line_length = 8*1024 unless defined $max_line_length;
     my $max_header_lines = delete $cnf->{MaxHeaderLines};
     $max_header_lines = 128 unless defined $max_header_lines;
 

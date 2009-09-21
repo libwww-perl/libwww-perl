@@ -5,7 +5,7 @@ use HTTP::Date qw(str2time time2str);
 use HTTP::Headers::Util qw(_split_header_words join_header_words);
 
 use vars qw($VERSION $EPOCH_OFFSET);
-$VERSION = "5.827";
+$VERSION = "5.832";
 
 # Legacy: because "use "HTTP::Cookies" used be the ONLY way
 #  to load the class HTTP::Cookies::Netscape.

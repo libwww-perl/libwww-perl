@@ -1,8 +1,22 @@
-Mike Schilli (1):
-      Allow xxx_proxy environment variables in env_proxy() only if they're
-      using implemented schemes. (Add-on to previous fix, which just checked
-      names against a schema regex, which caused env settings like 
-      'MY_PROXY=1' to crash "use LWP::Simple").
+_______________________________________________________________________________
+2009-09-21  Release 5.832
+
+
+Ville Skyttä (6):
+      Fix net test suite.
+      Comment spelling fixes.
+      Fix links to old Netscape cookie specification.
+      Documentation spelling fixes.
+      Improve max line length exceeded/read error messages.
+      Do not warn about seemingly wellformed but unrecognized robots.txt lines.
+
+Gisle Aas (1):
+      $mess->content_charset would fail for empty content
+
+mschilli (1):
+      Further restrict what variables env_proxy() process
+
+
 
 _______________________________________________________________________________
 2009-08-13  Release 5.831

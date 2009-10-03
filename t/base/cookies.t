@@ -1,7 +1,7 @@
 #!perl -w
 
 use Test;
-plan tests => 62;
+plan tests => 63;
 
 use HTTP::Cookies;
 use HTTP::Request;
@@ -643,6 +643,21 @@ $req = HTTP::Request->new(GET => "http://www.example.com/foo");
 $c->add_cookie_header($req);
 #print $req->as_string;
 ok($req->header("Cookie"), "foo=\"bar\"");
+
+# Test cookies that expire far into the future [RT#50147]
+$c = HTTP::Cookies->new;
+$res->header("Set-Cookie", "PREF=ID=cee18f7c4e977184:TM=1254583090:LM=1254583090:S=Pdb0-hy9PxrNj4LL; expires=Mon, 03-Oct-2211 15:18:10 GMT; path=/; domain=.example.com");
+$res->push_header("Set-Cookie", "expired=1; expires=Mon, 03-Oct-2001 15:18:10 GMT; path=/; domain=.example.com");
+$c->extract_cookies($res);
+#print $res->as_string;
+#print "---\n";
+#print $c->as_string;
+$c->clear_temporary_cookies;
+$req = HTTP::Request->new(GET => "http://www.example.com/foo");
+$c->add_cookie_header($req);
+#print $req->as_string;
+ok($req->header("Cookie"), "PREF=ID=cee18f7c4e977184:TM=1254583090:LM=1254583090:S=Pdb0-hy9PxrNj4LL");
+
 
 #-------------------------------------------------------------------
 

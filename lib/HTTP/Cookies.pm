@@ -1,7 +1,7 @@
 package HTTP::Cookies;
 
 use strict;
-use HTTP::Date qw(str2time time2str);
+use HTTP::Date qw(str2time parse_date time2str);
 use HTTP::Headers::Util qw(_split_header_words join_header_words);
 
 use vars qw($VERSION $EPOCH_OFFSET);
@@ -222,6 +222,17 @@ sub extract_cookies
 		    if ($etime) {
 			push(@cur, "Max-Age" => str2time($v) - $now);
 			$expires++;
+		    }
+		    else {
+			# check if parse_date can deal with this one
+			my($year, $mon, $day, $hour, $min, $sec, $tz) = parse_date($v);
+			my $thisyear = (gmtime)[5] + 1900;
+			if ($year && $year >= $thisyear + 10) {
+			    # the date is at least 10 years into the future, just replace
+			    # it with something approximate
+			    push(@cur, "Max-Age" => 10 * 365 * 24 * 60 * 60);
+			    $expires++;
+			}
 		    }
 		}
                 elsif (!$first_param && lc($k) =~ /^(?:version|discard|ns-cookie)/) {

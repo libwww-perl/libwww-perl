@@ -92,7 +92,8 @@ sub new
                       requests_redirectable => $requests_redirectable,
 		     }, $class;
 
-    $self->agent($agent || $class->_agent);
+    $self->agent(defined($agent) ? $agent : $class->_agent)
+	if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
     $self->from($from) if $from;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->parse_head($parse_head);

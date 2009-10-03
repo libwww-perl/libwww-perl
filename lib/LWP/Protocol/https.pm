@@ -6,6 +6,11 @@ use vars qw(@ISA);
 require LWP::Protocol::http;
 @ISA = qw(LWP::Protocol::http);
 
+sub socket_type
+{
+    return "https";
+}
+
 sub _check_sock
 {
     my($self, $req, $sock) = @_;

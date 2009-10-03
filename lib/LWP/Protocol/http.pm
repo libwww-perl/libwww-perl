@@ -18,7 +18,7 @@ sub _new_socket
     my($self, $host, $port, $timeout) = @_;
     my $conn_cache = $self->{ua}{conn_cache};
     if ($conn_cache) {
-	if (my $sock = $conn_cache->withdraw("http", "$host:$port")) {
+	if (my $sock = $conn_cache->withdraw($self->socket_type, "$host:$port")) {
 	    return $sock if $sock && !$sock->can_read(0);
 	    # if the socket is readable, then either the peer has closed the
 	    # connection or there are some garbage bytes on it.  In either
@@ -47,6 +47,11 @@ sub _new_socket
     eval { $sock->blocking(0); };
 
     $sock;
+}
+
+sub socket_type
+{
+    return "http";
 }
 
 sub socket_class
@@ -402,7 +407,7 @@ sub request
 	    if (($peer_http_version eq "1.1" && !$connection{close}) ||
 		$connection{"keep-alive"})
 	    {
-		$conn_cache->deposit("http", "$host:$port", $socket);
+		$conn_cache->deposit($self->socket_type, "$host:$port", $socket);
 	    }
 	}
     }

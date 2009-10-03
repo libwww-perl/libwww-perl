@@ -219,19 +219,25 @@ sub extract_cookies
 		}
 		if (!$first_param && lc($k) eq "expires") {
 		    my $etime = str2time($v);
-		    if ($etime) {
-			push(@cur, "Max-Age" => str2time($v) - $now);
+		    if (defined $etime) {
+			push(@cur, "Max-Age" => $etime - $now);
 			$expires++;
 		    }
 		    else {
-			# check if parse_date can deal with this one
+			# parse_date can deal with years outside the range of time_t,
 			my($year, $mon, $day, $hour, $min, $sec, $tz) = parse_date($v);
-			my $thisyear = (gmtime)[5] + 1900;
-			if ($year && $year >= $thisyear + 10) {
-			    # the date is at least 10 years into the future, just replace
-			    # it with something approximate
-			    push(@cur, "Max-Age" => 10 * 365 * 24 * 60 * 60);
-			    $expires++;
+			if ($year) {
+			    my $thisyear = (gmtime)[5] + 1900;
+			    if ($year < $thisyear) {
+				push(@cur, "Max-Age" => -1);  # any negative value will do
+				$expires++;
+			    }
+			    elsif ($year >= $thisyear + 10) {
+				# the date is at least 10 years into the future, just replace
+				# it with something approximate
+				push(@cur, "Max-Age" => 10 * 365 * 24 * 60 * 60);
+				$expires++;
+			    }
 			}
 		    }
 		}

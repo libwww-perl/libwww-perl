@@ -839,7 +839,8 @@ sub mirror
     # If the file was not modified, "304" would returned, which 
     # is considered by HTTP::Status to be a "redirect", /not/ "success"
     if ( $response->is_success ) {
-        my $file_length = ( stat($tmpfile) )[7];
+        my @stat        = stat($tmpfile) or die "Could not stat tmpfile '$tmpfile': $!";
+        my $file_length = $stat[7];
         my ($content_length) = $response->header('Content-length');
 
         if ( defined $content_length and $file_length < $content_length ) {

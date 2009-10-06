@@ -160,7 +160,12 @@ sub add_cookie_header
 	}
     }
 
-    $request->header(Cookie => join("; ", @cval)) if @cval;
+    if (@cval) {
+	if (my $old = $request->header("Cookie")) {
+	    unshift(@cval, $old);
+	}
+	$request->header(Cookie => join("; ", @cval));
+    }
 
     $request;
 }

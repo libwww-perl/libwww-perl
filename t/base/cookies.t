@@ -1,7 +1,7 @@
 #!perl -w
 
 use Test;
-plan tests => 64;
+plan tests => 66;
 
 use HTTP::Cookies;
 use HTTP::Request;
@@ -655,7 +655,7 @@ $res->push_header("Set-Cookie", "expired5=1; expires=Fri Feb  2 00:00:00 GMT 195
 $c->extract_cookies($res);
 #print $res->as_string;
 #print "---\n";
-print $c->as_string;
+#print $c->as_string;
 $req = HTTP::Request->new(GET => "http://www.example.com/foo");
 $c->add_cookie_header($req);
 #print $req->as_string;
@@ -666,6 +666,19 @@ $req = HTTP::Request->new(GET => "http://www.example.com/foo");
 $c->add_cookie_header($req);
 #print $req->as_string;
 ok($req->header("Cookie"), "PREF=ID=cee18f7c4e977184:TM=1254583090:LM=1254583090:S=Pdb0-hy9PxrNj4LL");
+
+# Test merging of cookies
+$c = HTTP::Cookies->new;
+$res->header("Set-Cookie", "foo=1; path=/");
+$c->extract_cookies($res);
+
+$req = HTTP::Request->new(GET => "http://www.example.com/foo");
+$req->header("Cookie", "x=bcd");
+$c->add_cookie_header($req);
+ok($req->header("Cookie"), "x=bcd; foo=1");
+$c->add_cookie_header($req);
+ok($req->header("Cookie"), "x=bcd; foo=1; foo=1");
+#print $req->as_string;
 
 
 #-------------------------------------------------------------------

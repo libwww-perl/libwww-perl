@@ -1,4 +1,26 @@
 _______________________________________________________________________________
+2009-10-06  Release 5.833
+
+
+Gisle Aas (5):
+      Deal with cookies that expire far into the future [RT#50147]
+      Deal with cookies that expire at or before epoch [RT#49467]
+      Pass separate type for https to LWP::ConnCache [RT#48899]
+      Improved handling of the User-Agent header [RT#48461]
+      HTTP::Cookies add_cookie_header previous Cookies [RT#46106]
+
+Andreas J. Koenig (1):
+      Improve diagnostics from LWP::UserAgent::mirror [RT#48869]
+
+Slaven Rezic (1):
+      mirror should die in case X-Died is set [RT#48236]
+
+Ville Skyttä (1):
+      Increase default Net::HTTP max line length to 8k.
+
+
+
+_______________________________________________________________________________
 2009-09-21  Release 5.832
 
 

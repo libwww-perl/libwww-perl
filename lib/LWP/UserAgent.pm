@@ -639,6 +639,8 @@ sub default_headers {
     my $self = shift;
     my $old = $self->{def_headers} ||= HTTP::Headers->new;
     if (@_) {
+	Carp::croak("default_headers not set to HTTP::Headers compatible object")
+	    unless @_ == 1 && $_[0]->can("header_field_names");
 	$self->{def_headers} = shift;
     }
     return $old;

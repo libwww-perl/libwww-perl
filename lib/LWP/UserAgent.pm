@@ -40,6 +40,7 @@ sub new
     my $def_headers = delete $cnf{default_headers};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
+    my $local_address = delete $cnf{local_address};
     my $use_eval = delete $cnf{use_eval};
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
@@ -81,6 +82,7 @@ sub new
     my $self = bless {
 		      def_headers  => $def_headers,
 		      timeout      => $timeout,
+		      local_address => $local_address,
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,
 		      max_size     => $max_size,
@@ -575,6 +577,7 @@ sub get_basic_credentials
 
 
 sub timeout      { shift->_elem('timeout',      @_); }
+sub local_address{ shift->_elem('local_address',@_); }
 sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
 sub show_progress{ shift->_elem('show_progress', @_); }
@@ -1036,6 +1039,7 @@ The following options correspond to attribute methods described below:
    conn_cache              undef
    cookie_jar              undef
    default_headers         HTTP::Headers->new
+   local_address           undef
    max_size                undef
    max_redirect            7
    parse_head              1
@@ -1172,6 +1176,14 @@ The $netloc is a string of the form "<host>:<port>".  The username and
 password will only be passed to this server.  Example:
 
   $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
+
+=item $ua->local_address
+
+=item $ua->local_address( $address )
+
+Get/set the local interface to bind to for network connections.  The interface
+can be specified as a hostname or an IP address.  This value is passed as the
+C<LocalAddr> argument to L<IO::Socket::INET>.
 
 =item $ua->max_size
 

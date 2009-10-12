@@ -94,6 +94,7 @@ sub _connect {
     my $ftp = LWP::Protocol::MyFTP->new($host,
 					Port => $port,
 					Timeout => $timeout,
+					LocalAddr => $self->{ua}{local_address},
 				       );
     # XXX Should be some what to pass on 'Passive' (header??)
     unless ($ftp) {

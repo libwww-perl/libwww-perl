@@ -120,6 +120,7 @@ EOT
     # Ok, lets make the request
     my $socket = IO::Socket::INET->new(PeerAddr => $host,
 				       PeerPort => $port,
+				       LocalAddr => $self->{ua}{local_address},
 				       Proto    => 'tcp',
 				       Timeout  => $timeout);
     die "Can't connect to $host:$port" unless $socket;

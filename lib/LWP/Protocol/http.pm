@@ -30,6 +30,7 @@ sub _new_socket
     local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = $self->socket_class->new(PeerAddr => $host,
 					PeerPort => $port,
+					LocalAddr => $self->{ua}{local_address},
 					Proto    => 'tcp',
 					Timeout  => $timeout,
 					KeepAlive => !!$conn_cache,

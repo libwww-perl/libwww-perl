@@ -48,7 +48,7 @@ else {
 }
 
 use Test;
-plan tests => 52;
+plan tests => 54;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -326,6 +326,15 @@ ok($res->is_success);
 ok($_, qr/^Content-Length:\s*16$/mi);
 ok($_, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi);
 ok($_, qr/^foo=bar&bar=test$/m);
+
+$req = HTTP::Request->new(POST => url("/echo/foo", $base));
+$req->content_type("multipart/form-data");
+$req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "Hi\n"));
+$req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "there\n"));
+$res = $ua->request($req);
+#print $res->as_string;
+ok($res->is_success);
+ok($res->content =~ /^Content-Type: multipart\/form-data; boundary=/m);
 
 #----------------------------------------------------------------
 print "Check partial content response...\n";

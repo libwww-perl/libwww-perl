@@ -301,83 +301,41 @@ sub decoded_content
 		next unless $ce;
 		next if $ce eq "identity";
 		if ($ce eq "gzip" || $ce eq "x-gzip") {
-		    require Compress::Zlib;
-		    unless ($content_ref_iscopy) {
-			# memGunzip is documented to destroy its buffer argument
-			my $copy = $$content_ref;
-			$content_ref = \$copy;
-			$content_ref_iscopy++;
-		    }
-		    $content_ref = \Compress::Zlib::memGunzip($$content_ref);
-		    die "Can't gunzip content" unless defined $$content_ref;
+		    require IO::Uncompress::Gunzip;
+		    my $output;
+		    IO::Uncompress::Gunzip::gunzip($content_ref, \$output, Transparent => 0)
+			or die "Can't gunzip content: $IO::Uncompress::Gunzip::GunzipError";
+		    $content_ref = \$output;
+		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "x-bzip2") {
-		    require Compress::Bzip2;
-		    my $i = Compress::Bzip2::bzinflateInit() or
-			die "Can't init bzip2 inflater: $Compress::Bzip2::bzerrno";
-		    unless ($content_ref_iscopy) {
-			# the $i->bzinflate method is documented to destroy its
-			# buffer argument
-			my $copy = $$content_ref;
-			$content_ref = \$copy;
-			$content_ref_iscopy++;
-		    }
-		    # TODO: operate on the ref when rt#48124 is fixed
-		    my ($out, $status) = $i->bzinflate($$content_ref);
-		    my $bzerr = "";
-		    # TODO: drop $out definedness part when rt#48124 is fixed
-		    if (!defined($out) &&
-			$status != Compress::Bzip2::BZ_STREAM_END()) {
-			if ($status == Compress::Bzip2::BZ_OK()) {
-			    $self->push_header("Client-Warning" =>
-			       "Content might be truncated; incomplete bzip2 stream");
-			}
-			else {
-			    # something went bad, can't trust $out any more
-			    $out = undef;
-			    # $bzerrno has more info than $i->bzerror or $status
-			    $bzerr = ": $Compress::Bzip2::bzerrno";
-			}
-		    }
-		    die "Can't bunzip content$bzerr" unless defined $out;
-		    $content_ref = \$out;
+		    require IO::Uncompress::Bunzip2;
+		    my $output;
+		    IO::Uncompress::Bunzip2::bunzip2($content_ref, \$output, Transparent => 0)
+			or die "Can't bunzip content: $IO::Uncompress::Bunzip2::Bunzip2Error";
+		    $content_ref = \$output;
 		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "deflate") {
-		    require Compress::Zlib;
-		    my $out = Compress::Zlib::uncompress($$content_ref);
-		    unless (defined $out) {
-			# "Content-Encoding: deflate" is supposed to mean the "zlib"
-                        # format of RFC 1950, but Microsoft got that wrong, so some
-                        # servers sends the raw compressed "deflate" data.  This
-                        # tries to inflate this format.
-			unless ($content_ref_iscopy) {
-			    # the $i->inflate method is documented to destroy its
-			    # buffer argument
-			    my $copy = $$content_ref;
-			    $content_ref = \$copy;
-			    $content_ref_iscopy++;
-			}
-
-			my($i, $status) = Compress::Zlib::inflateInit(
-			    WindowBits => -Compress::Zlib::MAX_WBITS(),
-                        );
-			my $OK = Compress::Zlib::Z_OK();
-			die "Can't init inflate object" unless $i && $status == $OK;
-			($out, $status) = $i->inflate($content_ref);
-			if ($status != Compress::Zlib::Z_STREAM_END()) {
-			    if ($status == $OK) {
-				$self->push_header("Client-Warning" =>
-				    "Content might be truncated; incomplete deflate stream");
-			    }
-			    else {
-				# something went bad, can't trust $out any more
-				$out = undef;
-			    }
+		    require IO::Uncompress::Inflate;
+		    my $output;
+		    my $status = IO::Uncompress::Inflate::inflate($content_ref, \$output, Transparent => 0);
+		    my $error = $IO::Uncompress::Inflate::InflateError;
+		    unless ($status) {
+			# "Content-Encoding: deflate" is supposed to mean the
+			# "zlib" format of RFC 1950, but Microsoft got that
+			# wrong, so some servers sends the raw compressed
+			# "deflate" data.  This tries to inflate this format.
+			$output = undef;
+			require IO::Uncompress::RawInflate;
+			unless (IO::Uncompress::RawInflate::rawinflate($content_ref, \$output)) {
+			    $self->push_header("Client-Warning" =>
+				"Could not raw inflate content: $IO::Uncompress::RawInflate::RawInflateError");
+			    $output = undef;
 			}
 		    }
-		    die "Can't inflate content" unless defined $out;
-		    $content_ref = \$out;
+		    die "Can't inflate content: $error" unless defined $output;
+		    $content_ref = \$output;
 		    $content_ref_iscopy++;
 		}
 		elsif ($ce eq "compress" || $ce eq "x-compress") {
@@ -440,11 +398,16 @@ sub decodable
     # XXX preferably we should determine if the modules are available without loading
     # them here
     eval {
-        require Compress::Zlib;
-        push(@enc, "gzip", "x-gzip", "deflate");
+        require IO::Uncompress::Gunzip;
+        push(@enc, "gzip", "x-gzip");
     };
     eval {
-        require Compress::Bzip2;
+        require IO::Uncompress::Inflate;
+        require IO::Uncompress::RawInflate;
+        push(@enc, "deflate");
+    };
+    eval {
+        require IO::Uncompress::Bunzip2;
         push(@enc, "x-bzip2");
     };
     # we don't care about announcing the 'identity', 'base64' and
@@ -485,24 +448,25 @@ sub encode
 	    $content = MIME::Base64::encode($content);
 	}
 	elsif ($encoding eq "gzip" || $encoding eq "x-gzip") {
-	    require Compress::Zlib;
-	    $content = Compress::Zlib::memGzip($content);
+	    require IO::Compress::Gzip;
+	    my $output;
+	    IO::Compress::Gzip::gzip(\$content, \$output, Minimal => 1)
+		or die "Can't gzip content: $IO::Compress::Gzip::GzipError";
+	    $content = $output;
 	}
 	elsif ($encoding eq "deflate") {
-	    require Compress::Zlib;
-	    $content = Compress::Zlib::compress($content);
+	    require IO::Compress::Deflate;
+	    my $output;
+	    IO::Compress::Deflate::deflate(\$content, \$output)
+		or die "Can't deflate content: $IO::Compress::Deflate::DeflateError";
+	    $content = $output;
 	}
 	elsif ($encoding eq "x-bzip2") {
-	    require Compress::Bzip2;
-	    my $d = Compress::Bzip2::bzdeflateInit() or
-		die "Can't init bzip2 deflater: $Compress::Bzip2::bzerrno";
-	    ($content, my $status) = $d->bzdeflate($content);
-	    die "Can't bzip content: $Compress::Bzip2::bzerrno"
-		unless $status == Compress::Bzip2::BZ_OK();
-	    (my $rest, $status) = $d->bzclose;
-	    die "Can't bzip content: $Compress::Bzip2::bzerrno"
-		unless $status == Compress::Bzip2::BZ_OK();
-	    $content .= $rest if defined $rest;
+	    require IO::Compress::Bzip2;
+	    my $output;
+	    IO::Compress::Bzip2::bzip2(\$content, \$output)
+		or die "Can't bzip2 content: $IO::Compress::Bzip2::Bzip2Error";
+	    $content = $output;
 	}
 	elsif ($encoding eq "rot13") {  # for the fun of it
 	    $content =~ tr/A-Za-z/N-ZA-Mn-za-m/;

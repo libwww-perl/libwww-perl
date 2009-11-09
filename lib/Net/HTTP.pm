@@ -110,9 +110,9 @@ and C<peer_http_version> attributes.
 
 Get/set the a value indicating if the request will be sent with a "TE"
 header to indicate the transfer encodings that the server can choose to
-use.  If the C<Compress::Zlib> module is installed then this will
-announce that this client accepts both the I<deflate> and I<gzip>
-encodings.
+use.  The list of encodings announced as accepted by this client depends
+on availability of the following modules: C<Compress::Raw::Zlib> for
+I<deflate>, and C<IO::Compress::Gunzip> for I<gzip>.
 
 =item $s->http_version
 

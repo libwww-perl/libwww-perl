@@ -469,19 +469,8 @@ $m = HTTP::Message->new([
 ok($m->decoded_content, "Hello World!");
 ok(!$m->header("Client-Warning"));
 
-if (eval "require Compress::Bzip2") {
-    $m = HTTP::Message->new([
-	"Content-Type" => "text/plain",
-        ],
-        "Hello world!"
-    );
-    ok($m->encode("x-bzip2"));
-    ok($m->header("Content-Encoding"), "x-bzip2");
-    ok($m->content =~ /^BZh.*\0/);
-    ok($m->decoded_content, "Hello world!");
-    ok($m->decode);
-    ok($m->content, "Hello world!");
 
+if (eval "require IO::Uncompress::Bunzip2") {
     $m = HTTP::Message->new([
         "Content-Type" => "text/plain",
         "Content-Encoding" => "x-bzip2, base64",
@@ -491,7 +480,24 @@ if (eval "require Compress::Bzip2") {
     ok($m->decoded_content, "Hello world!\n");
     ok($m->decode);
     ok($m->content, "Hello world!\n");
+
+    if (eval "require IO::Compress::Bzip2") {
+	$m = HTTP::Message->new([
+	    "Content-Type" => "text/plain",
+	    ],
+	    "Hello world!"
+	);
+	ok($m->encode("x-bzip2"));
+	ok($m->header("Content-Encoding"), "x-bzip2");
+	ok($m->content =~ /^BZh.*\0/);
+	ok($m->decoded_content, "Hello world!");
+	ok($m->decode);
+	ok($m->content, "Hello world!");
+    }
+    else {
+	skip("Need IO::Compress::Bzip2", undef) for 1..6;
+    }
 }
 else {
-    skip("Need Compress::Bzip2", undef) for 1..9;
+    skip("Need IO::Uncompress::Bunzip2", undef) for 1..9;
 }

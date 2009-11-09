@@ -162,8 +162,8 @@ sub format_request {
     if ($given{te}) {
 	push(@connection, "TE") unless grep lc($_) eq "te", @connection;
     }
-    elsif ($self->send_te && zlib_ok()) {
-	# gzip is less wanted since the Compress::Zlib interface for
+    elsif ($self->send_te && gunzip_ok()) {
+	# gzip is less wanted since the IO::Uncompress::Gunzip interface for
 	# it does not really allow chunked decoding to take place easily.
 	push(@h2, "TE: deflate,gzip;q=0.3");
 	push(@connection, "TE");
@@ -417,19 +417,23 @@ sub read_entity_body {
 		unless pop(@te) eq "chunked";
 
 	    for (@te) {
-		if ($_ eq "deflate" && zlib_ok()) {
-		    #require Compress::Zlib;
-		    my $i = Compress::Zlib::inflateInit();
-		    die "Can't make inflator" unless $i;
-		    $_ = sub { scalar($i->inflate($_[0])) }
+		if ($_ eq "deflate" && inflate_ok()) {
+		    #require Compress::Raw::Zlib;
+		    my ($i, $status) = Compress::Raw::Zlib::Inflate->new();
+		    die "Can't make inflator: $status" unless $i;
+		    $_ = sub { my $out; $i->inflate($_[0], \$out); $out }
 		}
-		elsif ($_ eq "gzip" && zlib_ok()) {
-		    #require Compress::Zlib;
+		elsif ($_ eq "gzip" && gunzip_ok()) {
+		    #require IO::Uncompress::Gunzip;
 		    my @buf;
 		    $_ = sub {
 			push(@buf, $_[0]);
-			return Compress::Zlib::memGunzip(join("", @buf)) if $_[1];
-			return "";
+			return "" unless $_[1];
+			my $input = join("", @buf);
+			my $output;
+			IO::Uncompress::Gunzip::gunzip(\$input, \$output, Transparent => 0)
+			    or die "Can't gunzip content: $IO::Uncompress::Gunzip::GunzipError";
+			return \$output;
 		    };
 		}
 		elsif ($_ eq "identity") {
@@ -549,23 +553,39 @@ sub get_trailers {
 }
 
 BEGIN {
-my $zlib_ok;
+my $gunzip_ok;
+my $inflate_ok;
 
-sub zlib_ok {
-    return $zlib_ok if defined $zlib_ok;
+sub gunzip_ok {
+    return $gunzip_ok if defined $gunzip_ok;
 
-    # Try to load Compress::Zlib.
+    # Try to load IO::Uncompress::Gunzip.
     local $@;
     local $SIG{__DIE__};
-    $zlib_ok = 0;
+    $gunzip_ok = 0;
 
     eval {
-	require Compress::Zlib;
-	Compress::Zlib->VERSION(1.10);
-	$zlib_ok++;
+	require IO::Uncompress::Gunzip;
+	$gunzip_ok++;
     };
 
-    return $zlib_ok;
+    return $gunzip_ok;
+}
+
+sub inflate_ok {
+    return $inflate_ok if defined $inflate_ok;
+
+    # Try to load Compress::Raw::Zlib.
+    local $@;
+    local $SIG{__DIE__};
+    $inflate_ok = 0;
+
+    eval {
+	require Compress::Raw::Zlib;
+	$inflate_ok++;
+    };
+
+    return $inflate_ok;
 }
 
 } # BEGIN

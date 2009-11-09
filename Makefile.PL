@@ -46,7 +46,12 @@ WriteMakefile(
         'HTML::Tagset'   => 0,
         'HTML::Parser'   => "3.33",
         'Digest::MD5'    => 0,
-        'Compress::Zlib' => "1.10",
+        'Compress::Raw::Zlib'        => 0,
+        'IO::Compress::Gzip'         => 0,
+        'IO::Compress::Deflate'      => 0,
+        'IO::Uncompress::Gunzip'     => 0,
+        'IO::Uncompress::Inflate'    => 0,
+        'IO::Uncompress::RawInflate' => 0,
     },
     META_MERGE => {
         recommends => {

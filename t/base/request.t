@@ -13,7 +13,7 @@ $req->accept_decodable;
 
 ok($req->method, "GET");
 ok($req->uri, "http://www.example.com");
-ok($req->header("Accept-Encoding") =~ /\bgzip\b/);  # assuming Compress::Zlib is there
+ok($req->header("Accept-Encoding") =~ /\bgzip\b/);  # assuming IO::Uncompress::Gunzip is there
 
 $req->dump(prefix => "# ");
 

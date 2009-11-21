@@ -1,4 +1,23 @@
 _______________________________________________________________________________
+2009-11-21  Release 5.834
+
+Gisle Aas (4):
+      Check for sane default_headers argument [RT#50393]
+      Add $ua->local_address attribute [RT#40912]
+      Test that generation of boundary works [RT#49396]
+      Page does not display the "standard" apache listing any more
+
+Ville Skyttä (2):
+      Remove unneeded executable permissions.
+      Switch compression/decompression to use the IO::Compress/IO::Uncompress and
+          Compress::Raw::Zlib family of modules.
+
+Slaven Rezic (1):
+      lwp-request should use stderr for auth [RT#21620]
+
+
+
+_______________________________________________________________________________
 2009-10-06  Release 5.833
 
 

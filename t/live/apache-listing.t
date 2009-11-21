@@ -10,7 +10,6 @@ use LWP::Simple;
 my @urls = (
 	    "http://www.apache.org/dist/apr/?C=N&O=D",
 	    "http://perl.apache.org/rpm/distrib/",
-	    "http://stein.cshl.org/WWW/software/",
 	    "http://www.cpan.org/modules/by-module/",
 	   );
 plan tests => scalar(@urls);

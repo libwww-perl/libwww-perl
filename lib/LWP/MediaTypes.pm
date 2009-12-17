@@ -110,19 +110,20 @@ sub guess_media_type
 
 sub media_suffix {
     if (!wantarray && @_ == 1 && $_[0] !~ /\*/) {
-	return $suffixExt{$_[0]};
+	return $suffixExt{lc $_[0]};
     }
     my(@type) = @_;
     my(@suffix, $ext, $type);
     foreach (@type) {
 	if (s/\*/.*/) {
 	    while(($ext,$type) = each(%suffixType)) {
-		push(@suffix, $ext) if $type =~ /^$_$/;
+		push(@suffix, $ext) if $type =~ /^$_$/i;
 	    }
 	}
 	else {
+	    my $ltype = lc $_;
 	    while(($ext,$type) = each(%suffixType)) {
-		push(@suffix, $ext) if $type eq $_;
+		push(@suffix, $ext) if lc $type eq $ltype;
 	    }
 	}
     }
@@ -146,7 +147,7 @@ sub add_type
 	$ext =~ s/^\.//;
 	$suffixType{$ext} = $type;
     }
-    $suffixExt{$type} = $exts[0] if @exts;
+    $suffixExt{lc $type} = $exts[0] if @exts;
 }
 
 

@@ -46,7 +46,7 @@ else {
  ["x.ppm.Z.UU"		=> "image/x-portable-pixmap","compress","x-uuencode",],
 );
 
-plan tests => @tests * 3 + 4;
+plan tests => @tests * 3 + 6;
 
 if ($ENV{HOME} and -f "$ENV{HOME}/.mime.types") {
    warn "
@@ -68,6 +68,11 @@ for (@tests) {
 @imgSuffix = media_suffix('image/*');
 print "# Image suffixes: @imgSuffix\n";
 ok(grep $_ eq "gif", @imgSuffix);
+
+@audioSuffix = media_suffix('AUDIO/*');
+print "# Audio suffixes: @audioSuffix\n";
+ok(grep $_ eq 'oga', @audioSuffix);
+ok(media_suffix('audio/OGG'), 'oga');
 
 require HTTP::Response;
 $r = new HTTP::Response 200, "Document follows";

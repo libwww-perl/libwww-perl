@@ -133,7 +133,7 @@ The following functions are provided (and exported) by this module:
 
 The get() function will fetch the document identified by the given URL
 and return it.  It returns C<undef> if it fails.  The $url argument can
-be either a simple string or a reference to a URI object.
+be either a string or a reference to a URI object.
 
 You will not be able to examine the response code or response headers
 (like 'Content-Type') when you are accessing the web using this

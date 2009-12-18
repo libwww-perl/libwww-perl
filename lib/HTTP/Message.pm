@@ -357,7 +357,7 @@ sub decoded_content
 	    }
 	}
 
-	if ($self->content_is_text || $self->content_is_xml) {
+	if ($self->content_is_text || (my $is_xml = $self->content_is_xml)) {
 	    my $charset = lc(
 	        $opt{charset} ||
 		$self->content_type_charset ||
@@ -378,6 +378,13 @@ sub decoded_content
 		$content_ref = \Encode::decode($charset, $$content_ref,
 		     ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());
 		die "Encode::decode() returned undef improperly" unless defined $$content_ref;
+		if ($is_xml) {
+		    # Get rid of the XML encoding declaration if present
+		    $$content_ref =~ s/^\x{FEFF}//;
+		    if ($$content_ref =~ /^(\s*<\?xml[^\x00]*?\?>)/) {
+			substr($$content_ref, 0, length($1)) =~ s/\sencoding\s*=\s*(["']).*?\1//;
+		    }
+		}
 	    }
 	}
     };

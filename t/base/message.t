@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok skip);
 
-plan tests => 124;
+plan tests => 125;
 
 require HTTP::Message;
 use Config qw(%Config);
@@ -500,4 +500,13 @@ if (eval "require IO::Uncompress::Bunzip2") {
 }
 else {
     skip("Need IO::Uncompress::Bunzip2", undef) for 1..9;
+}
+
+# test decoding of XML content
+if ($] >= 5.008001) {
+    $m = HTTP::Message->new(["Content-Type", "application/xml"], "\xFF\xFE<\0?\0x\0m\0l\0 \0v\0e\0r\0s\0i\0o\0n\0=\0\"\x001\0.\x000\0\"\0 \0e\0n\0c\0o\0d\0i\0n\0g\0=\0\"\0U\0T\0F\0-\x001\x006\0l\0e\0\"\0?\0>\0\n\0<\0r\0o\0o\0t\0>\0\xC9\0r\0i\0c\0<\0/\0r\0o\0o\0t\0>\0\n\0");
+    ok($m->decoded_content, "<?xml version=\"1.0\"?>\n<root>\xC9ric</root>\n");
+}
+else {
+    skip("Need perl-5.8", undef) for 1..1;
 }

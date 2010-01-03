@@ -205,7 +205,6 @@ sub content_charset
     my $cref = $self->decoded_content(ref => 1, charset => "none");
 
     # Unicode BOM
-    local $_;
     for ($$cref) {
 	return "UTF-8"     if /^\xEF\xBB\xBF/;
 	return "UTF-32-LE" if /^\xFF\xFE\x00\x00/;

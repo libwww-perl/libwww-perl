@@ -15,7 +15,7 @@ BEGIN {
 }
 
 use Test;
-plan tests => 21;
+plan tests => 22;
 
 use HTTP::Response;
 my $r = HTTP::Response->new(200, "OK");
@@ -91,3 +91,13 @@ $r->content(<<'EOT');
 encoding="US-ASCII" ?>
 EOT
 ok($r->content_charset, "US-ASCII");
+
+{
+ sub TIESCALAR{bless[]}
+ tie $_, "";
+ my $fail = 0;
+ sub STORE{ ++$fail }
+ sub FETCH{}
+ $r->content_charset;
+ ok($fail, 0, 'content_charset leaves $_ alone');
+}

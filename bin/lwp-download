@@ -138,7 +138,9 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 	      # validate that we don't have a harmful filename now.  The server
 	      # might try to trick us into doing something bad.
 	      if (!length($file) ||
-                  $file =~ s/([^a-zA-Z0-9_\.\-\+\~])/sprintf "\\x%02x", ord($1)/ge)
+                  $file =~ s/([^a-zA-Z0-9_\.\-\+\~])/sprintf "\\x%02x", ord($1)/ge ||
+		  $file =~ /^\./
+	      )
               {
 		  die "Will not save <$url> as \"$file\".\nPlease override file name on the command line.\n";
 	      }

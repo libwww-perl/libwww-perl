@@ -176,12 +176,17 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 	      }
 	      else {
 		  print "Saving to '$file'...\n";
+		  use Fcntl qw(O_WRONLY O_EXCL O_CREAT);
+		  sysopen(FILE, $file, O_WRONLY|O_EXCL|O_CREAT) ||
+		      die "Can't open $file: $!";
 	      }
 	  }
 	  else {
 	      $file = $argfile;
 	  }
-	  open(FILE, ">$file") || die "Can't open $file: $!\n";
+	  unless (fileno(FILE)) {
+	      open(FILE, ">", $file) || die "Can't open $file: $!\n";
+	  }
           binmode FILE unless $opt{a};
 	  $length = $res->content_length;
 	  $flength = fbytes($length) if defined $length;

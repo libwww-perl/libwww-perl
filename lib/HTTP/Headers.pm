@@ -246,7 +246,7 @@ sub as_string
 	if ($val =~ /\n/) {
 	    # must handle header values with embedded newlines with care
 	    $val =~ s/\s+$//;          # trailing newlines and space must go
-	    $val =~ s/\n\n+/\n/g;      # no empty lines
+	    $val =~ s/\n(\x0d?\n)+/\n/g;      # no empty lines
 	    $val =~ s/\n([^\040\t])/\n $1/g;  # intial space for continuation
 	    $val =~ s/\n/$endl/g;      # substitute with requested line ending
 	}

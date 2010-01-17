@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 163;
+plan tests => 164;
 
 my($h, $h2);
 sub j { join("|", @_) }
@@ -362,6 +362,18 @@ F: foo<<
  baz<<
 EOT
 
+# Check for attempt to send a body
+$h = HTTP::Headers->new( 
+    a => "foo\r\n\r\nevil body" ,
+    b => "foo\015\012\015\012evil body" ,
+    c => "foo\x0d\x0a\x0d\x0aevil body" ,
+);
+ok (
+    $h->as_string(),
+    "A: foo\r\n evil body\n".
+    "B: foo\015\012 evil body\n" .
+    "C: foo\x0d\x0a evil body\n" ,
+    "embedded CRLF are stripped out");
 
 # Check with FALSE $HTML::Headers::TRANSLATE_UNDERSCORE
 {

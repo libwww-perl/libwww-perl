@@ -604,7 +604,7 @@ values will be substituted with this line ending sequence.
 =head1 CONVENIENCE METHODS
 
 The most frequently used headers can also be accessed through the
-following convenience Methods.  Most of these methods can both be used to read
+following convenience methods.  Most of these methods can both be used to read
 and to set the value of a header.  The header value is set if you pass
 an argument to the method.  The old header value is always returned.
 If the given header did not exist then C<undef> is returned.

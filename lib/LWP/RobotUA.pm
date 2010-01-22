@@ -125,7 +125,7 @@ sub simple_request
 	# make access to robot.txt legal since this will be a recursive call
 	$self->{'rules'}->parse($robot_url, ""); 
 
-	my $robot_req = new HTTP::Request 'GET', $robot_url;
+	my $robot_req = HTTP::Request->new('GET', $robot_url);
 	my $robot_res = $self->request($robot_req);
 	my $fresh_until = $robot_res->fresh_until;
 	if ($robot_res->is_success) {
@@ -148,8 +148,8 @@ sub simple_request
 
     # Check rules
     unless ($allowed) {
-	my $res = new HTTP::Response
-	  &HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt';
+	my $res = HTTP::Response->new(
+	  &HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt');
 	$res->request( $request ); # bind it to that request
 	return $res;
     }
@@ -162,8 +162,8 @@ sub simple_request
 	    sleep($wait)
 	}
 	else {
-	    my $res = new HTTP::Response
-	      &HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down';
+	    my $res = HTTP::Response->new(
+	      &HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down');
 	    $res->header('Retry-After', time2str(time + $wait));
 	    $res->request( $request ); # bind it to that request
 	    return $res;

@@ -18,8 +18,8 @@ WWW::RobotRules::DB_File - Parse robots.txt files using a disk cache
  require LWP::RobotUA;
 
  #Create a robot useragent that uses a disk caching RobotRules
- $ua = new WWW::RobotUA 'my-robot/1.0', 'me@foo.com', 
-       new WWW::RobotRules::DB_File 'my-robot/1.0', '/path/cachefile'
+ $ua = WWW::RobotUA->new( 'my-robot/1.0', 'me@foo.com' ,
+       WWW::RobotRules::DB_File->new( 'my-robot/1.0', '/path/cachefile' ));
 
  #The just use $ua as usual
  $res=$ua->request($req);
@@ -49,7 +49,7 @@ sub new
   my ($class, $name, $file) = @_;
   Carp::croak('WWW::RobotRules::DB_File cache file required') unless $file;
 
-  my $self = new WWW::RobotRules $name;
+  my $self = WWW::RobotRules->new( $name );
   $self = bless $self, $class;
 
   tie %{$self->{'rules'}}, DB_File, $file, O_CREAT|O_RDWR, 0640, $DB_HASH;

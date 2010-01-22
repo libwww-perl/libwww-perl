@@ -103,7 +103,7 @@ LWP::Authen::Ntlm - Library for enabling NTLM authentication (Microsoft) in LWP
  my $url = 'http://www.company.com/protected_page.html';
 
  # Set up the ntlm client and then the base64 encoded ntlm handshake message
- my $ua = new LWP::UserAgent(keep_alive=>1);
+ my $ua = LWP::UserAgent->new(keep_alive=>1);
  $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
 
  $request = GET $url;
@@ -146,7 +146,7 @@ Enable persistent HTTP connections
 
 To do this, pass the "keep_alive=>1" option to the LWP::UserAgent when creating it, like this:
 
-    my $ua = new LWP::UserAgent(keep_alive=>1);
+    my $ua = LWP::UserAgent->new(keep_alive=>1);
 
 =item *
 

@@ -26,7 +26,7 @@ sub import
 use LWP::UserAgent ();
 use HTTP::Status ();
 use HTTP::Date ();
-$ua = new LWP::UserAgent;  # we create a global UserAgent object
+$ua = LWP::UserAgent->new;  # we create a global UserAgent object
 $ua->agent("LWP::Simple/$VERSION ");
 $ua->env_proxy;
 

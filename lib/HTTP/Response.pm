@@ -349,7 +349,7 @@ Response objects are returned by the request() method of the C<LWP::UserAgent>:
     # ...
     $response = $ua->request($request)
     if ($response->is_success) {
-        print $response->content;
+        print $response->decoded_content;
     }
     else {
         print STDERR $response->status_line, "\n";

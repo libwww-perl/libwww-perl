@@ -199,16 +199,16 @@ sub _header
 sub _sorted_field_names
 {
     my $self = shift;
-    return sort {
+    return [ sort {
         ($header_order{$a} || 999) <=> ($header_order{$b} || 999) ||
          $a cmp $b
-    } keys %$self
+    } keys %$self ];
 }
 
 
 sub header_field_names {
     my $self = shift;
-    return map $standard_case{$_} || $_, $self->_sorted_field_names
+    return map $standard_case{$_} || $_, @{ $self->_sorted_field_names },
 	if wantarray;
     return keys %$self;
 }
@@ -218,7 +218,7 @@ sub scan
 {
     my($self, $sub) = @_;
     my $key;
-    foreach $key ($self->_sorted_field_names) {
+    foreach $key (@{ $self->_sorted_field_names }) {
         next if $key =~ /^_/;
 	my $vals = $self->{$key};
 	if (ref($vals) eq 'ARRAY') {

@@ -155,8 +155,8 @@ sub filename
 	}
     }
 
-    my $uri;
     unless (defined($file) && length($file)) {
+	my $uri;
 	if (my $cl = $self->header('Content-Location')) {
 	    $uri = URI->new($cl);
 	}

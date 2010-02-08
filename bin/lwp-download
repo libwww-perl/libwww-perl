@@ -6,7 +6,7 @@ lwp-download - Fetch large files from the web
 
 =head1 SYNOPSIS
 
-B<lwp-download> [B<-a>] <I<url>> [<I<local path>>]
+B<lwp-download> [B<-a>] [B<-s>] <I<url>> [<I<local path>>]
 
 =head1 DESCRIPTION
 
@@ -16,15 +16,19 @@ file.
 If I<local path> is not specified, then the current directory is
 assumed.
 
-If I<local path> is a directory, then the basename of the file to save
-is picked up from the Content-Disposition header or the URL of the
-response.  If the file already exists, then B<lwp-download> will
-prompt before it overwrites and will fail if its standard input is not
-a terminal.  This form of invocation will also fail is no acceptable
-filename can be derived from the sources mentioned above.
+If I<local path> is a directory, then the last segment of the path of the
+I<url> is appended to form a local filename.  If the I<url> path ends with
+slash the name "index" is used.  With the B<-s> option pick up the last segment
+of the filename from server provided sources like the Content-Disposition
+header or any redirect URLs.  A file extension to match the server reported
+Content-Type might also be appended.  If a file with the produced filename
+already exists, then B<lwp-download> will prompt before it overwrites and will
+fail if its standard input is not a terminal.  This form of invocation will
+also fail is no acceptable filename can be derived from the sources mentioned
+above.
 
 If I<local path> is not a directory, then it is simply used as the
-path to save into.
+path to save into.  If the file already exists it's overwritten.
 
 The I<lwp-download> program is implemented using the I<libwww-perl>
 library.  It is better suited to down load big files than the
@@ -66,7 +70,7 @@ $progname =~ s/\.\w*$//; # strip extension if any
 #parse option
 use Getopt::Std;
 my %opt;
-unless (getopts('a', \%opt)) {
+unless (getopts('as', \%opt)) {
     usage();
 }
 
@@ -106,20 +110,17 @@ my $res = $ua->request(HTTP::Request->new(GET => $url),
 
 	  unless (defined $argfile) {
 	      # find a suitable name to use
-	      $file = $res->filename;
+	      $file = $opt{s} && $res->filename;
 
 	      # if this fails we try to make something from the URL
 	      unless ($file) {
-		  my $req = $res->request;  # not always there
-		  my $rurl = $req ? $req->uri : $url;
-
-		  $file = ($rurl->path_segments)[-1];
+		  $file = ($url->path_segments)[-1];
 		  if (!defined($file) || !length($file)) {
 		      $file = "index";
 		      my $suffix = media_suffix($res->content_type);
 		      $file .= ".$suffix" if $suffix;
 		  }
-		  elsif ($rurl->scheme eq 'ftp' ||
+		  elsif ($url->scheme eq 'ftp' ||
 			   $file =~ /\.t[bg]z$/   ||
 			   $file =~ /\.tar(\.(Z|gz|bz2?))?$/
 			  ) {

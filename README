@@ -75,11 +75,11 @@ The latest version of libwww-perl is available from CPAN:
 If you want to hack on the source it might be a good idea to grab the
 latest version with git using the command:
 
-     git clone git://gitorious.org/libwww-perl/mainline.git lwp
+     git clone git://github.com/gisle/libwww-perl.git lwp
 
 You can also browse the git repository at:
 
-     http://gitorious.org/projects/libwww-perl
+     http://github.com/gisle/libwww-perl
 
 
 COPYRIGHT

@@ -58,7 +58,7 @@ WriteMakefile(
             'Crypt::SSLeay' => 0,
         },
 	resources => {
-            repository => 'http://gitorious.org/projects/libwww-perl',
+            repository => 'http://github.com/gisle/libwww-perl',
 	    MailingList => 'mailto:libwww@perl.org',
         }
     },

@@ -814,8 +814,10 @@ L<HTML::LinkExtor> -- class for finding links in HTML documents
 
 =item *
 
-The book I<Perl & LWP> by Sean M. Burke.  O'Reilly & Associates, 2002.
-ISBN: 0-596-00178-9.  C<http://www.oreilly.com/catalog/perllwp/>
+The book I<Perl & LWP> by Sean M. Burke.  O'Reilly & Associates, 
+2002.  ISBN: 0-596-00178-9, L<http://www.oreilly.com/catalog/perllwp/>.  The
+whole book is also available free online:
+L<http://lwp.interglacial.com>.
 
 =back
 

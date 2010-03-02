@@ -3,12 +3,17 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More;
+if (eval "require XML::Simple; XML::Simple->import(qw(XMLin)); 1;") {
+    plan tests => 4;
+}
+else {
+    plan skip_all => "Need XML::Simple";
+}
 
 use Encode           qw( encode );
 use LWP              qw( );
 use PerlIO::encoding qw( );
-use XML::Simple      qw( XMLin );
 
 sub check {
     my ($file, $test) = @_;

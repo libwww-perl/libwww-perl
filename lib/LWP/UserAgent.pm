@@ -1393,8 +1393,7 @@ handlers for data and might croak to abort the request.
 The handler might set the $response->{default_add_content} value to
 control if any received data should be added to the response object
 directly.  This will initially be false if the $ua->request() method
-was called with a ':content_filename' or ':content_callbak' argument;
-otherwise true.
+was called with a $content_file or $content_cb argument; otherwise true.
 
 =item response_data => sub { my($response, $ua, $h, $data) = @_; ... }
 
@@ -1434,7 +1433,7 @@ The removed handlers are returned.
 =item $ua->set_my_handler( $phase, $cb, %matchspec )
 
 Set handlers private to the executing subroutine.  Works by defaulting
-an C<owner> field to the %matchhspec that holds the name of the called
+an C<owner> field to the %matchspec that holds the name of the called
 subroutine.  You might pass an explicit C<owner> to override this.
 
 If $cb is passed as C<undef>, remove the handler.

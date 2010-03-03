@@ -26,7 +26,7 @@ Net::FTP 2.58      - If you want ftp://-support
 
 HTML::Tagset       - Needed by HTML::Parser
 
-HTML::Parser       - Need by HTML::HeadParser
+HTML::Parser       - Needed by HTML::HeadParser
 
 HTML::HeadParser   - To get the correct $res->base
 
@@ -34,9 +34,10 @@ LWP                - The reason why you need the modules above
 
 =head1 DESCRIPTION
 
-This bundle defines all prereq modules for libwww-perl.  Bundles have
-special meaning for the CPAN module.  When you install the bundle
-module all modules mentioned in L</CONTENTS> will be installed instead.
+This bundle defines all prerequisite modules for libwww-perl.  Bundles
+have special meaning for the CPAN module.  When you install the bundle
+module all modules mentioned in L</CONTENTS> will be installed
+instead.
 
 =head1 SEE ALSO
 

@@ -60,11 +60,12 @@ $conf->add_item("any", "m_media_type" => "*/*");
 $conf->add_item("text", m_media_type => "text/*");
 $conf->add_item("html", m_media_type => "html");
 $conf->add_item("HTML", m_media_type => "text/html");
+$conf->add_item("xhtml", m_media_type => "xhtml");
 
 ok(j($conf->matching_items($response)), "text|any");
 
 $response->content_type("application/xhtml+xml");
-ok(j($conf->matching_items($response)), "html|any");
+ok(j($conf->matching_items($response)), "xhtml|html|any");
 
 $response->content_type("text/html");
 ok(j($conf->matching_items($response)), "HTML|html|text|any");

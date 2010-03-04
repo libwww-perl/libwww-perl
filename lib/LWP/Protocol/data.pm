@@ -44,9 +44,9 @@ sub request
 		      'Date'           => time2str(time),
 		      'Server'         => "libwww-perl-internal/$LWP::VERSION"
 		     );
-    $response->content($data) if $method ne "HEAD";
 
-    return $response;
+    $data = "" if $method eq "HEAD";
+    return $self->collect_once($arg, $response, $data);
 }
 
 1;

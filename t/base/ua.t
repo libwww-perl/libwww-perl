@@ -3,7 +3,7 @@
 use strict;
 use Test;
 
-plan tests => 12;
+plan tests => 14;
 
 use LWP::UserAgent;
 
@@ -43,3 +43,7 @@ ok(ref($clone->{proxy}), 'HASH');
 
 ok($ua->proxy(http => undef), "loopback:");
 ok($ua->proxy('http'), undef);
+
+my $res = $ua->get("data:text/html,%3Chtml%3E%3Chead%3E%3Cmeta%20http-equiv%3D%22Content-Script-Type%22%20content%3D%22text%2Fjavascript%22%3E%3Cmeta%20http-equiv%3D%22Content-Style-Type%22%20content%3D%22text%2Fcss%22%3E%3C%2Fhead%3E%3C%2Fhtml%3E");
+ok($res->header("Content-Style-Type", "text/css"));
+ok($res->header("Content-Script-Type", "text/javascript"));

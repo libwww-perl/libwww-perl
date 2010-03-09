@@ -574,9 +574,9 @@ possible to tell which of the returned values belonged to which field.
 =item $h->remove_content_headers
 
 This will remove all the header fields used to describe the content of
-a message.  All header field names prefixed with C<Content-> falls
+a message.  All header field names prefixed with C<Content-> fall
 into this category, as well as C<Allow>, C<Expires> and
-C<Last-Modified>.  RFC 2616 denote these fields as I<Entity Header
+C<Last-Modified>.  RFC 2616 denotes these fields as I<Entity Header
 Fields>.
 
 The return value is a new C<HTTP::Headers> object that contains the

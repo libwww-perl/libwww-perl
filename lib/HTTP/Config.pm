@@ -404,7 +404,7 @@ With a value of "xhtml" matches if $response->content_is_xhtml returns TRUE.
 
 =item m_uri__I<$method> => undef
 
-Matches if the URI object provide the method
+Matches if the URI object provides the method.
 
 =item m_uri__I<$method> => $string
 
@@ -418,7 +418,7 @@ Matches if either the request or the response have a header $field with the give
 
 =item m_response_attr__I<$key> => $string
 
-Matches if the response object has a that key; or the entry has the given value.
+Matches if the response object has that key, or the entry has the given value.
 
 =back
 

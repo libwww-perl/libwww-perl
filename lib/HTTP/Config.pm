@@ -71,7 +71,7 @@ my %MATCH = (
     },
     m_secure => sub {
         my($v, $uri) = @_;
-        my $secure = $uri->_scheme eq "https";
+        my $secure = $uri->can("secure") ? $uri->secure : $uri->_scheme eq "https";
         return $secure == !!$v;
     },
     m_host_port => sub {

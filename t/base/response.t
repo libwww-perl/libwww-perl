@@ -5,7 +5,7 @@
 
 use strict;
 use Test;
-plan tests => 19;
+plan tests => 23;
 
 use HTTP::Date;
 use HTTP::Request;
@@ -92,3 +92,11 @@ ok($r->redirects, 2);
 for ($r->redirects) {
     ok($_->is_success);
 }
+
+ok($r->base, $r->request->uri);
+$r->push_header("Content-Location", "/1/");
+ok($r->base, "http://www.sn.no/1/");
+$r->push_header("Content-Base", "/2/;a=/foo/bar");
+ok($r->base, "http://www.sn.no/2/"); # parameters stripped, -Base > -Location
+$r->push_header("Content-Base", "/3/");
+ok($r->base, "http://www.sn.no/2/"); # first one of multiple prevails

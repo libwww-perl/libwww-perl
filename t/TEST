@@ -5,6 +5,12 @@ use Test::Harness;
 $Test::Harness::verbose = shift
   if defined $ARGV[0] and $ARGV[0] =~ /^\d+$/ || $ARGV[0] eq "-v";
 
+my $formatter;
+if (@ARGV && $ARGV[0] =~ /^--formatter=/) {
+    (undef, $formatter) = split(/=/, shift, 2);
+    $formatter = "TAP::Formatter::$formatter" unless $formatter =~ /::/
+}
+
 # make sure we are in the "t" directory
 unless (-d "base") {
     chdir "t" or die "Can't chdir: $!";
@@ -36,4 +42,18 @@ else {
     @tests = grep !/jigsaw/, @tests;  # service is not reliable any more
 }
 
-runtests @tests;
+if ($formatter) {
+    use File::Path; File::Path::rmtree("tap");
+    $ENV{PERL_TEST_HARNESS_DUMP_TAP} = "tap";
+    require TAP::Harness;
+    my $harness = TAP::Harness->new({
+        formatter_class => $formatter,
+	merge => 1,
+	#timer => 1,
+	lib => \@INC,
+    });
+    $harness->runtests(@tests);
+}
+else {
+    runtests @tests;
+}

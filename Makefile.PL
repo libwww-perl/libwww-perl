@@ -82,6 +82,9 @@ TEST_VERBOSE=0
 test : pure_all
 	$(FULLPERL) t/TEST $(TEST_VERBOSE)
 
+test_hudson : pure_all
+	$(FULLPERL) t/TEST $(TEST_VERBOSE) --formatter=TAP::Formatter::JUnit
+
 );
 }
 

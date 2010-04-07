@@ -374,8 +374,24 @@ sub decoded_content
 		    $content_ref = \$copy;
 		    $content_ref_iscopy++;
 		}
-		$content_ref = \Encode::decode($charset, $$content_ref,
-		     ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());
+		eval {
+		    $content_ref = \Encode::decode($charset, $$content_ref,
+			 ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());
+		};
+		if ($@) {
+		    my $retried;
+		    if ($@ =~ /^Unknown encoding/) {
+			my $alt_charset = lc($opt{alt_charset} || "");
+			if ($alt_charset && $charset ne $alt_charset) {
+			    # Retry decoding with the alternative charset
+			    $content_ref = \Encode::decode($alt_charset, $$content_ref,
+				 ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC())
+			        unless $alt_charset =~ /^(?:none|us-ascii|iso-8859-1)\z/;
+			    $retried++;
+			}
+		    }
+		    die unless $retried;
+		}
 		die "Encode::decode() returned undef improperly" unless defined $$content_ref;
 		if ($is_xml) {
 		    # Get rid of the XML encoding declaration if present
@@ -871,6 +887,13 @@ C<none> can used to suppress decoding of the charset.
 
 This override the default charset guessed by content_charset() or
 if that fails "ISO-8859-1".
+
+=item C<alt_charset>
+
+If decoding fails because the charset specified in the Content-Type header
+isn't recognized by Perl's Encode module, then try decoding using this charset
+instead of failing.  The C<alt_charset> might be specified as C<none> to simply
+return the string without any decoding of charset as alternative.
 
 =item C<charset_strict>
 

@@ -15,7 +15,7 @@ BEGIN {
 }
 
 use Test;
-plan tests => 22;
+plan tests => 36;
 
 use HTTP::Response;
 my $r = HTTP::Response->new(200, "OK");
@@ -101,3 +101,27 @@ ok($r->content_charset, "US-ASCII");
  $r->content_charset;
  ok($fail, 0, 'content_charset leaves $_ alone');
 }
+
+$r->remove_content_headers;
+$r->content_type("text/plain; charset=UTF-8");
+$r->content("abc");
+ok($r->decoded_content, "abc");
+
+$r->content("\xc3\xa5");
+ok($r->decoded_content, chr(0xE5));
+ok($r->decoded_content(charset => "none"), "\xC3\xA5");
+ok($r->decoded_content(alt_charset => "UTF-8"), chr(0xE5));
+ok($r->decoded_content(alt_charset => "none"), chr(0xE5));
+
+$r->content_type("text/plain; charset=UTF");
+ok($r->decoded_content, undef);
+ok($r->decoded_content(charset => "UTF-8"), chr(0xE5));
+ok($r->decoded_content(charset => "none"), "\xC3\xA5");
+ok($r->decoded_content(alt_charset => "UTF-8"), chr(0xE5));
+ok($r->decoded_content(alt_charset => "none"), "\xC3\xA5");
+
+$r->content_type("text/plain");
+ok($r->decoded_content, chr(0xE5));
+ok($r->decoded_content(charset => "none"), "\xC3\xA5");
+ok($r->decoded_content(default_charset => "ISO-8859-1"), "\xC3\xA5");
+ok($r->decoded_content(default_charset => "latin1"), "\xC3\xA5");

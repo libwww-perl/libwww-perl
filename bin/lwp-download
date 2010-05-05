@@ -77,7 +77,7 @@ unless (getopts('as', \%opt)) {
 my $url = URI->new(shift || usage());
 my $argfile = shift;
 usage() if defined($argfile) && !length($argfile);
-my $VERSION = "5.827";
+my $VERSION = "5.835";
 
 my $ua = LWP::UserAgent->new(
    agent => "lwp-download/$VERSION ",

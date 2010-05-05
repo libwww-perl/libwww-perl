@@ -2,7 +2,7 @@ package WWW::RobotRules::DB_File;
 
 require  WWW::RobotRules;
 @ISA = qw(WWW::RobotRules);
-$VERSION = "5.810";
+$VERSION = "5.835";
 
 use Carp ();
 use DB_File;

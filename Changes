@@ -1,4 +1,51 @@
 _______________________________________________________________________________
+2010-05-05  Release 5.835
+
+Gisle Aas (12):
+      simple string can be simplified
+      Make $mess->decoded_content remove XML encoding declarations [RT#52572]
+      Don't allow saving to filenames starting with '.' suggested by server
+      Avoid race between testing for existence of output file and opening the file
+      Minor doc fixup -- wrongly ucfirsted word
+      Use decoded_content in HTTP:Response synopsis [RT#54139]
+      sun.com is no more. rip!
+      Trivial layout tweak to reduce variable scope.
+      Add 'make test_hudson' target
+      Implement alt_charset parameter for decoded_content()
+      Test decoding with different charset parameters
+      lwp-download now needs the -s option to honor the Content-Disposition header
+
+Ville Skyttä (9):
+      Make LWP::MediaTypes::media_suffix case insensitive.
+      Skip XML decoding tests if XML::Simple is not available.
+      Documentation fixes.
+      Fix m_media_type => "xhtml" matching.
+      Make parse_head() apply to data: requests.
+      Documentation spelling fixes.
+      Documentation grammar fixes.
+      Use $uri->secure in m_secure if available.
+      Fix handling of multiple (same) base headers, and parameters in them.
+
+Mark Stosberg (5):
+      Strip out empty lines separated by CRLF
+      Best Practice: avoid indirect object notation
+      Speed up as_string by 4% by having _sorted_field_names return a reference
+      Speed up scan() a bit. as_string() from this branch is now 6% faster
+      Port over as_string() optimizations from HTTP::Headers::Fast
+
+Tom Hukins (2):
+      Link to referenced documentation.
+      Update repository location.
+
+Father Chrysostomos (1):
+      Remove needless (and actually harmful) local $_
+
+Sean M. Burke (1):
+      "Perl & LWP" is available online
+
+
+
+_______________________________________________________________________________
 2009-11-21  Release 5.834
 
 Gisle Aas (4):

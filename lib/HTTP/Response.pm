@@ -2,7 +2,7 @@ package HTTP::Response;
 
 require HTTP::Message;
 @ISA = qw(HTTP::Message);
-$VERSION = "5.824";
+$VERSION = "5.835";
 
 use strict;
 use HTTP::Status ();

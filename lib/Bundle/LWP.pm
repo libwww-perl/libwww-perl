@@ -1,6 +1,6 @@
 package Bundle::LWP;
 
-$VERSION = "5.810";
+$VERSION = "5.835";
 
 1;
 

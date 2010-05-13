@@ -76,14 +76,11 @@ sub status_line
 sub base
 {
     my $self = shift;
-    my $base = $self->header('Content-Base')     ||  # used to be HTTP/1.1
-               $self->header('Content-Location') ||  # HTTP/1.1
-               $self->header('Base');                # HTTP/1.0
-    if ($base) {
-        # handle multiple values (take first one), drop parameters
-        require HTTP::Headers::Util;
-        $base = (HTTP::Headers::Util::split_header_words($base))[0]->[0];
-    }
+    my $base = (
+	$self->header('Content-Base'),        # used to be HTTP/1.1
+	$self->header('Content-Location'),    # HTTP/1.1
+	$self->header('Base'),                # HTTP/1.0
+    )[0];
     if ($base && $base =~ /^$URI::scheme_re:/o) {
 	# already absolute
 	return $HTTP::URI_CLASS->new($base);

@@ -94,9 +94,9 @@ for ($r->redirects) {
 }
 
 ok($r->base, $r->request->uri);
-$r->push_header("Content-Location", "/1/");
-ok($r->base, "http://www.sn.no/1/");
+$r->push_header("Content-Location", "/1/A/a");
+ok($r->base, "http://www.sn.no/1/A/a");
 $r->push_header("Content-Base", "/2/;a=/foo/bar");
-ok($r->base, "http://www.sn.no/2/"); # parameters stripped, -Base > -Location
+ok($r->base, "http://www.sn.no/2/;a=/foo/bar");
 $r->push_header("Content-Base", "/3/");
-ok($r->base, "http://www.sn.no/2/"); # first one of multiple prevails
+ok($r->base, "http://www.sn.no/2/;a=/foo/bar");

@@ -610,7 +610,7 @@ HTTP::Cookies - HTTP cookie jars
 
   use HTTP::Cookies;
   $cookie_jar = HTTP::Cookies->new(
-    file => "$ENV{'HOME'}/lwp_cookies.dat',
+    file => "$ENV{'HOME'}/lwp_cookies.dat",
     autosave => 1,
   );
 

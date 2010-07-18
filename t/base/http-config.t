@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-plan tests => 14;
+plan tests => 15;
 
 use HTTP::Config;
 
@@ -52,6 +52,12 @@ ok(j($conf->matching_items($response)), ".com|success|GET|secure|always");
 $conf->remove_items(m_secure => 1);
 $conf->remove_items(m_domain => ".com");
 ok(j($conf->matching_items($response)), "success|GET|always");
+
+#test custom priority for items
+$conf->add_item("high priority", priority => '1000');
+$conf->add_item("medium priority", priority => '101');
+$conf->add_item("low priority", priority => -10, m_host_port => "www.example.com:443", m_path_prefix => "/foo");
+ok(j($conf->matching_items($response)), "high priority|medium priority|success|GET|always|low priority");
 
 $conf->remove_items;  # start fresh
 ok(j($conf->matching_items($response)), "");

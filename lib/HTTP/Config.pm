@@ -205,7 +205,7 @@ sub matching {
                 $order->[$o || 0] += $c;
             }
         }
-        $order->[7] ||= 0;
+        $order->[8] = $item->{'priority'};
         $item->{_order} = join(".", reverse map sprintf("%03d", $_ || 0), @$order);
         push(@m, $item);
     }

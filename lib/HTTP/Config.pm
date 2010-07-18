@@ -182,7 +182,8 @@ sub matching {
     my @m;
  ITEM:
     for my $item (@$self) {
-        my $order;
+        my $order = [(0) x 9];
+        $order->[8] = $item->{'priority'} || 0;
         for my $ikey (keys %$item) {
             my $mkey = $ikey;
             my $k;
@@ -205,11 +206,10 @@ sub matching {
                 $order->[$o || 0] += $c;
             }
         }
-        $order->[8] = $item->{'priority'};
-        $item->{_order} = join(".", reverse map sprintf("%03d", $_ || 0), @$order);
+        $item->{_order} = $order;
         push(@m, $item);
     }
-    @m = sort { $b->{_order} cmp $a->{_order} } @m;
+    @m = sort { my $c;$c ||= $b->{_order}->[$_] <=> $a->{_order}->[$_] for(reverse (0..8));$c } @m;
     delete $_->{_order} for @m;
     return @m if wantarray;
     return $m[0];

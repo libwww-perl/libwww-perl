@@ -54,9 +54,9 @@ $conf->remove_items(m_domain => ".com");
 ok(j($conf->matching_items($response)), "success|GET|always");
 
 #test custom priority for items
-$conf->add_item("high priority", priority => '1000');
-$conf->add_item("medium priority", priority => '101');
-$conf->add_item("low priority", priority => -10, m_host_port => "www.example.com:443", m_path_prefix => "/foo");
+$conf->add_item("high priority", m_priority => '1000');
+$conf->add_item("medium priority", m_priority => '101');
+$conf->add_item("low priority", m_priority => -10, m_host_port => "www.example.com:443", m_path_prefix => "/foo");
 ok(j($conf->matching_items($response)), "high priority|medium priority|success|GET|always|low priority");
 
 $conf->remove_items;  # start fresh

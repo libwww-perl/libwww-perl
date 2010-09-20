@@ -165,6 +165,10 @@ my %MATCH = (
         return 1 if $response->{$k} eq $v;
         return 0;
     },
+    m_priority => sub {
+        my($v) = @_;
+        return $v + 0, 8;
+    },
 );
 
 sub matching {
@@ -183,7 +187,6 @@ sub matching {
  ITEM:
     for my $item (@$self) {
         my $order = [(0) x 9];
-        $order->[8] = $item->{'priority'} || 0;
         for my $ikey (keys %$item) {
             my $mkey = $ikey;
             my $k;

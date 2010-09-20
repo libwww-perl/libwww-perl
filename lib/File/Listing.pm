@@ -288,9 +288,15 @@ sub line {
     local($_) = shift;
     my($tz, $error) = @_; # ignored for now...
 
-    if (m!<A\s+HREF=\"([^\"]+)\">.*</A>.*?(\d+)-([a-zA-Z]+)-(\d+)\s+(\d+):(\d+)\s+(?:([\d\.]+[kM]?|-))!i) {
+    if (m!<A\s+HREF=\"([^\"]+)\">.*</A>.*?(\d+)-([a-zA-Z]+|\d+)-(\d+)\s+(\d+):(\d+)\s+(?:([\d\.]+[kMG]?|-))!i) {
 	my($filename, $filesize) = ($1, $7);
 	my($d,$m,$y, $H,$M) = ($2,$3,$4,$5,$6);
+	if ($m =~ /^\d+$/) {
+	    ($d,$y) = ($y,$d) # iso date
+	}
+	else {
+	    $m = _monthabbrev_number($m);
+	}
 
 	$filesize = 0 if $filesize eq '-';
 	if ($filesize =~ s/k$//i) {
@@ -305,7 +311,7 @@ sub line {
 	$filesize = int $filesize;
 
 	require Time::Local;
-	my $filetime = Time::Local::timelocal(0,$M,$H,$d,_monthabbrev_number($m)-1,_guess_year($y)-1900);
+	my $filetime = Time::Local::timelocal(0,$M,$H,$d,$m-1,_guess_year($y)-1900);
 	my $filetype = ($filename =~ s|/$|| ? "d" : "f");
 	return [$filename, $filetype, $filesize, $filetime, undef];
     }

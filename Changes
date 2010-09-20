@@ -1,4 +1,16 @@
 _______________________________________________________________________________
+2010-09-20  Release 5.837
+
+David E. Wheeler (1):
+      Fix for Encode 2.40
+
+Gisle Aas (2):
+      Fix Perl syntax error in synopsis
+      Allow ISO 8601 date strings when parsing Apache file listings
+
+
+
+_______________________________________________________________________________
 2010-05-13  Release 5.836
 
 Gisle Aas (1):

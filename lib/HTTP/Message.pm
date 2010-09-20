@@ -271,7 +271,7 @@ sub content_charset
 		return "US-ASCII" unless /[\x80-\xFF]/;
 		require Encode;
 		eval {
-		    Encode::decode_utf8($_, Encode::FB_CROAK());
+		    Encode::decode_utf8($_, Encode::FB_CROAK() | Encode::FB_LEAVE_SRC());
 		};
 		return "UTF-8" unless $@;
 		return "ISO-8859-1";

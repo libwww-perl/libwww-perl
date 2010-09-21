@@ -423,6 +423,12 @@ Matches if either the request or the response have a header $field with the give
 
 Matches if the response object has that key, or the entry has the given value.
 
+=item m_priority => $number
+
+This rule will always match. The specified number will adjust the priority of this item in the
+returned set of items. Higher priority items will be returned before lower priority items, items
+default to a priority of 0. This rule has a higher ordering precedence than all other matching rules.
+
 =back
 
 =head1 SEE ALSO

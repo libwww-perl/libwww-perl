@@ -15,7 +15,7 @@ BEGIN {
 }
 
 use Test;
-plan tests => 36;
+plan tests => 38;
 
 use HTTP::Response;
 my $r = HTTP::Response->new(200, "OK");
@@ -119,6 +119,10 @@ ok($r->decoded_content(charset => "UTF-8"), chr(0xE5));
 ok($r->decoded_content(charset => "none"), "\xC3\xA5");
 ok($r->decoded_content(alt_charset => "UTF-8"), chr(0xE5));
 ok($r->decoded_content(alt_charset => "none"), "\xC3\xA5");
+
+# char semantics for latin-1?
+ok($r->decoded_content(charset => "iso-8859-1"), "\xC3\xA5");
+ok(lc($r->decoded_content(charset => "iso-8859-1")), "\xE3\xA5");
 
 $r->content_type("text/plain");
 ok($r->decoded_content, chr(0xE5));

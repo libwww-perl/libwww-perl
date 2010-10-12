@@ -288,6 +288,7 @@ sub line {
     local($_) = shift;
     my($tz, $error) = @_; # ignored for now...
 
+    s!</?t[rd][^>]*>! !g;  # clean away various table stuff
     if (m!<A\s+HREF=\"([^\"]+)\">.*</A>.*?(\d+)-([a-zA-Z]+|\d+)-(\d+)\s+(\d+):(\d+)\s+(?:([\d\.]+[kMG]?|-))!i) {
 	my($filename, $filesize) = ($1, $7);
 	my($d,$m,$y, $H,$M) = ($2,$3,$4,$5,$6);

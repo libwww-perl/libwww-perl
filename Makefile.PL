@@ -1,6 +1,6 @@
 #!perl -w
 
-require 5.006;
+require 5.008008;
 use strict;
 use ExtUtils::MakeMaker;
 use Getopt::Long qw(GetOptions);
@@ -38,7 +38,7 @@ WriteMakefile(
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     EXE_FILES => [ map "bin/$_", @prog ],
     LICENSE => "perl",
-    MIN_PERL_VERSION => 5.006,
+    MIN_PERL_VERSION => 5.008008,
     PREREQ_PM => {
         'URI'            => "1.10",
         'MIME::Base64'   => "2.1",
@@ -46,6 +46,8 @@ WriteMakefile(
         'HTML::Tagset'   => 0,
         'HTML::Parser'   => "3.33",
         'Digest::MD5'    => 0,
+	'Encode'         => "2.12",
+	'Encode::Locale' => 0.02,
         'Compress::Raw::Zlib'        => 0,
         'IO::Compress::Gzip'         => 0,
         'IO::Compress::Deflate'      => 0,

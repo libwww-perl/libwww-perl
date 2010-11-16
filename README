@@ -14,7 +14,7 @@ help you implement simple HTTP servers.
 PREREQUISITES
 
 In order to install and use this package you will need Perl version
-5.6 or better.  Some modules within this package depend on other
+5.8.8 or better.  Some modules within this package depend on other
 packages that are distributed separately from Perl.  We recommend that
 you have the following packages installed before you install
 libwww-perl:
@@ -25,6 +25,7 @@ libwww-perl:
   HTML-Parser
   libnet
   Digest-MD5
+  Encode-Locale
   Compress-Zlib
 
 If you want to access sites using the https protocol, then you need to
@@ -84,7 +85,7 @@ You can also browse the git repository at:
 
 COPYRIGHT
 
-  © 1995-2009 Gisle Aas. All rights reserved.
+  © 1995-2010 Gisle Aas. All rights reserved.
   © 1995 Martijn Koster. All rights reserved.
 
 This library is free software; you can redistribute it and/or modify

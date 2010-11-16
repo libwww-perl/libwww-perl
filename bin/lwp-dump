@@ -3,6 +3,8 @@
 use strict;
 use LWP::UserAgent ();
 use Getopt::Long qw(GetOptions);
+use Encode;
+use Encode::Locale;
 
 my $VERSION = "5.827";
 
@@ -39,7 +41,7 @@ my $ua = LWP::UserAgent->new(
     agent => $opt{agent} || "lwp-dump/$VERSION ",
 );
 
-my $req = HTTP::Request->new($opt{method} || 'GET' => $url);
+my $req = HTTP::Request->new($opt{method} || 'GET' => decode(locale => $url));
 my $res = $ua->simple_request($req);
 $res->remove_header(grep /^Client-/, $res->header_field_names)
     unless $opt{'keep-client-headers'} or

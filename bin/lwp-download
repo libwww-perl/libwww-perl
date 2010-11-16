@@ -61,6 +61,8 @@ use LWP::UserAgent ();
 use LWP::MediaTypes qw(guess_media_type media_suffix);
 use URI ();
 use HTTP::Date ();
+use Encode;
+use Encode::Locale;
 
 my $progname = $0;
 $progname =~ s,.*/,,;    # only basename left in progname
@@ -74,8 +76,8 @@ unless (getopts('as', \%opt)) {
     usage();
 }
 
-my $url = URI->new(shift || usage());
-my $argfile = shift;
+my $url = URI->new(decode(locale => shift) || usage());
+my $argfile = encode(locale_fs => decode(locale => shift));
 usage() if defined($argfile) && !length($argfile);
 my $VERSION = "5.835";
 

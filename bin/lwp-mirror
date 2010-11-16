@@ -40,6 +40,8 @@ Gisle Aas <gisle@aas.no>
 
 use LWP::Simple qw(mirror is_success status_message $ua);
 use Getopt::Std;
+use Encode;
+use Encode::Locale;
 
 $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
@@ -68,8 +70,8 @@ modify it under the same terms as Perl itself.
 EOT
 }
 
-$url  = shift or usage();
-$file = shift or usage();
+$url  = decode(locale => shift) or usage();
+$file = encode(locale_fs => decode(locale => shift)) or usage();
 usage() if $opt_h or @ARGV;
 
 if (defined $opt_t) {

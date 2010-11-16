@@ -187,6 +187,8 @@ require LWP;
 
 use URI;
 use URI::Heuristic qw(uf_uri);
+use Encode;
+use Encode::Locale;
 
 use HTTP::Status qw(status_message);
 use HTTP::Date qw(time2str str2time);
@@ -394,8 +396,8 @@ while ($url = shift) {
     # Create the URL object, but protect us against bad URLs
     eval {
 	if ($url =~ /^\w+:/ || $options{'b'}) {  # is there any scheme specification
-	    $url = URI->new($url, $options{'b'});
-	    $url = $url->abs($options{'b'}) if $options{'b'};
+	    $url = URI->new(decode(locale => $url), decode(locale => $options{'b'}));
+	    $url = $url->abs(decode(locale => $options{'b'})) if $options{'b'};
 	}
 	else {
 	    $url = uf_uri($url);
@@ -408,7 +410,7 @@ while ($url = shift) {
 	next;
     }
 
-    $ua->proxy($url->scheme, $options{'p'}) if $options{'p'};
+    $ua->proxy($url->scheme, decode(locale => $options{'p'})) if $options{'p'};
 
     # Send the request and get a response back from the server
     $request->uri($url);

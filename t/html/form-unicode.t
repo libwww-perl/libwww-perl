@@ -1,16 +1,6 @@
 #!perl -w
 
 use strict;
-BEGIN {
-    eval {
-	require Encode;
-    };
-    if ($@) {
-	print "1..0 # Skipped: Encode not available\n";
-	print $@;
-	exit;
-    }
-}
 
 use Test qw(plan ok);
 plan tests => 15;

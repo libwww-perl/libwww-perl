@@ -143,12 +143,8 @@ sub filename
 			}
 
 			require Encode;
-			require encoding;
-			# This is ugly use of non-public API, but is there
-			# a better way to accomplish what we want (locally
-			# as-is usable filename string)?
-			my $locale_charset = encoding::_get_locale_encoding();
-			Encode::from_to($encfile, $charset, $locale_charset);
+			require Encode::Locale;
+			Encode::from_to($encfile, $charset, "locale_fs");
 		    };
 
 		    $file = $encfile unless $@;

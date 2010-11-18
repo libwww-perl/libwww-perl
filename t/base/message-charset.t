@@ -2,18 +2,6 @@
 
 use strict;
 
-BEGIN {
-    eval {
-	require Encode;
-	Encode::find_encoding("UTF-16-BE") || die "Need a version of Encode that supports UTF-16-BE";
-    };
-    if ($@) {
-	print "1..0 # Skipped: Encode not available\n";
-	print $@;
-	exit;
-    }
-}
-
 use Test;
 plan tests => 38;
 

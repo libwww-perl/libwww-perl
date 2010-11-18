@@ -359,10 +359,8 @@ $m->header("Content-Encoding", "gzip, base64");
 $m->content_type("text/plain; charset=UTF-8");
 $m->content("H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
 
-my $NO_ENCODE = $] < 5.008 || ($Config{'extensions'} !~ /\bEncode\b/)
-    ? "No Encode module" : "";
 $@ = "";
-skip($NO_ENCODE, sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
+ok(sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, "H4sICFWAq0ECA3h4eAB7v3u/R6ZCSUZqUarCoxm7uAAZKHXiEAAAAA==\n");
 
@@ -377,17 +375,15 @@ my $tmp = MIME::Base64::decode($m->content);
 $m->content($tmp);
 $m->header("Content-Encoding", "gzip");
 $@ = "";
-skip($NO_ENCODE, sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
+ok(sub { eval { $m->decoded_content } }, "\x{FEFF}Hi there \x{263A}\n");
 ok($@ || "", "");
 ok($m->content, $tmp);
 
 $m->remove_header("Content-Encoding");
 $m->content("a\xFF");
 
-my $BAD_ENCODE = $NO_ENCODE || !(eval { require Encode; defined(Encode::decode("UTF-8", "\xff")) });
-
-skip($BAD_ENCODE, sub { $m->decoded_content }, "a\x{FFFD}");
-skip($BAD_ENCODE, sub { $m->decoded_content(charset_strict => 1) }, undef);
+ok(sub { $m->decoded_content }, "a\x{FFFD}");
+ok(sub { $m->decoded_content(charset_strict => 1) }, undef);
 
 $m->header("Content-Encoding", "foobar");
 ok($m->decoded_content, undef);
@@ -401,36 +397,26 @@ eval {
 ok($@ =~ /Don't know how to decode Content-Encoding 'foobar'/);
 ok($err, 0);
 
-if ($] >= 5.008001) {
-    eval {
-        HTTP::Message->new([], "\x{263A}");
-    };
-    ok($@ =~ /bytes/);
-    $m = HTTP::Message->new;
-    eval {
-        $m->add_content("\x{263A}");
-    };
-    ok($@ =~ /bytes/);
-    eval {
-        $m->content("\x{263A}");
-    };
-    ok($@ =~ /bytes/);
-}
-else {
-    skip("Missing is_utf8 test", undef) for 1..3;
-}
+eval {
+    HTTP::Message->new([], "\x{263A}");
+};
+ok($@ =~ /bytes/);
+$m = HTTP::Message->new;
+eval {
+    $m->add_content("\x{263A}");
+};
+ok($@ =~ /bytes/);
+eval {
+    $m->content("\x{263A}");
+};
+ok($@ =~ /bytes/);
 
 # test the add_content_utf8 method
-if ($] >= 5.008001) {
-    $m = HTTP::Message->new(["Content-Type", "text/plain; charset=UTF-8"]);
-    $m->add_content_utf8("\x{263A}");
-    $m->add_content_utf8("-\xC5");
-    ok($m->content, "\xE2\x98\xBA-\xC3\x85");
-    ok($m->decoded_content, "\x{263A}-\x{00C5}");
-}
-else {
-    skip("Missing is_utf8 test", undef) for 1..2;
-}
+$m = HTTP::Message->new(["Content-Type", "text/plain; charset=UTF-8"]);
+$m->add_content_utf8("\x{263A}");
+$m->add_content_utf8("-\xC5");
+ok($m->content, "\xE2\x98\xBA-\xC3\x85");
+ok($m->decoded_content, "\x{263A}-\x{00C5}");
 
 $m = HTTP::Message->new([
     "Content-Type", "text/plain",
@@ -453,11 +439,7 @@ Content-Type: text/plain
 
 eJzzSM3JyVcozy/KSVEEAB0JBF4=
 EOT
-if (eval { require Encode; 1 }) {
-    ok($m->decoded_content, "Hello world!");
-} else {
-    skip('Needs Encode.pm for this test', undef);
-}
+ok($m->decoded_content, "Hello world!");
 
 # Raw RFC 1951 deflate
 $m = HTTP::Message->new([
@@ -503,10 +485,5 @@ else {
 }
 
 # test decoding of XML content
-if ($] >= 5.008001) {
-    $m = HTTP::Message->new(["Content-Type", "application/xml"], "\xFF\xFE<\0?\0x\0m\0l\0 \0v\0e\0r\0s\0i\0o\0n\0=\0\"\x001\0.\x000\0\"\0 \0e\0n\0c\0o\0d\0i\0n\0g\0=\0\"\0U\0T\0F\0-\x001\x006\0l\0e\0\"\0?\0>\0\n\0<\0r\0o\0o\0t\0>\0\xC9\0r\0i\0c\0<\0/\0r\0o\0o\0t\0>\0\n\0");
-    ok($m->decoded_content, "<?xml version=\"1.0\"?>\n<root>\xC9ric</root>\n");
-}
-else {
-    skip("Need perl-5.8", undef) for 1..1;
-}
+$m = HTTP::Message->new(["Content-Type", "application/xml"], "\xFF\xFE<\0?\0x\0m\0l\0 \0v\0e\0r\0s\0i\0o\0n\0=\0\"\x001\0.\x000\0\"\0 \0e\0n\0c\0o\0d\0i\0n\0g\0=\0\"\0U\0T\0F\0-\x001\x006\0l\0e\0\"\0?\0>\0\n\0<\0r\0o\0o\0t\0>\0\xC9\0r\0i\0c\0<\0/\0r\0o\0o\0t\0>\0\n\0");
+ok($m->decoded_content, "<?xml version=\"1.0\"?>\n<root>\xC9ric</root>\n");

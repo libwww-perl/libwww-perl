@@ -3,12 +3,10 @@ package HTML::Form;
 use strict;
 use URI;
 use Carp ();
+use Encode ();
 
-use vars qw($VERSION $Encode_available);
+use vars qw($VERSION);
 $VERSION = "5.829";
-
-eval { require Encode };
-$Encode_available = !$@;
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 
@@ -368,9 +366,7 @@ string like "application/x-www-form-urlencoded" or "multipart/form-data".
 This method gets/sets the list of charset encodings that the server processing
 the form accepts. Current implementation supports only one-element lists.
 Default value is "UNKNOWN" which we interpret as a request to use document
-charset as specified by the 'charset' parameter of the parse() method. To
-encode character strings you should have modern perl with Encode module. On
-older perls the setting of this attribute has no effect.
+charset as specified by the 'charset' parameter of the parse() method.
 
 =cut
 
@@ -694,10 +690,8 @@ sub make_request
     my @form    = $self->form;
 
     my $charset = $self->accept_charset eq "UNKNOWN" ? $self->{default_charset} : $self->accept_charset;
-    if ($Encode_available) {
-        foreach my $fi (@form) {
-            $fi = Encode::encode($charset, $fi) unless ref($fi);
-        }
+    foreach my $fi (@form) {
+	$fi = Encode::encode($charset, $fi) unless ref($fi);
     }
 
     if ($method eq "GET") {

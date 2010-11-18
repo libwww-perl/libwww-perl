@@ -379,14 +379,6 @@ sub decoded_content
 	    }
 	    else {
 		require Encode;
-		if (do{my $v = $Encode::VERSION; $v =~ s/_//g; $v} < 2.0901 &&
-		    !$content_ref_iscopy)
-		{
-		    # LEAVE_SRC did not work before Encode-2.0901
-		    my $copy = $$content_ref;
-		    $content_ref = \$copy;
-		    $content_ref_iscopy++;
-		}
 		eval {
 		    $content_ref = \Encode::decode($charset, $$content_ref,
 			 ($opt{charset_strict} ? Encode::FB_CROAK() : 0) | Encode::LEAVE_SRC());

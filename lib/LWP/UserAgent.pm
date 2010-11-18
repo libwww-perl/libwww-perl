@@ -925,6 +925,8 @@ sub proxy
 
 sub env_proxy {
     my ($self) = @_;
+    require Encode;
+    require Encode::Locale;
     my($k,$v);
     while(($k, $v) = each %ENV) {
 	if ($ENV{REQUEST_METHOD}) {
@@ -944,7 +946,7 @@ sub env_proxy {
             next unless $k =~ /^$URI::scheme_re\z/;
             # Ignore xxx_proxy variables if xxx isn't a supported protocol
             next unless LWP::Protocol::implementor($k);
-	    $self->proxy($k, $v);
+	    $self->proxy($k, Encode::decode(locale => $v));
 	}
     }
 }

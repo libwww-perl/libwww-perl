@@ -556,8 +556,8 @@ The following modules provide various functions and definitions.
 All modules contain detailed information on the interfaces they
 provide.  The L<lwpcook> manpage is the libwww-perl cookbook that contain
 examples of typical usage of the library.  You might want to take a
-look at how the scripts L<lwp-request>, L<lwp-rget> and L<lwp-mirror>
-are implemented.
+look at how the scripts L<lwp-request>, L<lwp-download>, L<lwp-dump>
+and L<lwp-mirror> are implemented.
 
 =head1 ENVIRONMENT
 

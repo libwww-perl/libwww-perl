@@ -14,7 +14,7 @@ GetOptions(\my %opt,
 };
 
 my @prog;
-push(@prog, qw(lwp-request lwp-mirror lwp-rget lwp-download lwp-dump))
+push(@prog, qw(lwp-request lwp-mirror lwp-download lwp-dump))
     unless $opt{'no-programs'} || grep /^LIB=/, @ARGV;
 
 if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {

@@ -9,6 +9,13 @@ $VERSION = "5.819";
 if ($SSL_SOCKET_CLASS) {
     # somebody already set it
 }
+elsif ($SSL_SOCKET_CLASS = $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS}) {
+    unless ($SSL_SOCKET_CLASS =~ /^(IO::Socket::SSL|Net::SSL)\z/) {
+	die "Bad socket class [$SSL_SOCKET_CLASS]";
+    }
+    eval "require $SSL_SOCKET_CLASS";
+    die $@ if $@;
+}
 elsif ($IO::Socket::SSL::VERSION) {
     $SSL_SOCKET_CLASS = "IO::Socket::SSL"; # it was already loaded
 }

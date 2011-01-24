@@ -41,6 +41,7 @@ sub new
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
+    my $ssl_opts = delete $cnf{ssl_opts};
     my $use_eval = delete $cnf{use_eval};
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
@@ -83,6 +84,7 @@ sub new
 		      def_headers  => $def_headers,
 		      timeout      => $timeout,
 		      local_address => $local_address,
+		      ssl_opts     => { $ssl_opts ? %$ssl_opts  : (verify_hostname => 1) },
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,
 		      max_size     => $max_size,
@@ -582,6 +584,20 @@ sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
 sub show_progress{ shift->_elem('show_progress', @_); }
 
+sub ssl_opts {
+    my $self = shift;
+    if (@_ == 1) {
+	my $k = shift;
+	return $self->{ssl_opts}{$k};
+    }
+    if (@_) {
+	%{$self->{ssl_opts}} = (%{$self->{ssl_opts}}, @_);
+    }
+    else {
+	return keys %{$self->{ssl_opts}};
+    }
+}
+
 sub parse_head {
     my $self = shift;
     if (@_) {
@@ -1042,6 +1058,7 @@ The following options correspond to attribute methods described below:
    cookie_jar              undef
    default_headers         HTTP::Headers->new
    local_address           undef
+   ssl_opts		   { verify_hostname => 1 }
    max_size                undef
    max_redirect            7
    parse_head              1

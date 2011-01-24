@@ -61,7 +61,7 @@ sub http_connect {
 	    }
 	}
 	if ($cnf->{SSL_verifycn_scheme}) {
-	    $@ = "Net::SSL from Crypt-SSLeay can't verify hostnames";
+	    $@ = "Net::SSL from Crypt-SSLeay can't verify hostnames; either install IO::Socket::SSL or turn off verification by setting the PERL_LWP_SSL_VERIFYPEER environment variable";
 	    return undef;
 	}
     }

@@ -9,27 +9,27 @@ $VERSION = "5.819";
 if ($SSL_SOCKET_CLASS) {
     # somebody already set it
 }
-elsif ($Net::SSL::VERSION) {
-    $SSL_SOCKET_CLASS = "Net::SSL";
-}
 elsif ($IO::Socket::SSL::VERSION) {
     $SSL_SOCKET_CLASS = "IO::Socket::SSL"; # it was already loaded
 }
+elsif ($Net::SSL::VERSION) {
+    $SSL_SOCKET_CLASS = "Net::SSL";
+}
 else {
-    eval { require Net::SSL; };     # from Crypt-SSLeay
+    eval { require IO::Socket::SSL; };
     if ($@) {
 	my $old_errsv = $@;
 	eval {
-	    require IO::Socket::SSL;
+	    require Net::SSL;  # from Crypt-SSLeay
 	};
 	if ($@) {
 	    $old_errsv =~ s/\s\(\@INC contains:.*\)/)/g;
 	    die $old_errsv . $@;
 	}
-	$SSL_SOCKET_CLASS = "IO::Socket::SSL";
+	$SSL_SOCKET_CLASS = "Net::SSL";
     }
     else {
-	$SSL_SOCKET_CLASS = "Net::SSL";
+	$SSL_SOCKET_CLASS = "IO::Socket::SSL";
     }
 }
 

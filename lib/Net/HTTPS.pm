@@ -44,6 +44,20 @@ sub configure {
 
 sub http_connect {
     my($self, $cnf) = @_;
+    if ($self->isa("Net::SSL")) {
+	if ($cnf->{SSL_verify_mode}) {
+	    if (my $f = $cnf->{SSL_ca_file}) {
+		$ENV{HTTPS_CA_FILE} = $f;
+	    }
+	    if (my $f = $cnf->{SSL_ca_path}) {
+		$ENV{HTTPS_CA_DIR} = $f;
+	    }
+	}
+	if ($cnf->{SSL_verifycn_scheme}) {
+	    $@ = "Net::SSL from Crypt-SSLeay can't verify hostnames";
+	    return undef;
+	}
+    }
     $self->SUPER::configure($cnf);
 }
 

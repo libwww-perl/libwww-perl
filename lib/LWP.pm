@@ -582,6 +582,11 @@ These environment variables can be set to enable communication through
 a proxy server.  See the description of the C<env_proxy> method in
 L<LWP::UserAgent>.
 
+=item PERL_LWP_SSL_VERIFYPEER
+
+Default to not verifying the certificate of SSL peers.
+This used to be the default before LWP-5.840.
+
 =item PERL_LWP_USE_HTTP_10
 
 Enable the old HTTP/1.0 protocol driver instead of the new HTTP/1.1

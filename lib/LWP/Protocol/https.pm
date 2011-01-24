@@ -16,7 +16,9 @@ sub _extra_sock_opts
     my $self = shift;
     my %ssl_opts = %{$self->{ua}{ssl_opts} || {}};
     unless (exists $ssl_opts{SSL_verify_mode}) {
-	$ssl_opts{SSL_verify_mode} = 1;
+	if (!exists $ENV{PERL_LWP_SSL_VERIFYPEER} || $ENV{PERL_LWP_SSL_VERIFYPEER}) {
+	    $ssl_opts{SSL_verify_mode} = 1;
+	}
     }
     if (delete $ssl_opts{verify_hostname}) {
 	$ssl_opts{SSL_verify_mode} ||= 1;

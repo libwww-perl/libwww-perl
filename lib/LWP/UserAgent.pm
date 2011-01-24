@@ -42,6 +42,22 @@ sub new
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
     my $ssl_opts = delete $cnf{ssl_opts};
+    unless ($ssl_opts) {
+	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
+	$ssl_opts = {};
+	if (!exists $ENV{PERL_LWP_SSL_VERIFYPEER} || $ENV{PERL_LWP_SSL_VERIFYPEER}) {
+	    $ssl_opts->{verify_hostname}++;
+	}
+	elsif ($ENV{HTTPS_CA_FILE} || $ENV{HTTPS_CA_DIR}) {
+	    $ssl_opts->{SSL_verify_mode} = 1;
+	}
+	if (my $ca_file = $ENV{PERL_LWP_SSL_CA_FILE} || $ENV{HTTPS_CA_FILE}) {
+	    $ssl_opts->{SSL_ca_file} = $ca_file;
+	}
+	if (my $ca_path = $ENV{PERL_LWP_SSL_CA_PATH} || $ENV{HTTPS_CA_DIR}) {
+	    $ssl_opts->{SSL_ca_path} = $ca_path;
+	}
+    }
     my $use_eval = delete $cnf{use_eval};
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
@@ -58,7 +74,6 @@ sub new
     
     Carp::croak("Can't mix conn_cache and keep_alive")
 	  if $conn_cache && $keep_alive;
-
 
     my $protocols_allowed   = delete $cnf{protocols_allowed};
     my $protocols_forbidden = delete $cnf{protocols_forbidden};
@@ -84,7 +99,7 @@ sub new
 		      def_headers  => $def_headers,
 		      timeout      => $timeout,
 		      local_address => $local_address,
-		      ssl_opts     => { $ssl_opts ? %$ssl_opts  : (verify_hostname => 1) },
+		      ssl_opts     => $ssl_opts,
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,
 		      max_size     => $max_size,

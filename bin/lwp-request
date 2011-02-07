@@ -187,8 +187,12 @@ require LWP;
 
 use URI;
 use URI::Heuristic qw(uf_uri);
-use Encode;
-use Encode::Locale;
+#use Encode;
+#use Encode::Locale;
+
+sub decode {
+    return $_[1];
+}
 
 use HTTP::Status qw(status_message);
 use HTTP::Date qw(time2str str2time);
@@ -267,11 +271,12 @@ my @getopt_args = (
     'C=s', # credentials for basic authorization
     'H=s@', # extra headers, form "Header: value string"
     #
-    'u', # display method, URL and headers of request
+    'u', # display method and URL of request
     'U', # display request headers also
     's', # display status code
     'S', # display whole chain of status codes
     'e', # display response headers (default for HEAD)
+    'E', # display whole chain of headers
     'd', # don't display content
     #
     'h', # print usage
@@ -322,11 +327,21 @@ elsif (!defined $allowed_methods{$method}) {
     die "$progname: $method is not an allowed method\n";
 }
 
+if ($options{'S'} || $options{'E'}) {
+    $options{'U'} = 1 if $options{'E'};
+    $options{'E'} = 1 if $options{'e'};
+    $options{'s'} = 1;
+    $options{'u'} = 1;
+}
+
 if ($method eq "HEAD") {
     $options{'s'} = 1;
     $options{'e'} = 1 unless $options{'d'};
     $options{'d'} = 1;
 }
+
+$options{'u'} = 1 if $options{'U'};
+$options{'s'} = 1 if $options{'e'};
 
 if (defined $options{'t'}) {
     $options{'t'} =~ /^(\d+)([smh])?/;
@@ -391,6 +406,15 @@ if ($options{'c'}) { # will always be set for request that wants content
 
 $errors = 0;
 
+sub show {
+    my $r = shift;
+    my $last = shift;
+    print $method, " ", $r->request->uri->as_string, "\n" if $options{'u'};
+    print $r->request->headers_as_string, "\n" if $options{'U'};
+    print $r->status_line, "\n" if $options{'s'};
+    print $r->headers_as_string, "\n" if $options{'E'} or $last;
+}
+
 # Ok, now we perform the requests, one URL at a time
 while ($url = shift) {
     # Create the URL object, but protect us against bad URLs
@@ -416,28 +440,12 @@ while ($url = shift) {
     $request->uri($url);
     $response = $ua->request($request);
 
-    if ($options{'u'} || $options{'U'}) {
-        my $url = $response->request->uri->as_string;
-        print "$method $url\n";
-        print $response->request->headers_as_string, "\n" if $options{'U'};
-    }
-
     if ($options{'S'}) {
-        for my $r ($response->redirects, $response) {
-            my $method = $r->request->method;
-            my $url = $r->request->uri->as_string;
-            print "$method $url --> ", $r->status_line, "\n";
+        for my $r ($response->redirects) {
+	    show($r);
         }
     }
-    elsif ($options{'s'}) {
-        print $response->status_line, "\n";
-    }
-
-    if ($options{'e'}) {
-        # Display headers
-        print $response->headers_as_string;
-        print "\n";  # separate headers and content
-    }
+    show($response, $options{'e'});
 
     unless ($options{'d'}) {
 	if ($options{'o'} &&
@@ -524,6 +532,7 @@ Usage: $progname [-options] <url>...
     -s            Display response status code
     -S            Display response status chain
     -e            Display response headers
+    -E            Display whole chain of headers
     -d            Do not display content
     -o <format>   Process HTML content in various ways
 

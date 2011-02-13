@@ -197,14 +197,21 @@ EOT
         if (!$response && $self->{use_eval}) {
             # we eval, and turn dies into responses below
             eval {
-                $response = $protocol->request($request, $proxy,
-                                               $arg, $size, $self->{timeout});
+                $response = $protocol->request($request, $proxy, $arg, $size, $self->{timeout}) ||
+		    die "No response returned by $protocol";
             };
             if ($@) {
-                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-                    $response = _new_response($request,
-                                              &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                              $@);
+                if (UNIVERSAL::isa($@, "HTTP::Response")) {
+                    $response = $@;
+                    $response->request($request);
+                }
+                else {
+                    my $full = $@;
+                    (my $status = $@) =~ s/\n.*//s;
+                    $status =~ s/ at .* line \d+.*//s;  # remove file/line number
+                    my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
+                    $response = _new_response($request, $code, $status, $full);
+                }
             }
         }
         elsif (!$response) {
@@ -1011,13 +1018,13 @@ sub no_proxy {
 
 
 sub _new_response {
-    my($request, $code, $message) = @_;
+    my($request, $code, $message, $content) = @_;
     my $response = HTTP::Response->new($code, $message);
     $response->request($request);
     $response->header("Client-Date" => HTTP::Date::time2str(time));
     $response->header("Client-Warning" => "Internal response");
     $response->header("Content-Type" => "text/plain");
-    $response->content("$code $message\n");
+    $response->content($content || "$code $message\n");
     return $response;
 }
 

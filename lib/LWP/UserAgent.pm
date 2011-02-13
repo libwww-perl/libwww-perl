@@ -1363,14 +1363,14 @@ defaults to 1.
 =item C<SSL_ca_file> => $path
 
 The path to a file containing Certificate Authority certificates.
-A default setting for this options is provided by checking the environment
+A default setting for this option is provided by checking the environment
 variables C<PERL_LWP_SSL_CA_FILE> and C<HTTPS_CA_FILE> in order.
 
 =item C<SSL_ca_path> => $path
 
 The path to a directory containing files containing Certificate Authority
 certificates.
-A default setting for this options is provided by checking the environment
+A default setting for this option is provided by checking the environment
 variables C<PERL_LWP_SSL_CA_PATH> and C<HTTPS_CA_DIR> in order.
 
 =back

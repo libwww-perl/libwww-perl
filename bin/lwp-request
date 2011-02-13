@@ -116,6 +116,10 @@ requests that are handled by the library.
 
 Print response headers.  This option is always on for HEAD requests.
 
+=item -E
+
+Print response status chain with full response headers.
+
 =item -d
 
 Do B<not> print the content of the response.
@@ -326,6 +330,7 @@ elsif (!defined $allowed_methods{$method}) {
 if ($options{'S'} || $options{'E'}) {
     $options{'U'} = 1 if $options{'E'};
     $options{'E'} = 1 if $options{'e'};
+    $options{'S'} = 1;
     $options{'s'} = 1;
     $options{'u'} = 1;
 }
@@ -526,9 +531,9 @@ Usage: $progname [-options] <url>...
     -u            Display method and URL before any response
     -U            Display request headers (implies -u)
     -s            Display response status code
-    -S            Display response status chain
-    -e            Display response headers
-    -E            Display whole chain of headers
+    -S            Display response status chain (implies -u)
+    -e            Display response headers (implies -s)
+    -E            Display whole chain of headers (implies -S and -U)
     -d            Do not display content
     -o <format>   Process HTML content in various ways
 

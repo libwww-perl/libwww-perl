@@ -45,11 +45,16 @@ sub new
     unless ($ssl_opts) {
 	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
 	$ssl_opts = {};
-	if (!exists $ENV{PERL_LWP_SSL_VERIFYPEER} || $ENV{PERL_LWP_SSL_VERIFYPEER}) {
-	    $ssl_opts->{verify_hostname}++;
+	if (exists $ENV{PERL_LWP_SSL_VERIFYPEER}) {
+	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFYPEER};
 	}
 	elsif ($ENV{HTTPS_CA_FILE} || $ENV{HTTPS_CA_DIR}) {
+	    # Crypt-SSLeay compatiblity (verify peer certificate; but not the hostname)
+	    $ssl_opts->{verify_hostname} = 0;
 	    $ssl_opts->{SSL_verify_mode} = 1;
+	}
+	else {
+	    $ssl_opts->{verify_hostname} = 1;
 	}
 	if (my $ca_file = $ENV{PERL_LWP_SSL_CA_FILE} || $ENV{HTTPS_CA_FILE}) {
 	    $ssl_opts->{SSL_ca_file} = $ca_file;
@@ -1340,28 +1345,20 @@ of options keys currently set.  With a single argument return the current
 value for the given option.  With 2 arguments set the option value and return
 the old.  Setting an option to the value C<undef> removes this option.
 
-By default the C<verify_hostname> option will be set to a TRUE value;
-unless the C<PERL_LWP_SSL_VERIFYPEER> environment variable is set and has
-a FALSE value.
-
 The options that LWP relates to are:
 
 =over
 
 =item C<verify_hostname> => $bool
 
-When TRUE LWP will ensure it connects to servers that have a
-valid certificate matching the expected hostname.
+When TRUE LWP will for secure protocol schemes ensure it connects to servers
+that have a valid certificate matching the expected hostname.  If FALSE no
+checks are made and you can't be sure that you communicate with the expected peer.
+The no checks behaviour was the default for libwww-perl-5.837 and older.
 
-=item C<SSL_verify_mode> => $int
-
-If C<verify_hostname> is TRUE this value is implied to be
-at least 1.  It can be set to 0 to suppress peer verification.
-
-If C<SSL_verify_mode> is 1 or more, and neither C<SSL_ca_file> nor
-C<SSL_ca_path> is set, then a C<SSL_ca_file> is implied to be the one
-provided by L<Mozilla::CA>.  If the Mozilla::CAmodule isn't available
-SSL requests will fail.
+This option is initialized from the L<PERL_LWP_SSL_VERIFYPEER> environment
+variable.  If the this envirionment variable isn't set; then C<verify_hostname>
+defaults to 1.
 
 =item C<SSL_ca_file> => $path
 
@@ -1380,6 +1377,12 @@ variables C<PERL_LWP_SSL_CA_PATH> and C<HTTPS_CA_DIR> in order.
 
 Other options can be set and are processed directly by the SSL Socket implementation
 in use.  See L<IO::Socket::SSL> or L<Net::SSL> for details.
+
+If hostname verification is requested, and neither C<SSL_ca_file> nor
+C<SSL_ca_path> is set, then C<SSL_ca_file> is implied to be the one
+provided by L<Mozilla::CA>.  If the Mozilla::CA module isn't available
+SSL requests will fail.  Either install this module, set up an alternative
+SSL_ca_file or disable hostname verification.
 
 =back
 

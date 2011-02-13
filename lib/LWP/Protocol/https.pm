@@ -34,7 +34,7 @@ envirionment variable or by installing the Mozilla::CA module.
 
 To disable verification of SSL peers set the PERL_LWP_SSL_VERIFY_HOSTNAME
 envirionment variable to 0.  If you do this you can't be sure that you
-communcate with the expected peer.
+communicate with the expected peer.
 EOT
 		}
 		die $@;

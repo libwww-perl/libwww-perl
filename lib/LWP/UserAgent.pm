@@ -45,8 +45,8 @@ sub new
     unless ($ssl_opts) {
 	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
 	$ssl_opts = {};
-	if (exists $ENV{PERL_LWP_SSL_VERIFYPEER}) {
-	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFYPEER};
+	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}) {
+	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
 	}
 	elsif ($ENV{HTTPS_CA_FILE} || $ENV{HTTPS_CA_DIR}) {
 	    # Crypt-SSLeay compatiblity (verify peer certificate; but not the hostname)
@@ -1356,7 +1356,7 @@ that have a valid certificate matching the expected hostname.  If FALSE no
 checks are made and you can't be sure that you communicate with the expected peer.
 The no checks behaviour was the default for libwww-perl-5.837 and older.
 
-This option is initialized from the L<PERL_LWP_SSL_VERIFYPEER> environment
+This option is initialized from the L<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
 variable.  If the this envirionment variable isn't set; then C<verify_hostname>
 defaults to 1.
 

@@ -606,11 +606,22 @@ sub ssl_opts {
 	return $self->{ssl_opts}{$k};
     }
     if (@_) {
+	my $old;
+	while (@_) {
+	    my($k, $v) = splice(@_, 0, 2);
+	    $old = $self->{ssl_opts}{$k} unless @_;
+	    if (defined $v) {
+		$self->{ssl_opts}{$k} = $v;
+	    }
+	    else {
+		delete $self->{ssl_opts}{$k};
+	    }
+	}
 	%{$self->{ssl_opts}} = (%{$self->{ssl_opts}}, @_);
+	return $old;
     }
-    else {
-	return keys %{$self->{ssl_opts}};
-    }
+
+    return keys %{$self->{ssl_opts}};
 }
 
 sub parse_head {
@@ -831,7 +842,7 @@ sub clone
     delete $copy->{conn_cache};
 
     # copy any plain arrays and hashes; known not to need recursive copy
-    for my $k (qw(proxy no_proxy requests_redirectable)) {
+    for my $k (qw(proxy no_proxy requests_redirectable ssl_opts)) {
         next unless $copy->{$k};
         if (ref($copy->{$k}) eq "ARRAY") {
             $copy->{$k} = [ @{$copy->{$k}} ];

@@ -1329,6 +1329,58 @@ is observed for C<timeout> seconds.  This means that the time it takes
 for the complete transaction and the request() method to actually
 return might be longer.
 
+=item $ua->ssl_opts
+
+=item $ua->ssl_opts( $key )
+
+=item $ua->ssl_opts( $key => $value )
+
+Get/set the options for SSL connections.  Without argument return the list
+of options keys currently set.  With a single argument return the current
+value for the given option.  With 2 arguments set the option value and return
+the old.  Setting an option to the value C<undef> removes this option.
+
+By default the C<verify_hostname> option will be set to a TRUE value;
+unless the C<PERL_LWP_SSL_VERIFYPEER> environment variable is set and has
+a FALSE value.
+
+The options that LWP relates to are:
+
+=over
+
+=item C<verify_hostname> => $bool
+
+When TRUE LWP will ensure it connects to servers that have a
+valid certificate matching the expected hostname.
+
+=item C<SSL_verify_mode> => $int
+
+If C<verify_hostname> is TRUE this value is implied to be
+at least 1.  It can be set to 0 to suppress peer verification.
+
+If C<SSL_verify_mode> is 1 or more, and neither C<SSL_ca_file> nor
+C<SSL_ca_path> is set, then a C<SSL_ca_file> is implied to be the one
+provided by L<Mozilla::CA>.  If the Mozilla::CAmodule isn't available
+SSL requests will fail.
+
+=item C<SSL_ca_file> => $path
+
+The path to a file containing Certificate Authority certificates.
+A default setting for this options is provided by checking the environment
+variables C<PERL_LWP_SSL_CA_FILE> and C<HTTPS_CA_FILE> in order.
+
+=item C<SSL_ca_path> => $path
+
+The path to a directory containing files containing Certificate Authority
+certificates.
+A default setting for this options is provided by checking the environment
+variables C<PERL_LWP_SSL_CA_PATH> and C<HTTPS_CA_DIR> in order.
+
+=back
+
+Other options can be set and are processed directly by the SSL Socket implementation
+in use.  See L<IO::Socket::SSL> or L<Net::SSL> for details.
+
 =back
 
 =head2 Proxy attributes

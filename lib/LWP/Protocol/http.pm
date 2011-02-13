@@ -43,7 +43,8 @@ sub _new_socket
 	my $status = "Can't connect to $host:$port";
 	if ($@ =~ /\bconnect: (.*)/ ||
 	    $@ =~ /\b(Bad hostname)\b/ ||
-	    $@ =~ /\b(certificate verify failed)\b/
+	    $@ =~ /\b(certificate verify failed)\b/ ||
+	    $@ =~ /\b(Crypt-SSLeay can't verify hostnames)\b/
 	) {
 	    $status .= " ($1)";
 	}

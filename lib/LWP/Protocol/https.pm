@@ -26,7 +26,16 @@ sub _extra_sock_opts
 	    };
 	    if ($@) {
 		if ($@ =! /^Can't locate Mozilla\/CA\.pm/) {
-		    $@ = "Can't verify SSL peers without knowning which Certificate Authorities to trust";
+		    $@ = <<'EOT';
+Can't verify SSL peers without knowning which Certificate Authorities to trust
+
+This problem can be fixed by either setting the PERL_LWP_SSL_CA_FILE
+envirionment variable or by installing the Mozilla::CA module.
+
+To disable verification of SSL peers set the PERL_LWP_SSL_VERIFY_HOSTNAME
+envirionment variable to 0.  If you do this you can't be sure that you
+communcate with the expected peer.
+EOT
 		}
 		die $@;
 	    }

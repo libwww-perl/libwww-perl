@@ -21,7 +21,15 @@ sub _extra_sock_opts
     }
     if ($ssl_opts{SSL_verify_mode}) {
 	unless (exists $ssl_opts{SSL_ca_file} || exists $ssl_opts{SSL_ca_path}) {
-	    require Mozilla::CA;
+	    eval {
+		require Mozilla::CA;
+	    };
+	    if ($@) {
+		if ($@ =! /^Can't locate Mozilla\/CA\.pm/) {
+		    $@ = "Can't verify SSL peers without knowning which Certificate Authorities to trust";
+		}
+		die $@;
+	    }
 	    $ssl_opts{SSL_ca_file} = Mozilla::CA::SSL_ca_file();
 	}
     }

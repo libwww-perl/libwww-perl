@@ -1,94 +1,152 @@
+NAME
+    HTTP::Cookies - HTTP cookie jars
 
-                     L I B W W W - P E R L - 5
-                   -----------------------------
+SYNOPSIS
+      use HTTP::Cookies;
+      $cookie_jar = HTTP::Cookies->new(
+        file => "$ENV{'HOME'}/lwp_cookies.dat",
+        autosave => 1,
+      );
 
+      use LWP;
+      my $browser = LWP::UserAgent->new;
+      $browser->cookie_jar($cookie_jar);
 
-The libwww-perl collection is a set of Perl modules which provides a
-simple and consistent application programming interface to the
-World-Wide Web.  The main focus of the library is to provide classes
-and functions that allow you to write WWW clients. The library also
-contain modules that are of more general use and even classes that
-help you implement simple HTTP servers.
+    Or for an empty and temporary cookie jar:
 
+      use LWP;
+      my $browser = LWP::UserAgent->new;
+      $browser->cookie_jar( {} );
 
-PREREQUISITES
+DESCRIPTION
+    This class is for objects that represent a "cookie jar" -- that is, a
+    database of all the HTTP cookies that a given LWP::UserAgent object
+    knows about.
 
-In order to install and use this package you will need Perl version
-5.8.8 or better.  Some modules within this package depend on other
-packages that are distributed separately from Perl.  We recommend that
-you have the following packages installed before you install
-libwww-perl:
+    Cookies are a general mechanism which server side connections can use to
+    both store and retrieve information on the client side of the
+    connection. For more information about cookies refer to
+    <URL:http://curl.haxx.se/rfc/cookie_spec.html> and
+    <URL:http://www.cookiecentral.com/>. This module also implements the new
+    style cookies described in *RFC 2965*. The two variants of cookies are
+    supposed to be able to coexist happily.
 
-  URI
-  MIME-Base64
-  HTML-Tagset
-  HTML-Parser
-  libnet
-  Digest-MD5
-  Encode-Locale
-  Compress-Zlib
+    Instances of the class *HTTP::Cookies* are able to store a collection of
+    Set-Cookie2: and Set-Cookie: headers and are able to use this
+    information to initialize Cookie-headers in *HTTP::Request* objects. The
+    state of a *HTTP::Cookies* object can be saved in and restored from
+    files.
 
-If you want to access sites using the https protocol, then you need to
-install the Crypt::SSLeay or the IO::Socket::SSL module.  The
-README.SSL file will tell you more about how libwww-perl supports SSL.
+METHODS
+    The following methods are provided:
 
+    $cookie_jar = HTTP::Cookies->new
+        The constructor takes hash style parameters. The following
+        parameters are recognized:
 
-INSTALLATION
+          file:            name of the file to restore cookies from and save cookies to
+          autosave:        save during destruction (bool)
+          ignore_discard:  save even cookies that are requested to be discarded (bool)
+          hide_cookie2:    do not add Cookie2 header to requests
 
-You install libwww-perl using the normal perl module distribution drill:
+        Future parameters might include (not yet implemented):
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+          max_cookies               300
+          max_cookies_per_domain    20
+          max_cookie_size           4096
 
-If you don't want to install any programs (only the library files) then
-pass the '--no-programs' option to Makefile.PL:
+          no_cookies   list of domain names that we never return cookies to
 
-   perl Makefile.PL --no-programs
+    $cookie_jar->add_cookie_header( $request )
+        The add_cookie_header() method will set the appropriate
+        Cookie:-header for the *HTTP::Request* object given as argument. The
+        $request must have a valid url attribute before this method is
+        called.
 
+    $cookie_jar->extract_cookies( $response )
+        The extract_cookies() method will look for Set-Cookie: and
+        Set-Cookie2: headers in the *HTTP::Response* object passed as
+        argument. Any of these headers that are found are used to update the
+        state of the $cookie_jar.
 
-DOCUMENTATION
+    $cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port,
+    $path_spec, $secure, $maxage, $discard, \%rest )
+        The set_cookie() method updates the state of the $cookie_jar. The
+        $key, $val, $domain, $port and $path arguments are strings. The
+        $path_spec, $secure, $discard arguments are boolean values. The
+        $maxage value is a number indicating number of seconds that this
+        cookie will live. A value <= 0 will delete this cookie. %rest
+        defines various other attributes like "Comment" and "CommentURL".
 
-See the lib/LWP.pm file for an overview of the library. See the
-Changes file for recent changes.
+    $cookie_jar->save
+    $cookie_jar->save( $file )
+        This method file saves the state of the $cookie_jar to a file. The
+        state can then be restored later using the load() method. If a
+        filename is not specified we will use the name specified during
+        construction. If the attribute *ignore_discard* is set, then we will
+        even save cookies that are marked to be discarded.
 
-POD style documentation is included in all modules and scripts.  These
-are normally converted to manual pages and installed as part of the
-"make install" process.  You should also be able to use the 'perldoc'
-utility to extract and read documentation from the module files
-directly.
+        The default is to save a sequence of "Set-Cookie3" lines.
+        "Set-Cookie3" is a proprietary LWP format, not known to be
+        compatible with any browser. The *HTTP::Cookies::Netscape* sub-class
+        can be used to save in a format compatible with Netscape.
 
+    $cookie_jar->load
+    $cookie_jar->load( $file )
+        This method reads the cookies from the file and adds them to the
+        $cookie_jar. The file must be in the format written by the save()
+        method.
 
-SUPPORT
+    $cookie_jar->revert
+        This method empties the $cookie_jar and re-loads the $cookie_jar
+        from the last save file.
 
-Bug reports and suggestions for improvements can be sent to the
-<libwww@perl.org> mailing list.  This mailing list is also the place
-for general discussions and development of the libwww-perl package.
+    $cookie_jar->clear
+    $cookie_jar->clear( $domain )
+    $cookie_jar->clear( $domain, $path )
+    $cookie_jar->clear( $domain, $path, $key )
+        Invoking this method without arguments will empty the whole
+        $cookie_jar. If given a single argument only cookies belonging to
+        that domain will be removed. If given two arguments, cookies
+        belonging to the specified path within that domain are removed. If
+        given three arguments, then the cookie with the specified key, path
+        and domain is removed.
 
+    $cookie_jar->clear_temporary_cookies
+        Discard all temporary cookies. Scans for all cookies in the jar with
+        either no expire field or a true `discard' flag. To be called when
+        the user agent shuts down according to RFC 2965.
 
-AVAILABILITY
+    $cookie_jar->scan( \&callback )
+        The argument is a subroutine that will be invoked for each cookie
+        stored in the $cookie_jar. The subroutine will be invoked with the
+        following arguments:
 
-The latest version of libwww-perl is available from CPAN:
+          0  version
+          1  key
+          2  val
+          3  path
+          4  domain
+          5  port
+          6  path_spec
+          7  secure
+          8  expires
+          9  discard
+         10  hash
 
-     http://search.cpan.org/dist/libwww-perl/
+    $cookie_jar->as_string
+    $cookie_jar->as_string( $skip_discardables )
+        The as_string() method will return the state of the $cookie_jar
+        represented as a sequence of "Set-Cookie3" header lines separated by
+        "\n". If $skip_discardables is TRUE, it will not return lines for
+        cookies with the *Discard* attribute.
 
-If you want to hack on the source it might be a good idea to grab the
-latest version with git using the command:
-
-     git clone git://github.com/gisle/libwww-perl.git lwp
-
-You can also browse the git repository at:
-
-     http://github.com/gisle/libwww-perl
-
+SEE ALSO
+    HTTP::Cookies::Netscape, HTTP::Cookies::Microsoft
 
 COPYRIGHT
+    Copyright 1997-2002 Gisle Aas
 
-  © 1995-2010 Gisle Aas. All rights reserved.
-  © 1995 Martijn Koster. All rights reserved.
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-Enjoy!

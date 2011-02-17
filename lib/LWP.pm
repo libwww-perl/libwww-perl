@@ -582,6 +582,20 @@ These environment variables can be set to enable communication through
 a proxy server.  See the description of the C<env_proxy> method in
 L<LWP::UserAgent>.
 
+=item PERL_LWP_SSL_VERIFY_HOSTNAME
+
+The default C<verify_hostname> setting for M<LWP::UserAgent>.  If
+not set the default will be 1.  Set it as 0 to disable hostname
+verification (the default prior to libwww-perl 5.840.
+
+=item PERL_LWP_SSL_CA_FILE
+
+=item PERL_LWP_SSL_CA_PATH
+
+The file and/or directory
+where the trusted Certificate Authority certificates
+is located.  See L<LWP::UserAgent> for details.
+
 =item PERL_LWP_USE_HTTP_10
 
 Enable the old HTTP/1.0 protocol driver instead of the new HTTP/1.1

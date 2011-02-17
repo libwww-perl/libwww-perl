@@ -57,7 +57,8 @@ WriteMakefile(
     },
     META_MERGE => {
         recommends => {
-            'Crypt::SSLeay' => 0,
+            'IO::Socket::SSL' => "1.38",
+            'Mozilla::CA' => "20110101",
         },
 	resources => {
             repository => 'http://github.com/gisle/libwww-perl',

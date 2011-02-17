@@ -40,8 +40,15 @@ sub _new_socket
 
     unless ($sock) {
 	# IO::Socket::INET leaves additional error messages in $@
-	$@ =~ s/^.*?: //;
-	die "Can't connect to $host:$port ($@)";
+	my $status = "Can't connect to $host:$port";
+	if ($@ =~ /\bconnect: (.*)/ ||
+	    $@ =~ /\b(Bad hostname)\b/ ||
+	    $@ =~ /\b(certificate verify failed)\b/ ||
+	    $@ =~ /\b(Crypt-SSLeay can't verify hostnames)\b/
+	) {
+	    $status .= " ($1)";
+	}
+	die "$status\n\n$@";
     }
 
     # perl 5.005's IO::Socket does not have the blocking method.

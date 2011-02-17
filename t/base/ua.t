@@ -3,7 +3,7 @@
 use strict;
 use Test;
 
-plan tests => 14;
+plan tests => 21;
 
 use LWP::UserAgent;
 
@@ -47,3 +47,11 @@ ok($ua->proxy('http'), undef);
 my $res = $ua->get("data:text/html,%3Chtml%3E%3Chead%3E%3Cmeta%20http-equiv%3D%22Content-Script-Type%22%20content%3D%22text%2Fjavascript%22%3E%3Cmeta%20http-equiv%3D%22Content-Style-Type%22%20content%3D%22text%2Fcss%22%3E%3C%2Fhead%3E%3C%2Fhtml%3E");
 ok($res->header("Content-Style-Type", "text/css"));
 ok($res->header("Content-Script-Type", "text/javascript"));
+
+ok(join(":", $ua->ssl_opts), "verify_hostname");
+ok($ua->ssl_opts("verify_hostname"), 1);
+ok($ua->ssl_opts(verify_hostname => 0), 1);
+ok($ua->ssl_opts("verify_hostname"), 0);
+ok($ua->ssl_opts(verify_hostname => undef), 0);
+ok($ua->ssl_opts("verify_hostname"), undef);
+ok(join(":", $ua->ssl_opts), "");

@@ -41,6 +41,28 @@ sub new
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
+    my $ssl_opts = delete $cnf{ssl_opts};
+    unless ($ssl_opts) {
+	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
+	$ssl_opts = {};
+	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}) {
+	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
+	}
+	elsif ($ENV{HTTPS_CA_FILE} || $ENV{HTTPS_CA_DIR}) {
+	    # Crypt-SSLeay compatiblity (verify peer certificate; but not the hostname)
+	    $ssl_opts->{verify_hostname} = 0;
+	    $ssl_opts->{SSL_verify_mode} = 1;
+	}
+	else {
+	    $ssl_opts->{verify_hostname} = 1;
+	}
+	if (my $ca_file = $ENV{PERL_LWP_SSL_CA_FILE} || $ENV{HTTPS_CA_FILE}) {
+	    $ssl_opts->{SSL_ca_file} = $ca_file;
+	}
+	if (my $ca_path = $ENV{PERL_LWP_SSL_CA_PATH} || $ENV{HTTPS_CA_DIR}) {
+	    $ssl_opts->{SSL_ca_path} = $ca_path;
+	}
+    }
     my $use_eval = delete $cnf{use_eval};
     $use_eval = 1 unless defined $use_eval;
     my $parse_head = delete $cnf{parse_head};
@@ -57,7 +79,6 @@ sub new
     
     Carp::croak("Can't mix conn_cache and keep_alive")
 	  if $conn_cache && $keep_alive;
-
 
     my $protocols_allowed   = delete $cnf{protocols_allowed};
     my $protocols_forbidden = delete $cnf{protocols_forbidden};
@@ -83,6 +104,7 @@ sub new
 		      def_headers  => $def_headers,
 		      timeout      => $timeout,
 		      local_address => $local_address,
+		      ssl_opts     => $ssl_opts,
 		      use_eval     => $use_eval,
                       show_progress=> $show_progress,
 		      max_size     => $max_size,
@@ -161,10 +183,10 @@ sub send_request
                 $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
                 $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
                 if ($scheme eq "https") {
-                    $response->message($response->message . " (Crypt::SSLeay or IO::Socket::SSL not installed)");
+                    $response->message($response->message . " (IO::Socket::SSL not installed)");
                     $response->content_type("text/plain");
                     $response->content(<<EOT);
-LWP will support https URLs if either Crypt::SSLeay or IO::Socket::SSL
+LWP will support https URLs if either IO::Socket::SSL or Crypt::SSLeay
 is installed. More information at
 <http://search.cpan.org/dist/libwww-perl/README.SSL>.
 EOT
@@ -175,14 +197,21 @@ EOT
         if (!$response && $self->{use_eval}) {
             # we eval, and turn dies into responses below
             eval {
-                $response = $protocol->request($request, $proxy,
-                                               $arg, $size, $self->{timeout});
+                $response = $protocol->request($request, $proxy, $arg, $size, $self->{timeout}) ||
+		    die "No response returned by $protocol";
             };
             if ($@) {
-                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-                    $response = _new_response($request,
-                                              &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
-                                              $@);
+                if (UNIVERSAL::isa($@, "HTTP::Response")) {
+                    $response = $@;
+                    $response->request($request);
+                }
+                else {
+                    my $full = $@;
+                    (my $status = $@) =~ s/\n.*//s;
+                    $status =~ s/ at .* line \d+.*//s;  # remove file/line number
+                    my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
+                    $response = _new_response($request, $code, $status, $full);
+                }
             }
         }
         elsif (!$response) {
@@ -582,6 +611,31 @@ sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
 sub show_progress{ shift->_elem('show_progress', @_); }
 
+sub ssl_opts {
+    my $self = shift;
+    if (@_ == 1) {
+	my $k = shift;
+	return $self->{ssl_opts}{$k};
+    }
+    if (@_) {
+	my $old;
+	while (@_) {
+	    my($k, $v) = splice(@_, 0, 2);
+	    $old = $self->{ssl_opts}{$k} unless @_;
+	    if (defined $v) {
+		$self->{ssl_opts}{$k} = $v;
+	    }
+	    else {
+		delete $self->{ssl_opts}{$k};
+	    }
+	}
+	%{$self->{ssl_opts}} = (%{$self->{ssl_opts}}, @_);
+	return $old;
+    }
+
+    return keys %{$self->{ssl_opts}};
+}
+
 sub parse_head {
     my $self = shift;
     if (@_) {
@@ -800,7 +854,7 @@ sub clone
     delete $copy->{conn_cache};
 
     # copy any plain arrays and hashes; known not to need recursive copy
-    for my $k (qw(proxy no_proxy requests_redirectable)) {
+    for my $k (qw(proxy no_proxy requests_redirectable ssl_opts)) {
         next unless $copy->{$k};
         if (ref($copy->{$k}) eq "ARRAY") {
             $copy->{$k} = [ @{$copy->{$k}} ];
@@ -964,13 +1018,13 @@ sub no_proxy {
 
 
 sub _new_response {
-    my($request, $code, $message) = @_;
+    my($request, $code, $message, $content) = @_;
     my $response = HTTP::Response->new($code, $message);
     $response->request($request);
     $response->header("Client-Date" => HTTP::Date::time2str(time));
     $response->header("Client-Warning" => "Internal response");
     $response->header("Content-Type" => "text/plain");
-    $response->content("$code $message\n");
+    $response->content($content || "$code $message\n");
     return $response;
 }
 
@@ -1042,6 +1096,7 @@ The following options correspond to attribute methods described below:
    cookie_jar              undef
    default_headers         HTTP::Headers->new
    local_address           undef
+   ssl_opts		   { verify_hostname => 1 }
    max_size                undef
    max_redirect            7
    parse_head              1
@@ -1285,6 +1340,56 @@ The requests is aborted if no activity on the connection to the server
 is observed for C<timeout> seconds.  This means that the time it takes
 for the complete transaction and the request() method to actually
 return might be longer.
+
+=item $ua->ssl_opts
+
+=item $ua->ssl_opts( $key )
+
+=item $ua->ssl_opts( $key => $value )
+
+Get/set the options for SSL connections.  Without argument return the list
+of options keys currently set.  With a single argument return the current
+value for the given option.  With 2 arguments set the option value and return
+the old.  Setting an option to the value C<undef> removes this option.
+
+The options that LWP relates to are:
+
+=over
+
+=item C<verify_hostname> => $bool
+
+When TRUE LWP will for secure protocol schemes ensure it connects to servers
+that have a valid certificate matching the expected hostname.  If FALSE no
+checks are made and you can't be sure that you communicate with the expected peer.
+The no checks behaviour was the default for libwww-perl-5.837 and older.
+
+This option is initialized from the L<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
+variable.  If the this envirionment variable isn't set; then C<verify_hostname>
+defaults to 1.
+
+=item C<SSL_ca_file> => $path
+
+The path to a file containing Certificate Authority certificates.
+A default setting for this option is provided by checking the environment
+variables C<PERL_LWP_SSL_CA_FILE> and C<HTTPS_CA_FILE> in order.
+
+=item C<SSL_ca_path> => $path
+
+The path to a directory containing files containing Certificate Authority
+certificates.
+A default setting for this option is provided by checking the environment
+variables C<PERL_LWP_SSL_CA_PATH> and C<HTTPS_CA_DIR> in order.
+
+=back
+
+Other options can be set and are processed directly by the SSL Socket implementation
+in use.  See L<IO::Socket::SSL> or L<Net::SSL> for details.
+
+If hostname verification is requested, and neither C<SSL_ca_file> nor
+C<SSL_ca_path> is set, then C<SSL_ca_file> is implied to be the one
+provided by L<Mozilla::CA>.  If the Mozilla::CA module isn't available
+SSL requests will fail.  Either install this module, set up an alternative
+SSL_ca_file or disable hostname verification.
 
 =back
 

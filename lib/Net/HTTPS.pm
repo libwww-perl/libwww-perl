@@ -9,27 +9,34 @@ $VERSION = "5.819";
 if ($SSL_SOCKET_CLASS) {
     # somebody already set it
 }
-elsif ($Net::SSL::VERSION) {
-    $SSL_SOCKET_CLASS = "Net::SSL";
+elsif ($SSL_SOCKET_CLASS = $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS}) {
+    unless ($SSL_SOCKET_CLASS =~ /^(IO::Socket::SSL|Net::SSL)\z/) {
+	die "Bad socket class [$SSL_SOCKET_CLASS]";
+    }
+    eval "require $SSL_SOCKET_CLASS";
+    die $@ if $@;
 }
 elsif ($IO::Socket::SSL::VERSION) {
     $SSL_SOCKET_CLASS = "IO::Socket::SSL"; # it was already loaded
 }
+elsif ($Net::SSL::VERSION) {
+    $SSL_SOCKET_CLASS = "Net::SSL";
+}
 else {
-    eval { require Net::SSL; };     # from Crypt-SSLeay
+    eval { require IO::Socket::SSL; };
     if ($@) {
 	my $old_errsv = $@;
 	eval {
-	    require IO::Socket::SSL;
+	    require Net::SSL;  # from Crypt-SSLeay
 	};
 	if ($@) {
 	    $old_errsv =~ s/\s\(\@INC contains:.*\)/)/g;
 	    die $old_errsv . $@;
 	}
-	$SSL_SOCKET_CLASS = "IO::Socket::SSL";
+	$SSL_SOCKET_CLASS = "Net::SSL";
     }
     else {
-	$SSL_SOCKET_CLASS = "Net::SSL";
+	$SSL_SOCKET_CLASS = "IO::Socket::SSL";
     }
 }
 
@@ -44,6 +51,20 @@ sub configure {
 
 sub http_connect {
     my($self, $cnf) = @_;
+    if ($self->isa("Net::SSL")) {
+	if ($cnf->{SSL_verify_mode}) {
+	    if (my $f = $cnf->{SSL_ca_file}) {
+		$ENV{HTTPS_CA_FILE} = $f;
+	    }
+	    if (my $f = $cnf->{SSL_ca_path}) {
+		$ENV{HTTPS_CA_DIR} = $f;
+	    }
+	}
+	if ($cnf->{SSL_verifycn_scheme}) {
+	    $@ = "Net::SSL from Crypt-SSLeay can't verify hostnames; either install IO::Socket::SSL or turn off verification by setting the PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0";
+	    return undef;
+	}
+    }
     $self->SUPER::configure($cnf);
 }
 

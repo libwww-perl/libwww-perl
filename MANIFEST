@@ -3,9 +3,9 @@ lib/HTML/Form.pm
 Makefile.PL
 MANIFEST			This list of files
 README
-t/html/form-maxlength.t
-t/html/form-multi-select.t
-t/html/form-param.t
-t/html/form-selector.t
-t/html/form-unicode.t
-t/html/form.t
+t/form-maxlength.t
+t/form-multi-select.t
+t/form-param.t
+t/form-selector.t
+t/form-unicode.t
+t/form.t

@@ -5,4 +5,4 @@ lib/HTTP/Cookies/Netscape.pm
 Makefile.PL
 MANIFEST			This list of files
 README
-t/base/cookies.t
+t/cookies.t

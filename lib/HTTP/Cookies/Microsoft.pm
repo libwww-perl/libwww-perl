@@ -4,7 +4,7 @@ use strict;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = "5.821";
+$VERSION = "6.00";
 
 require HTTP::Cookies;
 @ISA=qw(HTTP::Cookies);

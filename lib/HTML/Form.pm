@@ -6,7 +6,7 @@ use Carp ();
 use Encode ();
 
 use vars qw($VERSION);
-$VERSION = "5.829";
+$VERSION = "6.00";
 
 my %form_tags = map {$_ => 1} qw(input textarea button select option);
 

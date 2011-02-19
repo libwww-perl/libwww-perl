@@ -4,7 +4,7 @@ use strict;
 use URI;
 use vars qw($VERSION);
 
-$VERSION = "5.835";
+$VERSION = "6.00";
 
 sub new {
     my $class = shift;

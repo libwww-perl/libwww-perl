@@ -2,7 +2,7 @@ package HTTP::Headers::Auth;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = "5.817";
+$VERSION = "6.00";
 
 use HTTP::Headers;
 

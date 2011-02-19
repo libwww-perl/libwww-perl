@@ -2,7 +2,7 @@ package HTTP::Headers::ETag;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = "5.810";
+$VERSION = "6.00";
 
 require HTTP::Date;
 

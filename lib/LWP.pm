@@ -1,9 +1,9 @@
 package LWP;
 
-$VERSION = "5.837";
+$VERSION = "6.00";
 sub Version { $VERSION; }
 
-require 5.005;
+require 5.008;
 require LWP::UserAgent;  # this should load everything you need
 
 1;

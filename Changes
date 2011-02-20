@@ -1,4 +1,34 @@
 _______________________________________________________________________________
+2011-03-08  Release 6.00
+
+Unbundled all modules not in the LWP:: namespace from the libwww-perl
+distribution.  The new broken out CPAN distribtions are File-Listing,
+HTML-Form, HTTP-Cookies, HTTP-Daemon, HTTP-Date, HTTP-Message, HTTP-Negotiate,
+Net-HTTP, and WWW-RobotRules.  libwww-perl-6 require these to be installed.
+
+This release also drops the unmaintained lwp-rget script from the distribution.
+
+Perl v5.8.8 or better is now required.  For older versions of perl please stay
+with libwww-perl-5.837.
+
+For https://... default to verified connections with require IO::Socket::SSL
+and Mozilla::CA modules to be installed.  Old behaviour can be requested by
+setting the PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0.  The
+LWP::UserAgent got new ssl_opts method to control this as well.
+
+Support internationalized URLs from command line scripts and in the proxy
+environment variables.
+
+The lwp-dump script got new --request option.
+
+The lwp-request script got new -E option, contributed by Tony Finch.
+
+Protocol handlers and callbacks can raise HTTP::Response objects as exceptions.
+This will abort the current request and make LWP return the raised response.
+
+
+
+_______________________________________________________________________________
 2010-09-20  Release 5.837
 
 David E. Wheeler (1):

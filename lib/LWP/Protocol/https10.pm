@@ -31,10 +31,11 @@ sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
     local($^W) = 0;  # IO::Socket::INET can be noisy
-    my $sock = $SSL_CLASS->new(PeerAddr => $host,
-			       PeerPort => $port,
-			       Proto    => 'tcp',
-			       Timeout  => $timeout,
+    my $sock = $SSL_CLASS->new(PeerAddr  => $host,
+			       PeerPort  => $port,
+			       LocalAddr => $self->{ua}{local_address},
+			       Proto     => 'tcp',
+			       Timeout   => $timeout,
 			      );
     unless ($sock) {
 	# IO::Socket::INET leaves additional error messages in $@

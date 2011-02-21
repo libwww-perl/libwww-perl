@@ -22,9 +22,10 @@ sub _new_socket
 
     local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = IO::Socket::INET->new(PeerAddr => $host,
-				     PeerPort => $port,
-				     Proto    => 'tcp',
-				     Timeout  => $timeout,
+				     PeerPort  => $port,
+				     LocalAddr => $self->{ua}{local_address},
+				     Proto     => 'tcp',
+				     Timeout   => $timeout,
 				     $self->_extra_sock_opts($host, $port),
 				    );
     unless ($sock) {

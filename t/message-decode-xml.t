@@ -12,7 +12,8 @@ else {
 }
 
 use Encode           qw( encode );
-use LWP              qw( );
+use HTTP::Headers    qw( );
+use HTTP::Response   qw( );
 use PerlIO::encoding qw( );
 
 sub check {

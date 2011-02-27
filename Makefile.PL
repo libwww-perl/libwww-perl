@@ -108,7 +108,7 @@ sub flag_file {
 
 BEGIN {
     # compatibility with older versions of MakeMaker
-    my $developer = -f "NOTES.txt";
+    my $developer = -f ".gitignore";
     my %mm_req = (
         LICENCE => 6.31,
         META_MERGE => 6.45,

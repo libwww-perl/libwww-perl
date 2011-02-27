@@ -19,17 +19,24 @@ packages that are distributed separately from Perl.  We recommend that
 you have the following packages installed before you install
 libwww-perl:
 
-  URI
-  MIME-Base64
-  HTML-Tagset
-  HTML-Parser
-  libnet
   Digest-MD5
   Encode-Locale
-  Compress-Zlib
+  HTML-Form
+  HTML-Parser
+  HTML-Tagset
+  HTTP-Cookies
+  HTTP-Date
+  HTTP-Message
+  HTTP-Negotiate
+  libnet
+  LWP-MediaTypes
+  MIME-Base64
+  Net-HTTP
+  URI
+  WWW-RobotRules
 
 If you want to access sites using the https protocol, then you need to
-install the Crypt::SSLeay or the IO::Socket::SSL module.  The
+install the IO::Socket::SSL module or the Crypt::SSLeay module.  The
 README.SSL file will tell you more about how libwww-perl supports SSL.
 
 

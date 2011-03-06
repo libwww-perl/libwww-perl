@@ -4,30 +4,12 @@ use strict;
 use warnings;
 
 use Test::More;
-if (eval "require XML::Simple; XML::Simple->import(qw(XMLin)); 1;") {
-    plan tests => 4;
-}
-else {
-    plan skip_all => "Need XML::Simple";
-}
+plan tests => 2;
 
 use Encode           qw( encode );
 use HTTP::Headers    qw( );
 use HTTP::Response   qw( );
 use PerlIO::encoding qw( );
-
-sub check {
-    my ($file, $test) = @_;
-    if (!eval {
-	my $x = XMLin($file, keep_root => 1);
-	my $name = $x->{root};
-	is($name, "\x{C9}ric", $test);
-	1;
-    }) {
-	fail($test)
-	    or diag("died with $@");
-    }
-}
 
 {
     my $builder = Test::More->builder;
@@ -44,10 +26,8 @@ for my $enc (qw( UTF-8 UTF-16le )) {
 	qq{<root>\x{C9}ric</root>\n}
     );
 
-    check($file, "$enc direct");
-
     my $headers = HTTP::Headers->new(Content_Type => "application/xml");
     my $response = HTTP::Response->new(200, "OK", $headers, $file);
 
-    check($response->decoded_content(), "$enc from response");
+    is($response->decoded_content, qq(<?xml version="1.0"?>\n<root>\x{c9}ric</root>\n), $enc);
 }

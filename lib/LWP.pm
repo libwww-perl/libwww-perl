@@ -584,7 +584,7 @@ L<LWP::UserAgent>.
 
 =item PERL_LWP_SSL_VERIFY_HOSTNAME
 
-The default C<verify_hostname> setting for M<LWP::UserAgent>.  If
+The default C<verify_hostname> setting for C<LWP::UserAgent>.  If
 not set the default will be 1.  Set it as 0 to disable hostname
 verification (the default prior to libwww-perl 5.840.
 

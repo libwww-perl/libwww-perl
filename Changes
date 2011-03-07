@@ -1,4 +1,13 @@
 _______________________________________________________________________________
+2011-03-07 HTTP-Message 6.01
+
+Avoid loading XML::Simple to avoid test failures.
+
+Eliminate the HTML::Entities dependency.
+
+
+
+_______________________________________________________________________________
 2011-02-27 HTTP-Message 6.00
 
 Initial release of HTTP-Message as a separate distribution. There are no code

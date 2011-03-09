@@ -1,4 +1,11 @@
 _______________________________________________________________________________
+2011-03-09  Release 6.01
+
+Add missing HTTP::Daemon dependency for the tests.
+
+
+
+_______________________________________________________________________________
 2011-03-08  Release 6.00
 
 Unbundled all modules not in the LWP:: namespace from the libwww-perl

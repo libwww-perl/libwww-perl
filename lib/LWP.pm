@@ -211,7 +211,7 @@ response classification methods are:
 
 =item is_success()
 
-The request was was successfully received, understood or accepted.
+The request was successfully received, understood or accepted.
 
 =item is_error()
 

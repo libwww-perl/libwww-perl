@@ -47,6 +47,7 @@ WriteMakefile(
         'HTML::Entities' => 0,
         'HTML::HeadParser' => 0,
         'HTTP::Cookies' => 6,
+        'HTTP::Daemon' => 6,
         'HTTP::Date' => 6,
         'HTTP::Negotiate' => 6,
         'HTTP::Request' => 6,

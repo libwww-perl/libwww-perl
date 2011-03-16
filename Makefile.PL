@@ -24,11 +24,11 @@ WriteMakefile(
         'Compress::Raw::Zlib'        => 0,
         'IO::Compress::Gzip'         => 0,
         'IO::Compress::Deflate'      => 0,
-        'IO::Compress::Bzip2'        => 0,
+        'IO::Compress::Bzip2'        => '2.021',
         'IO::Uncompress::Gunzip'     => 0,
         'IO::Uncompress::Inflate'    => 0,
         'IO::Uncompress::RawInflate' => 0,
-        'IO::Uncompress::Bunzip2'    => 0,
+        'IO::Uncompress::Bunzip2'    => '2.021',
     },
     META_MERGE => {
 	resources => {

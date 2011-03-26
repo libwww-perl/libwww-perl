@@ -36,8 +36,7 @@ libwww-perl:
   WWW-RobotRules
 
 If you want to access sites using the https protocol, then you need to
-install the IO::Socket::SSL module or the Crypt::SSLeay module.  The
-README.SSL file will tell you more about how libwww-perl supports SSL.
+install the LWP::Protocol::https module from CPAN.
 
 
 INSTALLATION

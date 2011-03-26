@@ -8,7 +8,7 @@ use Getopt::Long qw(GetOptions);
 WriteMakefile(
     NAME => 'LWP::Protocol::https',
     VERSION_FROM => 'lib/LWP/Protocol/https.pm',
-    ABSTRACT => 'Add https support for LWP::UserAgent',
+    ABSTRACT_FROM => 'lib/LWP/Protocol/https.pm',
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     LICENSE => "perl",
     MIN_PERL_VERSION => 5.008008,

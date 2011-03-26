@@ -87,3 +87,46 @@ require Net::HTTPS;
 our @ISA = qw(Net::HTTPS LWP::Protocol::http::SocketMethods);
 
 1;
+
+__END__
+
+=head1 NAME
+
+LWP::Protocol::https - Provide https support for LWP::UserAgent
+
+=head1 SYNOPSIS
+
+  use LWP::UserAgent;
+
+  $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
+  $res = $ua->get("https://www.example.com");
+
+=head1 DESCRIPTION
+
+The LWP::Protocol::https module provide support for using https schemed
+URLs with LWP.  This module is a plug-in to the LWP protocol handling, so
+you don't use it directly.  Once the module is installed LWP is able
+to access sites using HTTP over SSL/TLS.
+
+If hostname verification is requested by LWP::UserAgent's C<ssl_opts>, and
+neither C<SSL_ca_file> nor C<SSL_ca_path> is set, then C<SSL_ca_file> is
+implied to be the one provided by Mozilla::CA.  If the Mozilla::CA module
+isn't available SSL requests will fail.  Either install this module, set up an
+alternative C<SSL_ca_file> or disable hostname verification.
+
+This module used to be bundled with the libwww-perl, but it was unbundled in
+v6.02 in order to be able to declare its dependencies properly for the CPAN
+tool-chain.  Applications that need https support can just declare their
+dependency on LWP::Protocol::https and will no longer need to know what
+underlying modules to install.
+
+=head1 SEE ALSO
+
+L<IO::Socket::SSL>, L<Crypt::SSLeay>, L<Mozilla::CA>
+
+=head1 COPYRIGHT
+
+Copyright 1997-2011 Gisle Aas.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.

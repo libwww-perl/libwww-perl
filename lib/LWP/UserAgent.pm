@@ -429,6 +429,22 @@ sub head {
 }
 
 
+sub put {
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
+    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+}
+
+
+sub delete {
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::DELETE( @parameters ), @suff );
+}
+
+
 sub _process_colonic_headers {
     # Process :content_cb / :content_file / :read_size_hint headers.
     my($self, $args, $start_index) = @_;

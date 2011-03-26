@@ -16,16 +16,6 @@ use LWP::Protocol ();
 
 use Carp ();
 
-if ($ENV{PERL_LWP_USE_HTTP_10}) {
-    require LWP::Protocol::http10;
-    LWP::Protocol::implementor('http', 'LWP::Protocol::http10');
-    eval {
-        require LWP::Protocol::https10;
-        LWP::Protocol::implementor('https', 'LWP::Protocol::https10');
-    };
-}
-
-
 
 sub new
 {

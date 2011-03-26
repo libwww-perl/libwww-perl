@@ -596,13 +596,6 @@ The file and/or directory
 where the trusted Certificate Authority certificates
 is located.  See L<LWP::UserAgent> for details.
 
-=item PERL_LWP_USE_HTTP_10
-
-Enable the old HTTP/1.0 protocol driver instead of the new HTTP/1.1
-driver.  You might want to set this to a TRUE value if you discover
-that your old LWP applications fails after you installed LWP-5.60 or
-better.
-
 =item PERL_HTTP_URI_CLASS
 
 Used to decide what URI objects to instantiate.  The default is C<URI>.

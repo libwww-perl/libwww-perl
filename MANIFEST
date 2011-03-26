@@ -1,6 +1,6 @@
 Changes				History of this package
 MANIFEST			This file
 Makefile.PL			Makefile generator
-README.SSL			When you need SSL support
+README
 lib/LWP/Protocol/https.pm	Access with HTTP/1.1 protocol over SSL
 t/apache.t

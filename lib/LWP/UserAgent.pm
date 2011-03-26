@@ -46,9 +46,13 @@ sub new
 	else {
 	    $ssl_opts->{verify_hostname} = 1;
 	}
+    }
+    unless (exists $ssl_opts->{SSL_ca_file}) {
 	if (my $ca_file = $ENV{PERL_LWP_SSL_CA_FILE} || $ENV{HTTPS_CA_FILE}) {
 	    $ssl_opts->{SSL_ca_file} = $ca_file;
 	}
+    }
+    unless (exists $ssl_opts->{SSL_ca_path}) {
 	if (my $ca_path = $ENV{PERL_LWP_SSL_CA_PATH} || $ENV{HTTPS_CA_DIR}) {
 	    $ssl_opts->{SSL_ca_path} = $ca_path;
 	}

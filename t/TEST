@@ -39,7 +39,6 @@ else {
     @tests = (<base/*.t>, <html/*.t>, <robot/*.t>, <local/*.t>);
     push(@tests,  <live/*.t>) if -f "live/ENABLED";
     push(@tests, <net/*.t>) if -f "net/config.pl";
-    @tests = grep !/jigsaw/, @tests;  # service is not reliable any more
 }
 
 if ($formatter) {

@@ -66,9 +66,7 @@ WriteMakefile(
     },
     META_MERGE => {
         recommends => {
-	    'Net::HTTPS' => 6,
-            'IO::Socket::SSL' => "1.38",
-            'Mozilla::CA' => "20110101",
+	    'LWP::Protocol::https' => '6.02',
             'Authen::NTLM' => "1.02",
             'Data::Dump' => 0,
         },

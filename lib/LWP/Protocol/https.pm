@@ -1,10 +1,10 @@
 package LWP::Protocol::https;
 
 use strict;
+our $VERSION = "6.02";
 
-use vars qw(@ISA);
 require LWP::Protocol::http;
-@ISA = qw(LWP::Protocol::http);
+our @ISA = qw(LWP::Protocol::http);
 
 sub socket_type
 {
@@ -83,8 +83,7 @@ sub _get_sock_info
 #-----------------------------------------------------------
 package LWP::Protocol::https::Socket;
 
-use vars qw(@ISA);
 require Net::HTTPS;
-@ISA = qw(Net::HTTPS LWP::Protocol::http::SocketMethods);
+our @ISA = qw(Net::HTTPS LWP::Protocol::http::SocketMethods);
 
 1;

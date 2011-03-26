@@ -5,107 +5,26 @@ use strict;
 use ExtUtils::MakeMaker;
 use Getopt::Long qw(GetOptions);
 
-GetOptions(\my %opt,
-   'aliases',
-   'no-programs|n',
-   'live-tests',
-) or do {
-    die "Usage: $0 [--aliases] [--no-programs] [--live-tests]\n";
-};
-
-my @prog;
-push(@prog, qw(lwp-request lwp-mirror lwp-download lwp-dump))
-    unless $opt{'no-programs'} || grep /^LIB=/, @ARGV;
-
-if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {
-    require File::Copy;
-    for (qw(GET HEAD POST)) {
-        File::Copy::copy("bin/lwp-request", "bin/$_") || die "Can't copy bin/$_";
-        chmod(0755, "bin/$_");
-        push(@prog, $_);
-    }
-}
-
-system($^X, "talk-to-ourself");
-flag_file("t/CAN_TALK_TO_OURSELF", $? == 0);
-flag_file("t/live/ENABLED", $opt{'live-tests'});
-
 WriteMakefile(
-    NAME => 'LWP',
-    DISTNAME => 'libwww-perl',
-    VERSION_FROM => 'lib/LWP.pm',
-    ABSTRACT => 'The World-Wide Web library for Perl',
+    NAME => 'LWP::Protocol::https',
+    VERSION_FROM => 'lib/LWP/Protocol/https.pm',
+    ABSTRACT => 'Add https support for LWP::UserAgent',
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
-    EXE_FILES => [ map "bin/$_", @prog ],
     LICENSE => "perl",
     MIN_PERL_VERSION => 5.008008,
     PREREQ_PM => {
-        'Digest::MD5' => 0,
-        'Encode' => "2.12",
-        'Encode::Locale' => 0,
-        'File::Listing' => 6,
-        'HTML::Entities' => 0,
-        'HTML::HeadParser' => 0,
-        'HTTP::Cookies' => 6,
-        'HTTP::Daemon' => 6,
-        'HTTP::Date' => 6,
-        'HTTP::Negotiate' => 6,
-        'HTTP::Request' => 6,
-        'HTTP::Request::Common' => 6,
-        'HTTP::Response' => 6,
-        'HTTP::Status' => 6,
-        'IO::Select' => 0,
-        'IO::Socket' => 0,
-        'LWP::MediaTypes' => 6,
-        'MIME::Base64' => "2.1",
-        'Net::FTP' => "2.58",
-        'Net::HTTP' => 6,
-        'URI' => "1.10",
-        'URI::Escape' => 0,
-        'WWW::RobotRules' => 6,
+	'LWP::UserAgent' => '6.02',
+	'Net::HTTPS' => 6,
+	'IO::Socket::SSL' => "1.38",
+	'Mozilla::CA' => "20110101",
     },
     META_MERGE => {
-        recommends => {
-	    'Net::HTTPS' => 6,
-            'IO::Socket::SSL' => "1.38",
-            'Mozilla::CA' => "20110101",
-            'Authen::NTLM' => "1.02",
-            'Data::Dump' => 0,
-        },
 	resources => {
-            repository => 'http://github.com/gisle/libwww-perl',
+            repository => 'http://github.com/gisle/libwww-perl/tree/LWP-Protocol-https/master',
 	    MailingList => 'mailto:libwww@perl.org',
         }
     },
-    clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
 );
-
-
-
-sub MY::test
-{
-    q(
-TEST_VERBOSE=0
-
-test : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE)
-
-test_hudson : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE) --formatter=TAP::Formatter::JUnit
-
-);
-}
-
-
-sub flag_file {
-    my($file, $create) = @_;
-    if ($create) {
-        open(my $fh, ">", $file) || die "Can't create $file: $!";
-    }
-    else {
-        unlink($file);
-    }
-}
 
 BEGIN {
     # compatibility with older versions of MakeMaker

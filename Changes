@@ -1,4 +1,30 @@
 _______________________________________________________________________________
+2011-03-27  Release 6.02
+
+This is the release where we try to help the CPAN-toolchain be able to install
+the modules required for https-support in LWP.  We have done this by unbundling
+the LWP::Protocol::https module from the libwww-perl distribution.  In order to
+have https support you now need to install (or depend on) 'LWP::Protocol::https'
+and then this will make sure that all the prerequsite modules comes along.
+See [RT#66838].
+
+This release also removes the old http10 modules that has really been
+deprecated since v5.60.  These should have been removed at the v6.00 jump, but
+I forgot.
+
+
+Christopher J. Madsen (1):
+      Ignores env variables when ssl_opts provided [RT#66663]
+
+Gisle Aas (4):
+      Fix typo; Authen::NTLM [RT#66884]
+
+Yury Zavarin (1):
+      Support LWP::ConnCache->new(total_capacity => undef)
+
+
+
+_______________________________________________________________________________
 2011-03-09  Release 6.01
 
 Add missing HTTP::Daemon dependency for the tests.

@@ -38,6 +38,7 @@ t/README			How to run and set up tests
 t/TEST				Run tests
 t/base/protocols.t		Test protocol methods of LWP::UserAgent
 t/base/ua.t			Basic LWP::UserAgent tests
+t/live/apache-http10.t
 t/live/jigsaw-auth-b.t
 t/live/jigsaw-auth-d.t
 t/live/jigsaw-chunk.t

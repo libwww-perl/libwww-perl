@@ -160,6 +160,16 @@ sub request
 
     # connect to remote site
     my $socket = $self->_new_socket($host, $port, $timeout);
+
+    my $http_version = "";
+    if (my $proto = $request->protocol) {
+	if ($proto =~ /^(?:HTTP\/)?(1.\d+)$/) {
+	    $http_version = $1;
+	    $socket->http_version($http_version);
+	    $socket->send_te(0) if $http_version eq "1.0";
+	}
+    }
+
     $self->_check_sock($request, $socket);
 
     my @h;

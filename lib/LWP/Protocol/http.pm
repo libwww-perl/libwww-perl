@@ -254,7 +254,15 @@ sub request
 	my $eof;
 	my $wbuf;
 	my $woffset = 0;
-	if (ref($content_ref) eq 'CODE') {
+      INITIAL_READ:
+	if ($write_wait) {
+	    # skip filling $wbuf when waiting for 100-continue
+	    # because if the response is a redirect or auth required
+	    # the request will be cloned and there is no way
+	    # to reset the input stream
+	    # return here via the label after the 100-continue is read
+	}
+	elsif (ref($content_ref) eq 'CODE') {
 	    my $buf = &$content_ref();
 	    $buf = "" unless defined($buf);
 	    $buf = sprintf "%x%s%s%s", length($buf), $CRLF, $buf, $CRLF
@@ -277,7 +285,7 @@ sub request
 	vec($fbits, fileno($socket), 1) = 1;
 
       WRITE:
-	while ($woffset < length($$wbuf)) {
+	while ($write_wait || $woffset < length($$wbuf)) {
 
 	    my $sel_timeout = $timeout;
 	    if ($write_wait) {
@@ -333,6 +341,7 @@ sub request
 		    if ($code eq "100") {
 			$write_wait = 0;
 			undef($code);
+			goto INITIAL_READ;
 		    }
 		    else {
 			$drop_connection++;

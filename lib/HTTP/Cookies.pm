@@ -406,6 +406,27 @@ sub set_cookie
     $self;
 }
 
+sub get_cookie
+{
+    my $self = shift;
+    my ($domain, $path, $key) = @_;
+    
+    if(exists($self->{COOKIES}{$domain}{$path}{$key})) {
+        my $cookie = $self->{COOKIES}{$domain}{$path}{$key};
+        return {
+            'version'   => $cookie->[0],
+            'val'       => $cookie->[1],
+            'port'      => $cookie->[2],
+            'path_spec' => $cookie->[3],
+            'secure'    => $cookie->[4],
+            'expires'   => $cookie->[5],
+            'discard'   => $cookie->[6],
+        };
+    }
+    
+    return undef;
+}
+
 
 sub save
 {
@@ -689,6 +710,11 @@ $path_spec, $secure, $discard arguments are boolean values. The $maxage
 value is a number indicating number of seconds that this cookie will
 live.  A value <= 0 will delete this cookie.  %rest defines
 various other attributes like "Comment" and "CommentURL".
+
+=item $cookie = $cookie_jar->get_cookie( $domain, $path, $key )
+
+Returns a hash reference of the stored cookie matching the given domain (with a leading dot), path, and key.
+If no matching cookie exists, C<undef> is returned.
 
 =item $cookie_jar->save
 

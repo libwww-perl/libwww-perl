@@ -129,8 +129,8 @@ sub simple_request
 	my $robot_res = $self->request($robot_req);
 	my $fresh_until = $robot_res->fresh_until;
 	if ($robot_res->is_success && $robot_res->content_is_text) {
-	    my $c = $robot_res->content;
-	    if ($c =~ /^\s*Disallow\s*:/mi) {
+	    my $c = $robot_res->decoded_content;
+	    if ($c && $c =~ /^\s*Disallow\s*:/mi) {
 		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
 	    }
 	    else {

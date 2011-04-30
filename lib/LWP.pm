@@ -152,25 +152,25 @@ The main attributes of the request objects are:
 
 =item *
 
-The B<method> is a short string that tells what kind of
+B<method> is a short string that tells what kind of
 request this is.  The most common methods are B<GET>, B<PUT>,
 B<POST> and B<HEAD>.
 
 =item *
 
-The B<uri> is a string denoting the protocol, server and
+B<uri> is a string denoting the protocol, server and
 the name of the "document" we want to access.  The B<uri> might
 also encode various other parameters.
 
 =item *
 
-The B<headers> contain additional information about the
+B<headers> contains additional information about the
 request and can also used to describe the content.  The headers
 are a set of keyword/value pairs.
 
 =item *
 
-The B<content> is an arbitrary amount of data.
+B<content> is an arbitrary amount of data.
 
 =back
 
@@ -183,22 +183,22 @@ The main attributes of objects of this class are:
 
 =item *
 
-The B<code> is a numerical value that indicates the overall
+B<code> is a numerical value that indicates the overall
 outcome of the request.
 
 =item *
 
-The B<message> is a short, human readable string that
+B<message> is a short, human readable string that
 corresponds to the I<code>.
 
 =item *
 
-The B<headers> contain additional information about the
+B<headers> contains additional information about the
 response and describe the content.
 
 =item *
 
-The B<content> is an arbitrary amount of data.
+B<content> is an arbitrary amount of data.
 
 =back
 
@@ -251,34 +251,34 @@ application.
 
 =item *
 
-The B<timeout> specifies how much time we give remote servers to
+B<timeout> specifies how much time we give remote servers to
 respond before the library disconnects and creates an
 internal I<timeout> response.
 
 =item *
 
-The B<agent> specifies the name that your application should use when it
+B<agent> specifies the name that your application uses when it
 presents itself on the network.
 
 =item *
 
-The B<from> attribute can be set to the e-mail address of the person
+B<from> can be set to the e-mail address of the person
 responsible for running the application.  If this is set, then the
 address will be sent to the servers with every request.
 
 =item *
 
-The B<parse_head> specifies whether we should initialize response
+B<parse_head> specifies whether we should initialize response
 headers from the E<lt>head> section of HTML documents.
 
 =item *
 
-The B<proxy> and B<no_proxy> attributes specify if and when to go through
+B<proxy> and B<no_proxy> specify if and when to go through
 a proxy server. <URL:http://www.w3.org/History/1994/WWW/Proxies/>
 
 =item *
 
-The B<credentials> provide a way to set up user names and
+B<credentials> provides a way to set up user names and
 passwords needed to access certain services.
 
 =back

@@ -128,19 +128,12 @@ sub simple_request
 	my $robot_req = HTTP::Request->new('GET', $robot_url);
 	my $robot_res = $self->request($robot_req);
 	my $fresh_until = $robot_res->fresh_until;
+	my $content = "";
 	if ($robot_res->is_success && $robot_res->content_is_text) {
-	    my $c = $robot_res->decoded_content;
-	    if ($c && $c =~ /^\s*Disallow\s*:/mi) {
-		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
-	    }
-	    else {
-		$self->{'rules'}->parse($robot_url, "", $fresh_until);
-	    }
-
+	    $content = $robot_res->decoded_content;
+	    $content = "" unless $content && $content =~ /^\s*Disallow\s*:/mi;
 	}
-	else {
-	    $self->{'rules'}->parse($robot_url, "", $fresh_until);
-	}
+	$self->{'rules'}->parse($robot_url, $content, $fresh_until);
 
 	# recalculate allowed...
 	$allowed = $self->{'rules'}->allowed($request->uri);

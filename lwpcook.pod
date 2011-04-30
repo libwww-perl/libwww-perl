@@ -20,11 +20,11 @@ net.  The LWP::Simple module provides the get() function that return
 the document specified by its URL argument:
 
   use LWP::Simple;
-  $doc = get 'http://www.linpro.no/lwp/';
+  $doc = get 'http://search.cpan.org/dist/libwww-perl/';
 
 or, as a perl one-liner using the getprint() function:
 
-  perl -MLWP::Simple -e 'getprint "http://www.linpro.no/lwp/"'
+  perl -MLWP::Simple -e 'getprint "http://search.cpan.org/dist/libwww-perl/"'
 
 or, how about fetching the latest perl by running this command:
 
@@ -35,7 +35,7 @@ or, how about fetching the latest perl by running this command:
 You will probably first want to find a CPAN site closer to you by
 running something like the following command:
 
-  perl -MLWP::Simple -e 'getprint "http://www.perl.com/perl/CPAN/CPAN.html"'
+  perl -MLWP::Simple -e 'getprint "http://www.cpan.org/SITES.html"'
 
 Enough of this simple stuff!  The LWP object oriented interface gives
 you more control over the request sent to the server.  Using this
@@ -47,7 +47,8 @@ handle the response returned.
   $ua->agent("$0/0.1 " . $ua->agent);
   # $ua->agent("Mozilla/8.0") # pretend we are very capable browser
 
-  $req = HTTP::Request->new(GET => 'http://www.linpro.no/lwp');
+  $req = HTTP::Request->new(
+     GET => 'http://search.cpan.org/dist/libwww-perl/');
   $req->header('Accept' => 'text/html');
 
   # send request
@@ -95,9 +96,10 @@ operation is to access a WWW form application:
   use LWP::UserAgent;
   $ua = LWP::UserAgent->new;
 
-  my $req = HTTP::Request->new(POST => 'http://www.perl.com/cgi-bin/BugGlimpse');
+  my $req = HTTP::Request->new(
+      POST => 'http://rt.cpan.org/Public/Dist/Display.html');
   $req->content_type('application/x-www-form-urlencoded');
-  $req->content('match=www&errors=0');
+  $req->content('Status=Active&Name=libwww-perl');
 
   my $res = $ua->request($req);
   print $res->as_string;
@@ -110,8 +112,8 @@ suitable default for the content_type:
   use LWP::UserAgent;
   $ua = LWP::UserAgent->new;
 
-  my $req = POST 'http://www.perl.com/cgi-bin/BugGlimpse',
-                [ search => 'www', errors => 0 ];
+  my $req = POST 'http://rt.cpan.org/Public/Dist/Display.html',
+                [ Status => 'Active', Name => 'libwww-perl' ];
 
   print $ua->request($req)->as_string;
 
@@ -193,7 +195,7 @@ and respond to cookie requests if you set up a cookie jar.
 				     autosave => 1));
 
   # and then send requests just as you used to do
-  $res = $ua->request(HTTP::Request->new(GET => "http://www.yahoo.no"));
+  $res = $ua->request(HTTP::Request->new(GET => "http://no.yahoo.com/"));
   print $res->status_line, "\n";
 
 As you visit sites that send you cookies to keep, then the file
@@ -230,10 +232,10 @@ code similar to this at regular intervals:
   use LWP::Simple;
 
   %mirrors = (
-     'http://www.sn.no/'             => 'sn.html',
-     'http://www.perl.com/'          => 'perl.html',
-     'http://www.sn.no/libwww-perl/' => 'lwp.html',
-     'gopher://gopher.sn.no/'        => 'gopher.html',
+     'http://www.sn.no/'                       => 'sn.html',
+     'http://www.perl.com/'                    => 'perl.html',
+     'http://search.cpan.org/distlibwww-perl/' => 'lwp.html',
+     'gopher://gopher.sn.no/'                  => 'gopher.html',
   );
 
   while (($url, $localfile) = each(%mirrors)) {
@@ -259,7 +261,7 @@ name):
   $ua = LWP::UserAgent->new;
 
   my $req = HTTP::Request->new(GET =>
-                'http://www.linpro.no/lwp/libwww-perl-5.46.tar.gz');
+     'http://www.cpan.org/authors/Gisle_Aas/libwww-perl-6.02.tar.gz');
   $res = $ua->request($req, "libwww-perl.tar.gz");
   if ($res->is_success) {
      print "ok\n";

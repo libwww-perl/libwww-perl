@@ -99,7 +99,7 @@ The libwww-perl library is based on HTTP style communication. This
 section tries to describe what that means.
 
 Let us start with this quote from the HTTP specification document
-<URL:http://www.w3.org/pub/WWW/Protocols/>:
+<URL:http://www.w3.org/Protocols/>:
 
 =over 3
 
@@ -274,7 +274,7 @@ headers from the E<lt>head> section of HTML documents.
 =item *
 
 The B<proxy> and B<no_proxy> attributes specify if and when to go through
-a proxy server. <URL:http://www.w3.org/pub/WWW/Proxies/>
+a proxy server. <URL:http://www.w3.org/History/1994/WWW/Proxies/>
 
 =item *
 

@@ -27,7 +27,7 @@ In a Perl program, you can call its C<get($url)> function.  It will try
 getting that URL's content.  If it works, then it'll return the
 content; but if there's some error, it'll return undef.
 
-  my $url = 'http://freshair.npr.org/dayFA.cfm?todayDate=current';
+  my $url = 'http://www.npr.org/programs/fa/?todayDate=current';
     # Just an example: the URL for the most recent /Fresh Air/ show
 
   use LWP::Simple;
@@ -47,14 +47,14 @@ The handiest variant on C<get> is C<getprint>, which is useful in Perl
 one-liners.  If it can get the page whose URL you provide, it sends it
 to STDOUT; otherwise it complains to STDERR.
 
-  % perl -MLWP::Simple -e "getprint 'http://cpan.org/RECENT'"
+  % perl -MLWP::Simple -e "getprint 'http://www.cpan.org/RECENT'"
 
 That is the URL of a plain text file that lists new files in CPAN in
 the past two weeks.  You can easily make it part of a tidy little
 shell command, like this one that mails you the list of new
 C<Acme::> modules:
 
-  % perl -MLWP::Simple -e "getprint 'http://cpan.org/RECENT'"  \
+  % perl -MLWP::Simple -e "getprint 'http://www.cpan.org/RECENT'"  \
      | grep "/by-module/Acme" | mail -s "New Acme modules! Joy!" $USER
 
 There are other useful functions in LWP::Simple, including one function
@@ -99,7 +99,7 @@ illustrated:
   ...
   
   # Then later, whenever you need to make a get request:
-  my $url = 'http://freshair.npr.org/dayFA.cfm?todayDate=current';
+  my $url = 'http://www.npr.org/programs/fa/?todayDate=current';
   
   my $response = $browser->get( $url );
   die "Can't get $url -- ", $response->status_line
@@ -297,13 +297,13 @@ the HTML the report of the number of matches:
   use warnings;
   use LWP 5.64;
   my $browser = LWP::UserAgent->new;
-  
+
   my $word = 'tarragon';
-  
-  my $url = 'http://www.altavista.com/sites/search/web';
+
+  my $url = 'http://search.yahoo.com/yhs/search';
   my $response = $browser->post( $url,
     [ 'q' => $word,  # the Altavista query string
-      'pg' => 'q', 'avkw' => 'tgz', 'kl' => 'XX',
+      'fr' => 'altavista', 'pg' => 'q', 'avkw' => 'tgz', 'kl' => 'XX',
     ]
   );
   die "$url error: ", $response->status_line
@@ -311,8 +311,8 @@ the HTML the report of the number of matches:
   die "Weird content type at $url -- ", $response->content_type
    unless $response->content_is_html;
 
-  if( $response->decoded_content =~ m{AltaVista found ([0-9,]+) results} ) {
-    # The substring will be like "AltaVista found 2,345 results"
+  if( $response->decoded_content =~ m{([0-9,]+)(?:<.*?>)? results for} ) {
+    # The substring will be like "996,000</strong> results for"
     print "$word: $1\n";
   }
   else {
@@ -331,23 +331,23 @@ the HTML the report of the number of matches:
 Some HTML forms convey their form data not by sending the data
 in an HTTP POST request, but by making a normal GET request with
 the data stuck on the end of the URL.  For example, if you went to
-C<imdb.com> and ran a search on "Blade Runner", the URL you'd see
+C<www.imdb.com> and ran a search on "Blade Runner", the URL you'd see
 in your browser window would be:
 
-  http://us.imdb.com/Tsearch?title=Blade%20Runner&restrict=Movies+and+TV
+  http://www.imdb.com/find?s=all&q=Blade+Runner
 
 To run the same search with LWP, you'd use this idiom, which involves
 the URI class:
 
   use URI;
-  my $url = URI->new( 'http://us.imdb.com/Tsearch' );
+  my $url = URI->new( 'http://www.imdb.com/find' );
     # makes an object representing the URL
-  
+
   $url->query_form(  # And here the form data pairs:
-    'title'    => 'Blade Runner',
-    'restrict' => 'Movies and TV',
+    'q' => 'Blade Runner',
+    's' => 'all',
   );
-  
+
   my $response = $browser->get($url);
 
 See chapter 5 of I<Perl & LWP> for a longer discussion of HTML forms
@@ -815,7 +815,7 @@ L<HTML::LinkExtor> -- class for finding links in HTML documents
 =item *
 
 The book I<Perl & LWP> by Sean M. Burke.  O'Reilly & Associates, 
-2002.  ISBN: 0-596-00178-9, L<http://www.oreilly.com/catalog/perllwp/>.  The
+2002.  ISBN: 0-596-00178-9, L<http://oreilly.com/catalog/perllwp/>.  The
 whole book is also available free online:
 L<http://lwp.interglacial.com>.
 

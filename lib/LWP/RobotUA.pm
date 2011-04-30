@@ -128,9 +128,9 @@ sub simple_request
 	my $robot_req = HTTP::Request->new('GET', $robot_url);
 	my $robot_res = $self->request($robot_req);
 	my $fresh_until = $robot_res->fresh_until;
-	if ($robot_res->is_success) {
+	if ($robot_res->is_success && $robot_res->content_is_text) {
 	    my $c = $robot_res->content;
-	    if ($robot_res->content_type =~ m,^text/, && $c =~ /^\s*Disallow\s*:/mi) {
+	    if ($c =~ /^\s*Disallow\s*:/mi) {
 		$self->{'rules'}->parse($robot_url, $c, $fresh_until);
 	    }
 	    else {

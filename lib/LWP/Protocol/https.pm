@@ -103,7 +103,7 @@ LWP::Protocol::https - Provide https support for LWP::UserAgent
 
 =head1 DESCRIPTION
 
-The LWP::Protocol::https module provide support for using https schemed
+The LWP::Protocol::https module provides support for using https schemed
 URLs with LWP.  This module is a plug-in to the LWP protocol handling, so
 you don't use it directly.  Once the module is installed LWP is able
 to access sites using HTTP over SSL/TLS.

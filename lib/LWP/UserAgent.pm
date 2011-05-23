@@ -1469,13 +1469,13 @@ certain headers to specific requests.
 The method can assign a new request object to $_[0] to replace the
 request that is sent fully.
 
-The return value from the callback is ignored.  If an exceptions is
+The return value from the callback is ignored.  If an exception is
 raised it will abort the request and make the request method return a
 "400 Bad request" response.
 
 =item request_send => sub { my($request, $ua, $h) = @_; ... }
 
-This handler get a chance of handling requests before it's sent to the
+This handler gets a chance of handling requests before they're sent to the
 protocol handlers.  It should return an HTTP::Response object if it
 wishes to terminate the processing; otherwise it should return nothing.
 
@@ -1495,10 +1495,10 @@ was called with a $content_file or $content_cb argument; otherwise true.
 
 =item response_data => sub { my($response, $ua, $h, $data) = @_; ... }
 
-This handlers is called for each chunk of data received for the
+This handler is called for each chunk of data received for the
 response.  The handler might croak to abort the request.
 
-This handler need to return a TRUE value to be called again for
+This handler needs to return a TRUE value to be called again for
 subsequent chunks for the same request.
 
 =item response_done => sub { my($response, $ua, $h) = @_; ... }
@@ -1510,7 +1510,7 @@ extract information or modify the response.
 =item response_redirect => sub { my($response, $ua, $h) = @_; ... }
 
 The handler is called in $ua->request after C<response_done>.  If the
-handler return an HTTP::Request object we'll start over with processing
+handler returns an HTTP::Request object we'll start over with processing
 this request instead.
 
 =back

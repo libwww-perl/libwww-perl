@@ -981,7 +981,7 @@ one part returned.
 If the content type is C<message/http>, then the return value will be
 either an C<HTTP::Request> or an C<HTTP::Response> object.
 
-If an @parts argument is given, then the content of the message will be
+If a @parts argument is given, then the content of the message will be
 modified. The array reference form is provided so that an empty list
 can be provided.  The @parts array should contain C<HTTP::Message>
 objects.  The @parts objects are owned by $mess after this call and

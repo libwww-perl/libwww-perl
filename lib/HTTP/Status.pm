@@ -128,7 +128,7 @@ HTTP::Status - HTTP Status code processing
 
 I<HTTP::Status> is a library of routines for defining and
 classifying HTTP status codes for libwww-perl.  Status codes are
-used to encode the overall outcome of a HTTP response message.  Codes
+used to encode the overall outcome of an HTTP response message.  Codes
 correspond to those defined in RFC 2616 and RFC 2518.
 
 =head1 CONSTANTS
@@ -227,11 +227,11 @@ user agent in order to fulfill the request.
 =item is_error( $code )
 
 Return TRUE if C<$code> is an I<Error> status code (4xx or 5xx).  The function
-return TRUE for both client error or a server error status codes.
+returns TRUE for both client and server error status codes.
 
 =item is_client_error( $code )
 
-Return TRUE if C<$code> is an I<Client Error> status code (4xx). This class
+Return TRUE if C<$code> is a I<Client Error> status code (4xx). This class
 of status code is intended for cases in which the client seems to have
 erred.
 
@@ -239,7 +239,7 @@ This function is B<not> exported by default.
 
 =item is_server_error( $code )
 
-Return TRUE if C<$code> is an I<Server Error> status code (5xx). This class
+Return TRUE if C<$code> is a I<Server Error> status code (5xx). This class
 of status codes is intended for cases in which the server is aware
 that it has erred or is incapable of performing the request.
 
@@ -250,5 +250,5 @@ This function is B<not> exported by default.
 =head1 BUGS
 
 For legacy reasons all the C<HTTP_> constants are exported by default
-with the prefix C<RC_>.  It's recommended to use explict imports and
+with the prefix C<RC_>.  It's recommended to use explicit imports and
 the C<:constants> tag instead of relying on this.

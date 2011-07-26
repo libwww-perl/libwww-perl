@@ -392,7 +392,7 @@ This constructs a new response object by parsing the given string.
 =item $r->code( $code )
 
 This is used to get/set the code attribute.  The code is a 3 digit
-number that encode the overall outcome of a HTTP response.  The
+number that encode the overall outcome of an HTTP response.  The
 C<HTTP::Status> module provide constants that provide mnemonic names
 for the code attribute.
 

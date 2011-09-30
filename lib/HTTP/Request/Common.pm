@@ -81,6 +81,14 @@ sub POST
 	    my $url = URI->new('http:');
 	    $url->query_form(ref($content) eq "HASH" ? %$content : @$content);
 	    $content = $url->query;
+	    
+	    # Technically, x-www-form-urlencoded should use plus signs
+	    # and CR/LF, as it otherwise breaks HTML/4.01
+	    $content =~ s/\%20/+/g;
+	    
+	    $content =~ s/\%0D\%0A/\n/g;
+	    $content =~ s/\%0D|\%0A/\n/g;
+	    $content =~ s/\n/\%0D\%0A/g;
 	}
     }
 

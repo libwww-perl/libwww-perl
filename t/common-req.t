@@ -41,15 +41,16 @@ $r = POST "http://www.sn.no", [foo => 'bar;baz',
                                baz => [qw(a b c)],
                                foo => 'zoo=&',
                                "space " => " + ",
+			       "nl" => "a\nb\r\nc\n",
                               ],
                               bar => 'foo';
 print $r->as_string, "\n";
 
 ok($r->method, "POST");
 ok($r->content_type, "application/x-www-form-urlencoded");
-ok($r->content_length, 58);
+ok($r->content_length, 83);
 ok($r->header("bar"), "foo");
-ok($r->content, "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space+=+%2B+");
+ok($r->content, "foo=bar%3Bbaz&baz=a&baz=b&baz=c&foo=zoo%3D%26&space+=+%2B+&nl=a%0D%0Ab%0D%0Ac%0D%0A");
 
 $r = POST "mailto:gisle\@aas.no",
      Subject => "Heisan",

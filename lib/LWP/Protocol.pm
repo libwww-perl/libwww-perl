@@ -89,21 +89,30 @@ sub request
 sub timeout    { shift->_elem('timeout',    @_); }
 sub max_size   { shift->_elem('max_size',   @_); }
 
-
 sub collect
 {
     my ($self, $arg, $response, $collector) = @_;
-    my $content;
-    my($ua, $max_size) = @{$self}{qw(ua max_size)};
+    $self->collect_headers($arg, $response);
+    unless ($response->header('X-Died')) {
+        $self->collect_content($response, $collector, 0);
+    }
+    
+    return $response;
+}
+
+sub collect_headers
+{
+    my ($self, $arg, $response) = @_;
+    my $ua = $self->{ua};
 
     eval {
-	local $\; # protect the print below from surprises
+        local $\; # protect the print below from surprises
         if (!defined($arg) || !$response->is_success) {
             $response->{default_add_content} = 1;
         }
         elsif (!ref($arg) && length($arg)) {
             open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
-	    binmode($fh);
+            binmode($fh);
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
                     print $fh $_[3] or die "Can't write to '$arg': $!";
@@ -112,16 +121,16 @@ sub collect
             });
             push(@{$response->{handlers}{response_done}}, {
                 callback => sub {
-		    close($fh) or die "Can't write to '$arg': $!";
-		    undef($fh);
-		},
-	    });
+                    close($fh) or die "Can't write to '$arg': $!";
+                    undef($fh);
+                },
+            });
         }
         elsif (ref($arg) eq 'CODE') {
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
-		    &$arg($_[3], $_[0], $self);
-		    1;
+                    &$arg($_[3], $_[0], $self);
+                    1;
                 },
             });
         }
@@ -133,18 +142,34 @@ sub collect
 
         if (delete $response->{default_add_content}) {
             push(@{$response->{handlers}{response_data}}, {
-		callback => sub {
-		    $_[0]->add_content($_[3]);
-		    1;
-		},
-	    });
+                callback => sub {
+                    $_[0]->add_content($_[3]);
+                    1;
+                },
+            });
         }
+    }
+    my $err = $@;
+    if ($err) {
+        chomp($err);
+        $response->push_header('X-Died' => $err);
+        $response->push_header("Client-Aborted", "die");
+    }
 
+    return $response;
+}
 
-        my $content_size = 0;
-        my $length = $response->content_length;
-        my %skip_h;
+sub collect_content
+{
+    my ($self, $response, $collector, $nonblock) = @_;
 
+    my $content;
+    my $content_size = 0;
+    my $length = $response->content_length;
+    my %skip_h;
+    my($ua, $max_size) = @{$self}{qw(ua max_size)};
+    
+    eval {
         while ($content = &$collector, length $$content) {
             for my $h ($ua->handlers("response_data", $response)) {
                 next if $skip_h{$h};
@@ -159,16 +184,17 @@ sub collect
                 $response->push_header("Client-Aborted", "max_size");
                 last;
             }
-        }
+        } until ($nonblock);
     };
     my $err = $@;
-    delete $response->{handlers}{response_data};
-    delete $response->{handlers} unless %{$response->{handlers}};
+    unless ($nonblock && length $$content) {
+        delete $response->{handlers}{response_data};
+        delete $response->{handlers} unless %{$response->{handlers}};
+    }
     if ($err) {
         chomp($err);
         $response->push_header('X-Died' => $err);
         $response->push_header("Client-Aborted", "die");
-        return $response;
     }
 
     return $response;
@@ -181,8 +207,8 @@ sub collect_once
     my $content = \ $_[3];
     my $first = 1;
     $self->collect($arg, $response, sub {
-	return $content if $first--;
-	return \ "";
+        return $content if $first--;
+        return \ "";
     });
 }
 

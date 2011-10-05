@@ -134,6 +134,7 @@ sub send_request
     my($response, $protocol);
     
     ($response, $request, $protocol) = $self->define_protocol($request, $arg, $size);
+    $request->{_protocol_obj} = $protocol;
     unless ($response) {
         ($response, $protocol) = $self->start_request($request, $protocol, $arg, $size);
     }
@@ -205,6 +206,7 @@ EOT
 sub start_request
 {
     my($self, $request, $protocol, $arg, $size) = @_;
+    my $response;
 
     local($SIG{__DIE__});  # protect against user defined die handlers
 
@@ -229,7 +231,7 @@ sub start_request
         }
     }
     else {
-        $response = $protocol->request($request, $proxy,
+        $response = $protocol->request($request, $request->{proxy},
                                        $arg, $size, $self->{timeout});
         # XXX: Should we die unless $response->is_success ???
     }

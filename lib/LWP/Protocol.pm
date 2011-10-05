@@ -94,7 +94,7 @@ sub collect
     my ($self, $arg, $response, $collector) = @_;
     $self->collect_headers($arg, $response);
     unless ($response->header('X-Died')) {
-        $self->collect_content($response, $collector, 0);
+        $self->collect_content($response, $collector, $response->{_request}->{_nonblocking});
     }
     
     return $response;
@@ -148,7 +148,7 @@ sub collect_headers
                 },
             });
         }
-    }
+    };
     my $err = $@;
     if ($err) {
         chomp($err);
@@ -163,6 +163,8 @@ sub collect_content
 {
     my ($self, $response, $collector, $nonblock) = @_;
 
+    $collector ||= $response->{_collector} or die "Collector argument is undefined";
+    
     my $content;
     my $content_size = 0;
     my $length = $response->content_length;
@@ -184,17 +186,24 @@ sub collect_content
                 $response->push_header("Client-Aborted", "max_size");
                 last;
             }
-        } until ($nonblock);
+            last if ($nonblock);
+        }
     };
-    my $err = $@;
+
     unless ($nonblock && length $$content) {
         delete $response->{handlers}{response_data};
         delete $response->{handlers} unless %{$response->{handlers}};
+        delete $response->{_collector};
     }
+    my $err = $@;
     if ($err) {
         chomp($err);
         $response->push_header('X-Died' => $err);
         $response->push_header("Client-Aborted", "die");
+    }
+    elsif ($nonblock) {
+        # store previous collector for future non-blocking operations
+        $response->{_collector} = $collector;
     }
 
     return $response;

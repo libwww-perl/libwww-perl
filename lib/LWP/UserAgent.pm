@@ -66,6 +66,7 @@ sub new
     my $max_redirect = delete $cnf{max_redirect};
     $max_redirect = 7 unless defined $max_redirect;
     my $env_proxy = delete $cnf{env_proxy};
+    $env_proxy = $ENV{PERL_LWP_ENV_PROXY} unless defined $env_proxy;
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -1432,6 +1433,9 @@ name clash between the CGI environment variables and the C<HTTP_PROXY>
 environment variable normally picked up by env_proxy().  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The
 C<CGI_HTTP_PROXY> environment variable can be used instead.
+
+You can also set the C<PERL_LWP_ENV_PROXY> environment variable to
+enable C<env_proxy> globally.
 
 =back
 

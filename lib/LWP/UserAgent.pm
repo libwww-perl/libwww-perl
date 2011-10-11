@@ -31,10 +31,9 @@ sub new
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
-    my $ssl_opts = delete $cnf{ssl_opts};
-    unless ($ssl_opts) {
+    my $ssl_opts = delete $cnf{ssl_opts} || {};
+    unless (exists $ssl_opts->{verify_hostname}) {
 	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
-	$ssl_opts = {};
 	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}) {
 	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
 	}

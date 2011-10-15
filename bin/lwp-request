@@ -368,6 +368,7 @@ if (defined $options{'i'}) {
 }
 
 $content = undef;
+$user_ct = undef;
 if ($allowed_methods{$method} eq "C") {
     # This request needs some content
     unless (defined $options{'c'}) {
@@ -378,7 +379,8 @@ if ($allowed_methods{$method} eq "C") {
     }
     else {
         die "$progname: Illegal Content-type format\n"
-            unless $options{'c'} =~ m,^[\w\-]+/[\w\-.+]+(?:\s*;.*)?$,
+            unless $options{'c'} =~ m,^[\w\-]+/[\w\-.+]+(?:\s*;.*)?$,;
+	$user_ct++;
     }
     print STDERR "Please enter content ($options{'c'}) to be ${method}ed:\n"
         if -t;
@@ -400,7 +402,8 @@ for my $user_header (@{ $options{'H'} || [] }) {
 }
 #$request->header('Accept', '*/*');
 if ($options{'c'}) { # will always be set for request that wants content
-    $request->header('Content-Type', $options{'c'});
+    my $header = ($user_ct ? 'header' : 'init_header');
+    $request->$header('Content-Type', $options{'c'});
     $request->header('Content-Length', length $content);  # Not really needed
     $request->content($content);
 }

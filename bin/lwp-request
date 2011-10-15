@@ -396,9 +396,15 @@ else {
 $request = HTTP::Request->new($method);
 $request->header('If-Modified-Since', $options{'i'}) if defined $options{'i'};
 for my $user_header (@{ $options{'H'} || [] }) {
-    my ($header_name, $header_value) = split /:\s*/, $user_header, 2;
-    $request->header($header_name, $header_value);
-    $ua->agent($header_value) if lc($header_name) eq "user-agent"; # Ugh!
+    my ($header_name, $header_value) = split /\s*:\s*/, $user_header, 2;
+    $header_name =~ s/^\s+//;
+    if (lc($header_name) eq "user-agent") {
+	$header_value .= $ua->agent if $header_value =~ /\s\z/;
+	$ua->agent($header_value);
+    }
+    else {
+	$request->push_header($header_name, $header_value);
+    }
 }
 #$request->header('Accept', '*/*');
 if ($options{'c'}) { # will always be set for request that wants content

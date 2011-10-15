@@ -1,6 +1,6 @@
 package LWP;
 
-$VERSION = "6.02";
+$VERSION = "6.03";
 sub Version { $VERSION; }
 
 require 5.008;

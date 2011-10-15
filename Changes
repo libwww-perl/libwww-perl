@@ -1,4 +1,36 @@
 _______________________________________________________________________________
+2011-10-15  Release 6.03
+
+Ville Skyttä (7):
+      Link updates.
+      Attribute documentation wording improvements.
+      Don't parse robots.txt response content unless it's textual.
+      Decode robots.txt response content before attempting to parse it.
+      RobotUA robots.txt response parsing cleanups.
+      Don't parse HEAD of robots.txt responses.
+      Request handler doc grammar fixes.
+
+Gisle Aas (6):
+      Pass on HTTP/1.0 if set as request protocol
+      Remove outdated docs (not touched since 1996 :-)
+      Merge pull request #22 from madsen/RT67947-verify_hostname
+      PERL_LWP_ENV_PROXY tweaks
+      lwp-request didn't respect -H Content-type [RT#70488]
+      lwp-request -H didn't allow repeated headers
+
+Christopher J. Madsen (2):
+      verify_hostname defaults to 0 if ssl_opts provided [RT#67947]
+      Test verify_hostname setting
+
+Bryan Cardillo (1):
+      Fix expect header support to work with content refs.
+
+Moritz Onken (1):
+      add PERL_LWP_ENV_PROXY env variable to enable env_proxy globally
+
+
+
+_______________________________________________________________________________
 2011-03-27  Release 6.02
 
 This is the release where we try to help the CPAN-toolchain be able to install

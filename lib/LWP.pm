@@ -582,6 +582,12 @@ These environment variables can be set to enable communication through
 a proxy server.  See the description of the C<env_proxy> method in
 L<LWP::UserAgent>.
 
+=item PERL_LWP_ENV_PROXY
+
+If set to a TRUE value, then the C<LWP::UserAgent> will by default call
+C<env_proxy> during initialization.  This makes LWP honor the proxy variables
+described above.
+
 =item PERL_LWP_SSL_VERIFY_HOSTNAME
 
 The default C<verify_hostname> setting for C<LWP::UserAgent>.  If

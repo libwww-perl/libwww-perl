@@ -3,7 +3,7 @@
 use strict;
 use Test;
 
-plan tests => 31;
+plan tests => 35;
 
 use LWP::UserAgent;
 
@@ -13,6 +13,7 @@ delete $ENV{HTTPS_CA_FILE};
 delete $ENV{HTTPS_CA_DIR};
 delete $ENV{PERL_LWP_SSL_CA_FILE};
 delete $ENV{PERL_LWP_SSL_CA_PATH};
+delete $ENV{PERL_LWP_ENV_PROXY};
 
 my $ua = LWP::UserAgent->new;
 my $clone = $ua->clone;
@@ -92,3 +93,15 @@ ok($ua->ssl_opts("verify_hostname"), 0);
 
 $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
 ok($ua->ssl_opts("verify_hostname"), 1);
+
+$ENV{http_proxy} = "http://example.com";
+$ua = LWP::UserAgent->new;
+ok($ua->proxy('http'), undef);
+$ua = LWP::UserAgent->new(env_proxy => 1);;
+ok($ua->proxy('http'), "http://example.com");
+
+$ENV{PERL_LWP_ENV_PROXY} = 1;
+$ua = LWP::UserAgent->new();
+ok($ua->proxy('http'), "http://example.com");
+$ua = LWP::UserAgent->new(env_proxy => 0);
+ok($ua->proxy('http'), undef);

@@ -64,8 +64,7 @@ sub new
     my $max_size = delete $cnf{max_size};
     my $max_redirect = delete $cnf{max_redirect};
     $max_redirect = 7 unless defined $max_redirect;
-    my $env_proxy = delete $cnf{env_proxy};
-    $env_proxy = $ENV{PERL_LWP_ENV_PROXY} unless defined $env_proxy;
+    my $env_proxy = exists $cnf{env_proxy} ? delete $cnf{env_proxy} : $ENV{PERL_LWP_ENV_PROXY};
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -1098,13 +1097,13 @@ The following options correspond to attribute methods described below:
    requests_redirectable   ['GET', 'HEAD']
    timeout                 180
 
-The following additional options are also accepted: If the
-C<env_proxy> option is passed in with a TRUE value, then proxy
-settings are read from environment variables (see env_proxy() method
-below).  If the C<keep_alive> option is passed in, then a
-C<LWP::ConnCache> is set up (see conn_cache() method below).  The
-C<keep_alive> value is passed on as the C<total_capacity> for the
-connection cache.
+The following additional options are also accepted: If the C<env_proxy> option
+is passed in with a TRUE value, then proxy settings are read from environment
+variables (see env_proxy() method below).  If C<env_proxy> isn't provided the
+C<PERL_LWP_ENV_PROXY> envirionment variable controls if env_proxy() is called
+during initalization.  If the C<keep_alive> option is passed in, then a
+C<LWP::ConnCache> is set up (see conn_cache() method below).  The C<keep_alive>
+value is passed on as the C<total_capacity> for the connection cache.
 
 =item $ua->clone
 
@@ -1432,9 +1431,6 @@ name clash between the CGI environment variables and the C<HTTP_PROXY>
 environment variable normally picked up by env_proxy().  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The
 C<CGI_HTTP_PROXY> environment variable can be used instead.
-
-You can also set the C<PERL_LWP_ENV_PROXY> environment variable to
-enable C<env_proxy> globally.
 
 =back
 

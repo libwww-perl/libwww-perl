@@ -201,7 +201,7 @@ sub collect_content
         $response->push_header('X-Died' => $err);
         $response->push_header("Client-Aborted", "die");
     }
-    elsif ($nonblock) {
+    elsif ($nonblock && length $$content) {
         # store previous collector for future non-blocking operations
         $response->{_collector} = $collector;
     }

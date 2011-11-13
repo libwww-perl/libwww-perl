@@ -1100,7 +1100,7 @@ The following options correspond to attribute methods described below:
 The following additional options are also accepted: If the C<env_proxy> option
 is passed in with a TRUE value, then proxy settings are read from environment
 variables (see env_proxy() method below).  If C<env_proxy> isn't provided the
-C<PERL_LWP_ENV_PROXY> envirionment variable controls if env_proxy() is called
+C<PERL_LWP_ENV_PROXY> environment variable controls if env_proxy() is called
 during initalization.  If the C<keep_alive> option is passed in, then a
 C<LWP::ConnCache> is set up (see conn_cache() method below).  The C<keep_alive>
 value is passed on as the C<total_capacity> for the connection cache.
@@ -1356,7 +1356,7 @@ checks are made and you can't be sure that you communicate with the expected pee
 The no checks behaviour was the default for libwww-perl-5.837 and earlier releases.
 
 This option is initialized from the L<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
-variable.  If this envirionment variable isn't set; then C<verify_hostname>
+variable.  If this environment variable isn't set; then C<verify_hostname>
 defaults to 1.
 
 =item C<SSL_ca_file> => $path

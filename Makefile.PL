@@ -17,7 +17,7 @@ WriteMakefile(
 	'HTTP::Date'     => 6,
         'MIME::Base64'   => "2.1",
 	'MIME::QuotedPrint' => 0,
-        'HTML::Parser'   => "3.33",
+	'IO::HTML'       => 0,
 	'Encode'         => "2.12",
 	'Encode::Locale' => 1,
 	'LWP::MediaTypes' => 6,

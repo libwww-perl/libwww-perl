@@ -236,34 +236,11 @@ sub content_charset
     elsif ($self->content_is_html) {
 	# look for <META charset="..."> or <META content="...">
 	# http://dev.w3.org/html5/spec/Overview.html#determining-the-character-encoding
-	my $charset;
-	require HTML::Parser;
-	my $p = HTML::Parser->new(
-	    start_h => [sub {
-		my($tag, $attr, $self) = @_;
-		$charset = $attr->{charset};
-		unless ($charset) {
-		    # look at $attr->{content} ...
-		    if (my $c = $attr->{content}) {
-			require HTTP::Headers::Util;
-			my @v = HTTP::Headers::Util::split_header_words($c);
-			return unless @v;
-			my($ct, undef, %ct_param) = @{$v[0]};
-			$charset = $ct_param{charset};
-		    }
-		    return unless $charset;
-		}
-		if ($charset =~ /^utf-?16/i) {
-		    # converted document, assume UTF-8
-		    $charset = "UTF-8";
-		}
-		$self->eof;
-	    }, "tagname, attr, self"],
-	    report_tags => [qw(meta)],
-	    utf8_mode => 1,
-	);
-	$p->parse($$cref);
-	return $charset if $charset;
+	require IO::HTML;
+	# Use relaxed search to match previous versions of HTTP::Message:
+	my $encoding = IO::HTML::find_charset_in($$cref, { encoding    => 1,
+	                                                   need_pragma => 0 });
+	return $encoding->mime_name if $encoding;
     }
     if ($self->content_type =~ /^text\//) {
 	for ($$cref) {

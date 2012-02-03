@@ -194,13 +194,15 @@ sub parse
 		my($tag, $attr) = @$t;
 		last if $tag eq "/form";
 
-		# if we are inside a label tag, then keep
-		# appending any text to the current label
-		if(defined $current_label) {
-		    $current_label = join " ",
-		        grep { defined and length }
-		        $current_label,
-		        $p->get_phrase;
+		if ($tag ne 'textarea') {
+		    # if we are inside a label tag, then keep
+		    # appending any text to the current label
+		    if(defined $current_label) {
+		        $current_label = join " ",
+		            grep { defined and length }
+		            $current_label,
+		            $p->get_phrase;
+		    }
 		}
 
 		if ($tag eq "input") {

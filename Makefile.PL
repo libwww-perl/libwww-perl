@@ -15,7 +15,7 @@ WriteMakefile(
     PREREQ_PM => {
 	'LWP::UserAgent' => '6.02',
 	'Net::HTTPS' => 6,
-	'IO::Socket::SSL' => "1.38",
+	'IO::Socket::SSL' => "1.54",
 	'Mozilla::CA' => "20110101",
     },
     META_MERGE => {

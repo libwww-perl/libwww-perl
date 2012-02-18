@@ -40,14 +40,14 @@ t/base/protocols.t		Test protocol methods of LWP::UserAgent
 t/base/ua.t			Basic LWP::UserAgent tests
 t/live/apache-http10.t
 t/live/online.t
-t/live/jigsaw-auth-b.t
-t/live/jigsaw-auth-d.t
-t/live/jigsaw-chunk.t
-t/live/jigsaw-md5-get.t
-t/live/jigsaw-md5.t
-t/live/jigsaw-neg-get.t
-t/live/jigsaw-neg.t
-t/live/jigsaw-te.t
+t/live/jigsaw/auth-b.t
+t/live/jigsaw/auth-d.t
+t/live/jigsaw/chunk.t
+t/live/jigsaw/md5-get.t
+t/live/jigsaw/md5.t
+t/live/jigsaw/neg-get.t
+t/live/jigsaw/neg.t
+t/live/jigsaw/te.t
 t/local/autoload-get.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file

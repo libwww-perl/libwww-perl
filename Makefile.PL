@@ -9,8 +9,9 @@ GetOptions(\my %opt,
    'aliases',
    'no-programs|n',
    'live-tests',
+   'jigsaw-tests',
 ) or do {
-    die "Usage: $0 [--aliases] [--no-programs] [--live-tests]\n";
+    die "Usage: $0 [--aliases] [--no-programs] [--live-tests] [--jigsaw-tests]\n";
 };
 
 my @prog;
@@ -29,6 +30,7 @@ if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {
 system($^X, "talk-to-ourself");
 flag_file("t/CAN_TALK_TO_OURSELF", $? == 0);
 flag_file("t/live/ENABLED", $opt{'live-tests'});
+flag_file("t/live/jigsaw/ENABLED", $opt{'jigsaw-tests'});
 
 WriteMakefile(
     NAME => 'LWP',

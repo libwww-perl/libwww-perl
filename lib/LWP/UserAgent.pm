@@ -5,7 +5,7 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "6.03";
+$VERSION = "6.04";
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -771,6 +771,7 @@ sub add_handler {
         HTTP::Config->new;
     };
     $conf->add(%spec, callback => $cb);
+    return $self;
 }
 
 sub set_my_handler {
@@ -779,6 +780,7 @@ sub set_my_handler {
     $self->remove_handler($phase, %spec);
     $spec{line} ||= join(":", (caller)[1,2]);
     $self->add_handler($phase, $cb, %spec) if $cb;
+    return $self;
 }
 
 sub get_my_handler {
@@ -1020,6 +1022,7 @@ sub env_proxy {
 	    $self->proxy($k, Encode::decode(locale => $v));
 	}
     }
+    $self
 }
 
 
@@ -1031,6 +1034,7 @@ sub no_proxy {
     else {
 	$self->{'no_proxy'} = [];
     }
+    $self
 }
 
 
@@ -1457,6 +1461,8 @@ environment variable normally picked up by env_proxy().  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The
 C<CGI_HTTP_PROXY> environment variable can be used instead.
 
+This method is chainable since version 6.04.
+
 =back
 
 =head2 Handlers
@@ -1471,6 +1477,8 @@ the active handlers:
 
 Add handler to be invoked in the given processing phase.  For how to
 specify %matchspec see L<HTTP::Config/"Matching">.
+
+This method is chainable since version 6.04.
 
 The possible values $phase and the corresponding callback signatures are:
 

@@ -49,8 +49,8 @@ else {
     open(DAEMON, "$perl local/http.t daemon |") or die "Can't exec daemon: $!";
 }
 
-use Test;
-plan tests => 54;
+use Test::More;
+plan tests => 59;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -77,9 +77,9 @@ $req = new HTTP::Request GET => url("/not_found", $base);
 $req->header(X_Foo => "Bar");
 $res = $ua->request($req);
 
-ok($res->is_error);
-ok($res->code, 404);
-ok($res->message, qr/not\s+found/i);
+ok($res->is_error, 'is_error');
+is($res->code, 404, 'response code 404');
+like($res->message, qr/not\s+found/i, '404 message');
 # we also expect a few headers
 ok($res->server);
 ok($res->date);
@@ -110,23 +110,23 @@ $res = $ua->request($req);
 #print $res->as_string;
 
 ok($res->is_success);
-ok($res->code, 200);
-ok($res->message, "OK");
+is($res->code, 200, 'status code 200');
+is($res->message, "OK", 'message OK');
 
 $_ = $res->content;
 @accept = /^Accept:\s*(.*)/mg;
 
-ok($_, qr/^From:\s*gisle\@aas\.no\n/m);
-ok($_, qr/^Host:/m);
-ok(@accept, 3);
-ok($_, qr/^Accept:\s*text\/html/m);
-ok($_, qr/^Accept:\s*text\/plain/m);
-ok($_, qr/^Accept:\s*image\/\*/m);
-ok($_, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m);
-ok($_, qr/^Long-Text:\s*This.*broken between/m);
-ok($_, qr/^Foo-Bar:\s*1\n/m);
-ok($_, qr/^X-Foo:\s*Bar\n/m);
-ok($_, qr/^User-Agent:\s*Mozilla\/0.01/m);
+like($_, qr/^From:\s*gisle\@aas\.no\n/m);
+like($_, qr/^Host:/m);
+is(@accept, 3, '3 items in accept');
+like($_, qr/^Accept:\s*text\/html/m);
+like($_, qr/^Accept:\s*text\/plain/m);
+like($_, qr/^Accept:\s*image\/\*/m);
+like($_, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m);
+like($_, qr/^Long-Text:\s*This.*broken between/m);
+like($_, qr/^Foo-Bar:\s*1\n/m);
+like($_, qr/^X-Foo:\s*Bar\n/m);
+like($_, qr/^User-Agent:\s*Mozilla\/0.01/m);
 
 # Try it with the higher level 'get' interface
 $res = $ua->get(url("/echo/path_info?query", $base),
@@ -136,7 +136,50 @@ $res = $ua->get(url("/echo/path_info?query", $base),
     X_Foo => "Bar",
 );
 #$res->dump;
-ok($res->code, 200);
+is($res->code, 200, 'response code 200');
+
+#----------------------------------------------------------------
+print "UserAgent->put...\n";
+sub httpd_put_echo
+{
+    my($c, $req) = @_;
+    $c->send_basic_header(200);
+    print $c "Content-Type: message/http\015\012";
+    $c->send_crlf;
+    print $c $req->as_string;
+}
+ok($res->content, qr/^From: gisle\@aas.no$/m);
+# Try it with the higher level 'get' interface
+$res = $ua->put(url("/echo/path_info?query", $base),
+    Accept => 'text/html',
+    Accept => 'text/plain; q=0.9',
+    Accept => 'image/*',
+    X_Foo => "Bar",
+);
+#$res->dump;
+is($res->code, 200, 'response code 200');
+ok($res->content, qr/^From: gisle\@aas.no$/m);
+
+#----------------------------------------------------------------
+print "UserAgent->delete...\n";
+sub httpd_delete_echo
+{
+    my($c, $req) = @_;
+    $c->send_basic_header(200);
+    print $c "Content-Type: message/http\015\012";
+    $c->send_crlf;
+    print $c $req->as_string;
+}
+ok($res->content, qr/^From: gisle\@aas.no$/m);
+# Try it with the higher level 'get' interface
+$res = $ua->delete(url("/echo/path_info?query", $base),
+    Accept => 'text/html',
+    Accept => 'text/plain; q=0.9',
+    Accept => 'image/*',
+    X_Foo => "Bar",
+);
+#$res->dump;
+is($res->code, 200, 'response code 200');
 ok($res->content, qr/^From: gisle\@aas.no$/m);
 
 #----------------------------------------------------------------
@@ -168,7 +211,7 @@ $res = $ua->request($req);
 
 ok($res->is_success);
 ok($res->content_type, 'text/html');
-ok($res->content_length, 147);
+is($res->content_length, 147, '147 content length');
 ok($res->title, 'En prøve');
 ok($res->content, qr/å være/);
 
@@ -176,13 +219,13 @@ ok($res->content, qr/å være/);
 $res = $ua->request($req);
 #print $res->as_string;
 ok($res->is_error);
-ok($res->code, 404);   # not found
-		
+is($res->code, 404, 'response code 404');   # not found
+
 # Then try to list current directory
 $req = new HTTP::Request GET => url("/file?name=.", $base);
 $res = $ua->request($req);
 #print $res->as_string;
-ok($res->code, 501);   # NYI
+is($res->code, 501, 'response code 501');   # NYI
 
 
 #----------------------------------------------------------------
@@ -200,7 +243,7 @@ $res = $ua->request($req);
 ok($res->is_success);
 ok($res->content, qr|/echo/redirect|);
 ok($res->previous->is_redirect);
-ok($res->previous->code, 301);
+is($res->previous->code, 301, 'response code 301');
 
 # Let's test a redirect loop too
 sub httpd_get_redirect2 { shift->send_redirect("/redirect3/") }
@@ -212,12 +255,12 @@ $res = $ua->request($req);
 #print $res->as_string;
 ok($res->is_redirect);
 ok($res->header("Client-Warning"), qr/loop detected/i);
-ok($res->redirects, 5);
+is($res->redirects, 5, '5 max redirects');
 
 $ua->max_redirect(0);
 $res = $ua->request($req);
-ok($res->previous, undef);
-ok($res->redirects, 0);
+is($res->previous, undef, 'undefined previous');
+is($res->redirects, 0, 'zero redirects');
 $ua->max_redirect(5);
 
 #----------------------------------------------------------------
@@ -262,7 +305,7 @@ ok($res->is_success);
 
 # Let's try with a $ua that does not pass out credentials
 $res = $ua->request($req);
-ok($res->code, 401);
+is($res->code, 401, 'respone code 401');
 
 # Let's try to set credentials for this realm
 $ua->credentials($req->uri->host_port, "libwww-perl", "ok 12", "xyzzy");
@@ -272,7 +315,7 @@ ok($res->is_success);
 # Then illegal credentials
 $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
 $res = $ua->request($req);
-ok($res->code, 401);
+is($res->code, 401, 'response code 401');
 
 
 #----------------------------------------------------------------
@@ -378,5 +421,5 @@ sub httpd_get_quit
 $req = new HTTP::Request GET => url("/quit", $base);
 $res = $ua->request($req);
 
-ok($res->code, 503);
+is($res->code, 503, 'response code is 503');
 ok($res->content, qr/Bye, bye/);

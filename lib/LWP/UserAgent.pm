@@ -476,6 +476,15 @@ sub _process_colonic_headers {
     return $arg;
 }
 
+
+sub is_online {
+    my $self = shift;
+    return 1 if $self->get("http://www.msftncsi.com/ncsi.txt")->content eq "Microsoft NCSI";
+    return 1 if $self->get("http://www.apple.com")->content =~ m,<title>Apple</title>,;
+    return 0;
+}
+
+
 my @ANI = qw(- \ | /);
 
 sub progress {
@@ -1699,6 +1708,12 @@ received.  Arguments are the same as for request() described above.
 The difference from request() is that simple_request() will not try to
 handle redirects or authentication responses.  The request() method
 will in fact invoke this method for each simple request it sends.
+
+=item $ua->is_online
+
+Tries to determine if you have access to the Internet.  Returns
+TRUE if the built-in heuristics determine that the user agent is
+able to access the Internet (over HTTP).  See also L<LWP::Online>.
 
 =item $ua->is_protocol_supported( $scheme )
 

@@ -1,4 +1,24 @@
 _______________________________________________________________________________
+2012-02-18  Release 6.04
+
+Gisle Aas (4):
+      Typo fix; envirionment [RT#72386]
+      Implement $ua->is_online test
+      Add separate option to enable the live jigsaw tests
+      Merge pull request #10 from trcjr/master
+
+Theodore Robert Campbell Jr (3):
+      now with put and delete helpers
+      updated POD
+      unit tests for ua->put and ua->delete
+
+Peter Rabbitson (1):
+      These modules work with 5.8.1
+
+
+
+
+_______________________________________________________________________________
 2011-10-15  Release 6.03
 
 Ville Skyttä (7):

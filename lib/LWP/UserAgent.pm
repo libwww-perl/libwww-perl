@@ -427,6 +427,22 @@ sub head {
 }
 
 
+sub put {
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
+    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+}
+
+
+sub delete {
+    require HTTP::Request::Common;
+    my($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::DELETE( @parameters ), @suff );
+}
+
+
 sub _process_colonic_headers {
     # Process :content_cb / :content_file / :read_size_hint headers.
     my($self, $args, $start_index) = @_;
@@ -1067,8 +1083,8 @@ needs to be performed. This request is then passed to one of the
 request method the UserAgent, which dispatches it using the relevant
 protocol, and returns a C<HTTP::Response> object.  There are
 convenience methods for sending the most common request types: get(),
-head() and post().  When using these methods then the creation of the
-request object is hidden as shown in the synopsis above.
+head(), post(), put() and delete().  When using these methods then the
+creation of the request object is hidden as shown in the synopsis above.
 
 The basic approach of the library is to use HTTP style communication
 for all protocol schemes.  This means that you will construct
@@ -1647,6 +1663,38 @@ content. Additional headers and content options are the same as for
 the get() method.
 
 This method will use the POST() function from C<HTTP::Request::Common>
+to build the request.  See L<HTTP::Request::Common> for a details on
+how to pass form content and other advanced features.
+
+=item $ua->put( $url, \%form )
+
+=item $ua->put( $url, \@form )
+
+=item $ua->put( $url, \%form, $field_name => $value, ... )
+
+=item $ua->put( $url, $field_name => $value,... Content => \%form )
+
+=item $ua->put( $url, $field_name => $value,... Content => \@form )
+
+=item $ua->put( $url, $field_name => $value,... Content => $content )
+
+This method will dispatch a C<PUT> request on the given $url, with
+%form or @form providing the key/value pairs for the fill-in form
+content. Additional headers and content options are the same as for
+the get() method.
+
+This method will use the PUT() function from C<HTTP::Request::Common>
+to build the request.  See L<HTTP::Request::Common> for a details on
+how to pass form content and other advanced features.
+
+=item $ua->delete( $url )
+
+=item $ua->delete( $url, $field_name => $value, ... )
+
+This method will dispatch a C<DELETE> request on the given $url.  Additional
+headers and content options are the same as for the get() method.
+
+This method will use the DELETE() function from C<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 

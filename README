@@ -14,7 +14,7 @@ help you implement simple HTTP servers.
 PREREQUISITES
 
 In order to install and use this package you will need Perl version
-5.8.8 or better.  Some modules within this package depend on other
+5.8.1 or better.  Some modules within this package depend on other
 packages that are distributed separately from Perl.  We recommend that
 you have the following packages installed before you install
 libwww-perl:

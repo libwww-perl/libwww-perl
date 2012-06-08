@@ -33,12 +33,12 @@ sub new
     my $local_address = delete $cnf{local_address};
     my $ssl_opts = delete $cnf{ssl_opts} || {};
     unless (exists $ssl_opts->{verify_hostname}) {
-	# The processing of HTTPS_CA_* below is for compatiblity with Crypt::SSLeay
+	# The processing of HTTPS_CA_* below is for compatibility with Crypt::SSLeay
 	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}) {
 	    $ssl_opts->{verify_hostname} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
 	}
 	elsif ($ENV{HTTPS_CA_FILE} || $ENV{HTTPS_CA_DIR}) {
-	    # Crypt-SSLeay compatiblity (verify peer certificate; but not the hostname)
+	    # Crypt-SSLeay compatibility (verify peer certificate; but not the hostname)
 	    $ssl_opts->{verify_hostname} = 0;
 	    $ssl_opts->{SSL_verify_mode} = 1;
 	}

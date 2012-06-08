@@ -298,12 +298,12 @@ phrstbrn (1):
 _______________________________________________________________________________
 2009-06-25  Release 5.828
 
-A quick new release to restore compatiblity with perl-5.6.
+A quick new release to restore compatibility with perl-5.6.
 
 
 Gisle Aas (4):
       Less noisy behaviour when we can't download the documents
-      Restore perl-5.6 compatiblity [RT#47054]
+      Restore perl-5.6 compatibility [RT#47054]
       Don't decode US-ASCII and ISO-8859-1 content
       Some versions of Encode don't support UTF-16-BE [RT#47152]
 

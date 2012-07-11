@@ -1,3 +1,4 @@
+# -*- perl -*-
 #
 # Test mirroring a file
 #

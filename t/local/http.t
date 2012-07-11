@@ -1,3 +1,5 @@
+# -*- perl -*-
+
 if ($^O eq "MacOS") {
     print "1..0\n";
     exit(0);

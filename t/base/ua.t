@@ -1,11 +1,11 @@
 #!perl -w
 
 use strict;
-use Test;
+use Test::More;
 
-plan tests => 35;
+plan tests => 36;
 
-use LWP::UserAgent;
+use_ok('LWP::UserAgent');
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -18,26 +18,26 @@ delete $ENV{PERL_LWP_ENV_PROXY};
 my $ua = LWP::UserAgent->new;
 my $clone = $ua->clone;
 
-ok($ua->agent =~ /^libwww-perl/);
-ok(!defined $ua->proxy(ftp => "http://www.sol.no"));
-ok($ua->proxy("ftp"), "http://www.sol.no");
+like($ua->agent, qr/^libwww-perl/, '$ua->agent');
+ok(!defined $ua->proxy(ftp => "http://www.sol.no"), '$ua->proxy(ftp => "http://www.sol.no")');
+is($ua->proxy("ftp"), "http://www.sol.no", '$ua->proxy("ftp")');
 
 my @a = $ua->proxy([qw(ftp http wais)], "http://proxy.foo.com");
 for (@a) { $_ = "undef" unless defined; }
 
-ok("@a", "http://www.sol.no undef undef");
-ok($ua->proxy("http"), "http://proxy.foo.com");
-ok(ref($ua->default_headers), "HTTP::Headers");
+is("@a", "http://www.sol.no undef undef", '$ua->proxy([qw(ftp http wais)], "http://proxy.foo.com")');
+is($ua->proxy("http"), "http://proxy.foo.com", '$ua->proxy("http")');
+is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
-ok($ua->default_headers->header("Foo"), "bar");
-ok($ua->default_header("Foo"), "bar");
+is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
+is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
 
 # Try it
 $ua->proxy(http => "loopback:");
 $ua->agent("foo/0.1");
 
-ok($ua->get("http://www.example.com", x => "y")->content, <<EOT);
+is($ua->get("http://www.example.com", x => "y")->content, <<EOT , "Full \$ua->get->content");
 GET http://www.example.com
 User-Agent: foo/0.1
 Foo: bar
@@ -47,61 +47,61 @@ X: y
 
 EOT
 
-ok(ref($clone->{proxy}), 'HASH');
+is(ref($clone->{proxy}), 'HASH', 'ref($clone->{proxy})');
 
-ok($ua->proxy(http => undef), "loopback:");
-ok($ua->proxy('http'), undef);
+is($ua->proxy(http => undef), "loopback:", '$ua->proxy(http => undef)');
+is($ua->proxy('http'), undef, "\$ua->proxy('http')");
 
 my $res = $ua->get("data:text/html,%3Chtml%3E%3Chead%3E%3Cmeta%20http-equiv%3D%22Content-Script-Type%22%20content%3D%22text%2Fjavascript%22%3E%3Cmeta%20http-equiv%3D%22Content-Style-Type%22%20content%3D%22text%2Fcss%22%3E%3C%2Fhead%3E%3C%2Fhtml%3E");
-ok($res->header("Content-Style-Type", "text/css"));
-ok($res->header("Content-Script-Type", "text/javascript"));
+ok($res->header("Content-Style-Type", "text/css"),         '$res->header("Content-Style-Type", "text/css")');
+ok($res->header("Content-Script-Type", "text/javascript"), '$res->header("Content-Script-Type", "text/javascript")');
 
-ok(join(":", $ua->ssl_opts), "verify_hostname");
-ok($ua->ssl_opts("verify_hostname"), 1);
-ok($ua->ssl_opts(verify_hostname => 0), 1);
-ok($ua->ssl_opts("verify_hostname"), 0);
-ok($ua->ssl_opts(verify_hostname => undef), 0);
-ok($ua->ssl_opts("verify_hostname"), undef);
-ok(join(":", $ua->ssl_opts), "");
+is(join(":", $ua->ssl_opts), "verify_hostname", '$ua->ssl_opts');
+is($ua->ssl_opts("verify_hostname"),          1, '$ua->ssl_opts("verify_hostname")');
+is($ua->ssl_opts("verify_hostname" => 0),     1, '$ua->ssl_opts("verify_hostname" => 0)');
+is($ua->ssl_opts("verify_hostname"),          0, '$ua->ssl_opts("verify_hostname")');
+is($ua->ssl_opts("verify_hostname" => undef), 0, '$ua->ssl_opts("verify_hostname" => undef)');
+is($ua->ssl_opts("verify_hostname"),      undef, '$ua->ssl_opts("verify_hostname")');
+is(join(":", $ua->ssl_opts), "", '$ua->ssl_opts');
 
 $ua = LWP::UserAgent->new(ssl_opts => {});
-ok($ua->ssl_opts("verify_hostname"), 1);
+is($ua->ssl_opts("verify_hostname"),      1, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
-ok($ua->ssl_opts("verify_hostname"), 0);
+is($ua->ssl_opts("verify_hostname"),      0, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => { SSL_ca_file => 'cert.dat'});
-ok($ua->ssl_opts("verify_hostname"), 1);
-ok($ua->ssl_opts("SSL_ca_file"), 'cert.dat');
+is($ua->ssl_opts("verify_hostname"),      1, '$ua->ssl_opts("verify_hostname")');
+is($ua->ssl_opts("SSL_ca_file"), 'cert.dat', '$ua->ssl_opts("SSL_ca_file")');
 
 $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 1;
 $ua = LWP::UserAgent->new();
-ok($ua->ssl_opts("verify_hostname"), 1);
+is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => {});
-ok($ua->ssl_opts("verify_hostname"), 1);
+is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
-ok($ua->ssl_opts("verify_hostname"), 0);
+is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
 
 $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 $ua = LWP::UserAgent->new();
-ok($ua->ssl_opts("verify_hostname"), 0);
+is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => {});
-ok($ua->ssl_opts("verify_hostname"), 0);
+is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
 
 $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
-ok($ua->ssl_opts("verify_hostname"), 1);
+is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
 
 $ENV{http_proxy} = "http://example.com";
 $ua = LWP::UserAgent->new;
-ok($ua->proxy('http'), undef);
+is($ua->proxy('http'),                undef, "\$ua->proxy('http')");
 $ua = LWP::UserAgent->new(env_proxy => 1);;
-ok($ua->proxy('http'), "http://example.com");
+is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
 
 $ENV{PERL_LWP_ENV_PROXY} = 1;
 $ua = LWP::UserAgent->new();
-ok($ua->proxy('http'), "http://example.com");
+is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
 $ua = LWP::UserAgent->new(env_proxy => 0);
-ok($ua->proxy('http'), undef);
+is($ua->proxy('http'),                undef, "\$ua->proxy('http')");

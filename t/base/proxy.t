@@ -1,17 +1,19 @@
 #!perl -w
 
 use strict;
-use Test;
+use Test::More;
 
-plan tests => 2;
+plan tests => 5;
 
-use LWP::UserAgent;
+use_ok(qw/ LWP::UserAgent /);
+use vars qw/ $ua /;
 
 for my $varname ( qw(ABSURDLY_NAMED_PROXY MY_PROXY) ) {
 
     $ENV{ $varname } = "foobar";
 
-    my $ua = LWP::UserAgent->new;
+    ok($ua = LWP::UserAgent->new, "\$ua = LWP::UserAgent->new  w/ \$ENV{$varname}");
+
     eval { $ua->env_proxy(); };
-    ok($@, "");
+    is($@, "", "No \$ua->env_proxy() errors w/ \$ENV{$varname}");
 }

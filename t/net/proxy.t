@@ -4,32 +4,26 @@
 # via a HTTP proxy.
 #
 
-print "1..1\n";
+use strict;
+use warnings;
+use Test::More;
+plan tests => 4;
 
-require "net/config.pl";
-unless (defined $net::ftp_proxy) {
-    print "not ok 1\n";
-    exit 0;
-}
+require_ok("net/config.pl");
+require_ok("HTTP::Request");
+require_ok("LWP::UserAgent");
 
-require HTTP::Request;
-require LWP::UserAgent;
+SKIP: {
+    $net::ftp_proxy or skip('Set up $ftp_proxy in your net/config.pl file', 1);
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+    my $ua = new LWP::UserAgent;    # create a useragent to test
 
-$ua->proxy('ftp', $net::ftp_proxy);
+    $ua->proxy('ftp', $net::ftp_proxy);
 
-my $url = 'ftp://ftp.uninett.no/';
+    my $url      = 'ftp://ftp.uninett.no/';
+    my $request  = HTTP::Request->new('GET', $url);
+    my $response = $ua->request($request, undef, undef);
+    my $str      = $response->as_string;
 
-my $request = new HTTP::Request('GET', $url);
-
-my $response = $ua->request($request, undef, undef);
-
-my $str = $response->as_string;
-
-if ($response->is_success) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
+    ok($response->is_success, "\$response->is_success [$url]") or print $response->as_string;
 }

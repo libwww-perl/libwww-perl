@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "Location: http://$SERVER_NAME:$SERVER_PORT/"
+echo "Location: http://$SERVER_NAME:$SERVER_PORT/mirror"    # point them to another existin file
 echo

@@ -1,29 +1,29 @@
-print "1..2\n";
+# perl
 
 use strict;
-use LWP::UserAgent;
+use warnings;
+use Test::More;
+plan tests => 6;
 
-my $ua = LWP::UserAgent->new(keep_alive => 1);
+use_ok('LWP::UserAgent');
+use_ok('Digest::MD5', qw(md5_base64));
 
+my $ua  = LWP::UserAgent->new(keep_alive => 1);
 my $res = $ua->get(
   "http://jigsaw.w3.org/HTTP/h-content-md5.html",
     "TE" => "deflate",
 );
 
-use Digest::MD5 qw(md5_base64);
-print "not " unless $res->header("Content-MD5") eq md5_base64($res->content) . "==";
-print "ok 1\n";
+is($res->header("Content-MD5"), md5_base64($res->content) . "==", '$res->header("Content-MD5")') or
+    print $res->as_string;
 
-print $res->as_string;
-
-my $etag = $res->header("etag");
+ok($res->header("etag"), '$res->header("etag")');
 
 $res = $ua->get(
   "http://jigsaw.w3.org/HTTP/h-content-md5.html",
     "TE" => "deflate",
-    "If-None-Match" => $etag,
+    "If-None-Match" => $res->header("etag")
 );
-print $res->as_string;
 
-print "not " unless $res->code eq "304" && $res->header("Client-Response-Num") == 2;
-print "ok 2\n";
+is($res->code, 304, '$res->code is 304') or print $res->as_string;
+is($res->header("Client-Response-Num"), 2, '$res->header("Client-Response-Num") is 2');

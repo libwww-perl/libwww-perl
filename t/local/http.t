@@ -68,6 +68,8 @@ sub url {
 print "Will access HTTP server at $base\n";
 
 require LWP::UserAgent;
+print "\$LWP::UserAgent::VERSION - $LWP::UserAgent::VERSION\n";
+for(@INC){-f "$_/LWP/UserAgent.pm" and print "$_/LWP/UserAgent.pm\n" and last;}
 require HTTP::Request;
 $ua = new LWP::UserAgent;
 $ua->agent("Mozilla/0.01 " . $ua->agent);

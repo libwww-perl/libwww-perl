@@ -74,34 +74,28 @@ $ua = LWP::UserAgent->new(ssl_opts => { SSL_ca_file => 'cert.dat'});
 is($ua->ssl_opts("verify_hostname"),      1, '$ua->ssl_opts("verify_hostname")');
 is($ua->ssl_opts("SSL_ca_file"), 'cert.dat', '$ua->ssl_opts("SSL_ca_file")');
 
-$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 1;
-$ua = LWP::UserAgent->new();
-is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
+my $opt = "verify_hostname";
+foreach my $verify (0, 1) {
+    my $other = $verify ? 0 : 1;
+    $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = $verify;
+    $ua = LWP::UserAgent->new();
+    is($ua->ssl_opts($opt), $verify, "LWP::UserAgent->new()               - $opt set by \$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}");
 
-$ua = LWP::UserAgent->new(ssl_opts => {});
-is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
+    $ua = LWP::UserAgent->new(ssl_opts => {});
+    is($ua->ssl_opts($opt), $verify, "LWP::UserAgent->new(ssl_opts => {}) - still takes default from ENV");
 
-$ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
-is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
-
-$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
-$ua = LWP::UserAgent->new();
-is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
-
-$ua = LWP::UserAgent->new(ssl_opts => {});
-is($ua->ssl_opts("verify_hostname"), 0, '$ua->ssl_opts("verify_hostname")');
-
-$ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
-is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
+    $ua = LWP::UserAgent->new(ssl_opts => { $opt => $other });
+    is($ua->ssl_opts($opt),  $other, "LWP::UserAgent->new(ssl_opts => { $opt => $other }) - override ENV")
+}
 
 $ENV{http_proxy} = "http://example.com";
 $ua = LWP::UserAgent->new;
-is($ua->proxy('http'),                undef, "\$ua->proxy('http')");
-$ua = LWP::UserAgent->new(env_proxy => 1);;
-is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
+is($ua->proxy('http'),            undef, "LWP::UserAgent->new()               - \$ENV{http_proxy} ignored");
+$ua = LWP::UserAgent->new(env_proxy => 1);
+is($ua->proxy('http'), $ENV{http_proxy}, "LWP::UserAgent->new(env_proxy => 1) - \$ENV{http_proxy} used");
 
 $ENV{PERL_LWP_ENV_PROXY} = 1;
 $ua = LWP::UserAgent->new();
-is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
+is($ua->proxy('http'), $ENV{http_proxy}, "LWP::UserAgent->new()               - PERL_LWP_ENV_PROXY active");
 $ua = LWP::UserAgent->new(env_proxy => 0);
-is($ua->proxy('http'),                undef, "\$ua->proxy('http')");
+is($ua->proxy('http'),            undef, "LWP::UserAgent->new(env_proxy => 0) - PERL_LWP_ENV_PROXY override");

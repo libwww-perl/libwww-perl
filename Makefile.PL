@@ -81,6 +81,8 @@ WriteMakefile(
         recommends => {
             'LWP::Protocol::https' => '6.02',
             'Authen::NTLM'         => "1.02",
+            'IO::Socket::SSL'      => 0,
+            'Net::SSL'             => 0,
             'Data::Dump'           => 0,
         },
         resources => {

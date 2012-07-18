@@ -42,6 +42,8 @@ WriteMakefile(
     LICENSE      => "perl",
     MIN_PERL_VERSION => 5.008001,
     PREREQ_PM => {
+        'Data::Dump'                   => "1.13",   # used in LWP::Debug::TraceHTTP
+        'Data::Dump::Trace'            => 0,
         'Digest::MD5'                  => 0,
         'Encode'                       => "2.12",
         'Encode::Locale'               => 0,
@@ -83,7 +85,6 @@ WriteMakefile(
             'Authen::NTLM'         => "1.02",
             'IO::Socket::SSL'      => 0,
             'Net::SSL'             => 0,
-            'Data::Dump'           => 0,
         },
         resources => {
             repository  => 'http://github.com/libwww-perl/libwww-perl',

@@ -1,4 +1,4 @@
-
+# -*- perl -*-
 $file = shift || "";
 $to = $file;
 $to =~ s|.*/||;  # only basename

@@ -1,4 +1,4 @@
-#
+# perl
 # See if autoloading of protocol schemes work
 #
 

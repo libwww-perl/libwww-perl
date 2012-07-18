@@ -1,4 +1,4 @@
-#
+# perl
 # Check timeouts via HTTP.
 #
 
@@ -12,11 +12,9 @@ my $ua = new LWP::UserAgent;    # create a useragent to test
 
 $ua->timeout(4);
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/timeout";
-
-$url = "http://$netloc$script";
-
+my $netloc  = $net::httpserver;
+my $script  = $net::cgidir . "/timeout";
+my $url     = "http://$netloc$script";
 my $request = new HTTP::Request('GET', $url);
 
 print $request->as_string;
@@ -35,6 +33,5 @@ else {
     print "nok ok 1\n";
 }
 
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+my $dummy = $net::httpserver;  # avoid -w warning
+   $dummy = $net::cgidir;

@@ -1,23 +1,22 @@
-#!/usr/local/bin/perl -w
+#!perl
 #
 # Check POST via HTTP.
 #
 
-print "1..2\n";
+use strict;
+use warnings;
+use Test::More;
+plan tests => 7;
 
-require "net/config.pl";
-require HTTP::Request;
-require LWP::UserAgent;
+require_ok("net/config.pl");
+require_ok("HTTP::Request");
+require_ok("LWP::UserAgent");
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/test";
-
-my $ua = new LWP::UserAgent;    # create a useragent to test
-
-$url = "http://$netloc$script";
-
-my $form = 'searchtype=Substring';
-
+my $netloc  = $net::httpserver;
+my $script  = $net::cgidir . "/test";
+my $url     = "http://$netloc$script";
+my $form    = 'searchtype=Substring';
+my $ua      = new LWP::UserAgent;    # create a useragent to test
 my $request = new HTTP::Request('POST', $url, undef, $form);
 $request->header('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -25,22 +24,13 @@ my $response = $ua->request($request, undef, undef);
 
 my $str = $response->as_string;
 
-print "$str\n";
-
-if ($response->is_success and $str =~ /^REQUEST_METHOD=POST$/m) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
-if ($str =~ /^CONTENT_LENGTH=(\d+)$/m && $1 == length($form)) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
+ok($response->is_success, "\$response->is_success [$url]") or print "$str\n";
+like($str, qr/^REQUEST_METHOD=POST$/m,  '/^REQUEST_METHOD=POST$/ ' . "[$url]");
+$str =~ /^CONTENT_LENGTH=(\d+)$/m;
+my $len = $1 || 0;
+ok($len, '/^CONTENT_LENGTH=(\d+)$/ ' . "[$url]");
+is($len, length($form), "CONTENT_LENGTH value [$url]");
 
 # avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+my $dummy = $net::httpserver;
+   $dummy = $net::cgidir;

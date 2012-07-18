@@ -3,43 +3,29 @@
 # Check GET via HTTP.
 #
 
-print "1..2\n";
+use strict;
+use warnings;
+use Test::More;
 
-require "net/config.pl";
-require HTTP::Request;
-require LWP::UserAgent;
+plan(tests => 10);
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+require_ok("net/config.pl");
+require_ok('HTTP::Request');
+require_ok('LWP::UserAgent');
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/test";
+use vars qw/ $ua $request $response $str /;
+my $netloc = $net::httpserver;
+my $script = $net::cgidir . "/test";
+my $url    = "http://$netloc$script?query";
 
-$url = "http://$netloc$script?query";
+ok($ua       = LWP::UserAgent->new(),           'LWP::UserAgent->new');    # create a useragent to test
+ok($request  = HTTP::Request->new('GET', $url), "HTTP::Request->new('GET', '$url')");
+ok($response = $ua->request($request),          '$r = $ua->request($request)');
+ok($str      = $response->as_string,            '$r->as_string');
 
-my $request = new HTTP::Request('GET', $url);
+ok($response->is_success, '$r->is_success');
+like($str, qr/^REQUEST_METHOD=GET$/m, 'REQUEST_METHOD');
+like($str, qr/^QUERY_STRING=query$/m, 'QUERY_STRING');
 
-print "GET $url\n\n";
-
-my $response = $ua->request($request, undef, undef);
-
-my $str = $response->as_string;
-
-print "$str\n";
-
-if ($response->is_success and $str =~ /^REQUEST_METHOD=GET$/m) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
-if ($str =~ /^QUERY_STRING=query$/m) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
-
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+my $dummy = $net::cgidir;       # avoid -w warning
+   $dummy = $net::httpserver;   # avoid -w warning

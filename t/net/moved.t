@@ -1,32 +1,25 @@
-#!/usr/local/bin/perl -w
-#
+# perl
 
-print "1..1\n";
+use strict;
+use warnings;
+use Test::More;
+plan tests => 3;
 
-require "net/config.pl";
-require LWP::UserAgent;
+require_ok("net/config.pl");
+require_ok("LWP::UserAgent");
 
-$url = "http://$net::httpserver$net::cgidir/moved";
+my $url = "http://$net::httpserver$net::cgidir/moved";
+my $ua  = LWP::UserAgent->new;    # create a useragent to test
+$ua->timeout(30);                 # timeout in seconds
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
-$ua->timeout(30);               # timeout in seconds
+my $request = HTTP::Request->new('GET', $url);
 
-my $request = new HTTP::Request('GET', $url);
-
-print $request->as_string;
+# print $request->as_string;
 
 my $response = $ua->request($request, undef, undef);
 
-print $response->as_string, "\n";
-
-if ($response->is_success) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
+ok($response->is_success, "\$response->is_success [$url]") or print $response->as_string;
 
 # avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+my $dummy = $net::httpserver;
+   $dummy = $net::cgidir;

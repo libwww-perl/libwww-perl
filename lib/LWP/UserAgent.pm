@@ -1036,6 +1036,7 @@ sub no_proxy {
 
 sub _new_response {
     my($request, $code, $message, $content) = @_;
+    $message ||= HTTP::Status::status_message($code);
     my $response = HTTP::Response->new($code, $message);
     $response->request($request);
     $response->header("Client-Date" => HTTP::Date::time2str(time));

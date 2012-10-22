@@ -1127,7 +1127,7 @@ The following additional options are also accepted: If the C<env_proxy> option
 is passed in with a TRUE value, then proxy settings are read from environment
 variables (see env_proxy() method below).  If C<env_proxy> isn't provided the
 C<PERL_LWP_ENV_PROXY> environment variable controls if env_proxy() is called
-during initalization.  If the C<keep_alive> option is passed in, then a
+during initialization.  If the C<keep_alive> option is passed in, then a
 C<LWP::ConnCache> is set up (see conn_cache() method below).  The C<keep_alive>
 value is passed on as the C<total_capacity> for the connection cache.
 

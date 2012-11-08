@@ -34,7 +34,7 @@ $ua->env_proxy;
 sub get ($)
 {
     my $response = $ua->get(shift);
-    return $response->decoded_content if $response->is_success;
+    return $response->decoded_content || $response->content if $response->is_success;
     return undef;
 }
 

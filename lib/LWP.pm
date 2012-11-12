@@ -10,6 +10,8 @@ require LWP::UserAgent;  # this should load everything you need
 
 __END__
 
+=encoding utf-8
+
 =head1 NAME
 
 LWP - The World-Wide Web library for Perl

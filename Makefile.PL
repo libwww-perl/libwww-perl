@@ -73,7 +73,7 @@ WriteMakefile(
             'Data::Dump' => 0,
         },
 	resources => {
-            repository => 'http://github.com/libwww-perl/libwww-perl',
+            repository => 'https://github.com/libwww-perl/libwww-perl',
 	    MailingList => 'mailto:libwww@perl.org',
         }
     },

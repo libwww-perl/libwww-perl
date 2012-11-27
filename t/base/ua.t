@@ -4,8 +4,6 @@ use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
 
-plan tests => 46;
-
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
 delete $ENV{HTTPS_CA_FILE};
@@ -164,11 +162,30 @@ is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
 
 delete @ENV{grep /_proxy$/i, keys %ENV}; # clean out any proxy vars
 
-$ENV{http_proxy} = "http://example.com";
-$ua = LWP::UserAgent->new;
-is($ua->proxy('http'),                undef, "\$ua->proxy('http')");
-$ua = LWP::UserAgent->new(env_proxy => 1);;
-is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
+{
+    $ENV{HTTP_PROXY}= "http://example.com";
+    $ENV{http_proxy}= "http://otherexample.com";
+    my @warn;
+    local $SIG{__WARN__}= sub { my ($msg)= @_; $msg=~s/ at .*\z//s; push @warn, $msg };
+    # test that we get "HTTP_PROXY" when it is set and differs from "http_proxy".
+    $ua = LWP::UserAgent->new;
+    is($ua->proxy('http'), undef);
+    $ua = LWP::UserAgent->new(env_proxy => 1);
+    is($ua->proxy('http'), "http://example.com", q{proxy('http') returns URL});
+    is($warn[0],"Environment contains multiple differing definitions for 'http_proxy'.\n"
+              ."Using value from 'HTTP_PROXY' (http://example.com) and ignoring 'http_proxy' (http://otherexample.com)");
+}
+
+# test that if only one of the two is set we can handle either.
+for my $type ('http_proxy', 'HTTP_PROXY') {
+    delete $ENV{HTTP_PROXY};
+    delete $ENV{http_proxy};
+    $ENV{$type} = "http://example.com";
+    $ua = LWP::UserAgent->new;
+    is($ua->proxy('http'), undef, q{proxy('http') returns undef} );
+    $ua = LWP::UserAgent->new(env_proxy => 1);
+    is($ua->proxy('http'), "http://example.com", q{proxy('http') returns URL});
+}
 
 $ENV{PERL_LWP_ENV_PROXY} = 1;
 $ua = LWP::UserAgent->new();
@@ -184,3 +201,5 @@ $ua = LWP::UserAgent->new(keep_alive => 0);
 is($ua->conn_cache, undef, "\$ua->conn_cache");
 $ua = LWP::UserAgent->new(keep_alive => 1);
 is($ua->conn_cache->total_capacity, 1, "\$ua->conn_cache->total_capacity");
+
+done_testing();

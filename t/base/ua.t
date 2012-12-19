@@ -94,6 +94,8 @@ ok($ua->ssl_opts("verify_hostname"), 0);
 $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
 ok($ua->ssl_opts("verify_hostname"), 1);
 
+delete @ENV{grep /_proxy$/i, keys %ENV}; # clean out any proxy vars
+
 $ENV{http_proxy} = "http://example.com";
 $ua = LWP::UserAgent->new;
 ok($ua->proxy('http'), undef);

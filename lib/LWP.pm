@@ -661,7 +661,7 @@ modify it under the same terms as Perl itself.
 The latest version of this library is likely to be available from CPAN
 as well as:
 
-  http://github.com/gisle/libwww-perl
+  http://github.com/libwww-perl/libwww-perl
 
 The best place to discuss this code is on the <libwww@perl.org>
 mailing list.

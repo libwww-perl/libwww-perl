@@ -852,7 +852,7 @@ sub run_handlers {
 }
 
 
-# depreciated
+# deprecated
 sub use_eval   { shift->_elem('use_eval',  @_); }
 sub use_alarm
 {

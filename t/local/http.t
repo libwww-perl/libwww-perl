@@ -50,7 +50,7 @@ else {
 }
 
 use Test::More;
-plan tests => 59;
+plan tests => 63;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -316,6 +316,78 @@ ok($res->is_success);
 $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
 $res = $ua->request($req);
 is($res->code, 401, 'response code 401');
+
+
+#----------------------------------------------------------------
+print "Check digest authorization...\n";
+sub httpd_get_digest
+{
+	my($c, $r) = @_;
+#    print STDERR $r->as_string;
+	my $auth = $r->authorization;
+	my %auth_params;
+	if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
+		%auth_params = map { split /=/ } split /,\s*/, $1;
+	}
+	if ( %auth_params &&
+			$auth_params{username} eq "\"ok 23\"" &&
+			$auth_params{realm} eq "\"libwww-perl-digest\"" &&
+			$auth_params{qop} eq "auth" &&
+			$auth_params{algorithm} eq "\"MD5\"" &&
+			$auth_params{uri} eq "\"/digest\"" &&
+			$auth_params{nonce} eq "\"12345\"" &&
+			$auth_params{nc} eq "00000001" &&
+			defined($auth_params{cnonce}) &&
+			defined($auth_params{response})
+		 ) {
+		$c->send_basic_header(200);
+		print $c "Content-Type: text/plain";
+		$c->send_crlf;
+		$c->send_crlf;
+		$c->print("ok\n");
+	}
+	else {
+		$c->send_basic_header(401);
+		$c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=auth\015\012");
+		$c->send_crlf;
+	}
+}
+
+{
+	package MyUA2; @ISA=qw(LWP::UserAgent);
+	sub get_basic_credentials {
+		my($self, $realm, $uri, $proxy) = @_;
+		if ($realm eq "libwww-perl-digest" && $uri->rel($base) eq "digest") {
+			return ("ok 23", "xyzzy");
+		}
+		else {
+			return undef;
+		}
+	}
+}
+$req = new HTTP::Request GET => url("/digest", $base);
+$res = MyUA2->new->request($req);
+#print STDERR $res->as_string;
+
+ok($res->is_success);
+#print $res->content;
+
+# Let's try with a $ua that does not pass out credentials
+$ua->{basic_authentication}=undef;
+$res = $ua->request($req);
+is($res->code, 401, 'respone code 401');
+
+# Let's try to set credentials for this realm
+$ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+$res = $ua->request($req);
+#print STDERR $res->as_string;
+ok($res->is_success);
+
+# Then illegal credentials
+$ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");
+$res = $ua->request($req);
+is($res->code, 401, 'response code 401');
+
 
 
 #----------------------------------------------------------------

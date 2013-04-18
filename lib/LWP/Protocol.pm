@@ -260,7 +260,7 @@ routine, then content is passed to this routine.
 The $collector is a routine that will be called and which is
 responsible for returning pieces (as ref to scalar) of the content to
 process.  The $collector signals EOF by returning a reference to an
-empty sting.
+empty string.
 
 The return value from collect() is the $response object reference.
 

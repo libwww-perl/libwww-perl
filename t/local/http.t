@@ -50,7 +50,7 @@ else {
 }
 
 use Test::More;
-plan tests => 63;
+plan tests => 68;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -348,7 +348,9 @@ sub httpd_get_digest
 	}
 	else {
 		$c->send_basic_header(401);
-		$c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=auth\015\012");
+		$c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\"",
+			  defined($auth_params{nonce}) && $auth_params{nonce} eq '"my_stale_nonce"' ? ', stale=true': '',
+			  ", qop=auth\015\012");
 		$c->send_crlf;
 	}
 }
@@ -388,7 +390,38 @@ $ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");
 $res = $ua->request($req);
 is($res->code, 401, 'response code 401');
 
+#
+# Use Case: Expired nonce
+#
 
+# Get the right request_prepare handler
+my ($digest) = grep { $$_{ realm } eq "libwww-perl-digest" } @{ $$ua{ handlers }{ request_prepare } };
+
+# Force following request to send the wrong nonce first
+$$digest{ auth_param }{ nonce } = "my_stale_nonce";
+
+# Set up the nonce count for the stale nonce and lose it for the real nonce (to make it match later (server expects 1))
+$$ua{authen_md5_nonce_count} = { my_stale_nonce => 3 };
+
+# Perform the request with the stale nonce
+$ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+$res = $ua->request($req);
+
+ok($res->is_success, 'Successful retry after wrong nonce');
+is( $$ua{authen_md5_nonce_count}{ 12345 }, 1, 'The nonce count is recorded for the new nonce' );
+ok( ! defined $$ua{authen_md5_nonce_count}{ my_stale_nonce }, 'The nonce count is deleted for the stale nonce' );
+is( @{ $$digest{ m_path_prefix } }, 1, 'The path prefix list is not clobbered with extra copies of the path' );
+
+# Force following request to send the wrong nonce first
+$$digest{ auth_param }{ nonce } = "my_wrong_nonce";
+
+# Lose the nonce count, to make it match later (server expects 1)
+$$ua{authen_md5_nonce_count} = {};
+
+# Perform the request with the stale nonce
+$ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+$res = $ua->request($req);
+is($res->code, 401, 'No retry if the nonce is not marked stale');
 
 #----------------------------------------------------------------
 print "Check proxy...\n";

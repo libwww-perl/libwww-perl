@@ -207,7 +207,7 @@ This class is used a the base class for all protocol implementations
 supported by the LWP library.
 
 When creating an instance of this class using
-C<LWP::Protocol::create($url)>, and you get an initialised subclass
+C<LWP::Protocol::create($url)>, and you get an initialized subclass
 appropriate for that access method. In other words, the
 LWP::Protocol::create() function calls the constructor for one of its
 subclasses.

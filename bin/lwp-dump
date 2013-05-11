@@ -68,7 +68,7 @@ B<lwp-dump> [ I<options> ] I<URL>
 
 =head1 DESCRIPTION
 
-The B<lwp-dump> program will get the resource indentified by the URL and then
+The B<lwp-dump> program will get the resource identified by the URL and then
 dump the response object to STDOUT.  This will display the headers returned and
 the initial part of the content, escaped so that it's safe to display even
 binary content.  The escapes syntax used is the same as for Perl's double

@@ -241,7 +241,7 @@ like this:
         # save it to disk when done
   ));
 
-That file will be an LWP-specific format. If you want to be access the
+That file will be in LWP-specific format. If you want to access the
 cookies in your Netscape cookies file, you can use the
 HTTP::Cookies::Netscape class:
 

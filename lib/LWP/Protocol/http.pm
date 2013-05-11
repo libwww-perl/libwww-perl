@@ -144,7 +144,7 @@ sub request
 
     # Check if we're proxy'ing
     if (defined $proxy) {
-	# $proxy is an URL to an HTTP server which will proxy this request
+	# $proxy is a URL to an HTTP server which will proxy this request
 	$host = $proxy->host;
 	$port = $proxy->port;
 	$fullpath = $method eq "CONNECT" ?

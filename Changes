@@ -1793,12 +1793,12 @@ _______________________________________________________________________________
     it that it takes effect if associated with the $ua.
 
     The handling of $ua->max_size changed to make 0 mean 0
-    (not unlimited).  An value of undef means no limit.
+    (not unlimited).  A value of undef means no limit.
     The X-Content-Base header is gone.  I hope nobody relies on
     it.  It might come back if people start to scream.  There
     is a new Client-Aborted header instead.
 
-    The Range header generated for $ua->max_size had a off-by-one
+    The Range header generated for $ua->max_size had an off-by-one
     error.  A range of "0-1" means 2 bytes.
 
     The LWP::UserAgent constructor now takes configuration arguments.
@@ -3357,7 +3357,7 @@ Mon Feb  5 1996   Gisle Aas <aas@sn.no>
  o  The construct "defined ref($arg)" did not work on perl5.002
     because ref now always return something defined.
 
- o  LWP::UserAgent sends by default an 'User-Agent' header.
+ o  LWP::UserAgent sends by default a 'User-Agent' header.
 
  o  LWP::Simple sends 'User-Agent' header to servers.
 

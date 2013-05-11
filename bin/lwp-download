@@ -37,7 +37,7 @@ Another benefit is that it will keep you updated about its progress
 and that you don't have much options to worry about.
 
 Use the C<-a> option to save the file in text (ascii) mode.  Might
-make a difference on dosish systems.
+make a difference on DOSish systems.
 
 =head1 EXAMPLE
 

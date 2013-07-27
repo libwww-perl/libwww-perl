@@ -410,7 +410,7 @@ sub request
 	{
 	    $n = $socket->read_entity_body($buf, $size);
             unless (defined $n) {
-                redo READ if $!{EINTR} || $!{EAGAIN};
+                redo READ if $!{EINTR} || $!{EAGAIN} || $!{ENOTTY};
                 die "read failed: $!";
             }
 	    redo READ if $n == -1;

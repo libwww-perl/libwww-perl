@@ -7,13 +7,14 @@ $VERSION = "6.00";
 
 use Authen::NTLM "1.02";
 use MIME::Base64 "2.12";
+use HTTP::Status qw(HTTP_UNAUTHORIZED HTTP_PROXY_AUTHENTICATION_REQUIRED);
 
 sub authenticate {
     my($class, $ua, $proxy, $auth_param, $response,
        $request, $arg, $size) = @_;
 
-    my($user, $pass) = $ua->get_basic_credentials($auth_param->{realm},
-                                                  $request->uri, $proxy);
+    my $url = $proxy ? $request->{proxy} : $request->uri_canonical;
+    my($user, $pass) = $ua->credentials($url->host_port, $auth_param->{realm});
 
     unless(defined $user and defined $pass) {
 		return $response;
@@ -31,10 +32,11 @@ sub authenticate {
 	ntlm_password($pass);
 
     my $auth_header = $proxy ? "Proxy-Authorization" : "Authorization";
+    my $ch_header = $proxy ?  "Proxy-Authenticate" : "WWW-Authenticate";
 
 	# my ($challenge) = $response->header('WWW-Authenticate'); 
 	my $challenge;
-	foreach ($response->header('WWW-Authenticate')) { 
+	foreach ($response->header($ch_header)) { 
 		last if /^NTLM/ && ($challenge=$_);
 	}
 
@@ -64,16 +66,17 @@ sub authenticate {
 	}
 	
 	else {
-		# Second phase, use the response challenge (unless non-401 code
+		# Second phase, use the response challenge (unless non-40[17] code
 		#  was returned, in which case, we just send back the response
 		#  object, as is
 		my $auth_value;
-		if ($response->code ne '401') {
+		if ($response->code ne HTTP_UNAUTHORIZED
+				&& $response->code ne HTTP_PROXY_AUTHENTICATION_REQUIRED) {
 			return $response;
 		}
 		else {
 			my $challenge;
-			foreach ($response->header('WWW-Authenticate')) { 
+			foreach ($response->header($ch_header)) { 
 				last if /^NTLM/ && ($challenge=$_);
 			}
 			$challenge =~ s/^NTLM //;
@@ -84,8 +87,7 @@ sub authenticate {
 
 	    my $referral = $request->clone;
 	    $referral->header($auth_header => $auth_value);
-	    my $response2 = $ua->request($referral, $arg, $size, $response);
-		return $response2;
+	    return $ua->request($referral, $arg, $size, $response);
 	}
 }
 

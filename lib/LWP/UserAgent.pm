@@ -1009,6 +1009,10 @@ sub env_proxy {
 	$k = lc($k);
 	next unless $k =~ /^(.*)_proxy$/;
 	$k = $1;
+        if ($k eq 'https') {
+            # let SSLeay handle the proxy
+            next ;
+        } ;
 	if ($k eq 'no') {
 	    $self->no_proxy(split(/\s*,\s*/, $v));
 	}

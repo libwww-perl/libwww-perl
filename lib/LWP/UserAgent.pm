@@ -346,7 +346,8 @@ sub request
 	    )
     {
 	my $proxy = ($code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED);
-	my $ch_header = $proxy ?  "Proxy-Authenticate" : "WWW-Authenticate";
+	my $ch_header = $proxy || $request->method eq 'CONNECT'
+	    ?  "Proxy-Authenticate" : "WWW-Authenticate";
 	my @challenge = $response->header($ch_header);
 	unless (@challenge) {
 	    $response->header("Client-Warning" => 

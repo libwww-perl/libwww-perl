@@ -10,7 +10,7 @@ if ($^O eq "MacOS") {
 
 # First locate some suitable tmp-dir.  We need an absolute path.
 $TMPDIR = undef;
-for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
+for ($ENV{TMPDIR}, "/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
     if (open(TEST, ">$_/test-$$")) {
         close(TEST);
 	unlink("$_/test-$$");

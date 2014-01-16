@@ -8,9 +8,11 @@ if ($^O eq "MacOS") {
 }
 
 
+use File::Temp 'tempdir';
+
 # First locate some suitable tmp-dir.  We need an absolute path.
 $TMPDIR = undef;
-for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
+for (tempdir()) {
     if (open(TEST, ">$_/test-$$")) {
         close(TEST);
 	unlink("$_/test-$$");
@@ -18,7 +20,6 @@ for ("/tmp/", "/var/tmp", "/usr/tmp", "/local/tmp") {
 	last;
     }
 }
-$TMPDIR ||= $ENV{TEMP} if $^O eq 'MSWin32';
 unless ($TMPDIR) {
    # Can't run any tests
    print "1..0\n";

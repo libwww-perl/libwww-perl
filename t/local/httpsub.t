@@ -1,5 +1,7 @@
 #!perl
 
+BEGIN { eval { require Data::Dump; 1 } || do { print "1..0 # SKIP Data::Dump is not installed\n"; exit 0 } }
+
 print "1..1\n";
 print "ok 1\n";
 

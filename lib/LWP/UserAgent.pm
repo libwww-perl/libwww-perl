@@ -5,7 +5,6 @@ use vars qw(@ISA $VERSION);
 
 require LWP::MemberMixin;
 @ISA = qw(LWP::MemberMixin);
-$VERSION = "6.05";
 
 use HTTP::Request ();
 use HTTP::Response ();
@@ -16,6 +15,7 @@ use LWP::Protocol ();
 
 use Carp ();
 
+$VERSION = $LWP::VERSION;
 
 sub new
 {
@@ -726,7 +726,7 @@ sub default_header {
     return $self->default_headers->header(@_);
 }
 
-sub _agent       { "libwww-perl/$LWP::VERSION" }
+sub _agent { "libwww-perl/$VERSION" }
 
 sub agent {
     my $self = shift;

@@ -5,7 +5,6 @@ use vars qw($DEBUG);
 
 our $VERSION = '6.19';
 
-
 sub new {
     my($class, %cnf) = @_;
 

@@ -14,8 +14,6 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-our $VERSION = '6.19';
-
 sub import
 {
     my $pkg = shift;
@@ -24,12 +22,14 @@ sub import
 }
 
 use LWP::UserAgent ();
+
+our $VERSION = $LWP::UserAgent::VERSION;
+
 use HTTP::Status ();
 use HTTP::Date ();
 $ua = LWP::UserAgent->new;  # we create a global UserAgent object
 $ua->agent("LWP::Simple/$VERSION ");
 $ua->env_proxy;
-
 
 sub get ($)
 {

@@ -184,9 +184,6 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = "6.19";
-
-
 require LWP;
 
 use URI;
@@ -225,7 +222,7 @@ use HTTP::Date qw(time2str str2time);
     sub new
     {
 	my $self = LWP::UserAgent::new(@_);
-	$self->agent("lwp-request/$main::VERSION ");
+	$self->agent("lwp-request/$LWP::VERSION ");
 	$self;
     }
 
@@ -296,7 +293,7 @@ if ($options{'v'}) {
     require LWP;
     my $DISTNAME = 'libwww-perl-' . LWP::Version();
     die <<"EOT";
-This is lwp-request version $VERSION ($DISTNAME)
+This is lwp-request version $LWP::VERSION ($DISTNAME)
 
 Copyright 1995-1999, Gisle Aas.
 

@@ -3,7 +3,6 @@ package LWP::UserAgent;
 use strict;
 
 use base qw(LWP::MemberMixin);
-our $VERSION = '6.19';
 
 use Carp ();
 use HTTP::Request ();
@@ -16,6 +15,7 @@ use LWP::Protocol ();
 use Scalar::Util qw(blessed);
 use Try::Tiny qw(try catch);
 
+our $VERSION = $LWP::VERSION;
 
 sub new
 {
@@ -779,7 +779,7 @@ sub default_header {
     return $self->default_headers->header(@_);
 }
 
-sub _agent       { "libwww-perl/$LWP::VERSION" }
+sub _agent { "libwww-perl/$VERSION" }
 
 sub agent {
     my $self = shift;

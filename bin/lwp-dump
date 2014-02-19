@@ -6,8 +6,6 @@ use Getopt::Long qw(GetOptions);
 use Encode;
 use Encode::Locale;
 
-my $VERSION = "6.19";
-
 GetOptions(\my %opt,
     'parse-head',
     'max-length=n',
@@ -40,7 +38,7 @@ my $ua = LWP::UserAgent->new(
     parse_head => $opt{'parse-head'} || 0,
     keep_alive => 1,
     env_proxy => 1,
-    agent => $opt{agent} || "lwp-dump/$VERSION ",
+    agent => $opt{agent} || "lwp-dump/$LWP::UserAgent::VERSION ",
 );
 
 my $req = HTTP::Request->new($opt{method} || 'GET' => decode(locale => $url));

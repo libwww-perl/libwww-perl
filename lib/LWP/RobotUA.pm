@@ -1,7 +1,7 @@
 package LWP::RobotUA;
 
 use base qw(LWP::UserAgent);
-our $VERSION = '6.19';
+our $VERSION = $LWP::UserAgent::VERSION;
 
 require WWW::RobotRules;
 require HTTP::Request;

@@ -47,8 +47,6 @@ $progname = $0;
 $progname =~ s,.*/,,;  # use basename only
 $progname =~ s/\.\w*$//; #strip extension if any
 
-$VERSION = "6.19";
-
 $opt_h = undef;  # print usage
 $opt_v = undef;  # print version
 $opt_t = undef;  # timeout
@@ -61,7 +59,7 @@ if ($opt_v) {
     require LWP;
     my $DISTNAME = 'libwww-perl-' . LWP::Version();
     die <<"EOT";
-This is lwp-mirror version $VERSION ($DISTNAME)
+This is lwp-mirror version $LWP::Simple::VERSION ($DISTNAME)
 
 Copyright 1995-1999, Gisle Aas.
 

@@ -73,14 +73,14 @@ LWP::Debug - deprecated
 
 =head1 DESCRIPTION
 
-LWP::Debug used to provide tracing facilities, but these are not used
+LWP::Debug is used to provide tracing facilities, but these are not used
 by LWP any more.  The code in this module is kept around
-(undocumented) so that 3rd party code that happen to use the old
+(undocumented) so that 3rd party code that happens to use the old
 interfaces continue to run.
 
 One useful feature that LWP::Debug provided (in an imprecise and
 troublesome way) was network traffic monitoring.  The following
-section provide some hints about recommended replacements.
+section provides some hints about recommended replacements.
 
 =head2 Network traffic monitoring
 

@@ -65,12 +65,12 @@ WriteMakefile(
         'URI' => "1.10",
         'URI::Escape' => 0,
         'WWW::RobotRules' => 6,
+        'Data::Dump' => 0,
     },
     META_MERGE => {
         recommends => {
 	    'LWP::Protocol::https' => '6.02',
             'Authen::NTLM' => "1.02",
-            'Data::Dump' => 0,
         },
 	resources => {
             repository => 'https://github.com/libwww-perl/libwww-perl',

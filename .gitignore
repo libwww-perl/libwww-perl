@@ -8,5 +8,4 @@ t/live/ENABLED
 t/live/jigsaw/ENABLED
 *.tar.gz
 xx*
-adm
 MYMETA*

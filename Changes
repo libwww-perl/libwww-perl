@@ -1,4 +1,51 @@
 _______________________________________________________________________________
+2014-04-16  Release 6.06
+
+Ville Skyttä (3):
+      Merge pull request #44 from dsteinbrunner/master
+      Spelling fixes.
+      Merge pull request #55 from oalders/master
+
+Karen Etheridge (2):
+      Merge pull request #38 from mbeijen/typo-sting
+      Merge pull request #43 from dsteinbrunner/master
+
+David Steinbrunner (2):
+      Spelling corrections
+
+Olaf Alders (1):
+      Typo fixes.
+
+Steffen Ullrich (1):
+      correct behavior for https_proxy,
+      e.g. don't send plain https:// requests to proxy, but instead establish
+      CONNECT tunnel and then send requests inside tunnel.
+      This change does together with a change in LWP::Protocol::https.
+      The change supports LWP::Protocol::https with the default
+      IO::Socket::SSL backend, but also with Net::SSL. Also:
+      - proxy authorization is supported (http://user:pass@host:port as proxy
+        URL, Net::SSL still needs special HTTPS_PROXY_* environemt variables,
+        as before)
+      - CONNECT request does not need to be the first request inside the
+        tunnel (not with Net::SSL)
+      - conn_cache is read and written inside request(), instead of writing in
+        request() and reading in _new_socket(). If a https tunnel is
+        established the cache_key no longer depends only on proxy host,port
+        but also on the tunnel endpoint
+      - CONNECT is a proxy request and must always use Proxy-Authorization,
+        not Authorization header
+
+turugina (1):
+      fix: auth-header of Digest auth did not conform to 
+      RFC 2617 when WWW-Authenticate has 'qop' parameter.
+
+Gisle Aas (1):
+      SSL libs might trigger ENOTTY on read
+
+Michiel Beijen (1):
+      Small typo.
+
+_______________________________________________________________________________
 2013-03-11  Release 6.05
 
 Karen Etheridge (3):

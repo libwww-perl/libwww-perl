@@ -1,14 +1,9 @@
 AUTHORS				Who made this
-Changes				History of this package
-MANIFEST			This file
-Makefile.PL			Makefile generator
-README				Get you started with this package
-README.SSL			When you need SSL support
-bin/lwp-download             	Writes bin/lwp-download script
+bin/lwp-download		Writes bin/lwp-download script
 bin/lwp-dump			Writes bin/lwp-dump script
 bin/lwp-mirror			Writes bin/lwp-mirror script
 bin/lwp-request			Writes bin/lwp-request script
-talk-to-ourself			Are we able to run tests talk HTTP to local server?
+Changes				History of this package
 lib/LWP.pm			Includes what you need
 lib/LWP/Authen/Basic.pm		Basic authentication scheme
 lib/LWP/Authen/Digest.pm	Digest authentication scheme
@@ -18,14 +13,14 @@ lib/LWP/Debug.pm		Debugging support
 lib/LWP/DebugFile.pm		Send debug output to a file
 lib/LWP/MemberMixin.pm		Helps you access %$self
 lib/LWP/Protocol.pm		Virtual base class for LWP protocols
-lib/LWP/Protocol/GHTTP.pm       Alternative HTTP protocol handler
 lib/LWP/Protocol/cpan.pm	Access to cpan URLs
-lib/LWP/Protocol/data.pm        Access to data URLs
+lib/LWP/Protocol/data.pm	Access to data URLs
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
+lib/LWP/Protocol/GHTTP.pm	Alternative HTTP protocol handler
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP/1.1 protocol
-lib/LWP/Protocol/loopback.pm    Returns request (like HTTP TRACE)
+lib/LWP/Protocol/loopback.pm	Returns request (like HTTP TRACE)
 lib/LWP/Protocol/mailto.pm	Allows you to POST mail using sendmail
 lib/LWP/Protocol/nntp.pm	Handles access to news: and nntp: URLs
 lib/LWP/Protocol/nogo.pm	Denies all requests.
@@ -34,12 +29,14 @@ lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
 lwpcook.pod			Libwww-perl examples
 lwptut.pod			Libwww-perl tutorial
-t/README			How to run and set up tests
-t/TEST				Run tests
+Makefile.PL			Makefile generator
+MANIFEST			This file
+README				Get you started with this package
+README.SSL			When you need SSL support
 t/base/protocols.t		Test protocol methods of LWP::UserAgent
+t/base/proxy.t
 t/base/ua.t			Basic LWP::UserAgent tests
 t/live/apache-http10.t
-t/live/online.t
 t/live/jigsaw/auth-b.t
 t/live/jigsaw/auth-d.t
 t/live/jigsaw/chunk.t
@@ -48,11 +45,12 @@ t/live/jigsaw/md5.t
 t/live/jigsaw/neg-get.t
 t/live/jigsaw/neg.t
 t/live/jigsaw/te.t
+t/live/online.t
 t/local/autoload-get.t
 t/local/autoload.t		Test autoloading of LWP::Protocol modules
 t/local/get.t			Try to get a local file
 t/local/http.t			Test http to local server
-t/local/protosub.t              Test with other protocol module
+t/local/protosub.t		Test with other protocol module
 t/net/cgi-bin/moved
 t/net/cgi-bin/nph-slowdata
 t/net/cgi-bin/slowread
@@ -65,5 +63,8 @@ t/net/http-timeout.t
 t/net/mirror.t
 t/net/moved.t
 t/net/proxy.t
+t/README			How to run and set up tests
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
+t/TEST				Run tests
+talk-to-ourself			Are we able to run tests talk HTTP to local server?

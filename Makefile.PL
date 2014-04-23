@@ -65,7 +65,6 @@ WriteMakefile(
         'URI' => "1.10",
         'URI::Escape' => 0,
         'WWW::RobotRules' => 6,
-        'Data::Dump' => 0,
     },
     META_MERGE => {
         recommends => {

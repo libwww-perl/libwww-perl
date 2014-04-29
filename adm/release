@@ -10,6 +10,11 @@ use File::Find;
 
 my $current_version = $LWP::VERSION;
 
+if( $^O =~ /^MacOS|darwin$/ ) {
+    die "Aiiieeeh! This won't work on a macbook. Tar broken. ",
+        "Use Linux. ([rt.cpan.org #94844])"; 
+}
+
 my $release_version =
     ask "Release version", $current_version;
 

@@ -187,12 +187,11 @@ sub request
 	# the old version
 	if ( my $upgrade_sub = $proto_https->can('_upgrade_sock')) {
 	    my $response = $self->request(
-		HTTP::Request->new('CONNECT',"http://$ssl_tunnel"),
+		HTTP::Request->new('CONNECT',"http://$ssl_tunnel",$request->headers),
 		$proxy,
 		undef,$size,$timeout
 	    );
-	    $response->is_success or die
-		"establishing SSL tunnel failed: ".$response->status_line;
+	    $response->is_success or die $response;
 	    $socket = $upgrade_sub->($proto_https,
 		$response->{client_socket},$url)
 		or die "SSL upgrade failed: $@";

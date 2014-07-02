@@ -1,4 +1,14 @@
 _______________________________________________________________________________
+2014-07-01  Release 6.07
+
+mschilli (5):
+      Removed Data::Dump references in test suite and dependency in Makefile.PL
+      Added MANIFEST.SKIP to enable "make manifest".
+      release script now checks for MacOS to avoid incompatible tarballs
+      Bumped version number to 6.07
+      Fixed gnu-incompatible tarball problem ([rt.cpan.org #94844])
+
+_______________________________________________________________________________
 2014-04-16  Release 6.06
 
 Ville Skyttä (3):

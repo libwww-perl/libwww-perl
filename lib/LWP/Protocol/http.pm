@@ -17,6 +17,12 @@ sub _new_socket
 {
     my($self, $host, $port, $timeout) = @_;
 
+    # IPv6 literal IP address should be [bracketed] to remove
+    # ambiguity between ip address and port number
+    if ($host =~ /:/) {
+      $host = "[$host]";
+    }
+
     local($^W) = 0;  # IO::Socket::INET can be noisy
     my $sock = $self->socket_class->new(PeerAddr => $host,
 					PeerPort => $port,

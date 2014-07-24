@@ -18,8 +18,10 @@ sub _new_socket
     my($self, $host, $port, $timeout) = @_;
 
     # IPv6 literal IP address should be [bracketed] to remove
-    # ambiguity between ip address and port number
-    if ($host =~ /:/) {
+    # ambiguity between ip address and port number.
+    # Extra cautious to ensure that $host is _just_ an IPv6 address
+    # (at least as best as we can tell).
+    if ( ($host =~ /:/) && ($host =~ /^[0-9a-f:.]+$/i) ) {
       $host = "[$host]";
     }
 

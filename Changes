@@ -1,3 +1,8 @@
+
+Jason Fesler
+      When the hostname is an IPv6 literal, encapsulate it
+      with [brackets] before calling Net::HTTP  [rt.cpan.org #29468]
+
 _______________________________________________________________________________
 2014-07-01  Release 6.07
 

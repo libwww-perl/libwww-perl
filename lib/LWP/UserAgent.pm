@@ -1196,8 +1196,8 @@ method for the more general interface that allow any header to be defaulted.
 =item $ua->cookie_jar( $cookie_jar_obj )
 
 Get/set the cookie jar object to use.  The only requirement is that
-the cookie jar object must implement the extract_cookies($request) and
-add_cookie_header($response) methods.  These methods will then be
+the cookie jar object must implement the extract_cookies($response) and
+add_cookie_header($request) methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
 received.  Normally this will be a C<HTTP::Cookies> object or some
 subclass.

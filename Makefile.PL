@@ -61,7 +61,7 @@ WriteMakefile(
         'LWP::MediaTypes' => 6,
         'MIME::Base64' => "2.1",
         'Net::FTP' => "2.58",
-        'Net::HTTP' => "6.04",
+        'Net::HTTP' => "6.07",
         'URI' => "1.10",
         'URI::Escape' => 0,
         'WWW::RobotRules' => 6,

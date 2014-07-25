@@ -1,12 +1,23 @@
+_______________________________________________________________________________
+2014-07-24  Release 6.08
 
-Jason Fesler
-      When the hostname is an IPv6 literal, encapsulate it
-      with [brackets] before calling Net::HTTP  [rt.cpan.org #29468]
+Mike Schilli (1):
+      Requiring Net::HTTP 6.07 to fix IPv6 support 
+        (RT#75618 and https://github.com/libwww-perl/net-http/pull/10)
+
+Jason A Fesler (2):
+      When the hostname is an IPv6 literal, encapsulate it with [brackets] 
+        before calling Net::HTTP  [rt.cpan.org #29468]
+      Extra steps to make sure that the host address that has a ":" contains 
+        only characters appropriate for an IPv6 address.
+
+John Wittkoski (1):
+      Fix doc typo for cookie_jar
 
 _______________________________________________________________________________
 2014-07-01  Release 6.07
 
-mschilli (5):
+Mike Schilli (5):
       Removed Data::Dump references in test suite and dependency in Makefile.PL
       Added MANIFEST.SKIP to enable "make manifest".
       release script now checks for MacOS to avoid incompatible tarballs

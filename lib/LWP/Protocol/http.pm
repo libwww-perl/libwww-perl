@@ -21,7 +21,7 @@ sub _new_socket
     # ambiguity between ip address and port number.
     # Extra cautious to ensure that $host is _just_ an IPv6 address
     # (at least as best as we can tell).
-    if ( ($host =~ /:/) && ($host =~ /^[0-9a-f:.]+$/i) ) {
+    if ( ($host =~ /:/) && ($host =~ /^[0-9a-f:.%]+$/i) ) {
       $host = "[$host]";
     }
 

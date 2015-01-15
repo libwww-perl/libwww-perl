@@ -1627,7 +1627,10 @@ object itself.  This might not be suitable for very large response
 bodies.  Only one of C<:content_file> or C<:content_cb> can be
 specified.  The content of unsuccessful responses will always
 accumulate in the response object itself, regardless of the
-C<:content_file> or C<:content_cb> options passed in.
+C<:content_file> or C<:content_cb> options passed in.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the C<Client-Aborted>
+or C<X-Died> response headers, and not the C<is_success> method.
 
 The C<:read_size_hint> option is passed to the protocol module which
 will try to read data from the server in chunks of this size.  A
@@ -1736,7 +1739,10 @@ They are convenience methods that simply hides the creation of the
 request object for you.
 
 The $content_file, $content_cb and $read_size_hint all correspond to
-options described with the get() method above.
+options described with the get() method above.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the C<Client-Aborted>
+or C<X-Died> response headers, and not the C<is_success> method.
 
 You are allowed to use a CODE reference as C<content> in the request
 object passed in.  The C<content> function should return the content

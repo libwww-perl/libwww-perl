@@ -742,7 +742,13 @@ For example,
 
 When you use this C<:content_file> option, the C<$response> will have
 all the normal header lines, but C<< $response->content >> will be
-empty.
+empty.  Errors writing to the content file (for example due to
+permission denied or the filesystem being full) will be reported via
+the C<Client-Aborted> or C<X-Died> response headers, and not the
+C<is_success> method:
+
+  if ($response->header('Client-Aborted') eq 'die') {
+    # handle error ...
 
 Note that this ":content_file" option isn't supported under older
 versions of LWP, so you should consider adding C<use LWP 5.66;> to check

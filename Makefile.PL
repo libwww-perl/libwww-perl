@@ -34,7 +34,7 @@ flag_file("t/live/jigsaw/ENABLED", $opt{'jigsaw-tests'});
 
 WriteMakefile(
     NAME => 'LWP',
-    DISTNAME => 'libwww-perl',
+    DISTNAME => 'LWP',
     VERSION_FROM => 'lib/LWP.pm',
     ABSTRACT => 'The World-Wide Web library for Perl',
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',

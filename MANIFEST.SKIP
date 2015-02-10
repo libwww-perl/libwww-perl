@@ -23,3 +23,5 @@ MYMETA.yml
 ^pm_to_blib
 .gitignore
 MANIFEST.SKIP
+libwww-perl-.*/
+libwww-perl-.*.tar.gz

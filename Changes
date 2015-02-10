@@ -1,3 +1,15 @@
+
+Steffen Ullrich (1):
+    - checks for EINTR now also check EWOULDBLOCK (they sometimes differ on
+      MSWin32)
+
+Daina Pettit (1):
+    - fixed pod syntax
+
+Jason A Fesler (2):
+    - Fixed checking the % character in address regex
+    - Improved regex for literal IPv6 addresses
+
 _______________________________________________________________________________
 2014-07-24  Release 6.08
 

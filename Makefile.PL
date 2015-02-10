@@ -67,13 +67,27 @@ WriteMakefile(
         'WWW::RobotRules' => 6,
     },
     META_MERGE => {
-        recommends => {
-	    'LWP::Protocol::https' => '6.02',
-            'Authen::NTLM' => "1.02",
+        'meta-spec' => { version => 2 },
+        dynamic_config => 1,
+        prereqs => {
+            runtime => {
+                recommends => {
+                    'LWP::Protocol::https' => '6.02',
+                    'Authen::NTLM' => "1.02",
+                },
+            },
         },
-	resources => {
-            repository => 'https://github.com/libwww-perl/libwww-perl',
-	    MailingList => 'mailto:libwww@perl.org',
+        resources => {
+            repository => {
+                 url => 'https://github.com/libwww-perl/libwww-perl.git',
+                 web => 'https://github.com/libwww-perl/libwww-perl',
+                 type => 'git',
+            },
+            bugtracker => {
+                 mailto => 'bug-libwww-perl@rt.cpan.org',
+                 web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=libwww-perl',
+            },
+            x_MailingList => 'mailto:libwww@perl.org',
         }
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },

@@ -88,6 +88,7 @@ WriteMakefile(
                  web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=libwww-perl',
             },
             x_MailingList => 'mailto:libwww@perl.org',
+            x_IRC => 'irc://irc.perl.org/#lwp',
         }
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },

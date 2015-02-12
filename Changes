@@ -1,3 +1,5 @@
+_______________________________________________________________________________
+2015-02-12  Release 6.10
 
 Karen Etheridge (1):
     - lower runtime prereqs recommendation on LWP::Protocol::https to suggests,

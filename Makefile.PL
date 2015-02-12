@@ -40,7 +40,7 @@ WriteMakefile(
     ABSTRACT => 'The World-Wide Web library for Perl',
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     EXE_FILES => [ map "bin/$_", @prog ],
-    LICENSE => "perl",
+    LICENSE => 'perl_5',
     MIN_PERL_VERSION => 5.008001,
     META_ADD => {
         prereqs => {

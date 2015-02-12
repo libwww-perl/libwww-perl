@@ -76,6 +76,13 @@ WriteMakefile(
                     'Authen::NTLM' => "1.02",
                 },
             },
+            test => {
+                requires => {
+                    'Test' => '0',
+                    'Test::More' => '0',
+                    'FindBin' => '0',
+                },
+            },
         },
     },
     META_MERGE => {

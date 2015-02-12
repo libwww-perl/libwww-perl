@@ -1,3 +1,9 @@
+
+Karen Etheridge (1):
+    - lower runtime prereqs recommendation on LWP::Protocol::https to suggests,
+      to work around a circular dependency in CPAN clients when the 'install
+      recommendations' option is enabled (RT#101732)
+
 _______________________________________________________________________________
 2015-02-09  Release 6.09
 

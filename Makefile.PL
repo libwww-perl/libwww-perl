@@ -71,7 +71,7 @@ WriteMakefile(
         dynamic_config => 0,
         prereqs => {
             runtime => {
-                recommends => {
+                suggests => {
                     'LWP::Protocol::https' => '6.02',
                     'Authen::NTLM' => "1.02",
                 },

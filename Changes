@@ -1,3 +1,8 @@
+
+Graham Knop (1):
+    - cleanup of the test running mechanism; allowing greater flexibility and
+      should also resolve RT#102083
+
 _______________________________________________________________________________
 2015-02-12  Release 6.10
 

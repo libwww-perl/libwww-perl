@@ -1,10 +1,16 @@
 #!/usr/local/bin/perl -w
 #
 
-print "1..1\n";
+use FindBin qw($Bin);
+if (!-e "$Bin/config.pl") {
+  print "1..0 # SKIP no net config file";
+  exit 0;
+}
 
-require "net/config.pl";
+require "$Bin/config.pl";
 require LWP::UserAgent;
+
+print "1..1\n";
 
 $url = "http://$net::httpserver$net::cgidir/moved";
 

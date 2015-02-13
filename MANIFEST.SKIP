@@ -21,8 +21,8 @@ MYMETA.yml
 ^Makefile$
 ^Makefile.old$
 ^pm_to_blib
-.gitignore
 MANIFEST.SKIP
 libwww-perl-.*/
 libwww-perl-.*.tar.gz
 TODO
+^\.

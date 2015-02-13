@@ -4,9 +4,16 @@
 # via a HTTP proxy.
 #
 
+use FindBin qw($Bin);
+if (!-e "$Bin/config.pl") {
+  print "1..0 # SKIP no net config file";
+  exit 0;
+}
+
+require "$Bin/config.pl";
+
 print "1..1\n";
 
-require "net/config.pl";
 unless (defined $net::ftp_proxy) {
     print "not ok 1\n";
     exit 0;

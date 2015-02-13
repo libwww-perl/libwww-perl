@@ -42,53 +42,48 @@ my %WriteMakefileArgs = (
     EXE_FILES => [ map "bin/$_", @prog ],
     LICENSE => 'perl_5',
     MIN_PERL_VERSION => 5.008001,
-    META_ADD => {
+    PREREQ_PM => {
+        'Digest::MD5' => 0,
+        'Encode' => "2.12",
+        'Encode::Locale' => 0,
+        'File::Listing' => 6,
+        'HTML::Entities' => 0,
+        'HTML::HeadParser' => 0,
+        'HTTP::Cookies' => 6,
+        'HTTP::Daemon' => 6,
+        'HTTP::Date' => 6,
+        'HTTP::Negotiate' => 6,
+        'HTTP::Request' => 6,
+        'HTTP::Request::Common' => 6,
+        'HTTP::Response' => 6,
+        'HTTP::Status' => 6,
+        'IO::Select' => 0,
+        'IO::Socket' => 0,
+        'LWP::MediaTypes' => 6,
+        'MIME::Base64' => "2.1",
+        'Net::FTP' => "2.58",
+        'Net::HTTP' => "6.07",
+        'URI' => "1.10",
+        'URI::Escape' => 0,
+        'WWW::RobotRules' => 6,
+    },
+    TEST_REQUIRES => {
+        'Test' => '0',
+        'Test::More' => '0',
+        'FindBin' => '0',
+    },
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+        dynamic_config => 0,
         prereqs => {
             runtime => {
-                requires => {
-                    'Digest::MD5' => 0,
-                    'Encode' => "2.12",
-                    'Encode::Locale' => 0,
-                    'File::Listing' => 6,
-                    'HTML::Entities' => 0,
-                    'HTML::HeadParser' => 0,
-                    'HTTP::Cookies' => 6,
-                    'HTTP::Daemon' => 6,
-                    'HTTP::Date' => 6,
-                    'HTTP::Negotiate' => 6,
-                    'HTTP::Request' => 6,
-                    'HTTP::Request::Common' => 6,
-                    'HTTP::Response' => 6,
-                    'HTTP::Status' => 6,
-                    'IO::Select' => 0,
-                    'IO::Socket' => 0,
-                    'LWP::MediaTypes' => 6,
-                    'MIME::Base64' => "2.1",
-                    'Net::FTP' => "2.58",
-                    'Net::HTTP' => "6.07",
-                    'URI' => "1.10",
-                    'URI::Escape' => 0,
-                    'WWW::RobotRules' => 6,
-                    'perl' => '5.008001',
-                },
                 suggests => {
                     'LWP::Protocol::https' => '6.02',
                     'Authen::NTLM' => "1.02",
                     'HTTP::GHTTP' => '0',
                 },
             },
-            test => {
-                requires => {
-                    'Test' => '0',
-                    'Test::More' => '0',
-                    'FindBin' => '0',
-                },
-            },
         },
-    },
-    META_MERGE => {
-        'meta-spec' => { version => 2 },
-        dynamic_config => 0,
         resources => {
             repository => {
                  url => 'https://github.com/libwww-perl/libwww-perl.git',
@@ -110,6 +105,17 @@ my %WriteMakefileArgs = (
 {
     # compatibility with older versions of MakeMaker
     my $developer = -f ".gitignore";
+
+    if (!eval { ExtUtils::MakeMaker->VERSION('6.6303') }) {
+        @{$WriteMakefileArgs{BUILD_REQUIRES}} = @{$WriteMakefileArgs{TEST_REQUIRES}};
+        delete $WriteMakefileArgs{TEST_REQUIRES};
+    }
+
+    if (!eval { ExtUtils::MakeMaker->VERSION('6.5501') }) {
+        @{$WriteMakefileArgs{PREREQ_PM}} = @{$WriteMakefileArgs{BUILD_REQUIRES}};
+        delete $WriteMakefileArgs{BUILD_REQUIRES};
+    }
+
     my %mm_req = (
         LICENCE => 6.31,
         META_MERGE => 6.45,

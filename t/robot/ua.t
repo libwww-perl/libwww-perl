@@ -1,9 +1,10 @@
+use FindBin qw($Bin);
 if($^O eq "MacOS") {
     print "1..0\n";
     exit(0);
 }
 
-unless (-f "CAN_TALK_TO_OURSELF") {
+if (0 != system($^X, "$Bin/../../talk-to-ourself")) {
     print "1..0 # Skipped: Can't talk to ourself (misconfigured system)\n";
     exit;
 }
@@ -47,7 +48,7 @@ else {
     use Config;
     my $perl = $Config{'perlpath'};
     $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
-    open(DAEMON , "$perl robot/ua.t daemon |") or die "Can't exec daemon: $!";
+    open(DAEMON , "$perl $0 daemon |") or die "Can't exec daemon: $!";
 }
 
 print "1..7\n";

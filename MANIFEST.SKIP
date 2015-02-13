@@ -1,6 +1,5 @@
 #!include_default
 ^t/CAN_TALK_TO_OURSELF
-.gz$
 ^NOTES.txt
 t/misc/dbmrobot
 t/misc/get-callback
@@ -13,14 +12,8 @@ bin/authors
 bin/pod-after-end
 bin/uncuddle
 bin/url-minder
-^.git
-^blib
-.bak$
-MYMETA.json
-MYMETA.yml
-^Makefile$
+^\.git
 ^Makefile.old$
-^pm_to_blib
 MANIFEST.SKIP
 libwww-perl-.*/
 libwww-perl-.*.tar.gz

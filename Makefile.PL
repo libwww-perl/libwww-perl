@@ -27,10 +27,11 @@ if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {
     }
 }
 
-system($^X, "talk-to-ourself");
-flag_file("t/CAN_TALK_TO_OURSELF", $? == 0);
-flag_file("t/live/ENABLED", $opt{'live-tests'});
-flag_file("t/live/jigsaw/ENABLED", $opt{'jigsaw-tests'});
+my $tests = 't/base/*.t t/html/*.t t/robot/*.t t/local/*.t t/net/*.t';
+$tests .= ' t/live/*.t'
+  if $opt{'live-tests'};
+$tests .= ' t/live/jigsaw/*.t'
+  if $opt{'jigsaw-tests'};
 
 WriteMakefile(
     NAME => 'LWP',
@@ -92,34 +93,8 @@ WriteMakefile(
         }
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
+    test => { TESTS => $tests },
 );
-
-
-
-sub MY::test
-{
-    q(
-TEST_VERBOSE=0
-
-test : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE)
-
-test_hudson : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE) --formatter=TAP::Formatter::JUnit
-
-);
-}
-
-
-sub flag_file {
-    my($file, $create) = @_;
-    if ($create) {
-        open(my $fh, ">", $file) || die "Can't create $file: $!";
-    }
-    else {
-        unlink($file);
-    }
-}
 
 BEGIN {
     # compatibility with older versions of MakeMaker

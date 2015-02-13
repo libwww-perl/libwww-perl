@@ -1,3 +1,5 @@
+_______________________________________________________________________________
+2015-02-13  Release 6.11
 
 Graham Knop (1):
     - cleanup of the test running mechanism; allowing greater flexibility and

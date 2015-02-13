@@ -74,6 +74,7 @@ WriteMakefile(
                 suggests => {
                     'LWP::Protocol::https' => '6.02',
                     'Authen::NTLM' => "1.02",
+                    'HTTP::GHTTP' => '0',
                 },
             },
             test => {

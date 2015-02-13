@@ -33,7 +33,7 @@ $tests .= ' t/live/*.t'
 $tests .= ' t/live/jigsaw/*.t'
   if $opt{'jigsaw-tests'};
 
-WriteMakefile(
+my %WriteMakefileArgs = (
     NAME => 'LWP',
     DISTNAME => 'libwww-perl',
     VERSION_FROM => 'lib/LWP.pm',
@@ -107,7 +107,7 @@ WriteMakefile(
     test => { TESTS => $tests },
 );
 
-BEGIN {
+{
     # compatibility with older versions of MakeMaker
     my $developer = -f ".gitignore";
     my %mm_req = (
@@ -116,15 +116,12 @@ BEGIN {
         META_ADD => 6.45,
         MIN_PERL_VERSION => 6.48,
     );
-    undef(*WriteMakefile);
-    *WriteMakefile = sub {
-        my %arg = @_;
-        for (keys %mm_req) {
-            unless (eval { ExtUtils::MakeMaker->VERSION($mm_req{$_}) }) {
-                warn "$_ $@" if $developer;
-                delete $arg{$_};
-            }
+    for (keys %mm_req) {
+        unless (eval { ExtUtils::MakeMaker->VERSION($mm_req{$_}) }) {
+            warn "$_ $@" if $developer;
+            delete $WriteMakefileArgs{$_};
         }
-        ExtUtils::MakeMaker::WriteMakefile(%arg);
-    };
+    }
 }
+
+WriteMakefile(%WriteMakefileArgs);

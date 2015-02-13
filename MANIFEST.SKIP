@@ -2,6 +2,7 @@
 ^t/CAN_TALK_TO_OURSELF
 ^NOTES.txt
 t/misc/dbmrobot
+t/misc/distmanifest.t
 t/misc/get-callback
 t/misc/get-file
 t/misc/pod.t

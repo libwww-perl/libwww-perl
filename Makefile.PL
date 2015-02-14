@@ -106,13 +106,18 @@ my %WriteMakefileArgs = (
     # compatibility with older versions of MakeMaker
     my $developer = -f ".gitignore";
 
+    die 'need to do a merge with CPAN::Meta::Requirements!!'
+        if $developer && exists $WriteMakefileArgs{BUILD_REQUIRES};
+
     if (!eval { ExtUtils::MakeMaker->VERSION('6.6303') }) {
-        @{$WriteMakefileArgs{BUILD_REQUIRES}} = @{$WriteMakefileArgs{TEST_REQUIRES}};
+        $WriteMakefileArgs{BUILD_REQUIRES} = $WriteMakefileArgs{TEST_REQUIRES};
         delete $WriteMakefileArgs{TEST_REQUIRES};
     }
 
     if (!eval { ExtUtils::MakeMaker->VERSION('6.5501') }) {
-        @{$WriteMakefileArgs{PREREQ_PM}} = @{$WriteMakefileArgs{BUILD_REQUIRES}};
+        @{$WriteMakefileArgs{PREREQ_PM}}{ keys %{$WriteMakefileArgs{BUILD_REQUIRES}} } =
+            @{$WriteMakefileArgs{BUILD_REQUIRES}}{ keys %{$WriteMakefileArgs{BUILD_REQUIRES}} };
+
         delete $WriteMakefileArgs{BUILD_REQUIRES};
     }
 

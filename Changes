@@ -1,3 +1,7 @@
+Karen Etheridge (1):
+    - fixed Makefile.PL compatibility with older ExtUtils::MakeMaker (from
+      release 6.12)
+
 _______________________________________________________________________________
 2015-02-13  Release 6.12
 

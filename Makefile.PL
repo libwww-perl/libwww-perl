@@ -81,6 +81,7 @@ my %WriteMakefileArgs = (
                     'LWP::Protocol::https' => '6.02',
                     'Authen::NTLM' => "1.02",
                     'HTTP::GHTTP' => '0',
+                    'IO::Socket::INET' => '0',
                 },
             },
         },

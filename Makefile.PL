@@ -98,6 +98,7 @@ my %WriteMakefileArgs = (
             x_MailingList => 'mailto:libwww@perl.org',
             x_IRC => 'irc://irc.perl.org/#lwp',
         }
+        x_authority => 'cpan:LWWWP',
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
     test => { TESTS => $tests },

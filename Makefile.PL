@@ -48,6 +48,7 @@ my %WriteMakefileArgs = (
         'Encode::Locale' => 0,
         'File::Listing' => 6,
         'HTML::Entities' => 0,
+        'HTML::Form' => 6,
         'HTML::HeadParser' => 0,
         'HTTP::Cookies' => 6,
         'HTTP::Daemon' => 6,

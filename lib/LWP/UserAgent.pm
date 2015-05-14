@@ -623,7 +623,21 @@ sub get_basic_credentials
 }
 
 
-sub timeout      { shift->_elem('timeout',      @_); }
+sub timeout
+{
+    my $self = shift;
+    my $old = $self->{timeout};
+    if (@_) {
+        $self->{timeout} = shift;
+        if (my $conn_cache = $self->conn_cache) {
+            for my $conn ($conn_cache->get_connections) {
+                $conn->timeout($self->{timeout});
+            }
+        }
+    }
+    return $old;
+}
+
 sub local_address{ shift->_elem('local_address',@_); }
 sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
@@ -758,6 +772,11 @@ sub conn_cache {
 	    require LWP::ConnCache;
 	    $cache = LWP::ConnCache->new(%$cache);
 	}
+        else {
+            for my $conn ($cache->get_connections) {
+                $conn->timeout($self->timeout);
+            }
+        }
 	$self->{conn_cache} = $cache;
     }
     $old;

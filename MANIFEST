@@ -63,8 +63,6 @@ t/net/http-timeout.t
 t/net/mirror.t
 t/net/moved.t
 t/net/proxy.t
-t/README			How to run and set up tests
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
-t/TEST				Run tests
 talk-to-ourself			Are we able to run tests talk HTTP to local server?

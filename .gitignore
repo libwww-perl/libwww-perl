@@ -9,3 +9,7 @@ t/live/jigsaw/ENABLED
 *.tar.gz
 xx*
 MYMETA*
+/MANIFEST.SKIP.bak
+/MANIFEST.bak
+/_eumm/
+/libwww-perl-*

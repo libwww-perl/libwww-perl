@@ -1,4 +1,72 @@
 _______________________________________________________________________________
+2015-02-14  Release 6.13
+
+Karen Etheridge (1):
+    - fixed Makefile.PL compatibility with older ExtUtils::MakeMaker (from
+      release 6.12)
+
+_______________________________________________________________________________
+2015-02-13  Release 6.12
+
+Karen Etheridge (1):
+    - fixed prereq declarations in release 6.11
+
+_______________________________________________________________________________
+2015-02-13  Release 6.11
+
+Graham Knop (1):
+    - cleanup of the test running mechanism; allowing greater flexibility and
+      should also resolve RT#102083
+
+_______________________________________________________________________________
+2015-02-12  Release 6.10
+
+Karen Etheridge (1):
+    - lower runtime prereqs recommendation on LWP::Protocol::https to suggests,
+      to work around a circular dependency in CPAN clients when the 'install
+      recommendations' option is enabled (RT#101732)
+
+_______________________________________________________________________________
+2015-02-09  Release 6.09
+
+Steffen Ullrich (1):
+    - checks for EINTR now also check EWOULDBLOCK (they sometimes differ on
+      MSWin32)
+
+Daina Pettit (1):
+    - fixed pod syntax
+
+Jason A Fesler (2):
+    - Fixed checking the % character in address regex
+    - Improved regex for literal IPv6 addresses
+
+_______________________________________________________________________________
+2014-07-24  Release 6.08
+
+Mike Schilli (1):
+      Requiring Net::HTTP 6.07 to fix IPv6 support 
+        (RT#75618 and https://github.com/libwww-perl/net-http/pull/10)
+
+Jason A Fesler (2):
+      When the hostname is an IPv6 literal, encapsulate it with [brackets] 
+        before calling Net::HTTP  [rt.cpan.org #29468]
+      Extra steps to make sure that the host address that has a ":" contains 
+        only characters appropriate for an IPv6 address.
+
+John Wittkoski (1):
+      Fix doc typo for cookie_jar
+
+_______________________________________________________________________________
+2014-07-01  Release 6.07
+
+Mike Schilli (5):
+      Removed Data::Dump references in test suite and dependency in Makefile.PL
+      Added MANIFEST.SKIP to enable "make manifest".
+      release script now checks for MacOS to avoid incompatible tarballs
+      Bumped version number to 6.07
+      Fixed gnu-incompatible tarball problem ([rt.cpan.org #94844])
+
+_______________________________________________________________________________
 2014-04-16  Release 6.06
 
 Ville Skyttä (3):

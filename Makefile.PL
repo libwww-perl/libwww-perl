@@ -27,19 +27,20 @@ if ($opt{'aliases'} && grep(/lwp-request/, @prog)) {
     }
 }
 
-system($^X, "talk-to-ourself");
-flag_file("t/CAN_TALK_TO_OURSELF", $? == 0);
-flag_file("t/live/ENABLED", $opt{'live-tests'});
-flag_file("t/live/jigsaw/ENABLED", $opt{'jigsaw-tests'});
+my $tests = 't/base/*.t t/html/*.t t/robot/*.t t/local/*.t t/net/*.t';
+$tests .= ' t/live/*.t'
+  if $opt{'live-tests'};
+$tests .= ' t/live/jigsaw/*.t'
+  if $opt{'jigsaw-tests'};
 
-WriteMakefile(
+my %WriteMakefileArgs = (
     NAME => 'LWP',
     DISTNAME => 'libwww-perl',
     VERSION_FROM => 'lib/LWP.pm',
     ABSTRACT => 'The World-Wide Web library for Perl',
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     EXE_FILES => [ map "bin/$_", @prog ],
-    LICENSE => "perl",
+    LICENSE => 'perl_5',
     MIN_PERL_VERSION => 5.008001,
     PREREQ_PM => {
         'Digest::MD5' => 0,
@@ -61,69 +62,79 @@ WriteMakefile(
         'LWP::MediaTypes' => 6,
         'MIME::Base64' => "2.1",
         'Net::FTP' => "2.58",
-        'Net::HTTP' => "6.04",
+        'Net::HTTP' => "6.07",
         'URI' => "1.10",
         'URI::Escape' => 0,
         'WWW::RobotRules' => 6,
     },
+    TEST_REQUIRES => {
+        'Test' => '0',
+        'Test::More' => '0',
+        'FindBin' => '0',
+    },
     META_MERGE => {
-        recommends => {
-	    'LWP::Protocol::https' => '6.02',
-            'Authen::NTLM' => "1.02",
+        'meta-spec' => { version => 2 },
+        dynamic_config => 0,
+        prereqs => {
+            runtime => {
+                suggests => {
+                    'LWP::Protocol::https' => '6.02',
+                    'Authen::NTLM' => "1.02",
+                    'HTTP::GHTTP' => '0',
+                    'IO::Socket::INET' => '0',
+                },
+            },
         },
-	resources => {
-            repository => 'https://github.com/libwww-perl/libwww-perl',
-	    MailingList => 'mailto:libwww@perl.org',
+        resources => {
+            repository => {
+                 url => 'https://github.com/libwww-perl/libwww-perl.git',
+                 web => 'https://github.com/libwww-perl/libwww-perl',
+                 type => 'git',
+            },
+            bugtracker => {
+                 mailto => 'bug-libwww-perl@rt.cpan.org',
+                 web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=libwww-perl',
+            },
+            x_MailingList => 'mailto:libwww@perl.org',
+            x_IRC => 'irc://irc.perl.org/#lwp',
         }
+        x_authority => 'cpan:LWWWP',
     },
     clean => { FILES => join(" ", map "bin/$_", grep /^[A-Z]+$/, @prog) },
+    test => { TESTS => $tests },
 );
 
-
-
-sub MY::test
 {
-    q(
-TEST_VERBOSE=0
-
-test : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE)
-
-test_hudson : pure_all
-	$(FULLPERL) t/TEST $(TEST_VERBOSE) --formatter=TAP::Formatter::JUnit
-
-);
-}
-
-
-sub flag_file {
-    my($file, $create) = @_;
-    if ($create) {
-        open(my $fh, ">", $file) || die "Can't create $file: $!";
-    }
-    else {
-        unlink($file);
-    }
-}
-
-BEGIN {
     # compatibility with older versions of MakeMaker
     my $developer = -f ".gitignore";
+
+    die 'need to do a merge with CPAN::Meta::Requirements!!'
+        if $developer && exists $WriteMakefileArgs{BUILD_REQUIRES};
+
+    if (!eval { ExtUtils::MakeMaker->VERSION('6.6303') }) {
+        $WriteMakefileArgs{BUILD_REQUIRES} = $WriteMakefileArgs{TEST_REQUIRES};
+        delete $WriteMakefileArgs{TEST_REQUIRES};
+    }
+
+    if (!eval { ExtUtils::MakeMaker->VERSION('6.5501') }) {
+        @{$WriteMakefileArgs{PREREQ_PM}}{ keys %{$WriteMakefileArgs{BUILD_REQUIRES}} } =
+            @{$WriteMakefileArgs{BUILD_REQUIRES}}{ keys %{$WriteMakefileArgs{BUILD_REQUIRES}} };
+
+        delete $WriteMakefileArgs{BUILD_REQUIRES};
+    }
+
     my %mm_req = (
         LICENCE => 6.31,
         META_MERGE => 6.45,
         META_ADD => 6.45,
         MIN_PERL_VERSION => 6.48,
     );
-    undef(*WriteMakefile);
-    *WriteMakefile = sub {
-        my %arg = @_;
-        for (keys %mm_req) {
-            unless (eval { ExtUtils::MakeMaker->VERSION($mm_req{$_}) }) {
-                warn "$_ $@" if $developer;
-                delete $arg{$_};
-            }
+    for (keys %mm_req) {
+        unless (eval { ExtUtils::MakeMaker->VERSION($mm_req{$_}) }) {
+            warn "$_ $@" if $developer;
+            delete $WriteMakefileArgs{$_};
         }
-        ExtUtils::MakeMaker::WriteMakefile(%arg);
-    };
+    }
 }
+
+WriteMakefile(%WriteMakefileArgs);

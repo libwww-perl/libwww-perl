@@ -13,8 +13,6 @@ bin/authors
 bin/pod-after-end
 bin/uncuddle
 bin/url-minder
-^\.git
-^Makefile.old$
 MANIFEST.SKIP
 libwww-perl-.*/
 libwww-perl-.*.tar.gz

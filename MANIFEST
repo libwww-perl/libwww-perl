@@ -27,6 +27,7 @@ lib/LWP/Protocol/nogo.pm	Denies all requests.
 lib/LWP/RobotUA.pm		Easy creation of conforming robots
 lib/LWP/Simple.pm		Procedural LWP interface
 lib/LWP/UserAgent.pm		A WWW UserAgent class
+LICENSE
 lwpcook.pod			Libwww-perl examples
 lwptut.pod			Libwww-perl tutorial
 Makefile.PL			Makefile generator

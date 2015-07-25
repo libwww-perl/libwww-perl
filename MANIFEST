@@ -36,6 +36,7 @@ README.SSL			When you need SSL support
 t/base/protocols.t		Test protocol methods of LWP::UserAgent
 t/base/proxy.t
 t/base/ua.t			Basic LWP::UserAgent tests
+t/distmanifest.t
 t/live/apache-http10.t
 t/live/jigsaw/auth-b.t
 t/live/jigsaw/auth-d.t

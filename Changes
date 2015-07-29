@@ -1,3 +1,8 @@
+
+
+Graham Knop (1):
+    - tests now use localhost rather than a net-accessible address (PR#76)
+
 _______________________________________________________________________________
 2015-02-14  Release 6.13
 

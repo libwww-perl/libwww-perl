@@ -9,8 +9,7 @@ require IO::Socket;
 
 if (@ARGV >= 2 && $ARGV[0] eq "--port") {
     my $port = $ARGV[1];
-    require Sys::Hostname;
-    my $host = Sys::Hostname::hostname();
+    my $host = '127.0.0.1';
     if (my $socket = IO::Socket::INET->new(PeerAddr => "$host:$port", Timeout => 5)) {
 	require IO::Select;
 	if (IO::Select->new($socket)->can_read(1)) {
@@ -32,7 +31,7 @@ if (@ARGV >= 2 && $ARGV[0] eq "--port") {
 }
 
 # server code
-my $socket = IO::Socket::INET->new(Listen => 1, Timeout => 5);
+my $socket = IO::Socket::INET->new(Listen => 1, Timeout => 5, LocalAddr => '127.0.0.1');
 my $port = $socket->sockport;
 open(CLIENT, qq("$^X" "$0" --port $port |)) || die "Can't run $^X $0: $!\n";
 

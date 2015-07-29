@@ -21,7 +21,7 @@ if ($D eq 'daemon') {
 
     require HTTP::Daemon;
 
-    my $d = HTTP::Daemon->new(Timeout => 10);
+    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => '127.0.0.1');
 
     print "Please to meet you at: <URL:", $d->url, ">\n";
     open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");

@@ -420,8 +420,10 @@ sub request {
                         "Unsupported authentication scheme '$scheme'");
                 next CHALLENGE;
             }
-            return $class->authenticate($self, $proxy, $challenge, $response,
-                $request, $arg, $size);
+            my $re = $class->authenticate($self, $proxy, $challenge, $response,
+                        $request, $arg, $size);
+            next CHALLENGE if ($re->code == 401);
+            return $re;
         }
         return $response;
     }

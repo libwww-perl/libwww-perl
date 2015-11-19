@@ -22,13 +22,13 @@ unless (defined $net::ftp_proxy) {
 require HTTP::Request;
 require LWP::UserAgent;
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 
 $ua->proxy('ftp', $net::ftp_proxy);
 
 my $url = 'ftp://ftp.uninett.no/';
 
-my $request = new HTTP::Request('GET', $url);
+my $request = HTTP::Request->new('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
 

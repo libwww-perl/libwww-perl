@@ -69,7 +69,7 @@ print "Will access HTTP server at $base\n";
 
 require LWP::RobotUA;
 require HTTP::Request;
-$ua = new LWP::RobotUA 'lwp-spider/0.1', 'gisle@aas.no';
+$ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
 $ua->delay(0.05);  # rather quick robot
 
 #----------------------------------------------------------------
@@ -96,20 +96,20 @@ sub httpd_get_someplace
    $c->print("Okidok\n");
 }
 
-$req = new HTTP::Request GET => url("/someplace", $base);
+$req = HTTP::Request->new(GET => url("/someplace", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->is_success;
 print "ok 1\n";
 
-$req = new HTTP::Request GET => url("/private/place", $base);
+$req = HTTP::Request->new(GET => url("/private/place", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->code == 403
                 and $res->message =~ /robots.txt/;
 print "ok 2\n";
 
-$req = new HTTP::Request GET => url("/foo", $base);
+$req = HTTP::Request->new(GET => url("/foo", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->code == 404;  # not found
@@ -118,7 +118,7 @@ print "ok 3\n";
 # Let the robotua generate "Service unavailable/Retry After response";
 $ua->delay(1);
 $ua->use_sleep(0);
-$req = new HTTP::Request GET => url("/foo", $base);
+$req = HTTP::Request->new(GET => url("/foo", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 print "not " unless $res->code == 503   # Unavailable
@@ -135,7 +135,7 @@ sub httpd_get_quit
 }
 
 $ua->delay(0);
-$req = new HTTP::Request GET => url("/quit", $base);
+$req = HTTP::Request->new(GET => url("/quit", $base));
 $res = $ua->request($req);
 
 print "not " unless $res->code == 503 and $res->content =~ /Bye, bye/;
@@ -148,7 +148,6 @@ $ua->delay(1);
 print "not " unless abs($ua->host_wait($base->host_port) - 60) < 5;
 print "ok 6\n";
 
-# Number of visits to this place should be 
+# Number of visits to this place should be
 print "not " unless $ua->no_visits($base->host_port) == 4;
 print "ok 7\n";
-

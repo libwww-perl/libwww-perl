@@ -15,14 +15,14 @@ require LWP::UserAgent;
 
 print "1..2\n";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 
 $netloc = $net::httpserver;
 $script = $net::cgidir . "/test";
 
 $url = "http://$netloc$script?query";
 
-my $request = new HTTP::Request('GET', $url);
+my $request = HTTP::Request->new('GET', $url);
 
 print "GET $url\n\n";
 

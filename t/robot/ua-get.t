@@ -69,7 +69,7 @@ print "Will access HTTP server at $base\n";
 
 require LWP::RobotUA;
 require HTTP::Request;
-$ua = new LWP::RobotUA 'lwp-spider/0.1', 'gisle@aas.no';
+$ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
 $ua->delay(0.05);  # rather quick robot
 
 #----------------------------------------------------------------
@@ -146,7 +146,7 @@ $ua->delay(1);
 print "not " unless abs($ua->host_wait($base->host_port) - 60) < 5;
 print "ok 6\n";
 
-# Number of visits to this place should be 
+# Number of visits to this place should be
 print "not " unless $ua->no_visits($base->host_port) == 4;
 print "ok 7\n";
 

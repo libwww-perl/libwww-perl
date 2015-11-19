@@ -12,7 +12,7 @@ $url = "file:.";
 require URI;
 print "Trying to fetch '" . URI->new($url)->file . "'\n";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 $ua->timeout(30);               # timeout in seconds
 
 my $response = $ua->get($url);

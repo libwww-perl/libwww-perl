@@ -14,7 +14,7 @@ require HTTP::Status;
 
 print "1..2\n";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 
 my $url = "http://$net::httpserver/";
 my $copy = "lwp-test-$$"; # downloaded copy

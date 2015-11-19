@@ -14,10 +14,10 @@ print "1..1\n";
 
 $url = "http://$net::httpserver$net::cgidir/moved";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 $ua->timeout(30);               # timeout in seconds
 
-my $request = new HTTP::Request('GET', $url);
+my $request = HTTP::Request->new('GET', $url);
 
 print $request->as_string;
 

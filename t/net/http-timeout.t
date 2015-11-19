@@ -14,7 +14,7 @@ require LWP::UserAgent;
 
 print "1..1\n";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 
 $ua->timeout(4);
 
@@ -23,7 +23,7 @@ $script = $net::cgidir . "/timeout";
 
 $url = "http://$netloc$script";
 
-my $request = new HTTP::Request('GET', $url);
+my $request = HTTP::Request->new('GET', $url);
 
 print $request->as_string;
 

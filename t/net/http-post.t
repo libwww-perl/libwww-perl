@@ -18,13 +18,13 @@ print "1..2\n";
 $netloc = $net::httpserver;
 $script = $net::cgidir . "/test";
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new;   # create a useragent to test
 
 $url = "http://$netloc$script";
 
 my $form = 'searchtype=Substring';
 
-my $request = new HTTP::Request('POST', $url, undef, $form);
+my $request = HTTP::Request->new('POST', $url, undef, $form);
 $request->header('Content-Type', 'application/x-www-form-urlencoded');
 
 my $response = $ua->request($request, undef, undef);

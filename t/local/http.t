@@ -68,13 +68,13 @@ print "Will access HTTP server at $base\n";
 
 require LWP::UserAgent;
 require HTTP::Request;
-$ua = new LWP::UserAgent;
+$ua = LWP::UserAgent->new;
 $ua->agent("Mozilla/0.01 " . $ua->agent);
 $ua->from('gisle@aas.no');
 
 #----------------------------------------------------------------
 print "Bad request...\n";
-$req = new HTTP::Request GET => url("/not_found", $base);
+$req = HTTP::Request->new(GET => url("/not_found", $base));
 $req->header(X_Foo => "Bar");
 $res = $ua->request($req);
 
@@ -96,7 +96,7 @@ sub httpd_get_echo
     print $c $req->as_string;
 }
 
-$req = new HTTP::Request GET => url("/echo/path_info?query", $base);
+$req = HTTP::Request->new(GET => url("/echo/path_info?query", $base));
 $req->push_header(Accept => 'text/html');
 $req->push_header(Accept => 'text/plain; q=0.9');
 $req->push_header(Accept => 'image/*');
@@ -206,7 +206,7 @@ sub httpd_get_file
     unlink($file) if $file =~ /^test-/;
 }
 
-$req = new HTTP::Request GET => url("/file?name=$file", $base);
+$req = HTTP::Request->new(GET => url("/file?name=$file", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 
@@ -223,7 +223,7 @@ ok($res->is_error);
 is($res->code, 404, 'response code 404');   # not found
 
 # Then try to list current directory
-$req = new HTTP::Request GET => url("/file?name=.", $base);
+$req = HTTP::Request->new(GET => url("/file?name=.", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 is($res->code, 501, 'response code 501');   # NYI
@@ -237,7 +237,7 @@ sub httpd_get_redirect
    $c->send_redirect("/echo/redirect");
 }
 
-$req = new HTTP::Request GET => url("/redirect/foo", $base);
+$req = HTTP::Request->new(GET => url("/redirect/foo", $base));
 $res = $ua->request($req);
 #print $res->as_string;
 
@@ -297,7 +297,7 @@ sub httpd_get_basic
       }
    }
 }
-$req = new HTTP::Request GET => url("/basic", $base);
+$req = HTTP::Request->new(GET => url("/basic", $base));
 $res = MyUA->new->request($req);
 #print $res->as_string;
 
@@ -366,7 +366,7 @@ sub httpd_get_digest
 		}
 	}
 }
-$req = new HTTP::Request GET => url("/digest", $base);
+$req = HTTP::Request->new(GET => url("/digest", $base));
 $res = MyUA2->new->request($req);
 #print STDERR $res->as_string;
 
@@ -407,7 +407,7 @@ sub httpd_get_proxy
 }
 
 $ua->proxy(ftp => $base);
-$req = new HTTP::Request GET => "ftp://ftp.perl.com/proxy";
+$req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
 $res = $ua->request($req);
 #print $res->as_string;
 ok($res->is_success);
@@ -433,7 +433,7 @@ sub httpd_post_echo
    unlink("tmp$$");
 }
 
-$req = new HTTP::Request POST => url("/echo/foo", $base);
+$req = HTTP::Request->new(POST => url("/echo/foo", $base));
 $req->content_type("application/x-www-form-urlencoded");
 $req->content("foo=bar&bar=test");
 $res = $ua->request($req);
@@ -491,7 +491,7 @@ sub httpd_get_quit
     exit;  # terminate HTTP server
 }
 
-$req = new HTTP::Request GET => url("/quit", $base);
+$req = HTTP::Request->new(GET => url("/quit", $base));
 $res = $ua->request($req);
 
 is($res->code, 503, 'response code is 503');

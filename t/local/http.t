@@ -149,7 +149,7 @@ sub httpd_put_echo
     $c->send_crlf;
     print $c $req->as_string;
 }
-ok($res->content, qr/^From: gisle\@aas.no$/m);
+like($res->content, qr/^From: gisle\@aas.no$/m);
 # Try it with the higher level 'get' interface
 $res = $ua->put(url("/echo/path_info?query", $base),
     Accept => 'text/html',
@@ -159,7 +159,7 @@ $res = $ua->put(url("/echo/path_info?query", $base),
 );
 #$res->dump;
 is($res->code, 200, 'response code 200');
-ok($res->content, qr/^From: gisle\@aas.no$/m);
+like($res->content, qr/^From: gisle\@aas.no$/m);
 
 #----------------------------------------------------------------
 print "UserAgent->delete...\n";
@@ -171,7 +171,7 @@ sub httpd_delete_echo
     $c->send_crlf;
     print $c $req->as_string;
 }
-ok($res->content, qr/^From: gisle\@aas.no$/m);
+like($res->content, qr/^From: gisle\@aas.no$/m);
 # Try it with the higher level 'get' interface
 $res = $ua->delete(url("/echo/path_info?query", $base),
     Accept => 'text/html',
@@ -181,7 +181,7 @@ $res = $ua->delete(url("/echo/path_info?query", $base),
 );
 #$res->dump;
 is($res->code, 200, 'response code 200');
-ok($res->content, qr/^From: gisle\@aas.no$/m);
+like($res->content, qr/^From: gisle\@aas.no$/m);
 
 #----------------------------------------------------------------
 print "Send file...\n";
@@ -214,7 +214,7 @@ ok($res->is_success);
 ok($res->content_type, 'text/html');
 is($res->content_length, 147, '147 content length');
 ok($res->title, 'En prøve');
-ok($res->content, qr/å være/);
+like($res->content, qr/å være/);
 
 # A second try on the same file, should fail because we unlink it
 $res = $ua->request($req);
@@ -255,7 +255,7 @@ $ua->max_redirect(5);
 $res = $ua->request($req);
 #print $res->as_string;
 ok($res->is_redirect);
-ok($res->header("Client-Warning"), qr/loop detected/i);
+like($res->header("Client-Warning"), qr/loop detected/i);
 is($res->redirects, 5, '5 max redirects');
 
 $ua->max_redirect(0);
@@ -441,9 +441,9 @@ $res = $ua->request($req);
 
 $_ = $res->content;
 ok($res->is_success);
-ok($_, qr/^Content-Length:\s*16$/mi);
-ok($_, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi);
-ok($_, qr/^foo=bar&bar=test$/m);
+like($_, qr/^Content-Length:\s*16$/mi);
+like($_, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi);
+like($_, qr/^foo=bar&bar=test$/m);
 
 $req = HTTP::Request->new(POST => url("/echo/foo", $base));
 $req->content_type("multipart/form-data");
@@ -478,7 +478,7 @@ sub httpd_get_partial
     ok($res->is_success); # "a 206 response is considered successful"
     # Put max_size back how we found it. 
     $ua->max_size(undef);
-    ok($res->as_string, qr/Client-Aborted: max_size/); # Client-Aborted is returned when max_size is given
+    like($res->as_string, qr/Client-Aborted: max_size/); # Client-Aborted is returned when max_size is given
 }
 
 
@@ -495,4 +495,4 @@ $req = HTTP::Request->new(GET => url("/quit", $base));
 $res = $ua->request($req);
 
 is($res->code, 503, 'response code is 503');
-ok($res->content, qr/Bye, bye/);
+like($res->content, qr/Bye, bye/);

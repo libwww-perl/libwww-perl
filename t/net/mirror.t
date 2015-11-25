@@ -1,41 +1,40 @@
+# -*- perl -*-
 #
 # Test mirroring a file
 #
 
+use strict;
+use warnings;
+use HTTP::Status;
+use Test::More;
 use FindBin qw($Bin);
-if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
-}
 
-require "$Bin/config.pl";
-require LWP::UserAgent;
-require HTTP::Status;
+plan skip_all => 'No net config file' unless -e "$Bin/config.pl";
 
-print "1..2\n";
+require_ok("$Bin/config.pl");
+use_ok('LWP::UserAgent');
+
+ok($net::httpserver, 'httpserver set in config.pl');
+ok($net::cgidir, 'cgidir set in config.pl');
 
 my $ua = LWP::UserAgent->new;   # create a useragent to test
+isa_ok($ua,'LWP::UserAgent', 'new UserAgent');
 
-my $url = "http://$net::httpserver/";
+my $url  = "http://$net::httpserver/$net::cgidir/mirror";
 my $copy = "lwp-test-$$"; # downloaded copy
 
 my $response = $ua->mirror($url, $copy);
+isa_ok($response, 'HTTP::Response', 'got a proper response.');
 
-if ($response->code == &HTTP::Status::RC_OK) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
+ok(HTTP::Status::is_success($response->code), '$response->code OK');
+
+sleep 1;  # we want to test the file at a later time
 
 # OK, so now do it again, should get Not-Modified
 $response = $ua->mirror($url, $copy);
-if ($response->code == &HTTP::Status::RC_NOT_MODIFIED) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
-unlink($copy);
+is($response->code, &HTTP::Status::RC_NOT_MODIFIED, '$response->code NOT_MODIFIED') or print $response->as_string;
 
-$net::httpserver = $net::httpserver;  # avoid -w warning
+unlink($copy);
+ok( !-f $copy, "Deleted our copy: $copy");
+
+done_testing();

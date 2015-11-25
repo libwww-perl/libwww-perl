@@ -1,4 +1,4 @@
-
+# -*- perl -*-
 $url = shift || "";
 $url = "http://localhost:8080/$url" unless $url =~ /:/;
 

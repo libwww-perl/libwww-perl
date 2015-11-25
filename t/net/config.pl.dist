@@ -1,10 +1,10 @@
 package net;
 
 # Configure these for your local system
-$httpserver  = "localhost:80";
+$httpserver  = $ENV{PERL_TEST_HTTP_SERVER} || "localhost:80";
 $cgidir      = "/cgi-bin/lwp";
 
 # Used for proxy test
-$ftp_proxy = "http://localhost/";
+$ftp_proxy   = $ENV{PERL_TEST_FTP_PROXY}   || "http://localhost/";
 
 1;

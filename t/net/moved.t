@@ -1,38 +1,30 @@
-#!/usr/local/bin/perl -w
-#
+# perl
 
+use strict;
+use warnings;
+use HTTP::Request;
+use Test::More;
 use FindBin qw($Bin);
-if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
-}
 
-require "$Bin/config.pl";
-require LWP::UserAgent;
+plan skip_all => 'No net config file' unless -e "$Bin/config.pl";
 
-print "1..1\n";
+require_ok("$Bin/config.pl");
+use_ok('LWP::UserAgent');
 
-$url = "http://$net::httpserver$net::cgidir/moved";
+ok($net::httpserver, 'httpserver set in config.pl');
+ok($net::cgidir, 'cgidir set in config.pl');
 
-my $ua = LWP::UserAgent->new;   # create a useragent to test
-$ua->timeout(30);               # timeout in seconds
+my $url = "http://$net::httpserver$net::cgidir/moved";
+
+my $ua = LWP::UserAgent->new(timeout=>30);   # create a useragent to test
+isa_ok($ua,'LWP::UserAgent','new LWP::UserAgent');
 
 my $request = HTTP::Request->new('GET', $url);
-
-print $request->as_string;
+isa_ok($request,'HTTP::Request', 'new HTTP::Request');
+# print $request->as_string;
 
 my $response = $ua->request($request, undef, undef);
 
-print $response->as_string, "\n";
+ok($response->is_success, "successful request");
 
-if ($response->is_success) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
-
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+done_testing();

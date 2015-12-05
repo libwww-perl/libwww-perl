@@ -42,6 +42,11 @@ my %WriteMakefileArgs = (
     EXE_FILES => [ map "bin/$_", @prog ],
     LICENSE => 'perl_5',
     MIN_PERL_VERSION => 5.008001,
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => 0,
+        'Getopt::Long'        => 0,
+        'File::Copy'          => 0,
+    },
     PREREQ_PM => {
         'Digest::MD5' => 0,
         'Encode' => "2.12",
@@ -71,6 +76,7 @@ my %WriteMakefileArgs = (
         'Test' => '0',
         'Test::More' => '0',
         'FindBin' => '0',
+        # 'Config' => 0,        # not indexed
     },
     META_MERGE => {
         'meta-spec' => { version => 2 },

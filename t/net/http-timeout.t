@@ -1,46 +1,32 @@
-#
+# perl
 # Check timeouts via HTTP.
 #
 
+use strict;
+use warnings;
+use HTTP::Request;
+use Test::More;
 use FindBin qw($Bin);
-if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
-}
 
-require "$Bin/config.pl";
-require HTTP::Request;
-require LWP::UserAgent;
+plan skip_all => 'No net config file' unless -e "$Bin/config.pl";
 
-print "1..1\n";
+require_ok("$Bin/config.pl");
+use_ok('LWP::UserAgent');
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+ok($net::httpserver, 'httpserver set in config.pl');
+ok($net::cgidir, 'cgidir set in config.pl');
 
-$ua->timeout(4);
+my $ua = LWP::UserAgent->new(timeout=>4);   # create a useragent to test
+isa_ok($ua,'LWP::UserAgent', 'new UserAgent');
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/timeout";
-
-$url = "http://$netloc$script";
-
-my $request = new HTTP::Request('GET', $url);
-
-print $request->as_string;
+my $url  = "http://$net::httpserver/$net::cgidir/timeout";
+my $request = HTTP::Request->new('GET', $url);
+isa_ok($request, 'HTTP::Request', 'new HTTP::Request');
 
 my $response = $ua->request($request, undef);
+isa_ok($response, 'HTTP::Response', 'got a response');
 
-my $str = $response->as_string;
+ok($response->is_error, 'The response is correctly an error');
+like($response->as_string(), qr/timeout/, 'The error message is a timeout');
 
-print "$str\n";
-
-if ($response->is_error and
-    $str =~ /timeout/) {
-    print "ok 1\n";
-}
-else {
-    print "nok ok 1\n";
-}
-
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+done_testing();

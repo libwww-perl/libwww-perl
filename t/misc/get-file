@@ -1,4 +1,4 @@
-
+# -*- perl -*-
 $file = shift || "";
 $to = $file;
 $to =~ s|.*/||;  # only basename
@@ -6,7 +6,7 @@ $to = "index.html" unless length $to;
 
 use LWP::UserAgent;
 
-$ua = new LWP::UserAgent;
+$ua = LWP::UserAgent->new;
 #$ua->agent("get-file/0.1");
 #$ua->from('aas@sn.no');
 

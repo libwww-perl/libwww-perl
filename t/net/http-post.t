@@ -1,52 +1,40 @@
-#!/usr/local/bin/perl -w
+#!perl
 #
 # Check POST via HTTP.
 #
-
+use strict;
+use warnings;
+use HTTP::Request;
+use Test::More;
 use FindBin qw($Bin);
-if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
-}
 
-require "$Bin/config.pl";
-require HTTP::Request;
-require LWP::UserAgent;
+plan skip_all => 'No net config file' unless -e "$Bin/config.pl";
 
-print "1..2\n";
+require_ok("$Bin/config.pl");
+use_ok('LWP::UserAgent');
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/test";
+ok($net::httpserver, 'httpserver set in config.pl');
+ok($net::cgidir, 'cgidir set in config.pl');
 
-my $ua = new LWP::UserAgent;    # create a useragent to test
+my $ua = LWP::UserAgent->new();   # create a useragent to test
+isa_ok($ua,'LWP::UserAgent', 'new UserAgent');
 
-$url = "http://$netloc$script";
-
+my $url  = "http://$net::httpserver/$net::cgidir/test";
 my $form = 'searchtype=Substring';
 
-my $request = new HTTP::Request('POST', $url, undef, $form);
+my $request = HTTP::Request->new('POST', $url, undef, $form);
+isa_ok($request, 'HTTP::Request', 'Got a proper request setup');
 $request->header('Content-Type', 'application/x-www-form-urlencoded');
 
 my $response = $ua->request($request, undef, undef);
+isa_ok($response, 'HTTP::Response', 'got a response');
 
 my $str = $response->as_string;
+ok($response->is_success, "response was successful");
+like($response->as_string, qr/^REQUEST_METHOD=POST$/m, 'was a proper POST request');
 
-print "$str\n";
+my $len = 0;
+$len = $1 if $str =~ /^CONTENT_LENGTH=(\d+)$/m;
+is($len, length($form), "content length matches the form length");
 
-if ($response->is_success and $str =~ /^REQUEST_METHOD=POST$/m) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
-if ($str =~ /^CONTENT_LENGTH=(\d+)$/m && $1 == length($form)) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
-
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+done_testing();

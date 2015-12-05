@@ -1,10 +1,10 @@
-
+# -*- perl -*-
 $url = shift || "";
 $url = "http://localhost:8080/$url" unless $url =~ /:/;
 
 use LWP::UserAgent;
 
-$ua = new LWP::UserAgent;
+$ua = LWP::UserAgent->new;
 
 
 $tot = 0;

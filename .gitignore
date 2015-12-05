@@ -1,11 +1,18 @@
+# Byproducts of the make process
 Makefile
 Makefile.old
+MYMETA.json
+MYMETA.yml
 blib
 pm_to_blib
+
+# Random Test flag files
 SSL
 t/CAN_TALK_TO_OURSELF
 t/live/ENABLED
 t/live/jigsaw/ENABLED
+
+# Build tarballs and artifacts
 *.tar.gz
 xx*
 MYMETA*

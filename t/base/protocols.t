@@ -1,17 +1,20 @@
-use Test;
-plan tests => 6;
+use Test::More;
+plan tests => 7;
 
-use LWP::UserAgent;
-$ua = LWP::UserAgent->new();
+use strict;
+use warnings;
+use_ok('LWP::UserAgent');
+
+my $ua = LWP::UserAgent->new();
 
 $ua->protocols_forbidden(['hTtP']);
-ok(scalar(@{$ua->protocols_forbidden()}), 1);
-ok(@{$ua->protocols_forbidden()}[0], 'hTtP');
+is(scalar(@{$ua->protocols_forbidden()}), 1,'$ua->protocols_forbidden');
+is($ua->protocols_forbidden()->[0], 'hTtP', '$ua->protocols_forbidden->[0]');
 
-$response = $ua->get('http://www.cpan.org/');
-ok($response->is_error());
-ok(!$ua->is_protocol_supported('http'));
-ok(!$ua->protocols_allowed());
+my $response = $ua->get('http://www.cpan.org/');
+ok($response->is_error(), '$response->is_error');
+ok(!$ua->is_protocol_supported('http'), '! $ua->is_protocol_supported("http")');
+ok(!$ua->protocols_allowed(),           '! $ua->protocols_allowed');
 
 $ua->protocols_forbidden(undef);
-ok(!$ua->protocols_forbidden());
+ok(!$ua->protocols_forbidden(),         '$ua->protocols_forbidden(undef)');

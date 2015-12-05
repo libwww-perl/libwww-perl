@@ -64,13 +64,13 @@ _______________________________________________________________________________
 2014-07-24  Release 6.08
 
 Mike Schilli (1):
-      Requiring Net::HTTP 6.07 to fix IPv6 support 
+      Requiring Net::HTTP 6.07 to fix IPv6 support
         (RT#75618 and https://github.com/libwww-perl/net-http/pull/10)
 
 Jason A Fesler (2):
-      When the hostname is an IPv6 literal, encapsulate it with [brackets] 
+      When the hostname is an IPv6 literal, encapsulate it with [brackets]
         before calling Net::HTTP  [rt.cpan.org #29468]
-      Extra steps to make sure that the host address that has a ":" contains 
+      Extra steps to make sure that the host address that has a ":" contains
         only characters appropriate for an IPv6 address.
 
 John Wittkoski (1):
@@ -124,7 +124,7 @@ Steffen Ullrich (1):
         not Authorization header
 
 turugina (1):
-      fix: auth-header of Digest auth did not conform to 
+      fix: auth-header of Digest auth did not conform to
       RFC 2617 when WWW-Authenticate has 'qop' parameter.
 
 Gisle Aas (1):
@@ -922,7 +922,7 @@ _______________________________________________________________________________
 2007-08-05   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.808
-     
+
     Get rid of t/live/validator test.  Too much JavaScript madness
     for it to be a sane LWP test.
 
@@ -931,7 +931,7 @@ _______________________________________________________________________________
 2007-07-31   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.807
-     
+
     Apply patch correction from CPAN RT #26152
 
     More laxed t/live/validator test.
@@ -943,7 +943,7 @@ _______________________________________________________________________________
     Release 5.806
 
     Added progress callback to LWP::UserAgent.
-     
+
     HTTP::Daemon didn't avoid content in responses to HEAD requests
 
     Add support for HTTP Expect header to HTTP::Daemon (CPAN RT #27933)
@@ -971,7 +971,7 @@ _______________________________________________________________________________
         in content-type field in lwp-request (CPAN RT #26151)
 
     Add default media type for XML in LWP::MediaTypes (CPAN RT #21093)
-     
+
     Added chunked test by Andreas J. Koenig
 
 
@@ -991,7 +991,7 @@ _______________________________________________________________________________
 
     HTML::Form: The parse method now takes hash style optional
     arguments and the old verbose behaviour is now off by default.
-    
+
     HTML::Form: Accept <select multiple=""> for compatibility with
     other browsers.  Patch by Josh Rai <josh@rai.name>.
 
@@ -1021,7 +1021,7 @@ _______________________________________________________________________________
     requests by trying harder to pass off the whole request in a
     single call to syswrite.
 
-    lwp-request now give better error messages if you used the 
+    lwp-request now give better error messages if you used the
     -o option without having the HTML-Tree distribution installed.
     Also document this dependency.
 
@@ -1090,7 +1090,7 @@ _______________________________________________________________________________
     controlled data and will fail if something looks not
     quite right.
 
-  
+
 
 2004-11-30   Gisle Aas <gisle@ActiveState.com>
 
@@ -1209,7 +1209,7 @@ _______________________________________________________________________________
     Various typo fixes by Ville Skyttä <ville.skytta@iki.fi>.
 
     Fixed test failure under perl-5.005.
-    
+
     LWP::Protocol::loopback:  This is a new protocol handler that
     works like the HTTP TRACE method, it will return the request
     provided to it.  This is sometimes useful for testing.  It can
@@ -1267,7 +1267,7 @@ _______________________________________________________________________________
     Release 5.78
 
     Removed stray Data::Dump reference from test suite.
-    
+
     Added the parse(), clear(), parts() and add_part() methods to
     HTTP::Message.  The HTTP::MessageParts module of 5.77 is no more.
 
@@ -1345,7 +1345,7 @@ _______________________________________________________________________________
 2003-11-21   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.76
-    
+
     Revised handling of redirects.
        - clear our content and content headers if we
          rewrite request as GET based on patch by
@@ -1361,7 +1361,7 @@ _______________________________________________________________________________
 2003-10-26   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.75
-    
+
     Reworked LWP::UserAgent, HTTP::Request and HTTP::Response
     documentation.  Also other documentation tweaks.
 
@@ -1387,14 +1387,14 @@ _______________________________________________________________________________
 2003-10-19   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.73
-    
+
     Takanori Ugai <ugai@jp.fujitsu.com> found that 'max_redirect'
     introduced in 5.72 was broken and provided a patch for that.
 
     Not all ftp servers return 550 responses when trying to
     to RETR a directory.  Microsoft's IIS is one of those.
     Patch provided by Thomas Lotterer <thl@dev.de.cw.com>.
-    
+
     Some documentation tweaks.
 
 
@@ -1613,7 +1613,7 @@ _______________________________________________________________________________
 
     Make HTTP::Date compatible with perl 5.8.
 
-    Try to avoid to default to overwriting /usr/bin/head 
+    Try to avoid to default to overwriting /usr/bin/head
     on MacOS X when the perl install prefix is /usr/bin.
 
     HTTP::Cookies fix for parsing of Netscape cookies file
@@ -1635,7 +1635,7 @@ _______________________________________________________________________________
 
        - the GET, HEAD, POST aliases for lwp-request should
          now work on Windows.
-    
+
     HTTP::Cookies:
        - added 'clear_temporary_cookies' method;
          patch by Mike Schilli <schilli1@pacbell.net>.
@@ -1851,7 +1851,7 @@ _______________________________________________________________________________
     some extra methods that external code might depend upon.
 
     Patches by Sean M. Burke:
-       - Fix treatment of language tags in HTTP::Negotiate 
+       - Fix treatment of language tags in HTTP::Negotiate
        - Avoid trailing newline in $response->message
        - HTTP::Response clarifications
 
@@ -2099,7 +2099,7 @@ _______________________________________________________________________________
 
     HTTP::Daemon: Create self URL based on $self->sockaddr.  This works
     better when LocalAddr is used to specify the port number.  Based on
-    patch from Ben Low <ben@snrc.uow.edu.au>. 
+    patch from Ben Low <ben@snrc.uow.edu.au>.
 
     Avoid potential '<FILE> chunk 1' messages at the end of the response
     'message'.
@@ -2154,7 +2154,7 @@ _______________________________________________________________________________
     LWP::Simple: Avoid trivial_http_get when @ appears in authority
     part of URI
 
-    LWP::Authen::Digest: Need to have query in URI param. 
+    LWP::Authen::Digest: Need to have query in URI param.
     Spotted by <ronald@innovation.ch>.
 
     LWP::Protocol::http: unescape username/password if they are
@@ -2307,9 +2307,9 @@ _______________________________________________________________________________
  o  Documentation patch from Michael A. Chase <mchase@ix.netcom.com>
 
  o  PREREQ_PM patch from Andreas Koenig <andreas.koenig@anima.de>
- 
+
  o  LWP::Simple::head fix by Richard Chen <richard@lexitech.com>
- 
+
  o  "LWP fails with PerlEXE"-patch from Gurusamy Sarathy
 
  o  Allow "." in HTTP header names.  Patch by Marc Langheinrich
@@ -2561,7 +2561,7 @@ Thu Mar 12 1998   Gisle Aas <aas@sn.no>
 
  o  File::CounterFile protect against bad $/ and $\ as suggested
     by Frank Hoehne.
- 
+
  o  File::Listing used "next" when return was more appropriate.
     Patch by erik@mediator.uni-c.dk.
 
@@ -2708,7 +2708,7 @@ Fri Dec 12 1997   Gisle Aas <aas@sn.no>
 
  o  Compressed HTML::Response->error_as_HTML output
 
- o  HTTP::Status updated to latest HTTP spec.  Added 
+ o  HTTP::Status updated to latest HTTP spec.  Added
     RC_REQUEST_RANGE_NOT_SATISFIABLE (416)
 
 
@@ -3137,7 +3137,7 @@ Tue Aug  1 1996   Gisle Aas <aas@sn.no>
 
  o  Release 5.01.
 
- o  Updated ftp protocol module to be compatible with Net::FTP 
+ o  Updated ftp protocol module to be compatible with Net::FTP
     version 2.00 (the version found in libnet-1.00)
 
  o  New HTML parser module called HTML::LinkExtor
@@ -3366,7 +3366,7 @@ Tue Mar  5 1996   Gisle Aas <aas@sn.no>
     "anonymous" or "ftp"
 
  o  The LWP::Simple user agent proxy settings are initialized from
-    the proxy environment variables. 
+    the proxy environment variables.
 
  o  LWP::Protocol::ftp: Use the Net::FTP library to access ftp servers.
     Convert directories to HTML on request (Accept: text/html).
@@ -3677,7 +3677,7 @@ Wed Aug  9 1995   Gisle Aas <aas@oslonett.no>
     files that are autoloaded when used.  Self test moved to "t/uri.t".
 
 
-       
+
 Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
 
  o  Applied patch from Marc Hedlund <hedlund@best.com>
@@ -3719,7 +3719,7 @@ Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
     request/response chain.
 
 
-  
+
 Tue Jul 25 1995   Gisle Aas <aas@oslonett.no>
 
  o  Release 0.02
@@ -3798,7 +3798,7 @@ Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
 
  o  Always adds 1900 to the year in LWP::Date
 
- o  In LWP::MIMEheader:  Implemented clone(), removeHeader() and scan() 
+ o  In LWP::MIMEheader:  Implemented clone(), removeHeader() and scan()
     methods.  Reimplemented asString.  Removed asMIME().  Moved "Good
     Practice" into this file, and reimplemented it.
 

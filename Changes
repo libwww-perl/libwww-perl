@@ -2,9 +2,21 @@ Change history for libwww-perl
 
 _______________________________________________________________________________
 2015-12-15  Release 6.14
+    (special thanks to Chase Whitener for testing many of these changes out in
+    6.13_001!)
 
 Graham Knop (1):
     - tests now use localhost rather than a net-accessible address (PR#76)
+
+Michael Schwern (1):
+    - fixed some tests to do what they intended (regex rather than boolean
+      checks) (from PR#28)
+
+Joe Atzberger (2):
+    - conversion of some tests from Test.pm to Test::More (from PR#29)
+
+Piotr Roszatycki (1):
+    - use File::Temp for randomized tempdir (PR#53)
 
 _______________________________________________________________________________
 2015-02-14  Release 6.13

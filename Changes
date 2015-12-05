@@ -2,9 +2,9 @@
 2015-11-25 Release 6.14_001
 
 Chase Whitener:
-    - Merged PR#28
-    - Merged PR#29
-    - Merged PR#82
+    - Merged PR#28 (update tests for Test::More)
+    - Merged PR#29 (Move tests to Test::More)
+    - Merged PR#82 (remove indirect object notation from tests)
     - Test cleanup
 
 Graham Knop (1):

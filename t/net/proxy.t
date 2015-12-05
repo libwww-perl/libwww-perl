@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 #
 # Test retrieving a file with a 'ftp://' URL,
 # via a HTTP proxy.

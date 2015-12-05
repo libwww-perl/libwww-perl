@@ -1,4 +1,4 @@
-#!/local/perl/bin/perl -w
+#!/usr/bin/perl -w
 
 use URI::URL;
 $url = url(shift) || die "Usage: $0 <url>\n";

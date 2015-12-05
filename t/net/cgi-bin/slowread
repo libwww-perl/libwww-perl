@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 # You might post large amount of data to this script.  It will read
 # it slowly.

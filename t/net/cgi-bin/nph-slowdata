@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 # This script outputs some data slowly. It can be used to check that
 # pipelined processing of response content really works.  We use syswrite

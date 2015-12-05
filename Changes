@@ -1,7 +1,7 @@
 Change history for libwww-perl
 
 _______________________________________________________________________________
-
+2015-12-15  Release 6.14
 
 Graham Knop (1):
     - tests now use localhost rather than a net-accessible address (PR#76)

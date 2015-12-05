@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 use LWP::UserAgent;
+plan tests => 4;
 
 for my $varname ( qw(ABSURDLY_NAMED_PROXY MY_PROXY) ) {
 
@@ -14,5 +15,3 @@ for my $varname ( qw(ABSURDLY_NAMED_PROXY MY_PROXY) ) {
     is($@, "", "proxy: with env: $varname: no errors");
     delete $ENV{$varname};
 }
-
-done_testing();

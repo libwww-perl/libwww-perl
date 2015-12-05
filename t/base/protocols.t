@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 use LWP::UserAgent;
+plan tests => 7;
 
 my $ua = LWP::UserAgent->new();
 isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
@@ -18,5 +19,3 @@ ok(!$ua->protocols_allowed(),           '! $ua->protocols_allowed');
 
 $ua->protocols_forbidden(undef);
 ok(!$ua->protocols_forbidden(),         '$ua->protocols_forbidden(undef)');
-
-done_testing();

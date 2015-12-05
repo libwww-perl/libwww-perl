@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 use LWP::UserAgent;
+plan tests => 37;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -107,5 +108,3 @@ $ua = LWP::UserAgent->new();
 is($ua->proxy('http'), "http://example.com", "\$ua->proxy('http')");
 $ua = LWP::UserAgent->new(env_proxy => 0);
 is($ua->proxy('http'),                undef, "\$ua->proxy('http')");
-
-done_testing();

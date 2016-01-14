@@ -31,5 +31,5 @@ for my $cref ( ${$res->content_ref} ) {
     my $first = shift(@lines);
     like($first, qr/^\d+$/, 'The first line is a number');
 
-    ok(grep {$_ ne $first} @lines, 'All lines are the same');
+    is(scalar(grep {$_ ne $first} @lines), 0, 'All lines are the same');
 }

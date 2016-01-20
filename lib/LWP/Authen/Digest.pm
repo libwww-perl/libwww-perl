@@ -59,7 +59,7 @@ sub auth_header {
     for (@order) {
 	next unless defined $resp{$_};
 
-	# RFC2617 sais that qop-value and nc-value should be unquoted.
+	# RFC2617 says that qop-value and nc-value should be unquoted.
 	if ( $_ eq 'qop' || $_ eq 'nc' ) {
 		push(@pairs, "$_=" . $resp{$_});
 	}

@@ -497,7 +497,7 @@ Example:
 
 =head2 CPAN Requests
 
-URLs with scheme C<cpan:> are redirected to the a suitable CPAN
+URLs with scheme C<cpan:> are redirected to a suitable CPAN
 mirror.  If you have your own local mirror of CPAN you might tell LWP
 to use it for C<cpan:> URLs by an assignment like this:
 
@@ -632,7 +632,7 @@ Markus B Krüger, Markus Laker, Martijn Koster, Martin Thurn, Matthew
 Eldridge, Matthew.van.Eerde, Matt Sergeant, Michael A. Chase, Michael
 Quaranta, Michael Thompson, Mike Schilli, Moshe Kaminsky, Nathan
 Torkington, Nicolai Langfeldt, Norton Allen, Olly Betts, Paul
-J. Schinder, peterm, Philip GuentherDaniel Buenzli, Pon Hwa Lin,
+J. Schinder, peterm, Philip Guenther, Daniel Buenzli, Pon Hwa Lin,
 Radoslaw Zielinski, Radu Greab, Randal L. Schwartz, Richard Chen,
 Robin Barker, Roy Fielding, Sander van Zoest, Sean M. Burke,
 shildreth, Slaven Rezic, Steve A Fink, Steve Hay, Steven Butler,

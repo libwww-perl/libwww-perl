@@ -225,7 +225,7 @@ This is the release where we try to help the CPAN-toolchain be able to install
 the modules required for https-support in LWP.  We have done this by unbundling
 the LWP::Protocol::https module from the libwww-perl distribution.  In order to
 have https support you now need to install (or depend on) 'LWP::Protocol::https'
-and then this will make sure that all the prerequsite modules comes along.
+and then this will make sure that all the prerequisite modules comes along.
 See [RT#66838].
 
 This release also removes the old http10 modules that has really been
@@ -255,7 +255,7 @@ _______________________________________________________________________________
 2011-03-08  Release 6.00
 
 Unbundled all modules not in the LWP:: namespace from the libwww-perl
-distribution.  The new broken out CPAN distribtions are File-Listing,
+distribution.  The new broken out CPAN distributions are File-Listing,
 HTML-Form, HTTP-Cookies, HTTP-Daemon, HTTP-Date, HTTP-Message, HTTP-Negotiate,
 Net-HTTP, and WWW-RobotRules.  libwww-perl-6 require these to be installed.
 
@@ -1617,7 +1617,7 @@ _______________________________________________________________________________
     on MacOS X when the perl install prefix is /usr/bin.
 
     HTTP::Cookies fix for parsing of Netscape cookies file
-    on MS Windows. Patch by by Sean M. Burke <sburke@cpan.org>.
+    on MS Windows. Patch by Sean M. Burke <sburke@cpan.org>.
 
     HTTP::Negotiate doc patch from Edward Avis <epa98@doc.ic.ac.uk>.
 
@@ -2504,7 +2504,7 @@ Wed Apr  1 1998   Gisle Aas <aas@sn.no>
 
  o  Unbundled the following modules:
 
-       * HTML-Parser  (HTML::Parser, HTML::Entites, HTML::LinkExtor,...)
+       * HTML-Parser  (HTML::Parser, HTML::Entities, HTML::LinkExtor,...)
        * HTML-Tree    (HTML::Element, HTML::TreeBuilder,...)
        * Font-AFM     (Font::AFM, Font::Metrics::*)
        * File-CounterFile

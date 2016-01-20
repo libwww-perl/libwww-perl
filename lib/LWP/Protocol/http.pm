@@ -168,7 +168,7 @@ sub request
     my $cache_key;
     if ( $conn_cache ) {
 	$cache_key = "$host:$port";
-	# For https we reuse the socket immediatly only if it has an established
+	# For https we reuse the socket immediately only if it has an established
 	# tunnel to the target. Otherwise a CONNECT request followed by an SSL
 	# upgrade need to be done first. The request itself might reuse an
 	# existing non-ssl connection to the proxy

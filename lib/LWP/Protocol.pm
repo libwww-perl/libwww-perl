@@ -203,7 +203,7 @@ LWP::Protocol - Base class for LWP protocols
 
 =head1 DESCRIPTION
 
-This class is used a the base class for all protocol implementations
+This class is used as the base class for all protocol implementations
 supported by the LWP library.
 
 When creating an instance of this class using

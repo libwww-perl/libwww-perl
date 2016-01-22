@@ -6,7 +6,8 @@ _______________________________________________________________________________
     6.14_001!)
 
 Graham Knop (1):
-    - tests now use localhost rather than a net-accessible address (PR#76)
+    - tests now use localhost rather than a net-accessible address (PR#76,
+      RT#94959)
 
 Michael Schwern (1):
     - fixed some tests to do what they intended (regex rather than boolean

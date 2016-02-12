@@ -1,11 +1,9 @@
-#!perl -w
-
 use strict;
+use warnings;
 use Test::More;
 
-plan tests => 35;
-
 use LWP::UserAgent;
+plan tests => 37;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -16,7 +14,10 @@ delete $ENV{PERL_LWP_SSL_CA_PATH};
 delete $ENV{PERL_LWP_ENV_PROXY};
 
 my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
+
 my $clone = $ua->clone;
+isa_ok($clone, 'LWP::UserAgent', 'clone: UserAgent instance');
 
 like($ua->agent, qr/^libwww-perl/, '$ua->agent');
 ok(!defined $ua->proxy(ftp => "http://www.sol.no"), '$ua->proxy(ftp => "http://www.sol.no")');
@@ -36,7 +37,6 @@ is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
 # Try it
 $ua->proxy(http => "loopback:");
 $ua->agent("foo/0.1");
-
 is($ua->get("http://www.example.com", x => "y")->content, <<EOT , "Full \$ua->get->content");
 GET http://www.example.com
 User-Agent: foo/0.1

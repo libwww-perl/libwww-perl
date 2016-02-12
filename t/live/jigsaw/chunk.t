@@ -1,37 +1,35 @@
-print "1..5\n";
-
 use strict;
+use warnings;
+use Test::More;
+
+use HTTP::Request;
 use LWP::UserAgent;
 
+plan tests => 10;
+
 my $ua = LWP::UserAgent->new(keep_alive => 1);
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/ChunkedScript");
+isa_ok($req, 'HTTP::Request', 'new: HTTP::Request instance');
 my $res = $ua->request($req);
+isa_ok($res, 'HTTP::Response', 'request: Got a proper response');
 
-print "not " unless $res->is_success && $res->content_type eq "text/plain";
-print "ok 1\n";
+ok($res->is_success, 'response success');
+is($res->content_type, 'text/plain', 'Content-Type: text/plain');
+is($res->header('Client-Transfer-Encoding'), "chunked", 'Client-Transfer-Encoding: chunked');
 
-print "not " unless $res->header("Client-Transfer-Encoding") eq "chunked";
-print "ok 2\n";
+for my $cref ( ${$res->content_ref} ) {
+    $cref =~ s/\015?\012/\n/g;
+    like($cref, qr/Below this line, is 1000 repeated lines of 0-9/, 'proper text found');
+    $cref =~ s/^.*?-----+\n//s;
 
-for (${$res->content_ref}) {
-    s/\015?\012/\n/g;
-    /Below this line, is 1000 repeated lines of 0-9/ || die;
-    s/^.*?-----+\n//s;
-
-    my @lines = split(/^/);
-    print "not " if @lines != 1000;
-    print "ok 3\n";
+    my @lines = split(/^/, $cref);
+    is(scalar(@lines), 1000, 'Got 1000 lines');
 
     # check that all lines are the same
     my $first = shift(@lines);
-    my $no_they_are_not;
-    for (@lines) {
-	$no_they_are_not++ if $_ ne $first;
-    }
-    print "not " if $no_they_are_not;
-    print "ok 4\n";
+    like($first, qr/^\d+$/, 'The first line is a number');
 
-    print "not " unless $first =~ /^\d+$/;
-    print "ok 5\n";
+    is(scalar(grep {$_ ne $first} @lines), 0, 'All lines are the same');
 }

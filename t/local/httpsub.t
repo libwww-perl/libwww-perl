@@ -19,7 +19,7 @@ my $req = HTTP::Request->new(GET => 'http://gisle:aas@www.activestate.com');
 isa_ok($req, 'HTTP::Request', 'activeState: new HTTP::Request Instance');
 my $res = $ua->request($req);
 isa_ok($res, 'HTTP::Response', 'activeState: got a response');
-ok($res->is_success, 'activeState: is_error');
+ok($res->is_success, 'activeState: is_success');
 #print $res->as_string;
 exit;
 
@@ -90,5 +90,5 @@ exit;
 }
 {
     package myhttp::Socket;
-    use base qw(LWP::Protocol::http::SocketMethods Net::HTTP);
+    use base qw(myhttp::SocketMethods Net::HTTP);
 }

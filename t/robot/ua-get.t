@@ -1,159 +1,152 @@
-use FindBin qw($Bin);
-if($^O eq "MacOS") {
-    print "1..0\n";
-    exit(0);
-}
+use strict;
+use warnings;
+use Test::More;
 
-if (0 != system($^X, "$Bin/../../talk-to-ourself")) {
-    print "1..0 # Skipped: Can't talk to ourself (misconfigured system)\n";
-    exit;
-}
+use Config;
+use FindBin qw($Bin);
+use HTTP::Daemon;
+use HTTP::Request;
+use IO::Socket;
+use LWP::RobotUA;
+use URI;
+use utf8;
 
 delete $ENV{PERL_LWP_ENV_PROXY};
-
 $| = 1; # autoflush
-require IO::Socket;  # make sure this work before we try to make a HTTP::Daemon
 
-# First we make ourself a daemon in another process
-my $D = shift || '';
+my $DAEMON;
+my $base;
+my $CAN_TEST = (0==system($^X, "$Bin/../../talk-to-ourself"))? 1: 0;
+
+my $D = shift(@ARGV) || '';
 if ($D eq 'daemon') {
+    daemonize();
+}
+else {
+    # start the daemon and the testing
+    if ( $^O ne 'MacOS' and $CAN_TEST ) {
+        my $perl = $Config{'perlpath'};
+        $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
+        open($DAEMON, "$perl $0 daemon |") or die "Can't exec daemon: $!";
+        my $greeting = <$DAEMON> || '';
+        if ( $greeting =~ /(<[^>]+>)/ ) {
+            $base = URI->new($1);
+        }
+    }
+    _test();
+}
+exit(0);
 
-    require HTTP::Daemon;
+sub _test {
+    # First we make ourself a daemon in another process
+    # listen to our daemon
+    return plan skip_all => "Can't test on this platform" if $^O eq 'MacOS';
+    return plan skip_all => 'We cannot talk to ourselves' unless $CAN_TEST;
+    return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
+    return plan skip_all => 'No base URI' unless $base;
 
-    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => '127.0.0.1');
+    plan tests => 20;
+    isa_ok($base, 'URI', "Base URL is good.");
 
-    print "Please to meet you at: <URL:", $d->url, ">\n";
-    open(STDOUT, $^O eq 'MSWin32' ?  ">nul" : $^O eq 'VMS' ? ">NL:"  : ">/dev/null");
+    my $ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
+    isa_ok($ua, 'LWP::RobotUA', 'New RobotUA instance');
+    $ua->delay(0.05);  # rather quick robot
 
-    while ($c = $d->accept) {
-	$r = $c->get_request;
-	if ($r) {
-	    my $p = ($r->uri->path_segments)[1];
-	    $p =~ s/\W//g;
-	    my $func = lc("httpd_" . $r->method . "_$p");
-	    #print STDERR "Calling $func...\n";
-            if (defined &$func) {
-		&$func($c, $r);
-	    }
-	    else {
-		$c->send_error(404);
-	    }
-	}
-	$c = undef;  # close connection
+    { # someplace
+        my $res = $ua->get( url("/someplace", $base) );
+        isa_ok($res, 'HTTP::Response', 'someplace: got a response object');
+        ok($res->is_success, 'someplace: is_success');
+    }
+    { # robots
+        my $res = $ua->get( url("/private/place", $base) );
+        isa_ok($res, 'HTTP::Response', 'robots: got a response object');
+        is($res->code, 403, 'robots: code: 403');
+        like($res->message, qr/robots\.txt/, 'robots: msg contains robots.txt');
+    }
+    { # foo
+        my $res = $ua->get( url("/foo", $base) );
+        isa_ok($res, 'HTTP::Response', 'foo: got a response object');
+        is($res->code, 404, 'foo: code: 404');
+        # Let the robotua generate "Service unavailable/Retry After response";
+        $ua->delay(1);
+        $ua->use_sleep(0);
+        $res = $ua->get( url("/foo", $base) );
+        isa_ok($res, 'HTTP::Response', 'foo: got a response object');
+        is( $res->code, 503, 'foo: code: 503');
+        ok($res->header("Retry-After"), 'foo: header: retry-after');
+    }
+    { # quit
+        $ua->delay(0);
+        my $res = $ua->get( url("/quit", $base) );
+        isa_ok($res, 'HTTP::Response', 'quit: got a response object');
+        is( $res->code, 503, 'quit: code: 503');
+        like($res->content, qr/Bye, bye/, 'quit: Content: bye bye');
+
+        $ua->delay(1);
+
+        # host_wait() should be around 60s now
+        ok(abs($ua->host_wait($base->host_port) - 60) < 5, 'quit: host-wait');
+
+        # Number of visits to this place should be
+        is($ua->no_visits($base->host_port), 4, 'quit: no_visits 4');
+    }
+    { # RobotUA used to have problem with mailto URLs.
+        $ENV{SENDMAIL} = "dummy";
+        my $res = $ua->get("mailto:gisle\@aas.no");
+        isa_ok($res, 'HTTP::Response', 'mailto: got a response object');
+
+        is($res->code, 400, 'mailto: response code: 400');
+        is($res->message, "Library does not allow method GET for 'mailto:' URLs", "mailto: right message");
+    }
+}
+sub daemonize {
+    my %router;
+    $router{get_robotstxt} = sub {
+        my($c,$r) = @_;
+        $c->send_basic_header;
+        $c->print("Content-Type: text/plain");
+        $c->send_crlf;
+        $c->send_crlf;
+        $c->print("User-Agent: *\n    Disallow: /private\n    ");
+    };
+    $router{get_someplace} = sub {
+        my($c,$r) = @_;
+        $c->send_basic_header;
+        $c->print("Content-Type: text/plain");
+        $c->send_crlf;
+        $c->send_crlf;
+        $c->print("Okidok\n");
+    };
+    $router{get_quit} = sub {
+        my($c) = @_;
+        $c->send_error(503, "Bye, bye");
+        exit;  # terminate HTTP server
+    };
+
+    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => '127.0.0.1') || die $!;
+    print "Pleased to meet you at: <URL:", $d->url, ">\n";
+    open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");
+
+    while (my $c = $d->accept) {
+        while (my $r = $c->get_request) {
+            my $p = ($r->uri->path_segments)[1];
+            $p =~ s/\W//g;
+            my $func = lc($r->method . "_$p");
+            if ( $router{$func} ) {
+                $router{$func}->($c, $r);
+            }
+            else {
+                $c->send_error(404);
+            }
+        }
+        $c->close;
+        undef($c);
     }
     print STDERR "HTTP Server terminated\n";
     exit;
 }
-else {
-    use Config;
-    my $perl = $Config{'perlpath'};
-    $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
-    open(DAEMON , "$perl $0 daemon |") or die "Can't exec daemon: $!";
-}
-
-print "1..8\n";
-
-
-$greating = <DAEMON>;
-$greating =~ /(<[^>]+>)/;
-
-require URI;
-my $base = URI->new($1);
 sub url {
-   my $u = URI->new(@_);
-   $u = $u->abs($_[1]) if @_ > 1;
-   $u->as_string;
+    my $u = URI->new(@_);
+    $u = $u->abs($_[1]) if @_ > 1;
+    $u->as_string;
 }
-
-print "Will access HTTP server at $base\n";
-
-require LWP::RobotUA;
-require HTTP::Request;
-$ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
-$ua->delay(0.05);  # rather quick robot
-
-#----------------------------------------------------------------
-sub httpd_get_robotstxt
-{
-   my($c,$r) = @_;
-   $c->send_basic_header;
-   $c->print("Content-Type: text/plain");
-   $c->send_crlf;
-   $c->send_crlf;
-   $c->print("User-Agent: *
-Disallow: /private
-
-");
-}
-
-sub httpd_get_someplace
-{
-   my($c,$r) = @_;
-   $c->send_basic_header;
-   $c->print("Content-Type: text/plain");
-   $c->send_crlf;
-   $c->send_crlf;
-   $c->print("Okidok\n");
-}
-
-$res = $ua->get( url("/someplace", $base) );
-#print $res->as_string;
-print "not " unless $res->is_success;
-print "ok 1\n";
-
-$res = $ua->get( url("/private/place", $base) );
-#print $res->as_string;
-print "not " unless $res->code == 403
-                and $res->message =~ /robots.txt/;
-print "ok 2\n";
-
-
-$res = $ua->get( url("/foo", $base) );
-#print $res->as_string;
-print "not " unless $res->code == 404;  # not found
-print "ok 3\n";
-
-# Let the robotua generate "Service unavailable/Retry After response";
-$ua->delay(1);
-$ua->use_sleep(0);
-
-$res = $ua->get( url("/foo", $base) );
-#print $res->as_string;
-print "not " unless $res->code == 503   # Unavailable
-                and $res->header("Retry-After");
-print "ok 4\n";
-
-#----------------------------------------------------------------
-print "Terminating server...\n";
-sub httpd_get_quit
-{
-    my($c) = @_;
-    $c->send_error(503, "Bye, bye");
-    exit;  # terminate HTTP server
-}
-
-$ua->delay(0);
-
-$res = $ua->get( url("/quit", $base) );
-
-print "not " unless $res->code == 503 and $res->content =~ /Bye, bye/;
-print "ok 5\n";
-
-#---------------------------------------------------------------
-$ua->delay(1);
-
-# host_wait() should be around 60s now
-print "not " unless abs($ua->host_wait($base->host_port) - 60) < 5;
-print "ok 6\n";
-
-# Number of visits to this place should be
-print "not " unless $ua->no_visits($base->host_port) == 4;
-print "ok 7\n";
-
-# RobotUA used to have problem with mailto URLs.
-$ENV{SENDMAIL} = "dummy";
-$res = $ua->get("mailto:gisle\@aas.no");
-#print $res->as_string;
-
-print "not " unless $res->code == 400 && $res->message eq "Library does not allow method GET for 'mailto:' URLs";
-print "ok 8\n";

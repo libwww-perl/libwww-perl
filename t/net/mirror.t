@@ -1,41 +1,34 @@
-#
-# Test mirroring a file
-#
+use strict;
+use warnings;
+use Test::More;
 
 use FindBin qw($Bin);
+use LWP::UserAgent;
+
 if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
+    plan skip_all => 'no net config file';
+    exit 0;
 }
 
 require "$Bin/config.pl";
-require LWP::UserAgent;
-require HTTP::Status;
 
-print "1..2\n";
+plan tests => 6;
 
-my $ua = LWP::UserAgent->new;   # create a useragent to test
-
-my $url = "http://$net::httpserver/";
+ok(defined $net::httpserver, 'net::httpserver exists');
+my $netloc = $net::httpserver || '';
+my $url = "http://$netloc/";
 my $copy = "lwp-test-$$"; # downloaded copy
 
-my $response = $ua->mirror($url, $copy);
+my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 
-if ($response->code == &HTTP::Status::RC_OK) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
+my $response = $ua->mirror($url, $copy);
+isa_ok($response, 'HTTP::Response', 'got a proper response object');
+
+is($response->code, 200, 'response code 200');
 
 # OK, so now do it again, should get Not-Modified
 $response = $ua->mirror($url, $copy);
-if ($response->code == &HTTP::Status::RC_NOT_MODIFIED) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
+isa_ok($response, 'HTTP::Response', 'got a proper response object');
+is($response->code, 304, 'response code 304');
 unlink($copy);
-
-$net::httpserver = $net::httpserver;  # avoid -w warning

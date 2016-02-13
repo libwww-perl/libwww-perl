@@ -1,51 +1,38 @@
-#!/usr/bin/perl -w
-#
-# Check GET via HTTP.
-#
+use strict;
+use warnings;
+use Test::More;
 
 use FindBin qw($Bin);
+use HTTP::Request;
+use LWP::UserAgent;
+
 if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
+    plan skip_all => 'no net config file';
+    exit 0;
 }
 
 require "$Bin/config.pl";
-require HTTP::Request;
-require LWP::UserAgent;
 
-print "1..2\n";
+plan tests => 8;
 
-my $ua = LWP::UserAgent->new;   # create a useragent to test
+my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 
-$netloc = $net::httpserver;
-$script = $net::cgidir . "/test";
-
-$url = "http://$netloc$script?query";
+ok(defined $net::httpserver, 'net::httpserver exists');
+ok(defined $net::cgidir, 'net::cgidir exists');
+my $netloc = $net::httpserver || '';
+my $script = ($net::cgidir || '') . "/test";
+my $url = "http://$netloc$script?query";
 
 my $request = HTTP::Request->new('GET', $url);
-
-print "GET $url\n\n";
+isa_ok($request, 'HTTP::Request', 'New Request Object');
 
 my $response = $ua->request($request, undef, undef);
+isa_ok($response, 'HTTP::Response', 'got a proper response object');
 
 my $str = $response->as_string;
 
-print "$str\n";
+ok($response->is_success, 'response successful');
+like($str, qr/^REQUEST_METHOD=GET$/m, 'request method is GET');
 
-if ($response->is_success and $str =~ /^REQUEST_METHOD=GET$/m) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
-
-if ($str =~ /^QUERY_STRING=query$/m) {
-    print "ok 2\n";
-}
-else {
-    print "not ok 2\n";
-}
-
-# avoid -w warning
-$dummy = $net::httpserver;
-$dummy = $net::cgidir;
+like($str, qr/^QUERY_STRING=query$/m, 'query string is query');

@@ -1,26 +1,30 @@
+use strict;
+use warnings;
+use Test::More;
+
+use LWP::UserAgent;
+use URI;
+
+plan tests => 5;
+
 #
 # See if autoloading of protocol schemes work
 #
-
-print "1..1\n";
-
-require LWP::UserAgent;
 # note no LWP::Protocol::file;
 
-$url = "file:.";
+my $url = "file:.";
+is(URI->new($url)->file, '.', 'URI of file:. is .');
 
-require URI;
-print "Trying to fetch '" . URI->new($url)->file . "'\n";
+my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
-my $ua = LWP::UserAgent->new;   # create a useragent to test
-$ua->timeout(30);               # timeout in seconds
+$ua->timeout(30);
+is($ua->timeout(), 30, 'timeout: set to 30 seconds');
 
 my $response = $ua->get($url);
-if ($response->is_success) {
-    print "ok 1\n";
-    print $response->as_string;
-}
-else {
-    print "not ok 1\n";
+isa_ok($response, 'HTTP::Response', 'Got a proper response');
+
+ok( $response->is_success(), 'Response was successful' );
+unless($response->is_success()) {
     print $response->error_as_HTML;
 }

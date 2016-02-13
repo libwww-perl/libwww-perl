@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 # This script outputs some data slowly. It can be used to check that
 # pipelined processing of response content really works.  We use syswrite
 # so that the script will notice when the connection is broken.
@@ -9,18 +12,16 @@ Content-Type: text/plain\r
 \r
 ");
 
-for (1..5) {
-    out("The number is now $_\n");
+for my $i (1..5) {
+    out("The number is now $i\n");
     sleep(1);
 }
 exit;
 
-
-sub out
-{
+sub out {
     my $data = shift;
     my $l = length $data;
     if (syswrite(STDOUT, $data, $l) != $l) {
-	exit 1;
+        exit 1;
     }
 }

@@ -4,7 +4,7 @@ use Test::More;
 
 use HTTP::Request;
 use LWP::UserAgent;
-use LWP::Protocol::http;
+use LWP::Protocol;
 use URI;
 
 plan tests => 4;

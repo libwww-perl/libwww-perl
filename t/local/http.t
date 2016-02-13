@@ -16,8 +16,7 @@ $| = 1; # autoflush
 
 my $DAEMON;
 my $base;
-my $CAN_TEST = ($^O ne 'MacOS' && 0==system($^X, "$Bin/../../talk-to-ourself"))? 1: 0;
-my $TESTS = 105; # easier to mimic a skip-all
+my $CAN_TEST = (0==system($^X, "$Bin/../../talk-to-ourself"))? 1: 0;
 
 my $D = shift(@ARGV) || '';
 if ($D eq 'daemon') {
@@ -25,7 +24,7 @@ if ($D eq 'daemon') {
 }
 else {
     # start the daemon and the testing
-    if ( $CAN_TEST ) {
+    if ( $^O ne 'MacOS' and $CAN_TEST ) {
         my $perl = $Config{'perlpath'};
         $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
         open($DAEMON, "$perl $0 daemon |") or die "Can't exec daemon: $!";
@@ -41,282 +40,281 @@ exit(0);
 sub _test {
     # First we make ourself a daemon in another process
     # listen to our daemon
-    plan tests => $TESTS;
-    SKIP: {
-        skip( "Can't test on this platform", $TESTS ) unless $CAN_TEST;
-        skip( "What happened to our DAEMON?", $TESTS ) unless $DAEMON;
-        skip( "We couldn't get our base URL", $TESTS ) unless $base;
+    return plan skip_all => "Can't test on this platform" if $^O eq 'MacOS';
+    return plan skip_all => 'We cannot talk to ourselves' unless $CAN_TEST;
+    return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
+    return plan skip_all => 'No base URI' unless $base;
 
-        isa_ok($base, 'URI', "Base URL is good.");
+    plan tests => 105;
+    isa_ok($base, 'URI', "Base URL is good.");
 
-        my $ua = LWP::UserAgent->new;
-        isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
-        $ua->agent("Mozilla/0.01 " . $ua->agent);
-        $ua->from('gisle@aas.no');
+    my $ua = LWP::UserAgent->new;
+    isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
+    $ua->agent("Mozilla/0.01 " . $ua->agent);
+    $ua->from('gisle@aas.no');
 
-        { # bad request
-            my $req = HTTP::Request->new(GET => url("/not_found", $base));
-            isa_ok($req, 'HTTP::Request', 'bad: new HTTP::Request Instance');
-            $req->header(X_Foo => "Bar");
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'bad: got a response');
+    { # bad request
+        my $req = HTTP::Request->new(GET => url("/not_found", $base));
+        isa_ok($req, 'HTTP::Request', 'bad: new HTTP::Request Instance');
+        $req->header(X_Foo => "Bar");
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'bad: got a response');
 
-            ok($res->is_error, 'bad: is_error');
-            is($res->code, 404, 'bad: code 404');
-            like($res->message, qr/not\s+found/i, 'bad: 404 message');
-            # we also expect a few headers
-            ok($res->server, 'bad: got server header');
-            ok($res->date, 'bad: got date header');
-        }
-        { # simple echo
-            my $req = HTTP::Request->new(GET => url("/echo/path_info?query", $base));
-            isa_ok($req, 'HTTP::Request', 'simple echo: new HTTP::Request instance');
-            $req->push_header(Accept => 'text/html');
-            $req->push_header(Accept => 'text/plain; q=0.9');
-            $req->push_header(Accept => 'image/*');
-            $req->push_header(':foo_bar' => 1);
-            $req->if_modified_since(time - 300);
-            $req->header(Long_text => "This is a very long header line
-                which is broken between
-                more than one line."
-            );
-            $req->header(X_Foo => "Bar");
+        ok($res->is_error, 'bad: is_error');
+        is($res->code, 404, 'bad: code 404');
+        like($res->message, qr/not\s+found/i, 'bad: 404 message');
+        # we also expect a few headers
+        ok($res->server, 'bad: got server header');
+        ok($res->date, 'bad: got date header');
+    }
+    { # simple echo
+        my $req = HTTP::Request->new(GET => url("/echo/path_info?query", $base));
+        isa_ok($req, 'HTTP::Request', 'simple echo: new HTTP::Request instance');
+        $req->push_header(Accept => 'text/html');
+        $req->push_header(Accept => 'text/plain; q=0.9');
+        $req->push_header(Accept => 'image/*');
+        $req->push_header(':foo_bar' => 1);
+        $req->if_modified_since(time - 300);
+        $req->header(Long_text => "This is a very long header line
+            which is broken between
+            more than one line."
+        );
+        $req->header(X_Foo => "Bar");
 
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'simple echo: got a response');
-            #print $res->as_string;
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'simple echo: got a response');
+        #print $res->as_string;
 
-            ok($res->is_success, 'simple echo: is_success');
-            is($res->code, 200, 'simple echo: code 200');
-            is($res->message, "OK", 'simple echo: message OK');
+        ok($res->is_success, 'simple echo: is_success');
+        is($res->code, 200, 'simple echo: code 200');
+        is($res->message, "OK", 'simple echo: message OK');
 
-            my $content = $res->content;
-            my @accept = ($content =~ /^Accept:\s*(.*)/mg);
+        my $content = $res->content;
+        my @accept = ($content =~ /^Accept:\s*(.*)/mg);
 
-            like($content, qr/^From:\s*gisle\@aas\.no\n/m, 'simple echo: From good');
-            like($content, qr/^Host:/m, 'simple echo: Host good');
-            is(@accept, 3, 'simple echo: 3 Accepts');
-            like($content, qr/^Accept:\s*text\/html/m, 'simple echo: Accept text/html good');
-            like($content, qr/^Accept:\s*text\/plain/m, 'simple echo: Accept text/plain good');
-            like($content, qr/^Accept:\s*image\/\*/m, 'simple echo: Accept image good');
-            like($content, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m, 'simple echo: modified good');
-            like($content, qr/^Long-Text:\s*This.*broken between/m, 'simple echo: long-text good');
-            like($content, qr/^Foo-Bar:\s*1\n/m, 'simple echo: Foo-Bar good');
-            like($content, qr/^X-Foo:\s*Bar\n/m, 'simple echo: X-Foo good');
-            like($content, qr/^User-Agent:\s*Mozilla\/0.01/m, 'simple echo: UserAgent good');
-        }
-        { # echo with higher level 'get' interface
-            my $res = $ua->get(url("/echo/path_info?query", $base),
-                Accept => 'text/html',
-                Accept => 'text/plain; q=0.9',
-                Accept => 'image/*',
-                X_Foo => "Bar",
-            );
-            isa_ok($res, 'HTTP::Response', 'simple echo 2: good response object');
-            #$res->dump;
-            is($res->code, 200, 'simple echo 2: code 200');
-        }
-        { # put
-            my $res = $ua->put(url("/echo/path_info?query", $base),
-                Accept => 'text/html',
-                Accept => 'text/plain; q=0.9',
-                Accept => 'image/*',
-                X_Foo => "Bar",
-            );
-            isa_ok($res, 'HTTP::Response', 'put: good response object');
-            #$res->dump;
-            is($res->code, 200, 'put: code 200');
-            like($res->content, qr/^From: gisle\@aas.no$/m, 'put: good From');
-        }
-        { # delete
-            my $res = $ua->delete(url("/echo/path_info?query", $base),
-                Accept => 'text/html',
-                Accept => 'text/plain; q=0.9',
-                Accept => 'image/*',
-                X_Foo => "Bar",
-            );
-            isa_ok($res, 'HTTP::Response', 'delete: good response object');
-            #$res->dump;
-            is($res->code, 200, 'delete: code 200');
-            like($res->content, qr/^From: gisle\@aas.no$/m, 'delete: good From');
-        }
-        { # send file
-            my $file = "test-$$.html";
-            open(my $fh, '>', $file) or die "Can't create $file: $!";
-            binmode $fh or die "Can't binmode $file: $!";
-            print {$fh} qq(<html><title>En prøve</title>\n<h1>Dette er en testfil</h1>\nJeg vet ikke hvor stor fila behøver å være heller, men dette\ner sikkert nok i massevis.\n);
-            close($fh);
+        like($content, qr/^From:\s*gisle\@aas\.no\n/m, 'simple echo: From good');
+        like($content, qr/^Host:/m, 'simple echo: Host good');
+        is(@accept, 3, 'simple echo: 3 Accepts');
+        like($content, qr/^Accept:\s*text\/html/m, 'simple echo: Accept text/html good');
+        like($content, qr/^Accept:\s*text\/plain/m, 'simple echo: Accept text/plain good');
+        like($content, qr/^Accept:\s*image\/\*/m, 'simple echo: Accept image good');
+        like($content, qr/^If-Modified-Since:\s*\w{3},\s+\d+/m, 'simple echo: modified good');
+        like($content, qr/^Long-Text:\s*This.*broken between/m, 'simple echo: long-text good');
+        like($content, qr/^Foo-Bar:\s*1\n/m, 'simple echo: Foo-Bar good');
+        like($content, qr/^X-Foo:\s*Bar\n/m, 'simple echo: X-Foo good');
+        like($content, qr/^User-Agent:\s*Mozilla\/0.01/m, 'simple echo: UserAgent good');
+    }
+    { # echo with higher level 'get' interface
+        my $res = $ua->get(url("/echo/path_info?query", $base),
+            Accept => 'text/html',
+            Accept => 'text/plain; q=0.9',
+            Accept => 'image/*',
+            X_Foo => "Bar",
+        );
+        isa_ok($res, 'HTTP::Response', 'simple echo 2: good response object');
+        #$res->dump;
+        is($res->code, 200, 'simple echo 2: code 200');
+    }
+    { # put
+        my $res = $ua->put(url("/echo/path_info?query", $base),
+            Accept => 'text/html',
+            Accept => 'text/plain; q=0.9',
+            Accept => 'image/*',
+            X_Foo => "Bar",
+        );
+        isa_ok($res, 'HTTP::Response', 'put: good response object');
+        #$res->dump;
+        is($res->code, 200, 'put: code 200');
+        like($res->content, qr/^From: gisle\@aas.no$/m, 'put: good From');
+    }
+    { # delete
+        my $res = $ua->delete(url("/echo/path_info?query", $base),
+            Accept => 'text/html',
+            Accept => 'text/plain; q=0.9',
+            Accept => 'image/*',
+            X_Foo => "Bar",
+        );
+        isa_ok($res, 'HTTP::Response', 'delete: good response object');
+        #$res->dump;
+        is($res->code, 200, 'delete: code 200');
+        like($res->content, qr/^From: gisle\@aas.no$/m, 'delete: good From');
+    }
+    { # send file
+        my $file = "test-$$.html";
+        open(my $fh, '>', $file) or die "Can't create $file: $!";
+        binmode $fh or die "Can't binmode $file: $!";
+        print {$fh} qq(<html><title>En prøve</title>\n<h1>Dette er en testfil</h1>\nJeg vet ikke hvor stor fila behøver å være heller, men dette\ner sikkert nok i massevis.\n);
+        close($fh);
 
-            my $req = HTTP::Request->new(GET => url("/file?name=$file", $base));
-            isa_ok($req, 'HTTP::Request', 'get file: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'get file: good response object');
+        my $req = HTTP::Request->new(GET => url("/file?name=$file", $base));
+        isa_ok($req, 'HTTP::Request', 'get file: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'get file: good response object');
 
-            ok($res->is_success, 'get file: is_success');
-            is($res->content_type, 'text/html', 'get file: content type text/html');
-            is($res->content_length, 147, 'get file: 147 content length');
-            is($res->title, 'En prøve', 'get file: good title');
-            like($res->content, qr/å være/, 'get file: good content');
+        ok($res->is_success, 'get file: is_success');
+        is($res->content_type, 'text/html', 'get file: content type text/html');
+        is($res->content_length, 147, 'get file: 147 content length');
+        is($res->title, 'En prøve', 'get file: good title');
+        like($res->content, qr/å være/, 'get file: good content');
 
-            # A second try on the same file, should fail because we unlink it
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'get file 2nd: good response object');
+        # A second try on the same file, should fail because we unlink it
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'get file 2nd: good response object');
 
-            ok($res->is_error, 'get file 2nd: is_error');
-            is($res->code, 404, 'get file 2nd: code 404');   # not found
-        }
-        { # try to list current directory
-            my $req = HTTP::Request->new(GET => url("/file?name=.", $base));
-            isa_ok($req, 'HTTP::Request', 'dir list .: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'dir list .: good response object');
+        ok($res->is_error, 'get file 2nd: is_error');
+        is($res->code, 404, 'get file 2nd: code 404');   # not found
+    }
+    { # try to list current directory
+        my $req = HTTP::Request->new(GET => url("/file?name=.", $base));
+        isa_ok($req, 'HTTP::Request', 'dir list .: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'dir list .: good response object');
 
-            # NYI
-            is($res->code, 501, 'dir list .: code 501');
-        }
-        { # redirect
-            my $req = HTTP::Request->new(GET => url("/redirect/foo", $base));
-            isa_ok($req, 'HTTP::Request', 'redirect: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'redirect: good response object');
+        # NYI
+        is($res->code, 501, 'dir list .: code 501');
+    }
+    { # redirect
+        my $req = HTTP::Request->new(GET => url("/redirect/foo", $base));
+        isa_ok($req, 'HTTP::Request', 'redirect: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'redirect: good response object');
 
-            ok($res->is_success, 'redirect: is_success');
-            like($res->content, qr|/echo/redirect|, 'redirect: content good');
-            ok($res->previous->is_redirect, 'redirect: is_redirect');
-            is($res->previous->code, 301, 'redirect: code 301');
+        ok($res->is_success, 'redirect: is_success');
+        like($res->content, qr|/echo/redirect|, 'redirect: content good');
+        ok($res->previous->is_redirect, 'redirect: is_redirect');
+        is($res->previous->code, 301, 'redirect: code 301');
 
-            # Let's test a redirect loop too
-            $req->uri(url("/redirect2", $base));
-            isa_ok($req, 'HTTP::Request', 'redirect loop: new HTTP::Request instance');
-            $ua->max_redirect(5);
-            is($ua->max_redirect(), 5, 'redirect loop: max redirect 5');
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
+        # Let's test a redirect loop too
+        $req->uri(url("/redirect2", $base));
+        isa_ok($req, 'HTTP::Request', 'redirect loop: new HTTP::Request instance');
+        $ua->max_redirect(5);
+        is($ua->max_redirect(), 5, 'redirect loop: max redirect 5');
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
 
-            #print $res->as_string;
-            ok($res->is_redirect, 'redirect loop: is_redirect');
-            like($res->header("Client-Warning"), qr/loop detected/i, 'redirect loop: client warning');
-            is($res->redirects, 5, 'redirect loop: 5 redirects');
+        #print $res->as_string;
+        ok($res->is_redirect, 'redirect loop: is_redirect');
+        like($res->header("Client-Warning"), qr/loop detected/i, 'redirect loop: client warning');
+        is($res->redirects, 5, 'redirect loop: 5 redirects');
 
-            $ua->max_redirect(0);
-            is($ua->max_redirect(), 0, 'redirect loop: max redirect 0');
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
-            is($res->previous, undef, 'redirect loop: undefined previous');
-            is($res->redirects, 0, 'redirect loop: zero redirects');
-            $ua->max_redirect(5);
-            is($ua->max_redirect(), 5, 'redirect loop: max redirects set back to 5');
-        }
-        { # basic auth
-            my $req = HTTP::Request->new(GET => url("/basic", $base));
-            isa_ok($req, 'HTTP::Request', 'basicAuth: new HTTP::Request instance');
-            my $res = MyUA->new->request($req);
-            isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        $ua->max_redirect(0);
+        is($ua->max_redirect(), 0, 'redirect loop: max redirect 0');
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
+        is($res->previous, undef, 'redirect loop: undefined previous');
+        is($res->redirects, 0, 'redirect loop: zero redirects');
+        $ua->max_redirect(5);
+        is($ua->max_redirect(), 5, 'redirect loop: max redirects set back to 5');
+    }
+    { # basic auth
+        my $req = HTTP::Request->new(GET => url("/basic", $base));
+        isa_ok($req, 'HTTP::Request', 'basicAuth: new HTTP::Request instance');
+        my $res = MyUA->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
 
-            ok($res->is_success, 'basicAuth: is_success');
+        ok($res->is_success, 'basicAuth: is_success');
 
-            # Let's try with a $ua that does not pass out credentials
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
-            is($res->code, 401, 'basicAuth: code 401');
+        # Let's try with a $ua that does not pass out credentials
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth: code 401');
 
-            # Let's try to set credentials for this realm
-            $ua->credentials($req->uri->host_port, "libwww-perl", "ok 12", "xyzzy");
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
-            ok($res->is_success, 'basicAuth: is_success');
+        # Let's try to set credentials for this realm
+        $ua->credentials($req->uri->host_port, "libwww-perl", "ok 12", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        ok($res->is_success, 'basicAuth: is_success');
 
-            # Then illegal credentials
-            $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
-            is($res->code, 401, 'basicAuth: code 401');
-        }
-        { # digest
-            my $req = HTTP::Request->new(GET => url("/digest", $base));
-            isa_ok($req, 'HTTP::Request', 'digestAuth: new HTTP::Request instance');
-            my $res = MyUA2->new->request($req);
-            isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth: code 401');
+    }
+    { # digest
+        my $req = HTTP::Request->new(GET => url("/digest", $base));
+        isa_ok($req, 'HTTP::Request', 'digestAuth: new HTTP::Request instance');
+        my $res = MyUA2->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
 
-            ok($res->is_success, 'digestAuth: is_success');
+        ok($res->is_success, 'digestAuth: is_success');
 
-            # Let's try with a $ua that does not pass out credentials
-            $ua->{basic_authentication}=undef;
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
-            is($res->code, 401, 'digestAuth: code 401');
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication}=undef;
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
 
-            # Let's try to set credentials for this realm
-            $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
-            ok($res->is_success, 'digestAuth: is_success');
+        # Let's try to set credentials for this realm
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth: is_success');
 
-            # Then illegal credentials
-            $ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
-            is($res->code, 401, 'digestAuth: code 401');
-        }
-        { # proxy
-            $ua->proxy(ftp => $base);
-            my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
-            isa_ok($req, 'HTTP::Request', 'proxy: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'proxy: good response object');
-            ok($res->is_success, 'proxy: is_success');
-        }
-        { # post
-            my $req = HTTP::Request->new(POST => url("/echo/foo", $base));
-            isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
-            $req->content_type("application/x-www-form-urlencoded");
-            $req->content("foo=bar&bar=test");
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'post: good response object');
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
+    }
+    { # proxy
+        $ua->proxy(ftp => $base);
+        my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
+        isa_ok($req, 'HTTP::Request', 'proxy: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'proxy: good response object');
+        ok($res->is_success, 'proxy: is_success');
+    }
+    { # post
+        my $req = HTTP::Request->new(POST => url("/echo/foo", $base));
+        isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
+        $req->content_type("application/x-www-form-urlencoded");
+        $req->content("foo=bar&bar=test");
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'post: good response object');
 
-            my $content = $res->content;
-            ok($res->is_success, 'post: is_success');
-            like($content, qr/^Content-Length:\s*16$/mi, 'post: content length good');
-            like($content, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi, 'post: application/x-www-form-urlencoded');
-            like($content, qr/^foo=bar&bar=test$/m, 'post: foo=bar&bar=test');
+        my $content = $res->content;
+        ok($res->is_success, 'post: is_success');
+        like($content, qr/^Content-Length:\s*16$/mi, 'post: content length good');
+        like($content, qr/^Content-Type:\s*application\/x-www-form-urlencoded$/mi, 'post: application/x-www-form-urlencoded');
+        like($content, qr/^foo=bar&bar=test$/m, 'post: foo=bar&bar=test');
 
-            $req = HTTP::Request->new(POST => url("/echo/foo", $base));
-            isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
-            $req->content_type("multipart/form-data");
-            $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "Hi\n"));
-            $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "there\n"));
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'post: good response object');
-            ok($res->is_success, 'post: is_success');
-            ok($res->content =~ /^Content-Type: multipart\/form-data; boundary=/m, 'post: multipart good');
-        }
-        { # partial
-            my $req = HTTP::Request->new(  GET => url("/partial", $base) );
-            isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'partial: good response object');
-            ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
+        $req = HTTP::Request->new(POST => url("/echo/foo", $base));
+        isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
+        $req->content_type("multipart/form-data");
+        $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "Hi\n"));
+        $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "there\n"));
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'post: good response object');
+        ok($res->is_success, 'post: is_success');
+        ok($res->content =~ /^Content-Type: multipart\/form-data; boundary=/m, 'post: multipart good');
+    }
+    { # partial
+        my $req = HTTP::Request->new(  GET => url("/partial", $base) );
+        isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'partial: good response object');
+        ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
 
-            $ua->max_size(3);
-            $req = HTTP::Request->new(  GET => url("/partial", $base) );
-            isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
-            $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'partial: good response object');
-            ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
-            # Put max_size back how we found it.
-            $ua->max_size(undef);
-            like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
-        }
-        { # terminate server
-            my $req = HTTP::Request->new(GET => url("/quit", $base));
-            isa_ok($req, 'HTTP::Request', 'terminate: new HTTP::Request instance');
-            my $res = $ua->request($req);
-            isa_ok($res, 'HTTP::Response', 'terminate: good response object');
+        $ua->max_size(3);
+        $req = HTTP::Request->new(  GET => url("/partial", $base) );
+        isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'partial: good response object');
+        ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
+        # Put max_size back how we found it.
+        $ua->max_size(undef);
+        like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
+    }
+    { # terminate server
+        my $req = HTTP::Request->new(GET => url("/quit", $base));
+        isa_ok($req, 'HTTP::Request', 'terminate: new HTTP::Request instance');
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'terminate: good response object');
 
-            is($res->code, 503, 'terminate: code is 503');
-            like($res->content, qr/Bye, bye/, 'terminate: bye bye');
-        }
-    };
+        is($res->code, 503, 'terminate: code is 503');
+        like($res->content, qr/Bye, bye/, 'terminate: bye bye');
+    }
 }
 
 {

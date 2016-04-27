@@ -757,6 +757,10 @@ sub cookie_jar {
 	    require HTTP::Cookies;
 	    $jar = HTTP::Cookies->new(%$jar);
 	}
+        elsif (ref($jar) eq "ARRAY") {
+            require HTTP::CookieJar::LWP;
+            $jar = HTTP::CookieJar::LWP->new(@$jar);
+        }
 	$self->{cookie_jar} = $jar;
         $self->set_my_handler("request_prepare",
             $jar ? sub { $jar->add_cookie_header($_[0]); } : undef,
@@ -1267,15 +1271,20 @@ Get/set the cookie jar object to use.  The only requirement is that
 the cookie jar object must implement the C<extract_cookies($response)> and
 C<add_cookie_header($request)> methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
-received.  Normally this will be a L<HTTP::Cookies> object or some
-subclass.
+received.
 
 The default is to have no cookie jar, i.e. never automatically add
 C<Cookie> headers to the requests.
 
-Shortcut: If a reference to a plain hash is passed in, it is replaced with an
-instance of L<HTTP::Cookies> that is initialized based on the hash. This form
-also automatically loads the L<HTTP::Cookies> module.  It means that:
+Examples of suitable cookie jar objects include L<HTTP::Cookies> and
+L<HTTP::CookieJar::LWP>.  C<HTTP::CookieJar::LWP> provides a better
+security model matching that of current Web browsers when
+L<Mozilla::PublicSuffix> is installed.
+
+If C<$cookie_jar_obj> contains an unblessed array reference, its
+contents are passed as arguments to to C<HTTP::CookieJar::LWP->new>.  An
+unblessed hash reference has its contents passed to
+C<HTTP::Cookies->new>.  So:
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 

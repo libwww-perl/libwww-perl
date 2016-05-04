@@ -192,8 +192,9 @@ sub request
 	# a plain socket to SSL. In case of Net::SSL we fall back to
 	# the old version
 	if ( my $upgrade_sub = $proto_https->can('_upgrade_sock')) {
+	    my $proxy_headers = $self->{ua}->can('get_proxy_headers') ? $self->{ua}->get_proxy_headers() : undef;
 	    my $response = $self->request(
-		HTTP::Request->new('CONNECT',"http://$ssl_tunnel"),
+		HTTP::Request->new('CONNECT',"http://$ssl_tunnel", $proxy_headers),
 		$proxy,
 		undef,$size,$timeout
 	    );

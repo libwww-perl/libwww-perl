@@ -710,6 +710,17 @@ sub cookie_jar {
     $old;
 }
 
+sub proxy_header {
+    my $self = shift;
+    $self->{proxy_headers} //= HTTP::Headers->new;
+    return $self->{proxy_headers}->header(@_);
+}
+
+sub get_proxy_headers {
+    my $self = shift;
+    return $self->{proxy_headers};
+}
+
 sub default_headers {
     my $self = shift;
     my $old = $self->{def_headers} ||= HTTP::Headers->new;
@@ -1216,6 +1227,16 @@ is really just a shortcut for:
 
   require HTTP::Cookies;
   $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+
+=item $ua->proxy_header ( $field )
+
+=item $ua->proxy_header ( $field => $value )
+
+Get/set headers that will only be sent to proxies via CONNECT requests.
+
+=item $ua->get_proxy_headers
+
+Get all headers that should be sent to proxies via CONNECT requests.
 
 =item $ua->default_headers
 

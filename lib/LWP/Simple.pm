@@ -8,7 +8,7 @@ require Exporter;
 @EXPORT = qw(get head getprint getstore mirror);
 @EXPORT_OK = qw($ua);
 
-# I really hate this.  I was a bad idea to do it in the first place.
+# I really hate this.  It was a bad idea to do it in the first place.
 # Wonder how to get rid of it???  (It even makes LWP::Simple 7% slower
 # for trivial tests)
 use HTTP::Status;

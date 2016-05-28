@@ -169,6 +169,8 @@ sub _looks_like_number {
 
 __END__
 
+=pod
+
 =head1 NAME
 
 LWP::ConnCache - Connection cache manager
@@ -188,7 +190,7 @@ change in the future.
 =head1 DESCRIPTION
 
 The C<LWP::ConnCache> class is the standard connection cache manager
-for LWP::UserAgent.
+for L<LWP::UserAgent>.
 
 The following basic methods are provided:
 
@@ -196,7 +198,7 @@ The following basic methods are provided:
 
 =item $cache = LWP::ConnCache->new( %options )
 
-This method constructs a new C<LWP::ConnCache> object.  The only
+This method constructs a new L<LWP::ConnCache> object.  The only
 option currently accepted is 'total_capacity'.  If specified it
 initialize the total_capacity option.  It defaults to the value 1.
 
@@ -311,3 +313,5 @@ Copyright 2001 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
+=cut

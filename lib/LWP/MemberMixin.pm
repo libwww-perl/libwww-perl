@@ -13,6 +13,8 @@ sub _elem
 
 __END__
 
+=pod
+
 =head1 NAME
 
 LWP::MemberMixin - Member access mixin class
@@ -26,7 +28,7 @@ LWP::MemberMixin - Member access mixin class
 =head1 DESCRIPTION
 
 A mixin class to get methods that provide easy access to member
-variables in the %$self.
+variables in the C<%$self>.
 Ideally there should be better Perl language support for this.
 
 There is only one method provided:
@@ -42,3 +44,5 @@ value is not touched. In both cases the previous value of
 the member variable is returned.
 
 =back
+
+=cut

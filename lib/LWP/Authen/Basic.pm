@@ -46,9 +46,10 @@ sub authenticate
 	return $response;
     }
 
-    # check that the password has changed
+    # check that the password or nonce has changed
     my ($olduser, $oldpass) = $ua->credentials($host_port, $realm);
-    return $response if (defined $olduser and defined $oldpass and
+    return $response if (!$auth_param->{stale} and 
+                         defined $olduser and defined $oldpass and
                          $user eq $olduser and $pass eq $oldpass);
 
     $ua->credentials($host_port, $realm, $user, $pass);

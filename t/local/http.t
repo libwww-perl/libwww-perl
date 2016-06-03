@@ -51,7 +51,7 @@ else {
 }
 
 use Test::More;
-plan tests => 63;
+plan tests => 64;
 
 my $greeting = <DAEMON>;
 $greeting =~ /(<[^>]+>)/;
@@ -336,7 +336,7 @@ sub httpd_get_digest
 			$auth_params{qop} eq "auth" &&
 			$auth_params{algorithm} eq "\"MD5\"" &&
 			$auth_params{uri} eq "\"/digest\"" &&
-			$auth_params{nonce} eq "\"12345\"" &&
+                        ($auth_params{nonce} eq "\"12345\"" || $auth_params{nonce} eq "\"12346\"") &&
 			$auth_params{nc} eq "00000001" &&
 			defined($auth_params{cnonce}) &&
 			defined($auth_params{response})
@@ -347,6 +347,11 @@ sub httpd_get_digest
 		$c->send_crlf;
 		$c->print("ok\n");
 	}
+        elsif ( %auth_params && $auth_params{nc} eq "00000002") {
+		$c->send_basic_header(401);
+		$c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12346\", qop=auth, stale=true\015\012");
+		$c->send_crlf;
+        }       
 	else {
 		$c->send_basic_header(401);
 		$c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=auth\015\012");
@@ -383,6 +388,13 @@ $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
 $res = $ua->request($req);
 #print STDERR $res->as_string;
 ok($res->is_success);
+
+# Using credentials a second time should result in a stale nonce response.
+# We should repeat the request with the new nonce.
+$ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+$res = $ua->request($req);
+#print STDERR $res->as_string;
+ok($res->is_success, "Digest authentication with a stale nonce");
 
 # Then illegal credentials
 $ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");

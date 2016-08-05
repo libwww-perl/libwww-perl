@@ -1,16 +1,21 @@
-#!perl -w
-
 use strict;
-use Test;
-plan tests => 1;
+use warnings;
+use Test::More;
 
+use HTTP::Request;
 use LWP::UserAgent;
-my $ua = LWP::UserAgent->new;
 
-require HTTP::Request;
+plan tests => 4;
+
+my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 my $req = HTTP::Request->new(TRACE => "http://www.apache.org/");
+isa_ok($req, 'HTTP::Request', 'new: HTTP::Request instance');
+
 $req->protocol("HTTP/1.0");
+
 my $res = $ua->simple_request($req);
-ok($res->content, qr/HTTP\/1.0/);
+isa_ok($res, 'HTTP::Response', 'simple_request: Got a proper response');
+like($res->content, qr/HTTP\/1.0/, 'Request to apache.org: Got an HTTP 1.0 response');
 
 $res->dump(prefix => "# ");

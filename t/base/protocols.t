@@ -1,11 +1,12 @@
 use strict;
 use warnings;
 use Test::More;
-plan tests => 6;
 
 use LWP::UserAgent;
+plan tests => 7;
 
 my $ua = LWP::UserAgent->new();
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 $ua->protocols_forbidden(['hTtP']);
 is(scalar(@{$ua->protocols_forbidden()}), 1,'$ua->protocols_forbidden');

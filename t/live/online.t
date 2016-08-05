@@ -1,13 +1,17 @@
-#!perl -w
-
 use strict;
-use Test;
-plan tests => 2;
+use warnings;
+use Test::More;
 
 use LWP::UserAgent;
-my $ua = LWP::UserAgent->new;
 
-ok $ua->is_online;
+plan tests => 5;
+
+my $ua = LWP::UserAgent->new;
+isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
+
+is($ua->protocols_allowed(), undef, 'protocols_allowed: undefined');
+ok($ua->is_online, 'is_online: truthy value');
 
 $ua->protocols_allowed([]);
-ok !$ua->is_online;
+is_deeply($ua->protocols_allowed, [], 'protocols_allowed: empty list');
+ok(!$ua->is_online, 'is_online: falsey value');

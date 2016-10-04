@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::RequiresInternet ('jigsaw.w3.org' => 80);
 
 use HTTP::Request;
 use LWP::UserAgent;

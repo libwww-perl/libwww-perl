@@ -19,8 +19,8 @@ my $req = HTTP::Request->new(GET => 'http://gisle:aas@www.activestate.com');
 isa_ok($req, 'HTTP::Request', 'activeState: new HTTP::Request Instance');
 my $res = $ua->request($req);
 isa_ok($res, 'HTTP::Response', 'activeState: got a response');
-ok($res->is_success, 'activeState: is_success');
-#print $res->as_string;
+ok($res->as_string, 'activeState: has content');
+
 exit;
 
 {

@@ -13,10 +13,9 @@ if (!-e "$Bin/config.pl") {
 
 require "$Bin/config.pl";
 
-plan tests => 8;
+plan tests => 6;
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 
 ok(defined $net::httpserver, 'net::httpserver exists');
 ok(defined $net::cgidir, 'net::cgidir exists');
@@ -25,7 +24,6 @@ my $script = ($net::cgidir || '') . "/test";
 my $url = "http://$netloc$script?query";
 
 my $request = HTTP::Request->new('GET', $url);
-isa_ok($request, 'HTTP::Request', 'New Request Object');
 
 my $response = $ua->request($request, undef, undef);
 isa_ok($response, 'HTTP::Response', 'got a proper response object');

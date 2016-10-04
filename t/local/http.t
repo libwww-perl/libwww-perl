@@ -45,17 +45,14 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 105;
-    isa_ok($base, 'URI', "Base URL is good.");
+    plan tests => 89;
 
     my $ua = LWP::UserAgent->new;
-    isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
     $ua->agent("Mozilla/0.01 " . $ua->agent);
     $ua->from('gisle@aas.no');
 
     { # bad request
         my $req = HTTP::Request->new(GET => url("/not_found", $base));
-        isa_ok($req, 'HTTP::Request', 'bad: new HTTP::Request Instance');
         $req->header(X_Foo => "Bar");
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'bad: got a response');
@@ -69,7 +66,6 @@ sub _test {
     }
     { # simple echo
         my $req = HTTP::Request->new(GET => url("/echo/path_info?query", $base));
-        isa_ok($req, 'HTTP::Request', 'simple echo: new HTTP::Request instance');
         $req->push_header(Accept => 'text/html');
         $req->push_header(Accept => 'text/plain; q=0.9');
         $req->push_header(Accept => 'image/*');
@@ -147,7 +143,6 @@ sub _test {
         close($fh);
 
         my $req = HTTP::Request->new(GET => url("/file?name=$file", $base));
-        isa_ok($req, 'HTTP::Request', 'get file: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'get file: good response object');
 
@@ -166,7 +161,6 @@ sub _test {
     }
     { # try to list current directory
         my $req = HTTP::Request->new(GET => url("/file?name=.", $base));
-        isa_ok($req, 'HTTP::Request', 'dir list .: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'dir list .: good response object');
 
@@ -175,7 +169,6 @@ sub _test {
     }
     { # redirect
         my $req = HTTP::Request->new(GET => url("/redirect/foo", $base));
-        isa_ok($req, 'HTTP::Request', 'redirect: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'redirect: good response object');
 
@@ -186,7 +179,6 @@ sub _test {
 
         # Let's test a redirect loop too
         $req->uri(url("/redirect2", $base));
-        isa_ok($req, 'HTTP::Request', 'redirect loop: new HTTP::Request instance');
         $ua->max_redirect(5);
         is($ua->max_redirect(), 5, 'redirect loop: max redirect 5');
         $res = $ua->request($req);
@@ -208,7 +200,6 @@ sub _test {
     }
     { # basic auth
         my $req = HTTP::Request->new(GET => url("/basic", $base));
-        isa_ok($req, 'HTTP::Request', 'basicAuth: new HTTP::Request instance');
         my $res = MyUA->new->request($req);
         isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
 
@@ -233,7 +224,6 @@ sub _test {
     }
     { # digest
         my $req = HTTP::Request->new(GET => url("/digest", $base));
-        isa_ok($req, 'HTTP::Request', 'digestAuth: new HTTP::Request instance');
         my $res = MyUA2->new->request($req);
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
 
@@ -260,14 +250,12 @@ sub _test {
     { # proxy
         $ua->proxy(ftp => $base);
         my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
-        isa_ok($req, 'HTTP::Request', 'proxy: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'proxy: good response object');
         ok($res->is_success, 'proxy: is_success');
     }
     { # post
         my $req = HTTP::Request->new(POST => url("/echo/foo", $base));
-        isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
         $req->content_type("application/x-www-form-urlencoded");
         $req->content("foo=bar&bar=test");
         my $res = $ua->request($req);
@@ -280,7 +268,6 @@ sub _test {
         like($content, qr/^foo=bar&bar=test$/m, 'post: foo=bar&bar=test');
 
         $req = HTTP::Request->new(POST => url("/echo/foo", $base));
-        isa_ok($req, 'HTTP::Request', 'post: new HTTP::Request instance');
         $req->content_type("multipart/form-data");
         $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "Hi\n"));
         $req->add_part(HTTP::Message->new(["Content-Type" => "text/plain"], "there\n"));
@@ -291,14 +278,12 @@ sub _test {
     }
     { # partial
         my $req = HTTP::Request->new(  GET => url("/partial", $base) );
-        isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'partial: good response object');
         ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
 
         $ua->max_size(3);
         $req = HTTP::Request->new(  GET => url("/partial", $base) );
-        isa_ok($req, 'HTTP::Request', 'partial: new HTTP::Request instance');
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'partial: good response object');
         ok($res->is_success, 'partial: is_success'); # "a 206 response is considered successful"
@@ -308,7 +293,6 @@ sub _test {
     }
     { # terminate server
         my $req = HTTP::Request->new(GET => url("/quit", $base));
-        isa_ok($req, 'HTTP::Request', 'terminate: new HTTP::Request instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'terminate: good response object');
 

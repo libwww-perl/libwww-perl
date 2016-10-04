@@ -12,7 +12,7 @@ if (!-e "$Bin/config.pl") {
 
 require "$Bin/config.pl";
 
-plan tests => 6;
+plan tests => 5;
 
 ok(defined $net::httpserver, 'net::httpserver exists');
 my $netloc = $net::httpserver || '';
@@ -20,7 +20,6 @@ my $url = "http://$netloc/";
 my $copy = "lwp-test-$$"; # downloaded copy
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 
 my $response = $ua->mirror($url, $copy);
 isa_ok($response, 'HTTP::Response', 'got a proper response object');

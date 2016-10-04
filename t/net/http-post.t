@@ -13,7 +13,7 @@ if (!-e "$Bin/config.pl") {
 
 require "$Bin/config.pl";
 
-plan tests => 8;
+plan tests => 6;
 
 ok(defined $net::httpserver, 'net::httpserver exists');
 ok(defined $net::cgidir, 'net::cgidir exists');
@@ -23,10 +23,8 @@ my $url = "http://$netloc$script";
 my $form = 'searchtype=Substring';
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 
 my $request = HTTP::Request->new('POST', $url, undef, $form);
-isa_ok($request, 'HTTP::Request', 'New Request Object');
 $request->header('Content-Type', 'application/x-www-form-urlencoded');
 
 my $response = $ua->request($request, undef, undef);

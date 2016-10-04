@@ -13,7 +13,7 @@ if (!-e "$Bin/config.pl") {
 
 require "$Bin/config.pl";
 
-plan tests => 7;
+plan tests => 5;
 
 ok(defined $net::httpserver, 'net::httpserver exists');
 ok(defined $net::cgidir, 'net::cgidir exists');
@@ -22,12 +22,10 @@ my $script = ($net::cgidir || '') . "/moved";
 my $url = "http://$netloc$script";
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'New UserAgent instance');
 $ua->timeout(30);
 is($ua->timeout(), 30, 'timeout set to 30 seconds');
 
 my $request = HTTP::Request->new('GET', $url);
-isa_ok($request, 'HTTP::Request', 'New Request Object');
 
 my $response = $ua->request($request, undef, undef);
 isa_ok($response, 'HTTP::Response', 'got a proper response object');

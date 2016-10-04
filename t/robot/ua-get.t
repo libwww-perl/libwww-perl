@@ -45,11 +45,9 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 20;
-    isa_ok($base, 'URI', "Base URL is good.");
+    plan tests => 18;
 
     my $ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
-    isa_ok($ua, 'LWP::RobotUA', 'New RobotUA instance');
     $ua->delay(0.05);  # rather quick robot
 
     { # someplace

@@ -7,16 +7,14 @@ use LWP::UserAgent;
 use LWP::Protocol;
 use URI;
 
-plan tests => 4;
+plan tests => 2;
 
 LWP::Protocol::implementor(http => 'myhttp');
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 $ua->proxy('http' => "http://proxy.activestate.com");
 my $req = HTTP::Request->new(GET => 'http://gisle:aas@www.activestate.com');
-isa_ok($req, 'HTTP::Request', 'activeState: new HTTP::Request Instance');
 my $res = $ua->request($req);
 isa_ok($res, 'HTTP::Response', 'activeState: got a response');
 ok($res->as_string, 'activeState: has content');

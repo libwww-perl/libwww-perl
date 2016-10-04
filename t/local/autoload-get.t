@@ -5,7 +5,7 @@ use Test::More;
 use LWP::UserAgent;
 use URI;
 
-plan tests => 5;
+plan tests => 4;
 
 #
 # See if autoloading of protocol schemes work
@@ -16,7 +16,6 @@ my $url = "file:.";
 is(URI->new($url)->file, '.', 'URI of file:. is .');
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 $ua->timeout(30);
 is($ua->timeout(), 30, 'timeout: set to 30 seconds');

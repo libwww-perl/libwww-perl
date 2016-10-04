@@ -45,23 +45,19 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 20;
-    isa_ok($base, 'URI', "Base URL is good.");
+    plan tests => 14;
 
     my $ua = LWP::RobotUA->new('lwp-spider/0.1', 'gisle@aas.no');
-    isa_ok($ua, 'LWP::RobotUA', 'New RobotUA instance');
     $ua->delay(0.05);  # rather quick robot
 
     { # someplace
         my $req = HTTP::Request->new(GET => url("/someplace", $base));
-        isa_ok($req, 'HTTP::Request', 'someplace: new HTTP::Request Instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'someplace: got a response object');
         ok($res->is_success, 'someplace: is_success');
     }
     { # robots
         my $req = HTTP::Request->new(GET => url("/private/place", $base));
-        isa_ok($req, 'HTTP::Request', 'robots: new HTTP::Request Instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'robots: got a response object');
         is($res->code, 403, 'robots: code 403');
@@ -69,7 +65,6 @@ sub _test {
     }
     { # foo
         my $req = HTTP::Request->new(GET => url("/foo", $base));
-        isa_ok($req, 'HTTP::Request', 'robots: new HTTP::Request Instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'robots: got a response object');
         is($res->code, 404, 'robots: code 404');
@@ -84,7 +79,6 @@ sub _test {
     { # quit
         $ua->delay(0);
         my $req = HTTP::Request->new(GET => url("/quit", $base));
-        isa_ok($req, 'HTTP::Request', 'quit: new HTTP::Request Instance');
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'quit: got a response object');
         is($res->code, 503, 'quit: code 503');

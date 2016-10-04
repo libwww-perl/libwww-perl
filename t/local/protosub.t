@@ -9,17 +9,15 @@ use URI;
 
 LWP::Protocol::implementor(http => 'myhttp');
 
-plan tests => 9;
+plan tests => 7;
 
 # This test tries to make a custom protocol implementation by
 # subclassing of LWP::Protocol.
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 $ua->proxy('ftp' => "http://www.sn.no/");
 
 my $req = HTTP::Request->new(GET => 'ftp://foo/');
-isa_ok($req, 'HTTP::Request', 'sn.no: new HTTP::Request Instance');
 $req->header(Cookie => "perl=cool");
 my $res = $ua->request($req);
 isa_ok($res, 'HTTP::Response', 'sn.no: got a response');

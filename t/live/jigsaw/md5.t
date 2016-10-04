@@ -7,13 +7,11 @@ use Digest::MD5 qw(md5_base64);
 use HTTP::Request;
 use LWP::UserAgent;
 
-plan tests => 7;
+plan tests => 5;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/h-content-md5.html");
-isa_ok($req, 'HTTP::Request', 'new: HTTP::Request instance');
 $req->header("TE", "deflate");
 
 my $res = $ua->request($req);

@@ -6,13 +6,11 @@ use Test::RequiresInternet ('jigsaw.w3.org' => 80);
 use HTTP::Request;
 use LWP::UserAgent;
 
-plan tests => 4;
+plan tests => 2;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/neg");
-isa_ok($req, 'HTTP::Request', 'new: HTTP::Request instance');
 $req->header(Connection => "close");
 
 my $res = $ua->request($req);

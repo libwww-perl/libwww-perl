@@ -4,10 +4,9 @@ use Test::More;
 
 use LWP::UserAgent;
 
-plan tests => 5;
+plan tests => 4;
 
 my $ua = LWP::UserAgent->new;
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 is($ua->protocols_allowed(), undef, 'protocols_allowed: undefined');
 ok($ua->is_online, 'is_online: truthy value');

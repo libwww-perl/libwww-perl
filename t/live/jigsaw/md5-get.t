@@ -7,10 +7,9 @@ use Digest::MD5 qw(md5_base64);
 use HTTP::Request;
 use LWP::UserAgent;
 
-plan tests => 6;
+plan tests => 5;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
-isa_ok($ua, 'LWP::UserAgent', 'new: UserAgent instance');
 
 my $res = $ua->get(
     "http://jigsaw.w3.org/HTTP/h-content-md5.html",

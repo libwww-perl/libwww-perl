@@ -1,29 +1,23 @@
-#!/usr/bin/perl -w
-#
-# Test retrieving a file with a 'ftp://' URL,
-# via a HTTP proxy.
-#
+use strict;
+use warnings;
+use Test::More;
 
 use FindBin qw($Bin);
+use HTTP::Request;
+use LWP::UserAgent;
+
 if (!-e "$Bin/config.pl") {
-  print "1..0 # SKIP no net config file";
-  exit 0;
+    plan skip_all => 'no net config file';
+    exit 0;
 }
 
 require "$Bin/config.pl";
 
-print "1..1\n";
+plan tests => 3;
 
-unless (defined $net::ftp_proxy) {
-    print "not ok 1\n";
-    exit 0;
-}
+ok(defined $net::ftp_proxy, 'net::ftp_proxy exists');
 
-require HTTP::Request;
-require LWP::UserAgent;
-
-my $ua = LWP::UserAgent->new;   # create a useragent to test
-
+my $ua = LWP::UserAgent->new;
 $ua->proxy('ftp', $net::ftp_proxy);
 
 my $url = 'ftp://ftp.uninett.no/';
@@ -31,12 +25,6 @@ my $url = 'ftp://ftp.uninett.no/';
 my $request = HTTP::Request->new('GET', $url);
 
 my $response = $ua->request($request, undef, undef);
+isa_ok($response, 'HTTP::Response', 'got a proper response object');
 
-my $str = $response->as_string;
-
-if ($response->is_success) {
-    print "ok 1\n";
-}
-else {
-    print "not ok 1\n";
-}
+ok($response->is_success, 'is_success');

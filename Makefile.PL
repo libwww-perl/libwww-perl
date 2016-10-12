@@ -73,8 +73,9 @@ my %WriteMakefileArgs = (
         'WWW::RobotRules' => 6,
     },
     TEST_REQUIRES => {
-        'Test' => '0',
+        'Test::Fatal' => '0',
         'Test::More' => '0',
+        'Test::RequiresInternet' => '0',
         'FindBin' => '0',
         # 'Config' => 0,        # not indexed
     },

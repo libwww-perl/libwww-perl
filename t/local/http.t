@@ -79,7 +79,6 @@ sub _test {
 
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'simple echo: got a response');
-        #print $res->as_string;
 
         ok($res->is_success, 'simple echo: is_success');
         is($res->code, 200, 'simple echo: code 200');
@@ -108,7 +107,6 @@ sub _test {
             X_Foo => "Bar",
         );
         isa_ok($res, 'HTTP::Response', 'simple echo 2: good response object');
-        #$res->dump;
         is($res->code, 200, 'simple echo 2: code 200');
     }
     { # put
@@ -119,7 +117,6 @@ sub _test {
             X_Foo => "Bar",
         );
         isa_ok($res, 'HTTP::Response', 'put: good response object');
-        #$res->dump;
         is($res->code, 200, 'put: code 200');
         like($res->content, qr/^From: gisle\@aas.no$/m, 'put: good From');
     }
@@ -131,7 +128,6 @@ sub _test {
             X_Foo => "Bar",
         );
         isa_ok($res, 'HTTP::Response', 'delete: good response object');
-        #$res->dump;
         is($res->code, 200, 'delete: code 200');
         like($res->content, qr/^From: gisle\@aas.no$/m, 'delete: good From');
     }
@@ -184,7 +180,6 @@ sub _test {
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
 
-        #print $res->as_string;
         ok($res->is_redirect, 'redirect loop: is_redirect');
         like($res->header("Client-Warning"), qr/loop detected/i, 'redirect loop: client warning');
         is($res->redirects, 5, 'redirect loop: 5 redirects');
@@ -334,7 +329,6 @@ sub daemonize {
     };
     $router{get_basic} = sub {
         my($c, $r) = @_;
-        #print STDERR $r->as_string;
         my($u,$p) = $r->authorization_basic;
         if (defined($u) && $u eq 'ok 12' && $p eq 'xyzzy') {
             $c->send_basic_header(200);
@@ -351,19 +345,18 @@ sub daemonize {
     };
     $router{get_digest} = sub {
         my($c, $r) = @_;
-        # print STDERR $r->as_string;
         my $auth = $r->authorization;
         my %auth_params;
         if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
             %auth_params = map { split /=/ } split /,\s*/, $1;
         }
         if ( %auth_params &&
-                $auth_params{username} eq "\"ok 23\"" &&
-                $auth_params{realm} eq "\"libwww-perl-digest\"" &&
+                $auth_params{username} eq q{"ok 23"} &&
+                $auth_params{realm} eq q{"libwww-perl-digest"} &&
                 $auth_params{qop} eq "auth" &&
-                $auth_params{algorithm} eq "\"MD5\"" &&
-                $auth_params{uri} eq "\"/digest\"" &&
-                $auth_params{nonce} eq "\"12345\"" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/digest"} &&
+                $auth_params{nonce} eq q{"12345"} &&
                 $auth_params{nc} eq "00000001" &&
                 defined($auth_params{cnonce}) &&
                 defined($auth_params{response})

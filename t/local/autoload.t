@@ -28,5 +28,5 @@ isa_ok($response, 'HTTP::Response', 'Got a proper response');
 
 ok( $response->is_success(), 'Response was successful' );
 unless($response->is_success()) {
-    print $response->error_as_HTML;
+    diag $response->error_as_HTML;
 }

@@ -13,11 +13,9 @@ sub _elem
 
 __END__
 
+# ABSTRACT: Member access mixin class
+
 =pod
-
-=head1 NAME
-
-LWP::MemberMixin - Member access mixin class
 
 =head1 SYNOPSIS
 

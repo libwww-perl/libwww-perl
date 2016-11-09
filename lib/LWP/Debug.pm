@@ -67,11 +67,9 @@ sub _log
 
 __END__
 
+# ABSTRACT: deprecated
+
 =pod
-
-=head1 NAME
-
-LWP::Debug - deprecated
 
 =head1 DESCRIPTION
 

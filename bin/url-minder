@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# PODNAME: url-minder
+
 use strict;
 use vars qw($RECEIVER %urls @mess);
 

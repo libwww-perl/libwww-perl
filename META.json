@@ -1,0 +1,197 @@
+{
+   "abstract" : "Web user agent class",
+   "author" : [
+      "Gisle Aas <gisle@activestate.com>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 6.007, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "libwww-perl",
+   "no_index" : {
+      "directory" : [
+         "examples",
+         "t",
+         "xt"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0",
+            "perl" : "5.008"
+         },
+         "suggests" : {
+            "JSON::PP" : "2.27300"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Changes" : "0.19"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "AnyDBM_File" : "0",
+            "Carp" : "0",
+            "Data::Dump" : "1.13",
+            "Data::Dump::Trace" : "0",
+            "Digest::MD5" : "0",
+            "Encode" : "2.21",
+            "Encode::Locale" : "1",
+            "Exporter" : "5.57",
+            "Fcntl" : "0",
+            "File::Listing" : "0",
+            "File::Spec" : "0",
+            "Getopt::Long" : "0",
+            "Getopt::Std" : "0",
+            "HTML::Entities" : "0",
+            "HTML::FormatPS" : "0",
+            "HTML::FormatText" : "0",
+            "HTML::HeadParser" : "0",
+            "HTML::Parse" : "0",
+            "HTTP::Config" : "0",
+            "HTTP::Cookies" : "0",
+            "HTTP::Date" : "6",
+            "HTTP::Headers::Util" : "0",
+            "HTTP::Negotiate" : "0",
+            "HTTP::Request" : "0",
+            "HTTP::Request::Common" : "0",
+            "HTTP::Response" : "0",
+            "HTTP::Status" : "0",
+            "IO::Compress::Bzip2" : "2.021",
+            "IO::Select" : "0",
+            "IO::Socket" : "0",
+            "IO::Uncompress::Bunzip2" : "2.021",
+            "LWP::MediaTypes" : "6",
+            "MD5" : "0",
+            "MIME::Base64" : "2.1",
+            "Mail::Internet" : "0",
+            "Net::FTP" : "0",
+            "Net::HTTP" : "0",
+            "Net::NNTP" : "0",
+            "URI" : "1.10",
+            "URI::Escape" : "0",
+            "URI::Heuristic" : "0",
+            "WWW::RobotRules" : "0",
+            "base" : "0",
+            "integer" : "0",
+            "perl" : "5.008001",
+            "strict" : "0",
+            "vars" : "0"
+         },
+         "suggests" : {
+            "Authen::NTLM" : "1.02",
+            "CPAN::Config" : "0",
+            "HTTP::GHTTP" : "0",
+            "IO::Socket::INET" : "0",
+            "LWP::Protocol::https" : "6.02"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "File::Temp" : "0",
+            "FindBin" : "0",
+            "HTTP::Daemon" : "0",
+            "Test::Fatal" : "0",
+            "Test::More" : "0",
+            "Test::RequiresInternet" : "0",
+            "URI::URL" : "0",
+            "WWW::RobotRules::AnyDBM_File" : "0",
+            "perl" : "5.008001",
+            "utf8" : "0",
+            "warnings" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/libwww-perl/libwww-perl/issues"
+      },
+      "homepage" : "https://github.com/libwww-perl/libwww-perl",
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/libwww-perl/libwww-perl.git",
+         "web" : "https://github.com/libwww-perl/libwww-perl"
+      },
+      "x_IRC" : "irc://irc.perl.org/#lwp",
+      "x_MailingList" : "mailto:libwww@perl.org"
+   },
+   "version" : "6.16",
+   "x_contributors" : [
+      "Adam Kennedy <adamk@cpan.org>",
+      "Adam Sjogren <asjo@koldfront.dk>",
+      "Alexey Tourbin <at@altlinux.ru>",
+      "Alex Kapranoff <ka@nadoby.ru>",
+      "amire80 <amir.aharoni@gmail.com>",
+      "Andreas J. Koenig <andreas.koenig@anima.de>",
+      "Bill Mann <wfmann@alum.mit.edu>",
+      "Bron Gondwana <brong@fastmail.fm>",
+      "Bryan Cardillo <bryan.cardillo@gmail.com>",
+      "Chase Whitener <cwhitener@gmail.com>",
+      "Christopher J. Madsen <cjm@cpan.org>",
+      "Daina Pettit <dpettit@bluehost.com>",
+      "Daniel Hedlund <Daniel.Hedlund@eprize.com>",
+      "David E. Wheeler <david@justatheory.com>",
+      "DAVIDRW <davidrw@cpan.org>",
+      "David Steinbrunner <dsteinbrunner@MountainBook-Pro.local>",
+      "Father Chrysostomos <sprout@cpan.org>",
+      "FWILES <FWILES@cpan.org>",
+      "Gavin Peters <gpeters@deepsky.com>",
+      "Gisle Aas <gisle@aas.no>",
+      "Graeme Thompson <Graeme.Thompson@mobilecohesion.com>",
+      "Graham Knop <haarg@haarg.org>",
+      "Hans-H. Froehlich <hfroehlich@co-de-co.de>",
+      "Ian Kilgore <iank@cpan.org>",
+      "Jacob J <waif@chaos2.org>",
+      "Jakub Wilk <jwilk@jwilk.net>",
+      "Jason A Fesler <jfesler@gigo.com>",
+      "jefflee <shaohua@gmail.com>",
+      "Joe Atzberger <ohiocore@gmail.com>",
+      "john9art <john9art@yahoo.com>",
+      "John Wittkoski <jwittkoski@gmail.com>",
+      "Karen Etheridge <ether@cpan.org>",
+      "Mark Stosberg <mark@stosberg.com>",
+      "michael gong <michealgong@126.com>",
+      "Michael G. Schwern <schwern@pobox.com>",
+      "Michiel Beijen <michiel.beijen@otrs.com>",
+      "Mike Schilli <github@perlmeister.com>",
+      "Moritz Onken <onken@netcubed.de>",
+      "murphy <murphy@genome.chop.edu>",
+      "Olaf Alders <olaf@wundersolutions.com>",
+      "Ondrej Hanak <ondrej.hanak@ubs.com>",
+      "Peter Rabbitson <ribasushi@cpan.org>",
+      "phrstbrn <phrstbrn@gmail.com>",
+      "Piotr Roszatycki <piotr.roszatycki@gmail.com>",
+      "Robert Stone <talby@trap.mtview.ca.us>",
+      "Rolf Grossmann <rg@progtech.net>",
+      "ruff <ruff@ukrpost.net>",
+      "sasao <sasao@yugen.org>",
+      "Sean M. Burke <sburke@cpan.org>",
+      "Slaven Rezic <slaven@rezic.de>",
+      "Spiros Denaxas <s.denaxas@gmail.com>",
+      "Steffen Ullrich <Steffen_Ullrich@genua.de>",
+      "Steve Hay <SteveHay@planit.com>",
+      "Theodore Robert Campbell Jr <trcjr@stupidfoot.com>",
+      "Tim Couzins <tim.couzins@sophos.com>",
+      "Todd Lipcon <todd@amiestreet.com>",
+      "Tom Hukins <tom@eborcom.com>",
+      "Tony Finch <dot@dotat.at>",
+      "Toru Yamaguchi <zigorou@cpan.org>",
+      "turugina <turugina@floralcompany.jp>",
+      "uid39246 <uid39246>",
+      "Ville Skytt\u00e4 <ville.skytta@iki.fi>",
+      "Vyacheslav Matyukhin <mmcleric@yandex-team.ru>",
+      "Yuri Karaban <tech@askold.net>",
+      "Yury Zavarin <yury.zavarin@gmail.com>",
+      "Zefram <zefram@fysh.org>"
+   ],
+   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0217"
+}
+

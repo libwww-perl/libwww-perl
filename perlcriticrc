@@ -1,0 +1,86 @@
+severity = 3
+verbose = 11
+
+theme = core + pbp + bugs + maintenance + cosmetic + complexity + security + tests + moose
+
+exclude = Subroutines::ProhibitCallsToUndeclaredSubs
+
+[BuiltinFunctions::ProhibitStringySplit]
+severity = 3
+
+[CodeLayout::RequireTrailingCommas]
+severity = 3
+
+[ControlStructures::ProhibitCStyleForLoops]
+severity = 3
+
+[InputOutput::RequireCheckedSyscalls]
+functions = :builtins
+exclude_functions = sleep
+severity = 3
+
+[Moose::RequireCleanNamespace]
+modules = Moose Moose::Role MooseX::Role::Parameterized Moose::Util::TypeConstraints
+cleaners = namespace::autoclean
+
+[NamingConventions::Capitalization]
+package_exemptions = [A-Z]\w+|minFraud
+file_lexical_variables = [A-Z]\w+|[^A-Z]+
+global_variables = :starts_with_upper
+scoped_lexical_variables = [A-Z]\w+|[^A-Z]+
+severity = 3
+
+# Given our code base, leaving this at 5 would be a huge pain
+[Subroutines::ProhibitManyArgs]
+max_arguments = 10
+
+[RegularExpressions::ProhibitComplexRegexes]
+max_characters = 200
+
+[RegularExpressions::ProhibitUnusualDelimiters]
+severity = 3
+
+[Subroutines::ProhibitUnusedPrivateSubroutines]
+private_name_regex = _(?!build)\w+
+skip_when_using = Moo::Role Moose::Role MooseX::Role::Parameterized Role::Tiny Test::Class::Moose::Role
+
+[TestingAndDebugging::ProhibitNoWarnings]
+allow = redefine
+
+[ValuesAndExpressions::ProhibitEmptyQuotes]
+severity = 3
+
+[ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+severity = 3
+
+[ValuesAndExpressions::RequireUpperCaseHeredocTerminator]
+severity = 3
+
+[Variables::ProhibitPackageVars]
+add_packages = Test::Builder
+
+[TestingAndDebugging::RequireUseStrict]
+
+[TestingAndDebugging::RequireUseWarnings]
+
+[-ControlStructures::ProhibitCascadingIfElse]
+
+[-ErrorHandling::RequireCarping]
+[-InputOutput::RequireBriefOpen]
+
+[-ValuesAndExpressions::ProhibitConstantPragma]
+
+# No need for /xsm everywhere
+[-RegularExpressions::RequireDotMatchAnything]
+[-RegularExpressions::RequireExtendedFormatting]
+[-RegularExpressions::RequireLineBoundaryMatching]
+
+[-Subroutines::ProhibitExplicitReturnUndef]
+
+# http://stackoverflow.com/questions/2275317/why-does-perlcritic-dislike-using-shift-to-populate-subroutine-variables
+[-Subroutines::RequireArgUnpacking]
+
+[-Subroutines::RequireFinalReturn]
+
+# "use v5.14" is more readable than "use 5.014"
+[-ValuesAndExpressions::ProhibitVersionStrings]

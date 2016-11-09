@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-# Simple user agent using LWP library.
+# ABSTRACT: Simple command line user agent
+# PODNAME: lwp-request
 
-=head1 NAME
-
-lwp-request, GET, POST, HEAD - Simple command line user agent
+=pod
 
 =head1 SYNOPSIS
 
@@ -220,6 +219,7 @@ use HTTP::Date qw(time2str str2time);
 # user/password if document is protected.
 {
     package RequestAgent;
+
     @ISA = qw(LWP::UserAgent);
 
     sub new

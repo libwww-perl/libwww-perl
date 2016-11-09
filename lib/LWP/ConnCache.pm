@@ -169,11 +169,9 @@ sub _looks_like_number {
 
 __END__
 
+# ABSTRACT:  Connection cache manager
+
 =pod
-
-=head1 NAME
-
-LWP::ConnCache - Connection cache manager
 
 =head1 NOTE
 
@@ -306,12 +304,5 @@ for the base class.
 =head1 SEE ALSO
 
 L<LWP::UserAgent>
-
-=head1 COPYRIGHT
-
-Copyright 2001 Gisle Aas.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
 
 =cut

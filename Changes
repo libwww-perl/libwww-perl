@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 _______________________________________________________________________________
+{{$NEXT}}
+
+_______________________________________________________________________________
 2015-12-15  Release 6.15
     (special thanks to Chase Whitener for testing many of these changes out in
     6.14_001!)

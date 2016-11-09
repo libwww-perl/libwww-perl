@@ -190,11 +190,9 @@ sub as_string
 
 __END__
 
+# ABSTRACT: a class for well-behaved Web robots
+
 =pod
-
-=head1 NAME
-
-LWP::RobotUA - a class for well-behaved Web robots
 
 =head1 SYNOPSIS
 
@@ -296,12 +294,5 @@ Mainly useful for debugging.
 =head1 SEE ALSO
 
 L<LWP::UserAgent>, L<WWW::RobotRules>
-
-=head1 COPYRIGHT
-
-Copyright 1996-2004 Gisle Aas.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
 
 =cut

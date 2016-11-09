@@ -509,6 +509,7 @@ sub increment_response_count {
 
 #-----------------------------------------------------------
 package LWP::Protocol::http::Socket;
+
 use vars qw(@ISA);
 @ISA = qw(LWP::Protocol::http::SocketMethods Net::HTTP);
 

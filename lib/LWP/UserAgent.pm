@@ -1052,11 +1052,9 @@ sub _new_response {
 
 __END__
 
+# ABSTRACT: Web user agent class
+
 =pod
-
-=head1 NAME
-
-LWP::UserAgent - Web user agent class
 
 =head1 SYNOPSIS
 
@@ -1854,12 +1852,5 @@ and L<HTML::Form> for other ways to build request objects.
 
 See L<WWW::Mechanize> and L<WWW::Search> for examples of more
 specialized user agents based on L<LWP::UserAgent>.
-
-=head1 COPYRIGHT
-
-Copyright 1995-2009 Gisle Aas.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
 
 =cut

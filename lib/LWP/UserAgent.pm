@@ -411,12 +411,47 @@ sub get {
     return $self->request( HTTP::Request::Common::GET( @parameters ), @suff );
 }
 
+sub _has_raw_content {
+    my $self = shift;
+    shift; # drop url
+
+    # taken from HTTP::Request::Common::request_type_with_data
+    my $content;
+    $content = shift if @_ and ref $_[0];
+    my($k, $v);
+    while (($k,$v) = splice(@_, 0, 2)) {
+        if (lc($k) eq 'content') {
+            $content = $v;
+        }
+    }
+
+    # We were given Content => 'string' ...
+    if (defined $content && ! ref ($content)) {
+        return 1;
+    }
+
+    return;
+}
+
+sub _maybe_copy_default_content_type {
+    my ($self, $req, @parameters) = @_;
+
+    # If we have a default Content-Type and someone passes in a POST/PUT
+    # with Content => 'some-string-value', use that Content-Type instead
+    # of x-www-form-urlencoded
+    my $ct = $self->default_header('Content-Type');
+    return unless defined $ct && $self->_has_raw_content(@parameters);
+
+    $req->header('Content-Type' => $ct);
+}
 
 sub post {
     require HTTP::Request::Common;
     my($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
-    return $self->request( HTTP::Request::Common::POST( @parameters ), @suff );
+    my $req = HTTP::Request::Common::POST(@parameters);
+    $self->_maybe_copy_default_content_type($req, @parameters);
+    return $self->request($req, @suff);
 }
 
 
@@ -432,7 +467,9 @@ sub put {
     require HTTP::Request::Common;
     my($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
-    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+    my $req = HTTP::Request::Common::PUT(@parameters);
+    $self->_maybe_copy_default_content_type($req, @parameters);
+    return $self->request($req, @suff);
 }
 
 

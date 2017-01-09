@@ -712,13 +712,19 @@ sub cookie_jar {
 
 sub proxy_header {
     my $self = shift;
-    $self->{proxy_headers} //= HTTP::Headers->new;
+    $self->{proxy_headers} ||= HTTP::Headers->new;
     return $self->{proxy_headers}->header(@_);
 }
 
-sub get_proxy_headers {
+sub proxy_headers {
     my $self = shift;
-    return $self->{proxy_headers};
+    my $old = $self->{proxy_headers} ||= HTTP::Headers->new;
+    if (@_) {
+	Carp::croak("proxy_headers not set to HTTP::Headers compatible object")
+	    unless @_ == 1 && $_[0]->can("header_field_names");
+	$self->{proxy_headers} = shift;
+    }
+    return $old;
 }
 
 sub default_headers {

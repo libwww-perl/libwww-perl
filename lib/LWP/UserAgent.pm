@@ -411,12 +411,47 @@ sub get {
     return $self->request( HTTP::Request::Common::GET( @parameters ), @suff );
 }
 
+sub _has_raw_content {
+    my $self = shift;
+    shift; # drop url
+
+    # taken from HTTP::Request::Common::request_type_with_data
+    my $content;
+    $content = shift if @_ and ref $_[0];
+    my($k, $v);
+    while (($k,$v) = splice(@_, 0, 2)) {
+        if (lc($k) eq 'content') {
+            $content = $v;
+        }
+    }
+
+    # We were given Content => 'string' ...
+    if (defined $content && ! ref ($content)) {
+        return 1;
+    }
+
+    return;
+}
+
+sub _maybe_copy_default_content_type {
+    my ($self, $req, @parameters) = @_;
+
+    # If we have a default Content-Type and someone passes in a POST/PUT
+    # with Content => 'some-string-value', use that Content-Type instead
+    # of x-www-form-urlencoded
+    my $ct = $self->default_header('Content-Type');
+    return unless defined $ct && $self->_has_raw_content(@parameters);
+
+    $req->header('Content-Type' => $ct);
+}
 
 sub post {
     require HTTP::Request::Common;
     my($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
-    return $self->request( HTTP::Request::Common::POST( @parameters ), @suff );
+    my $req = HTTP::Request::Common::POST(@parameters);
+    $self->_maybe_copy_default_content_type($req, @parameters);
+    return $self->request($req, @suff);
 }
 
 
@@ -432,7 +467,9 @@ sub put {
     require HTTP::Request::Common;
     my($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters, (ref($parameters[1]) ? 2 : 1));
-    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+    my $req = HTTP::Request::Common::PUT(@parameters);
+    $self->_maybe_copy_default_content_type($req, @parameters);
+    return $self->request($req, @suff);
 }
 
 
@@ -1069,6 +1106,8 @@ sub _new_response {
 
 __END__
 
+=pod
+
 =head1 NAME
 
 LWP::UserAgent - Web user agent class
@@ -1092,22 +1131,22 @@ LWP::UserAgent - Web user agent class
 
 =head1 DESCRIPTION
 
-The C<LWP::UserAgent> is a class implementing a web user agent.
-C<LWP::UserAgent> objects can be used to dispatch web requests.
+The L<LWP::UserAgent> is a class implementing a web user agent.
+L<LWP::UserAgent> objects can be used to dispatch web requests.
 
-In normal use the application creates an C<LWP::UserAgent> object, and
+In normal use the application creates an L<LWP::UserAgent> object, and
 then configures it with values for timeouts, proxies, name, etc. It
-then creates an instance of C<HTTP::Request> for the request that
+then creates an instance of L<HTTP::Request> for the request that
 needs to be performed. This request is then passed to one of the
 request method the UserAgent, which dispatches it using the relevant
-protocol, and returns a C<HTTP::Response> object.  There are
+protocol, and returns a L<HTTP::Response> object.  There are
 convenience methods for sending the most common request types: get(),
 head(), post(), put() and delete().  When using these methods then the
 creation of the request object is hidden as shown in the synopsis above.
 
 The basic approach of the library is to use HTTP style communication
 for all protocol schemes.  This means that you will construct
-C<HTTP::Request> objects and receive C<HTTP::Response> objects even
+L<HTTP::Request> objects and receive L<HTTP::Response> objects even
 for non-HTTP resources like I<gopher> and I<ftp>.  In order to achieve
 even more similarity to HTTP style communications, gopher menus and
 file directories are converted to HTML documents.
@@ -1120,7 +1159,7 @@ The following constructor methods are available:
 
 =item $ua = LWP::UserAgent->new( %options )
 
-This method constructs a new C<LWP::UserAgent> object and returns it.
+This method constructs a new L<LWP::UserAgent> object and returns it.
 Key/value pair arguments may be provided to set up the initial state.
 The following options correspond to attribute methods described below:
 
@@ -1158,7 +1197,7 @@ Returns a copy of the LWP::UserAgent object.
 =head1 ATTRIBUTES
 
 The settings of the configuration attributes modify the behaviour of the
-C<LWP::UserAgent> when it dispatches requests.  Most of these can also
+L<LWP::UserAgent> when it dispatches requests.  Most of these can also
 be initialized by options passed to the constructor method.
 
 The following attribute methods are provided.  The attribute value is
@@ -1216,7 +1255,7 @@ Get/set the cookie jar object to use.  The only requirement is that
 the cookie jar object must implement the extract_cookies($response) and
 add_cookie_header($request) methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
-received.  Normally this will be a C<HTTP::Cookies> object or some
+received.  Normally this will be a L<HTTP::Cookies> object or some
 subclass.
 
 The default is to have no cookie_jar, i.e. never automatically add
@@ -1224,8 +1263,8 @@ The default is to have no cookie_jar, i.e. never automatically add
 
 Shortcut: If a reference to a plain hash is passed in as the
 $cookie_jar_object, then it is replaced with an instance of
-C<HTTP::Cookies> that is initialized based on the hash.  This form also
-automatically loads the C<HTTP::Cookies> module.  It means that:
+L<HTTP::Cookies> that is initialized based on the hash.  This form also
+automatically loads the L<HTTP::Cookies> module.  It means that:
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
@@ -1249,7 +1288,7 @@ Get all headers that should be sent to proxies via CONNECT requests.
 =item $ua->default_headers( $headers_obj )
 
 Get/set the headers object that will provide default header values for
-any requests sent.  By default this will be an empty C<HTTP::Headers>
+any requests sent.  By default this will be an empty L<HTTP::Headers>
 object.
 
 =item $ua->default_header( $field )
@@ -1266,7 +1305,7 @@ $value ). Example:
 
 =item $ua->conn_cache( $cache_obj )
 
-Get/set the C<LWP::ConnCache> object to use.  See L<LWP::ConnCache>
+Get/set the L<LWP::ConnCache> object to use.  See L<LWP::ConnCache>
 for details.
 
 =item $ua->credentials( $netloc, $realm )
@@ -1329,12 +1368,12 @@ This reads (or sets) this user agent's list of protocols that the
 request methods will exclusively allow.  The protocol names are case
 insensitive.
 
-For example: C<$ua-E<gt>protocols_allowed( [ 'http', 'https'] );>
+For example: C<< $ua->protocols_allowed( [ 'http', 'https'] ); >>
 means that this user agent will I<allow only> those protocols,
 and attempts to use this user agent to access URLs with any other
 schemes (like "ftp://...") will result in a 500 error.
 
-To delete the list, call: C<$ua-E<gt>protocols_allowed(undef)>
+To delete the list, call: C<< $ua->protocols_allowed(undef) >>
 
 By default, an object has neither a C<protocols_allowed> list, nor a
 C<protocols_forbidden> list.
@@ -1350,19 +1389,19 @@ This reads (or sets) this user agent's list of protocols that the
 request method will I<not> allow. The protocol names are case
 insensitive.
 
-For example: C<$ua-E<gt>protocols_forbidden( [ 'file', 'mailto'] );>
+For example: C<< $ua->protocols_forbidden( [ 'file', 'mailto'] ); >>
 means that this user agent will I<not> allow those protocols, and
 attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
 
-To delete the list, call: C<$ua-E<gt>protocols_forbidden(undef)>
+To delete the list, call: C<< $ua->protocols_forbidden(undef) >>
 
 =item $ua->requests_redirectable
 
 =item $ua->requests_redirectable( \@requests )
 
 This reads or sets the object's list of request names that
-C<$ua-E<gt>redirect_ok(...)> will allow redirection for.  By
+C<< $ua->redirect_ok(...) >> will allow redirection for.  By
 default, this is C<['GET', 'HEAD']>, as per RFC 2616.  To
 change to include 'POST', consider:
 
@@ -1654,7 +1693,10 @@ object itself.  This might not be suitable for very large response
 bodies.  Only one of C<:content_file> or C<:content_cb> can be
 specified.  The content of unsuccessful responses will always
 accumulate in the response object itself, regardless of the
-C<:content_file> or C<:content_cb> options passed in.
+C<:content_file> or C<:content_cb> options passed in.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the C<Client-Aborted>
+or C<X-Died> response headers, and not the C<is_success> method.
 
 The C<:read_size_hint> option is passed to the protocol module which
 will try to read data from the server in chunks of this size.  A
@@ -1691,7 +1733,7 @@ This method will dispatch a C<POST> request on the given $url, with
 content. Additional headers and content options are the same as for
 the get() method.
 
-This method will use the POST() function from C<HTTP::Request::Common>
+This method will use the POST() function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
@@ -1712,7 +1754,7 @@ This method will dispatch a C<PUT> request on the given $url, with
 content. Additional headers and content options are the same as for
 the get() method.
 
-This method will use the PUT() function from C<HTTP::Request::Common>
+This method will use the PUT() function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
@@ -1723,7 +1765,7 @@ how to pass form content and other advanced features.
 This method will dispatch a C<DELETE> request on the given $url.  Additional
 headers and content options are the same as for the get() method.
 
-This method will use the DELETE() function from C<HTTP::Request::Common>
+This method will use the DELETE() function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
@@ -1748,7 +1790,7 @@ The return value is the response object.
 =item $ua->request( $request, $content_cb, $read_size_hint )
 
 This method will dispatch the given $request object.  Normally this
-will be an instance of the C<HTTP::Request> class, but any object with
+will be an instance of the L<HTTP::Request> class, but any object with
 a similar interface will do.  The return value is a response object.
 See L<HTTP::Request> and L<HTTP::Response> for a description of the
 interface provided by these classes.
@@ -1763,7 +1805,10 @@ They are convenience methods that simply hides the creation of the
 request object for you.
 
 The $content_file, $content_cb and $read_size_hint all correspond to
-options described with the get() method above.
+options described with the get() method above.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the C<Client-Aborted>
+or C<X-Died> response headers, and not the C<is_success> method.
 
 You are allowed to use a CODE reference as C<content> in the request
 object passed in.  The C<content> function should return the content
@@ -1809,7 +1854,7 @@ object.
 =head2 Callback methods
 
 The following methods will be invoked as requests are processed. These
-methods are documented here because subclasses of C<LWP::UserAgent>
+methods are documented here because subclasses of L<LWP::UserAgent>
 might want to override their behaviour.
 
 =over
@@ -1878,7 +1923,7 @@ message objects dispatched and received.  See L<HTTP::Request::Common>
 and L<HTML::Form> for other ways to build request objects.
 
 See L<WWW::Mechanize> and L<WWW::Search> for examples of more
-specialized user agents based on C<LWP::UserAgent>.
+specialized user agents based on L<LWP::UserAgent>.
 
 =head1 COPYRIGHT
 
@@ -1886,3 +1931,5 @@ Copyright 1995-2009 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
+=cut

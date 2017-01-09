@@ -1,9 +1,9 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
 
 $| = 1;
-print "Content-type: text/plain
-
-";
+print "Content-type: text/plain\n\n";
 
 if (@ARGV) {
     print "ARGS: ";
@@ -13,16 +13,17 @@ if (@ARGV) {
     print "No command line arguments passed to script\n\n";
 }
 
-while (($key,$val) = each %ENV) {
-   print "$key=$val\n";
+for my $key (keys %ENV) {
+    print $key, '=', $ENV{$key}, "\n";
 }
 
 if ($ENV{CONTENT_LENGTH}) {
-    $len = $ENV{CONTENT_LENGTH};
+    my $len = $ENV{CONTENT_LENGTH};
+    my $content;
     while ($len) {
-	$n = sysread(STDIN, $content, $len, length $content);
-	last unless defined $n;
-	$len -= $n;
+        my $n = sysread(STDIN, $content, $len);
+        last unless defined $n;
+        $len -= $n;
     }
     print "\nContent\n-------\n$content";
 }

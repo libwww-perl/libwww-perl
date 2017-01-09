@@ -1,87 +1,75 @@
-#
-# Test retrieving a file with a 'file://' URL,
-#
-
-if ($^O eq "MacOS") {
-    print "1..0\n";
-    exit;
-}
-
+use strict;
+use warnings;
+use Test::More;
 
 use File::Temp 'tempdir';
-
-# First locate some suitable tmp-dir.  We need an absolute path.
-$TMPDIR = undef;
-for (tempdir()) {
-    if (open(TEST, ">$_/test-$$")) {
-        close(TEST);
-	unlink("$_/test-$$");
-	$TMPDIR = $_;
-	last;
-    }
-}
-unless ($TMPDIR) {
-   # Can't run any tests
-   print "1..0\n";
-   print "ok 1\n";
-   exit;
-}
-$TMPDIR =~ tr|\\|/|;
-
-use Test;
-plan tests => 2;
-
 use LWP::Simple;
 require LWP::Protocol::file;
 
-my $orig = "$TMPDIR/lwp-orig-$$";          # local file
-my $copy = "$TMPDIR/lwp-copy-$$"; 	    # downloaded copy
+my $TMPDIR = undef;
+
+if ( $^O eq 'MacOS' ) {
+    plan skip_all => 'Cannot test on this platform';
+}
+else {
+    # First locate some suitable tmp-dir.  We need an absolute path.
+    for my $dir (tempdir()) {
+        if ( open(my $fh, '>', "$dir/test-$$"))  {
+            close($fh);
+            unlink("$dir/test-$$");
+            $TMPDIR = $dir;
+            last;
+        }
+    }
+    if ( $TMPDIR ) {
+        $TMPDIR =~ tr|\\|/|;
+        plan tests => 4;
+    }
+    else {
+        plan skip_all => 'Cannot test without a suitable TMP Directory';
+    }
+}
+
+my $orig = "$TMPDIR/lwp-orig-$$"; # local file
+my $copy = "$TMPDIR/lwp-copy-$$"; # downloaded copy
 
 # First we create the original
-open(OUT, ">$orig") or die "Cannot open $orig: $!";
-binmode(OUT);
-for (1..5) {
-    print OUT "This is line $_ of $orig\n";
+{
+    open(my $fh, '>', $orig) or die "Cannot open $orig: $!";
+    binmode($fh);
+    for (1..5) {
+        print {$fh} "This is line $_ of $orig\n";
+    }
 }
-close(OUT);
-
 
 # Then we make a test using getprint(), so we need to capture stdout
-open (OUT, ">$copy") or die "Cannot open $copy: $!";
-select(OUT);
-
-# do the retrieval
-getprint("file://localhost" . ($orig =~ m|^/| ? $orig : "/$orig"));
-
-close(OUT);
-select(STDOUT);
+{
+    open(my $fh, '>', $copy) or die "Cannot open $copy: $!";
+    select($fh);
+    # do the retrieval
+    getprint("file://localhost" . ($orig =~ m|^/| ? $orig : "/$orig"));
+    select(STDOUT);
+}
 
 # read and compare the files
-open(IN, $orig) or die "Cannot open '$orig': $!";
-undef($/);
-$origtext = <IN>;
-close(IN);
-open(IN, $copy) or die "Cannot open '$copy': $!";
-undef($/);
-$copytext = <IN>;
-close(IN);
-
+my $origtext = slurp( $orig );
+ok($origtext, "slurp original yielded text");
+my $copytext = slurp( $copy );
+ok($copytext, "slurp copy yielded text");
 unlink($copy);
-
-ok($copytext, $origtext);
-
+is($copytext, $origtext, "getprint: Original and copy equal eachother");
 
 # Test getstore() function
-
 getstore("file:$orig", $copy);
-
-# Take a look at the new copy
-open(IN, $copy) or die "Cannot open '$copy': $!";
-undef($/);
-$copytext = <IN>;
-close(IN);
+$copytext = slurp( $copy );
+is($copytext, $origtext, "getstore: Original and copy equal eachother");
 
 unlink($orig);
 unlink($copy);
 
-ok($copytext, $origtext);
+sub slurp {
+    my $file = shift;
+    open ( my $fh, '<', $file ) or die "Cannot open $file: $!";
+    local $/;
+    return <$fh>;
+}

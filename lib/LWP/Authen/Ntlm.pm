@@ -90,7 +90,9 @@ sub authenticate {
 }
 
 1;
+__END__
 
+=pod
 
 =head1 NAME
 
@@ -116,7 +118,7 @@ LWP::Authen::Ntlm - Library for enabling NTLM authentication (Microsoft) in LWP
 
 =head1 DESCRIPTION
 
-C<LWP::Authen::Ntlm> allows LWP to authenticate against servers that are using the 
+L<LWP::Authen::Ntlm> allows LWP to authenticate against servers that are using the 
 NTLM authentication scheme popularized by Microsoft.  This type of authentication is 
 common on intranets of Microsoft-centric organizations.
 
@@ -178,3 +180,5 @@ under the same terms as Perl itself.
 =head1 SEE ALSO
 
 L<LWP>, L<LWP::UserAgent>, L<lwpcook>.
+
+=cut

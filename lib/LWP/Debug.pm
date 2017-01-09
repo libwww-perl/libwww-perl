@@ -67,6 +67,8 @@ sub _log
 
 __END__
 
+=pod
+
 =head1 NAME
 
 LWP::Debug - deprecated
@@ -108,3 +110,5 @@ request and response objects that pass through LWP:
 =head1 SEE ALSO
 
 L<LWP::UserAgent>
+
+=cut

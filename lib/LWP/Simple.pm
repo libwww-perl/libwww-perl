@@ -1,7 +1,7 @@
 package LWP::Simple;
 
 use strict;
-use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
+use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK);
 
 require Exporter;
 
@@ -14,7 +14,7 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-$VERSION = "6.15";
+our $VERSION = "6.16";
 
 sub import
 {

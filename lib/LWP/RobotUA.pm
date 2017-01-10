@@ -1,8 +1,7 @@
 package LWP::RobotUA;
 
-require LWP::UserAgent;
-@ISA = qw(LWP::UserAgent);
-$VERSION = "6.15";
+use base qw(LWP::UserAgent);
+our $VERSION = "6.16";
 
 require WWW::RobotRules;
 require HTTP::Request;

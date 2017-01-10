@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 
 use LWP::UserAgent;
-plan tests => 35;
+plan tests => 37;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -43,6 +43,30 @@ Multi: 1
 Multi: 2
 X: y
 
+EOT
+
+ok($ua->post("http://www.example.com", {x => "y", f => "ff"})->content, <<EOT);
+POST http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 8
+Content-Type: application/x-www-form-urlencoded
+Foo: bar
+Multi: 1
+Multi: 2
+
+x=y&f=ff
+EOT
+
+ok($ua->put("http://www.example.com", [x => "y", f => "ff"])->content, <<EOT);
+PUT http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 8
+Content-Type: application/x-www-form-urlencoded
+Foo: bar
+Multi: 1
+Multi: 2
+
+x=y&f=ff
 EOT
 
 is(ref($clone->{proxy}), 'HASH', 'ref($clone->{proxy})');

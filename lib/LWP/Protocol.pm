@@ -191,11 +191,9 @@ sub collect_once
 
 __END__
 
+# ABSTRACT: Base class for LWP protocols
+
 =pod
-
-=head1 NAME
-
-LWP::Protocol - Base class for LWP protocols
 
 =head1 SYNOPSIS
 
@@ -284,12 +282,5 @@ next.
 
 Inspect the F<LWP/Protocol/file.pm> and F<LWP/Protocol/http.pm> files
 for examples of usage.
-
-=head1 COPYRIGHT
-
-Copyright 1995-2001 Gisle Aas.
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
 
 =cut

@@ -1,0 +1,43 @@
+This is the Perl distribution libwww-perl.
+
+Installing libwww-perl is straightforward.
+
+## Installation with cpanm
+
+If you have cpanm, you only need one line:
+
+    % cpanm libwww::perl
+
+If it does not have permission to install modules to the current perl, cpanm
+will automatically set up and install to a local::lib in your home directory.
+See the local::lib documentation (https://metacpan.org/pod/local::lib) for
+details on enabling it in your environment.
+
+## Installing with the CPAN shell
+
+Alternatively, if your CPAN shell is set up, you should just be able to do:
+
+    % cpan libwww::perl
+
+## Manual installation
+
+As a last resort, you can manually install it. Download the tarball, untar it,
+then build it:
+
+    % perl Makefile.PL
+    % make && make test
+
+Then install it:
+
+    % make install
+
+If your perl is system-managed, you can create a local::lib in your home
+directory to install modules to. For details, see the local::lib documentation:
+https://metacpan.org/pod/local::lib
+
+## Documentation
+
+libwww-perl documentation is available as POD.
+You can run perldoc from a shell to read the documentation:
+
+    % perldoc libwww::perl

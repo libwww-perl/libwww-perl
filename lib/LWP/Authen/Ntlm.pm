@@ -94,10 +94,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-LWP::Authen::Ntlm - Library for enabling NTLM authentication (Microsoft) in LWP
-
 =head1 SYNOPSIS
 
  use LWP::UserAgent;
@@ -171,14 +167,11 @@ General queries regarding LWP should be made to the LWP Mailing List.
 
 Questions specific to LWP::Authen::Ntlm can be forwarded to jtillman@bigfoot.com
 
-=head1 COPYRIGHT
-
-Copyright (c) 2002 James Tillman. All rights reserved. This
-program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
 =head1 SEE ALSO
 
 L<LWP>, L<LWP::UserAgent>, L<lwpcook>.
 
 =cut
+
+# ABSTRACT: Library for enabling NTLM authentication (Microsoft) in LWP
+

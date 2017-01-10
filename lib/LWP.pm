@@ -10,13 +10,12 @@ require LWP::UserAgent;  # this should load everything you need
 
 __END__
 
+# ABSTRACT: The World-Wide Web library for Perl
+
 =pod
 
 =encoding utf-8
 
-=head1 NAME
-
-LWP - The World-Wide Web library for Perl
 
 =head1 SYNOPSIS
 
@@ -649,14 +648,6 @@ Nierstrasz, Mel Melchner, Gertjan van Oosten, Jared Rhine, Jack
 Shirazi, Gene Spafford, Marc VanHeyningen, Steven E. Brenner, Marion
 Hakanson, Waldemar Kebsch, Tony Sanders, and Larry Wall; see the
 libwww-perl-0.40 library for details.
-
-=head1 COPYRIGHT
-
-  Copyright 1995-2009, Gisle Aas
-  Copyright 1995, Martijn Koster
-
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
 
 =head1 AVAILABILITY
 

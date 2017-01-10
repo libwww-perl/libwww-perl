@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-# Simple mirror utility using LWP
+# ABSTRACT: Simple mirror utility using LWP
+# PODNAME: lwp-mirror
 
-=head1 NAME
-
-lwp-mirror - Simple mirror utility
+=pod
 
 =head1 SYNOPSIS
 

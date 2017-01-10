@@ -1,5 +1,8 @@
 #!/usr/bin/perl -w
 
+# ABSTRACT: See what headers and content is returned for a URL
+# PODNAME: lwp-dump
+
 use strict;
 use LWP::UserAgent ();
 use Getopt::Long qw(GetOptions);
@@ -58,9 +61,8 @@ $res->dump(maxlength => $opt{'max-length'});
 
 __END__
 
-=head1 NAME
 
-lwp-dump - See what headers and content is returned for a URL
+=pod
 
 =head1 SYNOPSIS
 
@@ -118,3 +120,4 @@ Also dump the request sent.
 
 L<lwp-request>, L<LWP>, L<HTTP::Message/"dump">
 
+=cut

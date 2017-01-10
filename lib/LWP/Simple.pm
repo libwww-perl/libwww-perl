@@ -97,11 +97,9 @@ sub mirror ($$)
 
 __END__
 
+# ABSTRACT: simple procedural interface to LWP
+
 =pod
-
-=head1 NAME
-
-LWP::Simple - simple procedural interface to LWP
 
 =head1 SYNOPSIS
 

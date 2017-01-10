@@ -1,11 +1,9 @@
 package LWP::UserAgent;
 
 use strict;
-use vars qw(@ISA $VERSION);
 
-require LWP::MemberMixin;
-@ISA = qw(LWP::MemberMixin);
-$VERSION = "6.15";
+use base qw(LWP::MemberMixin);
+our $VERSION = "6.16";
 
 use HTTP::Request ();
 use HTTP::Response ();

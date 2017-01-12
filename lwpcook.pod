@@ -188,18 +188,15 @@ cookies provided by the servers it visits.  LWP will collect cookies
 and respond to cookie requests if you set up a cookie jar.
 
   use LWP::UserAgent;
-  use HTTP::Cookies;
+  use HTTP::CookieJar::LWP;
 
-  $ua = LWP::UserAgent->new;
-  $ua->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt",
-				     autosave => 1));
+  $ua = LWP::UserAgent->new(
+      cookie_jar => HTTP::CookieJar::LWP->new,
+  );
 
   # and then send requests just as you used to do
   $res = $ua->request(HTTP::Request->new(GET => "http://no.yahoo.com/"));
   print $res->status_line, "\n";
-
-As you visit sites that send you cookies to keep, then the file
-F<lwpcookies.txt"> will grow.
 
 =head1 HTTPS
 

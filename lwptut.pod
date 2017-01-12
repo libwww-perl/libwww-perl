@@ -176,7 +176,7 @@ like so:
 
   $response = $browser->get( $url, $key1, $value1, $key2, $value2, ... );
 
-For example, here's how to send some more Netscape-like headers, in case
+For example, here's how to send some commonly used headers, in case
 you're dealing with a site that would otherwise reject your request:
 
 
@@ -219,45 +219,20 @@ A default LWP::UserAgent object acts like a browser with its cookies
 support turned off. There are various ways of turning it on, by setting
 its C<cookie_jar> attribute. A "cookie jar" is an object representing
 a little database of all
-the HTTP cookies that a browser can know about. It can correspond to a
-file on disk (the way Netscape uses its F<cookies.txt> file), or it can
-be just an in-memory object that starts out empty, and whose collection of
+the HTTP cookies that a browser knows about. It can correspond to a
+file on disk or 
+an in-memory object that starts out empty, and whose collection of
 cookies will disappear once the program is finished running.
 
 To give a browser an in-memory empty cookie jar, you set its C<cookie_jar>
 attribute like so:
 
-  $browser->cookie_jar({});
+  use HTTP::CookieJar::LWP;
+  $browser->cookie_jar( HTTP::CookieJar::LWP->new );
 
-To give it a copy that will be read from a file on disk, and will be saved
-to it when the program is finished running, set the C<cookie_jar> attribute
-like this:
-
-  use HTTP::Cookies;
-  $browser->cookie_jar( HTTP::Cookies->new(
-    'file' => '/some/where/cookies.lwp',
-        # where to read/write cookies
-    'autosave' => 1,
-        # save it to disk when done
-  ));
-
-That file will be in LWP-specific format. If you want to access the
-cookies in your Netscape cookies file, you can use the
-HTTP::Cookies::Netscape class:
-
-  use HTTP::Cookies;
-    # yes, loads HTTP::Cookies::Netscape too
-  
-  $browser->cookie_jar( HTTP::Cookies::Netscape->new(
-    'file' => 'c:/Program Files/Netscape/Users/DIR-NAME-HERE/cookies.txt',
-        # where to read cookies
-  ));
-
-You could add an C<< 'autosave' => 1 >> line as further above, but at
-time of writing, it's uncertain whether Netscape might discard some of
-the cookies you could be writing back to disk.
-
-
+To save a cookie jar to disk, see L<< HTTP::CookieJar/dump_cookies >>.
+To load cookies from disk into a jar, see L<<
+HTTP::CookieJar/load_cookies >>.
 
 =for comment
  ##########################################################################

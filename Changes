@@ -5,6 +5,7 @@ Change history for libwww-perl
 	- Updated test suite to use strict/warnings and Test::More (PR#88)
 	- Additional tests for UserAgent coverage (PR#79)
 	- Cleaned up documentation formatting and fixed several typos (PR#87, PR#93)
+	- Stop promoting use of HTTP::Cookies and instead use HTTP::CookieJar::LWP (PR#102)
 	- Added some new documentation to UserAgent and tutorial (PR#68)
 	- Allow default header to carry over when using ->post() in UA (PR#100)
 

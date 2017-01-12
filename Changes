@@ -1,8 +1,12 @@
 Change history for libwww-perl
 
-6.16	2017-01-10
-	- Moved LWP::Protocol::GHTTP into its own dist and removed from here.
-	- Updated test suite to use strict/warnings and Test::More
+6.16	2017-01-12
+	- Moved LWP::Protocol::GHTTP into its own dist and removed from here (PR#81)
+	- Updated test suite to use strict/warnings and Test::More (PR#88)
+	- Additional tests for UserAgent coverage (PR#79)
+	- Cleaned up documentation formatting and fixed several typos (PR#87, PR#93)
+	- Added some new documentation to UserAgent and tutorial (PR#68)
+	- Allow default header to carry over when using ->post() in UA (PR#100)
 
 _______________________________________________________________________________
 2015-12-15  Release 6.15

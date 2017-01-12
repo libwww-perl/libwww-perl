@@ -176,7 +176,7 @@ like so:
 
   $response = $browser->get( $url, $key1, $value1, $key2, $value2, ... );
 
-For example, here's how to send some more Netscape-like headers, in case
+For example, here's how to send some commonly used headers, in case
 you're dealing with a site that would otherwise reject your request:
 
 

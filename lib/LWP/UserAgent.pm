@@ -18,8 +18,8 @@ use Carp ();
 sub new
 {
     # Check for common user mistake
-    Carp::croak("Options to LWP::UserAgent should be key/value pairs, not hash reference") 
-        if ref($_[1]) eq 'HASH'; 
+    Carp::croak("Options to LWP::UserAgent should be key/value pairs, not hash reference")
+        if ref($_[1]) eq 'HASH';
 
     my($class, %cnf) = @_;
 
@@ -67,13 +67,13 @@ sub new
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
     my $keep_alive = delete $cnf{keep_alive};
-    
+
     Carp::croak("Can't mix conn_cache and keep_alive")
 	  if $conn_cache && $keep_alive;
 
     my $protocols_allowed   = delete $cnf{protocols_allowed};
     my $protocols_forbidden = delete $cnf{protocols_forbidden};
-    
+
     my $requests_redirectable = delete $cnf{requests_redirectable};
     $requests_redirectable = ['GET', 'HEAD']
       unless defined $requests_redirectable;
@@ -301,7 +301,7 @@ sub request
 
 	# These headers should never be forwarded
 	$referral->remove_header('Host', 'Cookie');
-	
+
 	if ($referral->header('Referer') &&
 	    $request->uri->scheme eq 'https' &&
 	    $referral->uri->scheme eq 'http')
@@ -312,7 +312,7 @@ sub request
 	}
 
 	if ($code == &HTTP::Status::RC_SEE_OTHER ||
-	    $code == &HTTP::Status::RC_FOUND) 
+	    $code == &HTTP::Status::RC_FOUND)
         {
 	    my $method = uc($referral->method);
 	    unless ($method eq "GET" || $method eq "HEAD") {
@@ -348,7 +348,7 @@ sub request
 	    ?  "Proxy-Authenticate" : "WWW-Authenticate";
 	my @challenge = $response->header($ch_header);
 	unless (@challenge) {
-	    $response->header("Client-Warning" => 
+	    $response->header("Client-Warning" =>
 			      "Missing Authenticate header");
 	    return $response;
 	}
@@ -362,7 +362,7 @@ sub request
 	    $challenge = { @$challenge };  # make rest into a hash
 
 	    unless ($scheme =~ /^([a-z]+(?:-[a-z]+)*)$/) {
-		$response->header("Client-Warning" => 
+		$response->header("Client-Warning" =>
 				  "Bad authentication scheme '$scheme'");
 		return $response;
 	    }
@@ -495,7 +495,7 @@ sub _process_colonic_headers {
 	    Carp::croak("A :content_cb value can't be undef") unless defined $arg;
 	    Carp::croak("A :content_cb value must be a coderef")
 		unless ref $arg and UNIVERSAL::isa($arg, 'CODE');
-	    
+
 	}
 	elsif ($args->[$i] eq ':content_file') {
 	    $arg = $args->[$i + 1];
@@ -623,13 +623,13 @@ sub redirect_ok
     my $method = $response->request->method;
     return 0 unless grep $_ eq $method,
       @{ $self->requests_redirectable || [] };
-    
+
     if ($new_request->uri->scheme eq 'file') {
       $response->header("Client-Warning" =>
 			"Can't redirect to a file:// URL!");
       return 0;
     }
-    
+
     # Otherwise it's apparently okay...
     return 1;
 }
@@ -952,7 +952,7 @@ sub mirror
     }
 
     # Only fetching a fresh copy of the would be considered success.
-    # If the file was not modified, "304" would returned, which 
+    # If the file was not modified, "304" would returned, which
     # is considered by HTTP::Status to be a "redirect", /not/ "success"
     if ( $response->is_success ) {
         my @stat        = stat($tmpfile) or die "Could not stat tmpfile '$tmpfile': $!";
@@ -967,7 +967,7 @@ sub mirror
             unlink($tmpfile);
             die "Content-length mismatch: " . "expected $content_length bytes, got $file_length\n";
         }
-        # The file was the expected length. 
+        # The file was the expected length.
         else {
             # Replace the stale file with a fresh copy
             if ( -e $file ) {
@@ -984,7 +984,7 @@ sub mirror
             }
         }
     }
-    # The local copy is fresh enough, so just delete the temp file  
+    # The local copy is fresh enough, so just delete the temp file
     else {
 	unlink($tmpfile);
     }
@@ -1096,13 +1096,13 @@ LWP::UserAgent - Web user agent class
 =head1 SYNOPSIS
 
  require LWP::UserAgent;
- 
+
  my $ua = LWP::UserAgent->new;
  $ua->timeout(10);
  $ua->env_proxy;
- 
+
  my $response = $ua->get('http://search.cpan.org/');
- 
+
  if ($response->is_success) {
      print $response->decoded_content;  # or whatever
  }
@@ -1463,7 +1463,7 @@ Set/retrieve proxy URL for a scheme:
  $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
  $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
 
-The first form specifies that the URL is to be used for proxying of
+The first form specifies that the URL is to be used as a proxy for
 access methods listed in the list in the first method argument,
 i.e. 'http' and 'ftp'.
 
@@ -1473,7 +1473,7 @@ proxy URL for a single access scheme.
 =item $ua->no_proxy( $domain, ... )
 
 Do not proxy requests to the given domains.  Calling no_proxy without
-any domains clears the list of domains. Eg:
+any domains clears the list of domains. For example:
 
  $ua->no_proxy('localhost', 'example.com');
 

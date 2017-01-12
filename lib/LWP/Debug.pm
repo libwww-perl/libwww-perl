@@ -87,8 +87,8 @@ section provides some hints about recommended replacements.
 =head2 Network traffic monitoring
 
 The best way to monitor the network traffic that LWP generates is to
-use an external TCP monitoring program.  The Wireshark program
-(L<http://www.wireshark.org/>) is highly recommended for this.
+use an external TCP monitoring program.  The
+L<WireShark|http://www.wireshark.org/> program is highly recommended for this.
 
 Another approach it to use a debugging HTTP proxy server and make
 LWP direct all its traffic via this one.  Call C<< $ua->proxy >> to

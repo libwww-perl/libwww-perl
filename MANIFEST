@@ -67,3 +67,5 @@ t/net/proxy.t
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
 talk-to-ourself			Are we able to run tests talk HTTP to local server?
+xt/author/pod-spell.t
+xt/author/pod-syntax.t

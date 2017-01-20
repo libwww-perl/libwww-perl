@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-6.16	2017-01-12
+6.16	2017-01-18
 	- Moved LWP::Protocol::GHTTP into its own dist and removed from here (PR#81)
 	- Updated test suite to use strict/warnings and Test::More (PR#88)
 	- Additional tests for UserAgent coverage (PR#79)

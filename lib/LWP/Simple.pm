@@ -14,7 +14,7 @@ require Exporter;
 use HTTP::Status;
 push(@EXPORT, @HTTP::Status::EXPORT);
 
-our $VERSION = "6.16";
+our $VERSION = '6.17';
 
 sub import
 {

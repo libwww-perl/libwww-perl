@@ -1,5 +1,8 @@
 Change history for libwww-perl
 
+6.17	2017-01-22
+	- 
+
 6.16	2017-01-18
 	- Moved LWP::Protocol::GHTTP into its own dist and removed from here (PR#81)
 	- Updated test suite to use strict/warnings and Test::More (PR#88)
@@ -2311,7 +2314,7 @@ _______________________________________________________________________________
 1999-03-20   Gisle Aas <gisle@aas.no>
 
  o  Release 5.42
-	
+
  o  MacOS patches from Paul J. Schinder <schinder@leprss.gsfc.nasa.gov>
 
  o  Documentation patch from Michael A. Chase <mchase@ix.netcom.com>
@@ -3016,10 +3019,10 @@ Wed Dec  4 1996   Gisle Aas <aas@sn.no>
 
  o  LWP::UserAgent::simple_request: local($SIG{__DIE__}) protects us
     against user defined die handlers.
- 	
+
  o  Use Net::Domain (instead of Sys::Hostname) to determine FQDN.  It
     is used by URI::URL when it determines anonymous ftp login address.
-	
+
  o  lwp-download: New program in the bin directory
 
  o  HTML::Parser: Allow '_' in attribute names.  This makes it possible

@@ -758,7 +758,7 @@ sub proxy_headers {
     my $old = $self->{proxy_headers} ||= HTTP::Headers->new;
     if (@_) {
 	Carp::croak("proxy_headers not set to HTTP::Headers compatible object")
-	    unless @_ == 1 && $_[0]->can("header_field_names");
+	    unless @_ == 1 && blessed($_[0]) && $_[0]->can("header_field_names");
 	$self->{proxy_headers} = shift;
     }
     return $old;

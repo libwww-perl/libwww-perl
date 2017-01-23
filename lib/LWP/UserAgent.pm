@@ -1279,9 +1279,9 @@ is really just a shortcut for:
 
 Get/set headers that will only be sent to proxies via CONNECT requests.
 
-=item $ua->get_proxy_headers
+=item $ua->proxy_headers
 
-Get all headers that should be sent to proxies via CONNECT requests.
+Get/set all headers that should be sent to proxies via CONNECT requests.
 
 =item $ua->default_headers
 

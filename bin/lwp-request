@@ -8,7 +8,7 @@ lwp-request, GET, POST, HEAD - Simple command line user agent
 
 =head1 SYNOPSIS
 
-B<lwp-request> [B<-afPuUsSedvhx>] [B<-m> I<method>] [B<-b> I<base URL>] [B<-t> I<timeout>]
+    B<lwp-request> [B<-afPuUsSedvhx>] [B<-m> I<method>] [B<-b> I<base URL>] [B<-t> I<timeout>]
             [B<-i> I<if-modified-since>] [B<-c> I<content-type>]
             [B<-C> I<credentials>] [B<-p> I<proxy-url>] [B<-o> I<format>] I<url>...
 
@@ -128,22 +128,22 @@ Do B<not> print the content of the response.
 
 Process HTML content in various ways before printing it.  If the
 content type of the response is not HTML, then this option has no
-effect.  The legal format values are; I<text>, I<ps>, I<links>,
-I<html> and I<dump>.
+effect.  The legal format values are; C<text>, C<ps>, C<links>,
+C<html> and C<dump>.
 
-If you specify the I<text> format then the HTML will be formatted as
-plain latin1 text.  If you specify the I<ps> format then it will be
+If you specify the C<text> format then the HTML will be formatted as
+plain C<latin1> text.  If you specify the C<ps> format then it will be
 formatted as Postscript.
 
-The I<links> format will output all links found in the HTML document.
+The C<links> format will output all links found in the HTML document.
 Relative links will be expanded to absolute ones.
 
-The I<html> format will reformat the HTML code and the I<dump> format
+The C<html> format will reformat the HTML code and the C<dump> format
 will just dump the HTML syntax tree.
 
 Note that the C<HTML-Tree> distribution needs to be installed for this
 option to work.  In addition the C<HTML-Format> distribution needs to
-be installed for I<-o text> or I<-o ps> to work.
+be installed for C<-o text> or C<-o ps> to work.
 
 =item -v
 
@@ -184,7 +184,7 @@ $progname = $0;
 $progname =~ s,.*[\\/],,;  # use basename only
 $progname =~ s/\.\w*$//;   # strip extension, if any
 
-$VERSION = "6.15";
+$VERSION = "6.17";
 
 
 require LWP;
@@ -223,7 +223,7 @@ use HTTP::Date qw(time2str str2time);
     @ISA = qw(LWP::UserAgent);
 
     sub new
-    { 
+    {
 	my $self = LWP::UserAgent::new(@_);
 	$self->agent("lwp-request/$main::VERSION ");
 	$self;

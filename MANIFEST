@@ -17,7 +17,6 @@ lib/LWP/Protocol/cpan.pm	Access to cpan URLs
 lib/LWP/Protocol/data.pm	Access to data URLs
 lib/LWP/Protocol/file.pm	Access local files
 lib/LWP/Protocol/ftp.pm		Access with the FTP protocol
-lib/LWP/Protocol/GHTTP.pm	Alternative HTTP protocol handler
 lib/LWP/Protocol/gopher.pm	Access with the Gopher protocol
 lib/LWP/Protocol/http.pm	Access with HTTP/1.1 protocol
 lib/LWP/Protocol/loopback.pm	Returns request (like HTTP TRACE)
@@ -68,3 +67,5 @@ t/net/proxy.t
 t/robot/ua-get.t
 t/robot/ua.t			Test LWP::RobotUA
 talk-to-ourself			Are we able to run tests talk HTTP to local server?
+xt/author/pod-spell.t
+xt/author/pod-syntax.t

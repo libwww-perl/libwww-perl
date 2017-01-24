@@ -1,6 +1,6 @@
 package LWP;
 
-$VERSION = "6.15";
+our $VERSION = '6.17';
 sub Version { $VERSION; }
 
 require 5.008;
@@ -51,8 +51,8 @@ used separately or together.
 =item *
 
 Provides an object oriented model of HTTP-style communication.  Within
-this framework we currently support access to http, https, gopher, ftp, news,
-file, and mailto resources.
+this framework we currently support access to C<http>, C<https>, C<gopher>,
+C<ftp>, C<news>, C<file>, and C<mailto> resources.
 
 =item *
 
@@ -419,7 +419,7 @@ For normal file retrievals, the "Content-Type" is guessed based on the
 file name suffix. See L<LWP::MediaTypes>.
 
 The "If-Modified-Since" request header works for servers that implement
-the MDTM command.  It will probably not work for directory listings though.
+the C<MDTM> command.  It will probably not work for directory listings though.
 
 Example:
 

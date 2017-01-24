@@ -49,6 +49,30 @@ X: y
 
 EOT
 
+ok($ua->post("http://www.example.com", {x => "y", f => "ff"})->content, <<EOT);
+POST http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 8
+Content-Type: application/x-www-form-urlencoded
+Foo: bar
+Multi: 1
+Multi: 2
+
+x=y&f=ff
+EOT
+
+ok($ua->put("http://www.example.com", [x => "y", f => "ff"])->content, <<EOT);
+PUT http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 8
+Content-Type: application/x-www-form-urlencoded
+Foo: bar
+Multi: 1
+Multi: 2
+
+x=y&f=ff
+EOT
+
 is(ref($clone->{proxy}), 'HASH', 'ref($clone->{proxy})');
 
 is($ua->proxy(http => undef), "loopback:", '$ua->proxy(http => undef)');

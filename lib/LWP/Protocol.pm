@@ -1,8 +1,8 @@
 package LWP::Protocol;
 
-require LWP::MemberMixin;
-@ISA = qw(LWP::MemberMixin);
-$VERSION = "6.15";
+use base 'LWP::MemberMixin';
+
+our $VERSION = '6.17';
 
 use strict;
 use Carp ();

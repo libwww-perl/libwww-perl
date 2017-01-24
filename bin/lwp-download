@@ -36,7 +36,7 @@ I<lwp-request> program because it does not store the file in memory.
 Another benefit is that it will keep you updated about its progress
 and that you don't have much options to worry about.
 
-Use the C<-a> option to save the file in text (ascii) mode.  Might
+Use the C<-a> option to save the file in text (ASCII) mode.  Might
 make a difference on DOSish systems.
 
 =head1 EXAMPLE
@@ -79,7 +79,7 @@ unless (getopts('as', \%opt)) {
 my $url = URI->new(decode(locale => shift) || usage());
 my $argfile = encode(locale_fs => decode(locale => shift));
 usage() if defined($argfile) && !length($argfile);
-my $VERSION = "6.15";
+my $VERSION = "6.17";
 
 my $ua = LWP::UserAgent->new(
    agent => "lwp-download/$VERSION ",

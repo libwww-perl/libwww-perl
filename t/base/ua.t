@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 
 use LWP::UserAgent;
-plan tests => 37;
+plan tests => 39;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};

@@ -12,6 +12,8 @@ use HTTP::Date ();
 use LWP ();
 use LWP::Protocol ();
 
+use Scalar::Util qw(blessed);
+
 use Carp ();
 
 
@@ -169,9 +171,13 @@ sub send_request
         }
 
         unless ($protocol) {
-            $protocol = eval { LWP::Protocol::create($scheme, $self) };
-            if ($@) {
-                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
+            my $error = do {
+                local $@;
+                eval { $protocol = LWP::Protocol::create($scheme, $self) };
+                $@;
+            };
+            if ($error) {
+                $error =~ s/ at .* line \d+.*//s;  # remove file/line number
                 $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
                 if ($scheme eq "https") {
                     $response->message($response->message . " (LWP::Protocol::https not installed)");
@@ -186,18 +192,21 @@ EOT
 
         if (!$response && $self->{use_eval}) {
             # we eval, and turn dies into responses below
-            eval {
-                $response = $protocol->request($request, $proxy, $arg, $size, $self->{timeout}) ||
-		    die "No response returned by $protocol";
+            my $error = do {
+                local $@;
+                eval {
+                    $response = $protocol->request($request, $proxy, $arg, $size, $self->{timeout}) || die "No response returned by $protocol";
+                };
+                $@;
             };
-            if ($@) {
-                if (UNIVERSAL::isa($@, "HTTP::Response")) {
-                    $response = $@;
+            if ($error) {
+                if (blessed($error) && $error->isa("HTTP::Response")) {
+                    $response = $error;
                     $response->request($request);
                 }
                 else {
-                    my $full = $@;
-                    (my $status = $@) =~ s/\n.*//s;
+                    my $full = $error;
+                    (my $status = $error) =~ s/\n.*//s;
                     $status =~ s/ at .* line \d+.*//s;  # remove file/line number
                     my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
                     $response = _new_response($request, $code, $status, $full);
@@ -262,12 +271,15 @@ sub simple_request
         Carp::croak("No request object passed in");
     }
 
-    eval {
-	$request = $self->prepare_request($request);
+    my $error = do {
+        local $@;
+        eval { $request = $self->prepare_request($request); };
+        $@;
     };
-    if ($@) {
-	$@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-	return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, $@);
+
+    if ($error) {
+        $error =~ s/ at .* line \d+.*//s;  # remove file/line number
+        return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, $error);
     }
     return $self->send_request($request, $arg, $size);
 }
@@ -373,14 +385,18 @@ sub request
 	    no strict 'refs';
 	    unless (%{"$class\::"}) {
 		# try to load it
-		eval "require $class";
-		if ($@) {
-		    if ($@ =~ /^Can\'t locate/) {
+        my $error = do {
+            local $@;
+            eval "require $class";
+            $@;
+        };
+		if ($error) {
+		    if ($error =~ /^Can\'t locate/) {
 			$response->header("Client-Warning" =>
 					  "Unsupported authentication scheme '$scheme'");
 		    }
 		    else {
-			$response->header("Client-Warning" => $@);
+			$response->header("Client-Warning" => $error);
 		    }
 		    next CHALLENGE;
 		}

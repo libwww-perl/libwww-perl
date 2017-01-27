@@ -62,16 +62,20 @@ sub implementor
     no strict 'refs';
     # check we actually have one for the scheme:
     unless (@{"${ic}::ISA"}) {
-	# try to autoload it
-	eval "require $ic";
-	if ($@) {
-	    if ($@ =~ /Can't locate/) { #' #emacs get confused by '
-		$ic = '';
-	    }
-	    else {
-		die "$@\n";
-	    }
-	}
+        # try to autoload it
+        my $error = do {
+            local $@;
+            eval "require $ic";
+            $@;
+        };
+        if ($error) {
+            if ($error =~ /Can't locate/) {
+                $ic = '';
+            }
+            else {
+                die "$error\n";
+            }
+        }
     }
     $ImplementedBy{$scheme} = $ic if $ic;
     $ic;
@@ -96,6 +100,8 @@ sub collect
     my $content;
     my($ua, $max_size) = @{$self}{qw(ua max_size)};
 
+    my $error = do {
+        local $@;
     eval {
 	local $\; # protect the print below from surprises
         if (!defined($arg) || !$response->is_success) {
@@ -161,12 +167,14 @@ sub collect
             }
         }
     };
-    my $err = $@;
+    $@;
+    };
+
     delete $response->{handlers}{response_data};
     delete $response->{handlers} unless %{$response->{handlers}};
-    if ($err) {
-        chomp($err);
-        $response->push_header('X-Died' => $err);
+    if ($error) {
+        chomp($error);
+        $response->push_header('X-Died' => $error);
         $response->push_header("Client-Aborted", "die");
         return $response;
     }

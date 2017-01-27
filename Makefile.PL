@@ -69,6 +69,7 @@ my %WriteMakefileArgs = (
         'Net::FTP' => "2.58",
         'Net::HTTP' => "6.07",
         'Scalar::Util' => 0,
+        'Try::Tiny' => 0,
         'URI' => "1.10",
         'URI::Escape' => 0,
         'WWW::RobotRules' => 6,

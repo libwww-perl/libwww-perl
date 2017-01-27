@@ -8,10 +8,9 @@ use strict;
 use Carp ();
 use HTTP::Status ();
 use HTTP::Response;
+use Try::Tiny qw(try catch);
 
 my %ImplementedBy = (); # scheme => classname
-
-
 
 sub new
 {
@@ -63,19 +62,20 @@ sub implementor
     # check we actually have one for the scheme:
     unless (@{"${ic}::ISA"}) {
         # try to autoload it
-        my $error = do {
-            local $@;
-            eval "require $ic";
-            $@;
-        };
-        if ($error) {
+        try {
+            (my $class = $ic) =~ s{::}{/}g;
+            $class .= '.pm' unless $class =~ /\.pm$/;
+            require $class;
+        }
+        catch {
+            my $error = $_;
             if ($error =~ /Can't locate/) {
                 $ic = '';
             }
             else {
                 die "$error\n";
             }
-        }
+        };
     }
     $ImplementedBy{$scheme} = $ic if $ic;
     $ic;
@@ -100,10 +100,8 @@ sub collect
     my $content;
     my($ua, $max_size) = @{$self}{qw(ua max_size)};
 
-    my $error = do {
-        local $@;
-    eval {
-	local $\; # protect the print below from surprises
+    try {
+        local $\; # protect the print below from surprises
         if (!defined($arg) || !$response->is_success) {
             $response->{default_add_content} = 1;
         }
@@ -166,19 +164,15 @@ sub collect
                 last;
             }
         }
-    };
-    $@;
-    };
-
-    delete $response->{handlers}{response_data};
-    delete $response->{handlers} unless %{$response->{handlers}};
-    if ($error) {
+    }
+    catch {
+        my $error = $_;
         chomp($error);
         $response->push_header('X-Died' => $error);
         $response->push_header("Client-Aborted", "die");
-        return $response;
-    }
-
+    };
+    delete $response->{handlers}{response_data};
+    delete $response->{handlers} unless %{$response->{handlers}};
     return $response;
 }
 

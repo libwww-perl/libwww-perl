@@ -1,7 +1,8 @@
 Change history for libwww-perl
 
 6.17	2017-01-22
-	- 
+	- Noted another protocol failure message (PR#65)
+	- Removed old use of UNIVERSAL::isa() and swapped evals for Try::Tiny (PR#105)
 
 6.16	2017-01-18
 	- Moved LWP::Protocol::GHTTP into its own dist and removed from here (PR#81)

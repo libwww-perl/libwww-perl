@@ -10,8 +10,7 @@ use HTTP::Status ();
 use HTTP::Response;
 
 my %ImplementedBy = (); # scheme => classname
-
-
+my %ImplementorAlreadyTested;
 
 sub new
 {
@@ -49,12 +48,14 @@ sub implementor
     if ($impclass) {
 	$ImplementedBy{$scheme} = $impclass;
     }
-    my $ic = $ImplementedBy{$scheme};
-    return $ic if $ic;
 
     return '' unless $scheme =~ /^([.+\-\w]+)$/;  # check valid URL schemes
     $scheme = $1; # untaint
     $scheme =~ s/[.+\-]/_/g;  # make it a legal module name
+
+    my $ic = $ImplementedBy{$scheme};
+    # module does not exist
+    return $ic if $ic || $ImplementorAlreadyTested{$scheme};
 
     # scheme not yet known, look for a 'use'd implementation
     $ic = "LWP::Protocol::$scheme";  # default location
@@ -63,17 +64,18 @@ sub implementor
     # check we actually have one for the scheme:
     unless (@{"${ic}::ISA"}) {
 	# try to autoload it
-	eval "require $ic";
-	if ($@) {
-	    if ($@ =~ /Can't locate/) { #' #emacs get confused by '
+	eval "require $ic; 1;" or do {
+	    my $eval_error = $@ || 'Unknown error';
+	    if ($eval_error =~ /Can't locate/) { #' #emacs get confused by '
 		$ic = '';
 	    }
 	    else {
-		die "$@\n";
+		die "$eval_error\n";
 	    }
 	}
     }
     $ImplementedBy{$scheme} = $ic if $ic;
+    $ImplementorAlreadyTested{$scheme} = 1;
     $ic;
 }
 

@@ -3183,741 +3183,393 @@ Tue Aug  1 1996   Gisle Aas <aas@sn.no>
 
 
 
-Sun May 26 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5.00.
-
- o  LWP::Simple::head() now return something useful in scalar context.
-
- o  Rewritten the HTML::Parse stuff.  Introduced the HTML::Parser class
-    that will tokenize a HTML document.  The rest of the old
-    HTML::Parse functionality has moved to HTML::TreeBuilder class.
-    Note, that the HTML stuff is still alpha.
-
- o  Implemented HTML::HeadParser.  This is a lightweight parser for
-    the <HEAD> section of a HTML document.
-
- o  HTML::Element had problem with presenting things like <foo
-    bar="bar">.
-
- o  HTML::Entities: Included additional ISO-8859/1 entities listed in
-    RFC1866.
-
- o  HTML::AsSubs exported 'header' instead of 'head'
-
- o  We know about a few more of the HTML 3.2 element.
-
- o  HTTP::Date had problems with years before 1970, because Time::Local
-    went into an infinite loop.  Check for this.
-
- o  Added $header->title method.
-
- o  Made $header->authorization_basic return "uname:passwd" in scalar
-    context
-
- o  LWP::Protocol::collect() will let the HTML::HeadParser look at the
-    document content as it arrives.  This will initialize headers from
-    elements like <base href="...">, <title>...</title> and <meta
-    http-equiv="..." ...>.
-
- o  Simplified $response->base implementation, because we don't have
-    to look into the content any more.
-
- o  Added -quiet option to lwp-rget
-
- o  Typo fixes and some documentation additions.
-
-
-
-Thu May  9 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b13
-
- o  Made URI::URL::strict(0) the default.  I got tired of all this
-    eval { } stuff just to recover.  The URI::URL::strict'ness also
-    determine if calling some standard method that happens to be
-    illegal for some protocol scheme will croak or just be ignored.
-
- o  Ensure correct $INPUT_RECORD_SEPARATOR and $OUTPUT_RECORD_SEPARATOR
-    at places where we <> or print.
-
- o  Always localize $_ before any 'while(<FILE>) {}'-loops
-
- o  Implemented $protocol->collect_once() and simplified several
-    of the protocol implementations by using it.
-
- o  The HTML parser used to get it wrong if you were unlucky about the
-    breakup of the text. An example of broken behaviour was this:
-
-        $html = parse_html "<!-- A comment -";
-        $html = parse_html "-> and some text.";
-
- o  The HTML parser does not ignore whitespace-only text any more.
-
- o  HTML::Parse warnings are now optional and turned off by default.
-
- o  New start for $html->as_HTML().
-
- o  Fixed some typos
-
-
-
-Wed Apr 24 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b12
-
- o  New utility program called 'lwp-rget'.
-
- o  $response->base was broken for HTML documents
-
- o  New fancy LWP::Debug import() method.  Can now turn on debugging with
-    "use LWP::Debug '+';"
-
- o  Trap exceptions (die) from the response callback routine
-
- o  The RobotUA now requires an e-mail address of the person responsible
-    for the robot.
-
- o  New $ua->from() method.
-
- o  Support for gopher Index-Search (gopher type '7' requests).
-    Contributed by Harry Bochner <bochner@das.harvard.edu>
-
- o  Cleaned up white-space usage in the source.
-
-
-
-Wed Apr  3 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b11
-
- o  Implemented a NNTP protocol module.  The library can now fetch and
-    post news articles.
-
- o  More documentation
-
- o  Don't look at the URI header for redirects
-
- o  New $res->base() method for HTTP::Responses
-
- o  Graham Barr's patch to File::Listing to make it more OO internally
-
- o  content_type() return value is canonicalized
-
- o  $ua->request() does not die on bad URLs any more
-
- o  LWP::MediaTypes merge all media.types files that if finds
-
- o  FTP request with content to file or callback did not work
-
- o  The value of HTTP Host: header is now $url->netloc;
-
- o  The URI::URL constructor now accept URLs wrapped up in "<>"
-
- o  $url->abs() now has a second optional argument that makes it accept
-    that relative URLs can have scheme, i.e. treat "http:img.gif" as a
-    relative URL.
-
- o  Added prototypes to the HTTP::Status::is_xxx() functions
-
- o  Added prototypes to the MIME:: encoding/decoding functions
-
- o  Always return scheme for mailto and news URLs (as_string)
-
- o  RobotRules patches from Henry A Rowley.
-
- o  More tests
-
- o  <SMALL> and <BIG> again
-
-
-
-Thu Mar 14 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b10
-
- o  GET ftp://host/doc was never successful for normal files.
-
- o  LWP::Socket: read_until() did not notice EOF condition.  I.e. if
-    a HTTP server closed the connection before any output was generated,
-    the we continued to read 0 bytes in a busy loop until the alarm()
-    killed us.
-
- o  Added support for Digest Access Authentication.  Contributed by
-    Doug MacEachern <dougm@osf.org>.
-
- o  Makefile.PL: check for MD5 library
-
- o  No longer print message content in HTTP::Response::error_as_HTML()
-
- o  Access to "file:/path" gave warning when the environment variable
-    no_proxy was set.
-
- o  The http-post test sends a Content-Type header.  Some servers hang
-    if this header is missing.
-
- o  HTML::Parse:
-     -   allow <SMALL> and <BIG> tags
-     -   allow empty attribute values
-
-
-
-Tue Mar  5 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b9
-
- o  Started to write on the libwww-perl cookbook (lwpcook.pod)
-
- o  The URI::URL module now exports the function url().  This is an
-    alternative (easy to use) constructor function.
-
- o  Expanding relative file URLs starting with "#" did not work.
-
- o  Fixed autoloaded DESTROY problem by adding empty DESTROY routine
-    to URI::URL.
-
- o  Does not try generate password for ftp-URLs unless the username is
-    "anonymous" or "ftp"
-
- o  The LWP::Simple user agent proxy settings are initialized from
-    the proxy environment variables.
-
- o  LWP::Protocol::ftp: Use the Net::FTP library to access ftp servers.
-    Convert directories to HTML on request (Accept: text/html).
-
- o  New module HTTP::Negotiate
-
- o  New module File::Listing
-
- o  HTTP::Date::str2time can parse a few more formats, like the 'ls -l'
-    format and ISO 8601.  The function now also takes an optional second
-    parameter which specify a default time zone.
-
- o  Added prototypes to the HTTP::Date functions.
-
- o  The library adds a timestamp to responses ("Client-Date")
-
- o  HTTP::Status:  Updated to proposed HTTP/1.1
-
- o  HTTP::Headers: Updated to proposed HTTP/1.1
-
- o  LWP::Protocol::http:  Updated to HTTP/1.1 methods
-
- o  Took out stringify overloading in HTML::Element.
-
-
-
-Mon Feb 26 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b8
-
- o  Renamed functions using thisStyleOfNames to this_style_of_names.
-    Provided a script called 'update_from_5b7'
-
- o  Renamed the 'request' and 'mirror' scripts to 'lwp-request' and
-    'lwp-mirror'.  The GET, POST, HEAD aliases for 'lwp-request' are
-    the same.
-
- o  Implemented LWP::RobotUA
-
- o  Class name for RobotRules did not match the file name
-
- o  URI::URL
-      - perl5.002gamma is required (because use vars).
-      - The leading slash in now part of the path if it is present.
-      - More documentation
-      - Use AutoLoader to speed things up.
-      - New class URI::URL::_login and made telnet, rlogin, tn3270
-        subclasses from this one.
-      - URI::URL::wais is better supported.
-      - URI::URL::news is better supported.
-      - New URI::URL::mailto methods: user/host
-
- o  HTTP::Date::time2str now works correctly with '0' as argument
-
- o  HTTP::Message delegates unknown methods to the headers.
-
- o  HTTP::Request::uri is an alias for HTTP::Request::url.  Can set
-    the URL to undef.
-
- o  Added convenience methods to HTTP::Headers for easy access to
-    frequently used headers.
-
- o  Simplified LWP::Debug
-
- o  Use standard AutoLoader for LWP::IO functions.
-
- o  Played with the profiler (Devel::DProf) and made some things
-    go quicker.
-
- o  Included the File::CounterFile module.  Excluded Mail::Cap module
-    as it is also part of the MailTools package.
-
-
-
-Mon Feb  5 1996   Gisle Aas <aas@sn.no>
-
- o  Release 5b7
-
- o  Perl5.002 is required now
-
- o  Rewrite of the URI::URL module (version 4.00)
-      - escaping/unsafe stuff redone (and removed)
-      - URI::URL::_generic moved out of URL.pm
-      - netloc, path, params, query is now stored internally in escaped form
-      - new methods for URI::URL::_generic are:
-           epath
-           eparams
-           equery
-	   path_components
-           absolute_path
-      - new methods for URI::URL::http are:
-           keywords
-           query_form
-      - new methods for URI::URL::file are:
-           newlocal
-           local_path
-           unix_path
-           dos_path
-           mac_path
-           vms_path
-
- o  URI::Escape now semi-compile regular expressions (by evaling an
-    anonymous sub).  Same technique is also used in HTML::Entities.
-
- o  HTTP::Date parser rewritten using regular expressions.
-
- o  HTTP::Headers->as_string() now croaks if any field values
-    contain newline.
-
- o  HTTP::Status constants use empty prototype.
-
- o  Font metrics moved to a new subdirectory (lib/Font/Metrics)
-
- o  Don't use the VERSION script any more (even if it was very clever)
-
- o  HTML::Entities will now export the names decode_entities() and
-    encode_entities().
-
- o  Andreas Koenig's black patch to HTML::Element.
-
- o  The HTML::Formatter now knows about <menu> and <dir> tags
-
- o  The construct "defined ref($arg)" did not work on perl5.002
-    because ref now always return something defined.
-
- o  LWP::UserAgent sends by default a 'User-Agent' header.
-
- o  LWP::Simple sends 'User-Agent' header to servers.
-
- o  Updated the LWP::Socket module to use the new Socket.pm interface.
-
- o  LWP::Protocol::http sends the new HTTP/1.1 'Host' header.
-
- o  LWP::Protocol::file use $url->local_path to get a file to open.
-    It also inserts a <BASE> tag in directories instead of a redirect.
-
- o  MIME::Base64 routines can be called as MIME::Base64::encode() and
-    MIME::Base64::decode().  Same kind of thing for QuotedPrint.
-
-
-
-Mon Nov  6 1995   Gisle Aas <aas@oslonett.no>
-
- o  Release 5b6
-
- o  Installation should work better for those that still runs
-    perl4 as 'perl'.  The mirror script is not installed by
-    default.
-
- o  LWP::Socket::_getaddress() Numerical IP addresses did not work.
-
- o  LWP::Socket::pushback() did not work.  This also avoids the bad
-    pp_select() core dump from perl.
-
- o  LWP::IO now also selects on socket exceptions.
-
- o  HTML::Parse:  Ignore <!DOCTYPE ...> regardless for case.  Some
-    bad insertElement() calls made infinite loops.
-
- o  The uri.t test works better for places where /tmp is a sym-link.
-
-
-
-Sat Sep 16 1995   Gisle Aas <aas@oslonett.no>
-
- o  Release 5b5
-
- o  newlocal URI::URL does not put "//localhost" into the URLs any
-    longer.
-
- o  The request program: New -o option to reformat the HTML code
-    New -C option to provide credentials on the command line.
-    The -b option never worked.
-
- o  LWP::Protocol::file now returns redirect for access to directories
-    where the trailing slash is missing.
-
-
-
-Thu Sep 14 1995   Gisle Aas <aas@oslonett.no>
-
- o  Speedups and bug fixes in the HTML parser.  The parser now
-    understands some more deprecated tags (like <xmp> and <listing>).
-
- o  HTML::Elements are now stringified using perl overloading.
-    The interface to the traverse() callback has changed.
-
- o  Implemented HTML formatters for plain text and Postscript.
-
- o  Added lib/Font stuff to support the Postscript formatter.
-
- o  Inspired by Tim Bunce, I implemented the HTML::AsSubs module.
-    Don't know if it is really useful.
-
- o  The local/get test does not use /etc/passwd any more.
-
-
-
-Thu Sep  7 1995   Gisle Aas <aas@oslonett.no>
-
- o  Changed package name to libwww-perl-5xx
-
- o  Made LWP::Protocol::ftp actually transfer data
-
- o  Implemented methods for LWP::Socket to act as a server:
-    bind(), listen(), accept(), getsockname(), host(), port()
-
-
-
-Wed Sep  6 1995   Gisle Aas <aas@oslonett.no>
-
- o  Release 0.04
-
- o  Implemented modules to parse HTML.
-
-
-
-Mon Sep  4 1995   Gisle Aas <aas@oslonett.no>
-
- o  Implemented Mail::Cap which will become part of the MailTools
-    package.
-
- o  Moved Base64 to MIME::Base64.  Reimplemented MIME::Base64 by using
-    [un]pack("u",...)   Implemented LWP::MIME::QuotedPrint for
-    completeness' sake.  Routine names has changed as suggested by Tim
-    Bunce.
-
- o  LWP::MediaType reads default types from media.types file.
-    guessMediaType() now also returns encodings.  New function mediaSuffix()
-
- o  Pass $url to $ua->getBasicCredentials().  This also fixes security
-    hole with the old implementation of getBasicCredentials().
-
- o  LWP::Protocol::file now sets Content-Encoding headers
-
- o  Allow request content to be provided by a callback routine.
-
- o  Fix bug that prevented response callback to work.  The first parameter
-    (data) is no longer a reference, because $_[0] is already a reference.
-    Don't callback unless successful response.  Callbacks during redirects
-    was confusing.
-
- o  URI::URL.  Remove port from netloc if it is the default port.
-    Don't use anything, just require.
-
- o  HTTP::Message->addContent() does not need a reference parameter.
-
- o  LWP::Socket->open() has been renamed top LWP::Socket->connect()
-    LWP::Socket->close has gone.  Implemented new method LWP::Socket->read()
-    that returns as fast as it has some data to offer.  Implemented
-    LWP::Socket->pushback().
-
- o  Does not die in LWP::UserAgent->request()
-
- o  LWP::Socket now use LWP::IO for low level IO
-
- o  Implemented LWP::TkIO as a replacement module for LWP::IO when using Tk.
-
-
-
-Thu Aug 17 1995   Gisle Aas <aas@oslonett.no>
-
- o  $ua->redirectOK() for checking redirects
-
- o  reorganized tests in the "t" directory.
-
-
-
-Fri Aug 11 1995   Gisle Aas <aas@oslonett.no>
-
- o  Release 0.03
-
- o  Included RobotRules.pm from Martijn Koster
-
-
-
-Thu Aug 10 1995   Gisle Aas <aas@oslonett.no>
-
- o  New module URI::Escape (URI::URL use this module for default
-    escaping) that provide the uri_escape() and uri_unescape()
-    functions.
-
- o  Setting $url->scheme now changes the class of the object.
-
- o  Made $httpurl->user() and $httpurl->password() illegal.
-    Likewise for other URL schemes.
-
-
-
-
-Wed Aug  9 1995   Gisle Aas <aas@oslonett.no>
-
- o  Reorganisation as discussed on <libwww-perl@ics.uci.edu>
-       LWP::Date       --> HTTP::Date
-       LWP::MIMEheader --> HTTP::Headers
-       LWP::StatusCode --> HTTP::Status
-       LWP::Message    --> HTTP::Message
-       LWP::Request    --> HTTP::Request
-       LWP::Response   --> HTTP::Response
-       LWP::MIMEtypes  --> LWP::MediaTypes
-
- o  HTTP::Date parses ctime format with missing timezone as suggested
-    by Roy Fielding <fielding@beach.w3.org>
-
- o  HTTP::Status and LWP::MediaTypes exports their functions by default.
-
- o  Splitted up the URI::URL module.  Schemes are implemented by separate
-    files that are autoloaded when used.  Self test moved to "t/uri.t".
-
-
-
-Mon Aug  7 1995   Gisle Aas <aas@oslonett.no>
-
- o  Applied patch from Marc Hedlund <hedlund@best.com>
-       - Update the @header_order according to the August 3rd draft.
-       - Added Response Header fields: 'Location', 'Public', 'Retry-After',
-         'Server', and 'WWW-Authenticate'.
-       - Moved 'unknown header' handling from &scan to &header. The old
-         implementation was forcing all unknown header-words to begin with
-	 an uppercase (as it should be), but disallowed other uppercase
-	 letters.
-       - updates the status code messages under the August
-         3rd HTTP/1.0 draft.  '203' became 'Non-Authoritative Information',
-	 '303' became 'See Other', and a new code,
-	 '411 Authorization Refused', was added.
-
- o  Can remove multiple headers with single removeHeader() call in MIMEheader.
-
- o  Can assign multiple field/value pairs in header() method of MIMEheader.
-
- o  A field with multiple values is printed as separate values in
-    MIMEheader::as_string().
-
- o  LWP::Response contain new attributes: previous() and request().  These
-    attributes are updated by the UserAgent.
-
- o  Appended \n to some die statements in Socket so that line numbers are
-    suppressed in error messages.
-
- o  Made UserAgent::clone work for reference members
-
- o  Check for redirect loops and multiple authorization failures by
-    examination of the response chain.
-
- o  Use "\015\012" instead of "\r\n" in protocol modules.  Some systems
-    define \r and \n differently.
-
- o  request program can now handle documents that needs authorization by
-    prompting the user for username/password. Added new -S option to print
-    request/response chain.
-
-
-
-Tue Jul 25 1995   Gisle Aas <aas@oslonett.no>
-
- o  Release 0.02
-
- o  Included URI::URL in the release
-
-
-
-Mon Jul 24 1995   Gisle Aas <aas@oslonett.no>
-
- o  Incorporated Makemake.PL and VERSION from Andreas Koenig <koenig@mind.de>
-    As a result of this the following things have changed:
-       - programs in "bin" are extracted from .PL-files
-       - reintroduced "lib"
-       - "test" has been renamed as "t"
-       - test programs in "t" has been made Test::Harness compatible
-       - we now have a MANIFEST file
-       - no more need fro update_version, make-dist, lwp-install
-
- o  Renamed bin/get to bin/request.  Links to it are now all upper case.
-
- o  Proxy support in bin/request (provided by Martijn Koster)
-
- o  UserAgent can now load proxy settings from environment
-
- o  LWP::Protocol::ftp is under way but not really finished
-
-
-
-Tue Jul 18 1995   Gisle Aas <aas@oslonett.no>
-
- o  Implemented LWP::Protocol::gopher
-
- o  Implemented LWP::Protocol::mailto
-
- o  Fixed proxy typo
-
-
-
-Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
-
- o  Made release 0.01
-
-
-
-Mon Jul 17 1995   Gisle Aas <aas@oslonett.no>
-
- o  Don't loose first line of HTTP/0.9 requests
-
- o  LWP::Socket use syswrite() for writing
-
- o  Added RC_* documentation to LWP::StatusCode
-
- o  LWP::Date now use hash to look up month numbers
-
- o  Added -f option to "get"
-
- o  Untabify
-
- o  Added a "TODO" list
-
- o  Fixed various typos
-
-
-
-Fri Jul 14 1995   Gisle Aas <aas@oslonett.no>
-
- o  Reorganized directories.  Moved LWP.pm up.  Moved file.pm and http.pm
-    into the LWP::Protocol directory.  Moved LWP out of the lib directory
-    and removed lib.
-
- o  Implemented the "get" and "mirror" scripts in the "bin" directory.
-
- o  Implemented "install-lwp", "update_version" and "make-dist".  The library
-    version number is found in the VERSION file.
-
- o  Always adds 1900 to the year in LWP::Date
-
- o  In LWP::MIMEheader:  Implemented clone(), removeHeader() and scan()
-    methods.  Reimplemented asString.  Removed asMIME().  Moved "Good
-    Practice" into this file, and reimplemented it.
-
- o  Moved "header" and "content" into LWP::Message class.  This change made
-    LWP::Request and LWP::Response much simpler.  Made clone() method
-    actually work.
-
- o  LWP::Protocol::implementor does not die if it cannot load package.
-
- o  Moved UserAgent convenience methods into LWP::Simple.  Made LWP::Simple
-    export LWP::StatusCode symbols and functions.
-
- o  Implemented $ua->isProtocolSupported($scheme) method.
-
- o  Nicer directory listing in LWP::Protocol::file.pm
-
- o  Rely on URI::URL 3.00 behaviour for $url->full_path
-
- o  Library version number now in LWP.pm.  You should be able to say
-    "use LWP 1.0;" if you need at least this version.
-
- o  Various cleanups and arranging layout as I like it.  Use fooBar-style
-    (as opposed to foo_bar style) everywhere.  This means that as_string()
-    now is called asString().
-
- o  Added more documentation.
-
-
-
-Wed Jun 14 1995   Gisle Aas <aas@oslonett.no>
-
- o  Removed lot of redundant & before function calls.
-
- o  $this --> $self
-
- o  &collector passes content as a reference, don't want to copy so much
-
- o  parameterlist to collect callback has been rearranged
-
- o  Response::addContent gets a reference to the data
-
- o  Added some callback documentation to UserAgent.pm
-
- o  Protocol::file now uses the collector
-
- o  Introduced LWP::Simple
-
-
-
-Sun Jun 11 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Added basic authentication support
-
- o  Added mirroring of single documents
-
- o  Change Protocol construction from whacky URL.pm (constructor returns
-    subclass) to more normal C++'ish way.
-
-
-
-Wed June 7 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Minor cleanups from printed code inspection
-
-
-
-Wed May 24 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Added redirection resolution
-
- o  Added optional autoloading of protocols
-
-
-
-Tue May 23 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Separated socket stuff into separate module
-
- o  Added HTTP proxy support
-
- o  Made alarm handling optional
-
- o  Added a LWP::Message for completeness sake
-
- o  Added LWP::MemberMixin to reduce code duplication
-
- o  Cosmetic changes to LWP::Date
-
- o  Renamed LWP::Error to LWP::StatusCode
-
- o  Renamed LWP::MIME to LWP::MIMEtype
-
- o  Changed the tests to cope with all this
-
-It's getting there...
-
-
-
-Mon May 22 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Changed the socket reading to use sysread.  This will have to go
-    into a module of its own.
-
-
-
-Thu 18 May 1995   Martijn Koster <m.koster@nexor.co.uk>
-
- o  Mentioned on libwww-perl that I had changed the classes around lots.
+5.00	1996-05-26
+	- LWP::Simple::head() now return something useful in scalar context.
+	- Rewritten the HTML::Parse stuff.  Introduced the HTML::Parser class that
+		will tokenize a HTML document.  The rest of the old HTML::Parse
+		functionality has moved to HTML::TreeBuilder class. Note, that the HTML
+		stuff is still alpha.
+	- Implemented HTML::HeadParser.  This is a lightweight parser for the <HEAD>
+		section of a HTML document.
+	- HTML::Element had problem with presenting things like <foo bar="bar">.
+	- HTML::Entities: Included additional ISO-8859/1 entities listed in RFC1866.
+	- HTML::AsSubs exported 'header' instead of 'head'
+	- We know about a few more of the HTML 3.2 element.
+	- HTTP::Date had problems with years before 1970, because Time::Local went
+		into an infinite loop.  Check for this.
+	- Added $header->title method.
+	- Made $header->authorization_basic return "uname:passwd" in scalar context
+	- LWP::Protocol::collect() will let the HTML::HeadParser look at the
+		document content as it arrives. This will initialize headers from
+		elements like <base href="...">, <title>...</title> and
+		<meta http-equiv="..." ...>.
+	- Simplified $response->base implementation, because we don't have to look
+		into the content any more.
+	- Added -quiet option to lwp-rget
+	- Typo fixes and some documentation additions.
+
+4.999	1996-05-09
+	- BETA release for version 5. (5b13)
+	- Made URI::URL::strict(0) the default.  I got tired of all this eval { }
+		stuff just to recover.  The URI::URL::strict'ness also determine if
+		calling some standard method that happens to be illegal for some
+		protocol scheme will croak or just be ignored.
+	- Ensure correct $INPUT_RECORD_SEPARATOR and $OUTPUT_RECORD_SEPARATOR at
+		places where we <> or print.
+	- Always localize $_ before any 'while(<FILE>) {}'-loops
+	- Implemented $protocol->collect_once() and simplified several of the
+		protocol implementations by using it.
+	- The HTML parser used to get it wrong if you were unlucky about the
+		breakup of the text. An example of broken behaviour was this:
+			$html = parse_html "<!-- A comment -";
+			$html = parse_html "-> and some text.";
+	- The HTML parser does not ignore whitespace-only text any more.
+	- HTML::Parse warnings are now optional and turned off by default.
+	- New start for $html->as_HTML().
+	- Fixed some typos
+
+4.99	1996-04-24
+	- BETA release for version 5 (5b12)
+	- New utility program called 'lwp-rget'.
+	- $response->base was broken for HTML documents
+	- New fancy LWP::Debug import() method.  Can now turn on debugging with
+		"use LWP::Debug '+';"
+	- Trap exceptions (die) from the response callback routine
+	- The RobotUA now requires an e-mail address of the person responsible
+		for the robot.
+	- New $ua->from() method.
+	- Support for gopher Index-Search (gopher type '7' requests). Contributed
+		by Harry Bochner <bochner@das.harvard.edu>
+	- Cleaned up white-space usage in the source.
+
+4.98	1996-03-03
+	- BETA release for version 5. (5b11)
+	- Implemented a NNTP protocol module. The library can now fetch and post
+		news articles.
+	- More documentation
+	- Don't look at the URI header for redirects
+	- New $res->base() method for HTTP::Responses
+	- Graham Barr's patch to File::Listing to make it more OO internally
+	- content_type() return value is canonicalized
+	- $ua->request() does not die on bad URLs any more
+	- LWP::MediaTypes merge all media.types files that if finds
+	- FTP request with content to file or callback did not work
+	- The value of HTTP Host: header is now $url->netloc;
+	- The URI::URL constructor now accept URLs wrapped up in "<>"
+	- $url->abs() now has a second optional argument that makes it accept that
+		relative URLs can have scheme, i.e. treat "http:img.gif" as a relative
+		URL.
+	- Added prototypes to the HTTP::Status::is_xxx() functions
+	- Added prototypes to the MIME:: encoding/decoding functions
+	- Always return scheme for mailto and news URLs (as_string)
+	- RobotRules patches from Henry A Rowley.
+	- More tests
+	- <SMALL> and <BIG> again
+
+0.10	1996-03-14
+	- BETA release for version 5. (5b10)
+	- GET ftp://host/doc was never successful for normal files.
+	- LWP::Socket: read_until() did not notice EOF condition.  I.e. if a HTTP
+		server closed the connection before any output was generated, the we
+		continued to read 0 bytes in a busy loop until the alarm() killed us.
+	- Added support for Digest Access Authentication.  by Doug MacEachern <dougm@osf.org>.
+	- Makefile.PL: check for MD5 library
+	- No longer print message content in HTTP::Response::error_as_HTML()
+	- Access to "file:/path" gave warning when the environment variable
+		no_proxy was set.
+	- The http-post test sends a Content-Type header.  Some servers hang if
+		this header is missing.
+	- HTML::Parse:
+		- allow <SMALL> and <BIG> tags
+		- allow empty attribute values
+
+0.09	1996-03-05
+	- BETA release for version 5. (5b9)
+	- Started to write on the libwww-perl cookbook (lwpcook.pod)
+	- The URI::URL module now exports the function url().  This is an
+		alternative (easy to use) constructor function.
+	- Expanding relative file URLs starting with "#" did not work.
+	- Fixed autoloaded DESTROY problem by adding empty DESTROY routine to URI::URL.
+	- Does not try generate password for ftp-URLs unless the username is
+		"anonymous" or "ftp"
+	- The LWP::Simple user agent proxy settings are initialized from the proxy
+		environment variables.
+	- LWP::Protocol::ftp: Use the Net::FTP library to access ftp servers.
+		Convert directories to HTML on request (Accept: text/html).
+	- New module HTTP::Negotiate
+	- New module File::Listing
+	- HTTP::Date::str2time can parse a few more formats, like the 'ls -l' format
+		and ISO 8601.  The function now also takes an optional second parameter
+		which specify a default time zone.
+	- Added prototypes to the HTTP::Date functions.
+	- The library adds a timestamp to responses ("Client-Date")
+	- HTTP::Status:  Updated to proposed HTTP/1.1
+	- HTTP::Headers: Updated to proposed HTTP/1.1
+	- LWP::Protocol::http:  Updated to HTTP/1.1 methods
+	- Took out stringify overloading in HTML::Element.
+
+0.08	1996-02-26
+	- BETA release for version 5. (5b8)
+	- Renamed functions using thisStyleOfNames to this_style_of_names.
+		Provided a script called 'update_from_5b7'
+	- Renamed the 'request' and 'mirror' scripts to 'lwp-request' and
+		'lwp-mirror'.  The GET, POST, HEAD aliases for 'lwp-request' are the same.
+	- Implemented LWP::RobotUA
+	- Class name for RobotRules did not match the file name
+	- URI::URL
+		- perl5.002gamma is required (because use vars).
+		- The leading slash in now part of the path if it is present.
+		- More documentation
+		- Use AutoLoader to speed things up.
+		- New class URI::URL::_login and made telnet, rlogin, tn3270 subclasses
+			from this one.
+		- URI::URL::wais is better supported.
+		- URI::URL::news is better supported.
+		- New URI::URL::mailto methods: user/host
+	- HTTP::Date::time2str now works correctly with '0' as argument
+	- HTTP::Message delegates unknown methods to the headers.
+	- HTTP::Request::uri is an alias for HTTP::Request::url. Can set the URL
+		to undef.
+	- Added convenience methods to HTTP::Headers for easy access to frequently
+		used headers.
+	- Simplified LWP::Debug
+	- Use standard AutoLoader for LWP::IO functions.
+	- Played with the profiler (Devel::DProf) and made some things go quicker.
+	- Included the File::CounterFile module.  Excluded Mail::Cap module as it
+		is also part of the MailTools package.
+
+0.07	1996-02-05
+	- BETA release for version 5. (5b7)
+	- Perl5.002 is required now
+	- Rewrite of the URI::URL module (version 4.00)
+		- escaping/unsafe stuff redone (and removed)
+		- URI::URL::_generic moved out of URL.pm
+		- netloc, path, params, query is now stored internally in escaped form
+		- new methods for URI::URL::_generic are:
+			- epath
+			- eparams
+			- equery
+			- path_components
+			- absolute_path
+		- new methods for URI::URL::http are:
+			- keywords
+			- query_form
+		- new methods for URI::URL::file are:
+			- newlocal
+			- local_path
+			- unix_path
+			- dos_path
+			- mac_path
+			- vms_path
+	- URI::Escape now semi-compile regular expressions (by evaling an
+		anonymous sub).  Same technique is also used in HTML::Entities.
+	- HTTP::Date parser rewritten using regular expressions.
+	- HTTP::Headers->as_string() now croaks if any field values contain newline.
+	- HTTP::Status constants use empty prototype.
+	- Font metrics moved to a new subdirectory (lib/Font/Metrics)
+	- Don't use the VERSION script any more (even if it was very clever)
+	- HTML::Entities will now export the names decode_entities() and
+		encode_entities().
+	- Andreas Koenig's black patch to HTML::Element.
+	- The HTML::Formatter now knows about <menu> and <dir> tags
+	- The construct "defined ref($arg)" did not work on perl5.002 because ref
+		now always return something defined.
+	- LWP::UserAgent sends by default a 'User-Agent' header.
+	- LWP::Simple sends 'User-Agent' header to servers.
+	- Updated the LWP::Socket module to use the new Socket.pm interface.
+	- LWP::Protocol::http sends the new HTTP/1.1 'Host' header.
+	- LWP::Protocol::file use $url->local_path to get a file to open. It also
+		inserts a <BASE> tag in directories instead of a redirect.
+	- MIME::Base64 routines can be called as MIME::Base64::encode() and
+		MIME::Base64::decode().  Same kind of thing for QuotedPrint.
+
+0.06	1995-11-06
+	- BETA release for version 5.  (5b6)
+	- Installation should work better for those that still runs perl4 as 'perl'.
+		The mirror script is not installed by default.
+	- LWP::Socket::_getaddress() Numerical IP addresses did not work.
+	- LWP::Socket::pushback() did not work. This also avoids the
+		bad pp_select() core dump from perl.
+	- LWP::IO now also selects on socket exceptions.
+	- HTML::Parse:  Ignore <!DOCTYPE ...> regardless for case.  Some bad
+		insertElement() calls made infinite loops.
+	- The uri.t test works better for places where /tmp is a sym-link.
+
+0.05	1995-09-16
+	- BETA release for version 5. (5b5)
+	- newlocal URI::URL does not put "//localhost" into the URLs any longer.
+	- The request program: New -o option to reformat the HTML code.
+		- New -C option to provide credentials on the command line.
+		- The -b option never worked.
+	- LWP::Protocol::file now returns redirect for access to directories where
+		the trailing slash is missing.
+	- Speedups and bug fixes in the HTML parser.
+	- The parser now understands some more deprecated tags.
+	- HTML::Elements are now stringified using perl overloading.
+	- The interface to the traverse() callback has changed.
+	- Implemented HTML formatters for plain text and Postscript.
+	- Added lib/Font stuff to support the Postscript formatter.
+	- Inspired by Tim Bunce, I implemented the HTML::AsSubs module.
+	- The local/get test does not use /etc/passwd any more.
+	- Changed package name to libwww-perl-5xx
+	- Made LWP::Protocol::ftp actually transfer data
+	- Implemented methods for LWP::Socket to act as a server:
+		bind(), listen(), accept(), getsockname(), host(), port()
+
+0.04	1995-09-06
+	- Implemented modules to parse HTML.
+	- Implemented Mail::Cap which will become part of the MailTools package.
+	- Moved Base64 to MIME::Base64.
+	- Reimplemented MIME::Base64 by using [un]pack("u",...)
+	- Implemented LWP::MIME::QuotedPrint for completeness' sake. Routine names
+		has changed as suggested by Tim Bunce.
+	- LWP::MediaType reads default types from media.types file.
+	- guessMediaType() now also returns encodings.  New function mediaSuffix()
+	- Pass $url to $ua->getBasicCredentials().  This also fixes security hole
+		with the old implementation of getBasicCredentials().
+	- LWP::Protocol::file now sets Content-Encoding headers
+	- Allow request content to be provided by a callback routine.
+	- Fix bug that prevented response callback to work.  The first parameter
+		(data) is no longer a reference, because $_[0] is already a reference.
+		Don't callback unless successful response.  Callbacks during redirects
+		was confusing.
+	- URI::URL. Remove port from netloc if it is the default port. Don't use
+		anything, just require.
+	- HTTP::Message->addContent() does not need a reference parameter.
+	- LWP::Socket->open() has been renamed top LWP::Socket->connect()
+	- LWP::Socket->close has gone.
+	- Implemented new method LWP::Socket->read() that returns as fast as it has
+		some data to offer.
+	- Implemented LWP::Socket->pushback().
+	- Does not die in LWP::UserAgent->request()
+	- LWP::Socket now use LWP::IO for low level IO
+	- Implemented LWP::TkIO as a replacement module for LWP::IO when using Tk.
+	- $ua->redirectOK() for checking redirects
+	- reorganized tests in the "t" directory.
+
+0.03	1995-08-11
+	- Included RobotRules.pm from Martijn Koster
+	- New module URI::Escape (URI::URL use this module for default escaping)
+		that provide the uri_escape() and uri_unescape() functions.
+	- Setting $url->scheme now changes the class of the object.
+	- Made $httpurl->user() and $httpurl->password() illegal. Likewise for other URL schemes.
+	- Reorganisation as discussed on <libwww-perl@ics.uci.edu>
+		- LWP::Date       --> HTTP::Date
+		- LWP::MIMEheader --> HTTP::Headers
+		- LWP::StatusCode --> HTTP::Status
+		- LWP::Message    --> HTTP::Message
+		- LWP::Request    --> HTTP::Request
+		- LWP::Response   --> HTTP::Response
+		- LWP::MIMEtypes  --> LWP::MediaTypes
+	- HTTP::Date parses ctime format with missing timezone as suggested by Roy
+		Fielding <fielding@beach.w3.org>
+	- HTTP::Status and LWP::MediaTypes exports their functions by default.
+	- Split up the URI::URL module.  Schemes are implemented by separate files
+		that are autoloaded when used.  Self test moved to "t/uri.t".
+	- Applied patch from Marc Hedlund <hedlund@best.com>
+	- Update the @header_order according to the August 3rd draft.
+	- Added Response Header fields: 'Location', 'Public', 'Retry-After',
+		'Server', and 'WWW-Authenticate'.
+	- Moved 'unknown header' handling from &scan to &header. The old
+		implementation was forcing all unknown header-words to begin with an
+		uppercase (as it should be), but disallowed other uppercase letters.
+	- updates the status code messages under the August 3rd HTTP/1.0 draft.
+		'203' became 'Non-Authoritative Information', '303' became 'See Other',
+		and a new code, '411 Authorization Refused', was added.
+	- Can remove multiple headers with single removeHeader() call in MIMEheader.
+	- Can assign multiple field/value pairs in header() method of MIMEheader.
+	- A field with multiple values is printed as separate values in
+		MIMEheader::as_string().
+	- LWP::Response contain new attributes: previous() and request().  These
+		attributes are updated by the UserAgent.
+	- Appended \n to some die statements in Socket so that line numbers are
+		suppressed in error messages.
+	- Made UserAgent::clone work for reference members
+	- Check for redirect loops and multiple authorization failures by
+		examination of the response chain.
+	- Use "\015\012" instead of "\r\n" in protocol modules. Some systems define
+		\r and \n differently.
+	- request program can now handle documents that needs authorization by
+		prompting the user for username/password. Added new -S option to print
+		request/response chain.
+
+0.02	1995-07-25
+	- Included URI::URL in the release
+	- Incorporated Makemake.PL and VERSION from Andreas Koenig <koenig@mind.de>
+		As a result of this the following things have changed:
+		- programs in "bin" are extracted from .PL-files
+		- reintroduced "lib"
+		- "test" has been renamed as "t"
+		- test programs in "t" has been made Test::Harness compatible
+		- we now have a MANIFEST file
+		- no more need for update_version, make-dist, lwp-install
+	- Renamed bin/get to bin/request.  Links to it are now all upper case.
+	- Proxy support in bin/request (provided by Martijn Koster)
+	- UserAgent can now load proxy settings from environment
+	- LWP::Protocol::ftp is under way but not really finished
+	- Implemented LWP::Protocol::gopher
+	- Implemented LWP::Protocol::mailto
+	- Fixed proxy typo
+
+0.01	1995-07-17
+	- Don't lose first line of HTTP/0.9 requests
+	- LWP::Socket use syswrite() for writing
+	- Added RC_* documentation to LWP::StatusCode
+	- LWP::Date now use hash to look up month numbers
+	- Added -f option to "get"
+	- Untabify
+	- Added a "TODO" list
+	- Fixed various typos
+	- Reorganized directories.
+		- Moved LWP.pm up.
+		- Moved file.pm and http.pm into the LWP::Protocol directory.
+		- Moved LWP out of the lib directory and removed lib.
+	- Implemented the "get" and "mirror" scripts in the "bin" directory.
+	- Implemented "install-lwp", "update_version" and "make-dist".  The
+		library version number is found in the VERSION file.
+	- Always adds 1900 to the year in LWP::Date
+	- In LWP::MIMEheader:  Implemented clone(), removeHeader() and scan()
+		methods.  Reimplemented asString.  Removed asMIME().  Moved "Good
+		Practice" into this file, and reimplemented it.
+	- Moved "header" and "content" into LWP::Message class.  This change
+		made LWP::Request and LWP::Response much simpler.  Made clone()
+		method actually work.
+	- LWP::Protocol::implementor does not die if it cannot load package.
+	- Moved UserAgent convenience methods into LWP::Simple.  Made LWP::Simple
+		export LWP::StatusCode symbols and functions.
+	- Implemented $ua->isProtocolSupported($scheme) method.
+	- Nicer directory listing in LWP::Protocol::file.pm
+	- Rely on URI::URL 3.00 behaviour for $url->full_path
+	- Library version number now in LWP.pm.  You should be able to say
+		"use LWP 1.0;" if you need at least this version.
+	- Various cleanups and arranging layout as I like it.  Use fooBar-style
+		(as opposed to foo_bar style) everywhere.  This means that
+		as_string() now is called asString().
+	- Added more documentation.
+	- Removed lot of redundant & before function calls.
+	- $this --> $self
+	- &collector passes content as a reference, don't want to copy so much
+	- parameterlist to collect callback has been rearranged
+	- Response::addContent gets a reference to the data
+	- Added some callback documentation to UserAgent.pm
+	- Protocol::file now uses the collector
+	- Introduced LWP::Simple
+	- Added basic authentication support
+	- Added mirroring of single documents
+	- Change Protocol construction from whacky URL.pm (constructor returns
+		subclass) to more normal C++'ish way.
+	- Minor cleanups from printed code inspection
+	- Added redirection resolution
+	- Added optional autoloading of protocols
+	- Separated socket stuff into separate module
+	- Added HTTP proxy support
+	- Made alarm handling optional
+	- Added a LWP::Message for completeness sake
+	- Added LWP::MemberMixin to reduce code duplication
+	- Cosmetic changes to LWP::Date
+	- Renamed LWP::Error to LWP::StatusCode
+	- Renamed LWP::MIME to LWP::MIMEtype
+	- Changed the tests to cope with all this
+	- Changed the socket reading to use sysread.  This will have to go into a
+		module of its own.
+	- Mentioned on libwww-perl that I had changed the classes around lots.

@@ -1550,634 +1550,349 @@ _______________________________________________________________________________
     HTML::Form's dump() method now print the name of the form if
     present.
 
-
-
-2003-01-24   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.69
-
-    Include lwptut.pod contributed by Sean M. Burke C<sburke@cpan.org>.
-
-    The lwp-request aliases GET, HEAD, POST where installed when
-    no program should be. Fixed by David Miller <dave@justdave.net>.
-
-    lwp-rget --help don't print double usage any more.
-
-    HTTP::Header::Util is now more reluctant to put quotes around
-    token values.
-
-    Net::HTTP: Avoid warning on unexpected EOF when reading chunk
-    header.
-
-
-
-2003-01-02   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.68
-
-    Fix test failure for t/html/form.t when running under
-    perl-5.8.0.
-
-
-
-2003-01-01   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.67
-
-    HTTP::Cookies::Microsoft contributed by Johnny Lee <typo_pl@hotmail.com>.
-    This module makes it possible for LWP to share MSIE's cookies.
-
-    HTML::Form supports file upload better now. There are some
-    new methods on that kind of input; file(), filename(), content()
-    and headers().
-
-    Removed unfinished test that depended on Data::Dump.
-
-    Net::HTTP avoids exceptions in read_response_headers() with
-    laxed option. It now always assumes HTTP/0.9 on unexpected
-    responses.
-
-    HTML::Form documentation reworked.
-
-
-
-2002-12-20   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.66
-
-    Various patches from Sean M. Burke. Most of them to
-    match up LWP with the "Perl & LWP" book.
-
-    LWP::DebugFile module contributed by Sean.
-
-    LWP::Authen::Ntml contributed by James Tillman.
-
-    HTTP::Daemon patch for Alpha by <shildreth@emsphone.com>
-
-    The format_chunk() and write_chunk() methods of Net::HTTP
-    did not work. Bug spotted by Yale Huang <yale@sdf-eu.org>.
-
-    The Client-Peer response header is back.
-
-
-
-2002-05-31   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.65
-
-    Make HTTP::Date compatible with perl 5.8.
-
-    Try to avoid to default to overwriting /usr/bin/head
-    on MacOS X when the perl install prefix is /usr/bin.
-
-    HTTP::Cookies fix for parsing of Netscape cookies file
-    on MS Windows. Patch by Sean M. Burke <sburke@cpan.org>.
-
-    HTTP::Negotiate doc patch from Edward Avis <epa98@doc.ic.ac.uk>.
-
-
-
-2002-02-09   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.64
-
-    Simplified the Makefile.PL:
-       - the scripts are not longer *.PL files
-
-       - don't try to make symlinks for GET, HEAD, POST
-         as that has not worked for a long time
-
-       - the GET, HEAD, POST aliases for lwp-request should
-         now work on Windows.
-
-    HTTP::Cookies:
-       - added 'clear_temporary_cookies' method;
-         patch by Mike Schilli <schilli1@pacbell.net>.
-
-       - trailing space in old cookie parameters not ignored;
-         patch by Ivan Panchenko
-
-       - protect against $SIG{__DIE__} handlers;
-	 patch by Adam Newby <adam@NewsNow.co.uk>.
-
-    LWP::Authen::Digest:
-       - abort digest auth session if we fail repeatedly with
-         the same username/password.
-
-    MacOS portability patches to the test suite by
-    Chris Nandor <pudge@pobox.com>.
-
-
-
-2001-12-14   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.63
-
-    HTTP::Negotiate: Deal with parameter names in a case
-    insensitive way. Put a little weight on the order of features
-    in the Accept headers.
-
-    LWP::UserAgent: make sure that the 'request' attribute is
-    always set on the returned response.
-
-    LWP::Protocol::http will now allow certain bad headers
-    in the responses it reads. The bad headers end up in the
-    header 'Client-Junk'.
-
-    Net::HTTP new options to the 'read_response_headers'
-    method. The option 'laxed' will make it ignore bad header
-    lines. The option 'junk_out' can be used to pass in an
-    array reference. Junk header lines are pushed onto it.
-
-    Net::HTTP::Methods: fixed the internal zlib_ok() to also
-    return the correct value the first time.
-
-    LWP::Protocol::http: Ensure that we don't read until
-    select has said it is ok since we have put the socket
-    in non-blocking mode. Previously this could happen if
-    you set the 'timeout' attribute of the user agent to 0.
-
-    LWP::Authen::Digest now use Digest::MD5 instead of MD5.
-
-    Some adjustments to Makefile.PL to figure out if
-    Compress::Zlib is available and adjust the test suite
-    accordingly.
-
-
-
-2001-11-21   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.62
-
-    The $VERSION of LWP::UserAgent wrapped around. This confused the
-    CPAN indexer. Bumped the major number to 2 to fix this.
-
-    Net::HTTP did not work well on perl5.003. The PeerHost argument
-    to IO::Socket::INET was not recognized, so we had to use PeerAddr
-    instead. The syswrite() method also required a length argument.
-
-    Net::HTTP did not deal with transfer encoding tokens in a
-    case-insensitive way. Patch by Blair Zajac <blair@orcaware.com>.
-
-    The jigsaw-chunk test failed on MacOS because "\n" is different.
-    Patch by Chris Nandor <pudge@pobox.com>.
-
-
-
-2001-11-16   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.61
-
-    LWP::Protocol::http did not invoke its _fixup_header method.
-    The result was that the 'Host' header got completely wrong
-    when talking through a proxy server.
-
-    The live Google test is gone. They blocked us.
-
-    The guts of Net::HTTP has moved to Net::HTTP::Methods.
-
-    Net::HTTP now has limits on the size of the header which are
-    set by default.
-
-    New module Net::HTTPS.
-
-    Documentation tweaks.
-
-    HTTP::Headers: The 'remove_header' method now return the values
-    of the fields removed as suggested by Blair Zajac <blair@orcaware.com>.
-    Also a typo fix by Blair.
-
-    HTTP::Message: The delegation via &AUTOLOAD should be slightly
-    faster now. It will install a real forwarding function the
-    first time it is called for each HTTP::Headers method.
-
-    LWP::UserAgent: Don't forward 'Cookie' headers on redirect.
-    Patch by Steve A Fink <steve@fink.com>.
-
-    LWP::Protocol::http has been reorganized to make it simpler
-    to subclass it. Other minor changes to it include:
-       - Client-Warning is gone
-       - Client-Request-Num renamed to Client-Response-Num
-       - A 'Transfer-Encoding' header is rewritten into a
-         'Client-Transfer-Encoding' header.
-
-    LWP::Protocol::https is completely redone.
-
-
-
-2001-10-26   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.60
-
-    Made HTTP/1.1 the default. The old HTTP/1.0 module has been
-    renamed as LWP::Protocol::http10. There is an environment
-    variable; PERL_LWP_USE_HTTP_10 that can be set to have LWP
-    still pick up the old drivers.
-
-    Deal with "100 continue" responses even when not requested by
-    and Expect header in the request. MS IIS seems to eager to send
-    this kind of response.
-
-    For HTTP/1.1 over SSL there was a problem with the underlying
-    SSL libraries if the socket was configured to non-blocking mode.
-    Disable this for https.
-    Based on a patch from Michael Thompson <mickey@berkeley.innomedia.com>
-
-    Support the Range header for ftp:// requests.
-    Patch by David Coppit <david@coppit.org>.
-
-    Rearrange Bundle::LWP on request from Chris Nandor.
-
-    HTTP::Cookies: Allow a domain like .foo.com match host "foo.com".
-    Patch by Alexandre Duret-Lutz <duret_g@lrde.epita.fr>
-
-    For redirects make sure Host header is not copied to the new
-    request.
-
-    The HTML::HeadParser is not loaded until actually needed.
-
-    Net::HTTP should now work with perl5.005 by a simple tweak
-    to 'require IO::Socket::INET'.
-
-    WWW::RobotRules::AnyDBM: Explicitly clear database on open.
-    Some DBM implementations doesn't support the O_TRUNC flag
-    properly. Patch by Radu Greab <radu@netsoft.ro>.
-
-
-
-2001-09-19   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_97
-
-    LWP::Protocol::http11: fix socket leak. Because we managed
-    to set up a circular reference within the sockets objects they
-    stayed around forever.
-
-    LWP::UserAgent: Split up simple_request into prepare_request
-    and send_request. Patch contributed by Keiichiro Nagano <knagano@sodan.org>
-
-    LWP::Protocol::http: Pass all header data to LWP::Debug::conns.
-    Based on patch by Martijn.
-
-    LWP::UserAgent: Sean fixed a Cut&Paste error.
-
-    HTTP::Cookies: avoid pack("c",...) warning from bleadperl.
-
-
-
-2001-08-27   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_96
-
-    HTTP/1.1 support also for https.
-    Contributed by Doug MacEachern <dougm@covalent.net>
-
-    The HTTP/1.1 modules are now enabled by default. Hope that will give
-    them more testing than they otherwise would have gotten.
-
-    HTTP::Daemon's accept now has same behaviour as IO::Socket's
-    accept in list context. Fixed by Blair Zajac <blair@gps.caltech.edu>.
-
-    More argument sanity checking in HTTP::Request->uri and
-    LWP::UserAgent->simple_request. Patch by Sean M. Burke.
-
-    HTTP::Protocol::http. Deal with short writes.
-    Patch by Norton Allen <allen@huarp.harvard.edu>
-
-    HTTP::Protocol::http11:  Deal with newlines in header values.
-
-    Net::HTTP: call sysread (instead of xread) when more data is required.
-
-
-
-2001-08-06   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_95
-
-    Fix HTTP::Cookies where there is a mix of Set-Cookie and
-    Set-Cookie2 headers. In that case we used to ignore all Set-Cookie
-    headers. Now we only ignore those Set-Cookie headers that reference
-    the same cookie as a Set-Cookie2 header.
-
-    HTTP::Request, HTTP::Response will by default now use "URI" class,
-    instead of "URI::URL", when constructing its URI objects. This
-    has a potential for breaking existing code as URI::URL objects had
-    some extra methods that external code might depend upon.
-
-    Patches by Sean M. Burke:
-       - Fix treatment of language tags in HTTP::Negotiate
-       - Avoid trailing newline in $response->message
-       - HTTP::Response clarifications
-
-    LWP::Simple deals with non-absolute redirects "correctly" now.
-
-    Net::HTTP does not try to load Compress::Zlib until it is needed.
-
-    Net::HTTP documentation has been updated.
-
-
-
-2001-05-05   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_94
-
-    Sean M. Burke's update to LWP::UserAgent:
-       - updated redirect_ok behaviour
-       - new convenience methods: get/head/post/put
-       - protocols_allowed/protocols_forbidden
-       - LWP::Protocol::nogo (new module)
-
-    Added digest auth test against Jigsaw
-
-    Fixed a 'use of uninitialized'-warning in the handling of
-    digest authentication.
-
-    Net::HTTP updates:
-      - new option: SendTE
-      - support transfer-encoding 'deflate' and 'gzip' (when Compress::Zlib
-        is available).
-      - new methods: format_chunk, format_chunk_eof
-      - use -1 (instead of "0E0" as signal that no data was available,
-        but this was not EOF).
-
-
-
-2001-04-28   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_93
-
-    Makefile.PL now asks some questions
-
-    Added live tests for the new HTTP/1.1 support
-
-    LWP::MemberMixin: make it possible to set a value to the 'undef' value.
-
-    Net::HTTP:
-        - transparent support for 'deflate' and 'gzip' transfer encodings
-          (need to have the Compress::Zlib module installed for this to work).
-
-
-
-2001-04-25   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_92
-
-    LWP::Protocol::ftp now support keep-alives too. The command
-    connection will stay open if keep-alives are enabled.
-
-    LWP::Protocol::http11 various fixes:
-        - chunked request content did not work
-        - monitor connection while sending request content
-        - deal with Expect: 100-continue
-
-    LWP::RobotUA: Protect host_port call. Not all URIs have this method.
-
-
-
-2001-04-20   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_91
-
-    Introduced LWP::ConnCache module. Works similar to HTTP::Cookies,
-    it that it takes effect if associated with the $ua.
-
-    The handling of $ua->max_size changed to make 0 mean 0
-    (not unlimited). A value of undef means no limit.
-    The X-Content-Base header is gone. I hope nobody relies on
-    it. It might come back if people start to scream. There
-    is a new Client-Aborted header instead.
-
-    The Range header generated for $ua->max_size had an off-by-one
-    error. A range of "0-1" means 2 bytes.
-
-    The LWP::UserAgent constructor now takes configuration arguments.
-
-    Keep-alive and the new HTTP/1.1 module can now be simply
-    enabled with something like:
-
-          LWP::UserAgent->new(keep_alive => 1);
-
-    New method $ua->conn_cache to set up and access the associated
-    connection manager.
-
-    If the string passed to $ua->agent() ends with space then
-    the "libwww-perl/#.##" string is automatically appended.
-
-    New method $ua->_agent
-
-    Passing a plain hash to $ua->cookie_jar automatically loads
-    HTTP::Cookies and initialise an object using the hash content
-    as constructor arguments.
-
-    LWP::Protocol::http11 now use the conn_cache of the $ua.
-
-    LWP::Protocol::http11 now added a few new Client- headers.
-
-    LWP::Protocol avoid keeping the connection alive if $ua->max_size
-    limit prevents the whole body content from being read.
-
-    Net::HTTP updates:
-       - new methods: write_chunk(), write_chunk_eof()
-       - reset state properly when a new body is read.
-       - always set read buffer empty on eof
-       - doc update
-
-    WWW::RobotRules patch by Liam Quinn <liam@htmlhelp.com>:
-       - Always qualify netloc with port.
-       - Reverse User-Agent substring matching.
-
-
-
-2001-04-18   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53_90
-
-    Note: This is a developer only release. Not for production use.
-
-    LWP::Protocol::http11 now does keep-alives by default. Still need
-    to figure out what interface to provide at the $ua level.
-
-    LWP::Protocol::http11 deals with CODE content in request.
-
-    Net::HTTP updated:
-        - added format_request() method
-        - added _rbuf and _rbuf_length methods
-        - read_response_headers does not return protocol version
-	  any more.
-        - peer_http_version method did not work because of typo.
-        - documentation added
-
-    New module Net::HTTP::NB. This is a Net::HTTP subclass that
-    is better suited for multiplexing as it is able to do no-blocking
-    reads of headers and entity body chunks.
-
-    HTTP::Request: Protect $request->uri against evil $SIG{__DIE__} handlers.
-
-    Some reorganisation in how stuff is passed from $ua to protocol object.
-    The $ua is now passed in so protocol objects might store start in it.
-
-    The $ua->max_size default is now 0.
-
-    The $ua->clone method avoids sharing of proxy settings between
-    the old and the new.
-
-    This file is renamed to 'Changes' (used to be 'ChangeLog').
-
-
-
-2001-04-10   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.53
-
-    LWP::Simple::get() could sometimes return nothing on failure in
-    list context. Now it always returns 'undef'.
-
-    HTTP::Cookies does not request 2 dots on domain names any more.
-    New option to hide the Cookie2 header. Cookie2 header now quote
-    the version number. Updated reference to RFC 2965.
-
-    Support for embedded userinfo in http proxy URIs. It means that
-    you know can set up your proxy with things like:
-        http_proxy="http://proxyuser:proxypass@proxyhost:port"
-    Patch by John Klar <j.klar@xpedite.com>.
-
-    Experimental HTTP/1.1 support. New module called Net::HTTP that
-    provide the lower level interface and a LWP::Protocol::http11
-    module that builds on it. The HTTP/1.1 protocol module must be
-    loaded and registered explicitly, otherwise the old and trustworthy
-    HTTP/1.0 module will be used.
-
-    LWP::Protocol::GHTTP will try to use the get_headers() methods
-    so that it can actually extract all the headers.
-
-
-
-2001-03-29   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.52
-
-    HTTP::Header: new method $h->init_header() that will only
-    set the header if it is not already set. Some shuffling
-    around in the code.
-
-    LWP::UserAgent will not override 'User-Agent', 'From'
-    or 'Range' headers if they are explicitly set in the
-    request passed in.
-
-    HTML::Form tries to optimize parsing be restricting the
-    tags that are reported by HTML::Parser. Will need
-    HTML::Parser v3.19_93 or better for this to actually
-    have any effect.
-
-    LWP::Protocol::ftp now deals with path parameters again.
-    It means that you can append ";type=a" to ftp-URI and
-    it will download the document in ASCII mode.
-
-    If the server output multiple Location headers on a redirect,
-    ignore all but the first one.
-
-    Extract cookies failed on request URIs with empty paths.
-    This was only triggered if you used URI objects directly in
-    scripts.
-
-    This change was actually part of 5.51:  Fix qop="auth"
-    handling for Digest authentication.
-    Patch by Dave Dunkin <dave_dunkin@hotmail.com>.
-
-
-
-2001-03-14   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.51
-
-    SECURITY FIX: If LWP::UserAgent::env_proxy is called in a CGI
-    environment, the case-insensitivity when looking for "http_proxy"
-    permits "HTTP_PROXY" to be found, but this can be trivially set by the
-    web client using the "Proxy:" header. The fix applied is that
-    $ENV{HTTP_PROXY} is not longer honored for CGI scripts.
-    The CGI_HTTP_PROXY environment variable can be used instead.
-    Problem reported by Randal L. Schwartz.
-
-    NOTE: It is recommended that everybody that use LWP::UserAgent
-          (including LWP::Simple) in CGI scripts upgrade to this release.
-
-    Explicit setting of action on HTML::Form had no effect because
-    of a code typo. Patch by BooK <book@netcourrier.com>.
-
-    HTTP::Daemon: The CONNECT method need special treatment because
-    it does not provide a URI as argument (just a "hostname:port").
-    The non-upward compatibility warning is that you must now call
-    $request->url->host_port to get the host/port string for CONNECT,
-    rather than calling $request->url and using the entire string.
-    Based on patch from Randal L. Schwartz <merlyn@stonehenge.com>
-
-    HTTP::Daemon: Create self URL based on $self->sockaddr. This works
-    better when LocalAddr is used to specify the port number. Based on
-    patch from Ben Low <ben@snrc.uow.edu.au>.
-
-    Avoid potential '<FILE> chunk 1' messages at the end of the response
-    'message'.
-
-
-
-2001-01-12   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.50
-
-    Fix for test cases that failed because of URI-1.10 now encode
-    space as '+' instead of '%20. Patch by Christian Gilmore
-    <cgilmore@tivoli.com>.
-
-    Makefile.PL: Require URI-1.10.
-
-    HTTP::Daemon now accepts any non-space character as method name
-    on the request line. It used to fail on methods like "M-POST"
-    because it only allowed \w-chars.
-
-    HTTP::Date now allow fractional seconds in ISO date formats.
-    Based on patch from Mark D. Anderson <mda@discerning.com>
-
-    HTTP::Request::Common will now calculate Content-length
-    even if $DYNAMIC_FILE_UPLOAD is set. Patch provided by
-    Lindley, Lee T <Lee.Lindley@viasystems.com>.
-
-
-
-2000-12-31   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.49
-
-    HTML::Form: Use croak() instead of die. Implement
-    $f->possible_values. Avoid use of undef value warnings.
-
-    HTTP::Cookies: fix epath issue. Make it work for URI::http
-    as the uri-attribute of HTTP::Request object
-
-    HTTP::Date: Allow ignored timezone info in parenthesis. Patch
-    by Sander van Zoest <sander@covalent.net>.
-    Fix calculation of non-GMT timezones (wrong sign). Patch by
-    KONISHI Katsuhiro <konishi@din.or.jp>.
-
-    HTTP::Response: Let $res->base() absolutize the URI. Based on
-    bug report from Hans de Graaff <hans@degraaff.org>.
-
-    Fixed minor doc typos in HTTP::Headers::Util and LWP::UserAgent.
-
-    HTTP::Request::Common: Support boundary spec from client.
-
-    LWP::Simple: Avoid trivial_http_get when @ appears in authority
-    part of URI
-
-    LWP::Authen::Digest: Need to have query in URI param.
-    Spotted by <ronald@innovation.ch>.
-
-    LWP::Protocol::http: unescape username/password if they are
-    specified in the URI.
-
-    Added LWP::Protocol::GHTTP. This allow LWP to use the HTTP::GHTTP
-    module as the low level HTTP driver.
-
-
+5.69	2003-01-24
+	- Include lwptut.pod contributed by Sean M. Burke C<sburke@cpan.org>.
+	- The lwp-request aliases GET, HEAD, POST where installed when no program
+		should be. Fixed by David Miller <dave@justdave.net>.
+	- lwp-rget --help don't print double usage any more.
+	- HTTP::Header::Util is now more reluctant to put quotes around token vals.
+	- Net::HTTP: Avoid warning on unexpected EOF when reading chunk header.
+
+5.68	2003-01-02
+	- Fix test failure for t/html/form.t when running under perl-5.8.0.
+
+5.67	2003-01-01
+	- HTTP::Cookies::Microsoft contributed by Johnny Lee <typo_pl@hotmail.com>.
+		This module makes it possible for LWP to share MSIE's cookies.
+	- HTML::Form supports file upload better now. There are some new methods on
+		that kind of input; file(), filename(), content() and headers().
+	- Removed unfinished test that depended on Data::Dump.
+	- Net::HTTP avoids exceptions in read_response_headers() with laxed option.
+		It now always assumes HTTP/0.9 on unexpected responses.
+	- HTML::Form documentation reworked.
+
+5.66	2002-12-20
+	- Various patches from Sean M. Burke. Most of them to match up LWP with
+		the "Perl & LWP" book.
+	- LWP::DebugFile module contributed by Sean.
+	- LWP::Authen::Ntml contributed by James Tillman.
+	- HTTP::Daemon patch for Alpha by <shildreth@emsphone.com>
+	- The format_chunk() and write_chunk() methods of Net::HTTP did not work.
+		Bug spotted by Yale Huang <yale@sdf-eu.org>.
+	- The Client-Peer response header is back.
+
+5.65	2002-05-31
+	- Make HTTP::Date compatible with perl 5.8.
+	- Try to avoid to default to overwriting /usr/bin/head on MacOS X when the
+		perl install prefix is /usr/bin.
+	- HTTP::Cookies fix for parsing of Netscape cookies file on MS Windows.
+		Patch by Sean M. Burke <sburke@cpan.org>.
+	- HTTP::Negotiate doc patch from Edward Avis <epa98@doc.ic.ac.uk>.
+
+5.64	2002-02-09
+	- Simplified the Makefile.PL:
+		- the scripts are not longer *.PL files
+		- don't try to make symlinks for GET, HEAD, POST as that has not
+			worked for a long time
+		- the GET, HEAD, POST aliases for lwp-request should now work on Win
+	- HTTP::Cookies:
+		- added 'clear_temporary_cookies'; Mike Schilli <schilli1@pacbell.net>.
+		- trailing space in old cookie parameters not ignored; Ivan Panchenko
+		- protect against $SIG{__DIE__}; Adam Newby <adam@NewsNow.co.uk>
+	- LWP::Authen::Digest:
+		- abort digest auth session if fails repeatedly with the same user/pass
+	- MacOS portability patches to test suite by Chris Nandor <pudge@pobox.com>.
+
+5.63	2001-12-14
+	- HTTP::Negotiate: Deal with parameter names in a case insensitive way. Put
+		a little weight on the order of features in the Accept headers.
+	- LWP::UserAgent: make sure that the 'request' attribute is always set on
+		the returned response.
+	- LWP::Protocol::http will now allow certain bad headers in the responses
+		it reads. The bad headers end up in the header 'Client-Junk'.
+	- Net::HTTP new options to the 'read_response_headers' method. The option
+		'laxed' will make it ignore bad header lines. The option 'junk_out' can
+		be used to pass in an array reference. Junk header lines are pushed
+		onto it.
+	- Net::HTTP::Methods: fixed the internal zlib_ok() to also return the
+		correct value the first time.
+	- LWP::Protocol::http: Ensure that we don't read until select has said it's
+		ok since we have put the socket in non-blocking mode. Previously this
+		could happen if you set the 'timeout' attribute of the user agent to 0.
+	- LWP::Authen::Digest now use Digest::MD5 instead of MD5.
+	- Some adjustments to Makefile.PL to figure out if Compress::Zlib is
+		available and adjust the test suite accordingly.
+
+5.62	2001-11-21
+	- The $VERSION of LWP::UserAgent wrapped around. This confused the CPAN
+		indexer. Bumped the major number to 2 to fix this.
+	- Net::HTTP did not work well on perl5.003. The PeerHost argument to
+		IO::Socket::INET was not recognized, so we had to use PeerAddr instead.
+		The syswrite() method also required a length argument.
+	- Net::HTTP did not deal with transfer encoding tokens in a case-insensitive
+		way. Patch by Blair Zajac <blair@orcaware.com>.
+	- The jigsaw-chunk test failed on MacOS because "\n" is different. Patch
+		by Chris Nandor <pudge@pobox.com>.
+
+5.61	2001-11-16
+	- LWP::Protocol::http did not invoke its _fixup_header method. The result
+		was that the 'Host' header was wrong when going through a proxy server.
+	- The live Google test is gone. They blocked us.
+	- The guts of Net::HTTP has moved to Net::HTTP::Methods.
+	- Net::HTTP now has limits on the size of the header; set by default.
+	- New module Net::HTTPS.
+	- Documentation tweaks.
+	- HTTP::Headers: The 'remove_header' method now return the values of the
+		fields removed as suggested by Blair Zajac <blair@orcaware.com>. Also a
+		typo fix by Blair.
+	- HTTP::Message: The delegation via &AUTOLOAD should be slightly faster
+		now. It will install a real forwarding function the first time it is
+		called for each HTTP::Headers method.
+	- LWP::UserAgent: Don't forward 'Cookie' headers on redirect. Patch by
+		Steve A Fink <steve@fink.com>.
+	- LWP::Protocol::http has been reorganized to make it simpler to subclass
+		it. Other minor changes to it include:
+		- Client-Warning is gone
+		- Client-Request-Num renamed to Client-Response-Num
+		- A 'Transfer-Encoding' header is rewritten into a
+			'Client-Transfer-Encoding' header.
+	- LWP::Protocol::https is completely redone.
+
+5.60	2001-10-26
+	- Made HTTP/1.1 the default. The old HTTP/1.0 module has been renamed as
+		LWP::Protocol::http10. There is an environment variable;
+		PERL_LWP_USE_HTTP_10 that can be set to have LWP use the old drivers.
+	- Deal with "100 continue" responses even when not requested by and Expect
+		header in the request. MS IIS is eager to send this kind of response.
+	- For HTTP/1.1 over SSL there was a problem with the underlying SSL
+		libraries if the socket was configured to non-blocking mode. Disable
+		this for https. By Michael Thompson <mickey@berkeley.innomedia.com>
+	- Support the Range header for ftp:// reqs. David Coppit <david@coppit.org>.
+	- Rearrange Bundle::LWP on request from Chris Nandor.
+	- HTTP::Cookies: Allow a domain like .foo.com match host "foo.com".
+		By Alexandre Duret-Lutz <duret_g@lrde.epita.fr>
+	- For redirects make sure Host header is not copied to the new request.
+	- The HTML::HeadParser is not loaded until actually needed.
+	- Net::HTTP should now work with perl5.005 by a simple tweak to
+		require IO::Socket::INET
+	- WWW::RobotRules::AnyDBM: Clear database on open. Some DBM implementations
+		don't support the O_TRUNC flag properly. Radu Greab <radu@netsoft.ro>.
+
+5.53_97	2001-09-19 (TRIAL)
+	- LWP::Protocol::http11: fix socket leak. Because we managed to set up a
+		circular reference within the sockets objects they stayed around forever.
+	- LWP::UserAgent: Split up simple_request into prepare_request and
+		send_request. Patch contributed by Keiichiro Nagano <knagano@sodan.org>
+	- LWP::Protocol::http: Pass all header data to LWP::Debug::conns. Martijn.
+	- LWP::UserAgent: Sean fixed a Cut&Paste error.
+	- HTTP::Cookies: avoid pack("c",...) warning from bleadperl.
+
+5.53_96	2001-08-27 (TRIAL)
+	- HTTP/1.1 support also for https. by Doug MacEachern <dougm@covalent.net>
+	- The HTTP/1.1 modules are now enabled by default. Hope that will give them
+		more testing than they otherwise would have gotten.
+	- HTTP::Daemon's accept now has same behaviour as IO::Socket's accept in
+		list context. Fixed by Blair Zajac <blair@gps.caltech.edu>.
+	- More argument sanity checking in HTTP::Request->uri and
+		LWP::UserAgent->simple_request. Patch by Sean M. Burke.
+	- HTTP::Protocol::http. short writes. Norton Allen <allen@huarp.harvard.edu>
+	- HTTP::Protocol::http11:  Deal with newlines in header values.
+	- Net::HTTP: call sysread (instead of xread) when more data is required.
+
+5.53_95	2001-08-06 (TRIAL)
+	- Fix HTTP::Cookies where there is a mix of Set-Cookie and Set-Cookie2
+		headers. In that case we used to ignore all Set-Cookie headers. Now we
+		only ignore those Set-Cookie headers that reference the same cookie as
+		a Set-Cookie2 header.
+	- HTTP::Request, HTTP::Response will by default now use "URI" class, instead
+		of "URI::URL", when constructing its URI objects. This has a potential
+		for breaking existing code as URI::URL objects had some extra methods
+		that external code might depend upon.
+	- Patches by Sean M. Burke:
+		- Fix treatment of language tags in HTTP::Negotiate
+		- Avoid trailing newline in $response->message
+		- HTTP::Response clarifications
+	- LWP::Simple deals with non-absolute redirects "correctly" now.
+	- Net::HTTP does not try to load Compress::Zlib until it is needed.
+	- Net::HTTP documentation has been updated.
+
+5.53_94	2001-05-05 (TRIAL)
+	- Sean M. Burke's update to LWP::UserAgent:
+		- updated redirect_ok behaviour
+		- new convenience methods: get/head/post/put
+		- protocols_allowed/protocols_forbidden
+		- LWP::Protocol::nogo (new module)
+	- Added digest auth test against Jigsaw
+	- Fixed a 'use of uninitialized'-warning in the handling of digest auth.
+	- Net::HTTP updates:
+		- new option: SendTE
+		- support transfer-encoding 'deflate' and 'gzip' (when Compress::Zlib
+			is available).
+		- new methods: format_chunk, format_chunk_eof
+		- use -1 (instead of "0E0" as signal that no data was available,
+			but this was not EOF).
+
+5.53_93	2001-04-28 (TRIAL)
+	- Makefile.PL now asks some questions
+	- Added live tests for the new HTTP/1.1 support
+	- LWP::MemberMixin: make it possible to set a value to the 'undef' value.
+	- Net::HTTP:
+		- transparent support for 'deflate' and 'gzip' transfer encodings
+			(need to have the Compress::Zlib module installed for this to work).
+
+5.53_92	2001-04-25 (TRIAL)
+	- LWP::Protocol::ftp now support keep-alives too. The command connection
+		will stay open if keep-alives are enabled.
+	- LWP::Protocol::http11 various fixes:
+		- chunked request content did not work
+		- monitor connection while sending request content
+		- deal with Expect: 100-continue
+	- LWP::RobotUA: Protect host_port call. Not all URIs have this method.
+
+5.53_91	2001-04-20 (TRIAL)
+	- Introduced LWP::ConnCache module. Works similar to HTTP::Cookies, it that
+		it takes effect if associated with the $ua.
+	- The handling of $ua->max_size changed to make 0 mean 0 (not unlimited). A
+		value of undef means no limit. The X-Content-Base header is gone. I
+		hope nobody relies on it. It might come back if people start to scream.
+		There is a new Client-Aborted header instead.
+	- The Range header generated for $ua->max_size had an off-by-one error. A
+		range of "0-1" means 2 bytes.
+	- The LWP::UserAgent constructor now takes configuration arguments.
+	- Keep-alive and the new HTTP/1.1 module can now be simply enabled with
+		something like: LWP::UserAgent->new(keep_alive => 1);
+	- New method $ua->conn_cache to set up and access the associated connection
+		manager.
+	- If the string passed to $ua->agent() ends with space then the
+		"libwww-perl/#.##" string is automatically appended.
+	- New method $ua->_agent
+	- Passing a plain hash to $ua->cookie_jar automatically loads HTTP::Cookies
+		and initialise an object using the hash content as constructor arguments.
+	- LWP::Protocol::http11 now use the conn_cache of the $ua.
+	- LWP::Protocol::http11 now added a few new Client- headers.
+	- LWP::Protocol avoid keeping the connection alive if $ua->max_size limit
+		prevents the whole body content from being read.
+	- Net::HTTP updates:
+		- new methods: write_chunk(), write_chunk_eof()
+		- reset state properly when a new body is read.
+		- always set read buffer empty on eof
+		- doc update
+	- WWW::RobotRules patch by Liam Quinn <liam@htmlhelp.com>:
+		- Always qualify netloc with port.
+		- Reverse User-Agent substring matching.
+
+5.53_90	2001-04-18 (TRIAL)
+	- Note: This is a developer only release. Not for production use.
+	- LWP::Protocol::http11 now does keep-alives by default. Still need to
+		figure out what interface to provide at the $ua level.
+	- LWP::Protocol::http11 deals with CODE content in request.
+	- Net::HTTP updated:
+		- added format_request() method
+		- added _rbuf and _rbuf_length methods
+		- read_response_headers does not return protocol version any more.
+		- peer_http_version method did not work because of typo.
+		- documentation added
+	- New module Net::HTTP::NB. This is a Net::HTTP subclass that is better
+		suited for multiplexing as it is able to do no-blocking reads of headers
+		and entity body chunks.
+	- HTTP::Request: Protect $request->uri against evil $SIG{__DIE__} handlers.
+	- Some reorganisation in how stuff is passed from $ua to protocol object.
+		The $ua is now passed in so protocol objects might store start in it.
+	- The $ua->max_size default is now 0.
+	- The $ua->clone method avoids sharing of proxy settings between the old
+		and the new.
+	- This file is renamed to 'Changes' (used to be 'ChangeLog').
+
+5.53	2001-04-10
+	- LWP::Simple::get() could sometimes return nothing on failure in list
+		context. Now it always returns 'undef'.
+	- HTTP::Cookies does not request 2 dots on domain names any more. New
+		option to hide the Cookie2 header. Cookie2 header now quote the version
+		number. Updated reference to RFC 2965.
+	- Support for embedded userinfo in http proxy URIs. It means that you know
+		can set up your proxy with things like:
+		http_proxy="http://proxyuser:proxypass@proxyhost:port" Patch by
+		John Klar <j.klar@xpedite.com>.
+	- Experimental HTTP/1.1 support. New module called Net::HTTP that provide
+		the lower level interface and a LWP::Protocol::http11 module that
+		builds on it. The HTTP/1.1 protocol module must be loaded and
+		registered explicitly, otherwise the old and trustworthy HTTP/1.0
+		module will be used.
+	- LWP::Protocol::GHTTP will try to use the get_headers() methods so that it
+		can actually extract all the headers.
+
+5.52	2001-03-29
+	- HTTP::Header: new method $h->init_header() that will only set the header
+		if it is not already set. Some shuffling around in the code.
+	- LWP::UserAgent will not override 'User-Agent', 'From' or 'Range' headers
+		if they are explicitly set in the request passed in.
+	- HTML::Form tries to optimize parsing be restricting the tags that are
+		reported by HTML::Parser. Will need HTML::Parser v3.19_93 or better for
+		this to actually have any effect.
+	- LWP::Protocol::ftp now deals with path parameters again. It means that
+		you can append ";type=a" to ftp-URI and it will download the document
+		in ASCII mode.
+	- If the server output multiple Location headers on a redirect, ignore all
+		but the first one.
+	- Extract cookies failed on request URIs with empty paths. This was only
+		triggered if you used URI objects directly in scripts.
+	- This change was actually part of 5.51: Fix qop="auth" handling for Digest
+		authentication. Patch by Dave Dunkin <dave_dunkin@hotmail.com>.
+
+5.51	2001-03-14
+	- SECURITY FIX:
+		If LWP::UserAgent::env_proxy is called in a CGI environment, the
+		case-insensitivity when looking for "http_proxy" permits "HTTP_PROXY"
+		to be found, but this can be trivially set by the web client using the
+		"Proxy:" header. The fix applied is that $ENV{HTTP_PROXY} is not longer
+		honored for CGI scripts. The CGI_HTTP_PROXY environment variable can be
+		used instead. Problem reported by Randal L. Schwartz.
+	- NOTE: It is recommended that everybody that use LWP::UserAgent (including
+		LWP::Simple) in CGI scripts upgrade to this release.
+	- Explicit setting of action on HTML::Form had no effect because of a code
+		typo. Patch by BooK <book@netcourrier.com>.
+	- HTTP::Daemon: The CONNECT method need special treatment because it does
+		not provide a URI as argument (just a "hostname:port"). The non-upward
+		compatibility warning is that you must now call $request->url->host_port
+		to get the host/port string for CONNECT, rather than calling
+		$request->url and using the entire string. Based on patch from
+		Randal L. Schwartz <merlyn@stonehenge.com>
+	- HTTP::Daemon: Create self URL based on $self->sockaddr. This works better
+		when LocalAddr is used to specify the port number. Based on patch from
+		Ben Low <ben@snrc.uow.edu.au>.
+	- Avoid potential '<FILE> chunk 1' messages at the end of the
+		response 'message'.
+
+5.50	2001-01-12
+	- Fix for test cases that failed because of URI-1.10 now encode space as '+'
+		instead of '%20. Patch by Christian Gilmore <cgilmore@tivoli.com>.
+	- Makefile.PL: Require URI-1.10.
+	- HTTP::Daemon now accepts any non-space character as method name on the
+		request line. It used to fail on methods like "M-POST" because it only
+		allowed \w-chars.
+	- HTTP::Date now allow fractional seconds in ISO date formats. Based on
+		patch from Mark D. Anderson <mda@discerning.com>
+	- HTTP::Request::Common will now calculate Content-length even if
+		$DYNAMIC_FILE_UPLOAD is set. Lindley, Lee T <Lee.Lindley@viasystems.com>
+
+5.49	2000-12-31
+	- HTML::Form: Use croak() instead of die. Implement $f->possible_values.
+		Avoid use of undef value warnings.
+	- HTTP::Cookies: fix epath issue. Make it work for URI::http as the
+		uri-attribute of HTTP::Request object
+	- HTTP::Date: Allow ignored timezone info in parenthesis. Patch by
+		Sander van Zoest <sander@covalent.net>.
+	- Fix calculation of non-GMT timezones (wrong sign). Patch by
+		KONISHI Katsuhiro <konishi@din.or.jp>.
+	- HTTP::Response: Let $res->base() absolutize the URI. Based on bug report
+		from Hans de Graaff <hans@degraaff.org>.
+	- Fixed minor doc typos in HTTP::Headers::Util and LWP::UserAgent.
+	- HTTP::Request::Common: Support boundary spec from client.
+	- LWP::Simple: Avoid trivial_http_get when @ in authority part of URI
+	- LWP::Authen::Digest: Need query in URI param. <ronald@innovation.ch>
+	- LWP::Protocol::http: unescape user/pass if they are specified in the URI.
+	- Added LWP::Protocol::GHTTP. This allow LWP to use the HTTP::GHTTP module
+		as the low level HTTP driver.
 
 5.48	2000-04-09
 	- README.SSL update by Marko Asplund <aspa@hip.fi>

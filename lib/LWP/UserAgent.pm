@@ -125,8 +125,22 @@ sub new
     return $self;
 }
 
-
 sub send_request
+{
+    my($self, $request, $arg, $size) = @_;
+    my($response, $protocol);
+    
+    ($response, $request, $protocol) = $self->define_protocol($request, $arg, $size);
+    $request->{_protocol_obj} = $protocol;
+    unless ($response) {
+        ($response, $protocol) = $self->start_request($request, $protocol, $arg, $size);
+    }
+
+    $response->request($request);  # record request for reference
+    return $self->finalize_response($response);
+}
+
+sub define_protocol
 {
     my($self, $request, $arg, $size) = @_;
     my($method, $url) = ($request->method, $request->uri);
@@ -137,81 +151,94 @@ sub send_request
     $self->progress("begin", $request);
 
     my $response = $self->run_handlers("request_send", $request);
+    
+    my $protocol;
 
-    unless ($response) {
-        my $protocol;
-
-        {
-            # Honor object-specific restrictions by forcing protocol objects
-            #  into class LWP::Protocol::nogo.
-            my $x;
-            if($x = $self->protocols_allowed) {
-                if (grep lc($_) eq $scheme, @$x) {
-                }
-                else {
-                    require LWP::Protocol::nogo;
-                    $protocol = LWP::Protocol::nogo->new;
-                }
+    {
+        # Honor object-specific restrictions by forcing protocol objects
+        #  into class LWP::Protocol::nogo.
+        my $x;
+        if($x = $self->protocols_allowed) {
+            if (grep lc($_) eq $scheme, @$x) {
             }
-            elsif ($x = $self->protocols_forbidden) {
-                if(grep lc($_) eq $scheme, @$x) {
-                    require LWP::Protocol::nogo;
-                    $protocol = LWP::Protocol::nogo->new;
-                }
+            else {
+                require LWP::Protocol::nogo;
+                $protocol = LWP::Protocol::nogo->new;
             }
-            # else fall thru and create the protocol object normally
         }
-
-        # Locate protocol to use
-        my $proxy = $request->{proxy};
-        if ($proxy) {
-            $scheme = $proxy->scheme;
+        elsif ($x = $self->protocols_forbidden) {
+            if(grep lc($_) eq $scheme, @$x) {
+                require LWP::Protocol::nogo;
+                $protocol = LWP::Protocol::nogo->new;
+            }
         }
+        # else fall thru and create the protocol object normally
+    }
 
-        unless ($protocol) {
-            $protocol = eval { LWP::Protocol::create($scheme, $self) };
-            if ($@) {
-                $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
-                $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
-                if ($scheme eq "https") {
-                    $response->message($response->message . " (LWP::Protocol::https not installed)");
-                    $response->content_type("text/plain");
-                    $response->content(<<EOT);
+    # Locate protocol to use
+    my $proxy = $request->{proxy};
+    if ($proxy) {
+        $scheme = $proxy->scheme;
+    }
+
+    unless ($protocol) {
+        $protocol = eval { LWP::Protocol::create($scheme, $self) };
+        if ($@) {
+            $@ =~ s/ at .* line \d+.*//s;  # remove file/line number
+            $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $@);
+            if ($scheme eq "https") {
+                $response->message($response->message . " (LWP::Protocol::https not installed)");
+                $response->content_type("text/plain");
+                $response->content(<<EOT);
 LWP will support https URLs if the LWP::Protocol::https module
 is installed.
 EOT
-                }
             }
-        }
-
-        if (!$response && $self->{use_eval}) {
-            # we eval, and turn dies into responses below
-            eval {
-                $response = $protocol->request($request, $proxy, $arg, $size, $self->{timeout}) ||
-		    die "No response returned by $protocol";
-            };
-            if ($@) {
-                if (UNIVERSAL::isa($@, "HTTP::Response")) {
-                    $response = $@;
-                    $response->request($request);
-                }
-                else {
-                    my $full = $@;
-                    (my $status = $@) =~ s/\n.*//s;
-                    $status =~ s/ at .* line \d+.*//s;  # remove file/line number
-                    my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
-                    $response = _new_response($request, $code, $status, $full);
-                }
-            }
-        }
-        elsif (!$response) {
-            $response = $protocol->request($request, $proxy,
-                                           $arg, $size, $self->{timeout});
-            # XXX: Should we die unless $response->is_success ???
         }
     }
 
-    $response->request($request);  # record request for reference
+    return ($response, $request, $protocol);
+}
+
+sub start_request
+{
+    my($self, $request, $protocol, $arg, $size) = @_;
+    my $response;
+
+    local($SIG{__DIE__});  # protect against user defined die handlers
+
+    if ($self->{use_eval}) {
+        # we eval, and turn dies into responses below
+        eval {
+            $response = $protocol->request($request, $request->{proxy}, $arg, $size, $self->{timeout}) ||
+                die "No response returned by $protocol";
+        };
+        if ($@) {
+            if (UNIVERSAL::isa($@, "HTTP::Response")) {
+                $response = $@;
+                $response->request($request);
+            }
+            else {
+                my $full = $@;
+                (my $status = $@) =~ s/\n.*//s;
+                $status =~ s/ at .* line \d+.*//s;  # remove file/line number
+                my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
+                $response = _new_response($request, $code, $status, $full);
+            }
+        }
+    }
+    else {
+        $response = $protocol->request($request, $request->{proxy},
+                                       $arg, $size, $self->{timeout});
+        # XXX: Should we die unless $response->is_success ???
+    }
+
+    return ($response, $protocol);
+}
+
+sub finalize_response {
+    my($self, $response) = @_;
+    
     $response->header("Client-Date" => HTTP::Date::time2str(time));
 
     $self->run_handlers("response_done", $response);
@@ -232,9 +259,9 @@ sub prepare_request
     $self->run_handlers("request_preprepare", $request);
 
     if (my $def_headers = $self->{def_headers}) {
-	for my $h ($def_headers->header_field_names) {
-	    $request->init_header($h => [$def_headers->header($h)]);
-	}
+        for my $h ($def_headers->header_field_names) {
+            $request->init_header($h => [$def_headers->header($h)]);
+        }
     }
 
     $self->run_handlers("request_prepare", $request);

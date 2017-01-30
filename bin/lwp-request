@@ -8,7 +8,7 @@ lwp-request, GET, POST, HEAD - Simple command line user agent
 
 =head1 SYNOPSIS
 
-    B<lwp-request> [B<-afPuUsSedvhx>] [B<-m> I<method>] [B<-b> I<base URL>] [B<-t> I<timeout>]
+B<lwp-request> [B<-afPuUsSedvhx>] [B<-m> I<method>] [B<-b> I<base URL>] [B<-t> I<timeout>]
             [B<-i> I<if-modified-since>] [B<-c> I<content-type>]
             [B<-C> I<credentials>] [B<-p> I<proxy-url>] [B<-o> I<format>] I<url>...
 

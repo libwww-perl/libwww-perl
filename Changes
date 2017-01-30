@@ -990,565 +990,325 @@ _______________________________________________________________________________
 
 
 
-2005-12-08   Gisle Aas <gisle@ActiveState.com>
+5.805	2005-12-08
+	- HTTP::Date: The str2time function returned wrong values for years in the
+		early 20th century, because timelocal() actually expects the year to be
+		provided on a different scale than what localtime() returns.
+	- HTTP::Headers can now be constructed with field names that repeat. The
+		$h->header function now also accept repeating field names and can also
+		remove headers if passed undef as value.
+	- HTML::Form: The parse method now takes hash style optional arguments and
+		the old verbose behaviour is now off by default.
+	- HTML::Form: Accept <select multiple=""> for compatibility with other
+		browsers. Patch by Josh Rai <josh@rai.name>.
+    - HTML::Form: Sane handling of 'disabled' for ListInput. Based on patch by
+		Joao Lopes <developer@st3tailor.com.br>.
+	- HTTP::Negotiate: Fixed matching of partial language tags. Dan Kubb.
+	- HTTP::Response: The as_string method now returns a status line that
+		doesn't add the "official" code name in the message field. This improves
+		the ability to round-trip response objects via
+		HTTP::Response->parse($res->as_string) and makes the first line of the
+		string returned agree with $res->status_line.
+	- Net::HTTP: The host attribute can now be set undef in order to suppress
+		this header for HTTP/1.0 requests.
+	- Net::HTTP: The default Host: header does not include the port number if
+		it is the default (80 for plain HTTP). Some servers get confused by this.
+	- Net::HTTP: Ignore bogus Content-Length headers. Don't get confused by
+		leading or trailing whitespace.
+	- LWP::Protocol::http: More efficient sending of small PUT/POST requests by
+		trying harder to pass off the whole request in a single call to syswrite.
+	- lwp-request now give better error messages if you used the -o option
+		without having the HTML-Tree distribution installed. Also document this
+		dependency.
 
-    Release 5.805
+5.804	2005-12-06
+	- HTTP::Message->parse did not work when the first line of the body was
+		something that looked like a header.
+	- HTTP::Header::Auth needs HTTP::Headers to be loaded before it replace
+		its functions.
+	- LWP::Protocol::nntp improvements by Ville Skyttä <ville.skytta@iki.fi>:
+		- Support the nntp: scheme.
+		- Support hostname in news: and nntp: URIs.
+		- Close connection and preserve headers also in non-OK responses.
+		- HEAD support for URIs identifying a newsgroup.
+		- Comment spelling fixes.
+	- Fix quotes in Net::HTTP example.
+		http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=283916
+	- Detect EOF when expecting a chunk header. Should address the warnings
+		shown in http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=286775
+	- WWW::RobotRules: Improved parsing of not strictly valid robots.txt files
+		contributed by <Matthew.van.Eerde@hbinc.com>.
+	- Makefile.PL: Set name to LWP so that the .packlist ends up in the
+		expected place.
 
-    HTTP::Date: The str2time function returned wrong values for
-    years in the early 20th century, because timelocal() actually
-    expects the year to be provided on a different scale than what
-    localtime() returns.
-
-    HTTP::Headers can now be constructed with field names that repeat.
-    The $h->header function now also accept repeating field
-    names and can also remove headers if passed undef as value.
-
-    HTML::Form: The parse method now takes hash style optional
-    arguments and the old verbose behaviour is now off by default.
-
-    HTML::Form: Accept <select multiple=""> for compatibility with
-    other browsers. Patch by Josh Rai <josh@rai.name>.
-
-    HTML::Form: Sane handling of 'disabled' for ListInput.
-    Based on patch by Joao Lopes <developer@st3tailor.com.br>.
-
-    HTTP::Negotiate: Fixed matching of partial language tags.
-    Patch contributed by Dan Kubb.
-
-    HTTP::Response: The as_string method now returns a status line
-    that doesn't add the "official" code name in the message
-    field. This improves the ability to round-trip response objects
-    via HTTP::Response->parse($res->as_string) and makes the first
-    line of the string returned agree with $res->status_line.
-
-    Net::HTTP: The host attribute can now be set undef in
-    order to suppress this header for HTTP/1.0 requests.
-
-    Net::HTTP: The default Host: header does not include the
-    port number if it is the default (80 for plain HTTP). Some
-    servers get confused by this.
-
-    Net::HTTP: Ignore bogus Content-Length headers. Don't get
-    confused by leading or trailing whitespace.
-
-    LWP::Protocol::http: More efficient sending of small PUT/POST
-    requests by trying harder to pass off the whole request in a
-    single call to syswrite.
-
-    lwp-request now give better error messages if you used the
-    -o option without having the HTML-Tree distribution installed.
-    Also document this dependency.
-
-
-
-2005-12-06   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.804
-
-    HTTP::Message->parse did not work when the first line of the body
-    was something that looked like a header.
-
-    HTTP::Header::Auth needs HTTP::Headers to be loaded before
-    it replace its functions.
-
-    LWP::Protocol::nntp improvements by Ville Skyttä <ville.skytta@iki.fi>:
-     - Support the nntp: scheme.
-     - Support hostname in news: and nntp: URIs.
-     - Close connection and preserve headers also in non-OK responses.
-     - HEAD support for URIs identifying a newsgroup.
-     - Comment spelling fixes.
-
-    Fix quotes in Net::HTTP example.
-    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=283916
-
-    Detect EOF when expecting a chunk header. Should address the
-    warnings shown in http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=286775
-
-    WWW::RobotRules: Improved parsing of not strictly valid robots.txt files
-    contributed by <Matthew.van.Eerde@hbinc.com>.
-
-    Makefile.PL: Set name to LWP so that the .packlist ends up in the
-    expected place.
-
-
-
-2004-12-11   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.803
-
-    HTTP::Message: $mess->decoded_content sometimes had the side
-    effect of destroying $mess->content.
-
-    HTTP::Message: $mess->decoded_content failed for
-    "Content-Encoding: deflate" if the content was not in the
-    zlib-format as specified for the HTTP protocol. Microsoft got
-    this wrong, so we have to support raw deflate bytes as well.
-
-    HTTP::Response->parse don't require the protocol to be
-    specified any more. This allows HTTP::Response->parse($resp->as_string)
-    to round-trip. Patch by Harald Joerg <haj@oook.m.uunet.de>.
-
-    HTTP::Response: $resp->base might now return undef. Previously
-    it would croak if there was no associated request. Based on
-    patch by Harald Joerg <haj@oook.m.uunet.de>.
-
-    HTML::Form now support <label> for check- and radio boxes.
-    Patch contributed by Dan Kubb <dan.kubb@onautopilot.com>.
-
-    Make HTTP::Daemon subclassable, patch by Kees Cook <kees@osdl.org>.
-
-    lwp-download allow directory to save into to be specified.
-    Patch by Radoslaw Zielinski <radek@karnet.pl>.
-
-    lwp-download will validate filename derived from server
-    controlled data and will fail if something looks not
-    quite right.
-
-
+5.803	2004-12-11
+	- HTTP::Message: $mess->decoded_content sometimes had the side effect of
+		destroying $mess->content.
+	- HTTP::Message: $mess->decoded_content failed for
+		"Content-Encoding: deflate" if the content was not in the zlib-format
+		as specified for the HTTP protocol. Microsoft got this wrong, so we
+		have to support raw deflate bytes as well.
+	- HTTP::Response->parse don't require the protocol to be specified any more.
+		This allows HTTP::Response->parse($resp->as_string) to round-trip. Patch
+		by Harald Joerg <haj@oook.m.uunet.de>.
+	- HTTP::Response: $resp->base might now return undef. Previously it would
+		croak if there was no associated request Harald Joerg
+	- HTML::Form now support <label> for check- and radio boxes. Dan Kubb
+	- Make HTTP::Daemon subclassable, patch by Kees Cook <kees@osdl.org>.
+	- lwp-download allow save directory to be specified. Radoslaw Zielinski
+	- lwp-download will validate filename derived from server controlled data
+		and will fail if something looks not quite right.
 
 2004-11-30   Gisle Aas <gisle@ActiveState.com>
 
     Release 5.802
-
-    The HTTP::Message object now has a decoded_content() method.
-    This will return the content after any Content-Encodings and
-    charsets have been decoded.
-
-    Compress::Zlib is now a prerequisite module.
-
-    HTTP::Request::Common: The POST() function created an invalid
-    Content-Type header for file uploads with no parameters.
-
-    Net::HTTP: Allow Transfer-Encoding with trailing whitespace.
-    <http://rt.cpan.org/Ticket/Display.html?id=3929>
-
-    Net::HTTP: Don't allow empty content to be treated as a valid
-    HTTP/0.9 response.
-    <http://rt.cpan.org/Ticket/Display.html?id=4581>
-    <http://rt.cpan.org/Ticket/Display.html?id=6883>
-
-    File::Protocol::file: Fixup directory links in HTML generated
-    for directories. Patch by Moshe Kaminsky <kaminsky@math.huji.ac.il>.
-
-    Makefile.PL will try to discover misconfigured systems that
-    can't talk to themselves and disable tests that depend on this.
-
-    Makefile.PL will now default to 'n' when asking about whether
-    to install the "GET", "HEAD", "POST" programs. There has been
-    too many name clashes with these common names.
-
-
-
-2004-11-12   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.801
-
-    HTTP::Message improved content/content_ref interaction. Fixes
-    DYNAMIC_FILE_UPLOAD and other uses of code content in requests.
-
-    HTML::Form:
-      - Handle clicking on nameless image.
-      - Don't let $form->click invoke a disabled submit button.
-
-    HTTP::Cookies could not handle a "old-style" cookie named
-    "Expires".
-
-    HTTP::Headers work-around for thread safety issue in perl <= 5.8.4.
-
-    HTTP::Request::Common improved documentation.
-
-    LWP::Protocol: Check that we can write to the file specified in
-    $ua->request(..., $file) or $ua->mirror.
-
-    LWP::UserAgent clone() dies if proxy was not set. Patch by
-    Andy Lester <andy@petdance.com>
-
-    HTTP::Methods now avoid "use of uninitialized"-warning when server
-    replies with incomplete status line.
-
-    lwp-download will now actually tell you why it aborts if it runs
-    out of disk space of fails to write some other way.
-
-    WWW::RobotRules: only display warning when running under 'perl -w'
-    and show which robots.txt file they correspond to. Based on
-    patch by Bill Moseley.
-
-    WWW::RobotRules: Don't empty cache when agent() is called if the
-    agent name does not change. Patch by Ville Skyttä <ville.skytta@iki.fi>.
-
-
-
-2004-06-16   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.800
-
-    HTML::Form will allow individual menu entries to be disabled.
-    This was needed to support <input type=radio disabled value=foo>
-    and <select><option disabled>foo.
-
-    HTML::Form now avoids name clashes between the <select> and
-    <option> attributes.
-
-    HTML::Form now implicitly close <select> elements when it sees
-    another input or </form>. This is closer to the MSIE behaviour.
-
-    HTML::Form will now "support" keygen-inputs. It will not
-    calculate a key by itself. The user will have to set its
-    value for it to be returned by the form.
-
-    HTTP::Headers now special case field names that start with a
-    ':'. This is used as an escape mechanism when you need the
-    header names to not go through canonicalization. It means
-    that you can force LWP to use a specific casing and even
-    underscores in header names. The ugly $TRANSLATE_UNDERSCORE
-    global has been undocumented as a result of this.
-
-    HTTP::Message will now allow an external 'content_ref'
-    to be set. This can for instance be used to let HTTP::Request
-    objects pick up content data from some scalar variable without
-    having to copy it.
-
-    HTTP::Request::Common. The individual parts will no longer
-    have a Content-Length header for file uploads. This improves
-    compatibility with "normal" browsers.
-
-    LWP::Simple doc patch for getprint.
-    Contributed by Yitzchak Scott-Thoennes <sthoenna@efn.org>.
-
-    LWP::UserAgent: New methods default_header() and
-    default_headers(). These can be used to set up headers that
-    are automatically added to requests as they are sent. This
-    can for instance be used to initialize various Accept headers.
-
-    Various typo fixes by Ville Skyttä <ville.skytta@iki.fi>.
-
-    Fixed test failure under perl-5.005.
-
-    LWP::Protocol::loopback:  This is a new protocol handler that
-    works like the HTTP TRACE method, it will return the request
-    provided to it. This is sometimes useful for testing. It can
-    for instance be invoked by setting the 'http_proxy' environment
-    variable to 'loopback:'.
-
-
-
-2004-04-13   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.79
-
-    HTML::Form now exposes the 'readonly' and 'disabled'
-    attribute for inputs. This allows your program to simulate
-    JavaScript code that modifies these attributes.
-
-    RFC 2616 says that http: referer should not be sent with
-    https: requests. The lwp-rget program, the $req->referer method
-    and the redirect handling code now try to enforce this.
-    Patch by Ville Skyttä <ville.skytta@iki.fi>.
-
-    WWW::RobotRules now look for the string found in
-    robots.txt as a case insensitive substring from its own
-    User-Agent string, not the other way around.
-    Patch by Ville Skyttä <ville.skytta@iki.fi>.
-
-    HTTP::Headers: New method 'header_field_names' that
-    return a list of names as suggested by its name.
-
-    HTTP::Headers: $h->remove_content_headers will now
-    also remove the headers "Allow", "Expires" and
-    "Last-Modified". These are also part of the set
-    that RFC 2616 denote as Entity Header Fields.
-
-    HTTP::Headers: $h->content_type is now more careful
-    in removing embedded space in the returned value.
-    It also now returns all the parameters as the second
-    return value as documented.
-
-    HTTP::Headers: $h->header() now croaks. It used to
-    silently do nothing.
-
-    HTTP::Headers: Documentation tweaks. Documented a
-    few bugs discovered during testing.
-
-    Typo fixes to the documentation all over the place
-    by Ville Skyttä <ville.skytta@iki.fi>.
-
-    Updated tests.
-
-
-
-2004-04-07   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.78
-
-    Removed stray Data::Dump reference from test suite.
-
-    Added the parse(), clear(), parts() and add_part() methods to
-    HTTP::Message. The HTTP::MessageParts module of 5.77 is no more.
-
-    Added clear() and remove_content_headers() methods to
-    HTTP::Headers.
-
-    The as_string() method of HTTP::Message now appends a newline
-    if called without arguments and the non-empty content does
-    not end with a newline. This ensures better compatibility with
-    5.76 and older versions of libwww-perl.
-
-    Use case insensitive lookup of hostname in $ua->credentials.
-    Patch by Andrew Pimlott <andrew@pimlott.net>.
-
-
-
-2004-04-06   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.77
-
-    LWP::Simple did not handle redirects properly when the "Location"
-    header used uncommon letter casing.
-    Patch by Ward Vandewege <ward@pong.be>.
-
-    LWP::UserAgent passed the wrong request to redirect_ok().
-    Patch by Ville Skyttä <ville.skytta@iki.fi>.
-    https://rt.cpan.org/Ticket/Display.html?id=5828
-
-    LWP did not handle URLs like http://www.example.com?foo=bar
-    properly.
-
-    LWP::RobotUA construct now accept key/value arguments in the
-    same way as LWP::UserAgent.
-    Based on patch by Andy Lester <andy@petdance.com>.
-
-    LWP::RobotUA did not parse robots.txt files that contained
-    "Disallow:" using uncommon letter casing.
-    Patch by Liam Quinn <liam@htmlhelp.com>.
-
-    WWW::RobotRules now allow leading space when parsing robots.txt
-    file as suggested by Craig Macdonald <craig@freeasphost.co.uk>.
-    We now also allow space before the colon.
-
-    WWW::RobotRules did not handle User-Agent names that use complex
-    version numbers. Patch by Liam Quinn <liam@htmlhelp.com>.
-
-    Case insensitive handling of hosts and domain names
-    in HTTP::Cookies.
-    https://rt.cpan.org/Ticket/Display.html?id=4530
-
-    The bundled media.types file now match video/quicktime
-    with the .mov extension, as suggested by Michel Koppelaar
-    <Michel.Koppelaar@kb.nl>.
-
-    Experimental support for composite messages, currently
-    implemented by the HTTP::MessageParts module. Based on
-    ideas from Joshua Hoblitt <jhoblitt@ifa.hawaii.edu>.
-
-    Fixed libscan in Makefile.PL.
-    Patch by Andy Lester <andy@petdance.com>.
-
-    The HTTP::Message constructor now accept a plain array reference
-    as its $headers argument.
-
-    The return value of the HTTP::Message as_string() method now
-    better conforms to the HTTP wire layout. No additional "\n"
-    are appended to the as_string value for HTTP::Request and
-    HTTP::Response. The HTTP::Request as_string now replace missing
-    method or URI with "-" instead of "[NO METHOD]" and "[NO URI]".
-    We don't want values with spaces in them, because it makes it
-    harder to parse.
-
-
-
-2003-11-21   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.76
-
-    Revised handling of redirects.
-       - clear our content and content headers if we
-         rewrite request as GET based on patch by
-         Steven Butler <stevenb@kjross.com.au>.
-       - pass $response to redirect_ok()
-
-    Support cpan:-URLs. Try 'lwp-download cpan:src/latest.tar.gz' :)
-
-    Fix test failure in 't/html/form.t' for perl5.005.
-
-
-
-2003-10-26   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.75
-
-    Reworked LWP::UserAgent, HTTP::Request and HTTP::Response
-    documentation. Also other documentation tweaks.
-
-
-
-2003-10-23   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.74
-
-    Improved lwp-download program:
-      - set mtime if Last-Modified header reported by server
-      - better prompts
-      - avoid warnings when aborted at the wrong time
-
-    Collected all contributions in the AUTHORS file and
-    also added an AUTHORS section to the LWP manpage.
-
-    Style tweaks to all modules. Move POD after __END__
-    and uncuddled elses.
-
-
-
-2003-10-19   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.73
-
-    Takanori Ugai <ugai@jp.fujitsu.com> found that 'max_redirect'
-    introduced in 5.72 was broken and provided a patch for that.
-
-    Not all ftp servers return 550 responses when trying to
-    to RETR a directory. Microsoft's IIS is one of those.
-    Patch provided by Thomas Lotterer <thl@dev.de.cw.com>.
-
-    Some documentation tweaks.
-
-
-
-2003-10-15   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.72
-
-    Requests for some non-HTTP URLs would fail if the cookie_jar
-    was enabled. The HTTP::Cookies::add_cookie_header now ignore
-    non-HTTP requests.
-
-    The new local/http test failed on Windows because of a missing
-    binmode().
-
-    Suppress Client-SSL-Warning warning header when Crypt::SSLeay
-    is able to verify the peer certificate. Patch contributed by
-    Joshua Chamas <joshua@chamas.com>.
-
-    HTTP::Request::Common::POST did not add a 'Content-Length' header
-    when the content ended up empty. Fixed by a patch contributed
-    by Brian J. Murrell.
-
-    Internally generated responses now contain a text/plain part
-    that repeats the status line. They also have a "Client-Warning"
-    header that can be used to differentiate these responses from
-    real server responses.
-
-    LWP::UserAgent now deals with 303 and 307 redirects. The behaviour
-    of 302 redirects has also changed to be like 303; i.e. change the
-    method to be "GET". This is what most browsers do. Based on
-    a patch contributed by Tom Hughes <thh@cyberscience.com>.
-
-    LWP::UserAgent now implements a 'max_redirect' attribute with a
-    default value of 7. This should also fix the problem where
-    redirects to the same URL to get a cookie set did not work.
-    Based on a patch by Sean M. Burke <sburke@cpan.org>.
-
-    NTLM authentication should continue to fail if the Authen::NTLM
-    module can't be loaded. LWP used to think the scheme was
-    available as soon as the module stash showed up. Not it looks
-    for the authenticate method to be defined. Patch by Jan Dubois.
-
-    lwp-download will not try to rename *.tbz and *.tar.bz2 to
-    match the reported content type. Patch contributed by
-    Robin Barker <Robin.Barker@npl.co.uk>.
-
-    HTTP::Cookies::Netscape documentation fix by Sean M. Burke.
-
-    HTTP::Cookies::Microsoft documentation fix by Johnny Lee.
-
-    The code that tries to avoid installing 'HEAD' on top of
-    'head' on systems like Mac OS was further improved to look
-    in $Config{installscript} instead of $Config{sitebin}.
-    Patch provided by Ken Williams <ken@mathforum.org>.
-
-
-
-2003-10-14   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.71
-
-    Support open-ended Range: header for ftp requests.
-    Patch by Matthew Eldridge <eldridge@Graphics.Stanford.EDU>.
-
-    lwp-request now prints unsuccessful responses in the same way
-    as successful ones. The status will still indicate failures.
-    Based on a patch by Steve Hay <steve.hay@uk.radan.com>.
-
-    HTML::Form's dump now also print alternative value names.
-
-    HTML::Form will now pick up the phrase after a <input type=radio>
-    or <input type=checkbox> and use that as the name of the checked
-    value.
-
-    HTML::Form's find_input now returns all inputs that match in
-    array context. Based on patch by Mark Stosberg <markstos@cpan.org>
-    in <http://rt.cpan.org/Ticket/Display.html?id=3320>.
-
-    HTTP::Daemon's send_file() method did not work when given
-    a file name. Patch by Dave W. Smith <dws@postcognitive.com>.
-
-    HTTP::Daemon is less strict about field names in the request
-    headers is received. The Norton Internet Security firewall
-    apparently likes to send requests with a header called
-    '~~~~~~~~~~~~~~~'. Further details in
-    <http://rt.cpan.org/Ticket/Display.html?id=2531>.
-
-    LWP::Protocol::http assumed $1 would be meaningful without
-    testing the outcome of the match. This sometimes produced
-    an extra garbage Authentication header.
-    Based on the patch by <bai@dreamarts.co.jp> in
-    <http://rt.cpan.org/Ticket/Display.html?id=1994>.
-
-    LWP::Protocol::mailto will try harder to locate the sendmail
-    program as suggested in <http://rt.cpan.org/Ticket/Display.html?id=2363>.
-    Also let $ENV{SENDMAIL} override the search.
-
-    Patch to enable OS/2 build by Ilya Zakharevich.
-
-
-
-2003-10-13   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.70
-
-    File::Listing::apache by Slaven Rezic <slaven@rezic.de>
-
-    HEAD requests now work properly for ftp: URLs.
-    Patch by Ville Skyttä <ville.skytta@iki.fi>.
-
-    LWP::UserAgent: The protocols_allowed() and protocols_forbidden()
-    methods are now case insensitive. Patch by Ville Skyttä
-    <ville.skytta@iki.fi>.
-
-    Avoid warning from HTTP::Date on certain invalid dates.
-    Patch by David Dick <david_dick@iprimus.com.au>.
-
-    HTML::Form::param() is an alternative interface for inspecting
-    and modifying the form values. It resembles the interface
-    of CGI.
-
-    HTML::Form documentation updated. Lots of typo fixes and improves
-    by Martin Thurn <mthurn@northropgrumman.com>.
-
-    HTML::Form will treat any unknown input types as text input.
-    This appears to be what most browsers do.
-
-    HTML::Form::parse() can now take a HTTP::Response object
-    as argument.
-
-    The "checkbox" and "option" inputs of HTML::Form can now be
-    turned on with the new check() method.
-
-    The inputs of HTML::Form can now track alternative value
-    names and allow values to be set by these names as well.
-    Currently this is only supported for "option" inputs.
-
-    HTML::Form's dump() method now print the name of the form if
-    present.
+	- The HTTP::Message object now has a decoded_content() method. This will
+		return content after Content-Encodings and charsets have been decoded.
+	- Compress::Zlib is now a prerequisite module.
+	- HTTP::Request::Common: The POST() function created an invalid
+		Content-Type header for file uploads with no parameters.
+	- Net::HTTP: Allow Transfer-Encoding with trailing whitespace.
+		<http://rt.cpan.org/Ticket/Display.html?id=3929>
+	- Net::HTTP: Don't allow empty content to be treated as a valid HTTP/0.9
+		response. <http://rt.cpan.org/Ticket/Display.html?id=4581>
+		<http://rt.cpan.org/Ticket/Display.html?id=6883>
+	- File::Protocol::file: Fixup directory links in HTML generated for
+		directories. Patch by Moshe Kaminsky <kaminsky@math.huji.ac.il>.
+	- Makefile.PL will try to discover misconfigured systems that can't talk to
+		themselves and disable tests that depend on this.
+	- Makefile.PL will now default to 'n' when asking about whether to install
+		the "GET", "HEAD", "POST" programs. There has been too many name
+		clashes with these common names.
+
+5.801	2004-11-12
+	- HTTP::Message improved content/content_ref interaction. Fixes
+		DYNAMIC_FILE_UPLOAD and other uses of code content in requests.
+	- HTML::Form:
+		- Handle clicking on nameless image.
+		- Don't let $form->click invoke a disabled submit button.
+	- HTTP::Cookies could not handle a "old-style" cookie named "Expires".
+	- HTTP::Headers work-around for thread safety issue in perl <= 5.8.4.
+	- HTTP::Request::Common improved documentation.
+	- LWP::Protocol: Check that we can write to the file specified in
+		$ua->request(..., $file) or $ua->mirror.
+	- LWP::UserAgent clone() dies if proxy was not set. Andy Lester
+	- HTTP::Methods now avoid "use of uninitialized"-warning when server
+		replies with incomplete status line.
+	- lwp-download will now actually tell you why it aborts if it runs out of
+		disk space of fails to write some other way.
+	- WWW::RobotRules: only display warning when running under 'perl -w' and
+		show which robots.txt file they correspond to. Bill Moseley.
+	- WWW::RobotRules: Don't empty cache when agent() is called if the agent
+		name does not change. Ville Skyttä <ville.skytta@iki.fi>.
+
+5.800	2004-06-16
+	- HTML::Form will allow individual menu entries to be disabled. This was
+		needed to support <input type=radio disabled value=foo> and
+		<select><option disabled>foo.
+	- HTML::Form now avoids name clashes between the <select> and <option>
+		attributes.
+	- HTML::Form now implicitly close <select> elements when it sees another
+		input or </form>. This is closer to the MSIE behaviour.
+	- HTML::Form will now "support" keygen-inputs. It will not calculate a key
+		by itself. The user will have to set its value for it to be returned by
+		the form.
+	- HTTP::Headers now special case field names that start with a ':'. This is
+		used as an escape mechanism when you need the header names to not go
+		through canonicalization. It means that you can force LWP to use a
+		specific casing and even underscores in header names. The ugly
+		$TRANSLATE_UNDERSCORE global has been undocumented as a result of this.
+	- HTTP::Message will now allow an external 'content_ref' to be set. This
+		can for instance be used to let HTTP::Request objects pick up content
+		data from some scalar variable without having to copy it.
+	- HTTP::Request::Common. The individual parts will no longer have a
+		Content-Length header for file uploads. This improves compatibility
+		with "normal" browsers.
+	- LWP::Simple doc patch for getprint. Yitzchak
+		Scott-Thoennes <sthoenna@efn.org>.
+	- LWP::UserAgent: New methods default_header() and default_headers(). These
+		can be used to set up headers that are automatically added to requests
+		as they are sent. This can for instance be used to initialize various
+		Accept headers.
+	- Various typo fixes by Ville Skyttä <ville.skytta@iki.fi>.
+	- Fixed test failure under perl-5.005.
+	- LWP::Protocol::loopback:  This is a new protocol handler that works like
+		the HTTP TRACE method, it will return the request provided to it. This
+		is sometimes useful for testing. It can for instance be invoked by
+		setting the 'http_proxy' environment variable to 'loopback:'.
+
+5.79	2004-04-13
+	- HTML::Form now exposes the 'readonly' and 'disabled' attribute for inputs.
+		This allows your program to simulate JavaScript code that modifies
+		these attributes.
+	- RFC 2616 says that http: referer should not be sent with https: requests.
+		The lwp-rget program, the $req->referer method and the redirect handling
+		code now try to enforce this. By Ville Skyttä <ville.skytta@iki.fi>.
+	- WWW::RobotRules now look for the string found in robots.txt as a case
+		insensitive substring from its own User-Agent string, not the other way
+		around. Patch by Ville Skyttä <ville.skytta@iki.fi>.
+	- HTTP::Headers: New method 'header_field_names' that return a list of
+		names as suggested by its name.
+	- HTTP::Headers: $h->remove_content_headers will now also remove the
+		headers "Allow", "Expires" and "Last-Modified". These are also part of
+		the set that RFC 2616 denote as Entity Header Fields.
+	- HTTP::Headers: $h->content_type is now more careful in removing embedded
+		space in the returned value. It also now returns all the parameters as
+		the second return value as documented.
+	- HTTP::Headers: $h->header() now croaks. It used to silently do nothing.
+	- HTTP::Headers: Documentation tweaks. Documented a few bugs discovered
+		during testing.
+	- Typo fixes to the documentation by Ville Skyttä <ville.skytta@iki.fi>.
+	- Updated tests.
+
+5.78	2004-04-07
+	- Removed stray Data::Dump reference from test suite.
+	- Added the parse(), clear(), parts() and add_part() methods to
+		HTTP::Message. The HTTP::MessageParts module of 5.77 is no more.
+	- Added clear() and remove_content_headers() methods to HTTP::Headers.
+	- The as_string() method of HTTP::Message now appends a newline if called
+		without arguments and the non-empty content does not end with a newline.
+		This ensures better compatibility with 5.76 and older versions
+		of libwww-perl.
+	- Use case insensitive lookup of hostname in $ua->credentials. Patch by
+		Andrew Pimlott <andrew@pimlott.net>.
+
+5.77	2004-04-06
+	- LWP::Simple did not handle redirects properly when the "Location" header
+		used uncommon letter casing. Patch by Ward Vandewege <ward@pong.be>.
+	- LWP::UserAgent passed the wrong request to redirect_ok(). Patch by Ville
+		Skyttä <ville.skytta@iki.fi>.
+		https://rt.cpan.org/Ticket/Display.html?id=5828
+	- LWP did not handle URLs like http://www.example.com?foo=bar properly.
+	- LWP::RobotUA construct now accept key/value arguments in the same way as
+		LWP::UserAgent. Based on patch by Andy Lester <andy@petdance.com>.
+	- LWP::RobotUA did not parse robots.txt files that contained "Disallow:"
+		using uncommon letter casing. Patch by Liam Quinn <liam@htmlhelp.com>.
+	- WWW::RobotRules now allow leading space when parsing robots.txt file as
+		suggested by Craig Macdonald <craig@freeasphost.co.uk>. We now also
+		allow space before the colon.
+	- WWW::RobotRules did not handle User-Agent names that use complex version
+		numbers. Patch by Liam Quinn <liam@htmlhelp.com>.
+	- Case insensitive handling of hosts and domain names in HTTP::Cookies.
+		https://rt.cpan.org/Ticket/Display.html?id=4530
+	- The bundled media.types file now match video/quicktime with the .mov
+		extension, as suggested by Michel Koppelaar <Michel.Koppelaar@kb.nl>.
+	- Experimental support for composite messages, currently implemented by the
+		HTTP::MessageParts module. Joshua Hoblitt <jhoblitt@ifa.hawaii.edu>.
+	- Fixed libscan in Makefile.PL. Patch by Andy Lester <andy@petdance.com>.
+	- The HTTP::Message constructor now accept a plain array reference as
+		its $headers argument.
+	- The return value of the HTTP::Message as_string() method now better
+		conforms to the HTTP wire layout. No additional "\n" are appended to
+		the as_string value for HTTP::Request and HTTP::Response. The
+		HTTP::Request as_string now replace missing method or URI with "-"
+		instead of "[NO METHOD]" and "[NO URI]". We don't want values with
+		spaces in them, because it makes it harder to parse.
+
+5.76	2003-11-21
+	- Revised handling of redirects.
+		- clear our content and content headers if we rewrite request as GET
+			based on patch by Steven Butler <stevenb@kjross.com.au>.
+		- pass $response to redirect_ok()
+	- Support cpan:-URLs. Try 'lwp-download cpan:src/latest.tar.gz' :)
+	- Fix test failure in 't/html/form.t' for perl5.005.
+
+5.75	2003-10-26
+	- Reworked LWP::UserAgent, HTTP::Request and HTTP::Response documentation.
+	- other documentation tweaks.
+
+5.74	2003-10-23
+	- Improved lwp-download program:
+		- set mtime if Last-Modified header reported by server
+		- better prompts
+		- avoid warnings when aborted at the wrong time
+	- Collected all contributions in the AUTHORS file and also added an AUTHORS section to the LWP manpage.
+	- Style tweaks to all modules. Move POD after __END__ and uncuddled elses.
+
+5.73	2003-10-19
+	- Takanori Ugai <ugai@jp.fujitsu.com> found that 'max_redirect' introduced
+		in 5.72 was broken and provided a patch for that.
+	- Not all ftp servers return 550 responses when trying to to RETR a
+		directory. Microsoft's IIS is one of those. Patch provided by Thomas
+		Lotterer <thl@dev.de.cw.com>.
+	- Some documentation tweaks.
+
+5.72	2003-10-15
+	- Requests for some non-HTTP URLs would fail if the cookie_jar was enabled.
+		The HTTP::Cookies::add_cookie_header now ignore non-HTTP requests.
+	- The new local/http test failed on Windows because of a missing binmode().
+	- Suppress Client-SSL-Warning warning header when Crypt::SSLeay is able to
+		verify the peer certificate. Joshua Chamas <joshua@chamas.com>.
+	- HTTP::Request::Common::POST did not add a 'Content-Length' header when
+		the content ended up empty. by Brian J. Murrell.
+	- Internally generated responses now contain a text/plain part that repeats
+		the status line. They also have a "Client-Warning" header that can be
+		used to differentiate these responses from real server responses.
+	- LWP::UserAgent now deals with 303 and 307 redirects. The behaviour of 302
+		redirects has also changed to be like 303; i.e. change the method to be
+		"GET". This is what most browsers do. Tom Hughes <thh@cyberscience.com>
+	- LWP::UserAgent now implements a 'max_redirect' attribute with a default
+		value of 7. This should also fix the problem where redirects to the
+		same URL to get a cookie didn't work. Sean M. Burke <sburke@cpan.org>.
+	- NTLM authentication should continue to fail if the Authen::NTLM module
+		can't be loaded. LWP used to think the scheme was available as soon as
+		the module stash showed up. Not it looks for the authenticate method to
+		be defined. Patch by Jan Dubois.
+	- lwp-download will not try to rename *.tbz and *.tar.bz2 to match the
+		reported content type. Robin Barker <Robin.Barker@npl.co.uk>.
+	- HTTP::Cookies::Netscape documentation fix by Sean M. Burke.
+	- HTTP::Cookies::Microsoft documentation fix by Johnny Lee.
+	- The code that tries to avoid installing 'HEAD' on top of 'head' on
+		systems like Mac OS was further improved to look in
+		$Config{installscript} instead of $Config{sitebin}. Patch provided by
+		Ken Williams <ken@mathforum.org>.
+
+5.71	2003-10-14
+	- Support open-ended Range: header for ftp requests. Patch by Matthew
+		Eldridge <eldridge@Graphics.Stanford.EDU>.
+	- lwp-request now prints unsuccessful responses in the same way as
+		successful ones. The status will still indicate failures.
+		Steve Hay <steve.hay@uk.radan.com>.
+	- HTML::Form's dump now also print alternative value names.
+	- HTML::Form will now pick up the phrase after a <input type=radio> or
+		<input type=checkbox> and use that as the name of the checked value.
+	- HTML::Form's find_input now returns all inputs that match in array
+		context. Based on patch by Mark Stosberg <markstos@cpan.org> in
+		<http://rt.cpan.org/Ticket/Display.html?id=3320>.
+	- HTTP::Daemon's send_file() method did not work when given a file name.
+		Patch by Dave W. Smith <dws@postcognitive.com>.
+	- HTTP::Daemon is less strict about field names in the request headers is
+		received. The Norton Internet Security firewall apparently likes to
+		send requests with a header called '~~~~~~~~~~~~~~~'. Further details
+		in <http://rt.cpan.org/Ticket/Display.html?id=2531>.
+	- LWP::Protocol::http assumed $1 would be meaningful without testing the
+		outcome of the match. This sometimes produced an extra garbage
+		Authentication header. Based on the patch by <bai@dreamarts.co.jp>
+		in <http://rt.cpan.org/Ticket/Display.html?id=1994>.
+	- LWP::Protocol::mailto will try harder to locate the sendmail program as
+		suggested in <http://rt.cpan.org/Ticket/Display.html?id=2363>. Also
+		let $ENV{SENDMAIL} override the search.
+	- Patch to enable OS/2 build by Ilya Zakharevich.
+
+5.70	2003-10-13
+	- File::Listing::apache by Slaven Rezic <slaven@rezic.de>
+	- HEAD requests now work properly for ftp: URLs.
+		Patch by Ville Skyttä <ville.skytta@iki.fi>.
+	- LWP::UserAgent: protocols_allowed() and protocols_forbidden() are now
+		case-insensitive. Patch by Ville Skyttä <ville.skytta@iki.fi>.
+	- Avoid warning from HTTP::Date on certain invalid dates. Patch by
+		David Dick <david_dick@iprimus.com.au>.
+	- HTML::Form::param() is an alternative interface for inspecting/modifying
+		the form values. It resembles the interface of CGI.
+	- HTML::Form docs updated by Martin Thurn <mthurn@northropgrumman.com>.
+	- HTML::Form will treat any unknown input types as text input. This appears
+		to be what most browsers do.
+	- HTML::Form::parse() can now take a HTTP::Response object as argument.
+	- The "checkbox" and "option" inputs of HTML::Form can now be turned on with
+		the new check() method.
+	- The inputs of HTML::Form can now track alternative value names and allow
+		values to be set by these names as well. Currently this is only
+		supported for "option" inputs.
+	- HTML::Form's dump() method now print the name of the form if present.
 
 5.69	2003-01-24
 	- Include lwptut.pod contributed by Sean M. Burke C<sburke@cpan.org>.

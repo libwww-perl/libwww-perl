@@ -3,6 +3,7 @@ Change history for libwww-perl
 6.17	2017-01-22
 	- Noted another protocol failure message (PR#65)
 	- Removed old use of UNIVERSAL::isa() and swapped evals for Try::Tiny (PR#105)
+	- Standardized the Changes file (GH#106)
 
 6.16	2017-01-18
 	- Moved LWP::Protocol::GHTTP into its own dist and removed from here (PR#81)
@@ -13,429 +14,239 @@ Change history for libwww-perl
 	- Added some new documentation to UserAgent and tutorial (PR#68)
 	- Allow default header to carry over when using ->post() in UA (PR#100)
 
-_______________________________________________________________________________
-2015-12-15  Release 6.15
-    (special thanks to Chase Whitener for testing many of these changes out in
-    6.14_001!)
+6.15	2015-12-15
+	- tests now use localhost rather than a net-accessible address (PR#76, RT#94959)
+	- fixed some tests to do what they intended (regex rather than boolean checks) (from PR#28)
+	- conversion of some tests from Test.pm to Test::More (from PR#29)
+	- use File::Temp for randomized tempdir (PR#53)
+
+6.13	2015-02-14
+	- fixed Makefile.PL compatibility with older ExtUtils::MakeMaker (from
+		release 6.12)
+
+6.12	2015-02-13
+	- fixed prereq declarations in release 6.11
+
+6.11	2015-02-13
+	- cleanup of the test running mechanism; allowing greater flexibility and
+		should also resolve RT#102083
+
+6.10	2015-02-12
+	- lower runtime prereqs recommendation on LWP::Protocol::https to suggests,
+		to work around a circular dependency in CPAN clients when the 'install
+		recommendations' option is enabled (RT#101732)
+
+6.09	2015-02-09
+	- checks for EINTR now also check EWOULDBLOCK (they sometimes differ on
+		MSWin32)
+	- fixed pod syntax
+	- Fixed checking the % character in address regex
+	- Improved regex for literal IPv6 addresses
+
+6.08	2014-07-24
+	- Requiring Net::HTTP 6.07 to fix IPv6 support (RT#75618 and
+		https://github.com/libwww-perl/net-http/pull/10)
+	- When the hostname is an IPv6 literal, encapsulate it with [brackets]
+		before calling Net::HTTP  [rt.cpan.org #29468]
+	- Extra steps to make sure that the host address that has a ":" contains
+		only characters appropriate for an IPv6 address.
+	- Fix doc typo for cookie_jar
+
+6.07	2014-07-01
+	- Removed Data::Dump references in test suite and dependency in Makefile.PL
+	- Added MANIFEST.SKIP to enable "make manifest".
+	- release script now checks for MacOS to avoid incompatible tarballs
+	- Bumped version number to 6.07
+	- Fixed gnu-incompatible tarball problem ([rt.cpan.org #94844])
+
+6.06	2014-04-16
+	- Merge pull request #44 from dsteinbrunner/master
+	- Spelling fixes.
+	- Merge pull request #55 from oalders/master
+	- Merge pull request #38 from mbeijen/typo-sting
+	- Merge pull request #43 from dsteinbrunner/master
+	- Spelling corrections
+	- Typo fixes.
+	- correct behavior for https_proxy,
+		- e.g. don't send plain https:// requests to proxy, but instead
+			establish CONNECT tunnel and then send requests inside tunnel. This
+			change does together with a change in LWP::Protocol::https. The
+			change supports LWP::Protocol::https with the default IO::Socket::SSL
+			backend, but also with Net::SSL. Also:
+			- proxy authorization is supported (http://user:pass@host:port as
+				proxy URL, Net::SSL still needs special HTTPS_PROXY_* ENV
+				variables, as before)
+			- CONNECT request does not need to be the first request inside the
+				tunnel (not with Net::SSL)
+			- conn_cache is read and written inside request(), instead of
+				writing in request() and reading in _new_socket(). If a https
+				tunnel is established the cache_key no longer depends only on
+				proxy host,port but also on the tunnel endpoint
+			- CONNECT is a proxy request and must always use Proxy-Authorization,
+				not Authorization header
+	- fix: auth-header of Digest auth did not conform to
+	- RFC 2617 when WWW-Authenticate has 'qop' parameter.
+	- SSL libs might trigger ENOTTY on read
+	- Small typo.
+
+6.05	2013-03-11
+	- Derive message from status code if it was not provided
+	- Merge pull request #33 from tomhukins/fix-readme
+	- fix typo in comment
+	- Spelling fixes.
+	- Spelling fix.
+	- Merge pull request #34 from berekuk/fix-github-path
+	- Update repo URL
+	- With Net::HTTP 6.04 we don't need our own can_read() and sysread override
+	- $ENV{HTTP_PROXY} might override our test setup [RT#81381]
+	- fix github url in perldoc
+	- * Pod is utf-8
+	- Match required perl in Makefile.PL
+	- Fix Github URLs
+
+6.04	2012-02-18
+	- Typo fix; envirionment [RT#72386]
+	- Implement $ua->is_online test
+	- Add separate option to enable the live jigsaw tests
+	- Merge pull request #10 from trcjr/master
+	- now with put and delete helpers
+	- updated POD
+	- unit tests for ua->put and ua->delete
+	- These modules work with 5.8.1
+
+6.03	2011-10-15
+	- Link updates.
+	- Attribute documentation wording improvements.
+	- Don't parse robots.txt response content unless it's textual.
+	- Decode robots.txt response content before attempting to parse it.
+	- RobotUA robots.txt response parsing cleanups.
+	- Don't parse HEAD of robots.txt responses.
+	- Request handler doc grammar fixes.
+	- Pass on HTTP/1.0 if set as request protocol
+	- Remove outdated docs (not touched since 1996 :-)
+	- Merge pull request #22 from madsen/RT67947-verify_hostname
+	- PERL_LWP_ENV_PROXY tweaks
+	- lwp-request didn't respect -H Content-type [RT#70488]
+	- lwp-request -H didn't allow repeated headers
+	- verify_hostname defaults to 0 if ssl_opts provided [RT#67947]
+	- Test verify_hostname setting
+	- Fix expect header support to work with content refs.
+	- add PERL_LWP_ENV_PROXY env variable to enable env_proxy globally
+
+6.02	2011-03-27
+	- This is the release where we try to help the CPAN-toolchain be able to
+		install the modules required for https-support in LWP. We have done this
+		by unbundling the LWP::Protocol::https module from the libwww-perl
+		distribution. In order to have https support you now need to install
+		(or depend on) 'LWP::Protocol::https' and then this will make sure that
+		all the prerequisite modules comes along. See [RT#66838].
+	- This release also removes the old http10 modules that has really been
+		deprecated since v5.60. These should have been removed at the v6.00
+		jump, but I forgot.
+	- Ignores env variables when ssl_opts provided [RT#66663]
+	- Fix typo; Authen::NTLM [RT#66884]
+	- Support LWP::ConnCache->new(total_capacity => undef)
+
+6.01	2011-03-09
+	- Add missing HTTP::Daemon dependency for the tests.
 
-Graham Knop (1):
-    - tests now use localhost rather than a net-accessible address (PR#76,
-      RT#94959)
-
-Michael Schwern (1):
-    - fixed some tests to do what they intended (regex rather than boolean
-      checks) (from PR#28)
-
-Joe Atzberger (2):
-    - conversion of some tests from Test.pm to Test::More (from PR#29)
-
-Piotr Roszatycki (1):
-    - use File::Temp for randomized tempdir (PR#53)
-
-_______________________________________________________________________________
-2015-02-14  Release 6.13
-
-Karen Etheridge (1):
-    - fixed Makefile.PL compatibility with older ExtUtils::MakeMaker (from
-      release 6.12)
-
-_______________________________________________________________________________
-2015-02-13  Release 6.12
-
-Karen Etheridge (1):
-    - fixed prereq declarations in release 6.11
-
-_______________________________________________________________________________
-2015-02-13  Release 6.11
-
-Graham Knop (1):
-    - cleanup of the test running mechanism; allowing greater flexibility and
-      should also resolve RT#102083
-
-_______________________________________________________________________________
-2015-02-12  Release 6.10
-
-Karen Etheridge (1):
-    - lower runtime prereqs recommendation on LWP::Protocol::https to suggests,
-      to work around a circular dependency in CPAN clients when the 'install
-      recommendations' option is enabled (RT#101732)
-
-_______________________________________________________________________________
-2015-02-09  Release 6.09
-
-Steffen Ullrich (1):
-    - checks for EINTR now also check EWOULDBLOCK (they sometimes differ on
-      MSWin32)
-
-Daina Pettit (1):
-    - fixed pod syntax
-
-Jason A Fesler (2):
-    - Fixed checking the % character in address regex
-    - Improved regex for literal IPv6 addresses
-
-_______________________________________________________________________________
-2014-07-24  Release 6.08
-
-Mike Schilli (1):
-      Requiring Net::HTTP 6.07 to fix IPv6 support
-        (RT#75618 and https://github.com/libwww-perl/net-http/pull/10)
-
-Jason A Fesler (2):
-      When the hostname is an IPv6 literal, encapsulate it with [brackets]
-        before calling Net::HTTP  [rt.cpan.org #29468]
-      Extra steps to make sure that the host address that has a ":" contains
-        only characters appropriate for an IPv6 address.
-
-John Wittkoski (1):
-      Fix doc typo for cookie_jar
-
-_______________________________________________________________________________
-2014-07-01  Release 6.07
-
-Mike Schilli (5):
-      Removed Data::Dump references in test suite and dependency in Makefile.PL
-      Added MANIFEST.SKIP to enable "make manifest".
-      release script now checks for MacOS to avoid incompatible tarballs
-      Bumped version number to 6.07
-      Fixed gnu-incompatible tarball problem ([rt.cpan.org #94844])
-
-_______________________________________________________________________________
-2014-04-16  Release 6.06
-
-Ville Skyttä (3):
-      Merge pull request #44 from dsteinbrunner/master
-      Spelling fixes.
-      Merge pull request #55 from oalders/master
-
-Karen Etheridge (2):
-      Merge pull request #38 from mbeijen/typo-sting
-      Merge pull request #43 from dsteinbrunner/master
-
-David Steinbrunner (2):
-      Spelling corrections
-
-Olaf Alders (1):
-      Typo fixes.
-
-Steffen Ullrich (1):
-      correct behavior for https_proxy,
-      e.g. don't send plain https:// requests to proxy, but instead establish
-      CONNECT tunnel and then send requests inside tunnel.
-      This change does together with a change in LWP::Protocol::https.
-      The change supports LWP::Protocol::https with the default
-      IO::Socket::SSL backend, but also with Net::SSL. Also:
-      - proxy authorization is supported (http://user:pass@host:port as proxy
-        URL, Net::SSL still needs special HTTPS_PROXY_* environemt variables,
-        as before)
-      - CONNECT request does not need to be the first request inside the
-        tunnel (not with Net::SSL)
-      - conn_cache is read and written inside request(), instead of writing in
-        request() and reading in _new_socket(). If a https tunnel is
-        established the cache_key no longer depends only on proxy host,port
-        but also on the tunnel endpoint
-      - CONNECT is a proxy request and must always use Proxy-Authorization,
-        not Authorization header
-
-turugina (1):
-      fix: auth-header of Digest auth did not conform to
-      RFC 2617 when WWW-Authenticate has 'qop' parameter.
-
-Gisle Aas (1):
-      SSL libs might trigger ENOTTY on read
-
-Michiel Beijen (1):
-      Small typo.
-
-_______________________________________________________________________________
-2013-03-11  Release 6.05
-
-Karen Etheridge (3):
-      Derive message from status code if it was not provided
-      Merge pull request #33 from tomhukins/fix-readme
-      fix typo in comment
-
-Ville Skyttä (3):
-      Spelling fixes.
-      Spelling fix.
-      Merge pull request #34 from berekuk/fix-github-path
-
-Gisle Aas (3):
-      Update repo URL
-      With Net::HTTP 6.04 we don't need our own can_read() and sysread override
-      $ENV{HTTP_PROXY} might override our test setup [RT#81381]
-
-Vyacheslav Matyukhin (1):
-      fix github url in perldoc
-
-Slaven Rezic (1):
-      * Pod is utf-8
-
-Peter Rabbitson (1):
-      Match required perl in Makefile.PL
-
-Tom Hukins (1):
-      Fix Github URLs
-
-
-
-
-_______________________________________________________________________________
-2012-02-18  Release 6.04
-
-Gisle Aas (4):
-      Typo fix; envirionment [RT#72386]
-      Implement $ua->is_online test
-      Add separate option to enable the live jigsaw tests
-      Merge pull request #10 from trcjr/master
-
-Theodore Robert Campbell Jr (3):
-      now with put and delete helpers
-      updated POD
-      unit tests for ua->put and ua->delete
-
-Peter Rabbitson (1):
-      These modules work with 5.8.1
-
-
-
-
-_______________________________________________________________________________
-2011-10-15  Release 6.03
-
-Ville Skyttä (7):
-      Link updates.
-      Attribute documentation wording improvements.
-      Don't parse robots.txt response content unless it's textual.
-      Decode robots.txt response content before attempting to parse it.
-      RobotUA robots.txt response parsing cleanups.
-      Don't parse HEAD of robots.txt responses.
-      Request handler doc grammar fixes.
-
-Gisle Aas (6):
-      Pass on HTTP/1.0 if set as request protocol
-      Remove outdated docs (not touched since 1996 :-)
-      Merge pull request #22 from madsen/RT67947-verify_hostname
-      PERL_LWP_ENV_PROXY tweaks
-      lwp-request didn't respect -H Content-type [RT#70488]
-      lwp-request -H didn't allow repeated headers
-
-Christopher J. Madsen (2):
-      verify_hostname defaults to 0 if ssl_opts provided [RT#67947]
-      Test verify_hostname setting
-
-Bryan Cardillo (1):
-      Fix expect header support to work with content refs.
-
-Moritz Onken (1):
-      add PERL_LWP_ENV_PROXY env variable to enable env_proxy globally
-
-
-
-_______________________________________________________________________________
-2011-03-27  Release 6.02
-
-This is the release where we try to help the CPAN-toolchain be able to install
-the modules required for https-support in LWP. We have done this by unbundling
-the LWP::Protocol::https module from the libwww-perl distribution. In order to
-have https support you now need to install (or depend on) 'LWP::Protocol::https'
-and then this will make sure that all the prerequisite modules comes along.
-See [RT#66838].
-
-This release also removes the old http10 modules that has really been
-deprecated since v5.60. These should have been removed at the v6.00 jump, but
-I forgot.
-
-
-Christopher J. Madsen (1):
-      Ignores env variables when ssl_opts provided [RT#66663]
-
-Gisle Aas (4):
-      Fix typo; Authen::NTLM [RT#66884]
-
-Yury Zavarin (1):
-      Support LWP::ConnCache->new(total_capacity => undef)
-
-
-
-_______________________________________________________________________________
-2011-03-09  Release 6.01
-
-Add missing HTTP::Daemon dependency for the tests.
-
-
-
-_______________________________________________________________________________
 2011-03-08  Release 6.00
+	- Unbundled all modules not in the LWP:: namespace from the distribution.
+		The new broken out CPAN distributions are
+		File-Listing, HTML-Form, HTTP-Cookies, HTTP-Daemon, HTTP-Date,
+		HTTP-Message, HTTP-Negotiate, Net-HTTP, and WWW-RobotRules.
+		libwww-perl-6 require these to be installed.
+	- This release also drops the unmaintained lwp-rget script from the distribution.
+	- Perl v5.8.8 or better is now required. For older versions of perl please
+		stay with libwww-perl-5.837.
+	- For https://... default to verified connections with require
+		IO::Socket::SSL and Mozilla::CA modules to be installed. Old behaviour
+		can be requested bysetting the PERL_LWP_SSL_VERIFY_HOSTNAME environment
+		variable to 0. The LWP::UserAgent got new ssl_opts method to control
+		this as well.
+	- Support internationalized URLs from command line scripts and in the proxy
+		environment variables.
+	- The lwp-dump script got new --request option.
+	- The lwp-request script got new -E option, contributed by Tony Finch.
+	- Protocol handlers and callbacks can raise HTTP::Response objects as
+		exceptions. This will abort the current request and make LWP return the
+		raised response.
 
-Unbundled all modules not in the LWP:: namespace from the libwww-perl
-distribution. The new broken out CPAN distributions are File-Listing,
-HTML-Form, HTTP-Cookies, HTTP-Daemon, HTTP-Date, HTTP-Message, HTTP-Negotiate,
-Net-HTTP, and WWW-RobotRules. libwww-perl-6 require these to be installed.
+5.837	2010-09-20
+	- Fix for Encode 2.40
+	- Fix Perl syntax error in synopsis
+	- Allow ISO 8601 date strings when parsing Apache file listings
 
-This release also drops the unmaintained lwp-rget script from the distribution.
+5.836	2010-05-13
+	- Fix problem where $resp->base would downcase its return value
 
-Perl v5.8.8 or better is now required. For older versions of perl please stay
-with libwww-perl-5.837.
+5.835	2010-05-05
+	- simple string can be simplified
+	- Make $mess->decoded_content remove XML encoding declarations [RT#52572]
+	- Don't allow saving to filenames starting with '.' suggested by server
+	- Avoid race between testing for existence of output file and opening the file
+	- Minor doc fixup -- wrongly ucfirsted word
+	- Use decoded_content in HTTP:Response synopsis [RT#54139]
+	- sun.com is no more. rip!
+	- Trivial layout tweak to reduce variable scope.
+	- Add 'make test_hudson' target
+	- Implement alt_charset parameter for decoded_content()
+	- Test decoding with different charset parameters
+	- lwp-download now needs the -s option to honor the Content-Disposition header
+	- Make LWP::MediaTypes::media_suffix case insensitive.
+	- Skip XML decoding tests if XML::Simple is not available.
+	- Documentation fixes.
+	- Fix m_media_type => "xhtml" matching.
+	- Make parse_head() apply to data: requests.
+	- Documentation spelling fixes.
+	- Documentation grammar fixes.
+	- Use $uri->secure in m_secure if available.
+	- Fix handling of multiple (same) base headers, and parameters in them.
+	- Strip out empty lines separated by CRLF
+	- Best Practice: avoid indirect object notation
+	- Speed up as_string by 4% by having _sorted_field_names return a reference
+	- Speed up scan() a bit. as_string() from this branch is now 6% faster
+	- Port over as_string() optimizations from HTTP::Headers::Fast
+	- Link to referenced documentation.
+	- Update repository location.
+	- Remove needless (and actually harmful) local $_
+	- "Perl & LWP" is available online
 
-For https://... default to verified connections with require IO::Socket::SSL
-and Mozilla::CA modules to be installed. Old behaviour can be requested by
-setting the PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0. The
-LWP::UserAgent got new ssl_opts method to control this as well.
+5.834	2009-11-21
+	- Check for sane default_headers argument [RT#50393]
+	- Add $ua->local_address attribute [RT#40912]
+	- Test that generation of boundary works [RT#49396]
+	- Page does not display the "standard" apache listing any more
+	- Remove unneeded executable permissions.
+	- Switch compression/decompression to use the IO::Compress/IO::Uncompress
+		and Compress::Raw::Zlib family of modules.
+	- lwp-request should use stderr for auth [RT#21620]
 
-Support internationalized URLs from command line scripts and in the proxy
-environment variables.
+5.833	2009-10-06
+	- Deal with cookies that expire far into the future [RT#50147]
+	- Deal with cookies that expire at or before epoch [RT#49467]
+	- Pass separate type for https to LWP::ConnCache [RT#48899]
+	- Improved handling of the User-Agent header [RT#48461]
+	- HTTP::Cookies add_cookie_header previous Cookies [RT#46106]
+	- Improve diagnostics from LWP::UserAgent::mirror [RT#48869]
+	- mirror should die in case X-Died is set [RT#48236]
+	- Increase default Net::HTTP max line length to 8k.
 
-The lwp-dump script got new --request option.
+5.832	2009-09-21
+	- Fix net test suite.
+	- Comment spelling fixes.
+	- Fix links to old Netscape cookie specification.
+	- Documentation spelling fixes.
+	- Improve max line length exceeded/read error messages.
+	- Do not warn about seemingly wellformed but unrecognized robots.txt lines.
+	- $mess->content_charset would fail for empty content
+	- Further restrict what variables env_proxy() process
 
-The lwp-request script got new -E option, contributed by Tony Finch.
-
-Protocol handlers and callbacks can raise HTTP::Response objects as exceptions.
-This will abort the current request and make LWP return the raised response.
-
-
-
-_______________________________________________________________________________
-2010-09-20  Release 5.837
-
-David E. Wheeler (1):
-      Fix for Encode 2.40
-
-Gisle Aas (2):
-      Fix Perl syntax error in synopsis
-      Allow ISO 8601 date strings when parsing Apache file listings
-
-
-
-_______________________________________________________________________________
-2010-05-13  Release 5.836
-
-Gisle Aas (1):
-      Fix problem where $resp->base would downcase its return value
-
-
-
-_______________________________________________________________________________
-2010-05-05  Release 5.835
-
-Gisle Aas (12):
-      simple string can be simplified
-      Make $mess->decoded_content remove XML encoding declarations [RT#52572]
-      Don't allow saving to filenames starting with '.' suggested by server
-      Avoid race between testing for existence of output file and opening the file
-      Minor doc fixup -- wrongly ucfirsted word
-      Use decoded_content in HTTP:Response synopsis [RT#54139]
-      sun.com is no more. rip!
-      Trivial layout tweak to reduce variable scope.
-      Add 'make test_hudson' target
-      Implement alt_charset parameter for decoded_content()
-      Test decoding with different charset parameters
-      lwp-download now needs the -s option to honor the Content-Disposition header
-
-Ville Skyttä (9):
-      Make LWP::MediaTypes::media_suffix case insensitive.
-      Skip XML decoding tests if XML::Simple is not available.
-      Documentation fixes.
-      Fix m_media_type => "xhtml" matching.
-      Make parse_head() apply to data: requests.
-      Documentation spelling fixes.
-      Documentation grammar fixes.
-      Use $uri->secure in m_secure if available.
-      Fix handling of multiple (same) base headers, and parameters in them.
-
-Mark Stosberg (5):
-      Strip out empty lines separated by CRLF
-      Best Practice: avoid indirect object notation
-      Speed up as_string by 4% by having _sorted_field_names return a reference
-      Speed up scan() a bit. as_string() from this branch is now 6% faster
-      Port over as_string() optimizations from HTTP::Headers::Fast
-
-Tom Hukins (2):
-      Link to referenced documentation.
-      Update repository location.
-
-Father Chrysostomos (1):
-      Remove needless (and actually harmful) local $_
-
-Sean M. Burke (1):
-      "Perl & LWP" is available online
-
-
-
-_______________________________________________________________________________
-2009-11-21  Release 5.834
-
-Gisle Aas (4):
-      Check for sane default_headers argument [RT#50393]
-      Add $ua->local_address attribute [RT#40912]
-      Test that generation of boundary works [RT#49396]
-      Page does not display the "standard" apache listing any more
-
-Ville Skyttä (2):
-      Remove unneeded executable permissions.
-      Switch compression/decompression to use the IO::Compress/IO::Uncompress and
-          Compress::Raw::Zlib family of modules.
-
-Slaven Rezic (1):
-      lwp-request should use stderr for auth [RT#21620]
-
-
-
-_______________________________________________________________________________
-2009-10-06  Release 5.833
-
-
-Gisle Aas (5):
-      Deal with cookies that expire far into the future [RT#50147]
-      Deal with cookies that expire at or before epoch [RT#49467]
-      Pass separate type for https to LWP::ConnCache [RT#48899]
-      Improved handling of the User-Agent header [RT#48461]
-      HTTP::Cookies add_cookie_header previous Cookies [RT#46106]
-
-Andreas J. Koenig (1):
-      Improve diagnostics from LWP::UserAgent::mirror [RT#48869]
-
-Slaven Rezic (1):
-      mirror should die in case X-Died is set [RT#48236]
-
-Ville Skyttä (1):
-      Increase default Net::HTTP max line length to 8k.
-
-
-
-_______________________________________________________________________________
-2009-09-21  Release 5.832
-
-
-Ville Skyttä (6):
-      Fix net test suite.
-      Comment spelling fixes.
-      Fix links to old Netscape cookie specification.
-      Documentation spelling fixes.
-      Improve max line length exceeded/read error messages.
-      Do not warn about seemingly wellformed but unrecognized robots.txt lines.
-
-Gisle Aas (1):
-      $mess->content_charset would fail for empty content
-
-mschilli (1):
-      Further restrict what variables env_proxy() process
-
-
-
-_______________________________________________________________________________
-2009-08-13  Release 5.831
-
-
-Ville Skyttä (3):
-      Fix bzip2 content encoding/decoding.
-      send_te() doc grammar fix.
-      Document time2str() behavior with an undefined argument.
-
-Gisle Aas (1):
-      HTML::Message's content_charset trigger warnings from HTML::Parser [RT#48621]
-
-
+5.831	2009-08-13
+	- Fix bzip2 content encoding/decoding.
+	- send_te() doc grammar fix.
+	- Document time2str() behavior with an undefined argument.
+	- HTML::Message's content_charset trigger warnings from HTML::Parser [RT#48621]
 
 5.830	2009-07-26
 	- select doesn't return undef on failure [RT#32356]

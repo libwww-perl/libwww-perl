@@ -150,7 +150,7 @@ Change history for libwww-perl
 6.01	2011-03-09
 	- Add missing HTTP::Daemon dependency for the tests.
 
-2011-03-08  Release 6.00
+6.00	2011-03-08
 	- Unbundled all modules not in the LWP:: namespace from the distribution.
 		The new broken out CPAN distributions are
 		File-Listing, HTML-Form, HTTP-Cookies, HTTP-Daemon, HTTP-Date,
@@ -636,9 +636,7 @@ Change history for libwww-perl
 	- lwp-download will validate filename derived from server controlled data
 		and will fail if something looks not quite right.
 
-2004-11-30   Gisle Aas <gisle@ActiveState.com>
-
-    Release 5.802
+5.802	2004-11-30
 	- The HTTP::Message object now has a decoded_content() method. This will
 		return content after Content-Encodings and charsets have been decoded.
 	- Compress::Zlib is now a prerequisite module.
@@ -1497,7 +1495,7 @@ Change history for libwww-perl
 	- Removed deprecated modules from the distribution; HTML::Parse,
 		LWP::Socket, LWP::SecureSocket, LWP::IO, LWP::TkIO.
 
-5.18 1997-12-12
+5.18	1997-12-12
 	- HTTP authorization patches from Tony Finch <fanf@demon.net>. Allows
 		"user:pass@" in HTTP URLs.
 	- HTML::Parser patch by Brian McCauley <B.A.McCauley@bham.ac.uk>. Pass

@@ -34,7 +34,7 @@ sub authenticate
     });
     $h->{auth_param} = $auth_param;
 
-    if (!$proxy && !$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
+    if (!$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
 	# we can make sure this handler applies and retry
         add_path($h, $url->path);
         return $ua->request($request->clone, $arg, $size, $response);

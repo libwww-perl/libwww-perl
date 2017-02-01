@@ -3,7 +3,7 @@ package LWP::UserAgent;
 use strict;
 
 use base qw(LWP::MemberMixin);
-our $VERSION = '6.17';
+our $VERSION = '6.18';
 
 use Carp ();
 use HTTP::Request ();

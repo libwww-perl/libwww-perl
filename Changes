@@ -1,5 +1,8 @@
 Change history for libwww-perl
 
+6.18	2017-02-01
+	- 
+
 6.17	2017-01-31
 	- Noted another protocol failure message (PR#65)
 	- Removed old use of UNIVERSAL::isa() and swapped evals for Try::Tiny (PR#105)

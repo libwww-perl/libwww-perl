@@ -1,7 +1,7 @@
 package LWP::RobotUA;
 
 use base qw(LWP::UserAgent);
-our $VERSION = '6.17';
+our $VERSION = '6.18';
 
 require WWW::RobotRules;
 require HTTP::Request;
@@ -71,7 +71,7 @@ sub agent
     my $old = $self->SUPER::agent(@_);
     if (@_) {
 	# Changing our name means to start fresh
-	$self->{'rules'}->agent($self->{'agent'}); 
+	$self->{'rules'}->agent($self->{'agent'});
     }
     $old;
 }
@@ -122,7 +122,7 @@ sub simple_request
 	$robot_url->query(undef);
 
 	# make access to robot.txt legal since this will be a recursive call
-	$self->{'rules'}->parse($robot_url, ""); 
+	$self->{'rules'}->parse($robot_url, "");
 
 	my $robot_req = HTTP::Request->new('GET', $robot_url);
 	my $parse_head = $self->parse_head(0);

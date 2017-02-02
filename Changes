@@ -1,7 +1,7 @@
 Change history for libwww-perl
 
-6.18	2017-02-01
-	- 
+6.18	2017-02-02
+	- Update "timeout" when reusing sockets (PR#90)
 
 6.17	2017-01-31
 	- Noted another protocol failure message (PR#65)

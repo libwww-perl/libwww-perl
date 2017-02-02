@@ -182,6 +182,9 @@ sub request
 		$socket->close;
 		$socket = undef;
 	    } # else use $socket
+	    else {
+		$socket->timeout($timeout);
+	    }
 	}
     }
 

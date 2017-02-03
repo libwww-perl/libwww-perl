@@ -1,9 +1,10 @@
 use strict;
 use warnings;
+use HTTP::Request ();
+use LWP::UserAgent ();
 use Test::More;
 
-use LWP::UserAgent;
-plan tests => 37;
+plan tests => 40;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -31,6 +32,21 @@ is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
 is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
 is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
+
+# error on malformed request
+{
+    my $req = HTTP::Request->new('', 'unknown:www.example.com');
+    my $res = $ua->simple_request($req);
+    like($res->content(), qr/Method missing/, "simple_request: Method Missing: invalid request");
+
+    $req = HTTP::Request->new('HAHAHA', 'unknown:www.example.com');
+    $res = $ua->simple_request($req);
+    like($res->content(), qr/Protocol scheme 'unknown'/, "simple_request: Invalid Protocol: invalid request");
+
+    $req = HTTP::Request->new('HAHAHA', 'www.example.com');
+    $res = $ua->simple_request($req);
+    like($res->content(), qr/URL must be absolute/, "simple_request: Invalid Scheme: invalid request");
+}
 
 # Try it
 $ua->proxy(http => "loopback:");

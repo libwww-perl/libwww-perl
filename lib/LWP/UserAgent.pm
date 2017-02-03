@@ -267,14 +267,18 @@ sub simple_request
         Carp::croak("No request object passed in");
     }
 
+    my $error;
     try {
         $request = $self->prepare_request($request);
     }
     catch {
-        my $error = $_;
+        $error = $_;
         $error =~ s/ at .* line \d+.*//s;  # remove file/line number
-        return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, $error);
     };
+
+    if ($error) {
+        return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, $error);
+    }
     return $self->send_request($request, $arg, $size);
 }
 

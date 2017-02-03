@@ -6,7 +6,7 @@ use Getopt::Long qw(GetOptions);
 use Encode;
 use Encode::Locale;
 
-my $VERSION = "6.18";
+my $VERSION = "6.19";
 
 GetOptions(\my %opt,
     'parse-head',

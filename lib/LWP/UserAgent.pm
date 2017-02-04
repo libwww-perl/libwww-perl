@@ -334,6 +334,7 @@ sub request
 
 	# And then we update the URL based on the Location:-header.
 	my $referral_uri = $response->header('Location');
+	utf8::decode($referral_uri) if utf8::valid($referral_uri);
 	{
 	    # Some servers erroneously return a relative URL for redirects,
 	    # so make it absolute if it not already is.

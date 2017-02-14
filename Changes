@@ -5,6 +5,7 @@ Change history for libwww-perl
     - Make bin scripts use LWP's version and not maintain their own (PR #54)
     - Fix bug triggered in some cases of auth challenges not having a viable
       protocol (PR#111)
+    - Remove usage of the 'vars' pragma (GH#113)
 
 6.18	2017-02-03
     - Update "timeout" when reusing sockets (PR#90)

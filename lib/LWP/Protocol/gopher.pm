@@ -47,7 +47,7 @@ sub request
 
     # check proxy
     if (defined $proxy) {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'You can not proxy through the gopher');
     }
 
@@ -57,19 +57,19 @@ sub request
 
     my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD') {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'Library does not allow method ' .
 				   "$method for 'gopher:' URLs");
     }
 
     my $gophertype = $url->gopher_type;
     unless (exists $gopher2mimetype{$gophertype}) {
-	return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
+	return HTTP::Response->new(HTTP::Status::RC_NOT_IMPLEMENTED,
 				   'Library does not support gophertype ' .
 				   $gophertype);
     }
 
-    my $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
+    my $response = HTTP::Response->new(HTTP::Status::RC_OK, "OK");
     $response->header('Content-type' => $gopher2mimetype{$gophertype}
 					|| 'text/plain');
     $response->header('Content-Encoding' => $gopher2encoding{$gophertype})
@@ -80,7 +80,7 @@ sub request
 	$response->header('Client-Warning' => 'Client answer only');
 	return $response;
     }
-    
+
     if ($gophertype eq '7' && ! $url->search) {
       # the url is the prompt for a gopher search; supply boiler-plate
       return $self->collect_once($arg, $response, <<"EOT");

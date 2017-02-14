@@ -99,14 +99,14 @@ sub _connect {
     # XXX Should be some what to pass on 'Passive' (header??)
     unless ($ftp) {
 	$@ =~ s/^Net::FTP: //;
-	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
+	return HTTP::Response->new(HTTP::Status::RC_INTERNAL_SERVER_ERROR, $@);
     }
 
     unless ($ftp->login($user, $password, $account)) {
 	# Unauthorized.  Let's fake a RC_UNAUTHORIZED response
 	my $mess = scalar($ftp->message);
 	$mess =~ s/\n$//;
-	my $res =  HTTP::Response->new(&HTTP::Status::RC_UNAUTHORIZED, $mess);
+	my $res =  HTTP::Response->new(HTTP::Status::RC_UNAUTHORIZED, $mess);
 	$res->header("Server", $ftp->http_server);
 	$res->header("WWW-Authenticate", qq(Basic Realm="FTP login"));
 	return $res;
@@ -130,14 +130,14 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'You can not proxy through the ftp');
     }
 
     my $url = $request->uri;
     if ($url->scheme ne 'ftp') {
 	my $scheme = $url->scheme;
-	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+	return HTTP::Response->new(HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 		       "LWP::Protocol::ftp::request called for '$scheme'");
     }
 
@@ -145,13 +145,13 @@ sub request
     my $method = $request->method;
 
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'PUT') {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'Library does not allow method ' .
 				   "$method for 'ftp:' URLs");
     }
 
     if ($init_failed) {
-	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+	return HTTP::Response->new(HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				   $init_failed);
     }
 
@@ -177,7 +177,7 @@ sub request
     return $ftp if ref($ftp) eq "HTTP::Response"; # ugh!
 
     # Create an initial response object
-    my $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
+    my $response = HTTP::Response->new(HTTP::Status::RC_OK, "OK");
     $response->header(Server => $ftp->http_server);
     $response->header('Client-Request-Num' => $ftp->request_count);
     $response->request($request);
@@ -205,7 +205,7 @@ sub request
 
     for (@path) {
 	unless ($ftp->cwd($_)) {
-	    return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,
+	    return HTTP::Response->new(HTTP::Status::RC_NOT_FOUND,
 				       "Can't chdir to $_");
 	}
     }
@@ -215,14 +215,14 @@ sub request
 	    $response->last_modified($mod_time);
 	    if (my $ims = $request->if_modified_since) {
 		if ($mod_time <= $ims) {
-		    $response->code(&HTTP::Status::RC_NOT_MODIFIED);
+		    $response->code(HTTP::Status::RC_NOT_MODIFIED);
 		    $response->message("Not modified");
 		    return $response;
 		}
 	    }
 	}
 
-	# We'll use this later to abort the transfer if necessary. 
+	# We'll use this later to abort the transfer if necessary.
 	# if $max_size is defined, we need to abort early. Otherwise, it's
       # a normal transfer
 	my $max_size = undef;
@@ -249,13 +249,13 @@ sub request
 		}
 		else {
 
-		  return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+		  return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 		     'Incorrect syntax for Range request');
 		}
 	}
 	elsif ($request->header('Range') && !$ftp->supported('REST'))
 	{
-		return HTTP::Response->new(&HTTP::Status::RC_NOT_IMPLEMENTED,
+		return HTTP::Response->new(HTTP::Status::RC_NOT_IMPLEMENTED,
 	         "Server does not support resume.");
 	}
 
@@ -313,7 +313,7 @@ sub request
 		# responses to abort() with code 0 in case of HEAD as ok
 		# (at least wu-ftpd 2.6.1(1) does that).
 		if ($method ne 'HEAD' || $ftp->code != 0) {
-		    $response->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
+		    $response->code(HTTP::Status::RC_INTERNAL_SERVER_ERROR);
 		    $response->message("FTP close response: " . $ftp->code .
 				       " " . $ftp->message);
 		}
@@ -322,7 +322,7 @@ sub request
 	elsif (!length($remote_file) || ( $ftp->code >= 400 && $ftp->code < 600 )) {
 	    # not a plain file, try to list instead
 	    if (length($remote_file) && !$ftp->cwd($remote_file)) {
-		return HTTP::Response->new(&HTTP::Status::RC_NOT_FOUND,
+		return HTTP::Response->new(HTTP::Status::RC_NOT_FOUND,
 					   "File '$remote_file' not found");
 	    }
 
@@ -342,7 +342,7 @@ sub request
 	    my $content = '';
 
 	    if (!defined($prefer)) {
-		return HTTP::Response->new(&HTTP::Status::RC_NOT_ACCEPTABLE,
+		return HTTP::Response->new(HTTP::Status::RC_NOT_ACCEPTABLE,
 			       "Neither HTML nor directory listing wanted");
 	    }
 	    elsif ($prefer eq 'html') {
@@ -373,7 +373,7 @@ sub request
 	    }
 	}
 	else {
-	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	    my $res = HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 			  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
@@ -383,7 +383,7 @@ sub request
     elsif ($method eq 'PUT') {
 	# method must be PUT
 	unless (length($remote_file)) {
-	    return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	    return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				       "Must have a file name to PUT to");
 	}
 	my $data;
@@ -413,13 +413,13 @@ sub request
 	    }
 	    $data->close;
 
-	    $response->code(&HTTP::Status::RC_CREATED);
+	    $response->code(HTTP::Status::RC_CREATED);
 	    $response->header('Content-Type', 'text/plain');
 	    $response->content("$bytes bytes stored as $remote_file on $host\n")
 
 	}
 	else {
-	    my $res = HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	    my $res = HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 					  "FTP return code " . $ftp->code);
 	    $res->content_type("text/plain");
 	    $res->content($ftp->message);
@@ -427,7 +427,7 @@ sub request
 	}
     }
     else {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   "Illegal method $method");
     }
 

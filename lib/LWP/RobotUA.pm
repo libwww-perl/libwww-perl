@@ -143,7 +143,7 @@ sub simple_request
     # Check rules
     unless ($allowed) {
 	my $res = HTTP::Response->new(
-	  &HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt');
+	  HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt');
 	$res->request( $request ); # bind it to that request
 	return $res;
     }
@@ -157,7 +157,7 @@ sub simple_request
 	}
 	else {
 	    my $res = HTTP::Response->new(
-	      &HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down');
+	      HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down');
 	    $res->header('Retry-After', time2str(time + $wait));
 	    $res->request( $request ); # bind it to that request
 	    return $res;

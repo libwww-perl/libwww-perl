@@ -20,7 +20,7 @@ sub request
 
     # Check for proxy
     if (defined $proxy) {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'You can not proxy through NNTP');
     }
 
@@ -28,14 +28,14 @@ sub request
     my $url = $request->uri;
     my $scheme = $url->scheme;
     unless ($scheme eq 'news' || $scheme eq 'nntp') {
-	return HTTP::Response->new(&HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+	return HTTP::Response->new(HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 				   "LWP::Protocol::nntp::request called for '$scheme'");
     }
 
     # check for a valid method
     my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD' || $method eq 'POST') {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   'Library does not allow method ' .
 				   "$method for '$scheme:' URLs");
     }
@@ -45,7 +45,7 @@ sub request
     my $is_art = $groupart =~ /@/;
 
     if ($is_art && $method eq 'POST') {
-	return HTTP::Response->new(&HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
 				   "Can't post to an article <$groupart>");
     }
 
@@ -58,10 +58,10 @@ sub request
 
     # Check the initial welcome message from the NNTP server
     if ($nntp->status != 2) {
-	return HTTP::Response->new(&HTTP::Status::RC_SERVICE_UNAVAILABLE,
+	return HTTP::Response->new(HTTP::Status::RC_SERVICE_UNAVAILABLE,
 				   $nntp->message);
     }
-    my $response = HTTP::Response->new(&HTTP::Status::RC_OK, "OK");
+    my $response = HTTP::Response->new(HTTP::Status::RC_OK, "OK");
 
     my $mess = $nntp->message;
 
@@ -75,7 +75,7 @@ sub request
     # First we handle posting of articles
     if ($method eq 'POST') {
 	$nntp->quit; $nntp = undef;
-	$response->code(&HTTP::Status::RC_NOT_IMPLEMENTED);
+	$response->code(HTTP::Status::RC_NOT_IMPLEMENTED);
 	$response->message("POST not implemented yet");
 	return $response;
     }
@@ -83,13 +83,13 @@ sub request
     # The method must be "GET" or "HEAD" by now
     if (!$is_art) {
 	if (!$nntp->group($groupart)) {
-	    $response->code(&HTTP::Status::RC_NOT_FOUND);
+	    $response->code(HTTP::Status::RC_NOT_FOUND);
 	    $response->message($nntp->message);
 	}
 	$nntp->quit; $nntp = undef;
 	# HEAD: just check if the group exists
 	if ($method eq 'GET' && $response->is_success) {
-	    $response->code(&HTTP::Status::RC_NOT_IMPLEMENTED);
+	    $response->code(HTTP::Status::RC_NOT_IMPLEMENTED);
 	    $response->message("GET newsgroup not implemented yet");
 	}
 	return $response;
@@ -100,7 +100,7 @@ sub request
     my $art = $nntp->$get("<$groupart>");
     unless ($art) {
 	$nntp->quit; $nntp = undef;
-	$response->code(&HTTP::Status::RC_NOT_FOUND);
+	$response->code(HTTP::Status::RC_NOT_FOUND);
 	$response->message($nntp->message);
 	return $response;
     }

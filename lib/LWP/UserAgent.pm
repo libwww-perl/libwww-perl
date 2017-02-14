@@ -177,7 +177,7 @@ sub send_request
             catch {
                 my $error = $_;
                 $error =~ s/ at .* line \d+.*//s;  # remove file/line number
-                $response =  _new_response($request, &HTTP::Status::RC_NOT_IMPLEMENTED, $error);
+                $response =  _new_response($request, HTTP::Status::RC_NOT_IMPLEMENTED, $error);
                 if ($scheme eq "https") {
                     $response->message($response->message . " (LWP::Protocol::https not installed)");
                     $response->content_type("text/plain");
@@ -204,7 +204,7 @@ EOT
                     my $full = $error;
                     (my $status = $error) =~ s/\n.*//s;
                     $status =~ s/ at .* line \d+.*//s;  # remove file/line number
-                    my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : &HTTP::Status::RC_INTERNAL_SERVER_ERROR;
+                    my $code = ($status =~ s/^(\d\d\d)\s+//) ? $1 : HTTP::Status::RC_INTERNAL_SERVER_ERROR;
                     $response = _new_response($request, $code, $status, $full);
                 }
             };
@@ -277,7 +277,7 @@ sub simple_request
     };
 
     if ($error) {
-        return _new_response($request, &HTTP::Status::RC_BAD_REQUEST, $error);
+        return _new_response($request, HTTP::Status::RC_BAD_REQUEST, $error);
     }
     return $self->send_request($request, $arg, $size);
 }
@@ -302,10 +302,10 @@ sub request {
 
     my $code = $response->code;
 
-    if (   $code == &HTTP::Status::RC_MOVED_PERMANENTLY
-        or $code == &HTTP::Status::RC_FOUND
-        or $code == &HTTP::Status::RC_SEE_OTHER
-        or $code == &HTTP::Status::RC_TEMPORARY_REDIRECT)
+    if (   $code == HTTP::Status::RC_MOVED_PERMANENTLY
+        or $code == HTTP::Status::RC_FOUND
+        or $code == HTTP::Status::RC_SEE_OTHER
+        or $code == HTTP::Status::RC_TEMPORARY_REDIRECT)
     {
         my $referral = $request->clone;
 
@@ -321,8 +321,8 @@ sub request {
             $referral->remove_header('Referer');
         }
 
-        if (   $code == &HTTP::Status::RC_SEE_OTHER
-            || $code == &HTTP::Status::RC_FOUND)
+        if (   $code == HTTP::Status::RC_SEE_OTHER
+            || $code == HTTP::Status::RC_FOUND)
         {
             my $method = uc($referral->method);
             unless ($method eq "GET" || $method eq "HEAD") {
@@ -349,10 +349,10 @@ sub request {
         return $self->request($referral, $arg, $size, $response);
 
     }
-    elsif ($code == &HTTP::Status::RC_UNAUTHORIZED
-        || $code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED)
+    elsif ($code == HTTP::Status::RC_UNAUTHORIZED
+        || $code == HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED)
     {
-        my $proxy = ($code == &HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED);
+        my $proxy = ($code == HTTP::Status::RC_PROXY_AUTHENTICATION_REQUIRED);
         my $ch_header
             = $proxy || $request->method eq 'CONNECT'
             ? "Proxy-Authenticate"

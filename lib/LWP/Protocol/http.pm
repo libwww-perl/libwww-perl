@@ -132,7 +132,7 @@ sub request
     # check method
     my $method = $request->method;
     unless ($method =~ /^[A-Za-z0-9_!\#\$%&\'*+\-.^\`|~]+$/) {  # HTTP token
-	return HTTP::Response->new( &HTTP::Status::RC_BAD_REQUEST,
+	return HTTP::Response->new( HTTP::Status::RC_BAD_REQUEST,
 				  'Library does not allow method ' .
 				  "$method for 'http:' URLs");
     }

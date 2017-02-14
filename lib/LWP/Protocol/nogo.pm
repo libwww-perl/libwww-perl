@@ -15,9 +15,9 @@ require LWP::Protocol;
 sub request {
     my($self, $request) = @_;
     my $scheme = $request->uri->scheme;
-    
+
     return HTTP::Response->new(
-      &HTTP::Status::RC_INTERNAL_SERVER_ERROR,
+      HTTP::Status::RC_INTERNAL_SERVER_ERROR,
       "Access to \'$scheme\' URIs has been disabled"
     );
 }

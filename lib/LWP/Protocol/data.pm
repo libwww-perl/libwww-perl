@@ -3,13 +3,11 @@ package LWP::Protocol::data;
 # Implements access to data:-URLs as specified in RFC 2397
 
 use strict;
-use vars qw(@ISA);
 
 require HTTP::Response;
 require HTTP::Status;
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 use HTTP::Date qw(time2str);
 require LWP;  # needs version number

@@ -1,9 +1,9 @@
 package LWP::ConnCache;
 
 use strict;
-use vars qw($DEBUG);
 
 our $VERSION = '6.19';
+our $DEBUG;
 
 sub new {
     my($class, %cnf) = @_;

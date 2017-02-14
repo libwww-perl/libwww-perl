@@ -8,15 +8,13 @@ package LWP::Protocol::gopher;
 # including contributions from Marc van Heyningen and Martijn Koster.
 
 use strict;
-use vars qw(@ISA);
 
 require HTTP::Response;
 require HTTP::Status;
 require IO::Socket;
 require IO::Select;
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 
 my %gopher2mimetype = (

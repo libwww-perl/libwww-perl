@@ -1,7 +1,6 @@
 package LWP::Protocol::file;
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 use strict;
 

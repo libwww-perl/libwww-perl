@@ -6,11 +6,10 @@ package LWP::Protocol::nogo;
 # a 500 error.
 
 use strict;
-use vars qw(@ISA);
+
 require HTTP::Response;
 require HTTP::Status;
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 sub request {
     my($self, $request) = @_;

@@ -2,8 +2,7 @@ package LWP::Protocol::nntp;
 
 # Implementation of the Network News Transfer Protocol (RFC 977)
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 require HTTP::Response;
 require HTTP::Status;

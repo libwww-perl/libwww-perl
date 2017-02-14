@@ -1,10 +1,8 @@
 package LWP::Protocol::cpan;
 
 use strict;
-use vars qw(@ISA);
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 require URI;
 require HTTP::Status;

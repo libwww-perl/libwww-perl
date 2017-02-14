@@ -1,12 +1,14 @@
 package LWP::Simple;
 
 use strict;
-use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK);
+use vars qw($ua %loop_check $FULL_LWP);
+
+our $VERSION = '6.19';
 
 require Exporter;
 
-@EXPORT = qw(get head getprint getstore mirror);
-@EXPORT_OK = qw($ua);
+our @EXPORT = qw(get head getprint getstore mirror);
+our @EXPORT_OK = qw($ua);
 
 # I really hate this.  It was a bad idea to do it in the first place.
 # Wonder how to get rid of it???  (It even makes LWP::Simple 7% slower
@@ -22,9 +24,6 @@ sub import
 }
 
 use LWP::UserAgent ();
-
-our $VERSION = $LWP::UserAgent::VERSION;
-
 use HTTP::Status ();
 use HTTP::Date ();
 $ua = LWP::UserAgent->new;  # we create a global UserAgent object

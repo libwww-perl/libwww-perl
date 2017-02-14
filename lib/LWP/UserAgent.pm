@@ -15,7 +15,7 @@ use LWP::Protocol ();
 use Scalar::Util qw(blessed);
 use Try::Tiny qw(try catch);
 
-our $VERSION = $LWP::VERSION;
+our $VERSION = '6.19';
 
 sub new
 {

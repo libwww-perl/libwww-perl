@@ -6,11 +6,9 @@ require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
 
-use vars qw(@ISA @EXTRA_SOCK_OPTS);
+use base qw(LWP::Protocol);
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
-
+our @EXTRA_SOCK_OPTS;
 my $CRLF = "\015\012";
 
 sub _new_socket
@@ -513,7 +511,6 @@ sub increment_response_count {
 
 #-----------------------------------------------------------
 package LWP::Protocol::http::Socket;
-use vars qw(@ISA);
-@ISA = qw(LWP::Protocol::http::SocketMethods Net::HTTP);
+use base qw(LWP::Protocol::http::SocketMethods Net::HTTP);
 
 1;

@@ -4,16 +4,15 @@ package LWP::Protocol::mailto;
 # frontend to the Unix sendmail program except on MacOS, where it uses
 # Mail::Internet.
 
-require LWP::Protocol;
 require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
 
 use Carp;
 use strict;
-use vars qw(@ISA $SENDMAIL);
 
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
+our $SENDMAIL;
 
 unless ($SENDMAIL = $ENV{SENDMAIL}) {
     for my $sm (qw(/usr/sbin/sendmail

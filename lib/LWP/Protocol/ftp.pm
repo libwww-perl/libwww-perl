@@ -11,8 +11,7 @@ use HTTP::Response ();
 use LWP::MediaTypes ();
 use File::Listing ();
 
-require LWP::Protocol;
-@ISA = qw(LWP::Protocol);
+use base qw(LWP::Protocol);
 
 use strict;
 eval {
@@ -21,8 +20,7 @@ eval {
     require Net::FTP;
     Net::FTP->require_version(2.00);
 
-    use vars qw(@ISA);
-    @ISA=qw(Net::FTP);
+    use base qw(Net::FTP);
 
     sub new {
 	my $class = shift;

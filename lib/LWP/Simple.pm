@@ -1,7 +1,6 @@
 package LWP::Simple;
 
 use strict;
-use vars qw($ua %loop_check $FULL_LWP);
 
 our $VERSION = '6.19';
 
@@ -24,9 +23,9 @@ sub import
 }
 
 use LWP::UserAgent ();
-use HTTP::Status ();
 use HTTP::Date ();
-$ua = LWP::UserAgent->new;  # we create a global UserAgent object
+
+our $ua = LWP::UserAgent->new;  # we create a global UserAgent object
 $ua->agent("LWP::Simple/$VERSION ");
 $ua->env_proxy;
 

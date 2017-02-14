@@ -1,15 +1,16 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-use vars qw($RECEIVER %urls @mess);
-
-$RECEIVER = 'mailto:yourself@somewhere.edu';
+use warnings;
 
 use Fcntl;
 use AnyDBM_File;
 use MD5;
 use LWP;
 
+my @mess;
+my %urls;
+my $RECEIVER = 'mailto:yourself@somewhere.edu';
 tie %urls, 'AnyDBM_File', 'urls', O_CREAT|O_RDWR, 0644 or
     die "Can't open urls: $!";
 
@@ -25,7 +26,7 @@ for $url (keys %urls) {
    if ($res->is_success) {
 	my $hash = "MD5:" . MD5->hexhash($res->content);
 	if ($hash ne $urls{$url}) {
-           push(@mess, "$url changed");	
+           push(@mess, "$url changed");
 	   $urls{$url} = $hash;
         }
         else {
@@ -43,7 +44,7 @@ for $url (keys %urls) {
         }
 	print "  giving up\n";
 	push(@mess, "$url: Giving up: " . $res->message);
-        delete $urls{$url};	
+        delete $urls{$url};
    }
    else {
 	print "  bad\n";

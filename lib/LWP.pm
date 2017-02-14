@@ -1,6 +1,6 @@
 package LWP;
 
-our $VERSION = '6.19';
+our $VERSION = '6.20';
 
 sub Version { $VERSION; }
 

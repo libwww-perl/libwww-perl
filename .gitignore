@@ -1,3 +1,7 @@
+libwww-perl-*.tar.gz
+libwww-perl-*/
+Build
+META.YML
 Makefile
 Makefile.old
 blib
@@ -13,3 +17,7 @@ MYMETA*
 /MANIFEST.bak
 /_eumm/
 /libwww-perl-*
+_build/
+blib/
+cover_db/
+.build/

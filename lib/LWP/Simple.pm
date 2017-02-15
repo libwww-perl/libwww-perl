@@ -12,7 +12,7 @@ our @EXPORT_OK = qw($ua);
 # I really hate this.  It was a bad idea to do it in the first place.
 # Wonder how to get rid of it???  (It even makes LWP::Simple 7% slower
 # for trivial tests)
-use HTTP::Status;
+use HTTP::Status ();
 push(@EXPORT, @HTTP::Status::EXPORT);
 
 sub import

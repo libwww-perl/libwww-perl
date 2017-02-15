@@ -7,7 +7,7 @@ our $VERSION = '6.20';
 use strict;
 use Carp ();
 use HTTP::Status ();
-use HTTP::Response;
+use HTTP::Response ();
 use Try::Tiny qw(try catch);
 
 my %ImplementedBy = (); # scheme => classname

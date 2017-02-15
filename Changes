@@ -1,7 +1,8 @@
 Change history for libwww-perl
 
-6.20    2017-
-    - 
+{{$NEXT}}
+    - Converted to use Dist::Zilla
+    - Moved several tests to xt/author
 
 6.19    2017-02-14
     - Call HTTP::Status constant functions without & (GH#110)

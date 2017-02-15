@@ -217,7 +217,8 @@ use HTTP::Date qw(time2str str2time);
 # user/password if document is protected.
 {
     package RequestAgent;
-    @ISA = qw(LWP::UserAgent);
+    
+    use base qw(LWP::UserAgent);
 
     sub new
     {

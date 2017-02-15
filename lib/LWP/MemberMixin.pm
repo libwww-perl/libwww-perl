@@ -1,10 +1,9 @@
 package LWP::MemberMixin;
 
-sub _elem
-{
+sub _elem {
     my $self = shift;
     my $elem = shift;
-    my $old = $self->{$elem};
+    my $old  = $self->{$elem};
     $self->{$elem} = shift if @_;
     return $old;
 }

@@ -1,4 +1,5 @@
 package LWP::Authen::Basic;
+
 use strict;
 
 require MIME::Base64;

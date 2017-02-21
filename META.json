@@ -332,7 +332,7 @@
                   "changelog" : "Changes"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git --version" : "2.10.1 (Apple Git-78)",
+                  "git --version" : "2.11.0",
                   "repo_root" : "."
                }
             },
@@ -355,7 +355,7 @@
                   "changelog" : "Changes"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git --version" : "2.10.1 (Apple Git-78)",
+                  "git --version" : "2.11.0",
                   "repo_root" : "."
                },
                "Dist::Zilla::Role::Git::StringFormatter" : {
@@ -377,7 +377,7 @@
                   "tag_message" : "v%v"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git --version" : "2.10.1 (Apple Git-78)",
+                  "git --version" : "2.11.0",
                   "repo_root" : "."
                },
                "Dist::Zilla::Role::Git::StringFormatter" : {
@@ -397,7 +397,7 @@
                   "remotes_must_exist" : 1
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git --version" : "2.10.1 (Apple Git-78)",
+                  "git --version" : "2.11.0",
                   "repo_root" : "."
                }
             },
@@ -408,7 +408,7 @@
             "class" : "Dist::Zilla::Plugin::Git::Contributors",
             "config" : {
                "Dist::Zilla::Plugin::Git::Contributors" : {
-                  "git --version" : "2.10.1 (Apple Git-78)",
+                  "git --version" : "2.11.0",
                   "include_authors" : 0,
                   "include_releaser" : 1,
                   "order_by" : "name",

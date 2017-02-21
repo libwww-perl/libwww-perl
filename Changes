@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Ensure that LWP::Simple re-exports some HTTP::Status functions
 
 6.20      2017-02-21
     - Converted to use Dist::Zilla

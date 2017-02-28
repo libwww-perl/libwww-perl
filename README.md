@@ -488,236 +488,282 @@ the active handlers:
 The methods described in this section are used to dispatch requests
 via the user agent.  The following request methods are provided:
 
-- $ua->get( $url )
-- $ua->get( $url , $field\_name => $value, ... )
+## get
 
-    This method will dispatch a `GET` request on the given $url.  Further
-    arguments can be given to initialize the headers of the request. These
-    are given as separate name/value pairs.  The return value is a
-    response object.  See [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
-    interface it provides.
+    my $res = $ua->get( $url );
+    my $res = $ua->get( $url , $field_name => $value, ... );
 
-    There will still be a response object returned when LWP can't connect to the
-    server specified in the URL or when other failures in protocol handlers occur.
-    These internal responses use the standard HTTP status codes, so the responses
-    can't be differentiated by testing the response status code alone.  Error
-    responses that LWP generates internally will have the "Client-Warning" header
-    set to the value "Internal response".  If you need to differentiate these
-    internal responses from responses that a remote server actually generates, you
-    need to test this header value.
+This method will dispatch a `GET` request on the given URL.  Further
+arguments can be given to initialize the headers of the request. These
+are given as separate name/value pairs.  The return value is a
+response object.  See [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
+interface it provides.
 
-    Fields names that start with ":" are special.  These will not
-    initialize headers of the request but will determine how the response
-    content is treated.  The following special field names are recognized:
+There will still be a response object returned when LWP can't connect to the
+server specified in the URL or when other failures in protocol handlers occur.
+These internal responses use the standard HTTP status codes, so the responses
+can't be differentiated by testing the response status code alone.  Error
+responses that LWP generates internally will have the "Client-Warning" header
+set to the value "Internal response".  If you need to differentiate these
+internal responses from responses that a remote server actually generates, you
+need to test this header value.
 
-        :content_file   => $filename
-        :content_cb     => \&callback
-        :read_size_hint => $bytes
+Fields names that start with ":" are special.  These will not
+initialize headers of the request but will determine how the response
+content is treated.  The following special field names are recognized:
 
-    If a $filename is provided with the `:content_file` option, then the
-    response content will be saved here instead of in the response
-    object.  If a callback is provided with the `:content_cb` option then
-    this function will be called for each chunk of the response content as
-    it is received from the server.  If neither of these options are
-    given, then the response content will accumulate in the response
-    object itself.  This might not be suitable for very large response
-    bodies.  Only one of `:content_file` or `:content_cb` can be
-    specified.  The content of unsuccessful responses will always
-    accumulate in the response object itself, regardless of the
-    `:content_file` or `:content_cb` options passed in.  Note that errors
-    writing to the content file (for example due to permission denied
-    or the filesystem being full) will be reported via the `Client-Aborted`
-    or `X-Died` response headers, and not the `is_success` method.
+    :content_file   => $filename
+    :content_cb     => \&callback
+    :read_size_hint => $bytes
 
-    The `:read_size_hint` option is passed to the protocol module which
-    will try to read data from the server in chunks of this size.  A
-    smaller value for the `:read_size_hint` will result in a higher
-    number of callback invocations.
+If a $filename is provided with the `:content_file` option, then the
+response content will be saved here instead of in the response
+object.  If a callback is provided with the `:content_cb` option then
+this function will be called for each chunk of the response content as
+it is received from the server.  If neither of these options are
+given, then the response content will accumulate in the response
+object itself.  This might not be suitable for very large response
+bodies.  Only one of `:content_file` or `:content_cb` can be
+specified.  The content of unsuccessful responses will always
+accumulate in the response object itself, regardless of the
+`:content_file` or `:content_cb` options passed in.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the `Client-Aborted`
+or `X-Died` response headers, and not the `is_success` method.
 
-    The callback function is called with 3 arguments: a chunk of data, a
-    reference to the response object, and a reference to the protocol
-    object.  The callback can abort the request by invoking die().  The
-    exception message will show up as the "X-Died" header field in the
-    response returned by the get() function.
+The `:read_size_hint` option is passed to the protocol module which
+will try to read data from the server in chunks of this size.  A
+smaller value for the `:read_size_hint` will result in a higher
+number of callback invocations.
 
-- $ua->head( $url )
-- $ua->head( $url , $field\_name => $value, ... )
+The callback function is called with 3 arguments: a chunk of data, a
+reference to the response object, and a reference to the protocol
+object.  The callback can abort the request by invoking die().  The
+exception message will show up as the "X-Died" header field in the
+response returned by the get() function.
 
-    This method will dispatch a `HEAD` request on the given $url.
-    Otherwise it works like the get() method described above.
+## head
 
-- $ua->post( $url, \\%form )
-- $ua->post( $url, \\@form )
-- $ua->post( $url, \\%form, $field\_name => $value, ... )
-- $ua->post( $url, $field\_name => $value,... Content => \\%form )
-- $ua->post( $url, $field\_name => $value,... Content => \\@form )
-- $ua->post( $url, $field\_name => $value,... Content => $content )
+    my $res = $ua->head( $url );
+    my $res = $ua->head( $url , $field_name => $value, ... );
 
-    This method will dispatch a `POST` request on the given $url, with
-    %form or @form providing the key/value pairs for the fill-in form
-    content. Additional headers and content options are the same as for
-    the get() method.
+This method will dispatch a `HEAD` request on the given URL.
+Otherwise it works like the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method described above.
 
-    This method will use the POST() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
-    to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
-    how to pass form content and other advanced features.
+## post
 
-- $ua->put( $url, \\%form )
-- $ua->put( $url, \\@form )
-- $ua->put( $url, \\%form, $field\_name => $value, ... )
-- $ua->put( $url, $field\_name => $value,... Content => \\%form )
-- $ua->put( $url, $field\_name => $value,... Content => \\@form )
-- $ua->put( $url, $field\_name => $value,... Content => $content )
+    my $res = $ua->post( $url, \%form );
+    my $res = $ua->post( $url, \@form );
+    my $res = $ua->post( $url, \%form, $field_name => $value, ... );
+    my $res = $ua->post( $url, $field_name => $value, Content => \%form );
+    my $res = $ua->post( $url, $field_name => $value, Content => \@form );
+    my $res = $ua->post( $url, $field_name => $value, Content => $content );
 
-    This method will dispatch a `PUT` request on the given $url, with
-    %form or @form providing the key/value pairs for the fill-in form
-    content. Additional headers and content options are the same as for
-    the get() method.
+This method will dispatch a `POST` request on the given URL, with
+`%form` or `@form` providing the key/value pairs for the fill-in form
+content. Additional headers and content options are the same as for
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method.
 
-    This method will use the PUT() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
-    to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
-    how to pass form content and other advanced features.
+This method will use the `POST` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
+how to pass form content and other advanced features.
 
-- $ua->delete( $url )
-- $ua->delete( $url, $field\_name => $value, ... )
+## put
 
-    This method will dispatch a `DELETE` request on the given $url.  Additional
-    headers and content options are the same as for the get() method.
+    # Any version of HTTP::Message works with this form:
+    my $res = $ua->put( $url, $field_name => $value, Content => $content );
 
-    This method will use the DELETE() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
-    to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
-    how to pass form content and other advanced features.
+    # Using hash or array references require HTTP::Message >= 6.07
+    use HTTP::Request 6.07;
+    my $res = $ua->put( $url, \%form );
+    my $res = $ua->put( $url, \@form );
+    my $res = $ua->put( $url, \%form, $field_name => $value, ... );
+    my $res = $ua->put( $url, $field_name => $value, Content => \%form );
+    my $res = $ua->put( $url, $field_name => $value, Content => \@form );
 
-- $ua->mirror( $url, $filename )
+This method will dispatch a `PUT` request on the given URL, with
+`%form` or `@form` providing the key/value pairs for the fill-in form
+content. Additional headers and content options are the same as for
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method.
 
-    This method will get the document identified by $url and store it in
-    file called $filename.  If the file already exists, then the request
-    will contain an "If-Modified-Since" header matching the modification
-    time of the file.  If the document on the server has not changed since
-    this time, then nothing happens.  If the document has been updated, it
-    will be downloaded again.  The modification time of the file will be
-    forced to match that of the server.
+CAVEAT:
 
-    The return value is the response object.
+This method can only accept content that is in key-value pairs when using
+[HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) prior to version `6.07`. Any use of hash or array
+references will result in an error prior to version `6.07`.
 
-- $ua->request( $request )
-- $ua->request( $request, $content\_file )
-- $ua->request( $request, $content\_cb )
-- $ua->request( $request, $content\_cb, $read\_size\_hint )
+This method will use the `PUT` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
+how to pass form content and other advanced features.
 
-    This method will dispatch the given $request object.  Normally this
-    will be an instance of the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) class, but any object with
-    a similar interface will do.  The return value is a response object.
-    See [HTTP::Request](https://metacpan.org/pod/HTTP::Request) and [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
-    interface provided by these classes.
+## delete
 
-    The request() method will process redirects and authentication
-    responses transparently.  This means that it may actually send several
-    simple requests via the simple\_request() method described below.
+    my $res = $ua->delete( $url );
+    my $res = $ua->delete( $url, $field_name => $value, ... );
 
-    The request methods described above; get(), head(), post() and
-    mirror(), will all dispatch the request they build via this method.
-    They are convenience methods that simply hides the creation of the
-    request object for you.
+This method will dispatch a `DELETE` request on the given URL.  Additional
+headers and content options are the same as for the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get)
+method.
 
-    The $content\_file, $content\_cb and $read\_size\_hint all correspond to
-    options described with the get() method above.  Note that errors
-    writing to the content file (for example due to permission denied
-    or the filesystem being full) will be reported via the `Client-Aborted`
-    or `X-Died` response headers, and not the `is_success` method.
+This method will use the DELETE() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
+how to pass form content and other advanced features.
 
-    You are allowed to use a CODE reference as `content` in the request
-    object passed in.  The `content` function should return the content
-    when called.  The content can be returned in chunks.  The content
-    function will be invoked repeatedly until it return an empty string to
-    signal that there is no more content.
+## mirror
 
-- $ua->simple\_request( $request )
-- $ua->simple\_request( $request, $content\_file )
-- $ua->simple\_request( $request, $content\_cb )
-- $ua->simple\_request( $request, $content\_cb, $read\_size\_hint )
+    my $res = $ua->mirror( $url, $filename );
 
-    This method dispatches a single request and returns the response
-    received.  Arguments are the same as for request() described above.
+This method will get the document identified by URL and store it in
+file called `$filename`.  If the file already exists, then the request
+will contain an `If-Modified-Since` header matching the modification
+time of the file.  If the document on the server has not changed since
+this time, then nothing happens.  If the document has been updated, it
+will be downloaded again.  The modification time of the file will be
+forced to match that of the server.
 
-    The difference from request() is that simple\_request() will not try to
-    handle redirects or authentication responses.  The request() method
-    will in fact invoke this method for each simple request it sends.
+The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
-- $ua->is\_online
+## request
 
-    Tries to determine if you have access to the Internet.  Returns
-    TRUE if the built-in heuristics determine that the user agent is
-    able to access the Internet (over HTTP).  See also [LWP::Online](https://metacpan.org/pod/LWP::Online).
+    my $res = $ua->request( $request );
+    my $res = $ua->request( $request, $content_file );
+    my $res = $ua->request( $request, $content_cb );
+    my $res = $ua->request( $request, $content_cb, $read_size_hint );
 
-- $ua->is\_protocol\_supported( $scheme )
+This method will dispatch the given `$request` object.  Normally this
+will be an instance of the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) class, but any object with
+a similar interface will do.  The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
+See [HTTP::Request](https://metacpan.org/pod/HTTP::Request) and [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
+interface provided by these classes.
 
-    You can use this method to test whether this user agent object supports the
-    specified `scheme`.  (The `scheme` might be a string (like 'http' or
-    'ftp') or it might be an URI object reference.)
+The `request` method will process redirects and authentication
+responses transparently.  This means that it may actually send several
+simple requests via the ["simple\_request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#simple_request) method described below.
 
-    Whether a scheme is supported, is determined by the user agent's
-    `protocols_allowed` or `protocols_forbidden` lists (if any), and by
-    the capabilities of LWP.  I.e., this will return TRUE only if LWP
-    supports this protocol _and_ it's permitted for this particular
-    object.
+The request methods described above; ["get" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#get), ["head" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#head),
+["post" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#post) and ["mirror" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#mirror) will all dispatch the request
+they build via this method.
+They are convenience methods that simply hide the creation of the
+request object for you.
 
-## Callback methods
+The `$content_file`, `$content_cb` and `$read_size_hint` all correspond to
+options described with the ["get" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#get) method above.  Note that errors
+writing to the content file (for example due to permission denied
+or the filesystem being full) will be reported via the `Client-Aborted`
+or `X-Died` response headers, and not the `is_success` method.
+
+You are allowed to use a CODE reference as `content` in the request
+object passed in.  The `content` function should return the content
+when called.  The content can be returned in chunks.  The content
+function will be invoked repeatedly until it return an empty string to
+signal that there is no more content.
+
+## simple\_request
+
+    my $request = HTTP::Request->new( ... );
+    my $res = $ua->simple_request( $request );
+    my $res = $ua->simple_request( $request, $content_file );
+    my $res = $ua->simple_request( $request, $content_cb );
+    my $res = $ua->simple_request( $request, $content_cb, $read_size_hint );
+
+This method dispatches a single request and returns the response
+received.  Arguments are the same as for the ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) described above.
+
+The difference from ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) is that `simple_request` will not try to
+handle redirects or authentication responses.  The ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) method
+will, in fact, invoke this method for each simple request it sends.
+
+## is\_online
+
+    my $bool = $ua->is_online;
+
+Tries to determine if you have access to the Internet. Returns `1` (true)
+if the built-in heuristics determine that the user agent is
+able to access the Internet (over HTTP) or `0` (false).
+
+See also [LWP::Online](https://metacpan.org/pod/LWP::Online).
+
+## is\_protocol\_supported
+
+    my $bool = $ua->is_protocol_supported( $scheme );
+
+You can use this method to test whether this user agent object supports the
+specified `scheme`.  (The `scheme` might be a string (like `http` or
+`ftp`) or it might be an [URI](https://metacpan.org/pod/URI) object reference.)
+
+Whether a scheme is supported is determined by the user agent's
+`protocols_allowed` or `protocols_forbidden` lists (if any), and by
+the capabilities of LWP.  I.e., this will return true only if LWP
+supports this protocol _and_ it's permitted for this particular
+object.
+
+# Callback methods
 
 The following methods will be invoked as requests are processed. These
 methods are documented here because subclasses of [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent)
 might want to override their behaviour.
 
-- $ua->prepare\_request( $request )
+## prepare\_request
 
-    This method is invoked by simple\_request().  Its task is to modify the
-    given $request object by setting up various headers based on the
-    attributes of the user agent. The return value should normally be the
-    $request object passed in.  If a different request object is returned
-    it will be the one actually processed.
+    $request = $ua->prepare_request( $request );
 
-    The headers affected by the base implementation are; "User-Agent",
-    "From", "Range" and "Cookie".
+This method is invoked by ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#simple_request). Its task is
+to modify the given `$request` object by setting up various headers based
+on the attributes of the user agent. The return value should normally be the
+`$request` object passed in.  If a different request object is returned
+it will be the one actually processed.
 
-- $ua->redirect\_ok( $prospective\_request, $response )
+The headers affected by the base implementation are; `User-Agent`,
+`From`, `Range` and `Cookie`.
 
-    This method is called by request() before it tries to follow a
-    redirection to the request in $response.  This should return a TRUE
-    value if this redirection is permissible.  The $prospective\_request
-    will be the request to be sent if this method returns TRUE.
+## redirect\_ok
 
-    The base implementation will return FALSE unless the method
-    is in the object's `requests_redirectable` list,
-    FALSE if the proposed redirection is to a "file://..."
-    URL, and TRUE otherwise.
+    my $bool = $ua->redirect_ok( $prospective_request, $response );
 
-- $ua->get\_basic\_credentials( $realm, $uri, $isproxy )
+This method is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) before it tries to follow a
+redirection to the request in `$response`.  This should return a true
+value if this redirection is permissible.  The `$prospective_request`
+will be the request to be sent if this method returns true.
 
-    This is called by request() to retrieve credentials for documents
-    protected by Basic or Digest Authentication.  The arguments passed in
-    is the $realm provided by the server, the $uri requested and a boolean
-    flag to indicate if this is authentication against a proxy server.
+The base implementation will return false unless the method
+is in the object's `requests_redirectable` list,
+false if the proposed redirection is to a `file://...`
+URL, and true otherwise.
 
-    The method should return a username and password.  It should return an
-    empty list to abort the authentication resolution attempt.  Subclasses
-    can override this method to prompt the user for the information. An
-    example of this can be found in `lwp-request` program distributed
-    with this library.
+## get\_basic\_credentials
 
-    The base implementation simply checks a set of pre-stored member
-    variables, set up with the credentials() method.
+    # This checks wantarray and can either return an array:
+    my ($user, $pass) = $ua->get_basic_credentials( $realm, $uri, $isproxy );
+    # or a string that looks like "user:pass"
+    my $creds = $ua->get_basic_credentials($realm, $uri, $isproxy);
 
-- $ua->progress( $status, $request\_or\_response )
+This is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) to retrieve credentials for documents
+protected by Basic or Digest Authentication.  The arguments passed in
+is the `$realm` provided by the server, the `$uri` requested and a
+`boolean flag` to indicate if this is authentication against a proxy server.
 
-    This is called frequently as the response is received regardless of
-    how the content is processed.  The method is called with $status
-    "begin" at the start of processing the request and with $state "end"
-    before the request method returns.  In between these $status will be
-    the fraction of the response currently received or the string "tick"
-    if the fraction can't be calculated.
+The method should return a username and password.  It should return an
+empty list to abort the authentication resolution attempt.  Subclasses
+can override this method to prompt the user for the information. An
+example of this can be found in `lwp-request` program distributed
+with this library.
 
-    When $status is "begin" the second argument is the request object,
-    otherwise it is the response object.
+The base implementation simply checks a set of pre-stored member
+variables, set up with the ["credentials" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#credentials) method.
+
+## progress
+
+    my $prog = $ua->progress( $status, $request_or_response );
+
+This is called frequently as the response is received regardless of
+how the content is processed.  The method is called with `$status`
+"begin" at the start of processing the request and with `$state` "end"
+before the request method returns.  In between these `$status` will be
+the fraction of the response currently received or the string "tick"
+if the fraction can't be calculated.
+
+When `$status` is "begin" the second argument is the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object,
+otherwise it is the [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 # SEE ALSO
 
@@ -732,7 +778,7 @@ and [HTML::Form](https://metacpan.org/pod/HTML::Form) for other ways to build re
 See [WWW::Mechanize](https://metacpan.org/pod/WWW::Mechanize) and [WWW::Search](https://metacpan.org/pod/WWW::Search) for examples of more
 specialized user agents based on [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent).
 
-# COPYRIGHT
+# COPYRIGHT AND LICENSE
 
 Copyright 1995-2009 Gisle Aas.
 

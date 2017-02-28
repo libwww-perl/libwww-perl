@@ -1643,13 +1643,12 @@ the given processing phase.
 The methods described in this section are used to dispatch requests
 via the user agent.  The following request methods are provided:
 
-=over
+=head2 get
 
-=item $ua->get( $url )
+    my $res = $ua->get( $url );
+    my $res = $ua->get( $url , $field_name => $value, ... );
 
-=item $ua->get( $url , $field_name => $value, ... )
-
-This method will dispatch a C<GET> request on the given $url.  Further
+This method will dispatch a C<GET> request on the given URL.  Further
 arguments can be given to initialize the headers of the request. These
 are given as separate name/value pairs.  The return value is a
 response object.  See L<HTTP::Response> for a description of the
@@ -1698,103 +1697,112 @@ object.  The callback can abort the request by invoking die().  The
 exception message will show up as the "X-Died" header field in the
 response returned by the get() function.
 
-=item $ua->head( $url )
+=head2 head
 
-=item $ua->head( $url , $field_name => $value, ... )
+    my $res = $ua->head( $url );
+    my $res = $ua->head( $url , $field_name => $value, ... );
 
-This method will dispatch a C<HEAD> request on the given $url.
-Otherwise it works like the get() method described above.
+This method will dispatch a C<HEAD> request on the given URL.
+Otherwise it works like the L<LWP::UserAgent/get> method described above.
 
-=item $ua->post( $url, \%form )
+=head2 post
 
-=item $ua->post( $url, \@form )
+    my $res = $ua->post( $url, \%form );
+    my $res = $ua->post( $url, \@form );
+    my $res = $ua->post( $url, \%form, $field_name => $value, ... );
+    my $res = $ua->post( $url, $field_name => $value, Content => \%form );
+    my $res = $ua->post( $url, $field_name => $value, Content => \@form );
+    my $res = $ua->post( $url, $field_name => $value, Content => $content );
 
-=item $ua->post( $url, \%form, $field_name => $value, ... )
-
-=item $ua->post( $url, $field_name => $value,... Content => \%form )
-
-=item $ua->post( $url, $field_name => $value,... Content => \@form )
-
-=item $ua->post( $url, $field_name => $value,... Content => $content )
-
-This method will dispatch a C<POST> request on the given $url, with
-%form or @form providing the key/value pairs for the fill-in form
+This method will dispatch a C<POST> request on the given URL, with
+C<%form> or C<@form> providing the key/value pairs for the fill-in form
 content. Additional headers and content options are the same as for
-the get() method.
+the L<LWP::UserAgent/get> method.
 
-This method will use the POST() function from L<HTTP::Request::Common>
+This method will use the C<POST> function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
-=item $ua->put( $url, \%form )
+=head2 put
 
-=item $ua->put( $url, \@form )
+    # Any version of HTTP::Message works with this form:
+    my $res = $ua->put( $url, $field_name => $value, Content => $content );
 
-=item $ua->put( $url, \%form, $field_name => $value, ... )
+    # Using hash or array references require HTTP::Message >= 6.07
+    use HTTP::Request 6.07;
+    my $res = $ua->put( $url, \%form );
+    my $res = $ua->put( $url, \@form );
+    my $res = $ua->put( $url, \%form, $field_name => $value, ... );
+    my $res = $ua->put( $url, $field_name => $value, Content => \%form );
+    my $res = $ua->put( $url, $field_name => $value, Content => \@form );
 
-=item $ua->put( $url, $field_name => $value,... Content => \%form )
-
-=item $ua->put( $url, $field_name => $value,... Content => \@form )
-
-=item $ua->put( $url, $field_name => $value,... Content => $content )
-
-This method will dispatch a C<PUT> request on the given $url, with
-%form or @form providing the key/value pairs for the fill-in form
+This method will dispatch a C<PUT> request on the given URL, with
+C<%form> or C<@form> providing the key/value pairs for the fill-in form
 content. Additional headers and content options are the same as for
-the get() method.
+the L<LWP::UserAgent/get> method.
 
-This method will use the PUT() function from L<HTTP::Request::Common>
+CAVEAT:
+
+This method can only accept content that is in key-value pairs when using
+L<HTTP::Request::Common> prior to version C<6.07>. Any use of hash or array
+references will result in an error prior to version C<6.07>.
+
+This method will use the C<PUT> function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
-=item $ua->delete( $url )
+=head2 delete
 
-=item $ua->delete( $url, $field_name => $value, ... )
+    my $res = $ua->delete( $url );
+    my $res = $ua->delete( $url, $field_name => $value, ... );
 
-This method will dispatch a C<DELETE> request on the given $url.  Additional
-headers and content options are the same as for the get() method.
+This method will dispatch a C<DELETE> request on the given URL.  Additional
+headers and content options are the same as for the L<LWP::UserAgent/get>
+method.
 
 This method will use the DELETE() function from L<HTTP::Request::Common>
 to build the request.  See L<HTTP::Request::Common> for a details on
 how to pass form content and other advanced features.
 
-=item $ua->mirror( $url, $filename )
+=head2 mirror
 
-This method will get the document identified by $url and store it in
-file called $filename.  If the file already exists, then the request
-will contain an "If-Modified-Since" header matching the modification
+    my $res = $ua->mirror( $url, $filename );
+
+This method will get the document identified by URL and store it in
+file called C<$filename>.  If the file already exists, then the request
+will contain an C<If-Modified-Since> header matching the modification
 time of the file.  If the document on the server has not changed since
 this time, then nothing happens.  If the document has been updated, it
 will be downloaded again.  The modification time of the file will be
 forced to match that of the server.
 
-The return value is the response object.
+The return value is an L<HTTP::Response> object.
 
-=item $ua->request( $request )
+=head2 request
 
-=item $ua->request( $request, $content_file )
+    my $res = $ua->request( $request );
+    my $res = $ua->request( $request, $content_file );
+    my $res = $ua->request( $request, $content_cb );
+    my $res = $ua->request( $request, $content_cb, $read_size_hint );
 
-=item $ua->request( $request, $content_cb )
-
-=item $ua->request( $request, $content_cb, $read_size_hint )
-
-This method will dispatch the given $request object.  Normally this
+This method will dispatch the given C<$request> object.  Normally this
 will be an instance of the L<HTTP::Request> class, but any object with
-a similar interface will do.  The return value is a response object.
+a similar interface will do.  The return value is an L<HTTP::Response> object.
 See L<HTTP::Request> and L<HTTP::Response> for a description of the
 interface provided by these classes.
 
-The request() method will process redirects and authentication
+The C<request> method will process redirects and authentication
 responses transparently.  This means that it may actually send several
-simple requests via the simple_request() method described below.
+simple requests via the L<LWP::Simple/simple_request> method described below.
 
-The request methods described above; get(), head(), post() and
-mirror(), will all dispatch the request they build via this method.
-They are convenience methods that simply hides the creation of the
+The request methods described above; L<LWP::Simple/get>, L<LWP::Simple/head>,
+L<LWP::Simple/post> and L<LWP::Simple/mirror> will all dispatch the request
+they build via this method.
+They are convenience methods that simply hide the creation of the
 request object for you.
 
-The $content_file, $content_cb and $read_size_hint all correspond to
-options described with the get() method above.  Note that errors
+The C<$content_file>, C<$content_cb> and C<$read_size_hint> all correspond to
+options described with the L<LWP::Simple/get> method above.  Note that errors
 writing to the content file (for example due to permission denied
 or the filesystem being full) will be reported via the C<Client-Aborted>
 or C<X-Died> response headers, and not the C<is_success> method.
@@ -1805,78 +1813,89 @@ when called.  The content can be returned in chunks.  The content
 function will be invoked repeatedly until it return an empty string to
 signal that there is no more content.
 
-=item $ua->simple_request( $request )
+=head2 simple_request
 
-=item $ua->simple_request( $request, $content_file )
-
-=item $ua->simple_request( $request, $content_cb )
-
-=item $ua->simple_request( $request, $content_cb, $read_size_hint )
+    my $request = HTTP::Request->new( ... );
+    my $res = $ua->simple_request( $request );
+    my $res = $ua->simple_request( $request, $content_file );
+    my $res = $ua->simple_request( $request, $content_cb );
+    my $res = $ua->simple_request( $request, $content_cb, $read_size_hint );
 
 This method dispatches a single request and returns the response
-received.  Arguments are the same as for request() described above.
+received.  Arguments are the same as for the L<LWP::Simple/request> described above.
 
-The difference from request() is that simple_request() will not try to
-handle redirects or authentication responses.  The request() method
-will in fact invoke this method for each simple request it sends.
+The difference from L<LWP::Simple/request> is that C<simple_request> will not try to
+handle redirects or authentication responses.  The L<LWP::Simple/request> method
+will, in fact, invoke this method for each simple request it sends.
 
-=item $ua->is_online
+=head2 is_online
 
-Tries to determine if you have access to the Internet.  Returns
-TRUE if the built-in heuristics determine that the user agent is
-able to access the Internet (over HTTP).  See also L<LWP::Online>.
+    my $bool = $ua->is_online;
 
-=item $ua->is_protocol_supported( $scheme )
+Tries to determine if you have access to the Internet. Returns C<1> (true)
+if the built-in heuristics determine that the user agent is
+able to access the Internet (over HTTP) or C<0> (false).
+
+See also L<LWP::Online>.
+
+=head2 is_protocol_supported
+
+    my $bool = $ua->is_protocol_supported( $scheme );
 
 You can use this method to test whether this user agent object supports the
-specified C<scheme>.  (The C<scheme> might be a string (like 'http' or
-'ftp') or it might be an URI object reference.)
+specified C<scheme>.  (The C<scheme> might be a string (like C<http> or
+C<ftp>) or it might be an L<URI> object reference.)
 
-Whether a scheme is supported, is determined by the user agent's
+Whether a scheme is supported is determined by the user agent's
 C<protocols_allowed> or C<protocols_forbidden> lists (if any), and by
-the capabilities of LWP.  I.e., this will return TRUE only if LWP
+the capabilities of LWP.  I.e., this will return true only if LWP
 supports this protocol I<and> it's permitted for this particular
 object.
 
-=back
-
-=head2 Callback methods
+=head1 Callback methods
 
 The following methods will be invoked as requests are processed. These
 methods are documented here because subclasses of L<LWP::UserAgent>
 might want to override their behaviour.
 
-=over
+=head2 prepare_request
 
-=item $ua->prepare_request( $request )
+    $request = $ua->prepare_request( $request );
 
-This method is invoked by simple_request().  Its task is to modify the
-given $request object by setting up various headers based on the
-attributes of the user agent. The return value should normally be the
-$request object passed in.  If a different request object is returned
+This method is invoked by L<LWP::UserAgent/simple_request>. Its task is
+to modify the given C<$request> object by setting up various headers based
+on the attributes of the user agent. The return value should normally be the
+C<$request> object passed in.  If a different request object is returned
 it will be the one actually processed.
 
-The headers affected by the base implementation are; "User-Agent",
-"From", "Range" and "Cookie".
+The headers affected by the base implementation are; C<User-Agent>,
+C<From>, C<Range> and C<Cookie>.
 
-=item $ua->redirect_ok( $prospective_request, $response )
+=head2 redirect_ok
 
-This method is called by request() before it tries to follow a
-redirection to the request in $response.  This should return a TRUE
-value if this redirection is permissible.  The $prospective_request
-will be the request to be sent if this method returns TRUE.
+    my $bool = $ua->redirect_ok( $prospective_request, $response );
 
-The base implementation will return FALSE unless the method
+This method is called by L<LWP::UserAgent/request> before it tries to follow a
+redirection to the request in C<$response>.  This should return a true
+value if this redirection is permissible.  The C<$prospective_request>
+will be the request to be sent if this method returns true.
+
+The base implementation will return false unless the method
 is in the object's C<requests_redirectable> list,
-FALSE if the proposed redirection is to a "file://..."
-URL, and TRUE otherwise.
+false if the proposed redirection is to a C<file://...>
+URL, and true otherwise.
 
-=item $ua->get_basic_credentials( $realm, $uri, $isproxy )
+=head2 get_basic_credentials
 
-This is called by request() to retrieve credentials for documents
+    # This checks wantarray and can either return an array:
+    my ($user, $pass) = $ua->get_basic_credentials( $realm, $uri, $isproxy );
+    # or a string that looks like "user:pass"
+    my $creds = $ua->get_basic_credentials($realm, $uri, $isproxy);
+
+This is called by L<LWP::UserAgent/request> to retrieve credentials for documents
 protected by Basic or Digest Authentication.  The arguments passed in
-is the $realm provided by the server, the $uri requested and a boolean
-flag to indicate if this is authentication against a proxy server.
+is the C<$realm> provided by the server, the C<$uri> requested and a
+C<boolean flag> to indicate if this is authentication against a proxy server.
 
 The method should return a username and password.  It should return an
 empty list to abort the authentication resolution attempt.  Subclasses
@@ -1885,21 +1904,21 @@ example of this can be found in C<lwp-request> program distributed
 with this library.
 
 The base implementation simply checks a set of pre-stored member
-variables, set up with the credentials() method.
+variables, set up with the L<LWP::UserAgent/credentials> method.
 
-=item $ua->progress( $status, $request_or_response )
+=head2 progress
+
+    my $prog = $ua->progress( $status, $request_or_response );
 
 This is called frequently as the response is received regardless of
-how the content is processed.  The method is called with $status
-"begin" at the start of processing the request and with $state "end"
-before the request method returns.  In between these $status will be
+how the content is processed.  The method is called with C<$status>
+"begin" at the start of processing the request and with C<$state> "end"
+before the request method returns.  In between these C<$status> will be
 the fraction of the response currently received or the string "tick"
 if the fraction can't be calculated.
 
-When $status is "begin" the second argument is the request object,
-otherwise it is the response object.
-
-=back
+When C<$status> is "begin" the second argument is the L<HTTP::Request> object,
+otherwise it is the L<HTTP::Response> object.
 
 =head1 SEE ALSO
 
@@ -1914,7 +1933,7 @@ and L<HTML::Form> for other ways to build request objects.
 See L<WWW::Mechanize> and L<WWW::Search> for examples of more
 specialized user agents based on L<LWP::UserAgent>.
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
 Copyright 1995-2009 Gisle Aas.
 

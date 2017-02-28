@@ -573,7 +573,7 @@ how to pass form content and other advanced features.
     # Any version of HTTP::Message works with this form:
     my $res = $ua->put( $url, $field_name => $value, Content => $content );
 
-    # Using hash or array references require HTTP::Message >= 6.07
+    # Using hash or array references requires HTTP::Message >= 6.07
     use HTTP::Request 6.07;
     my $res = $ua->put( $url, \%form );
     my $res = $ua->put( $url, \@form );

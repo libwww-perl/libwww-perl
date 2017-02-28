@@ -64,6 +64,7 @@
             "HTTP::Cookies" : "6",
             "HTTP::Daemon" : "6",
             "HTTP::Date" : "6",
+            "HTTP::Message" : "6.11",
             "HTTP::Negotiate" : "6",
             "HTTP::Request" : "6",
             "HTTP::Request::Common" : "6",
@@ -461,6 +462,17 @@
          {
             "class" : "Dist::Zilla::Plugin::NextRelease",
             "name" : "NextRelease",
+            "version" : "6.008"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Prereqs",
+            "config" : {
+               "Dist::Zilla::Plugin::Prereqs" : {
+                  "phase" : "runtime",
+                  "type" : "requires"
+               }
+            },
+            "name" : "Prereqs",
             "version" : "6.008"
          },
          {

@@ -1,6 +1,12 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Update Travis-CI to test on minimum versions of prereqs. (GH PR #115)
+    - Fix tests that depended on a newer version of HTTP::Message (GH PR #119)
+    - Update documentation to reflect behavior difference in ->put() depending
+      on the version of HTTP::Message installed. (GH PR #120)
+
+6.21      2017-02-21
     - Ensure that LWP::Simple re-exports some HTTP::Status functions
 
 6.20      2017-02-21

@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+
+6.22      2017-03-01
     - Update Travis-CI to test on minimum versions of prereqs. (GH PR #109)
     - Fix tests that depended on a newer version of HTTP::Message (GH PR #119)
     - Update documentation to reflect behavior difference in ->put() depending

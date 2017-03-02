@@ -103,9 +103,9 @@ sub request {
     my $art = $nntp->$get("<$groupart>");
     unless ($art) {
         $nntp->quit;
-        $nntp = undef;
         $response->code(HTTP::Status::RC_NOT_FOUND);
         $response->message($nntp->message);
+        $nntp = undef;
         return $response;
     }
 

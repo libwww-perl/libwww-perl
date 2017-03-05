@@ -1113,7 +1113,9 @@ LWP::UserAgent - Web user agent class
 
 =head1 SYNOPSIS
 
- require LWP::UserAgent;
+ use strict;
+ use warnings;
+ use LWP::UserAgent ();
 
  my $ua = LWP::UserAgent->new;
  $ua->timeout(10);
@@ -1139,24 +1141,26 @@ then creates an instance of L<HTTP::Request> for the request that
 needs to be performed. This request is then passed to one of the
 request method the UserAgent, which dispatches it using the relevant
 protocol, and returns a L<HTTP::Response> object.  There are
-convenience methods for sending the most common request types: get(),
-head(), post(), put() and delete().  When using these methods then the
-creation of the request object is hidden as shown in the synopsis above.
+convenience methods for sending the most common request types:
+L<LWP::UserAgent/get>, L<LWP::UserAgent/head>, L<LWP::UserAgent/post>,
+L<LWP::UserAgent/put> and L<LWP::UserAgent/delete>.  When using these
+methods, the creation of the request object is hidden as shown in the
+synopsis above.
 
-The basic approach of the library is to use HTTP style communication
+The basic approach of the library is to use HTTP-style communication
 for all protocol schemes.  This means that you will construct
 L<HTTP::Request> objects and receive L<HTTP::Response> objects even
 for non-HTTP resources like I<gopher> and I<ftp>.  In order to achieve
-even more similarity to HTTP style communications, gopher menus and
+even more similarity to HTTP-style communications, I<gopher> menus and
 file directories are converted to HTML documents.
 
 =head1 CONSTRUCTOR METHODS
 
 The following constructor methods are available:
 
-=over 4
+=head2 new
 
-=item $ua = LWP::UserAgent->new( %options )
+    my $ua = LWP::UserAgent->new( %options )
 
 This method constructs a new L<LWP::UserAgent> object and returns it.
 Key/value pair arguments may be provided to set up the initial state.
@@ -1170,7 +1174,7 @@ The following options correspond to attribute methods described below:
    cookie_jar              undef
    default_headers         HTTP::Headers->new
    local_address           undef
-   ssl_opts		   { verify_hostname => 1 }
+   ssl_opts                { verify_hostname => 1 }
    max_size                undef
    max_redirect            7
    parse_head              1
@@ -1180,18 +1184,19 @@ The following options correspond to attribute methods described below:
    timeout                 180
 
 The following additional options are also accepted: If the C<env_proxy> option
-is passed in with a TRUE value, then proxy settings are read from environment
-variables (see env_proxy() method below).  If C<env_proxy> isn't provided the
-C<PERL_LWP_ENV_PROXY> environment variable controls if env_proxy() is called
-during initialization.  If the C<keep_alive> option is passed in, then a
-C<LWP::ConnCache> is set up (see conn_cache() method below).  The C<keep_alive>
-value is passed on as the C<total_capacity> for the connection cache.
+is passed in with a true value, then proxy settings are read from environment
+variables (see L<LWP::UserAgent/env_proxy>). If C<env_proxy> isn't provided, the
+C<PERL_LWP_ENV_PROXY> environment variable controls if
+L<LWP::UserAgent/env_proxy> is called during initialization.  If the
+C<keep_alive> option is passed in, then a C<LWP::ConnCache> is set up (see
+L<LWP::UserAgent/conn_cache>).  The C<keep_alive> value is passed on as the
+C<total_capacity> for the connection cache.
 
-=item $ua->clone
+=head2 clone
 
-Returns a copy of the LWP::UserAgent object.
+    my $ua2 = $ua->clone;
 
-=back
+Returns a copy of the L<LWP::UserAgent> object.
 
 =head1 ATTRIBUTES
 
@@ -1203,67 +1208,66 @@ The following attribute methods are provided.  The attribute value is
 left unchanged if no argument is given.  The return value from each
 method is the old attribute value.
 
-=over
+=head2 _agent
 
-=item $ua->agent
-
-=item $ua->agent( $product_id )
-
-Get/set the product token that is used to identify the user agent on
-the network.  The agent value is sent as the "User-Agent" header in
-the requests.  The default is the string returned by the _agent()
-method (see below).
-
-If the $product_id ends with space then the _agent() string is
-appended to it.
-
-The user agent string should be one or more simple product identifiers
-with an optional version number separated by the "/" character.
-Examples are:
-
-  $ua->agent('Checkbot/0.4 ' . $ua->_agent);
-  $ua->agent('Checkbot/0.4 ');    # same as above
-  $ua->agent('Mozilla/5.0');
-  $ua->agent("");                 # don't identify
-
-=item $ua->_agent
+    my $agent_string = $ua->_agent;
 
 Returns the default agent identifier.  This is a string of the form
-"libwww-perl/#.###", where "#.###" is substituted with the version number
+C<libwww-perl/#.###>, where C<#.###> is substituted with the version number
 of this library.
 
-=item $ua->from
+=head2 agent
 
-=item $ua->from( $email_address )
+    my $agent = $ua->agent;
+    $ua->agent( $product_id );
+    $ua->agent('Checkbot/0.4 ' . $ua->_agent);
+    $ua->agent('Checkbot/0.4 ');    # same as above
+    $ua->agent('Mozilla/5.0');
+    $ua->agent("");                 # don't identify
 
-Get/set the e-mail address for the human user who controls
+Get/set the product token that is used to identify the user agent on
+the network.  The agent value is sent as the C<User-Agent> header in
+the requests.  The default is the string returned by the
+L<LWP::UserAgent/_agent> method.
+
+If the C<$product_id> ends with space then the L<LWP::UserAgent/_agent> string
+is appended to it.
+
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the C</> character.
+
+=head2 from
+
+    my $from = $ua->from;
+    $ua->from('foo@bar.com');
+
+Get/set the email address for the human user who controls
 the requesting user agent.  The address should be machine-usable, as
-defined in RFC 822.  The C<from> value is send as the "From" header in
-the requests.  Example:
+defined in L<RFC2822|https://tools.ietf.org/html/rfc2822>. The C<from> value
+is sent as the C<From> header in the requests.
 
-  $ua->from('gaas@cpan.org');
+The default is to not send a C<From> header.  See
+L<LWP::UserAgent/default_headers> for the more general interface that allow
+any header to be defaulted.
 
-The default is to not send a "From" header.  See the default_headers()
-method for the more general interface that allow any header to be defaulted.
+=head2 cookie_jar
 
-=item $ua->cookie_jar
-
-=item $ua->cookie_jar( $cookie_jar_obj )
+    my $jar = $ua->cookie_jar;
+    $ua->cookie_jar( $cookie_jar_obj );
 
 Get/set the cookie jar object to use.  The only requirement is that
-the cookie jar object must implement the extract_cookies($response) and
-add_cookie_header($request) methods.  These methods will then be
+the cookie jar object must implement the C<extract_cookies($response)> and
+C<add_cookie_header($request)> methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
 received.  Normally this will be a L<HTTP::Cookies> object or some
 subclass.
 
-The default is to have no cookie_jar, i.e. never automatically add
-"Cookie" headers to the requests.
+The default is to have no cookie jar, i.e. never automatically add
+C<Cookie> headers to the requests.
 
-Shortcut: If a reference to a plain hash is passed in as the
-$cookie_jar_object, then it is replaced with an instance of
-L<HTTP::Cookies> that is initialized based on the hash.  This form also
-automatically loads the L<HTTP::Cookies> module.  It means that:
+Shortcut: If a reference to a plain hash is passed in, it is replaced with an
+instance of L<HTTP::Cookies> that is initialized based on the hash. This form
+also automatically loads the L<HTTP::Cookies> module.  It means that:
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
@@ -1272,86 +1276,99 @@ is really just a shortcut for:
   require HTTP::Cookies;
   $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
 
-=item $ua->default_headers
+=head2 default_headers
 
-=item $ua->default_headers( $headers_obj )
+    my $headers = $ua->default_headers;
+    $ua->default_headers( $headers_obj );
 
 Get/set the headers object that will provide default header values for
 any requests sent.  By default this will be an empty L<HTTP::Headers>
 object.
 
-=item $ua->default_header( $field )
+=head2 default_header
 
-=item $ua->default_header( $field => $value )
+    $ua->default_header( $field );
+    $ua->default_header( $field => $value );
+    $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
+    $ua->default_header('Accept-Language' => "no, en");
 
-This is just a short-cut for $ua->default_headers->header( $field =>
-$value ). Example:
+This is just a shortcut for
+C<< $ua->default_headers->header( $field => $value ) >>.
 
-  $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
-  $ua->default_header('Accept-Language' => "no, en");
+=head2 conn_cache
 
-=item $ua->conn_cache
-
-=item $ua->conn_cache( $cache_obj )
+    my $cache_obj = $ua->conn_cache;
+    $ua->conn_cache( $cache_obj );
 
 Get/set the L<LWP::ConnCache> object to use.  See L<LWP::ConnCache>
 for details.
 
-=item $ua->credentials( $netloc, $realm )
+=head2 credentials
 
-=item $ua->credentials( $netloc, $realm, $uname, $pass )
+    my $creds = $ua->credentials();
+    $ua->credentials( $netloc, $realm );
+    $ua->credentials( $netloc, $realm, $uname, $pass );
+    $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
 
 Get/set the user name and password to be used for a realm.
 
-The $netloc is a string of the form "<host>:<port>".  The username and
-password will only be passed to this server.  Example:
+The C<$netloc> is a string of the form C<< <host>:<port> >>.  The username and
+password will only be passed to this server.
 
-  $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
+=head2 local_address
 
-=item $ua->local_address
-
-=item $ua->local_address( $address )
+    my $address = $ua->local_address;
+    $ua->local_address( $address );
 
 Get/set the local interface to bind to for network connections.  The interface
 can be specified as a hostname or an IP address.  This value is passed as the
 C<LocalAddr> argument to L<IO::Socket::INET>.
 
-=item $ua->max_size
+=head2 max_size
 
-=item $ua->max_size( $bytes )
+    my $size = $ua->max_size;
+    $ua->max_size( $bytes );
 
 Get/set the size limit for response content.  The default is C<undef>,
 which means that there is no limit.  If the returned response content
 is only partial, because the size limit was exceeded, then a
-"Client-Aborted" header will be added to the response.  The content
+C<Client-Aborted> header will be added to the response.  The content
 might end up longer than C<max_size> as we abort once appending a
-chunk of data makes the length exceed the limit.  The "Content-Length"
+chunk of data makes the length exceed the limit.  The C<Content-Length>
 header, if present, will indicate the length of the full content and
 will normally not be the same as C<< length($res->content) >>.
 
-=item $ua->max_redirect
+=head2 max_redirect
 
-=item $ua->max_redirect( $n )
+    my $max = $ua->max_redirect;
+    $ua->max_redirect( $n );
 
 This reads or sets the object's limit of how many times it will obey
 redirection responses in a given request cycle.
 
-By default, the value is 7. This means that if you call request()
-method and the response is a redirect elsewhere which is in turn a
+By default, the value is C<7>. This means that if you call L<LWP::UserAgent/request>
+and the response is a redirect elsewhere which is in turn a
 redirect, and so on seven times, then LWP gives up after that seventh
 request.
 
-=item $ua->parse_head
+=head2 parse_head
 
-=item $ua->parse_head( $boolean )
+    my $bool = $ua->parse_head;
+    $ua->parse_head( $boolean );
 
 Get/set a value indicating whether we should initialize response
 headers from the E<lt>head> section of HTML documents. The default is
-TRUE.  Do not turn this off, unless you know what you are doing.
+true. I<Do not turn this off> unless you know what you are doing.
 
-=item $ua->protocols_allowed
+=head2 protocols_allowed
 
-=item $ua->protocols_allowed( \@protocols )
+    my $aref = $ua->protocols_allowed;      # get allowed protocols
+    $ua->protocols_allowed( \@protocols );  # allow ONLY these
+    $ua->protocols_allowed(undef);          # delete the list
+    $ua->protocols_allowed(['http',]);      # ONLY allow http
+
+By default, an object has neither a C<protocols_allowed> list, nor a
+L<LWP::UserAgent/protocols_forbidden> list.
 
 This reads (or sets) this user agent's list of protocols that the
 request methods will exclusively allow.  The protocol names are case
@@ -1360,19 +1377,17 @@ insensitive.
 For example: C<< $ua->protocols_allowed( [ 'http', 'https'] ); >>
 means that this user agent will I<allow only> those protocols,
 and attempts to use this user agent to access URLs with any other
-schemes (like "ftp://...") will result in a 500 error.
-
-To delete the list, call: C<< $ua->protocols_allowed(undef) >>
-
-By default, an object has neither a C<protocols_allowed> list, nor a
-C<protocols_forbidden> list.
+schemes (like C<ftp://...>) will result in a 500 error.
 
 Note that having a C<protocols_allowed> list causes any
-C<protocols_forbidden> list to be ignored.
+L<LWP::UserAgent/protocols_forbidden> list to be ignored.
 
-=item $ua->protocols_forbidden
+=head2 protocols_forbidden
 
-=item $ua->protocols_forbidden( \@protocols )
+    my $aref = $ua->protocols_forbidden;    # get the forbidden list
+    $ua->protocols_forbidden(\@protocols);  # do not allow these
+    $ua->protocols_forbidden(['http',]);    # All http reqs get a 500
+    $ua->protocols_forbidden(undef);        # delete the list
 
 This reads (or sets) this user agent's list of protocols that the
 request method will I<not> allow. The protocol names are case
@@ -1383,43 +1398,45 @@ means that this user agent will I<not> allow those protocols, and
 attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
 
-To delete the list, call: C<< $ua->protocols_forbidden(undef) >>
+=head2 requests_redirectable
 
-=item $ua->requests_redirectable
-
-=item $ua->requests_redirectable( \@requests )
+    my $aref = $ua->requests_redirectable;
+    $ua->requests_redirectable( \@requests );
+    $ua->requests_redirectable(['GET', 'HEAD',]); # the default
 
 This reads or sets the object's list of request names that
-C<< $ua->redirect_ok(...) >> will allow redirection for.  By
-default, this is C<['GET', 'HEAD']>, as per RFC 2616.  To
-change to include 'POST', consider:
+L<LWP::UserAgent/redirect_ok> will allow redirection for. By default, this
+is C<['GET', 'HEAD']>, as per L<RFC 2616|https://tools.ietf.org/html/rfc2616>.
+To change to include C<POST>, consider:
 
    push @{ $ua->requests_redirectable }, 'POST';
 
-=item $ua->show_progress
+=head2 show_progress
 
-=item $ua->show_progress( $boolean )
+    my $bool = $ua->show_progress;
+    $ua->show_progress( $boolean );
 
 Get/set a value indicating whether a progress bar should be displayed
-on the terminal as requests are processed. The default is FALSE.
+on the terminal as requests are processed. The default is false.
 
-=item $ua->timeout
+=head2 timeout
 
-=item $ua->timeout( $secs )
+    my $secs = $ua->timeout;
+    $ua->timeout( $secs );
 
-Get/set the timeout value in seconds. The default timeout() value is
+Get/set the timeout value in seconds. The default value is
 180 seconds, i.e. 3 minutes.
 
 The requests is aborted if no activity on the connection to the server
 is observed for C<timeout> seconds.  This means that the time it takes
-for the complete transaction and the request() method to actually
-return might be longer.
+for the complete transaction and the L<LWP::UserAgent/request> method to
+actually return might be longer.
 
-=item $ua->ssl_opts
+=head2 ssl_opts
 
-=item $ua->ssl_opts( $key )
-
-=item $ua->ssl_opts( $key => $value )
+    my @keys = $ua->ssl_opts;
+    my $val = $ua->ssl_opts( $key );
+    $ua->ssl_opts( $key => $value );
 
 Get/set the options for SSL connections.  Without argument return the list
 of options keys currently set.  With a single argument return the current
@@ -1463,41 +1480,42 @@ The libwww-perl core no longer bundles protocol plugins for SSL.  You will need
 to install L<LWP::Protocol::https> separately to enable support for processing
 https-URLs.
 
-=back
-
-=head2 Proxy attributes
+=head1 Proxy attributes
 
 The following methods set up when requests should be passed via a
 proxy server.
 
-=over
+=head2 proxy
 
-=item $ua->proxy(\@schemes, $proxy_url)
+    $ua->proxy(\@schemes, $proxy_url)
+    $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
+    # or, for a single scheme
+    $ua->proxy($scheme, $proxy_url)
+    $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
 
-=item $ua->proxy($scheme, $proxy_url)
-
-Set/retrieve proxy URL for a scheme:
-
- $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
- $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
+Set/retrieve proxy URL for a scheme.
 
 The first form specifies that the URL is to be used as a proxy for
 access methods listed in the list in the first method argument,
-i.e. 'http' and 'ftp'.
+i.e. C<http> and C<ftp>.
 
 The second form shows a shorthand form for specifying
 proxy URL for a single access scheme.
 
-=item $ua->no_proxy( $domain, ... )
+=head2 no_proxy
 
-Do not proxy requests to the given domains.  Calling no_proxy without
-any domains clears the list of domains. For example:
+    $ua->no_proxy( @domains );
+    $ua->no_proxy('localhost', 'example.com');
+    $ua->no_proxy(); # clear the list
 
- $ua->no_proxy('localhost', 'example.com');
+Do not proxy requests to the given domains.  Calling C<no_proxy> without
+any domains clears the list of domains.
 
-=item $ua->env_proxy
+=head2 env_proxy
 
-Load proxy settings from *_proxy environment variables.  You might
+    $ua->env_proxy;
+
+Load proxy settings from C<*_proxy> environment variables.  You might
 specify proxies like this (sh-syntax):
 
   gopher_proxy=http://proxy.my.place/
@@ -1510,26 +1528,24 @@ environment variables.
 
 On systems with case insensitive environment variables there exists a
 name clash between the CGI environment variables and the C<HTTP_PROXY>
-environment variable normally picked up by env_proxy().  Because of
+environment variable normally picked up by C<env_proxy>.  Because of
 this C<HTTP_PROXY> is not honored for CGI scripts.  The
 C<CGI_HTTP_PROXY> environment variable can be used instead.
 
-=back
-
-=head2 Handlers
+=head1 Handlers
 
 Handlers are code that injected at various phases during the
 processing of requests.  The following methods are provided to manage
 the active handlers:
 
-=over
+=head2 add_handler
 
-=item $ua->add_handler( $phase => \&cb, %matchspec )
+    $ua->add_handler( $phase => \&cb, %matchspec )
 
 Add handler to be invoked in the given processing phase.  For how to
-specify %matchspec see L<HTTP::Config/"Matching">.
+specify C<%matchspec> see L<HTTP::Config/"Matching">.
 
-The possible values $phase and the corresponding callback signatures are:
+The possible values C<$phase> and the corresponding callback signatures are:
 
 =over
 
@@ -1596,47 +1612,52 @@ this request instead.
 
 =back
 
-=item $ua->remove_handler( undef, %matchspec )
+=head2 remove_handler
 
-=item $ua->remove_handler( $phase, %matchspec )
+    $ua->remove_handler( undef, %matchspec );
+    $ua->remove_handler( $phase, %matchspec );
+    $ua->remove_handlers(); # REMOVE ALL HANDLERS IN ALL PHASES
 
-Remove handlers that match the given %matchspec.  If $phase is not
-provided remove handlers from all phases.
+Remove handlers that match the given C<%matchspec>.  If C<$phase> is not
+provided, remove handlers from all phases.
 
-Be careful as calling this function with %matchspec that is not
+Be careful as calling this function with C<%matchspec> that is not
 specific enough can remove handlers not owned by you.  It's probably
-better to use the set_my_handler() method instead.
+better to use the L<LWP::UserAgent/set_my_handler> method instead.
 
 The removed handlers are returned.
 
-=item $ua->set_my_handler( $phase, $cb, %matchspec )
+=head2 set_my_handler
+
+    $ua->set_my_handler( $phase, $cb, %matchspec );
+    $ua->set_my_handler($phase, undef); # remove handler for phase
 
 Set handlers private to the executing subroutine.  Works by defaulting
-an C<owner> field to the %matchspec that holds the name of the called
+an C<owner> field to the C<%matchspec> that holds the name of the called
 subroutine.  You might pass an explicit C<owner> to override this.
 
 If $cb is passed as C<undef>, remove the handler.
 
-=item $ua->get_my_handler( $phase, %matchspec )
+=head2 get_my_handler
 
-=item $ua->get_my_handler( $phase, %matchspec, $init )
+    $ua->get_my_handler( $phase, %matchspec );
+    $ua->get_my_handler( $phase, %matchspec, $init );
 
 Will retrieve the matching handler as hash ref.
 
-If C<$init> is passed as a TRUE value, create and add the
-handler if it's not found.  If $init is a subroutine reference, then
+If C<$init> is passed as a true value, create and add the
+handler if it's not found.  If C<$init> is a subroutine reference, then
 it's called with the created handler hash as argument.  This sub might
 populate the hash with extra fields; especially the callback.  If
-$init is a hash reference, merge the hashes.
+C<$init> is a hash reference, merge the hashes.
 
-=item $ua->handlers( $phase, $request )
+=head2 handlers
 
-=item $ua->handlers( $phase, $response )
+    $ua->handlers( $phase, $request )
+    $ua->handlers( $phase, $response )
 
 Returns the handlers that apply to the given request or response at
 the given processing phase.
-
-=back
 
 =head1 REQUEST METHODS
 

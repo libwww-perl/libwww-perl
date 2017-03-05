@@ -4,7 +4,9 @@ LWP::UserAgent - Web user agent class
 
 # SYNOPSIS
 
-    require LWP::UserAgent;
+    use strict;
+    use warnings;
+    use LWP::UserAgent ();
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
@@ -30,55 +32,62 @@ then creates an instance of [HTTP::Request](https://metacpan.org/pod/HTTP::Reque
 needs to be performed. This request is then passed to one of the
 request method the UserAgent, which dispatches it using the relevant
 protocol, and returns a [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.  There are
-convenience methods for sending the most common request types: get(),
-head(), post(), put() and delete().  When using these methods then the
-creation of the request object is hidden as shown in the synopsis above.
+convenience methods for sending the most common request types:
+["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#head), ["post" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#post),
+["put" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#put) and ["delete" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#delete).  When using these
+methods, the creation of the request object is hidden as shown in the
+synopsis above.
 
-The basic approach of the library is to use HTTP style communication
+The basic approach of the library is to use HTTP-style communication
 for all protocol schemes.  This means that you will construct
 [HTTP::Request](https://metacpan.org/pod/HTTP::Request) objects and receive [HTTP::Response](https://metacpan.org/pod/HTTP::Response) objects even
 for non-HTTP resources like _gopher_ and _ftp_.  In order to achieve
-even more similarity to HTTP style communications, gopher menus and
+even more similarity to HTTP-style communications, _gopher_ menus and
 file directories are converted to HTML documents.
 
 # CONSTRUCTOR METHODS
 
 The following constructor methods are available:
 
-- $ua = LWP::UserAgent->new( %options )
+## new
 
-    This method constructs a new [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object and returns it.
-    Key/value pair arguments may be provided to set up the initial state.
-    The following options correspond to attribute methods described below:
+    my $ua = LWP::UserAgent->new( %options )
 
-        KEY                     DEFAULT
-        -----------             --------------------
-        agent                   "libwww-perl/#.###"
-        from                    undef
-        conn_cache              undef
-        cookie_jar              undef
-        default_headers         HTTP::Headers->new
-        local_address           undef
-        ssl_opts                { verify_hostname => 1 }
-        max_size                undef
-        max_redirect            7
-        parse_head              1
-        protocols_allowed       undef
-        protocols_forbidden     undef
-        requests_redirectable   ['GET', 'HEAD']
-        timeout                 180
+This method constructs a new [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object and returns it.
+Key/value pair arguments may be provided to set up the initial state.
+The following options correspond to attribute methods described below:
 
-    The following additional options are also accepted: If the `env_proxy` option
-    is passed in with a TRUE value, then proxy settings are read from environment
-    variables (see env\_proxy() method below).  If `env_proxy` isn't provided the
-    `PERL_LWP_ENV_PROXY` environment variable controls if env\_proxy() is called
-    during initialization.  If the `keep_alive` option is passed in, then a
-    `LWP::ConnCache` is set up (see conn\_cache() method below).  The `keep_alive`
-    value is passed on as the `total_capacity` for the connection cache.
+    KEY                     DEFAULT
+    -----------             --------------------
+    agent                   "libwww-perl/#.###"
+    from                    undef
+    conn_cache              undef
+    cookie_jar              undef
+    default_headers         HTTP::Headers->new
+    local_address           undef
+    ssl_opts                { verify_hostname => 1 }
+    max_size                undef
+    max_redirect            7
+    parse_head              1
+    protocols_allowed       undef
+    protocols_forbidden     undef
+    requests_redirectable   ['GET', 'HEAD']
+    timeout                 180
 
-- $ua->clone
+The following additional options are also accepted: If the `env_proxy` option
+is passed in with a true value, then proxy settings are read from environment
+variables (see ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#env_proxy)). If `env_proxy` isn't provided, the
+`PERL_LWP_ENV_PROXY` environment variable controls if
+["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#env_proxy) is called during initialization.  If the
+`keep_alive` option is passed in, then a `LWP::ConnCache` is set up (see
+["conn\_cache" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#conn_cache)).  The `keep_alive` value is passed on as the
+`total_capacity` for the connection cache.
 
-    Returns a copy of the LWP::UserAgent object.
+## clone
+
+    my $ua2 = $ua->clone;
+
+Returns a copy of the [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object.
 
 # ATTRIBUTES
 
@@ -90,398 +99,448 @@ The following attribute methods are provided.  The attribute value is
 left unchanged if no argument is given.  The return value from each
 method is the old attribute value.
 
-- $ua->agent
-- $ua->agent( $product\_id )
+## \_agent
 
-    Get/set the product token that is used to identify the user agent on
-    the network.  The agent value is sent as the "User-Agent" header in
-    the requests.  The default is the string returned by the \_agent()
-    method (see below).
+    my $agent_string = $ua->_agent;
 
-    If the $product\_id ends with space then the \_agent() string is
-    appended to it.
+Returns the default agent identifier.  This is a string of the form
+`libwww-perl/#.###`, where `#.###` is substituted with the version number
+of this library.
 
-    The user agent string should be one or more simple product identifiers
-    with an optional version number separated by the "/" character.
-    Examples are:
+## agent
 
-        $ua->agent('Checkbot/0.4 ' . $ua->_agent);
-        $ua->agent('Checkbot/0.4 ');    # same as above
-        $ua->agent('Mozilla/5.0');
-        $ua->agent("");                 # don't identify
+    my $agent = $ua->agent;
+    $ua->agent( $product_id );
+    $ua->agent('Checkbot/0.4 ' . $ua->_agent);
+    $ua->agent('Checkbot/0.4 ');    # same as above
+    $ua->agent('Mozilla/5.0');
+    $ua->agent("");                 # don't identify
 
-- $ua->\_agent
+Get/set the product token that is used to identify the user agent on
+the network.  The agent value is sent as the `User-Agent` header in
+the requests.  The default is the string returned by the
+["\_agent" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#agent) method.
 
-    Returns the default agent identifier.  This is a string of the form
-    "libwww-perl/#.###", where "#.###" is substituted with the version number
-    of this library.
+If the `$product_id` ends with space then the ["\_agent" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#agent) string
+is appended to it.
 
-- $ua->from
-- $ua->from( $email\_address )
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the `/` character.
 
-    Get/set the e-mail address for the human user who controls
-    the requesting user agent.  The address should be machine-usable, as
-    defined in RFC 822.  The `from` value is send as the "From" header in
-    the requests.  Example:
+## from
 
-        $ua->from('gaas@cpan.org');
+    my $from = $ua->from;
+    $ua->from('foo@bar.com');
 
-    The default is to not send a "From" header.  See the default\_headers()
-    method for the more general interface that allow any header to be defaulted.
+Get/set the email address for the human user who controls
+the requesting user agent.  The address should be machine-usable, as
+defined in [RFC2822](https://tools.ietf.org/html/rfc2822). The `from` value
+is sent as the `From` header in the requests.
 
-- $ua->cookie\_jar
-- $ua->cookie\_jar( $cookie\_jar\_obj )
+The default is to not send a `From` header.  See
+["default\_headers" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#default_headers) for the more general interface that allow
+any header to be defaulted.
 
-    Get/set the cookie jar object to use.  The only requirement is that
-    the cookie jar object must implement the extract\_cookies($response) and
-    add\_cookie\_header($request) methods.  These methods will then be
-    invoked by the user agent as requests are sent and responses are
-    received.  Normally this will be a [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) object or some
-    subclass.
+## cookie\_jar
 
-    The default is to have no cookie\_jar, i.e. never automatically add
-    "Cookie" headers to the requests.
+    my $jar = $ua->cookie_jar;
+    $ua->cookie_jar( $cookie_jar_obj );
 
-    Shortcut: If a reference to a plain hash is passed in as the
-    $cookie\_jar\_object, then it is replaced with an instance of
-    [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) that is initialized based on the hash.  This form also
-    automatically loads the [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) module.  It means that:
+Get/set the cookie jar object to use.  The only requirement is that
+the cookie jar object must implement the `extract_cookies($response)` and
+`add_cookie_header($request)` methods.  These methods will then be
+invoked by the user agent as requests are sent and responses are
+received.  Normally this will be a [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) object or some
+subclass.
 
-        $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
+The default is to have no cookie jar, i.e. never automatically add
+`Cookie` headers to the requests.
 
-    is really just a shortcut for:
+Shortcut: If a reference to a plain hash is passed in, it is replaced with an
+instance of [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) that is initialized based on the hash. This form
+also automatically loads the [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) module.  It means that:
 
-        require HTTP::Cookies;
-        $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+    $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
-- $ua->default\_headers
-- $ua->default\_headers( $headers\_obj )
+is really just a shortcut for:
 
-    Get/set the headers object that will provide default header values for
-    any requests sent.  By default this will be an empty [HTTP::Headers](https://metacpan.org/pod/HTTP::Headers)
-    object.
+    require HTTP::Cookies;
+    $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
 
-- $ua->default\_header( $field )
-- $ua->default\_header( $field => $value )
+## default\_headers
 
-    This is just a short-cut for $ua->default\_headers->header( $field =>
-    $value ). Example:
+    my $headers = $ua->default_headers;
+    $ua->default_headers( $headers_obj );
 
-        $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
-        $ua->default_header('Accept-Language' => "no, en");
+Get/set the headers object that will provide default header values for
+any requests sent.  By default this will be an empty [HTTP::Headers](https://metacpan.org/pod/HTTP::Headers)
+object.
 
-- $ua->conn\_cache
-- $ua->conn\_cache( $cache\_obj )
+## default\_header
 
-    Get/set the [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache) object to use.  See [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache)
-    for details.
+    $ua->default_header( $field );
+    $ua->default_header( $field => $value );
+    $ua->default_header('Accept-Encoding' => scalar HTTP::Message::decodable());
+    $ua->default_header('Accept-Language' => "no, en");
 
-- $ua->credentials( $netloc, $realm )
-- $ua->credentials( $netloc, $realm, $uname, $pass )
+This is just a shortcut for
+`$ua->default_headers->header( $field => $value )`.
 
-    Get/set the user name and password to be used for a realm.
+## conn\_cache
 
-    The $netloc is a string of the form "&lt;host>:&lt;port>".  The username and
-    password will only be passed to this server.  Example:
+    my $cache_obj = $ua->conn_cache;
+    $ua->conn_cache( $cache_obj );
 
-        $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
+Get/set the [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache) object to use.  See [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache)
+for details.
 
-- $ua->local\_address
-- $ua->local\_address( $address )
+## credentials
 
-    Get/set the local interface to bind to for network connections.  The interface
-    can be specified as a hostname or an IP address.  This value is passed as the
-    `LocalAddr` argument to [IO::Socket::INET](https://metacpan.org/pod/IO::Socket::INET).
+    my $creds = $ua->credentials();
+    $ua->credentials( $netloc, $realm );
+    $ua->credentials( $netloc, $realm, $uname, $pass );
+    $ua->credentials("www.example.com:80", "Some Realm", "foo", "secret");
 
-- $ua->max\_size
-- $ua->max\_size( $bytes )
+Get/set the user name and password to be used for a realm.
 
-    Get/set the size limit for response content.  The default is `undef`,
-    which means that there is no limit.  If the returned response content
-    is only partial, because the size limit was exceeded, then a
-    "Client-Aborted" header will be added to the response.  The content
-    might end up longer than `max_size` as we abort once appending a
-    chunk of data makes the length exceed the limit.  The "Content-Length"
-    header, if present, will indicate the length of the full content and
-    will normally not be the same as `length($res->content)`.
+The `$netloc` is a string of the form `<host>:<port>`.  The username and
+password will only be passed to this server.
 
-- $ua->max\_redirect
-- $ua->max\_redirect( $n )
+## local\_address
 
-    This reads or sets the object's limit of how many times it will obey
-    redirection responses in a given request cycle.
+    my $address = $ua->local_address;
+    $ua->local_address( $address );
 
-    By default, the value is 7. This means that if you call request()
-    method and the response is a redirect elsewhere which is in turn a
-    redirect, and so on seven times, then LWP gives up after that seventh
-    request.
+Get/set the local interface to bind to for network connections.  The interface
+can be specified as a hostname or an IP address.  This value is passed as the
+`LocalAddr` argument to [IO::Socket::INET](https://metacpan.org/pod/IO::Socket::INET).
 
-- $ua->parse\_head
-- $ua->parse\_head( $boolean )
+## max\_size
 
-    Get/set a value indicating whether we should initialize response
-    headers from the &lt;head> section of HTML documents. The default is
-    TRUE.  Do not turn this off, unless you know what you are doing.
+    my $size = $ua->max_size;
+    $ua->max_size( $bytes );
 
-- $ua->protocols\_allowed
-- $ua->protocols\_allowed( \\@protocols )
+Get/set the size limit for response content.  The default is `undef`,
+which means that there is no limit.  If the returned response content
+is only partial, because the size limit was exceeded, then a
+`Client-Aborted` header will be added to the response.  The content
+might end up longer than `max_size` as we abort once appending a
+chunk of data makes the length exceed the limit.  The `Content-Length`
+header, if present, will indicate the length of the full content and
+will normally not be the same as `length($res->content)`.
 
-    This reads (or sets) this user agent's list of protocols that the
-    request methods will exclusively allow.  The protocol names are case
-    insensitive.
+## max\_redirect
 
-    For example: `$ua->protocols_allowed( [ 'http', 'https'] );`
-    means that this user agent will _allow only_ those protocols,
-    and attempts to use this user agent to access URLs with any other
-    schemes (like "ftp://...") will result in a 500 error.
+    my $max = $ua->max_redirect;
+    $ua->max_redirect( $n );
 
-    To delete the list, call: `$ua->protocols_allowed(undef)`
+This reads or sets the object's limit of how many times it will obey
+redirection responses in a given request cycle.
 
-    By default, an object has neither a `protocols_allowed` list, nor a
-    `protocols_forbidden` list.
+By default, the value is `7`. This means that if you call ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request)
+and the response is a redirect elsewhere which is in turn a
+redirect, and so on seven times, then LWP gives up after that seventh
+request.
 
-    Note that having a `protocols_allowed` list causes any
-    `protocols_forbidden` list to be ignored.
+## parse\_head
 
-- $ua->protocols\_forbidden
-- $ua->protocols\_forbidden( \\@protocols )
+    my $bool = $ua->parse_head;
+    $ua->parse_head( $boolean );
 
-    This reads (or sets) this user agent's list of protocols that the
-    request method will _not_ allow. The protocol names are case
-    insensitive.
+Get/set a value indicating whether we should initialize response
+headers from the &lt;head> section of HTML documents. The default is
+true. _Do not turn this off_ unless you know what you are doing.
 
-    For example: `$ua->protocols_forbidden( [ 'file', 'mailto'] );`
-    means that this user agent will _not_ allow those protocols, and
-    attempts to use this user agent to access URLs with those schemes
-    will result in a 500 error.
+## protocols\_allowed
 
-    To delete the list, call: `$ua->protocols_forbidden(undef)`
+    my $aref = $ua->protocols_allowed;      # get allowed protocols
+    $ua->protocols_allowed( \@protocols );  # allow ONLY these
+    $ua->protocols_allowed(undef);          # delete the list
+    $ua->protocols_allowed(['http',]);      # ONLY allow http
 
-- $ua->requests\_redirectable
-- $ua->requests\_redirectable( \\@requests )
+By default, an object has neither a `protocols_allowed` list, nor a
+["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#protocols_forbidden) list.
 
-    This reads or sets the object's list of request names that
-    `$ua->redirect_ok(...)` will allow redirection for.  By
-    default, this is `['GET', 'HEAD']`, as per RFC 2616.  To
-    change to include 'POST', consider:
+This reads (or sets) this user agent's list of protocols that the
+request methods will exclusively allow.  The protocol names are case
+insensitive.
 
-        push @{ $ua->requests_redirectable }, 'POST';
+For example: `$ua->protocols_allowed( [ 'http', 'https'] );`
+means that this user agent will _allow only_ those protocols,
+and attempts to use this user agent to access URLs with any other
+schemes (like `ftp://...`) will result in a 500 error.
 
-- $ua->show\_progress
-- $ua->show\_progress( $boolean )
+Note that having a `protocols_allowed` list causes any
+["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#protocols_forbidden) list to be ignored.
 
-    Get/set a value indicating whether a progress bar should be displayed
-    on the terminal as requests are processed. The default is FALSE.
+## protocols\_forbidden
 
-- $ua->timeout
-- $ua->timeout( $secs )
+    my $aref = $ua->protocols_forbidden;    # get the forbidden list
+    $ua->protocols_forbidden(\@protocols);  # do not allow these
+    $ua->protocols_forbidden(['http',]);    # All http reqs get a 500
+    $ua->protocols_forbidden(undef);        # delete the list
 
-    Get/set the timeout value in seconds. The default timeout() value is
-    180 seconds, i.e. 3 minutes.
+This reads (or sets) this user agent's list of protocols that the
+request method will _not_ allow. The protocol names are case
+insensitive.
 
-    The requests is aborted if no activity on the connection to the server
-    is observed for `timeout` seconds.  This means that the time it takes
-    for the complete transaction and the request() method to actually
-    return might be longer.
+For example: `$ua->protocols_forbidden( [ 'file', 'mailto'] );`
+means that this user agent will _not_ allow those protocols, and
+attempts to use this user agent to access URLs with those schemes
+will result in a 500 error.
 
-- $ua->ssl\_opts
-- $ua->ssl\_opts( $key )
-- $ua->ssl\_opts( $key => $value )
+## requests\_redirectable
 
-    Get/set the options for SSL connections.  Without argument return the list
-    of options keys currently set.  With a single argument return the current
-    value for the given option.  With 2 arguments set the option value and return
-    the old.  Setting an option to the value `undef` removes this option.
+    my $aref = $ua->requests_redirectable;
+    $ua->requests_redirectable( \@requests );
+    $ua->requests_redirectable(['GET', 'HEAD',]); # the default
 
-    The options that LWP relates to are:
+This reads or sets the object's list of request names that
+["redirect\_ok" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#redirect_ok) will allow redirection for. By default, this
+is `['GET', 'HEAD']`, as per [RFC 2616](https://tools.ietf.org/html/rfc2616).
+To change to include `POST`, consider:
 
-    - `verify_hostname` => $bool
+    push @{ $ua->requests_redirectable }, 'POST';
 
-        When TRUE LWP will for secure protocol schemes ensure it connects to servers
-        that have a valid certificate matching the expected hostname.  If FALSE no
-        checks are made and you can't be sure that you communicate with the expected peer.
-        The no checks behaviour was the default for libwww-perl-5.837 and earlier releases.
+## show\_progress
 
-        This option is initialized from the [PERL\_LWP\_SSL\_VERIFY\_HOSTNAME](https://metacpan.org/pod/PERL_LWP_SSL_VERIFY_HOSTNAME) environment
-        variable.  If this environment variable isn't set; then `verify_hostname`
-        defaults to 1.
+    my $bool = $ua->show_progress;
+    $ua->show_progress( $boolean );
 
-    - `SSL_ca_file` => $path
+Get/set a value indicating whether a progress bar should be displayed
+on the terminal as requests are processed. The default is false.
 
-        The path to a file containing Certificate Authority certificates.
-        A default setting for this option is provided by checking the environment
-        variables `PERL_LWP_SSL_CA_FILE` and `HTTPS_CA_FILE` in order.
+## timeout
 
-    - `SSL_ca_path` => $path
+    my $secs = $ua->timeout;
+    $ua->timeout( $secs );
 
-        The path to a directory containing files containing Certificate Authority
-        certificates.
-        A default setting for this option is provided by checking the environment
-        variables `PERL_LWP_SSL_CA_PATH` and `HTTPS_CA_DIR` in order.
+Get/set the timeout value in seconds. The default value is
+180 seconds, i.e. 3 minutes.
 
-    Other options can be set and are processed directly by the SSL Socket implementation
-    in use.  See [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL) or [Net::SSL](https://metacpan.org/pod/Net::SSL) for details.
+The requests is aborted if no activity on the connection to the server
+is observed for `timeout` seconds.  This means that the time it takes
+for the complete transaction and the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) method to
+actually return might be longer.
 
-    The libwww-perl core no longer bundles protocol plugins for SSL.  You will need
-    to install [LWP::Protocol::https](https://metacpan.org/pod/LWP::Protocol::https) separately to enable support for processing
-    https-URLs.
+## ssl\_opts
 
-## Proxy attributes
+    my @keys = $ua->ssl_opts;
+    my $val = $ua->ssl_opts( $key );
+    $ua->ssl_opts( $key => $value );
+
+Get/set the options for SSL connections.  Without argument return the list
+of options keys currently set.  With a single argument return the current
+value for the given option.  With 2 arguments set the option value and return
+the old.  Setting an option to the value `undef` removes this option.
+
+The options that LWP relates to are:
+
+- `verify_hostname` => $bool
+
+    When TRUE LWP will for secure protocol schemes ensure it connects to servers
+    that have a valid certificate matching the expected hostname.  If FALSE no
+    checks are made and you can't be sure that you communicate with the expected peer.
+    The no checks behaviour was the default for libwww-perl-5.837 and earlier releases.
+
+    This option is initialized from the [PERL\_LWP\_SSL\_VERIFY\_HOSTNAME](https://metacpan.org/pod/PERL_LWP_SSL_VERIFY_HOSTNAME) environment
+    variable.  If this environment variable isn't set; then `verify_hostname`
+    defaults to 1.
+
+- `SSL_ca_file` => $path
+
+    The path to a file containing Certificate Authority certificates.
+    A default setting for this option is provided by checking the environment
+    variables `PERL_LWP_SSL_CA_FILE` and `HTTPS_CA_FILE` in order.
+
+- `SSL_ca_path` => $path
+
+    The path to a directory containing files containing Certificate Authority
+    certificates.
+    A default setting for this option is provided by checking the environment
+    variables `PERL_LWP_SSL_CA_PATH` and `HTTPS_CA_DIR` in order.
+
+Other options can be set and are processed directly by the SSL Socket implementation
+in use.  See [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL) or [Net::SSL](https://metacpan.org/pod/Net::SSL) for details.
+
+The libwww-perl core no longer bundles protocol plugins for SSL.  You will need
+to install [LWP::Protocol::https](https://metacpan.org/pod/LWP::Protocol::https) separately to enable support for processing
+https-URLs.
+
+# Proxy attributes
 
 The following methods set up when requests should be passed via a
 proxy server.
 
-- $ua->proxy(\\@schemes, $proxy\_url)
-- $ua->proxy($scheme, $proxy\_url)
+## proxy
 
-    Set/retrieve proxy URL for a scheme:
+    $ua->proxy(\@schemes, $proxy_url)
+    $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
+    # or, for a single scheme
+    $ua->proxy($scheme, $proxy_url)
+    $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
 
-        $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
-        $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
+Set/retrieve proxy URL for a scheme.
 
-    The first form specifies that the URL is to be used as a proxy for
-    access methods listed in the list in the first method argument,
-    i.e. 'http' and 'ftp'.
+The first form specifies that the URL is to be used as a proxy for
+access methods listed in the list in the first method argument,
+i.e. `http` and `ftp`.
 
-    The second form shows a shorthand form for specifying
-    proxy URL for a single access scheme.
+The second form shows a shorthand form for specifying
+proxy URL for a single access scheme.
 
-- $ua->no\_proxy( $domain, ... )
+## no\_proxy
 
-    Do not proxy requests to the given domains.  Calling no\_proxy without
-    any domains clears the list of domains. For example:
+    $ua->no_proxy( @domains );
+    $ua->no_proxy('localhost', 'example.com');
+    $ua->no_proxy(); # clear the list
 
-        $ua->no_proxy('localhost', 'example.com');
+Do not proxy requests to the given domains.  Calling `no_proxy` without
+any domains clears the list of domains.
 
-- $ua->env\_proxy
+## env\_proxy
 
-    Load proxy settings from \*\_proxy environment variables.  You might
-    specify proxies like this (sh-syntax):
+    $ua->env_proxy;
 
-        gopher_proxy=http://proxy.my.place/
-        wais_proxy=http://proxy.my.place/
-        no_proxy="localhost,example.com"
-        export gopher_proxy wais_proxy no_proxy
+Load proxy settings from `*_proxy` environment variables.  You might
+specify proxies like this (sh-syntax):
 
-    csh or tcsh users should use the `setenv` command to define these
-    environment variables.
+    gopher_proxy=http://proxy.my.place/
+    wais_proxy=http://proxy.my.place/
+    no_proxy="localhost,example.com"
+    export gopher_proxy wais_proxy no_proxy
 
-    On systems with case insensitive environment variables there exists a
-    name clash between the CGI environment variables and the `HTTP_PROXY`
-    environment variable normally picked up by env\_proxy().  Because of
-    this `HTTP_PROXY` is not honored for CGI scripts.  The
-    `CGI_HTTP_PROXY` environment variable can be used instead.
+csh or tcsh users should use the `setenv` command to define these
+environment variables.
 
-## Handlers
+On systems with case insensitive environment variables there exists a
+name clash between the CGI environment variables and the `HTTP_PROXY`
+environment variable normally picked up by `env_proxy`.  Because of
+this `HTTP_PROXY` is not honored for CGI scripts.  The
+`CGI_HTTP_PROXY` environment variable can be used instead.
+
+# Handlers
 
 Handlers are code that injected at various phases during the
 processing of requests.  The following methods are provided to manage
 the active handlers:
 
-- $ua->add\_handler( $phase => \\&cb, %matchspec )
+## add\_handler
 
-    Add handler to be invoked in the given processing phase.  For how to
-    specify %matchspec see ["Matching" in HTTP::Config](https://metacpan.org/pod/HTTP::Config#Matching).
+    $ua->add_handler( $phase => \&cb, %matchspec )
 
-    The possible values $phase and the corresponding callback signatures are:
+Add handler to be invoked in the given processing phase.  For how to
+specify `%matchspec` see ["Matching" in HTTP::Config](https://metacpan.org/pod/HTTP::Config#Matching).
 
-    - request\_preprepare => sub { my($request, $ua, $h) = @\_; ... }
+The possible values `$phase` and the corresponding callback signatures are:
 
-        The handler is called before the `request_prepare` and other standard
-        initialization of the request.  This can be used to set up headers
-        and attributes that the `request_prepare` handler depends on.  Proxy
-        initialization should take place here; but in general don't register
-        handlers for this phase.
+- request\_preprepare => sub { my($request, $ua, $h) = @\_; ... }
 
-    - request\_prepare => sub { my($request, $ua, $h) = @\_; ... }
+    The handler is called before the `request_prepare` and other standard
+    initialization of the request.  This can be used to set up headers
+    and attributes that the `request_prepare` handler depends on.  Proxy
+    initialization should take place here; but in general don't register
+    handlers for this phase.
 
-        The handler is called before the request is sent and can modify the
-        request any way it see fit.  This can for instance be used to add
-        certain headers to specific requests.
+- request\_prepare => sub { my($request, $ua, $h) = @\_; ... }
 
-        The method can assign a new request object to $\_\[0\] to replace the
-        request that is sent fully.
+    The handler is called before the request is sent and can modify the
+    request any way it see fit.  This can for instance be used to add
+    certain headers to specific requests.
 
-        The return value from the callback is ignored.  If an exception is
-        raised it will abort the request and make the request method return a
-        "400 Bad request" response.
+    The method can assign a new request object to $\_\[0\] to replace the
+    request that is sent fully.
 
-    - request\_send => sub { my($request, $ua, $h) = @\_; ... }
+    The return value from the callback is ignored.  If an exception is
+    raised it will abort the request and make the request method return a
+    "400 Bad request" response.
 
-        This handler gets a chance of handling requests before they're sent to the
-        protocol handlers.  It should return an HTTP::Response object if it
-        wishes to terminate the processing; otherwise it should return nothing.
+- request\_send => sub { my($request, $ua, $h) = @\_; ... }
 
-        The `response_header` and `response_data` handlers will not be
-        invoked for this response, but the `response_done` will be.
+    This handler gets a chance of handling requests before they're sent to the
+    protocol handlers.  It should return an HTTP::Response object if it
+    wishes to terminate the processing; otherwise it should return nothing.
 
-    - response\_header => sub { my($response, $ua, $h) = @\_; ... }
+    The `response_header` and `response_data` handlers will not be
+    invoked for this response, but the `response_done` will be.
 
-        This handler is called right after the response headers have been
-        received, but before any content data.  The handler might set up
-        handlers for data and might croak to abort the request.
+- response\_header => sub { my($response, $ua, $h) = @\_; ... }
 
-        The handler might set the $response->{default\_add\_content} value to
-        control if any received data should be added to the response object
-        directly.  This will initially be false if the $ua->request() method
-        was called with a $content\_file or $content\_cb argument; otherwise true.
+    This handler is called right after the response headers have been
+    received, but before any content data.  The handler might set up
+    handlers for data and might croak to abort the request.
 
-    - response\_data => sub { my($response, $ua, $h, $data) = @\_; ... }
+    The handler might set the $response->{default\_add\_content} value to
+    control if any received data should be added to the response object
+    directly.  This will initially be false if the $ua->request() method
+    was called with a $content\_file or $content\_cb argument; otherwise true.
 
-        This handler is called for each chunk of data received for the
-        response.  The handler might croak to abort the request.
+- response\_data => sub { my($response, $ua, $h, $data) = @\_; ... }
 
-        This handler needs to return a TRUE value to be called again for
-        subsequent chunks for the same request.
+    This handler is called for each chunk of data received for the
+    response.  The handler might croak to abort the request.
 
-    - response\_done => sub { my($response, $ua, $h) = @\_; ... }
+    This handler needs to return a TRUE value to be called again for
+    subsequent chunks for the same request.
 
-        The handler is called after the response has been fully received, but
-        before any redirect handling is attempted.  The handler can be used to
-        extract information or modify the response.
+- response\_done => sub { my($response, $ua, $h) = @\_; ... }
 
-    - response\_redirect => sub { my($response, $ua, $h) = @\_; ... }
+    The handler is called after the response has been fully received, but
+    before any redirect handling is attempted.  The handler can be used to
+    extract information or modify the response.
 
-        The handler is called in $ua->request after `response_done`.  If the
-        handler returns an HTTP::Request object we'll start over with processing
-        this request instead.
+- response\_redirect => sub { my($response, $ua, $h) = @\_; ... }
 
-- $ua->remove\_handler( undef, %matchspec )
-- $ua->remove\_handler( $phase, %matchspec )
+    The handler is called in $ua->request after `response_done`.  If the
+    handler returns an HTTP::Request object we'll start over with processing
+    this request instead.
 
-    Remove handlers that match the given %matchspec.  If $phase is not
-    provided remove handlers from all phases.
+## remove\_handler
 
-    Be careful as calling this function with %matchspec that is not
-    specific enough can remove handlers not owned by you.  It's probably
-    better to use the set\_my\_handler() method instead.
+    $ua->remove_handler( undef, %matchspec );
+    $ua->remove_handler( $phase, %matchspec );
+    $ua->remove_handlers(); # REMOVE ALL HANDLERS IN ALL PHASES
 
-    The removed handlers are returned.
+Remove handlers that match the given `%matchspec`.  If `$phase` is not
+provided, remove handlers from all phases.
 
-- $ua->set\_my\_handler( $phase, $cb, %matchspec )
+Be careful as calling this function with `%matchspec` that is not
+specific enough can remove handlers not owned by you.  It's probably
+better to use the ["set\_my\_handler" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#set_my_handler) method instead.
 
-    Set handlers private to the executing subroutine.  Works by defaulting
-    an `owner` field to the %matchspec that holds the name of the called
-    subroutine.  You might pass an explicit `owner` to override this.
+The removed handlers are returned.
 
-    If $cb is passed as `undef`, remove the handler.
+## set\_my\_handler
 
-- $ua->get\_my\_handler( $phase, %matchspec )
-- $ua->get\_my\_handler( $phase, %matchspec, $init )
+    $ua->set_my_handler( $phase, $cb, %matchspec );
+    $ua->set_my_handler($phase, undef); # remove handler for phase
 
-    Will retrieve the matching handler as hash ref.
+Set handlers private to the executing subroutine.  Works by defaulting
+an `owner` field to the `%matchspec` that holds the name of the called
+subroutine.  You might pass an explicit `owner` to override this.
 
-    If `$init` is passed as a TRUE value, create and add the
-    handler if it's not found.  If $init is a subroutine reference, then
-    it's called with the created handler hash as argument.  This sub might
-    populate the hash with extra fields; especially the callback.  If
-    $init is a hash reference, merge the hashes.
+If $cb is passed as `undef`, remove the handler.
 
-- $ua->handlers( $phase, $request )
-- $ua->handlers( $phase, $response )
+## get\_my\_handler
 
-    Returns the handlers that apply to the given request or response at
-    the given processing phase.
+    $ua->get_my_handler( $phase, %matchspec );
+    $ua->get_my_handler( $phase, %matchspec, $init );
+
+Will retrieve the matching handler as hash ref.
+
+If `$init` is passed as a true value, create and add the
+handler if it's not found.  If `$init` is a subroutine reference, then
+it's called with the created handler hash as argument.  This sub might
+populate the hash with extra fields; especially the callback.  If
+`$init` is a hash reference, merge the hashes.
+
+## handlers
+
+    $ua->handlers( $phase, $request )
+    $ua->handlers( $phase, $response )
+
+Returns the handlers that apply to the given request or response at
+the given processing phase.
 
 # REQUEST METHODS
 

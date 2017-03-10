@@ -55,6 +55,11 @@ The following constructor methods are available:
 
 Returns a copy of the [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object.
 
+**CAVEAT**: Please be aware that the clone method does not copy or clone your
+`cookie_jar` attribute. Due to the limited restrictions on what can be used
+for your cookie jar, there is no way to clone the attribute. The `cookie_jar`
+attribute will be `undef` in the new object instance.
+
 ## new
 
     my $ua = LWP::UserAgent->new( %options )

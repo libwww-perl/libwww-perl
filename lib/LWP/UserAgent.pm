@@ -1164,6 +1164,11 @@ The following constructor methods are available:
 
 Returns a copy of the L<LWP::UserAgent> object.
 
+B<CAVEAT>: Please be aware that the clone method does not copy or clone your
+C<cookie_jar> attribute. Due to the limited restrictions on what can be used
+for your cookie jar, there is no way to clone the attribute. The C<cookie_jar>
+attribute will be C<undef> in the new object instance.
+
 =head2 new
 
     my $ua = LWP::UserAgent->new( %options )

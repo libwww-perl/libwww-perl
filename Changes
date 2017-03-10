@@ -1,7 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-    - 
+    - Document clone methods inability to clone cookie jars (RT #13542)
 
 6.23      2017-03-06
     - Fix bug where Protocol::NNTP called undef on a variable before being done

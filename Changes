@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - 
+
+6.23      2017-03-06
     - Fix bug where Protocol::NNTP called undef on a variable before being done
       using it. (GH PR #121)
     - Ran perltidy on LWP::Protocol::NNTP

@@ -15,6 +15,8 @@ delete $ENV{PERL_LWP_SSL_CA_PATH};
 delete $ENV{PERL_LWP_ENV_PROXY};
 
 subtest 'proxy settings from the constructor' => sub {
+    plan tests => 4;
+
     my $ua = LWP::UserAgent->new(
         proxy => [
             ftp => 'http://www.sol.no',

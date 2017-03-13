@@ -4,7 +4,7 @@ use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
 
-plan tests => 40;
+plan tests => 41;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -13,6 +13,16 @@ delete $ENV{HTTPS_CA_DIR};
 delete $ENV{PERL_LWP_SSL_CA_FILE};
 delete $ENV{PERL_LWP_SSL_CA_PATH};
 delete $ENV{PERL_LWP_ENV_PROXY};
+
+subtest 'proxy settings from the constructor' => sub {
+    my $ua = LWP::UserAgent->new(
+        proxy    => [ftp => 'http://www.sol.no'],
+        no_proxy => ['test.com'],
+    );
+
+    is($ua->proxy('ftp'), 'http://www.sol.no', q{$ua->proxy("ftp")});
+    is_deeply($ua->{no_proxy}, ['test.com'], q{no_proxy set to ['test.com']});
+};
 
 my $ua = LWP::UserAgent->new;
 

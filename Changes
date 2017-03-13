@@ -2,6 +2,8 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Document clone methods inability to clone cookie jars (RT #13542)
+    - It is now possible to set the proxy and no_proxy attributes from the 
+      constructor of LWP::UserAgent. (GH #124)
 
 6.23      2017-03-06
     - Fix bug where Protocol::NNTP called undef on a variable before being done

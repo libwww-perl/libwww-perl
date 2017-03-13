@@ -16,11 +16,18 @@ delete $ENV{PERL_LWP_ENV_PROXY};
 
 subtest 'proxy settings from the constructor' => sub {
     my $ua = LWP::UserAgent->new(
-        proxy    => [ftp => 'http://www.sol.no'],
+        proxy => [
+            ftp => 'http://www.sol.no',
+            ['http', 'https'] => 'http://www.sol2.no',
+        ],
         no_proxy => ['test.com'],
     );
 
     is($ua->proxy('ftp'), 'http://www.sol.no', q{$ua->proxy("ftp")});
+
+    is($ua->proxy($_), 'http://www.sol2.no', qq{\$ua->proxy("$_)})
+        for qw( http https );
+
     is_deeply($ua->{no_proxy}, ['test.com'], q{no_proxy set to ['test.com']});
 };
 

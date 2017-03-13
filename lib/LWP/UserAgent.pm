@@ -8,7 +8,6 @@ use Carp ();
 use HTTP::Request ();
 use HTTP::Response ();
 use HTTP::Date ();
-use List::Util qw( pairmap );
 
 use LWP ();
 use LWP::Protocol ();
@@ -1040,7 +1039,12 @@ sub proxy {
     my $self = shift;
     my $key  = shift;
     if (!@_ && ref $key eq 'ARRAY') {
-        return pairmap { $self->proxy($a, $b) } @{$key};
+        die 'odd number of items in proxy arrayref!' unless @{$key} % 2 == 0;
+
+        # This map reads the elements of $key 2 at a time
+        return
+            map { $self->proxy($key->[2 * $_], $key->[2 * $_ + 1]) }
+            (0 .. @{$key} / 2 - 1);
     }
     return map { $self->proxy($_, @_) } @$key if ref $key;
 

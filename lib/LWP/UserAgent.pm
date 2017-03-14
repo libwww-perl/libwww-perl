@@ -65,6 +65,8 @@ sub new
     my $max_redirect = delete $cnf{max_redirect};
     $max_redirect = 7 unless defined $max_redirect;
     my $env_proxy = exists $cnf{env_proxy} ? delete $cnf{env_proxy} : $ENV{PERL_LWP_ENV_PROXY};
+    my $no_proxy = exists $cnf{no_proxy} ? delete $cnf{no_proxy} : [];
+    Carp::croak(qq{no_proxy must be an arrayref, not $no_proxy!}) if ref $no_proxy ne 'ARRAY';
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -88,33 +90,39 @@ sub new
     Carp::croak("requests_redirectable has to be an arrayref or 0, not \"$requests_redirectable\"!")
       if $requests_redirectable and ref($requests_redirectable) ne 'ARRAY';
 
-
     if (%cnf && $^W) {
 	Carp::carp("Unrecognized LWP::UserAgent options: @{[sort keys %cnf]}");
     }
 
     my $self = bless {
-		      def_headers  => $def_headers,
-		      timeout      => $timeout,
-		      local_address => $local_address,
-		      ssl_opts     => $ssl_opts,
-		      use_eval     => $use_eval,
-                      show_progress=> $show_progress,
-		      max_size     => $max_size,
-		      max_redirect => $max_redirect,
-                      proxy        => {},
-		      no_proxy     => [],
-                      protocols_allowed     => $protocols_allowed,
-                      protocols_forbidden   => $protocols_forbidden,
-                      requests_redirectable => $requests_redirectable,
-		     }, $class;
+        def_headers           => $def_headers,
+        timeout               => $timeout,
+        local_address         => $local_address,
+        ssl_opts              => $ssl_opts,
+        use_eval              => $use_eval,
+        show_progress         => $show_progress,
+        max_size              => $max_size,
+        max_redirect          => $max_redirect,
+        # We set proxy later as we do validation on the values
+        proxy                 => {},
+        no_proxy              => [ @{ $no_proxy } ],
+        protocols_allowed     => $protocols_allowed,
+        protocols_forbidden   => $protocols_forbidden,
+        requests_redirectable => $requests_redirectable,
+    }, $class;
 
     $self->agent(defined($agent) ? $agent : $class->_agent)
-	if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
+        if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
     $self->from($from) if $from;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
+
+    if (exists $cnf{proxy}) {
+        Carp::croak(qq{proxy must be an arrayref, not $cnf{proxy}!})
+            if ref $cnf{proxy} ne 'ARRAY';
+        $self->proxy($cnf{proxy});
+    }
 
     $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;
     $self->protocols_forbidden($protocols_forbidden) if $protocols_forbidden;
@@ -1027,11 +1035,18 @@ sub _need_proxy {
 }
 
 
-sub proxy
-{
+sub proxy {
     my $self = shift;
     my $key  = shift;
-    return map $self->proxy($_, @_), @$key if ref $key;
+    if (!@_ && ref $key eq 'ARRAY') {
+        die 'odd number of items in proxy arrayref!' unless @{$key} % 2 == 0;
+
+        # This map reads the elements of $key 2 at a time
+        return
+            map { $self->proxy($key->[2 * $_], $key->[2 * $_ + 1]) }
+            (0 .. @{$key} / 2 - 1);
+    }
+    return map { $self->proxy($_, @_) } @$key if ref $key;
 
     Carp::croak("'$key' is not a valid URI scheme") unless $key =~ /^$URI::scheme_re\z/;
     my $old = $self->{'proxy'}{$key};
@@ -1193,6 +1208,8 @@ The following options correspond to attribute methods described below:
    protocols_forbidden     undef
    requests_redirectable   ['GET', 'HEAD']
    timeout                 180
+   proxy                   undef
+   no_proxy                []
 
 The following additional options are also accepted: If the C<env_proxy> option
 is passed in with a true value, then proxy settings are read from environment
@@ -1202,6 +1219,9 @@ L<LWP::UserAgent/env_proxy> is called during initialization.  If the
 C<keep_alive> option is passed in, then a C<LWP::ConnCache> is set up (see
 L<LWP::UserAgent/conn_cache>).  The C<keep_alive> value is passed on as the
 C<total_capacity> for the connection cache.
+
+C<proxy> must be set as an arrayref of key/value pairs. C<no_proxy> takes an
+arrayref of domains.
 
 =head1 ATTRIBUTES
 
@@ -1517,9 +1537,16 @@ any domains clears the list of domains.
 
     $ua->proxy(\@schemes, $proxy_url)
     $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
-    # or, for a single scheme
+
+    # For a single scheme:
     $ua->proxy($scheme, $proxy_url)
     $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
+
+    # To set multiple proxies at once:
+    $ua->proxy([
+        ftp => 'http://ftp.example.com:8001/',
+        [ 'http', 'https' ] => 'http://http.example.com:8001/',
+    ]);
 
 Set/retrieve proxy URL for a scheme.
 
@@ -1529,6 +1556,9 @@ i.e. C<http> and C<ftp>.
 
 The second form shows a shorthand form for specifying
 proxy URL for a single access scheme.
+
+The third form demonstrates setting multiple proxies at once. This is also
+the only form accepted by the constructor.
 
 =head1 HANDLERS
 

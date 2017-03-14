@@ -84,6 +84,8 @@ The following options correspond to attribute methods described below:
     protocols_forbidden     undef
     requests_redirectable   ['GET', 'HEAD']
     timeout                 180
+    proxy                   undef
+    no_proxy                []
 
 The following additional options are also accepted: If the `env_proxy` option
 is passed in with a true value, then proxy settings are read from environment
@@ -93,6 +95,9 @@ variables (see ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP::Us
 `keep_alive` option is passed in, then a `LWP::ConnCache` is set up (see
 ["conn\_cache" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#conn_cache)).  The `keep_alive` value is passed on as the
 `total_capacity` for the connection cache.
+
+`proxy` must be set as an arrayref of key/value pairs. `no_proxy` takes an
+arrayref of domains.
 
 # ATTRIBUTES
 
@@ -403,9 +408,16 @@ any domains clears the list of domains.
 
     $ua->proxy(\@schemes, $proxy_url)
     $ua->proxy(['http', 'ftp'], 'http://proxy.sn.no:8001/');
-    # or, for a single scheme
+
+    # For a single scheme:
     $ua->proxy($scheme, $proxy_url)
     $ua->proxy('gopher', 'http://proxy.sn.no:8001/');
+
+    # To set multiple proxies at once:
+    $ua->proxy([
+        ftp => 'http://ftp.example.com:8001/',
+        [ 'http', 'https' ] => 'http://http.example.com:8001/',
+    ]);
 
 Set/retrieve proxy URL for a scheme.
 
@@ -415,6 +427,9 @@ i.e. `http` and `ftp`.
 
 The second form shows a shorthand form for specifying
 proxy URL for a single access scheme.
+
+The third form demonstrates setting multiple proxies at once. This is also
+the only form accepted by the constructor.
 
 # HANDLERS
 

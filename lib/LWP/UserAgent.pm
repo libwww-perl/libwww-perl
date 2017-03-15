@@ -1858,24 +1858,21 @@ how to pass form content and other advanced features.
     my $res = $ua->request( $request, $content_cb );
     my $res = $ua->request( $request, $content_cb, $read_size_hint );
 
-This method will dispatch the given C<$request> object.  Normally this
+This method will dispatch the given C<$request> object. Normally this
 will be an instance of the L<HTTP::Request> class, but any object with
-a similar interface will do.  The return value is an L<HTTP::Response> object.
-See L<HTTP::Request> and L<HTTP::Response> for a description of the
-interface provided by these classes.
+a similar interface will do. The return value is an L<HTTP::Response> object.
 
 The C<request> method will process redirects and authentication
-responses transparently.  This means that it may actually send several
-simple requests via the L<LWP::Simple/simple_request> method described below.
+responses transparently. This means that it may actually send several
+simple requests via the L<LWP::UserAgent/simple_request> method described below.
 
-The request methods described above; L<LWP::Simple/get>, L<LWP::Simple/head>,
-L<LWP::Simple/post> and L<LWP::Simple/mirror> will all dispatch the request
-they build via this method.
-They are convenience methods that simply hide the creation of the
-request object for you.
+The request methods described above; L<LWP::UserAgent/get>, L<LWP::UserAgent/head>,
+L<LWP::UserAgent/post> and L<LWP::UserAgent/mirror> will all dispatch the request
+they build via this method. They are convenience methods that simply hide the
+creation of the request object for you.
 
 The C<$content_file>, C<$content_cb> and C<$read_size_hint> all correspond to
-options described with the L<LWP::Simple/get> method above.  Note that errors
+options described with the L<LWP::UserAgent/get> method above. Note that errors
 writing to the content file (for example due to permission denied
 or the filesystem being full) will be reported via the C<Client-Aborted>
 or C<X-Died> response headers, and not the C<is_success> method.
@@ -1895,10 +1892,10 @@ signal that there is no more content.
     my $res = $ua->simple_request( $request, $content_cb, $read_size_hint );
 
 This method dispatches a single request and returns the response
-received.  Arguments are the same as for the L<LWP::Simple/request> described above.
+received.  Arguments are the same as for the L<LWP::UserAgent/request> described above.
 
-The difference from L<LWP::Simple/request> is that C<simple_request> will not try to
-handle redirects or authentication responses.  The L<LWP::Simple/request> method
+The difference from L<LWP::UserAgent/request> is that C<simple_request> will not try to
+handle redirects or authentication responses.  The L<LWP::UserAgent/request> method
 will, in fact, invoke this method for each simple request it sends.
 
 =head1 CALLBACK METHODS

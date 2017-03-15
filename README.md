@@ -725,24 +725,21 @@ how to pass form content and other advanced features.
     my $res = $ua->request( $request, $content_cb );
     my $res = $ua->request( $request, $content_cb, $read_size_hint );
 
-This method will dispatch the given `$request` object.  Normally this
+This method will dispatch the given `$request` object. Normally this
 will be an instance of the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) class, but any object with
-a similar interface will do.  The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
-See [HTTP::Request](https://metacpan.org/pod/HTTP::Request) and [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
-interface provided by these classes.
+a similar interface will do. The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 The `request` method will process redirects and authentication
-responses transparently.  This means that it may actually send several
-simple requests via the ["simple\_request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#simple_request) method described below.
+responses transparently. This means that it may actually send several
+simple requests via the ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#simple_request) method described below.
 
-The request methods described above; ["get" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#get), ["head" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#head),
-["post" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#post) and ["mirror" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#mirror) will all dispatch the request
-they build via this method.
-They are convenience methods that simply hide the creation of the
-request object for you.
+The request methods described above; ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#head),
+["post" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#post) and ["mirror" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#mirror) will all dispatch the request
+they build via this method. They are convenience methods that simply hide the
+creation of the request object for you.
 
 The `$content_file`, `$content_cb` and `$read_size_hint` all correspond to
-options described with the ["get" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#get) method above.  Note that errors
+options described with the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method above. Note that errors
 writing to the content file (for example due to permission denied
 or the filesystem being full) will be reported via the `Client-Aborted`
 or `X-Died` response headers, and not the `is_success` method.
@@ -762,10 +759,10 @@ signal that there is no more content.
     my $res = $ua->simple_request( $request, $content_cb, $read_size_hint );
 
 This method dispatches a single request and returns the response
-received.  Arguments are the same as for the ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) described above.
+received.  Arguments are the same as for the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) described above.
 
-The difference from ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) is that `simple_request` will not try to
-handle redirects or authentication responses.  The ["request" in LWP::Simple](https://metacpan.org/pod/LWP::Simple#request) method
+The difference from ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) is that `simple_request` will not try to
+handle redirects or authentication responses.  The ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) method
 will, in fact, invoke this method for each simple request it sends.
 
 # CALLBACK METHODS

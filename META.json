@@ -217,10 +217,6 @@
    },
    "release_status" : "stable",
    "resources" : {
-      "bugtracker" : {
-         "mailto" : "bug-libwww-perl@rt.cpan.org",
-         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=libwww-perl"
-      },
       "homepage" : "https://github.com/libwww-perl/libwww-perl",
       "repository" : {
          "type" : "git",
@@ -364,6 +360,7 @@
                },
                "Dist::Zilla::Role::Git::DirtyFiles" : {
                   "allow_dirty" : [
+                     "Changes",
                      "LICENSE",
                      "META.json",
                      "Makefile.PL",
@@ -390,6 +387,7 @@
                },
                "Dist::Zilla::Role::Git::DirtyFiles" : {
                   "allow_dirty" : [
+                     "Changes",
                      "LICENSE",
                      "META.json",
                      "Makefile.PL",

@@ -3,6 +3,7 @@ Change history for libwww-perl
 {{$NEXT}}
     - Fix LWP::UserAgent docs for request and request_simple that pointed to
       functions in LWP::Simple rather than LWP::UserAgent
+    - Moved the official bug tracker to GitHub rather than RT.
 
 6.24      2017-03-14
     - Document clone methods inability to clone cookie jars (RT #13542)

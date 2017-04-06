@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -56,6 +56,7 @@ Gisle Aas <gisle@aas.no>
 #' get emacs out of quote mode
 
 use strict;
+use warnings;
 
 use LWP::UserAgent ();
 use LWP::MediaTypes qw(guess_media_type media_suffix);
@@ -321,7 +322,8 @@ BEGIN {
     sub show {
         my ($mess, $show_ani) = @_;
         print "\r$mess" . (" " x (75 - length $mess));
-        print $show_ani ? "$ani[$ani++]\b" : " ";
+        my $msg = $show_ani ? $ani[$ani++]. "\b" : ' ';
+        print $msg;
         $ani %= @ani;
         $shown++;
     }

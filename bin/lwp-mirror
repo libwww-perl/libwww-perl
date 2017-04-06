@@ -44,12 +44,12 @@ use Encode;
 use Encode::Locale;
 
 $progname = $0;
-$progname =~ s,.*/,,;  # use basename only
-$progname =~ s/\.\w*$//; #strip extension if any
+$progname =~ s,.*/,,;       # use basename only
+$progname =~ s/\.\w*$//;    #strip extension if any
 
-$opt_h = undef;  # print usage
-$opt_v = undef;  # print version
-$opt_t = undef;  # timeout
+$opt_h = undef;             # print usage
+$opt_v = undef;             # print version
+$opt_t = undef;             # timeout
 
 unless (getopts("hvt:")) {
     usage();
@@ -68,7 +68,7 @@ modify it under the same terms as Perl itself.
 EOT
 }
 
-$url  = decode(locale => shift) or usage();
+$url = decode(locale => shift) or usage();
 $file = encode(locale_fs => decode(locale => shift)) or usage();
 usage() if $opt_h or @ARGV;
 
@@ -84,7 +84,7 @@ if (defined $opt_t) {
 $rc = mirror($url, $file);
 
 if ($rc == 304) {
-    print STDERR "$progname: $file is up to date\n"
+    print STDERR "$progname: $file is up to date\n";
 }
 elsif (!is_success($rc)) {
     print STDERR "$progname: $rc ", status_message($rc), "   ($url)\n";
@@ -93,8 +93,7 @@ elsif (!is_success($rc)) {
 exit;
 
 
-sub usage
-{
+sub usage {
     die <<"EOT";
 Usage: $progname [-options] <url> <file>
     -v           print version number of program

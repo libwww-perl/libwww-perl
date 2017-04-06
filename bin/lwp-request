@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Simple user agent using LWP library.
 
@@ -180,7 +180,10 @@ Gisle Aas <gisle@aas.no>
 
 =cut
 
-$progname = $0;
+use strict;
+use warnings;
+
+my $progname = $0;
 $progname =~ s,.*[\\/],,;    # use basename only
 $progname =~ s/\.\w*$//;     # strip extension, if any
 
@@ -202,7 +205,7 @@ use HTTP::Date qw(time2str str2time);
 #
 # "" = No content in request, "C" = Needs content in request
 #
-%allowed_methods = (
+my %allowed_methods = (
     GET     => "",
     HEAD    => "",
     POST    => "C",
@@ -219,6 +222,8 @@ use HTTP::Date qw(time2str str2time);
 
     package RequestAgent;
 
+    use strict;
+    use warnings;
     use base qw(LWP::UserAgent);
 
     sub new {
@@ -252,11 +257,11 @@ use HTTP::Date qw(time2str str2time);
     }
 }
 
-$method = uc(lc($progname) eq "lwp-request" ? "GET" : $progname);
+my $method = uc(lc($progname) eq "lwp-request" ? "GET" : $progname);
 
 # Parse command line
 use Getopt::Long;
-
+my %options;
 my @getopt_args = (
     'a',       # content i/o in text(ascii) mode
     'm=s',     # set method
@@ -305,7 +310,7 @@ EOT
 usage() if $options{'h'} || !@ARGV;
 
 # Create the user agent object
-$ua = RequestAgent->new;
+my $ua = RequestAgent->new;
 
 # Load proxy settings from *_proxy environment variables.
 $ua->env_proxy unless $options{'P'};
@@ -344,7 +349,7 @@ $options{'s'} = 1 if $options{'e'};
 if (defined $options{'t'}) {
     $options{'t'} =~ /^(\d+)([smh])?/;
     die "$progname: Illegal timeout value!\n" unless defined $1;
-    $timeout = $1;
+    my $timeout = $1;
     if (defined $2) {
         $timeout *= 60   if $2 eq "m";
         $timeout *= 3600 if $2 eq "h";
@@ -353,6 +358,7 @@ if (defined $options{'t'}) {
 }
 
 if (defined $options{'i'}) {
+    my $time;
     if (-e $options{'i'}) {
         $time = (stat _)[9];
     }
@@ -364,8 +370,8 @@ if (defined $options{'i'}) {
     $options{'i'} = time2str($time);
 }
 
-$content = undef;
-$user_ct = undef;
+my $content;
+my $user_ct;
 if ($allowed_methods{$method} eq "C") {
 
     # This request needs some content
@@ -393,7 +399,7 @@ else {
 }
 
 # Set up a request.  We will use the same request object for all URLs.
-$request = HTTP::Request->new($method);
+my $request = HTTP::Request->new($method);
 $request->header('If-Modified-Since', $options{'i'}) if defined $options{'i'};
 for my $user_header (@{$options{'H'} || []}) {
     my ($header_name, $header_value) = split /\s*:\s*/, $user_header, 2;
@@ -415,7 +421,7 @@ if ($options{'c'}) {    # will always be set for request that wants content
     $request->content($content);
 }
 
-$errors = 0;
+my $errors = 0;
 
 sub show {
     my $r    = shift;
@@ -427,7 +433,7 @@ sub show {
 }
 
 # Ok, now we perform the requests, one URL at a time
-while ($url = shift) {
+while (my $url = shift) {
 
     # Create the URL object, but protect us against bad URLs
     eval {
@@ -452,7 +458,7 @@ while ($url = shift) {
 
     # Send the request and get a response back from the server
     $request->uri($url);
-    $response = $ua->request($request);
+    my $response = $ua->request($request);
 
     if ($options{'S'}) {
         for my $r ($response->redirects) {

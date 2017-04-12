@@ -3,6 +3,7 @@ Change history for libwww-perl
 {{$NEXT}}
     - Perltidy all apps in the bin/ directory
     - Make all apps in bin/ use strict and warnings (RT #92633)
+    - Fix bug tracker URL in metadata
 
 6.25      2017-04-03
     - Fix LWP::UserAgent docs for request and request_simple that pointed to

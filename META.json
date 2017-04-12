@@ -217,6 +217,9 @@
    },
    "release_status" : "stable",
    "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/libwww-perl/libwww-perl/issues"
+      },
       "homepage" : "https://github.com/libwww-perl/libwww-perl",
       "repository" : {
          "type" : "git",

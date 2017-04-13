@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Handle undefined values in ->credentials (GH #157)
+
+6.26      2017-04-12
     - Perltidy all apps in the bin/ directory
     - Make all apps in bin/ use strict and warnings (RT #92633)
     - Fix bug tracker URL in metadata

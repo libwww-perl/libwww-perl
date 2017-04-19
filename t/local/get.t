@@ -23,7 +23,7 @@ else {
     }
     if ( $TMPDIR ) {
         $TMPDIR =~ tr|\\|/|;
-        plan tests => 4;
+        plan tests => 7;
     }
     else {
         plan skip_all => 'Cannot test without a suitable TMP Directory';
@@ -63,6 +63,13 @@ is($copytext, $origtext, "getprint: Original and copy equal eachother");
 getstore("file:$orig", $copy);
 $copytext = slurp( $copy );
 is($copytext, $origtext, "getstore: Original and copy equal eachother");
+
+# Test get() function
+is(get("file:$orig"), $origtext, "get: Returns the content");
+
+# Test head() function
+is(ref head("file:$orig"), "HTTP::Response", "head: Returns a HTTP::Response object when called in scalar context");
+is(@{[head("file:$orig")]}, 5, "head: Returns five headers when called in list context");
 
 unlink($orig);
 unlink($copy);

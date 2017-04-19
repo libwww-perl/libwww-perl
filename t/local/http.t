@@ -45,7 +45,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 89;
+    plan tests => 97;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -242,6 +242,31 @@ sub _test {
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         is($res->code, 401, 'digestAuth: code 401');
     }
+    { # digest auth-int
+        my $req = HTTP::Request->new(POST => url("/digestint", $base));
+        my $res = MyUA2->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth (auth-int): good response object');
+
+        ok($res->is_success, 'digestAuth (auth-int): is_success');
+
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication}=undef;
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth (auth-int): good response object');
+        is($res->code, 401, 'digestAuth (auth-int): code 401');
+
+        # Let's try to set credentials for this realm
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth (auth-int): good response object');
+        ok($res->is_success, 'digestAuth (auth-int): is_success');
+
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "user2", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth (auth-int): good response object');
+        is($res->code, 401, 'digestAuth (auth-int): code 401');
+    }
     { # proxy
         $ua->proxy(ftp => $base);
         my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
@@ -312,7 +337,7 @@ sub _test {
     use base 'LWP::UserAgent';
     sub get_basic_credentials {
         my($self, $realm, $uri, $proxy) = @_;
-        if ($realm eq "libwww-perl-digest" && $uri->rel($base) eq "digest") {
+        if ($realm eq "libwww-perl-digest" && $uri->rel($base) =~ /^digest/) {
             return ("ok 23", "xyzzy");
         }
         return undef;
@@ -370,6 +395,38 @@ sub daemonize {
         else {
             $c->send_basic_header(401);
             $c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=auth\015\012");
+            $c->send_crlf;
+        }
+    };
+    $router{post_digestint} = sub {
+        my($c, $r) = @_;
+        my $auth = $r->authorization;
+        my %auth_params;
+        if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
+            %auth_params = map { split /=/ } split /,\s*/, $1;
+            use Data::Dumper;
+            print STDERR Dumper(\%auth_params);
+        }
+        if ( %auth_params &&
+                $auth_params{username} eq q{"ok 23"} &&
+                $auth_params{realm} eq q{"libwww-perl-digest"} &&
+                $auth_params{qop} eq "auth" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/digestint"} &&
+                $auth_params{nonce} eq q{"12345"} &&
+                defined($auth_params{nc}) &&
+                defined($auth_params{cnonce}) &&
+                defined($auth_params{response})
+             ) {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        else {
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=\"auth, auth-int\"\015\012");
             $c->send_crlf;
         }
     };

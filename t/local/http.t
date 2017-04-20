@@ -404,8 +404,6 @@ sub daemonize {
         my %auth_params;
         if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
             %auth_params = map { split /=/ } split /,\s*/, $1;
-            use Data::Dumper;
-            print STDERR Dumper(\%auth_params);
         }
         if ( %auth_params &&
                 $auth_params{username} eq q{"ok 23"} &&

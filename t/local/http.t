@@ -414,6 +414,7 @@ sub daemonize {
                 $auth_params{nonce} eq q{"12345"} &&
                 defined($auth_params{nc}) &&
                 defined($auth_params{cnonce}) &&
+                defined($auth_params{"message-digest"}) &&
                 defined($auth_params{response})
              ) {
             $c->send_basic_header(200);

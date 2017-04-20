@@ -46,7 +46,7 @@ sub auth_header {
     }
 
     my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response);
-    if($auth_qop eq 'auth-int' && $request->method =~ /^(?:POST|PUT)$/) {
+    if($auth_qop =~ qr'auth-int' && $request->method =~ /^(?:POST|PUT)$/) {
 	$md5->add($request->content);
 	my $content = $md5->hexdigest;
 	$md5->reset;

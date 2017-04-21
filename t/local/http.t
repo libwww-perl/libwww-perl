@@ -45,7 +45,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 89;
+    plan tests => 97;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -242,6 +242,33 @@ sub _test {
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         is($res->code, 401, 'digestAuth: code 401');
     }
+    { # digest (2 realms) # issue 248
+        my $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication}=undef;
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
+
+        # Let's try to set credentials for this realm
+        $ua->credentials($req->uri->host_port, "realm1", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm1: is_success');
+
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "realm1", "user2", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
+
+        $ua->{basic_authentication}=undef;
+        # Then credentials for the second realm
+        $ua->credentials($req->uri->host_port, "realm2", "seconduser", "anotherpass");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm2: is_success');
+    }
     { # proxy
         $ua->proxy(ftp => $base);
         my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
@@ -370,6 +397,54 @@ sub daemonize {
         else {
             $c->send_basic_header(401);
             $c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\", qop=auth\015\012");
+            $c->send_crlf;
+        }
+    };
+    $router{get_doubledigest} = sub {
+        my($c, $r) = @_;
+        my $auth = $r->authorization;
+        my %auth_params;
+        if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
+            %auth_params = map { split /=/ } split /,\s*/, $1;
+        }
+        if ( %auth_params &&
+                $auth_params{username} eq q{"ok 23"} &&
+                $auth_params{realm} eq q{"realm1"} &&
+                $auth_params{qop} eq "auth" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/doubledigest"} &&
+                $auth_params{nonce} eq q{"12345"} &&
+                $auth_params{nc} =~ /0000000\d/ &&
+                defined($auth_params{cnonce}) &&
+                defined($auth_params{response})
+             ) {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        elsif ( %auth_params &&
+                $auth_params{username} eq q{"seconduser"} &&
+                $auth_params{realm} eq q{"realm2"} &&
+                $auth_params{qop} eq "auth" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/doubledigest"} &&
+                $auth_params{nonce} eq q{"56789"} &&
+                $auth_params{nc} =~ /0000000\d/ &&
+                defined($auth_params{cnonce}) &&
+                defined($auth_params{response})
+             ) {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        else {
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Digest realm=\"realm1\", nonce=\"12345\", qop=auth\015\012");
+            $c->print("WWW-Authenticate: Digest realm=\"realm2\", nonce=\"56789\", qop=auth\015\012");
             $c->send_crlf;
         }
     };

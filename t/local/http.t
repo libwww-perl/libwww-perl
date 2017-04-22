@@ -45,7 +45,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 97;
+    plan tests => 100;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -313,6 +313,18 @@ sub _test {
         $ua->max_size(undef);
         like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
     }
+    { # check number of connections server received.
+        my $req = HTTP::Request->new(  GET => url("/requestcount", $base) );
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'terminate: good response object');
+        is($res->code, 200, 'Response code is 200');
+        note $res->content;
+        is($res->content, '41', 'Request count');
+        # this test is probably going to be annoying, but it checks we make
+        # the expected number of HTTP requests so if we break the code
+        # that prevents too many requests from occuring in situations like
+        # authentication where we may need to make re-requests we'll notice.
+    }
     { # terminate server
         my $req = HTTP::Request->new(GET => url("/quit", $base));
         my $res = $ua->request($req);
@@ -484,6 +496,13 @@ sub daemonize {
         $c->send_error(503, "Bye, bye");
         exit;  # terminate HTTP server
     };
+    my $count = 0;
+    $router{get_requestcount} = sub {
+        my($c) = @_;
+        $c->send_basic_header(200);
+        $c->send_crlf;
+        $c->print($count);
+    };
     $router{get_redirect} = sub {
         my($c) = @_;
         $c->send_redirect("/echo/redirect");
@@ -521,6 +540,7 @@ sub daemonize {
 
     while (my $c = $d->accept) {
         while (my $r = $c->get_request) {
+            $count++;
             my $p = ($r->uri->path_segments)[1];
             my $func = lc($r->method . "_$p");
             if ( $router{$func} ) {

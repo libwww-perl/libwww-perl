@@ -48,17 +48,14 @@ my $progname = $0;
 $progname =~ s,.*/,,;       # use basename only
 $progname =~ s/\.\w*$//;    #strip extension if any
 
-my $opt_h;             # print usage
-my $opt_v;             # print version
-my $opt_t;             # timeout
-
-unless (getopts("hvt:")) {
+my %opts;
+unless (getopts("hvt:", \%opts)) {
     usage();
 }
 
-if ($opt_v) {
+if ($opts{v}) {
     require LWP;
-    my $DISTNAME = 'libwww-perl-' . LWP::Version();
+    my $DISTNAME = 'libwww-perl-' . $LWP::VERSION;
     die <<"EOT";
 This is lwp-mirror version $LWP::Simple::VERSION ($DISTNAME)
 
@@ -71,15 +68,18 @@ EOT
 
 my $url = decode(locale => shift) or usage();
 my $file = encode(locale_fs => decode(locale => shift)) or usage();
-usage() if $opt_h or @ARGV;
+usage() if $opts{h} or @ARGV;
 
-if (defined $opt_t) {
-    $opt_t =~ /^(\d+)([smh])?/;
-    die "$progname: Illegal timeout value!\n" unless defined $1;
-    my $timeout = $1;
-    $timeout *= 60   if ($2 eq "m");
-    $timeout *= 3600 if ($2 eq "h");
-    $ua->timeout($timeout);
+if ($opts{t}) {
+    if ($opts{t} =~ /^(\d+)([smh])?/) {
+        my $timeout = $1;
+        $timeout *= 60   if ($2 eq "m");
+        $timeout *= 3600 if ($2 eq "h");
+        $ua->timeout($timeout);
+    }
+    else {
+        die "$progname: Illegal timeout value!\n";
+    }
 }
 
 my $rc = mirror($url, $file);

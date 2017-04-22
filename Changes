@@ -2,6 +2,8 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Handle undefined values in ->credentials (GH #157)
+    - Fix lwp-mirror options checks.
+    - Update bin/ scripts to use $LWP::VERSION instead of ->Version()
 
 6.26      2017-04-12
     - Perltidy all apps in the bin/ directory

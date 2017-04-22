@@ -296,7 +296,7 @@ unless (GetOptions(\%options, @getopt_args)) {
 }
 if ($options{'v'}) {
     require LWP;
-    my $DISTNAME = 'libwww-perl-' . LWP::Version();
+    my $DISTNAME = 'libwww-perl-' . $LWP::VERSION;
     die <<"EOT";
 This is lwp-request version $LWP::VERSION ($DISTNAME)
 

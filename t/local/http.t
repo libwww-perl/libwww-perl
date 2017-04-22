@@ -45,7 +45,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 106;
+    plan tests => 108;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -286,10 +286,18 @@ sub _test {
 
         # now lets add on invalid creds for realm1 and it should try
         # realm2 and find that works.
+        $req = HTTP::Request->new(GET => url("/doubledigest", $base));
         $ua->credentials($req->uri->host_port, "realm1", "user2", "passwd");
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         ok($res->is_success, 'digestAuth realm2: is_success');
+
+        $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        $ua->credentials($req->uri->host_port, "realm2", "baduser", "anotherpass");
+        $ua->credentials($req->uri->host_port, "realm1", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm1: is_success');
     }
     { # proxy
         $ua->proxy(ftp => $base);
@@ -340,7 +348,7 @@ sub _test {
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'terminate: good response object');
         is($res->code, 200, 'Response code is 200');
-        is($res->content, '44', 'Request count');
+        is($res->content, '46', 'Request count');
         # this test is probably going to be annoying, but it checks we make
         # the expected number of HTTP requests so if we break the code
         # that prevents too many requests from occuring in situations like

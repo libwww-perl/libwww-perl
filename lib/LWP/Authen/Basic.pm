@@ -48,9 +48,18 @@ sub authenticate
     }
 
     # check that the password has changed
-    my ($olduser, $oldpass);# = $ua->credentials($host_port, $realm);
-    return $response if (defined $olduser and defined $oldpass and
-                         $user eq $olduser and $pass eq $oldpass);
+    my ($olduser, $oldpass) = $ua->credentials($host_port, $realm);
+    if (defined $olduser and defined $oldpass and
+            $user eq $olduser and $pass eq $oldpass) {
+        # lets examine the auth header further.
+        my $existing = $request->header($auth_header);
+        $existing =~ tr/,/;/;    # "," is used to separate existing-params!!
+        ($existing) = HTTP::Headers::Util::split_header_words($existing);
+        $existing = {@$existing};    # make rest into a hash
+        if($existing->{realm} eq $realm && $existing->{username} eq $user) {
+            return $response;
+        }
+    }
 
     $ua->credentials($host_port, $realm, $user, $pass);
     add_path($h, $url->path) unless $proxy;

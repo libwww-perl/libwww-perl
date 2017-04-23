@@ -365,7 +365,7 @@ sub _test {
         my $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'terminate: good response object');
         is($res->code, 200, 'Response code is 200');
-        is($res->content, '46', 'Request count');
+        is($res->content, '51', 'Request count');
         # this test is probably going to be annoying, but it checks we make
         # the expected number of HTTP requests so if we break the code
         # that prevents too many requests from occuring in situations like

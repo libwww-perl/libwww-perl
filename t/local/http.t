@@ -15,7 +15,24 @@ delete $ENV{PERL_LWP_ENV_PROXY};
 $| = 1; # autoflush
 
 my $DAEMON;
+
+# allow developer to manually run the daemon and the tests
+# separately.  Particularly useful for running with the perl
+# debugger.
+#
+# Run the server like this,
+#
+# PERL_LWP_ENV_HTTP_TEST_SERVER_TIMEOUT=10000 perl -I lib t/local/http.t daemon
+#
+# Then the tests like this,
+#
+# PERL_LWP_ENV_HTTP_TEST_URL=http://127.0.0.1:56957/ perl -I lib t/local/http.t
 my $base;
+if($ENV{PERL_LWP_ENV_HTTP_TEST_URL})
+{
+    $base = URI->new($ENV{PERL_LWP_ENV_HTTP_TEST_URL});
+    $DAEMON = 1;
+}
 my $CAN_TEST = (0==system($^X, "$Bin/../../talk-to-ourself"))? 1: 0;
 
 my $D = shift(@ARGV) || '';
@@ -24,7 +41,7 @@ if ($D eq 'daemon') {
 }
 else {
     # start the daemon and the testing
-    if ( $^O ne 'MacOS' and $CAN_TEST ) {
+    if ( $^O ne 'MacOS' and $CAN_TEST and !$base ) {
         my $perl = $Config{'perlpath'};
         $perl = $^X if $^O eq 'VMS' or -x $^X and $^X =~ m,^([a-z]:)?/,i;
         open($DAEMON, "$perl $0 daemon |") or die "Can't exec daemon: $!";
@@ -440,7 +457,9 @@ sub daemonize {
         $c->print($req->as_string);
     };
 
-    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => '127.0.0.1') || die $!;
+    # Note: tiemout of 0 is not infinite, so no point in special casing
+    # timeout logic.
+    my $d = HTTP::Daemon->new(Timeout => $ENV{PERL_LWP_ENV_HTTP_TEST_SERVER_TIMEOUT} || 10, LocalAddr => '127.0.0.1') || die $!;
     print "Pleased to meet you at: <URL:", $d->url, ">\n";
     open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");
 

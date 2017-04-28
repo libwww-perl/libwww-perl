@@ -422,6 +422,12 @@ sub request {
         }
         return $response;
     }
+
+    my $content_length = $response->header('content-length');
+    if (defined $content_length && (length($response->{'_content'}) > $content_length)) {
+        warn sprintf( "'Content-Length' header (%d) exceeds the delivered payload length (%d)!", $content_length, length($response->{'_content'}) );
+    }
+
     return $response;
 }
 

@@ -97,7 +97,7 @@ operation is to access a WWW form application:
   $ua = LWP::UserAgent->new;
 
   my $req = HTTP::Request->new(
-      POST => 'http://rt.cpan.org/Public/Dist/Display.html');
+      POST => 'https://rt.cpan.org/Public/Dist/Display.html');
   $req->content_type('application/x-www-form-urlencoded');
   $req->content('Status=Active&Name=libwww-perl');
 
@@ -112,7 +112,7 @@ suitable default for the content_type:
   use LWP::UserAgent;
   $ua = LWP::UserAgent->new;
 
-  my $req = POST 'http://rt.cpan.org/Public/Dist/Display.html',
+  my $req = POST 'https://rt.cpan.org/Public/Dist/Display.html',
                 [ Status => 'Active', Name => 'libwww-perl' ];
 
   print $ua->request($req)->as_string;
@@ -185,7 +185,9 @@ program for an example of this.
 
 Some sites like to play games with cookies.  By default LWP ignores
 cookies provided by the servers it visits.  LWP will collect cookies
-and respond to cookie requests if you set up a cookie jar.
+and respond to cookie requests if you set up a cookie jar. LWP doesn't
+provide a cookie jar itself, but if you install L<HTTP::CookieJar::LWP>,
+it can be used like this:
 
   use LWP::UserAgent;
   use HTTP::CookieJar::LWP;
@@ -258,7 +260,7 @@ name):
   $ua = LWP::UserAgent->new;
 
   my $req = HTTP::Request->new(GET =>
-     'http://www.cpan.org/authors/Gisle_Aas/libwww-perl-6.02.tar.gz');
+      'http://www.cpan.org/CPAN/authors/id/O/OA/OALDERS/libwww-perl-6.26.tar.gz');
   $res = $ua->request($req, "libwww-perl.tar.gz");
   if ($res->is_success) {
      print "ok\n";
@@ -273,7 +275,7 @@ argument is a code reference):
 
   use LWP::UserAgent;
   $ua = LWP::UserAgent->new;
-  $URL = 'ftp://ftp.unit.no/pub/rfc/rfc-index.txt';
+  $URL = 'ftp://ftp.isc.org/pub/rfc/rfc-index.txt';
 
   my $expected_length;
   my $bytes_received = 0;

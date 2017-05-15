@@ -1,9 +1,10 @@
 use strict;
 use warnings;
+use HTTP::Request ();
+use LWP::UserAgent ();
 use Test::More;
 
-use LWP::UserAgent;
-plan tests => 39;
+plan tests => 43;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -12,6 +13,25 @@ delete $ENV{HTTPS_CA_DIR};
 delete $ENV{PERL_LWP_SSL_CA_FILE};
 delete $ENV{PERL_LWP_SSL_CA_PATH};
 delete $ENV{PERL_LWP_ENV_PROXY};
+
+subtest 'proxy settings from the constructor' => sub {
+    plan tests => 4;
+
+    my $ua = LWP::UserAgent->new(
+        proxy => [
+            ftp => 'http://www.sol.no',
+            ['http', 'https'] => 'http://www.sol2.no',
+        ],
+        no_proxy => ['test.com'],
+    );
+
+    is($ua->proxy('ftp'), 'http://www.sol.no', q{$ua->proxy("ftp")});
+
+    is($ua->proxy($_), 'http://www.sol2.no', qq{\$ua->proxy("$_)})
+        for qw( http https );
+
+    is_deeply($ua->{no_proxy}, ['test.com'], q{no_proxy set to ['test.com']});
+};
 
 my $ua = LWP::UserAgent->new;
 
@@ -35,6 +55,21 @@ is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
 $ua->proxy_header("Foo" => "bar");
 is($ua->proxy_headers->header("Foo"), "bar", '$ua->proxy_headers->header("Foo")');
 is($ua->proxy_header("Foo"),          "bar", '$ua->proxy_header("Foo")');
+
+# error on malformed request
+{
+    my $req = HTTP::Request->new('', 'unknown:www.example.com');
+    my $res = $ua->simple_request($req);
+    like($res->content(), qr/Method missing/, "simple_request: Method Missing: invalid request");
+
+    $req = HTTP::Request->new('HAHAHA', 'unknown:www.example.com');
+    $res = $ua->simple_request($req);
+    like($res->content(), qr/Protocol scheme 'unknown'/, "simple_request: Invalid Protocol: invalid request");
+
+    $req = HTTP::Request->new('HAHAHA', 'www.example.com');
+    $res = $ua->simple_request($req);
+    like($res->content(), qr/URL must be absolute/, "simple_request: Invalid Scheme: invalid request");
+}
 
 # Try it
 $ua->proxy(http => "loopback:");

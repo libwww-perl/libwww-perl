@@ -1,21 +1,15 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 use LWP::UserAgent ();
 use Getopt::Long qw(GetOptions);
 use Encode;
 use Encode::Locale;
 
-my $VERSION = "6.17";
-
-GetOptions(\my %opt,
-    'parse-head',
-    'max-length=n',
-    'keep-client-headers',
-    'method=s',
-    'agent=s',
-    'request',
-) || usage();
+GetOptions(\my %opt, 'parse-head', 'max-length=n', 'keep-client-headers',
+    'method=s', 'agent=s', 'request',)
+    || usage();
 
 my $url = shift || usage();
 @ARGV && usage();
@@ -39,15 +33,15 @@ EOT
 my $ua = LWP::UserAgent->new(
     parse_head => $opt{'parse-head'} || 0,
     keep_alive => 1,
-    env_proxy => 1,
-    agent => $opt{agent} || "lwp-dump/$VERSION ",
+    env_proxy  => 1,
+    agent      => $opt{agent}        || "lwp-dump/$LWP::UserAgent::VERSION ",
 );
 
 my $req = HTTP::Request->new($opt{method} || 'GET' => decode(locale => $url));
 my $res = $ua->simple_request($req);
 $res->remove_header(grep /^Client-/, $res->header_field_names)
-    unless $opt{'keep-client-headers'} or
-        ($res->header("Client-Warning") || "") eq "Internal response";
+    unless $opt{'keep-client-headers'}
+    or ($res->header("Client-Warning") || "") eq "Internal response";
 
 if ($opt{request}) {
     $res->request->dump;

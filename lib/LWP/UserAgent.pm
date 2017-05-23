@@ -1086,6 +1086,8 @@ sub env_proxy {
 	    $self->proxy($k, Encode::decode(locale => $v));
 	}
     }
+    # Pass https proxy information to Crypt::SSLeay or IO::Socket::SSL .
+    $self->{proxy}{https} = '' if defined $ENV{HTTPS_PROXY};
 }
 
 

@@ -126,7 +126,8 @@ sub simple_request
 	$self->{'rules'}->parse($robot_url, "");
 
 	my $robot_req = HTTP::Request->new('GET', $robot_url);
-	my $parse_head = $self->parse_head(0);
+	my $parse_head = $self->parse_head;
+	$self->parse_head(0);
 	my $robot_res = $self->request($robot_req);
 	$self->parse_head($parse_head);
 	my $fresh_until = $robot_res->fresh_until;

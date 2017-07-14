@@ -11,7 +11,8 @@ package LWP::Debug::TraceHTTP;
 use strict;
 use base 'LWP::Protocol::http';
 
-package LWP::Debug::TraceHTTP::Socket;
+package # hide from PAUSE
+    LWP::Debug::TraceHTTP::Socket;
 
 use Data::Dump 1.13;
 use Data::Dump::Trace qw(autowrap mcall);

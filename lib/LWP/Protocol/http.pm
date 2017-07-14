@@ -497,7 +497,8 @@ sub request
 
 
 #-----------------------------------------------------------
-package LWP::Protocol::http::SocketMethods;
+package # hide from PAUSE
+    LWP::Protocol::http::SocketMethods;
 
 sub ping {
     my $self = shift;
@@ -510,7 +511,8 @@ sub increment_response_count {
 }
 
 #-----------------------------------------------------------
-package LWP::Protocol::http::Socket;
+package # hide from PAUSE
+    LWP::Protocol::http::Socket;
 
 use base qw(LWP::Protocol::http::SocketMethods Net::HTTP);
 

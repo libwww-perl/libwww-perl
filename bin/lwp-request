@@ -215,6 +215,7 @@ my %allowed_methods = (
     OPTIONS => "",
 );
 
+my %options;
 
 # We make our own specialization of LWP::UserAgent that asks for
 # user/password if document is protected.
@@ -234,8 +235,8 @@ my %allowed_methods = (
 
     sub get_basic_credentials {
         my ($self, $realm, $uri) = @_;
-        if ($main::options{'C'}) {
-            return split(':', $main::options{'C'}, 2);
+        if ($options{'C'}) {
+            return split(':', $options{'C'}, 2);
         }
         elsif (-t) {
             my $netloc = $uri->host_port;
@@ -261,7 +262,6 @@ my $method = uc(lc($progname) eq "lwp-request" ? "GET" : $progname);
 
 # Parse command line
 use Getopt::Long;
-my %options;
 my @getopt_args = (
     'a',       # content i/o in text(ascii) mode
     'm=s',     # set method

@@ -6,7 +6,12 @@ lwp-download - Fetch large files from the web
 
 =head1 SYNOPSIS
 
-B<lwp-download> [B<-a>] [B<-s>] <I<url>> [<I<local path>>]
+ lwp-download [-a] [-s] <url> [<local path>]
+
+ Options:
+
+   -a   save the file in ASCII mode
+   -s   use HTTP headers to guess output filename
 
 =head1 DESCRIPTION
 
@@ -64,22 +69,22 @@ use URI        ();
 use HTTP::Date ();
 use Encode;
 use Encode::Locale;
+use Getopt::Long qw(HelpMessage :config gnu_getopt no_ignore_case auto_help);
 
 my $progname = $0;
 $progname =~ s,.*/,,;    # only basename left in progname
 $progname =~ s,.*\\,, if $^O eq "MSWin32";
 $progname =~ s/\.\w*$//;    # strip extension if any
 
-#parse option
-use Getopt::Std;
 my %opt;
-unless (getopts('as', \%opt)) {
-    usage();
-}
+GetOptions(
+    'a' => \$opt{a},
+    's' => \$opt{s}
+) or HelpMessage();
 
-my $url = URI->new(decode(locale => shift) || usage());
+my $url = URI->new(decode(locale => shift) || HelpMessage());
 my $argfile = encode(locale_fs => decode(locale => shift));
-usage() if defined($argfile) && !length($argfile);
+HelpMessage() if defined($argfile) && !length($argfile);
 
 my $ua = LWP::UserAgent->new(
     agent      => "lwp-download/$LWP::UserAgent::VERSION ",
@@ -327,8 +332,4 @@ BEGIN {
         $ani %= @ani;
         $shown++;
     }
-}
-
-sub usage {
-    die "Usage: $progname [-a] <url> [<lpath>]\n";
 }

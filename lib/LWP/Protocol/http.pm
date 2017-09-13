@@ -234,7 +234,7 @@ sub request
     $request_headers->scan(sub {
 			       my($k, $v) = @_;
 			       $k =~ s/^://;
-			       $v =~ s/\n/ /g;
+			       $v =~ tr/\n/ /;
 			       push(@h, $k, $v);
 			   });
 

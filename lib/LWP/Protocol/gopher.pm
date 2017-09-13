@@ -185,7 +185,7 @@ sub gopher2url
 sub menu2html {
     my($menu) = @_;
 
-    $menu =~ s/\015//g;  # remove carriage return
+    $menu =~ tr/\015//d;  # remove carriage return
     my $tmp = <<"EOT";
 <HTML>
 <HEAD>

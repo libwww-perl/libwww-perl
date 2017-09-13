@@ -387,7 +387,7 @@ sub request {
             }
             $scheme = $1;                  # untainted now
             my $class = "LWP::Authen::\u$scheme";
-            $class =~ s/-/_/g;
+            $class =~ tr/-/_/;
 
             no strict 'refs';
             unless (%{"$class\::"}) {

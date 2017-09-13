@@ -53,7 +53,7 @@ sub implementor
 
     return '' unless $scheme =~ /^([.+\-\w]+)$/;  # check valid URL schemes
     $scheme = $1; # untaint
-    $scheme =~ s/[.+\-]/_/g;  # make it a legal module name
+    $scheme =~ tr/.+-/_/;  # make it a legal module name
 
     # scheme not yet known, look for a 'use'd implementation
     $ic = "LWP::Protocol::$scheme";  # default location

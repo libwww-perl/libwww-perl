@@ -1,6 +1,12 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Switch to Getopt::Long in lwp-download (GH #262)
+    - Fix lwp-request -C (GH #261)
+    - Hide LWP::Protocol::http::Socket, LWP::Protocol::http::SocketMethods and
+      LWP::Debug::TraceHTTP::Socket from PAUSE
+    - Add tests for the "get" & "head" functions (GH #252)
+    - Update lwpcook.pod (GH #256)
     - Handle undefined values in ->credentials (GH #157)
     - Fix lwp-mirror options checks.
     - Update bin/ scripts to use $LWP::VERSION instead of ->Version()

@@ -512,6 +512,6 @@ sub increment_response_count {
 #-----------------------------------------------------------
 package LWP::Protocol::http::Socket;
 
-use base qw(LWP::Protocol::http::SocketMethods Net::HTTP);
+use parent -norequire, qw(LWP::Protocol::http::SocketMethods Net::HTTP);
 
 1;

@@ -40,7 +40,7 @@ Gisle Aas <gisle@aas.no>
 use strict;
 use warnings;
 use LWP::Simple qw(mirror is_success status_message $ua);
-use Getopt::Std;
+use Getopt::Long qw(GetOptions);
 use Encode;
 use Encode::Locale;
 
@@ -49,7 +49,7 @@ $progname =~ s,.*/,,;       # use basename only
 $progname =~ s/\.\w*$//;    #strip extension if any
 
 my %opts;
-unless (getopts("hvt:", \%opts)) {
+unless (GetOptions(\%opts, 'h', 'v', 't=i')) {
     usage();
 }
 

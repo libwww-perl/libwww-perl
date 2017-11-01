@@ -42,6 +42,8 @@ sub _new_socket
 	    $@ =~ /\b(Crypt-SSLeay can't verify hostnames)\b/
 	) {
 	    $status .= " ($1)";
+	} elsif ($@) {
+	    $status .= " ($@)";
 	}
 	die "$status\n\n$@";
     }

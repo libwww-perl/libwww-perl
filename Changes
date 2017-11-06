@@ -1,6 +1,11 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Remove last use of Geopt::Std (Sergey Remanov) (GH #267)
+    - Include unmatched connect error in status string (Patrik Lundin) (GH #269)
+    - Fix insecure open FILEHANDLE,EXPR (Takumi Akiyama) (GH #270)
+
+6.27      2017-09-21
     - Switch to Getopt::Long in lwp-download (GH #262)
     - Fix lwp-request -C (GH #261)
     - Hide LWP::Protocol::http::Socket, LWP::Protocol::http::SocketMethods and

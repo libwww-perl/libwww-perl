@@ -126,17 +126,17 @@ sub request
 
     # read the file
     if ($method ne "HEAD") {
-	open(F, $path) or return new
+	open(my $fh, '<', $path) or return new
 	    HTTP::Response(HTTP::Status::RC_INTERNAL_SERVER_ERROR,
 			   "Cannot read file '$path': $!");
-	binmode(F);
+	binmode($fh);
 	$response =  $self->collect($arg, $response, sub {
 	    my $content = "";
-	    my $bytes = sysread(F, $content, $size);
+	    my $bytes = sysread($fh, $content, $size);
 	    return \$content if $bytes > 0;
 	    return \ "";
 	});
-	close(F);
+	close($fh);
     }
 
     $response;

@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+
+6.28      2017-11-06
     - Remove last use of Geopt::Std (Sergey Remanov) (GH #267)
     - Include unmatched connect error in status string (Patrik Lundin) (GH #269)
     - Fix insecure open FILEHANDLE,EXPR (Takumi Akiyama) (GH #270)

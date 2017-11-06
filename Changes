@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix some version numbers
 
 6.28      2017-11-06
     - Remove last use of Geopt::Std (Sergey Remanov) (GH #267)

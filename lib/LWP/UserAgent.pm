@@ -897,16 +897,20 @@ sub handlers {
 
 sub run_handlers {
     my($self, $phase, $o) = @_;
+
+    # were we pass $_[2] to the callbacks, instead of $o, so that they
+    # can assign to it; e.g. request_prepare is documented to allow
+    # that
     if (defined(wantarray)) {
         for my $h ($self->handlers($phase, $o)) {
-            my $ret = $h->{callback}->($o, $self, $h);
+            my $ret = $h->{callback}->($_[2], $self, $h);
             return $ret if $ret;
         }
         return undef;
     }
 
     for my $h ($self->handlers($phase, $o)) {
-        $h->{callback}->($o, $self, $h);
+        $h->{callback}->($_[2], $self, $h);
     }
 }
 

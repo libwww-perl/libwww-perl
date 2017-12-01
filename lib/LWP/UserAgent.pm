@@ -1456,7 +1456,7 @@ that have a valid certificate matching the expected hostname.  If FALSE no
 checks are made and you can't be sure that you communicate with the expected peer.
 The no checks behaviour was the default for libwww-perl-5.837 and earlier releases.
 
-This option is initialized from the L<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
+This option is initialized from the C<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
 variable.  If this environment variable isn't set; then C<verify_hostname>
 defaults to 1.
 

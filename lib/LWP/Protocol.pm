@@ -2,7 +2,7 @@ package LWP::Protocol;
 
 use base 'LWP::MemberMixin';
 
-our $VERSION = '6.30';
+our $VERSION = '6.31';
 
 use strict;
 use Carp ();

@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+
+6.30      2017-12-07
     - Use tr/// instead of s/// where appropriate (Ville Skyttä) (GH #265)
     - Use parent -norequire instead of base to not look for external
       dependencies (Fabian Zeindler) (GH #259)

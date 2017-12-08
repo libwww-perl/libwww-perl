@@ -2,6 +2,8 @@ package LWP::Authen::Basic;
 
 use strict;
 
+our $VERSION = '6.30';
+
 require MIME::Base64;
 
 sub auth_header {

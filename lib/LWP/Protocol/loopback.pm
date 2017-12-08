@@ -1,6 +1,9 @@
 package LWP::Protocol::loopback;
 
 use strict;
+
+our $VERSION = '6.30';
+
 require HTTP::Response;
 
 use base qw(LWP::Protocol);

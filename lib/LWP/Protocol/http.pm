@@ -2,6 +2,8 @@ package LWP::Protocol::http;
 
 use strict;
 
+our $VERSION = '6.30';
+
 require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;

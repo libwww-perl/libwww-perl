@@ -3,6 +3,8 @@ package LWP::Authen::Digest;
 use strict;
 use base 'LWP::Authen::Basic';
 
+our $VERSION = '6.30';
+
 require Digest::MD5;
 
 sub auth_header {

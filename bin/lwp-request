@@ -221,7 +221,8 @@ my %options;
 # user/password if document is protected.
 {
 
-    package RequestAgent;
+    package     # hide from PAUSE, $VERSION updaters
+        RequestAgent;
 
     use strict;
     use warnings;

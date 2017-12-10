@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - fix version numbering (RT#123841)
 
 6.30      2017-12-07
     - Use tr/// instead of s/// where appropriate (Ville Skyttä) (GH #265)

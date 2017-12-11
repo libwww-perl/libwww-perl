@@ -17,7 +17,8 @@ use File::Listing   ();
 
 {
 
-    package LWP::Protocol::MyFTP;
+    package # hide from PAUSE
+        LWP::Protocol::MyFTP;
 
     use strict;
     use base qw(Net::FTP);

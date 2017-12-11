@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.31      2017-12-11 01:55:53Z
     - fix version numbering (RT#123841)
 
 6.30      2017-12-07

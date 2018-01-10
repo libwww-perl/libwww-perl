@@ -28,7 +28,7 @@ sub auth_header {
     push(@digest, $auth_param->{nonce});
 
     if ($auth_param->{qop}) {
-	push(@digest, $nc, $cnonce, ($auth_param->{qop} =~ m|^auth[,;]auth-int$|) ? 'auth' : $auth_param->{qop});
+	push(@digest, $nc, $cnonce, ($auth_param->{qop} =~ m|^auth[,;]\s*auth-int$|) ? 'auth' : $auth_param->{qop});
     }
 
     $md5->add(join(":", $request->method, $uri));
@@ -42,12 +42,13 @@ sub auth_header {
     my %resp = map { $_ => $auth_param->{$_} } qw(realm nonce opaque);
     @resp{qw(username uri response algorithm)} = ($user, $uri, $digest, "MD5");
 
-    if (($auth_param->{qop} || "") =~ m|^auth([,;]auth-int)?$|) {
+    my $auth_qop = $auth_param->{qop} || "";
+    if ($auth_qop =~ m|^auth([,;]\s*auth-int)?$|) {
 	@resp{qw(qop cnonce nc)} = ("auth", $cnonce, $nc);
     }
 
     my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response);
-    if($request->method =~ /^(?:POST|PUT)$/) {
+    if($auth_qop =~ qr'auth-int' && $request->method =~ /^(?:POST|PUT)$/) {
 	$md5->add($request->content);
 	my $content = $md5->hexdigest;
 	$md5->reset;

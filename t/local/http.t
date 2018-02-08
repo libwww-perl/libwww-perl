@@ -62,7 +62,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 89;
+    plan tests => 108;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -233,6 +233,12 @@ sub _test {
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
         is($res->code, 401, 'basicAuth: code 401');
+
+        # and lets try the good credentials again.
+        $ua->credentials($req->uri->host_port, "libwww-perl", "ok 12", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        ok($res->is_success, 'basicAuth: is_success');
     }
     { # digest
         my $req = HTTP::Request->new(GET => url("/digest", $base));
@@ -258,6 +264,57 @@ sub _test {
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         is($res->code, 401, 'digestAuth: code 401');
+    }
+    { # digest (2 realms) # issue 248
+        my $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication}=undef;
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
+
+        # Let's try to set credentials for this realm
+        $ua->credentials($req->uri->host_port, "realm1", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm1: is_success');
+
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "realm1", "user2", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        is($res->code, 401, 'digestAuth: code 401');
+
+        $ua->{basic_authentication}=undef;
+        # Then credentials for the second realm
+        $ua->credentials($req->uri->host_port, "realm2", "seconduser", "anotherpass");
+        # at this point we technically have the bad realm1 credentials baked on
+        # to the request which causes a failure.
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm2: is_success');
+
+        # use a fresh request as the auth headers get baked on and we'll
+        # end up with the previous realms auth attempt there.
+        $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm2: is_success');
+
+        # now lets add on invalid creds for realm1 and it should try
+        # realm2 and find that works.
+        $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        $ua->credentials($req->uri->host_port, "realm1", "user2", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm2: is_success');
+
+        $req = HTTP::Request->new(GET => url("/doubledigest", $base));
+        $ua->credentials($req->uri->host_port, "realm2", "baduser", "anotherpass");
+        $ua->credentials($req->uri->host_port, "realm1", "ok 23", "xyzzy");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
+        ok($res->is_success, 'digestAuth realm1: is_success');
     }
     { # proxy
         $ua->proxy(ftp => $base);
@@ -302,6 +359,17 @@ sub _test {
         # Put max_size back how we found it.
         $ua->max_size(undef);
         like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
+    }
+    { # check number of connections server received.
+        my $req = HTTP::Request->new(  GET => url("/requestcount", $base) );
+        my $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'terminate: good response object');
+        is($res->code, 200, 'Response code is 200');
+        is($res->content, '51', 'Request count');
+        # this test is probably going to be annoying, but it checks we make
+        # the expected number of HTTP requests so if we break the code
+        # that prevents too many requests from occuring in situations like
+        # authentication where we may need to make re-requests we'll notice.
     }
     { # terminate server
         my $req = HTTP::Request->new(GET => url("/quit", $base));
@@ -390,6 +458,54 @@ sub daemonize {
             $c->send_crlf;
         }
     };
+    $router{get_doubledigest} = sub {
+        my($c, $r) = @_;
+        my $auth = $r->authorization;
+        my %auth_params;
+        if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
+            %auth_params = map { split /=/ } split /,\s*/, $1;
+        }
+        if ( %auth_params &&
+                $auth_params{username} eq q{"ok 23"} &&
+                $auth_params{realm} eq q{"realm1"} &&
+                $auth_params{qop} eq "auth" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/doubledigest"} &&
+                $auth_params{nonce} eq q{"12345"} &&
+                $auth_params{nc} =~ /0000000\d/ &&
+                defined($auth_params{cnonce}) &&
+                defined($auth_params{response})
+             ) {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        elsif ( %auth_params &&
+                $auth_params{username} eq q{"seconduser"} &&
+                $auth_params{realm} eq q{"realm2"} &&
+                $auth_params{qop} eq "auth" &&
+                $auth_params{algorithm} eq q{"MD5"} &&
+                $auth_params{uri} eq q{"/doubledigest"} &&
+                $auth_params{nonce} eq q{"56789"} &&
+                $auth_params{nc} =~ /0000000\d/ &&
+                defined($auth_params{cnonce}) &&
+                defined($auth_params{response})
+             ) {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        else {
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Digest realm=\"realm1\", nonce=\"12345\", qop=auth\015\012");
+            $c->print("WWW-Authenticate: Digest realm=\"realm2\", nonce=\"56789\", qop=auth\015\012");
+            $c->send_crlf;
+        }
+    };
     $router{get_echo} = sub {
         my($c, $req) = @_;
         $c->send_basic_header(200);
@@ -425,6 +541,13 @@ sub daemonize {
         my($c) = @_;
         $c->send_error(503, "Bye, bye");
         exit;  # terminate HTTP server
+    };
+    my $count = 0;
+    $router{get_requestcount} = sub {
+        my($c) = @_;
+        $c->send_basic_header(200);
+        $c->send_crlf;
+        $c->print($count);
     };
     $router{get_redirect} = sub {
         my($c) = @_;
@@ -465,6 +588,7 @@ sub daemonize {
 
     while (my $c = $d->accept) {
         while (my $r = $c->get_request) {
+            $count++;
             my $p = ($r->uri->path_segments)[1];
             my $func = lc($r->method . "_$p");
             if ( $router{$func} ) {

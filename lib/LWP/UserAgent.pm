@@ -417,8 +417,9 @@ sub request {
                         "Unsupported authentication scheme '$scheme'");
                 next CHALLENGE;
             }
-            return $class->authenticate($self, $proxy, $challenge, $response,
+            $response = $class->authenticate($self, $proxy, $challenge, $response,
                 $request, $arg, $size);
+            return $response if $response->is_success;
         }
         return $response;
     }

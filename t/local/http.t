@@ -62,7 +62,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 89;
+    plan tests => 90;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -310,6 +310,13 @@ sub _test {
 
         is($res->code, 503, 'terminate: code is 503');
         like($res->content, qr/Bye, bye/, 'terminate: bye bye');
+    }
+    {
+        my $ua = LWP::UserAgent->new(
+            send_te => 0,
+        );
+        my $res = $ua->request( HTTP::Request->new( GET => url("/echo", $base) ) );
+        ok( $res->decoded_content !~ /^TE:/m, "TE header not added" );
     }
 }
 

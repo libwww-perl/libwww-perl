@@ -1,5 +1,7 @@
 language: perl
 perl:
+  - "blead"       # builds perl from git
+  - "dev"         # latest point release
   - "5.26"
   - "5.24"
   - "5.22"
@@ -9,7 +11,7 @@ perl:
   - "5.14"
   - "5.12"
   - "5.10"
-  - "blead"             # builds perl from git
+  - "5.8"
 matrix:
   include:
     - perl: 5.24

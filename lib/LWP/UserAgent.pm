@@ -1507,10 +1507,15 @@ https-URLs.
 Get/set the timeout value in seconds. The default value is
 180 seconds, i.e. 3 minutes.
 
-The requests is aborted if no activity on the connection to the server
+The request is aborted if no activity on the connection to the server
 is observed for C<timeout> seconds.  This means that the time it takes
 for the complete transaction and the L<LWP::UserAgent/request> method to
 actually return might be longer.
+
+When a request times out, a response object is still returned.  The response
+will have a standard HTTP Status Code (500).  This response will have the
+"Client-Warning" header set to the value of "Internal response".  See the
+L<LWP::UserAgent/get> method description below for further details.
 
 =head1 PROXY ATTRIBUTES
 

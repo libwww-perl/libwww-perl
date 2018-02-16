@@ -44,6 +44,9 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::RequiresInternet';
     requires 'FindBin';
+    requires 'Test::CPAN::Meta';
+    requires 'Test::Pod::Spelling::CommonMistakes' => '1.000';
+    requires 'Authen::NTLM' => '1.02';
 };
 
 on 'develop' => sub {
@@ -53,4 +56,5 @@ on 'develop' => sub {
     requires 'Test::Kwalitee'      => '1.22';
     requires 'Test::Pod::Spelling::CommonMistakes' => '1.000';
     requires 'Try::Tiny'  => '0.24';
+    requires 'Authen::NTLM' => '1.02';
 };

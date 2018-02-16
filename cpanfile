@@ -46,7 +46,10 @@ on 'test' => sub {
     requires 'FindBin';
     requires 'Test::CPAN::Meta';
     requires 'Test::Pod::Spelling::CommonMistakes' => '1.000';
+    requires 'Test::CheckManifest' => '1.29';
+    requires 'Test::Kwalitee'      => '1.22';
     requires 'Authen::NTLM' => '1.02';
+    requires 'Test::CPAN::Changes' => '0.4';
 };
 
 on 'develop' => sub {

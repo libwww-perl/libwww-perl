@@ -78,9 +78,9 @@ Don't load proxy settings from environment.
 Send this HTTP header with each request. You can specify several, e.g.:
 
     lwp-request \
-	-H 'Referer: http://other.url/' \
-	-H 'Host: somehost' \
-	http://this.url/
+      -H 'Referer: http://other.url/' \
+      -H 'Host: somehost' \
+      http://this.url/
 
 =item -C <username>:<password>
 

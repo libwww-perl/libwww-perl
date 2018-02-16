@@ -21,16 +21,16 @@ sub request
     # check proxy
     if (defined $proxy)
     {
-	return HTTP::Response->new( HTTP::Status::RC_BAD_REQUEST,
-				  'You can not proxy with data');
+        return HTTP::Response->new( HTTP::Status::RC_BAD_REQUEST,
+                                   'You can not proxy with data');
     }
 
     # check method
     my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD') {
-	return HTTP::Response->new( HTTP::Status::RC_BAD_REQUEST,
-				  'Library does not allow method ' .
-				  "$method for 'data:' URLs");
+        return HTTP::Response->new( HTTP::Status::RC_BAD_REQUEST,
+                                   'Library does not allow method ' .
+                                   "$method for 'data:' URLs");
     }
 
     my $url = $request->uri;
@@ -40,10 +40,10 @@ sub request
 
     my $data = $url->data;
     $response->header('Content-Type'   => $media_type,
-		      'Content-Length' => length($data),
-		      'Date'           => time2str(time),
-		      'Server'         => "libwww-perl-internal/$LWP::VERSION"
-		     );
+                      'Content-Length' => length($data),
+                      'Date'           => time2str(time),
+                      'Server'         => "libwww-perl-internal/$LWP::VERSION"
+                     );
 
     $data = "" if $method eq "HEAD";
     return $self->collect_once($arg, $response, $data);

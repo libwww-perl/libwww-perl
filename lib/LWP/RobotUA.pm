@@ -28,16 +28,16 @@ sub new
     my $class = shift;
     my %cnf;
     if (@_ < 4) {
-	# legacy args
-	@cnf{qw(agent from rules)} = @_;
+        # legacy args
+        @cnf{qw(agent from rules)} = @_;
     }
     else {
-	%cnf = @_;
+        %cnf = @_;
     }
 
     Carp::croak('LWP::RobotUA agent required') unless $cnf{agent};
     Carp::croak('LWP::RobotUA from address required')
-	unless $cnf{from} && $cnf{from} =~ m/\@/;
+        unless $cnf{from} && $cnf{from} =~ m/\@/;
 
     my $delay = delete $cnf{delay} || 1;
     my $use_sleep = delete $cnf{use_sleep};
@@ -51,11 +51,11 @@ sub new
     $self->{'use_sleep'} = $use_sleep;
 
     if ($rules) {
-	$rules->agent($cnf{agent});
-	$self->{'rules'} = $rules;
+        $rules->agent($cnf{agent});
+        $self->{'rules'} = $rules;
     }
     else {
-	$self->{'rules'} = WWW::RobotRules->new($cnf{agent});
+        $self->{'rules'} = WWW::RobotRules->new($cnf{agent});
     }
 
     $self;
@@ -71,8 +71,8 @@ sub agent
     my $self = shift;
     my $old = $self->SUPER::agent(@_);
     if (@_) {
-	# Changing our name means to start fresh
-	$self->{'rules'}->agent($self->{'agent'});
+        # Changing our name means to start fresh
+        $self->{'rules'}->agent($self->{'agent'});
     }
     $old;
 }
@@ -101,9 +101,9 @@ sub host_wait
     return undef unless defined $netloc;
     my $last = $self->{'rules'}->last_visit($netloc);
     if ($last) {
-	my $wait = int($self->{'delay'} * 60 - (time - $last));
-	$wait = 0 if $wait < 0;
-	return $wait;
+        my $wait = int($self->{'delay'} * 60 - (time - $last));
+        $wait = 0 if $wait < 0;
+        return $wait;
     }
     return 0;
 }
@@ -117,52 +117,52 @@ sub simple_request
     my $allowed = $self->{'rules'}->allowed($request->uri);
 
     if ($allowed < 0) {
-	# Host is not visited before, or robots.txt expired; fetch "robots.txt"
-	my $robot_url = $request->uri->clone;
-	$robot_url->path("robots.txt");
-	$robot_url->query(undef);
+        # Host is not visited before, or robots.txt expired; fetch "robots.txt"
+        my $robot_url = $request->uri->clone;
+        $robot_url->path("robots.txt");
+        $robot_url->query(undef);
 
-	# make access to robot.txt legal since this will be a recursive call
-	$self->{'rules'}->parse($robot_url, "");
+        # make access to robot.txt legal since this will be a recursive call
+        $self->{'rules'}->parse($robot_url, "");
 
-	my $robot_req = HTTP::Request->new('GET', $robot_url);
-	my $parse_head = $self->parse_head(0);
-	my $robot_res = $self->request($robot_req);
-	$self->parse_head($parse_head);
-	my $fresh_until = $robot_res->fresh_until;
-	my $content = "";
-	if ($robot_res->is_success && $robot_res->content_is_text) {
-	    $content = $robot_res->decoded_content;
-	    $content = "" unless $content && $content =~ /^\s*Disallow\s*:/mi;
-	}
-	$self->{'rules'}->parse($robot_url, $content, $fresh_until);
+        my $robot_req = HTTP::Request->new('GET', $robot_url);
+        my $parse_head = $self->parse_head(0);
+        my $robot_res = $self->request($robot_req);
+        $self->parse_head($parse_head);
+        my $fresh_until = $robot_res->fresh_until;
+        my $content = "";
+        if ($robot_res->is_success && $robot_res->content_is_text) {
+            $content = $robot_res->decoded_content;
+            $content = "" unless $content && $content =~ /^\s*Disallow\s*:/mi;
+        }
+        $self->{'rules'}->parse($robot_url, $content, $fresh_until);
 
-	# recalculate allowed...
-	$allowed = $self->{'rules'}->allowed($request->uri);
+        # recalculate allowed...
+        $allowed = $self->{'rules'}->allowed($request->uri);
     }
 
     # Check rules
     unless ($allowed) {
-	my $res = HTTP::Response->new(
-	  HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt');
-	$res->request( $request ); # bind it to that request
-	return $res;
+        my $res = HTTP::Response->new(
+          HTTP::Status::RC_FORBIDDEN, 'Forbidden by robots.txt');
+        $res->request( $request ); # bind it to that request
+        return $res;
     }
 
     my $netloc = eval { local $SIG{__DIE__}; $request->uri->host_port; };
     my $wait = $self->host_wait($netloc);
 
     if ($wait) {
-	if ($self->{'use_sleep'}) {
-	    sleep($wait)
-	}
-	else {
-	    my $res = HTTP::Response->new(
-	      HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down');
-	    $res->header('Retry-After', time2str(time + $wait));
-	    $res->request( $request ); # bind it to that request
-	    return $res;
-	}
+        if ($self->{'use_sleep'}) {
+            sleep($wait)
+        }
+        else {
+            my $res = HTTP::Response->new(
+              HTTP::Status::RC_SERVICE_UNAVAILABLE, 'Please, slow down');
+            $res->header('Retry-After', time2str(time + $wait));
+            $res->request( $request ); # bind it to that request
+            return $res;
+        }
     }
 
     # Perform the request

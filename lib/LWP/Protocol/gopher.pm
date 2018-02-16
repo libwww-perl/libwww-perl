@@ -22,13 +22,13 @@ use base qw(LWP::Protocol);
 my %gopher2mimetype = (
     '0' => 'text/plain',                # 0 file
     '1' => 'text/html',                 # 1 menu
-					# 2 CSO phone-book server
-					# 3 Error
+                                        # 2 CSO phone-book server
+                                        # 3 Error
     '4' => 'application/mac-binhex40',  # 4 BinHexed Macintosh file
     '5' => 'application/zip',           # 5 DOS binary archive of some sort
     '6' => 'application/octet-stream',  # 6 UNIX uuencoded file.
     '7' => 'text/html',                 # 7 Index-Search server
-					# 8 telnet session
+                                        # 8 telnet session
     '9' => 'application/octet-stream',  # 9 binary file
     'h' => 'text/html',                 # html
     'g' => 'image/gif',                 # gif
@@ -47,8 +47,8 @@ sub request
 
     # check proxy
     if (defined $proxy) {
-	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
-				   'You can not proxy through the gopher');
+        return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
+                                   'You can not proxy through the gopher');
     }
 
     my $url = $request->uri;
@@ -57,28 +57,28 @@ sub request
 
     my $method = $request->method;
     unless ($method eq 'GET' || $method eq 'HEAD') {
-	return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
-				   'Library does not allow method ' .
-				   "$method for 'gopher:' URLs");
+        return HTTP::Response->new(HTTP::Status::RC_BAD_REQUEST,
+                                   'Library does not allow method ' .
+                                   "$method for 'gopher:' URLs");
     }
 
     my $gophertype = $url->gopher_type;
     unless (exists $gopher2mimetype{$gophertype}) {
-	return HTTP::Response->new(HTTP::Status::RC_NOT_IMPLEMENTED,
-				   'Library does not support gophertype ' .
-				   $gophertype);
+        return HTTP::Response->new(HTTP::Status::RC_NOT_IMPLEMENTED,
+                                   'Library does not support gophertype ' .
+                                   $gophertype);
     }
 
     my $response = HTTP::Response->new(HTTP::Status::RC_OK, "OK");
     $response->header('Content-type' => $gopher2mimetype{$gophertype}
-					|| 'text/plain');
+                                        || 'text/plain');
     $response->header('Content-Encoding' => $gopher2encoding{$gophertype})
-	if exists $gopher2encoding{$gophertype};
+        if exists $gopher2encoding{$gophertype};
 
     if ($method eq 'HEAD') {
-	# XXX: don't even try it so we set this header
-	$response->header('Client-Warning' => 'Client answer only');
-	return $response;
+        # XXX: don't even try it so we set this header
+        $response->header('Client-Warning' => 'Client answer only');
+        return $response;
     }
 
     if ($gophertype eq '7' && ! $url->search) {
@@ -103,15 +103,15 @@ EOT
 
     my $selector = $url->selector;
     if (defined $selector) {
-	$requestLine .= $selector;
-	my $search = $url->search;
-	if (defined $search) {
-	    $requestLine .= "\t$search";
-	    my $string = $url->string;
-	    if (defined $string) {
-		$requestLine .= "\t$string";
-	    }
-	}
+        $requestLine .= $selector;
+        my $search = $url->search;
+        if (defined $search) {
+            $requestLine .= "\t$search";
+            my $string = $url->string;
+            if (defined $string) {
+                $requestLine .= "\t$string";
+            }
+        }
     }
     $requestLine .= "\015\012";
 
@@ -119,18 +119,18 @@ EOT
 
     # Ok, lets make the request
     my $socket = IO::Socket::INET->new(PeerAddr => $host,
-				       PeerPort => $port,
-				       LocalAddr => $self->{ua}{local_address},
-				       Proto    => 'tcp',
-				       Timeout  => $timeout);
+                                       PeerPort => $port,
+                                       LocalAddr => $self->{ua}{local_address},
+                                       Proto    => 'tcp',
+                                       Timeout  => $timeout);
     die "Can't connect to $host:$port" unless $socket;
     my $sel = IO::Select->new($socket);
 
     {
-	die "write timeout" if $timeout && !$sel->can_write($timeout);
-	my $n = syswrite($socket, $requestLine, length($requestLine));
-	die $! unless defined($n);
-	die "short write" if $n != length($requestLine);
+        die "write timeout" if $timeout && !$sel->can_write($timeout);
+        my $n = syswrite($socket, $requestLine, length($requestLine));
+        die $! unless defined($n);
+        die "short write" if $n != length($requestLine);
     }
 
     my $user_arg = $arg;
@@ -143,21 +143,21 @@ EOT
     # collect response
     my $buf = '';
     $response = $self->collect($arg, $response, sub {
-	die "read timeout" if $timeout && !$sel->can_read($timeout);
+        die "read timeout" if $timeout && !$sel->can_read($timeout);
         my $n = sysread($socket, $buf, $size);
-	die $! unless defined($n);
-	return \$buf;
+        die $! unless defined($n);
+        return \$buf;
       } );
 
     # Convert menu to HTML and return data to user.
     if ($gophertype eq '1' || $gophertype eq '7') {
-	my $content = menu2html($response->content);
-	if (defined $user_arg) {
-	    $response = $self->collect_once($user_arg, $response, $content);
-	}
-	else {
-	    $response->content($content);
-	}
+        my $content = menu2html($response->content);
+        if (defined $user_arg) {
+            $response = $self->collect_once($user_arg, $response, $content);
+        }
+        else {
+            $response->content($content);
+        }
     }
 
     $response;
@@ -171,13 +171,13 @@ sub gopher2url
     my $url;
 
     if ($gophertype eq '8' || $gophertype eq 'T') {
-	# telnet session
-	$url = $HTTP::URI_CLASS->new($gophertype eq '8' ? 'telnet:':'tn3270:');
-	$url->user($path) if defined $path;
+        # telnet session
+        $url = $HTTP::URI_CLASS->new($gophertype eq '8' ? 'telnet:':'tn3270:');
+        $url->user($path) if defined $path;
     }
     else {
-	$path = URI::Escape::uri_escape($path);
-	$url = $HTTP::URI_CLASS->new("gopher:/$gophertype$path");
+        $path = URI::Escape::uri_escape($path);
+        $url = $HTTP::URI_CLASS->new("gopher:/$gophertype$path");
     }
     $url->host($host);
     $url->port($port);
@@ -197,14 +197,14 @@ sub menu2html {
 <H1>Gopher menu</H1>
 EOT
     for (split("\n", $menu)) {
-	last if /^\./;
-	my($pretty, $path, $host, $port) = split("\t");
+        last if /^\./;
+        my($pretty, $path, $host, $port) = split("\t");
 
-	$pretty =~ s/^(.)//;
-	my $type = $1;
+        $pretty =~ s/^(.)//;
+        my $type = $1;
 
-	my $url = gopher2url($type, $path, $host, $port)->as_string;
-	$tmp .= qq{<A HREF="$url">$pretty</A><BR>\n};
+        my $url = gopher2url($type, $path, $host, $port)->as_string;
+        $tmp .= qq{<A HREF="$url">$pretty</A><BR>\n};
     }
     $tmp .= "</BODY>\n</HTML>\n";
     $tmp;

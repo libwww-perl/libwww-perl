@@ -15,77 +15,77 @@ sub authenticate {
                                                   $request->uri, $proxy);
 
     unless(defined $user and defined $pass) {
-		return $response;
-	}
+        return $response;
+    }
 
-	if (!$ua->conn_cache()) {
-		warn "The keep_alive option must be enabled for NTLM authentication to work.  NTLM authentication aborted.\n";
-		return $response;
-	}
+    if (!$ua->conn_cache()) {
+        warn "The keep_alive option must be enabled for NTLM authentication to work.  NTLM authentication aborted.\n";
+        return $response;
+    }
 
-	my($domain, $username) = split(/\\/, $user);
+    my($domain, $username) = split(/\\/, $user);
 
-	ntlm_domain($domain);
-	ntlm_user($username);
-	ntlm_password($pass);
+    ntlm_domain($domain);
+    ntlm_user($username);
+    ntlm_password($pass);
 
     my $auth_header = $proxy ? "Proxy-Authorization" : "Authorization";
 
-	# my ($challenge) = $response->header('WWW-Authenticate');
-	my $challenge;
-	foreach ($response->header('WWW-Authenticate')) {
-		last if /^NTLM/ && ($challenge=$_);
-	}
+    # my ($challenge) = $response->header('WWW-Authenticate');
+    my $challenge;
+    foreach ($response->header('WWW-Authenticate')) {
+        last if /^NTLM/ && ($challenge=$_);
+    }
 
-	if ($challenge eq 'NTLM') {
-		# First phase, send handshake
-	    my $auth_value = "NTLM " . ntlm();
-		ntlm_reset();
+    if ($challenge eq 'NTLM') {
+        # First phase, send handshake
+        my $auth_value = "NTLM " . ntlm();
+        ntlm_reset();
 
-	    # Need to check this isn't a repeated fail!
-	    my $r = $response;
-		my $retry_count = 0;
-	    while ($r) {
-			my $auth = $r->request->header($auth_header);
-			++$retry_count if ($auth && $auth eq $auth_value);
-			if ($retry_count > 2) {
-				    # here we know this failed before
-				    $response->header("Client-Warning" =>
-						      "Credentials for '$user' failed before");
-				    return $response;
-			}
-			$r = $r->previous;
-	    }
+        # Need to check this isn't a repeated fail!
+        my $r = $response;
+        my $retry_count = 0;
+        while ($r) {
+            my $auth = $r->request->header($auth_header);
+            ++$retry_count if ($auth && $auth eq $auth_value);
+            if ($retry_count > 2) {
+                # here we know this failed before
+                $response->header("Client-Warning" =>
+                                  "Credentials for '$user' failed before");
+                return $response;
+            }
+            $r = $r->previous;
+        }
 
-	    my $referral = $request->clone;
-	    $referral->header($auth_header => $auth_value);
-	    return $ua->request($referral, $arg, $size, $response);
-	}
+        my $referral = $request->clone;
+        $referral->header($auth_header => $auth_value);
+        return $ua->request($referral, $arg, $size, $response);
+    }
 
-	else {
-		# Second phase, use the response challenge (unless non-401 code
-		#  was returned, in which case, we just send back the response
-		#  object, as is
-		my $auth_value;
-		if ($response->code ne '401') {
-			return $response;
-		}
-		else {
-			my $challenge;
-			foreach ($response->header('WWW-Authenticate')) {
-				last if /^NTLM/ && ($challenge=$_);
-			}
-			$challenge =~ s/^NTLM //;
-			ntlm();
-			$auth_value = "NTLM " . ntlm($challenge);
-			ntlm_reset();
-		}
+    else {
+        # Second phase, use the response challenge (unless non-401 code
+        #  was returned, in which case, we just send back the response
+        #  object, as is
+        my $auth_value;
+        if ($response->code ne '401') {
+            return $response;
+        }
+        else {
+            my $challenge;
+            foreach ($response->header('WWW-Authenticate')) {
+                last if /^NTLM/ && ($challenge=$_);
+            }
+            $challenge =~ s/^NTLM //;
+            ntlm();
+            $auth_value = "NTLM " . ntlm($challenge);
+            ntlm_reset();
+        }
 
-	    my $referral = $request->clone;
-	    $referral->header($auth_header => $auth_value);
-	    my $response2 = $ua->request($referral, $arg, $size, $response);
-		return $response2;
-	}
+        my $referral = $request->clone;
+        $referral->header($auth_header => $auth_value);
+        my $response2 = $ua->request($referral, $arg, $size, $response);
+        return $response2;
+    }
 }
 
 1;
@@ -99,21 +99,21 @@ LWP::Authen::Ntlm - Library for enabling NTLM authentication (Microsoft) in LWP
 
 =head1 SYNOPSIS
 
- use LWP::UserAgent;
- use HTTP::Request::Common;
- my $url = 'http://www.company.com/protected_page.html';
+    use LWP::UserAgent;
+    use HTTP::Request::Common;
+    my $url = 'http://www.company.com/protected_page.html';
 
- # Set up the ntlm client and then the base64 encoded ntlm handshake message
- my $ua = LWP::UserAgent->new(keep_alive=>1);
- $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
+    # Set up the ntlm client and then the base64 encoded ntlm handshake message
+    my $ua = LWP::UserAgent->new(keep_alive=>1);
+    $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
 
- $request = GET $url;
- print "--Performing request now...-----------\n";
- $response = $ua->request($request);
- print "--Done with request-------------------\n";
+    $request = GET $url;
+    print "--Performing request now...-----------\n";
+    $response = $ua->request($request);
+    print "--Done with request-------------------\n";
 
- if ($response->is_success) {print "It worked!->" . $response->code . "\n"}
- else {print "It didn't work!->" . $response->code . "\n"}
+    if ($response->is_success) {print "It worked!->" . $response->code . "\n"}
+    else {print "It didn't work!->" . $response->code . "\n"}
 
 =head1 DESCRIPTION
 
@@ -155,7 +155,7 @@ Set the credentials on the UserAgent object
 
 The credentials must be set like this:
 
-   $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
+    $ua->credentials('www.company.com:80', '', "MyDomain\\MyUserCode", 'MyPassword');
 
 Note that you cannot use the HTTP::Request object's authorization_basic() method to set
 the credentials.  Note, too, that the 'www.company.com:80' portion only sets credentials

@@ -284,17 +284,17 @@ argument is a code reference):
                sub {
                    my($chunk, $res) = @_;
                    $bytes_received += length($chunk);
-	           unless (defined $expected_length) {
-	              $expected_length = $res->content_length || 0;
+                   unless (defined $expected_length) {
+                      $expected_length = $res->content_length || 0;
                    }
-		   if ($expected_length) {
-		        printf STDERR "%d%% - ",
-	                          100 * $bytes_received / $expected_length;
+                   if ($expected_length) {
+                        printf STDERR "%d%% - ",
+                                  100 * $bytes_received / $expected_length;
                    }
-	           print STDERR "$bytes_received bytes received\n";
+                   print STDERR "$bytes_received bytes received\n";
 
                    # XXX Should really do something with the chunk itself
-	           # print $chunk;
+                   # print $chunk;
                });
    print $res->status_line, "\n";
 

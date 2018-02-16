@@ -28,7 +28,7 @@ sub auth_header {
     push(@digest, $auth_param->{nonce});
 
     if ($auth_param->{qop}) {
-	push(@digest, $nc, $cnonce, ($auth_param->{qop} =~ m|^auth[,;]auth-int$|) ? 'auth' : $auth_param->{qop});
+        push(@digest, $nc, $cnonce, ($auth_param->{qop} =~ m|^auth[,;]auth-int$|) ? 'auth' : $auth_param->{qop});
     }
 
     $md5->add(join(":", $request->method, $uri));
@@ -43,31 +43,31 @@ sub auth_header {
     @resp{qw(username uri response algorithm)} = ($user, $uri, $digest, "MD5");
 
     if (($auth_param->{qop} || "") =~ m|^auth([,;]auth-int)?$|) {
-	@resp{qw(qop cnonce nc)} = ("auth", $cnonce, $nc);
+        @resp{qw(qop cnonce nc)} = ("auth", $cnonce, $nc);
     }
 
     my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response);
     if($request->method =~ /^(?:POST|PUT)$/) {
-	$md5->add($request->content);
-	my $content = $md5->hexdigest;
-	$md5->reset;
-	$md5->add(join(":", @digest[0..1], $content));
-	$md5->reset;
-	$resp{"message-digest"} = $md5->hexdigest;
-	push(@order, "message-digest");
+        $md5->add($request->content);
+        my $content = $md5->hexdigest;
+        $md5->reset;
+        $md5->add(join(":", @digest[0..1], $content));
+        $md5->reset;
+        $resp{"message-digest"} = $md5->hexdigest;
+        push(@order, "message-digest");
     }
     push(@order, "opaque");
     my @pairs;
     for (@order) {
-	next unless defined $resp{$_};
+        next unless defined $resp{$_};
 
-	# RFC2617 says that qop-value and nc-value should be unquoted.
-	if ( $_ eq 'qop' || $_ eq 'nc' ) {
-		push(@pairs, "$_=" . $resp{$_});
-	}
-	else {
-		push(@pairs, "$_=" . qq("$resp{$_}"));
-	}
+        # RFC2617 says that qop-value and nc-value should be unquoted.
+        if ( $_ eq 'qop' || $_ eq 'nc' ) {
+            push(@pairs, "$_=" . $resp{$_});
+        }
+        else {
+            push(@pairs, "$_=" . qq("$resp{$_}"));
+        }
     }
 
     my $auth_value  = "Digest " . join(", ", @pairs);

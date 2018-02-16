@@ -15,7 +15,7 @@ sub request {
     $response->content_type("message/http; msgtype=request");
 
     $response->header("Via", "loopback/1.0 $proxy")
-	if $proxy;
+        if $proxy;
 
     $response->header("X-Arg", $arg);
     $response->header("X-Read-Size", $size);

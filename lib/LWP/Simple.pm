@@ -44,13 +44,13 @@ sub head ($)
     my $response = $ua->request($request);
 
     if ($response->is_success) {
-	return $response unless wantarray;
-	return (scalar $response->header('Content-Type'),
-		scalar $response->header('Content-Length'),
-		HTTP::Date::str2time($response->header('Last-Modified')),
-		HTTP::Date::str2time($response->header('Expires')),
-		scalar $response->header('Server'),
-	       );
+        return $response unless wantarray;
+        return (scalar $response->header('Content-Type'),
+                scalar $response->header('Content-Length'),
+                HTTP::Date::str2time($response->header('Last-Modified')),
+                HTTP::Date::str2time($response->header('Expires')),
+                scalar $response->header('Server'),
+               );
     }
     return;
 }
@@ -63,11 +63,11 @@ sub getprint ($)
     local($\) = ""; # ensure standard $OUTPUT_RECORD_SEPARATOR
     my $callback = sub { print $_[0] };
     if ($^O eq "MacOS") {
-	$callback = sub { $_[0] =~ s/\015?\012/\n/g; print $_[0] }
+        $callback = sub { $_[0] =~ s/\015?\012/\n/g; print $_[0] }
     }
     my $response = $ua->request($request, $callback);
     unless ($response->is_success) {
-	print STDERR $response->status_line, " <URL:$url>\n";
+        print STDERR $response->status_line, " <URL:$url>\n";
     }
     $response->code;
 }

@@ -29,24 +29,24 @@ sub authenticate
         $_[0]{callback} = sub {
             my($req, $ua, $h) = @_;
             my($user, $pass) = $ua->credentials($host_port, $h->{realm});
-	    if (defined $user) {
-		my $auth_value = $class->auth_header($user, $pass, $req, $ua, $h);
-		$req->header($auth_header => $auth_value);
-	    }
+            if (defined $user) {
+                my $auth_value = $class->auth_header($user, $pass, $req, $ua, $h);
+                $req->header($auth_header => $auth_value);
+            }
         };
     });
     $h->{auth_param} = $auth_param;
 
     if (!$proxy && !$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
-	# we can make sure this handler applies and retry
+        # we can make sure this handler applies and retry
         add_path($h, $url->path);
         return $ua->request($request->clone, $arg, $size, $response);
     }
 
     my($user, $pass) = $ua->get_basic_credentials($realm, $url, $proxy);
     unless (defined $user and defined $pass) {
-	$ua->set_my_handler("request_prepare", undef, @m);  # delete handler
-	return $response;
+        $ua->set_my_handler("request_prepare", undef, @m);  # delete handler
+        return $response;
     }
 
     # check that the password has changed

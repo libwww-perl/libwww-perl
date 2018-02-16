@@ -17,10 +17,10 @@ sub new
     my($class, $scheme, $ua) = @_;
 
     my $self = bless {
-	scheme => $scheme,
-	ua => $ua,
+        scheme => $scheme,
+        ua => $ua,
 
-	# historical/redundant
+        # historical/redundant
         max_size => $ua->{max_size},
     }, $class;
 
@@ -32,7 +32,7 @@ sub create
 {
     my($scheme, $ua) = @_;
     my $impclass = LWP::Protocol::implementor($scheme) or
-	Carp::croak("Protocol scheme '$scheme' is not supported");
+        Carp::croak("Protocol scheme '$scheme' is not supported");
 
     # hand-off to scheme specific implementation sub-class
     my $protocol = $impclass->new($scheme, $ua);
@@ -46,7 +46,7 @@ sub implementor
     my($scheme, $impclass) = @_;
 
     if ($impclass) {
-	$ImplementedBy{$scheme} = $impclass;
+        $ImplementedBy{$scheme} = $impclass;
     }
     my $ic = $ImplementedBy{$scheme};
     return $ic if $ic;
@@ -107,7 +107,7 @@ sub collect
         }
         elsif (!ref($arg) && length($arg)) {
             open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
-	    binmode($fh);
+            binmode($fh);
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
                     print $fh $_[3] or die "Can't write to '$arg': $!";
@@ -116,16 +116,16 @@ sub collect
             });
             push(@{$response->{handlers}{response_done}}, {
                 callback => sub {
-		    close($fh) or die "Can't write to '$arg': $!";
-		    undef($fh);
-		},
-	    });
+                    close($fh) or die "Can't write to '$arg': $!";
+                    undef($fh);
+                },
+            });
         }
         elsif (ref($arg) eq 'CODE') {
             push(@{$response->{handlers}{response_data}}, {
                 callback => sub {
-		    &$arg($_[3], $_[0], $self);
-		    1;
+                    &$arg($_[3], $_[0], $self);
+                    1;
                 },
             });
         }
@@ -137,11 +137,11 @@ sub collect
 
         if (delete $response->{default_add_content}) {
             push(@{$response->{handlers}{response_data}}, {
-		callback => sub {
-		    $_[0]->add_content($_[3]);
-		    1;
-		},
-	    });
+                    callback => sub {
+                        $_[0]->add_content($_[3]);
+                        1;
+                    },
+                });
         }
 
 
@@ -183,8 +183,8 @@ sub collect_once
     my $content = \ $_[3];
     my $first = 1;
     $self->collect($arg, $response, sub {
-	return $content if $first--;
-	return \ "";
+            return $content if $first--;
+            return \ "";
     });
 }
 

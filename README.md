@@ -304,6 +304,15 @@ To change to include `POST`, consider:
 
     push @{ $ua->requests_redirectable }, 'POST';
 
+## send\_te
+
+    my $bool = $ua->send_te;
+    $ua->send_te( $boolean );
+
+If true, will send a `TE` header along with the request. The default is
+true. Set it to false to disable the `TE` header for systems who can't
+handle it.
+
 ## show\_progress
 
     my $bool = $ua->show_progress;

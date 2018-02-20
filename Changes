@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.32      2018-02-20 19:39:20Z
     - Suggest LWP::ConsoleLogger as an alternative to the deprecated LWP::Debug (GH#278) (Olaf Alders)
     - add send_te configuration to disable sending the TE header (GH#126) (Doug Bell)
     - Added a developer feature to the http.t tests. (GH#257) (colinnewell)

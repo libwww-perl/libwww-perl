@@ -30,7 +30,7 @@ sub _new_socket
 					Proto    => 'tcp',
 					Timeout  => $timeout,
 					KeepAlive => !!$self->{ua}{conn_cache},
-					SendTE    => $self->{ua}->send_te,
+					SendTE    => $self->{ua}{send_te},
 					$self->_extra_sock_opts($host, $port),
 				       );
 

@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix send_te change from previous release, which was breaking
+      LWP::Parallel::UserAgent and Test::Override::UserAgent (GH #281) (Doug
+      Bell)
 
 6.32      2018-02-20 19:39:20Z
     - Suggest LWP::ConsoleLogger as an alternative to the deprecated LWP::Debug (GH#278) (Olaf Alders)

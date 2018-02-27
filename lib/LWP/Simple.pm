@@ -2,7 +2,7 @@ package LWP::Simple;
 
 use strict;
 
-our $VERSION = '6.33';
+our $VERSION = '6.34';
 
 require Exporter;
 

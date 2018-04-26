@@ -1241,7 +1241,7 @@ method is the old attribute value.
 =head2 agent
 
     my $agent = $ua->agent;
-    $ua->agent('Checkbot/0.4 ');    # append the defaul to the end
+    $ua->agent('Checkbot/0.4 ');    # append the default to the end
     $ua->agent('Mozilla/5.0');
     $ua->agent("");                 # don't identify
 

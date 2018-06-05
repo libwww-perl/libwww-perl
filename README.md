@@ -112,7 +112,7 @@ method is the old attribute value.
 ## agent
 
     my $agent = $ua->agent;
-    $ua->agent('Checkbot/0.4 ');    # append the defaul to the end
+    $ua->agent('Checkbot/0.4 ');    # append the default to the end
     $ua->agent('Mozilla/5.0');
     $ua->agent("");                 # don't identify
 
@@ -380,7 +380,7 @@ actually return might be longer.
 
 When a request times out, a response object is still returned.  The response
 will have a standard HTTP Status Code (500).  This response will have the
- "Client-Warning" header set to the value of "Internal response".  See the
+"Client-Warning" header set to the value of "Internal response".  See the
 ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method description below for further details.
 
 # PROXY ATTRIBUTES

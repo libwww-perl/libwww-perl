@@ -3,6 +3,8 @@ Change history for libwww-perl
 {{$NEXT}}
     - timeout() documentation has more details about the response (thanks,
       Andrew Grangaard!)
+    - HTTP::Status is now upgraded to 6.18 if 6.17 is installed (which had a
+      bug).
 
 6.33      2018-02-27 03:51:36Z
     - Fix send_te change from previous release, which was breaking

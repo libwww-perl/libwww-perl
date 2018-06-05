@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - timeout() documentation has more details about the response (thanks,
+      Andrew Grangaard!)
 
 6.33      2018-02-27 03:51:36Z
     - Fix send_te change from previous release, which was breaking

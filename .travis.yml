@@ -19,6 +19,11 @@ matrix:
   allow_failures:
     - perl: blead       # ignore failures for blead perl
 sudo: false             # faster builds as long as you don't need sudo access
+env:
+  global:
+    - AUTHOR_TESTING=1
+    - AUTOMATED_TESTING=1
+    - RELEASE_TESTING=1
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init

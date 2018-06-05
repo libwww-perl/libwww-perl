@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.34      2018-06-05 18:48:59Z
     - timeout() documentation has more details about the response (thanks,
       Andrew Grangaard!)

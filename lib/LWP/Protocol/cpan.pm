@@ -4,7 +4,7 @@ use strict;
 
 use base qw(LWP::Protocol);
 
-our $VERSION = '6.34';
+our $VERSION = '6.35';
 
 require URI;
 require HTTP::Status;

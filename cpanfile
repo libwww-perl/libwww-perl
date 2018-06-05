@@ -22,7 +22,7 @@ on 'runtime' => sub {
     requires 'HTTP::Request' => '6';
     requires 'HTTP::Request::Common' => '6';
     requires 'HTTP::Response' => '6';
-    requires 'HTTP::Status' => '6';
+    requires 'HTTP::Status' => '6.18';
     requires 'IO::Select';
     requires 'IO::Socket';
     requires 'LWP::MediaTypes' => '6';
@@ -44,6 +44,7 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::RequiresInternet';
     requires 'FindBin';
+    requires 'HTTP::Status' => '6.18';
 };
 
 on 'develop' => sub {

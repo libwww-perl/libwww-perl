@@ -8,8 +8,10 @@ Change history for libwww-perl
       Bell)
 
 6.32      2018-02-20 19:39:20Z
-    - Suggest LWP::ConsoleLogger as an alternative to the deprecated LWP::Debug (GH#278) (Olaf Alders)
-    - add send_te configuration to disable sending the TE header (GH#126) (Doug Bell)
+    - Suggest LWP::ConsoleLogger as an alternative to the deprecated LWP::Debug
+      (GH#278) (Olaf Alders)
+    - add send_te configuration to disable sending the TE header (GH#126)
+      (Doug Bell)
     - Added a developer feature to the http.t tests. (GH#257) (colinnewell)
 
 6.31      2017-12-11 01:55:53Z
@@ -27,7 +29,8 @@ Change history for libwww-perl
 
 6.28      2017-11-06
     - Remove last use of Geopt::Std (Sergey Remanov) (GH #267)
-    - Include unmatched connect error in status string (Patrik Lundin) (GH #269)
+    - Include unmatched connect error in status string (Patrik Lundin) (GH
+      #269)
     - Fix insecure open FILEHANDLE,EXPR (Takumi Akiyama) (GH #270)
 
 6.27      2017-09-21
@@ -99,13 +102,16 @@ Change history for libwww-perl
     - Updated test suite to use strict/warnings and Test::More (PR#88)
     - Additional tests for UserAgent coverage (PR#79)
     - Cleaned up documentation formatting and fixed several typos (PR#87, PR#93)
-    - Stop promoting use of HTTP::Cookies and instead use HTTP::CookieJar::LWP (PR#102)
+    - Stop promoting use of HTTP::Cookies and instead use HTTP::CookieJar::LWP
+      (PR#102)
     - Added some new documentation to UserAgent and tutorial (PR#68)
     - Allow default header to carry over when using ->post() in UA (PR#100)
 
 6.15    2015-12-15
-    - tests now use localhost rather than a net-accessible address (PR#76, RT#94959)
-    - fixed some tests to do what they intended (regex rather than boolean checks) (from PR#28)
+    - tests now use localhost rather than a net-accessible address (PR#76,
+      RT#94959)
+    - fixed some tests to do what they intended (regex rather than boolean
+      checks) (from PR#28)
     - conversion of some tests from Test.pm to Test::More (from PR#29)
     - use File::Temp for randomized tempdir (PR#53)
 

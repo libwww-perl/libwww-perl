@@ -45,6 +45,8 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::RequiresInternet';
     requires 'FindBin';
+    requires 'Test::Needs';
+    recommends 'Test::LeakTrace';
 };
 
 on 'develop' => sub {

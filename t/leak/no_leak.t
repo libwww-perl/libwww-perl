@@ -1,5 +1,8 @@
 use strict;
 use warnings;
+
+# To ensure "no leak" in real LWP code, we should test it against HTTP servers.
+# However, HTTPS is not required here, so let's use an HTTP site neverssl.com.
 use Test::RequiresInternet 'neverssl.com' => 80;
 
 use Test::More;

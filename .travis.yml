@@ -24,6 +24,7 @@ env:
     - AUTHOR_TESTING=1
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=1
+    - PERL_CPANM_OPT=--with-suggests
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
@@ -32,7 +33,7 @@ before_install:
   - build-dist
   - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
 install:
-  - cpan-install --deps       # installs prereqs, including recommends
+  - cpan-install --deps       # installs prereqs, including optional modules
   - cpan-install --coverage   # installs converage prereqs, if enabled
 before_script:
   - coverage-setup

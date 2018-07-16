@@ -37,6 +37,7 @@ on 'runtime' => sub {
     suggests 'Authen::NTLM' => '1.02';
     suggests 'IO::Socket::INET';
     suggests 'LWP::Protocol::https' => '6.02';
+    suggests 'Data::Dump' => '1.13';
 };
 
 on 'test' => sub {

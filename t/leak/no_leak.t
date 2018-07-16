@@ -16,7 +16,7 @@ plan skip_all => 'skip leak test in COVERAGE' if $ENV{COVERAGE};
 my ($tempfh, $tempfile) = File::Temp::tempfile(UNLINK => 0);
 close $tempfh;
 
-&Test::LeakTrace::no_leaks_ok(sub {
+Test::LeakTrace::no_leaks_ok(sub {
     my $ua = LWP::UserAgent->new;
     my $res = $ua->get("http://neverssl.com/", ':content_file' => $tempfile);
 });

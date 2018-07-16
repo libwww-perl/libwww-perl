@@ -112,7 +112,7 @@ sub collect
             }
             elsif (!ref($arg) && length($arg)) {
                 open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
-    	    binmode($fh);
+                binmode($fh);
                 push(@{$response->{handlers}{response_data}}, {
                     callback => sub {
                         print $fh $_[3] or die "Can't write to '$arg': $!";

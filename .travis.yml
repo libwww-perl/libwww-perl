@@ -25,6 +25,8 @@ env:
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=1
     - PERL_CPANM_OPT=--with-suggests
+      # this is fake, but it only needs to be defined in order to compile LWP::Protocol::mailto
+    - SENDMAIL=/usr/sbin/sendmail
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init

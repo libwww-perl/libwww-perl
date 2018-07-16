@@ -36,5 +36,9 @@ install:
   - cpan-install --coverage   # installs converage prereqs, if enabled
 before_script:
   - coverage-setup
+script:
+  - perl Makefile.PL
+  - make
+  - prove -b -r -s -j$(test-jobs) $(test-files)
 after_success:
   - coverage-report

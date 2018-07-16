@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.35      2018-07-16 04:48:54Z
     - fix file descriptor leak in LWP::Protocol (introduced in version 6.17)
       that occurs for perl versions earlier than 5.18. (GH #296)

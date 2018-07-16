@@ -1,6 +1,6 @@
 package LWP;
 
-our $VERSION = '6.35';
+our $VERSION = '6.36';
 
 require LWP::UserAgent;  # this should load everything you need
 

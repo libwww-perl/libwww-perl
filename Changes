@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - fix broken link https://metacpan.org/pod/LWP::Simple by fixing pod
+      header (thanks for the report, traumschule!)
 
 6.35      2018-07-16 04:48:54Z
     - fix file descriptor leak in LWP::Protocol (introduced in version 6.17)

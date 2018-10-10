@@ -1,4 +1,8 @@
-/.build/
+/.*
+!/.gitignore
+!/.mailmap
+!/.perltidyrc
+!/.travis.yml
 /cover_db/
 /libwww-perl-*
 /libwww-perl-*.tar.gz

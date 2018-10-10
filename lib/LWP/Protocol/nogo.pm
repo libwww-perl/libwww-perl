@@ -7,7 +7,7 @@ package LWP::Protocol::nogo;
 
 use strict;
 
-our $VERSION = '6.36';
+our $VERSION = '6.37';
 
 require HTTP::Response;
 require HTTP::Status;

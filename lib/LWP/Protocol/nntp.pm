@@ -4,7 +4,7 @@ package LWP::Protocol::nntp;
 
 use base qw(LWP::Protocol);
 
-our $VERSION = '6.36';
+our $VERSION = '6.37';
 
 require HTTP::Response;
 require HTTP::Status;

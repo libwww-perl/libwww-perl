@@ -16,7 +16,7 @@ delete $ENV{PERL_LWP_ENV_PROXY};
 my $ua = LWP::UserAgent->new;
 $ua->add_handler(
     request_send => sub {
-        my ($request, $ua, $h) = @_;
+        my ($request, $ua, $handler) = @_;
         return HTTP::Response->new(200,'OK',[],'ok');
     }
 );

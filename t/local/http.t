@@ -466,7 +466,7 @@ sub daemonize {
 
     # Note: tiemout of 0 is not infinite, so no point in special casing
     # timeout logic.
-    my $d = HTTP::Daemon->new(Timeout => $ENV{PERL_LWP_ENV_HTTP_TEST_SERVER_TIMEOUT} || 10, LocalAddr => '127.0.0.1') || die $!;
+    my $d = HTTP::Daemon->new(Timeout => $ENV{PERL_LWP_ENV_HTTP_TEST_SERVER_TIMEOUT} || 10, LocalAddr => 'localhost') || die $!;
     print "Pleased to meet you at: <URL:", $d->url, ">\n";
     open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");
 

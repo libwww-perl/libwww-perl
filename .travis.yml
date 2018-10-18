@@ -43,6 +43,6 @@ before_script:
 script:
   - perl Makefile.PL
   - make
-  - prove -b -r -s -j$(test-jobs) $(test-files)
+  - prove -b -r -s -j$(test-jobs) $(RELEASE_TESTING=$([ "$TRAVIS_PULL_REQUEST" != "false" ] && echo "0" || echo "$RELEASE_TESTING" ) test-files)
 after_success:
   - coverage-report

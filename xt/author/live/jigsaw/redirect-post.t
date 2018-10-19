@@ -5,7 +5,7 @@ use Test::RequiresInternet ('jigsaw.w3.org' => 80);
 
 use HTTP::Request;
 use LWP::UserAgent;
-use JSON::MaybeXS qw(encode_json);
+use JSON::PP qw(encode_json);
 use Encode qw(encode_utf8);
 
 plan tests => 10;

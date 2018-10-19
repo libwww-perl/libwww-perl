@@ -43,6 +43,6 @@ before_script:
 script:
   - perl Makefile.PL
   - make
-  - prove -b -r -s -j$(test-jobs) $(test-files)
+  - prove -b -r -s -j1 $(test-files)
 after_success:
   - coverage-report

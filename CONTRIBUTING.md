@@ -3,6 +3,13 @@
 Thank you for considering contributing to this distribution.  This file
 contains instructions that will help you work with the source code.
 
+PLEASE NOTE that if you have any questions or difficulties, you can reach the
+maintainer(s) through the bug queue described later in this document
+(preferred), or by emailing the releaser directly. You are not required to
+follow any of the steps in this document to submit a patch or bug report;
+these are just recommendations, intended to help you (and help us help you
+faster).
+
 The distribution is managed with [Dist::Zilla](https://metacpan.org/pod/Dist::Zilla).
 This means that many of the usual files you might expect are not in the
 repository, but are generated at release time.  Some generated files are kept
@@ -34,13 +41,38 @@ You can run tests directly using the `prove` tool:
     $ prove -l
     $ prove -lv t/some_test_file.t
 
-For most of my distributions, `prove` is entirely sufficient for you to test
-any patches you have. I use `prove` for 99% of my testing during development.
+In most cases, `prove` is entirely sufficient for you to test any patches you
+have. I use `prove` for 99% of my testing during development.
 
 ## Code style and tidying
 
 Please try to match any existing coding style.  If there is a `.perltidyrc`
 file, please install Perl::Tidy and use perltidy before submitting patches.
+
+## Submitting patches
+
+The code for this distribution is hosted at GitHub. The repository is:
+https://github.com/libwww-perl/libwww-perl
+You can submit code changes by forking the repository, pushing your code
+changes to your clone, and then submitting a pull request. Detailed
+instructions for doing that is available here:
+
+https://help.github.com/articles/creating-a-pull-request
+
+All pull requests for this distribution will be automatically tested on Linux
+by Travis at: https://travis-ci.com/libwww-perl/libwww-perl
+Results will be visible in the pull request on GitHub. Follow the appropriate
+links for details when tests fail.
+
+If you have found a bug, but do not have an accompanying patch to fix it, you
+can submit an issue report here:
+https://rt.cpan.org/Public/Dist/Display.html?Name=libwww-perl
+or via email: bug-libwww-perl@rt.cpan.org
+
+There is also a mailing list available for users of this distribution, at
+libwww@perl.org
+There is also an irc channel available for users of this distribution, at
+irc://irc.perl.org/#lwp
 
 ## Installing and using Dist::Zilla
 

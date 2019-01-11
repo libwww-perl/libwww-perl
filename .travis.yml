@@ -19,7 +19,6 @@ matrix:
       env: COVERAGE=1   # enables coverage+coveralls reporting
   allow_failures:
     - perl: blead       # ignore failures for blead perl
-sudo: false             # faster builds as long as you don't need sudo access
 env:
   global:
     - AUTHOR_TESTING=1

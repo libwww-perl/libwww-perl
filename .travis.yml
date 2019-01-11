@@ -1,3 +1,9 @@
+---
+addons:
+  apt:
+    packages:
+      - aspell
+      - aspell-en
 language: perl
 perl:
   - "blead"       # builds perl from git

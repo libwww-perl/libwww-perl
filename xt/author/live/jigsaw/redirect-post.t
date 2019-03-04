@@ -41,4 +41,3 @@ unlike($content, qr/GET not implemented/, 'response was not a GET');
 like($uri, qr/303_ok\.html/, 'redirected to the correct page');
 unlike($content, qr/POST not allowed on this resource/, '303 OK endpoint was not a POST');
 like($content, qr/Your browser made it!/, 'response shows that we followed a 307 POST redirect and then a 303 GET redirect');
-

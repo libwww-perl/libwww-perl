@@ -1059,7 +1059,7 @@ sub proxy {
         my $url = shift;
         if (defined($url) && length($url)) {
             Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
-            Carp::croak("Bad http proxy specification '$url'") if $url =~ /^https?:/ && $url !~ m,^https?://\w,;
+            Carp::croak("Bad http proxy specification '$url'") if $url =~ /^https?:/ && $url !~ m,^https?://[\w[],;
         }
         $self->{proxy}{$key} = $url;
         $self->set_my_handler("request_preprepare", \&_need_proxy)

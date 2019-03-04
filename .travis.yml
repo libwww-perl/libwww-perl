@@ -6,25 +6,38 @@ addons:
       - aspell-en
 language: perl
 perl:
-  - blead
   - dev
-  - '5.28'
-  - '5.26'
-  - '5.24'
-  - '5.22'
-  - '5.20'
-  - '5.18'
-  - '5.16'
-  - '5.14'
-  - '5.12'
-  - '5.10'
-  - '5.8'
+  - "blead"
+  - "blead-thr"
+  - "5.28"
+  - "5.28-thr"
+  - "5.26"
+  - "5.26-thr"
+  - "5.24"
+  - "5.24-thr"
+  - "5.22"
+  - "5.22-thr"
+  - "5.20"
+  - "5.20-thr"
+  - "5.18"
+  - "5.18-thr"
+  - "5.16"
+  - "5.16-thr"
+  - "5.14"
+  - "5.14-thr"
+  - "5.12"
+  - "5.12-thr"
+  - "5.10"
+  - "5.10-thr"
+  - "5.8"
+  - "5.8-thr"
 cache:
   directories:
     - $HOME/perl5
 matrix:
   allow_failures:
     - perl: blead
+    - perl: blead-thr
   fast_finish: 1
   include:
     - env: COVERAGE=1
@@ -44,6 +57,7 @@ before_install:
   - build-dist
   - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
 install:
+  - cpan-install Data::Dump Authen::NTLM Test::Spelling Test::Pod Test::Pod::Coverage Test::Version Test::EOL
   - cpan-install --deps       # installs prereqs, including optional modules
   - cpan-install --coverage   # installs converage prereqs, if enabled
 before_script:

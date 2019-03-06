@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.37      2019-03-06 20:49:26Z
     - Improve ->add_handler documentation (GH #272) (Julien Fiegehenn)
     - Alter our rule set to allow IPv6 proxy hosts beginning with [. (GH #237)
     - Add a jigsaw test for 307 redirects (GH#285) (Nik LaBelle)

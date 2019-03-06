@@ -460,7 +460,7 @@ specify `%matchspec` see ["Matching" in HTTP::Config](https://metacpan.org/pod/H
 
 The possible values `$phase` and the corresponding callback signatures are:
 
-- response\_data => sub { my($response, $ua, $h, $data) = @\_; ... }
+- response\_data => sub { my($response, $ua, $handler, $data) = @\_; ... }
 
     This handler is called for each chunk of data received for the
     response.  The handler might croak to abort the request.
@@ -468,37 +468,37 @@ The possible values `$phase` and the corresponding callback signatures are:
     This handler needs to return a TRUE value to be called again for
     subsequent chunks for the same request.
 
-- response\_done => sub { my($response, $ua, $h) = @\_; ... }
+- response\_done => sub { my($response, $ua, $handler) = @\_; ... }
 
     The handler is called after the response has been fully received, but
     before any redirect handling is attempted.  The handler can be used to
     extract information or modify the response.
 
-- response\_header => sub { my($response, $ua, $h) = @\_; ... }
+- response\_header => sub { my($response, $ua, $handler) = @\_; ... }
 
     This handler is called right after the response headers have been
     received, but before any content data.  The handler might set up
     handlers for data and might croak to abort the request.
 
-    The handler might set the $response->{default\_add\_content} value to
+    The handler might set the `$response->{default_add_content}` value to
     control if any received data should be added to the response object
-    directly.  This will initially be false if the $ua->request() method
-    was called with a $content\_file or $content\_cb argument; otherwise true.
+    directly.  This will initially be false if the `$ua->request()` method
+    was called with a `$content_file` or `$content_cb argument`; otherwise true.
 
-- request\_prepare => sub { my($request, $ua, $h) = @\_; ... }
+- request\_prepare => sub { my($request, $ua, $handler) = @\_; ... }
 
     The handler is called before the request is sent and can modify the
     request any way it see fit.  This can for instance be used to add
     certain headers to specific requests.
 
-    The method can assign a new request object to $\_\[0\] to replace the
+    The method can assign a new request object to `$_[0]` to replace the
     request that is sent fully.
 
     The return value from the callback is ignored.  If an exception is
     raised it will abort the request and make the request method return a
     "400 Bad request" response.
 
-- request\_preprepare => sub { my($request, $ua, $h) = @\_; ... }
+- request\_preprepare => sub { my($request, $ua, $handler) = @\_; ... }
 
     The handler is called before the `request_prepare` and other standard
     initialization of the request.  This can be used to set up headers
@@ -506,20 +506,23 @@ The possible values `$phase` and the corresponding callback signatures are:
     initialization should take place here; but in general don't register
     handlers for this phase.
 
-- request\_send => sub { my($request, $ua, $h) = @\_; ... }
+- request\_send => sub { my($request, $ua, $handler) = @\_; ... }
 
     This handler gets a chance of handling requests before they're sent to the
-    protocol handlers.  It should return an HTTP::Response object if it
+    protocol handlers.  It should return an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object if it
     wishes to terminate the processing; otherwise it should return nothing.
 
     The `response_header` and `response_data` handlers will not be
     invoked for this response, but the `response_done` will be.
 
-- response\_redirect => sub { my($response, $ua, $h) = @\_; ... }
+- response\_redirect => sub { my($response, $ua, $handler) = @\_; ... }
 
-    The handler is called in $ua->request after `response_done`.  If the
-    handler returns an HTTP::Request object we'll start over with processing
+    The handler is called in `$ua->request` after `response_done`.  If the
+    handler returns an [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object we'll start over with processing
     this request instead.
+
+For all of these, `$handler` is a code reference to the handler that
+is currently being run.
 
 ## get\_my\_handler
 

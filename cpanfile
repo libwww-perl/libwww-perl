@@ -28,7 +28,7 @@ on 'runtime' => sub {
     requires 'LWP::MediaTypes' => '6';
     requires 'MIME::Base64' => '2.1';
     requires 'Net::FTP' => '2.58';
-    requires 'Net::HTTP' => '6.07';
+    requires 'Net::HTTP' => '6.18';
     requires 'Scalar::Util';
     requires 'Try::Tiny';
     requires 'URI' => '1.10';

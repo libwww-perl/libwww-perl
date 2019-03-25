@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.38      2019-03-25 18:58:58Z
     - Update Net::HTTP dependency from 6.07 to 6.18 (GH#310) (Olaf Alders)
     - Remove s.c.o. from SYNOPSIS (GH#308) (Olaf Alders)
 

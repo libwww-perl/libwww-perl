@@ -71,7 +71,7 @@
             "LWP::MediaTypes" : "6",
             "MIME::Base64" : "2.1",
             "Net::FTP" : "2.58",
-            "Net::HTTP" : "6.07",
+            "Net::HTTP" : "6.18",
             "Scalar::Util" : "0",
             "Try::Tiny" : "0",
             "URI" : "1.10",
@@ -108,96 +108,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.37",
+         "version" : "6.38",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.37"
+         "version" : "6.38"
       }
    },
    "release_status" : "stable",
@@ -214,7 +214,7 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.37",
+   "version" : "6.38",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.026001"
@@ -241,7 +241,7 @@
                }
             },
             "name" : "Git::GatherDir",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaConfig",
@@ -626,7 +626,7 @@
                }
             },
             "name" : "Git::Check",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::CheckStrictVersion",
@@ -738,7 +738,7 @@
             "config" : {
                "Dist::Zilla::Plugin::Git::Commit" : {
                   "add_files_in" : [],
-                  "commit_msg" : "v%v%n%n%c"
+                  "commit_msg" : "v%V%n%n%c"
                },
                "Dist::Zilla::Role::Git::DirtyFiles" : {
                   "allow_dirty" : [
@@ -759,7 +759,7 @@
                }
             },
             "name" : "@Git::VersionManager/release snapshot",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Tag",
@@ -768,9 +768,9 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.37",
-                  "tag_format" : "v%v",
-                  "tag_message" : "v%v"
+                  "tag" : "v6.38",
+                  "tag_format" : "v%V",
+                  "tag_message" : "v%V"
                },
                "Dist::Zilla::Role::Git::Repo" : {
                   "git_version" : "2.20.1",
@@ -781,7 +781,7 @@
                }
             },
             "name" : "@Git::VersionManager/Git::Tag",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::BumpVersionAfterRelease::Transitional",
@@ -831,7 +831,7 @@
                }
             },
             "name" : "@Git::VersionManager/post-release commit",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Push",
@@ -848,7 +848,7 @@
                }
             },
             "name" : "Git::Push",
-            "version" : "2.045"
+            "version" : "2.046"
          },
          {
             "class" : "Dist::Zilla::Plugin::ConfirmRelease",
@@ -999,6 +999,7 @@
       "Steve Hay <SteveHay@planit.com>",
       "Takumi Akiyama <t.akiym@gmail.com>",
       "Theodore Robert Campbell Jr <trcjr@stupidfoot.com>",
+      "Theo van Hoesel <Th.J.v.Hoesel+GitHub@gmail.com>",
       "Tim Couzins <tim.couzins@sophos.com>",
       "Todd Lipcon <todd@amiestreet.com>",
       "Tomasz Konojacki <me@xenu.pl>",

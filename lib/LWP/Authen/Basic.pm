@@ -2,13 +2,17 @@ package LWP::Authen::Basic;
 
 use strict;
 
-our $VERSION = '6.39';
+our $VERSION = '6.36';
 
 require MIME::Base64;
 
 sub auth_header {
     my($class, $user, $pass) = @_;
     return "Basic " . MIME::Base64::encode("$user:$pass", "");
+}
+
+sub reauth_requested {
+    return 0;
 }
 
 sub authenticate
@@ -37,9 +41,10 @@ sub authenticate
     });
     $h->{auth_param} = $auth_param;
 
-    if (!$proxy && !$request->header($auth_header) && $ua->credentials($host_port, $realm)) {
+    my $reauth_requested = $class->reauth_requested( $auth_param, $ua, $request, $auth_header );
+    if (!$proxy && ( !$request->header($auth_header) || $reauth_requested ) && $ua->credentials($host_port, $realm)) {
 	# we can make sure this handler applies and retry
-        add_path($h, $url->path);
+        add_path($h, $url->path) unless $reauth_requested; # Do not clobber up path list for retries
         return $ua->request($request->clone, $arg, $size, $response);
     }
 

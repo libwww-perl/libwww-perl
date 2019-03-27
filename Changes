@@ -1,8 +1,6 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-
-6.39      2019-03-27 19:00:00Z
     - fix Digest authentication not acting on expired nonce (orignally by
       marmotil, adapted by Frank Maas)
 

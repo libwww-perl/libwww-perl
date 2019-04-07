@@ -16,6 +16,7 @@ on 'runtime' => sub {
     requires 'HTML::Entities';
     requires 'HTML::HeadParser';
     requires 'HTTP::Cookies' => '6';
+    requires 'HTTP::CookieJar::LWP';
     requires 'HTTP::Daemon' => '6';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';

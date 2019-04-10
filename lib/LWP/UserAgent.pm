@@ -1144,7 +1144,7 @@ LWP::UserAgent - Web user agent class
     my $response = $ua->get('http://example.com');
 
     if ($response->is_success) {
-        print $response->decoded_content;    # or whatever
+        print $response->decoded_content;
     }
     else {
         die $response->status_line;
@@ -1170,7 +1170,7 @@ Extra layers of security (note the C<cookie_jar> and C<protocols_allowed>):
     my $response = $ua->get('http://example.com');
 
     if ($response->is_success) {
-        print $response->decoded_content;    # or whatever
+        print $response->decoded_content;
     }
     else {
         die $response->status_line;

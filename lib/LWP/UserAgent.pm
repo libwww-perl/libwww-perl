@@ -1133,22 +1133,48 @@ LWP::UserAgent - Web user agent class
 
 =head1 SYNOPSIS
 
- use strict;
- use warnings;
- use LWP::UserAgent ();
+    use strict;
+    use warnings;
 
- my $ua = LWP::UserAgent->new;
- $ua->timeout(10);
- $ua->env_proxy;
+    use LWP::UserAgent ();
 
- my $response = $ua->get('http://example.com');
+    my $ua = LWP::UserAgent->new(timeout => 10);
+    $ua->env_proxy;
 
- if ($response->is_success) {
-     print $response->decoded_content;  # or whatever
- }
- else {
-     die $response->status_line;
- }
+    my $response = $ua->get('http://example.com');
+
+    if ($response->is_success) {
+        print $response->decoded_content;    # or whatever
+    }
+    else {
+        die $response->status_line;
+    }
+
+Extra layers of security (note the C<cookie_jar> and C<protocols_allowed>):
+
+    use strict;
+    use warnings;
+
+    use HTTP::CookieJar::LWP ();
+    use LWP::UserAgent       ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua  = LWP::UserAgent->new(
+        cookie_jar        => $jar,
+        protocols_allowed => ['http', 'https'],
+        timeout           => 10,
+    );
+
+    $ua->env_proxy;
+
+    my $response = $ua->get('http://example.com');
+
+    if ($response->is_success) {
+        print $response->decoded_content;    # or whatever
+    }
+    else {
+        die $response->status_line;
+    }
 
 =head1 DESCRIPTION
 
@@ -1276,7 +1302,16 @@ the cookie jar object must implement the C<extract_cookies($response)> and
 C<add_cookie_header($request)> methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
 received.  Normally this will be a L<HTTP::Cookies> object or some
-subclass.
+subclass.  You are, however, encouraged to use L<HTTP::CookieJar::LWP>
+instead.  See L</"BEST PRACTICES"> for more information.
+
+    use HTTP::CookieJar::LWP ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua = LWP::UserAgent->new( cookie_jar => $jar );
+
+    # or after object creation
+    $ua->cookie_jar( $cookie_jar );
 
 The default is to have no cookie jar, i.e. never automatically add
 C<Cookie> headers to the requests.
@@ -1987,6 +2022,49 @@ The base implementation will return false unless the method
 is in the object's C<requests_redirectable> list,
 false if the proposed redirection is to a C<file://...>
 URL, and true otherwise.
+
+=head1 BEST PRACTICES
+
+The default settings can get you up and running quickly, but there are settings
+you can change in order to make your life easier.
+
+=over
+
+=item cookie_jar
+
+You are encouraged to install L<Mozilla::PublicSuffix> and use
+L<HTTP::CookieJar::LWP> as your cookie jar.  L<HTTP::CookieJar::LWP> provides a
+better security model matching that of current Web browsers when
+L<Mozilla::PublicSuffix> is installed.
+
+    use HTTP::CookieJar::LWP ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua = LWP::UserAgent->new( cookie_jar => $jar );
+
+=item protocols_allowed
+
+This option allows you to whitelist the protocols you're willing to allow.
+
+    my $ua = LWP::UserAgent->new(
+        protocols_allowed => [ 'http', 'https' ]
+    );
+
+This will prevent you from inadvertently following URLs like
+C<file:///etc/passwd>
+
+=item protocols_forbidden
+
+This option allows you to blacklist the protocols you're unwilling to allow.
+
+    my $ua = LWP::UserAgent->new(
+        protocols_forbidden => [ 'file', 'mailto', 'ssh', ]
+    );
+
+This will prevent you from inadvertently following URLs like
+C<file:///etc/passwd>
+
+=back
 
 =head1 SEE ALSO
 

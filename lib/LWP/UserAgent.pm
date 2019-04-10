@@ -2028,9 +2028,7 @@ URL, and true otherwise.
 The default settings can get you up and running quickly, but there are settings
 you can change in order to make your life easier.
 
-=over
-
-=item cookie_jar
+=head2 Handling Cookies
 
 You are encouraged to install L<Mozilla::PublicSuffix> and use
 L<HTTP::CookieJar::LWP> as your cookie jar.  L<HTTP::CookieJar::LWP> provides a
@@ -2042,29 +2040,29 @@ L<Mozilla::PublicSuffix> is installed.
     my $jar = HTTP::CookieJar::LWP->new;
     my $ua = LWP::UserAgent->new( cookie_jar => $jar );
 
-=item protocols_allowed
+See L</"cookie_jar"> for more information.
 
-This option allows you to whitelist the protocols you're willing to allow.
+=head2 Managing Protocols
+
+C<protocols_allowed> gives you the ability to whitelist the protocols you're
+willing to allow.
 
     my $ua = LWP::UserAgent->new(
         protocols_allowed => [ 'http', 'https' ]
     );
 
 This will prevent you from inadvertently following URLs like
-C<file:///etc/passwd>
+C<file:///etc/passwd>.  See L</"protocols_allowed">.
 
-=item protocols_forbidden
-
-This option allows you to blacklist the protocols you're unwilling to allow.
+C<protocols_forbidden> gives you the ability to blacklist the protocols you're
+unwilling to allow.
 
     my $ua = LWP::UserAgent->new(
         protocols_forbidden => [ 'file', 'mailto', 'ssh', ]
     );
 
-This will prevent you from inadvertently following URLs like
-C<file:///etc/passwd>
-
-=back
+This can also prevent you from inadvertently following URLs like
+C<file:///etc/passwd>.  See L</protocols_forbidden>.
 
 =head1 SEE ALSO
 

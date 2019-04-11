@@ -1627,34 +1627,27 @@ the active handlers:
 Add handler to be invoked in the given processing phase.  For how to
 specify C<%matchspec> see L<HTTP::Config/"Matching">.
 
-The possible values C<$phase> and the corresponding callback signatures are:
+The possible values C<$phase> and the corresponding callback signatures are as
+follows.  Note that the handlers are documented in the order in which they will
+be run, which is:
+
+    request_preprepare
+    request_prepare
+    request_send
+    response_header
+    response_data
+    response_done
+    response_redirect
 
 =over
 
-=item response_data => sub { my($response, $ua, $handler, $data) = @_; ... }
+=item request_preprepare => sub { my($request, $ua, $handler) = @_; ... }
 
-This handler is called for each chunk of data received for the
-response.  The handler might croak to abort the request.
-
-This handler needs to return a TRUE value to be called again for
-subsequent chunks for the same request.
-
-=item response_done => sub { my($response, $ua, $handler) = @_; ... }
-
-The handler is called after the response has been fully received, but
-before any redirect handling is attempted.  The handler can be used to
-extract information or modify the response.
-
-=item response_header => sub { my($response, $ua, $handler) = @_; ... }
-
-This handler is called right after the response headers have been
-received, but before any content data.  The handler might set up
-handlers for data and might croak to abort the request.
-
-The handler might set the C<< $response->{default_add_content} >> value to
-control if any received data should be added to the response object
-directly.  This will initially be false if the C<< $ua->request() >> method
-was called with a C<$content_file> or C<$content_cb argument>; otherwise true.
+The handler is called before the C<request_prepare> and other standard
+initialization of the request.  This can be used to set up headers
+and attributes that the C<request_prepare> handler depends on.  Proxy
+initialization should take place here; but in general don't register
+handlers for this phase.
 
 =item request_prepare => sub { my($request, $ua, $handler) = @_; ... }
 
@@ -1669,14 +1662,6 @@ The return value from the callback is ignored.  If an exception is
 raised it will abort the request and make the request method return a
 "400 Bad request" response.
 
-=item request_preprepare => sub { my($request, $ua, $handler) = @_; ... }
-
-The handler is called before the C<request_prepare> and other standard
-initialization of the request.  This can be used to set up headers
-and attributes that the C<request_prepare> handler depends on.  Proxy
-initialization should take place here; but in general don't register
-handlers for this phase.
-
 =item request_send => sub { my($request, $ua, $handler) = @_; ... }
 
 This handler gets a chance of handling requests before they're sent to the
@@ -1685,6 +1670,31 @@ wishes to terminate the processing; otherwise it should return nothing.
 
 The C<response_header> and C<response_data> handlers will not be
 invoked for this response, but the C<response_done> will be.
+
+=item response_header => sub { my($response, $ua, $handler) = @_; ... }
+
+This handler is called right after the response headers have been
+received, but before any content data.  The handler might set up
+handlers for data and might croak to abort the request.
+
+The handler might set the C<< $response->{default_add_content} >> value to
+control if any received data should be added to the response object
+directly.  This will initially be false if the C<< $ua->request() >> method
+was called with a C<$content_file> or C<$content_cb argument>; otherwise true.
+
+=item response_data => sub { my($response, $ua, $handler, $data) = @_; ... }
+
+This handler is called for each chunk of data received for the
+response.  The handler might croak to abort the request.
+
+This handler needs to return a TRUE value to be called again for
+subsequent chunks for the same request.
+
+=item response_done => sub { my($response, $ua, $handler) = @_; ... }
+
+The handler is called after the response has been fully received, but
+before any redirect handling is attempted.  The handler can be used to
+extract information or modify the response.
 
 =item response_redirect => sub { my($response, $ua, $handler) = @_; ... }
 

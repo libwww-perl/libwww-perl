@@ -6,16 +6,42 @@ LWP::UserAgent - Web user agent class
 
     use strict;
     use warnings;
+
     use LWP::UserAgent ();
 
-    my $ua = LWP::UserAgent->new;
-    $ua->timeout(10);
+    my $ua = LWP::UserAgent->new(timeout => 10);
     $ua->env_proxy;
 
     my $response = $ua->get('http://example.com');
 
     if ($response->is_success) {
-        print $response->decoded_content;  # or whatever
+        print $response->decoded_content;
+    }
+    else {
+        die $response->status_line;
+    }
+
+Extra layers of security (note the `cookie_jar` and `protocols_allowed`):
+
+    use strict;
+    use warnings;
+
+    use HTTP::CookieJar::LWP ();
+    use LWP::UserAgent       ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua  = LWP::UserAgent->new(
+        cookie_jar        => $jar,
+        protocols_allowed => ['http', 'https'],
+        timeout           => 10,
+    );
+
+    $ua->env_proxy;
+
+    my $response = $ua->get('http://example.com');
+
+    if ($response->is_success) {
+        print $response->decoded_content;
     }
     else {
         die $response->status_line;
@@ -147,7 +173,16 @@ the cookie jar object must implement the `extract_cookies($response)` and
 `add_cookie_header($request)` methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
 received.  Normally this will be a [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) object or some
-subclass.
+subclass.  You are, however, encouraged to use [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP)
+instead.  See ["BEST PRACTICES"](#best-practices) for more information.
+
+    use HTTP::CookieJar::LWP ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua = LWP::UserAgent->new( cookie_jar => $jar );
+
+    # or after object creation
+    $ua->cookie_jar( $cookie_jar );
 
 The default is to have no cookie jar, i.e. never automatically add
 `Cookie` headers to the requests.
@@ -458,32 +493,25 @@ the active handlers:
 Add handler to be invoked in the given processing phase.  For how to
 specify `%matchspec` see ["Matching" in HTTP::Config](https://metacpan.org/pod/HTTP::Config#Matching).
 
-The possible values `$phase` and the corresponding callback signatures are:
+The possible values `$phase` and the corresponding callback signatures are as
+follows.  Note that the handlers are documented in the order in which they will
+be run, which is:
 
-- response\_data => sub { my($response, $ua, $handler, $data) = @\_; ... }
+    request_preprepare
+    request_prepare
+    request_send
+    response_header
+    response_data
+    response_done
+    response_redirect
 
-    This handler is called for each chunk of data received for the
-    response.  The handler might croak to abort the request.
+- request\_preprepare => sub { my($request, $ua, $handler) = @\_; ... }
 
-    This handler needs to return a TRUE value to be called again for
-    subsequent chunks for the same request.
-
-- response\_done => sub { my($response, $ua, $handler) = @\_; ... }
-
-    The handler is called after the response has been fully received, but
-    before any redirect handling is attempted.  The handler can be used to
-    extract information or modify the response.
-
-- response\_header => sub { my($response, $ua, $handler) = @\_; ... }
-
-    This handler is called right after the response headers have been
-    received, but before any content data.  The handler might set up
-    handlers for data and might croak to abort the request.
-
-    The handler might set the `$response->{default_add_content}` value to
-    control if any received data should be added to the response object
-    directly.  This will initially be false if the `$ua->request()` method
-    was called with a `$content_file` or `$content_cb argument`; otherwise true.
+    The handler is called before the `request_prepare` and other standard
+    initialization of the request.  This can be used to set up headers
+    and attributes that the `request_prepare` handler depends on.  Proxy
+    initialization should take place here; but in general don't register
+    handlers for this phase.
 
 - request\_prepare => sub { my($request, $ua, $handler) = @\_; ... }
 
@@ -498,14 +526,6 @@ The possible values `$phase` and the corresponding callback signatures are:
     raised it will abort the request and make the request method return a
     "400 Bad request" response.
 
-- request\_preprepare => sub { my($request, $ua, $handler) = @\_; ... }
-
-    The handler is called before the `request_prepare` and other standard
-    initialization of the request.  This can be used to set up headers
-    and attributes that the `request_prepare` handler depends on.  Proxy
-    initialization should take place here; but in general don't register
-    handlers for this phase.
-
 - request\_send => sub { my($request, $ua, $handler) = @\_; ... }
 
     This handler gets a chance of handling requests before they're sent to the
@@ -514,6 +534,31 @@ The possible values `$phase` and the corresponding callback signatures are:
 
     The `response_header` and `response_data` handlers will not be
     invoked for this response, but the `response_done` will be.
+
+- response\_header => sub { my($response, $ua, $handler) = @\_; ... }
+
+    This handler is called right after the response headers have been
+    received, but before any content data.  The handler might set up
+    handlers for data and might croak to abort the request.
+
+    The handler might set the `$response->{default_add_content}` value to
+    control if any received data should be added to the response object
+    directly.  This will initially be false if the `$ua->request()` method
+    was called with a `$content_file` or `$content_cb argument`; otherwise true.
+
+- response\_data => sub { my($response, $ua, $handler, $data) = @\_; ... }
+
+    This handler is called for each chunk of data received for the
+    response.  The handler might croak to abort the request.
+
+    This handler needs to return a TRUE value to be called again for
+    subsequent chunks for the same request.
+
+- response\_done => sub { my($response, $ua, $handler) = @\_; ... }
+
+    The handler is called after the response has been fully received, but
+    before any redirect handling is attempted.  The handler can be used to
+    extract information or modify the response.
 
 - response\_redirect => sub { my($response, $ua, $handler) = @\_; ... }
 
@@ -849,6 +894,47 @@ The base implementation will return false unless the method
 is in the object's `requests_redirectable` list,
 false if the proposed redirection is to a `file://...`
 URL, and true otherwise.
+
+# BEST PRACTICES
+
+The default settings can get you up and running quickly, but there are settings
+you can change in order to make your life easier.
+
+## Handling Cookies
+
+You are encouraged to install [Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla::PublicSuffix) and use
+[HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP) as your cookie jar.  [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP) provides a
+better security model matching that of current Web browsers when
+[Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla::PublicSuffix) is installed.
+
+    use HTTP::CookieJar::LWP ();
+
+    my $jar = HTTP::CookieJar::LWP->new;
+    my $ua = LWP::UserAgent->new( cookie_jar => $jar );
+
+See ["cookie\_jar"](#cookie_jar) for more information.
+
+## Managing Protocols
+
+`protocols_allowed` gives you the ability to whitelist the protocols you're
+willing to allow.
+
+    my $ua = LWP::UserAgent->new(
+        protocols_allowed => [ 'http', 'https' ]
+    );
+
+This will prevent you from inadvertently following URLs like
+`file:///etc/passwd`.  See ["protocols\_allowed"](#protocols_allowed).
+
+`protocols_forbidden` gives you the ability to blacklist the protocols you're
+unwilling to allow.
+
+    my $ua = LWP::UserAgent->new(
+        protocols_forbidden => [ 'file', 'mailto', 'ssh', ]
+    );
+
+This can also prevent you from inadvertently following URLs like
+`file:///etc/passwd`.  See ["protocols\_forbidden"](#protocols_forbidden).
 
 # SEE ALSO
 

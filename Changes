@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.39      2019-05-06 14:18:39Z
     - Document current best practices (GH#314) (Olaf Alders)
     - Document order in which handlers fire (GH#315) (Olaf Alders)
     - SKIP nntp test for now (GH#317) (Olaf Alders)

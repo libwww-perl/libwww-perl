@@ -1,9 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-    - Document current best practices (Olaf Alders)
-    - Document handlers in their order of operation (Olaf Alders)
-    - SKIP t/base/protocols/nntp.t for now
+    - Document current best practices (GH#314) (Olaf Alders)
+    - Document order in which handlers fire (GH#315) (Olaf Alders)
+    - SKIP nntp test for now (GH#317) (Olaf Alders)
 
 6.38      2019-03-25 18:58:58Z
     - Update Net::HTTP dependency from 6.07 to 6.18 (GH#310) (Olaf Alders)

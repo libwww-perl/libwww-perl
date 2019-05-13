@@ -62,7 +62,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 90;
+    plan tests => 93;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -125,6 +125,17 @@ sub _test {
         );
         isa_ok($res, 'HTTP::Response', 'simple echo 2: good response object');
         is($res->code, 200, 'simple echo 2: code 200');
+    }
+    { # patch
+        my $res = $ua->patch(url("/echo/path_info?query", $base),
+            Accept => 'text/html',
+            Accept => 'text/plain; q=0.9',
+            Accept => 'image/*',
+            X_Foo => "Bar",
+        );
+        isa_ok($res, 'HTTP::Response', 'patch: good response object');
+        is($res->code, 200, 'put: code 200');
+        like($res->content, qr/^From: gisle\@aas.no$/m, 'patch: good From');
     }
     { # put
         my $res = $ua->put(url("/echo/path_info?query", $base),
@@ -455,6 +466,13 @@ sub daemonize {
         $c->send_file("tmp$$");
 
         unlink("tmp$$");
+    };
+    $router{patch_echo} = sub {
+        my($c, $req) = @_;
+        $c->send_basic_header(200);
+        $c->print("Content-Type: message/http\015\012");
+        $c->send_crlf;
+        $c->print($req->as_string);
     };
     $router{put_echo} = sub {
         my($c, $req) = @_;

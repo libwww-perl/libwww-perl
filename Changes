@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Add the patch method (GH#116)
 
 6.39      2019-05-06 14:18:39Z
     - Document current best practices (GH#314) (Olaf Alders)

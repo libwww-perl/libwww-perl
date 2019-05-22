@@ -1732,7 +1732,7 @@ the given processing phase.
 
     $ua->remove_handler( undef, %matchspec );
     $ua->remove_handler( $phase, %matchspec );
-    $ua->remove_handlers(); # REMOVE ALL HANDLERS IN ALL PHASES
+    $ua->remove_handler(); # REMOVE ALL HANDLERS IN ALL PHASES
 
 Remove handlers that match the given C<%matchspec>.  If C<$phase> is not
 provided, remove handlers from all phases.

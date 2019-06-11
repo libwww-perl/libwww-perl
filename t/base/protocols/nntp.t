@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use LWP::UserAgent ();
-use Test::More;
+use Test::More skip_all => 'nntp.perl.org is unstable and Test::RequiresInternet is not catching it';
 use Test::RequiresInternet ( 'nntp.perl.org' => 119 );
 
 plan tests => 1;

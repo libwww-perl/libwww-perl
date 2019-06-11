@@ -7,7 +7,7 @@ our $VERSION = '6.40';
 
 require Digest::MD5;
 
-sub reauth_requested {
+sub _reauth_requested {
     my( $class, $auth_param, $ua, $request, $auth_header ) = @_;
     my $ret = defined( $$auth_param{ stale } ) && lc( $$auth_param{ stale } ) eq 'true';
     if ( $ret ) {

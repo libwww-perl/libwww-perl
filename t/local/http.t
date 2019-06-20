@@ -256,28 +256,44 @@ sub _test {
 
         # Now check expired nonce
         # - get the right request_prepare handler
-        my ($digest) = grep { $$_{ realm } eq "libwww-perl-digest" } @{ $$ua{ handlers }{ request_prepare } };
+        my ($digest)
+            = grep { $$_{realm} eq "libwww-perl-digest" }
+            @{$$ua{handlers}{request_prepare}};
+
         # - and force the next request to send the wrongnonce first
-        $$digest{ auth_param }{ nonce } = "my_stale_nonce";
+        $$digest{auth_param}{nonce} = "my_stale_nonce";
+
         # - set up the nonce count for the stale nonce and lose it for the real nonce (to make it match later (server expects 1))
-        $$ua{authen_md5_nonce_count} = { my_stale_nonce => 3 };
+        $$ua{authen_md5_nonce_count} = {my_stale_nonce => 3};
+
         # - perform the request with the stale nonce
-        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23",
+            "xyzzy");
         $res = $ua->request($req);
-        isa_ok($res,  'HTTP::Response', 'digestAuth: good response object');
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         ok($res->is_success, 'digestAuth: is_success');
 
-        is($$ua{authen_md5_nonce_count}{ 12345 }, 1, 'The nonce count is recorded for the new nonce');
-        ok( ! defined $$ua{authen_md5_nonce_count}{ my_stale_nonce }, 'The nonce count is deleted for the stale nonce' );
-        is( @{ $$digest{ m_path_prefix } }, 1, 'The path prefix list is not clobbered with extra copies of the path' );
+        is($$ua{authen_md5_nonce_count}{12345},
+            1, 'The nonce count is recorded for the new nonce');
+        ok(
+            !defined $$ua{authen_md5_nonce_count}{my_stale_nonce},
+            'The nonce count is deleted for the stale nonce'
+        );
+        is(@{$$digest{m_path_prefix}}, 1,
+            'The path prefix list is not clobbered with extra copies of the path'
+        );
+
         # - perform the request with a wrong nonce
-        $$digest{ auth_param }{ nonce } = "my_wrong_nonce";
+        $$digest{auth_param}{nonce} = "my_wrong_nonce";
+
         # - lose the nonce count, to make it match later (server expects 1)
         $$ua{authen_md5_nonce_count} = {};
+
         # - perform the request with the wrong nonce
-        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23", "xyzzy");
+        $ua->credentials($req->uri->host_port, "libwww-perl-digest", "ok 23",
+            "xyzzy");
         $res = $ua->request($req);
-        isa_ok($res,  'HTTP::Response', 'digestAuth: good response object');
+        isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         is($res->code, 401, 'No retry if the nonce is not marked stale');
 
         # Then illegal credentials
@@ -435,9 +451,14 @@ sub daemonize {
         }
         else {
             $c->send_basic_header(401);
-            $c->print("WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\"",
-                      defined($auth_params{nonce}) && $auth_params{nonce} eq '"my_stale_nonce"' ? ', stale=true': '',
-                      ", qop=auth\015\012");
+            $c->print(
+                "WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\"",
+                defined($auth_params{nonce})
+                    && $auth_params{nonce} eq '"my_stale_nonce"'
+                ? ', stale=true'
+                : '',
+                ", qop=auth\015\012"
+            );
             $c->send_crlf;
         }
     };

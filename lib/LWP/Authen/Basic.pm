@@ -41,10 +41,15 @@ sub authenticate
     });
     $h->{auth_param} = $auth_param;
 
-    my $reauth_requested = $class->_reauth_requested( $auth_param, $ua, $request, $auth_header );
-    if (!$proxy && ( !$request->header($auth_header) || $reauth_requested ) && $ua->credentials($host_port, $realm)) {
-	# we can make sure this handler applies and retry
-        add_path($h, $url->path) unless $reauth_requested; # Do not clobber up path list for retries
+    my $reauth_requested
+        = $class->_reauth_requested($auth_param, $ua, $request, $auth_header);
+    if (   !$proxy
+        && (!$request->header($auth_header) || $reauth_requested)
+        && $ua->credentials($host_port, $realm))
+    {
+        # we can make sure this handler applies and retry
+        add_path($h, $url->path)
+            unless $reauth_requested;  # Do not clobber up path list for retries
         return $ua->request($request->clone, $arg, $size, $response);
     }
 

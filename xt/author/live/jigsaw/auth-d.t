@@ -16,7 +16,10 @@ plan tests => 3;
 
     sub get_basic_credentials {
         my ($self, $realm, $uri, $proxy) = @_;
-        my $p = shift @try;
+        # We aren't yet sure why this was failing in some threaded Perls
+        # we should re-visit this failure in the near future.
+        # my $p = shift @try;
+        my $p = shift(@try) || [];
         return @$p;
     }
 }

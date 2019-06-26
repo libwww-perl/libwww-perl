@@ -44,9 +44,6 @@ matrix:
       perl: '5.28'
 env:
   global:
-    - AUTHOR_TESTING=1
-    - AUTOMATED_TESTING=1
-    - RELEASE_TESTING=1
     - PERL_CPANM_OPT=--with-suggests
     - SENDMAIL=/usr/sbin/sendmail  # fake, but needed for LWP::Protocol::mailto
 before_install:

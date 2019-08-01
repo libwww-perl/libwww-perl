@@ -9,6 +9,7 @@ perl:
   - dev
   - "blead"
   - "blead-thr"
+  - "5.30"
   - "5.28"
   - "5.28-thr"
   - "5.26"

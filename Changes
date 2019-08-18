@@ -1,6 +1,10 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Documentation fix for clearing handlers
+    - Ensure proper version of Dist::Zilla::Plugin::MakeMaker::Awesome
+    - Add TravisCI testing for Perl v5.30
+    - Clean up .perltidyrc
 
 6.39      2019-05-06 14:18:39Z
     - Document current best practices (GH#314) (Olaf Alders)

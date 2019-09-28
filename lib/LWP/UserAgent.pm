@@ -1796,9 +1796,9 @@ Fields names that start with ":" are special.  These will not
 initialize headers of the request but will determine how the response
 content is treated.  The following special field names are recognized:
 
-    :content_file   => $filename
-    :content_cb     => \&callback
-    :read_size_hint => $bytes
+    ':content_file'   => $filename
+    ':content_cb'     => \&callback
+    ':read_size_hint' => $bytes
 
 If a $filename is provided with the C<:content_file> option, then the
 response content will be saved here instead of in the response

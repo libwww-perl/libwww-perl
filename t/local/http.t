@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 
 use Config;
 use FindBin qw($Bin);
@@ -62,7 +63,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 90;
+    plan tests => 94;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -287,6 +288,16 @@ sub _test {
         isa_ok($res, 'HTTP::Response', 'post: good response object');
         ok($res->is_success, 'post: is_success');
         ok($res->content =~ /^Content-Type: multipart\/form-data; boundary=/m, 'post: multipart good');
+    }
+    { # mirror
+        ok(exception { $ua->mirror(url("/echo/foo", $base)) }, 'mirror: filename required');
+        my $copy = "lwp-base-test-$$"; # downloaded copy
+        my $res = $ua->mirror(url("/echo/foo", $base), $copy);
+        isa_ok($res, 'HTTP::Response', 'mirror: good response object');
+        ok($res->is_success, 'mirror: is_success');
+
+        ok(-s $copy, 'mirror: file exists and is not empty');
+        unlink($copy);
     }
     { # partial
         my $req = HTTP::Request->new(  GET => url("/partial", $base) );

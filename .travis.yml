@@ -39,10 +39,13 @@ matrix:
   allow_failures:
     - perl: blead
     - perl: blead-thr
+    - env: LIVE_JIGSAW_TESTS=1
   fast_finish: 1
   include:
     - env: COVERAGE=1
-      perl: '5.28'
+      perl: "5.30"
+    - env: LIVE_JIGSAW_TESTS=1
+      perl: "5.30"
 env:
   global:
     - AUTHOR_TESTING=1

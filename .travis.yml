@@ -62,8 +62,8 @@ before_install:
   - cd $BUILD_DIR # $BUILD_DIR is set by the build-dist command
 install:
   - cpan-install Data::Dump Authen::NTLM Test::Spelling Test::Pod Test::Pod::Coverage Test::Version Test::EOL
-  - cpan-install --deps       # installs prereqs, including optional modules
-  - cpan-install --coverage   # installs converage prereqs, if enabled
+  - cpan-install --deps --update-prereqs # installs prereqs, including optional modules
+  - cpan-install --coverage # installs coverage prereqs, if enabled
 before_script:
   - coverage-setup
 script:

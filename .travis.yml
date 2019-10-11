@@ -4,6 +4,7 @@ addons:
     packages:
       - aspell
       - aspell-en
+dist: trusty
 language: perl
 perl:
   - dev

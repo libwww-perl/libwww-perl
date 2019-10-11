@@ -52,14 +52,14 @@ env:
     - AUTOMATED_TESTING=1
     - RELEASE_TESTING=1
     - PERL_CPANM_OPT=--with-suggests
-    - SENDMAIL=/usr/sbin/sendmail  # fake, but needed for LWP::Protocol::mailto
+    - SENDMAIL=/usr/sbin/sendmail # fake, but needed for LWP::Protocol::mailto
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
   - build-dist
-  - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
+  - cd $BUILD_DIR # $BUILD_DIR is set by the build-dist command
 install:
   - cpan-install Data::Dump Authen::NTLM Test::Spelling Test::Pod Test::Pod::Coverage Test::Version Test::EOL
   - cpan-install --deps       # installs prereqs, including optional modules

@@ -21,7 +21,7 @@ use LWP::UserAgent;
 }
 
 SKIP: {
-    skip 'LIVE_JIGSAW_TESTS not enabled', 3 unless $ENV{LIVE_JIGSAW_TESTS};
+    skip 'LIVE_JIGSAW_TESTS not enabled', 3 if $ENV{NO_JIGSAW};
 
     my $ua = MyUA->new(keep_alive => 1);
 

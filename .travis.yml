@@ -43,17 +43,18 @@ matrix:
     - perl: blead-thr
     - perl: dev
     - perl: 5.12-thr # tarball 404s
-    - env: LIVE_JIGSAW_TESTS=1
+    - env: NO_JIGSAW=0
   fast_finish: 1
   include:
     - env: COVERAGE=1
       perl: "5.30"
-    - env: LIVE_JIGSAW_TESTS=1
+    - env: NO_JIGSAW=0
       perl: "5.30"
 env:
   global:
     - AUTHOR_TESTING=1
     - AUTOMATED_TESTING=1
+    - NO_JIGSAW=1
     - RELEASE_TESTING=1
     - PERL_CPANM_OPT=--with-suggests
     - SENDMAIL=/usr/sbin/sendmail # fake, but needed for LWP::Protocol::mailto

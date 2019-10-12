@@ -1,7 +1,10 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-    - Documentation fix for clearing handlers
+    - Make file arg for mirror mandatory #304 (GH#326) (Julien Fiegehenn)
+    - Doc fix: fields starting with ":" have to be quoted (GH#324) (Slaven
+      Rezić)
+    - Fix documentation for removing all handlers (GH#319) (leedo)
     - Ensure proper version of Dist::Zilla::Plugin::MakeMaker::Awesome
     - Add TravisCI testing for Perl v5.30
     - Clean up .perltidyrc

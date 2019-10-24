@@ -3,7 +3,7 @@ package LWP::Authen::Digest;
 use strict;
 use base 'LWP::Authen::Basic';
 
-our $VERSION = '6.40';
+our $VERSION = '6.41';
 
 require Digest::MD5;
 

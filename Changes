@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.40      2019-10-24 12:55:45Z
     - Let Digest authentication act on nonce expiry (GH#313) (Frank Maas)
     - Make file arg for mirror mandatory #304 (GH#326) (Julien Fiegehenn)

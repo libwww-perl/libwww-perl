@@ -966,7 +966,7 @@ sub mirror
 {
     my($self, $url, $file) = @_;
 
-    die "Local file name is missing" unless $file;
+    die "Local file name is missing" unless defined $file && length $file;
 
     my $request = HTTP::Request->new('GET', $url);
 

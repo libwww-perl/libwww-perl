@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.41      2019-10-28 14:42:06Z
     - Allow mirroring to files called '0' (GH#329) (Mark Fowler)
 
 6.40      2019-10-24 12:55:45Z

@@ -63,7 +63,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 94;
+    plan tests => 96;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -291,6 +291,7 @@ sub _test {
     }
     { # mirror
         ok(exception { $ua->mirror(url("/echo/foo", $base)) }, 'mirror: filename required');
+        ok(exception { $ua->mirror(url("/echo/foo", $base), q{}) }, 'mirror: non empty filename required');
         my $copy = "lwp-base-test-$$"; # downloaded copy
         my $res = $ua->mirror(url("/echo/foo", $base), $copy);
         isa_ok($res, 'HTTP::Response', 'mirror: good response object');
@@ -298,6 +299,10 @@ sub _test {
 
         ok(-s $copy, 'mirror: file exists and is not empty');
         unlink($copy);
+
+        $ua->mirror(url("/echo/foo", $base),q{0});
+        ok(1, 'can write to a file called 0');
+        unlink('0');
     }
     { # partial
         my $req = HTTP::Request->new(  GET => url("/partial", $base) );

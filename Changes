@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Allow mirroring to files called '0' (GH#329) (Mark Fowler)
 
 6.40      2019-10-24 12:55:45Z
     - Let Digest authentication act on nonce expiry (GH#313) (Frank Maas)

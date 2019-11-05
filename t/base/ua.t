@@ -4,7 +4,7 @@ use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
 
-plan tests => 41;
+plan tests => 43;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -51,6 +51,10 @@ is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
 is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
 is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
+
+$ua->proxy_header("Foo" => "bar");
+is($ua->proxy_headers->header("Foo"), "bar", '$ua->proxy_headers->header("Foo")');
+is($ua->proxy_header("Foo"),          "bar", '$ua->proxy_header("Foo")');
 
 # error on malformed request
 {

@@ -201,7 +201,7 @@ The following basic methods are provided:
 
 This method constructs a new L<LWP::ConnCache> object.  The only
 option currently accepted is C<total_capacity>.  If specified it
-initialize the L<LWP::ConnCache/total_capacity> option. It defaults to C<1>.
+initializes the L<LWP::ConnCache/total_capacity> option. It defaults to C<1>.
 
 =head2 total_capacity
 

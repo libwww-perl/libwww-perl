@@ -799,7 +799,7 @@ Change history for libwww-perl
     - HTML::Form:
         - Handle clicking on nameless image.
         - Don't let $form->click invoke a disabled submit button.
-    - HTTP::Cookies could not handle a "old-style" cookie named "Expires".
+    - HTTP::Cookies could not handle an "old-style" cookie named "Expires".
     - HTTP::Headers work-around for thread safety issue in perl <= 5.8.4.
     - HTTP::Request::Common improved documentation.
     - LWP::Protocol: Check that we can write to the file specified in
@@ -1416,7 +1416,7 @@ Change history for libwww-perl
     - We require URI-1.03, since this fix some query quoting stuff that
         HTTP::Request::Common rely upon.
     - 'lwp-request -HUser-Agent:foo' can now be used to set this header too.
-    - Localize $/ to ensure standard record separator a in HTTP::Cookies
+    - Localize $/ to ensure standard record separator in HTTP::Cookies
     - LWP::UserAgent will now set the Range header in requests if the
         $ua->max_size attribute is set.
 

@@ -72,10 +72,11 @@ sub new
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
+    my $keep_alive_exists = exists $cnf{keep_alive};
     my $keep_alive = delete $cnf{keep_alive};
 
     Carp::croak("Can't mix conn_cache and keep_alive")
-	  if $conn_cache && $keep_alive;
+	  if $conn_cache && $keep_alive_exists;
 
     my $protocols_allowed   = delete $cnf{protocols_allowed};
     my $protocols_forbidden = delete $cnf{protocols_forbidden};
@@ -130,7 +131,7 @@ sub new
     $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;
     $self->protocols_forbidden($protocols_forbidden) if $protocols_forbidden;
 
-    if ($keep_alive) {
+    if ($keep_alive_exists) {
 	$conn_cache ||= { total_capacity => $keep_alive };
     }
     $self->conn_cache($conn_cache) if $conn_cache;

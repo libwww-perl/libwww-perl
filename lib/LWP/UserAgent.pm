@@ -1249,7 +1249,7 @@ is passed in with a true value, then proxy settings are read from environment
 variables (see L<LWP::UserAgent/env_proxy>). If C<env_proxy> isn't provided, the
 C<PERL_LWP_ENV_PROXY> environment variable controls if
 L<LWP::UserAgent/env_proxy> is called during initialization.  If the
-C<keep_alive> option value is defined, then an C<LWP::ConnCache> is set up (see
+C<keep_alive> option value is defined and non-zero, then an C<LWP::ConnCache> is set up (see
 L<LWP::UserAgent/conn_cache>).  The C<keep_alive> value is passed on as the
 C<total_capacity> for the connection cache.
 

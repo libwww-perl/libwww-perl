@@ -118,7 +118,7 @@ is passed in with a true value, then proxy settings are read from environment
 variables (see ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#env_proxy)). If `env_proxy` isn't provided, the
 `PERL_LWP_ENV_PROXY` environment variable controls if
 ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#env_proxy) is called during initialization.  If the
-`keep_alive` option is passed in, then a `LWP::ConnCache` is set up (see
+`keep_alive` option value is defined, then an `LWP::ConnCache` is set up (see
 ["conn\_cache" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#conn_cache)).  The `keep_alive` value is passed on as the
 `total_capacity` for the connection cache.
 

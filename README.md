@@ -734,6 +734,33 @@ forced to match that of the server.
 
 The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.
 
+## patch
+    # Any version of HTTP::Message works with this form:
+    my $res = $ua->patch( $url, $field\_name => $value, Content => $content );
+
+    # Using hash or array references requires HTTP::Message >= 6.12
+    use HTTP::Request 6.12;
+    my $res = $ua->patch( $url, \%form );
+    my $res = $ua->patch( $url, \@form );
+    my $res = $ua->patch( $url, \%form, $field_name => $value, ... );
+    my $res = $ua->patch( $url, $field_name => $value, Content => \%form );
+    my $res = $ua->patch( $url, $field_name => $value, Content => \@form );
+
+This method will dispatch a `PATCH` request on the given URL, with
+`%form` or `@form` providing the key/value pairs for the fill-in form
+content. Additional headers and content options are the same as for
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method.
+
+CAVEAT:
+
+This method can only accept content that is in key-value pairs when using
+[HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) prior to version `6.12`. Any use of hash or array
+references will result in an error prior to version `6.12`.
+
+This method will use the `PATCH` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) for a details on
+how to pass form content and other advanced features.
+
 ## post
 
     my $res = $ua->post( $url, \%form );

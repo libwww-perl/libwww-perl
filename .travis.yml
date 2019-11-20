@@ -4,11 +4,14 @@ addons:
     packages:
       - aspell
       - aspell-en
+dist: trusty
 language: perl
 perl:
   - dev
   - "blead"
   - "blead-thr"
+  - "5.30"
+  - "5.30-thr"
   - "5.28"
   - "5.28-thr"
   - "5.26"
@@ -38,28 +41,34 @@ matrix:
   allow_failures:
     - perl: blead
     - perl: blead-thr
+    - perl: dev
+    - perl: 5.12-thr # tarball 404s
+    - env: NO_JIGSAW=0
   fast_finish: 1
   include:
     - env: COVERAGE=1
-      perl: '5.28'
+      perl: "5.30"
+    - env: NO_JIGSAW=0
+      perl: "5.30"
 env:
   global:
     - AUTHOR_TESTING=1
     - AUTOMATED_TESTING=1
+    - NO_JIGSAW=1
     - RELEASE_TESTING=1
     - PERL_CPANM_OPT=--with-suggests
-    - SENDMAIL=/usr/sbin/sendmail  # fake, but needed for LWP::Protocol::mailto
+    - SENDMAIL=/usr/sbin/sendmail # fake, but needed for LWP::Protocol::mailto
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
   - build-dist
-  - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
+  - cd $BUILD_DIR # $BUILD_DIR is set by the build-dist command
 install:
   - cpan-install Data::Dump Authen::NTLM Test::Spelling Test::Pod Test::Pod::Coverage Test::Version Test::EOL
-  - cpan-install --deps       # installs prereqs, including optional modules
-  - cpan-install --coverage   # installs converage prereqs, if enabled
+  - cpan-install --deps --update-prereqs # installs prereqs, including optional modules
+  - cpan-install --coverage # installs coverage prereqs, if enabled
 before_script:
   - coverage-setup
 script:

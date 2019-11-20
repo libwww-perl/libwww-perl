@@ -1,7 +1,22 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Add retry handling for a stale nonce with digest authentication (marmotil
+      and Frank Maas) (GH#40, GH#313, GH#321)
     - Add the patch method (GH#116)
+
+6.41      2019-10-28 14:42:06Z
+    - Allow mirroring to files called '0' (GH#329) (Mark Fowler)
+
+6.40      2019-10-24 12:55:45Z
+    - Let Digest authentication act on nonce expiry (GH#313) (Frank Maas)
+    - Make file arg for mirror mandatory #304 (GH#326) (Julien Fiegehenn)
+    - Doc fix: fields starting with ":" have to be quoted (GH#324) (Slaven
+      Rezić)
+    - Fix documentation for removing all handlers (GH#319) (leedo)
+    - Ensure proper version of Dist::Zilla::Plugin::MakeMaker::Awesome
+    - Add TravisCI testing for Perl v5.30
+    - Clean up .perltidyrc
 
 6.39      2019-05-06 14:18:39Z
     - Document current best practices (GH#314) (Olaf Alders)
@@ -785,7 +800,7 @@ Change history for libwww-perl
     - HTML::Form:
         - Handle clicking on nameless image.
         - Don't let $form->click invoke a disabled submit button.
-    - HTTP::Cookies could not handle a "old-style" cookie named "Expires".
+    - HTTP::Cookies could not handle an "old-style" cookie named "Expires".
     - HTTP::Headers work-around for thread safety issue in perl <= 5.8.4.
     - HTTP::Request::Common improved documentation.
     - LWP::Protocol: Check that we can write to the file specified in
@@ -1402,7 +1417,7 @@ Change history for libwww-perl
     - We require URI-1.03, since this fix some query quoting stuff that
         HTTP::Request::Common rely upon.
     - 'lwp-request -HUser-Agent:foo' can now be used to set this header too.
-    - Localize $/ to ensure standard record separator a in HTTP::Cookies
+    - Localize $/ to ensure standard record separator in HTTP::Cookies
     - LWP::UserAgent will now set the Range header in requests if the
         $ua->max_size attribute is set.
 

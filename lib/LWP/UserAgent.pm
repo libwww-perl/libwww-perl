@@ -15,7 +15,7 @@ use LWP::Protocol ();
 use Scalar::Util qw(blessed);
 use Try::Tiny qw(try catch);
 
-our $VERSION = '6.40';
+our $VERSION = '6.42';
 
 sub new
 {
@@ -982,6 +982,8 @@ sub mirror
 {
     my($self, $url, $file) = @_;
 
+    die "Local file name is missing" unless defined $file && length $file;
+
     my $request = HTTP::Request->new('GET', $url);
 
     # If the file exists, add a cache-related header
@@ -995,10 +997,10 @@ sub mirror
 
     my $response = $self->request($request, $tmpfile);
     if ( $response->header('X-Died') ) {
-	die $response->header('X-Died');
+        die $response->header('X-Died');
     }
 
-    # Only fetching a fresh copy of the would be considered success.
+    # Only fetching a fresh copy of the file would be considered success.
     # If the file was not modified, "304" would returned, which
     # is considered by HTTP::Status to be a "redirect", /not/ "success"
     if ( $response->is_success ) {
@@ -1033,7 +1035,7 @@ sub mirror
     }
     # The local copy is fresh enough, so just delete the temp file
     else {
-	unlink($tmpfile);
+        unlink($tmpfile);
     }
     return $response;
 }
@@ -1263,7 +1265,7 @@ is passed in with a true value, then proxy settings are read from environment
 variables (see L<LWP::UserAgent/env_proxy>). If C<env_proxy> isn't provided, the
 C<PERL_LWP_ENV_PROXY> environment variable controls if
 L<LWP::UserAgent/env_proxy> is called during initialization.  If the
-C<keep_alive> option is passed in, then a C<LWP::ConnCache> is set up (see
+C<keep_alive> option value is defined and non-zero, then an C<LWP::ConnCache> is set up (see
 L<LWP::UserAgent/conn_cache>).  The C<keep_alive> value is passed on as the
 C<total_capacity> for the connection cache.
 
@@ -1812,9 +1814,9 @@ Fields names that start with ":" are special.  These will not
 initialize headers of the request but will determine how the response
 content is treated.  The following special field names are recognized:
 
-    :content_file   => $filename
-    :content_cb     => \&callback
-    :read_size_hint => $bytes
+    ':content_file'   => $filename
+    ':content_cb'     => \&callback
+    ':read_size_hint' => $bytes
 
 If a $filename is provided with the C<:content_file> option, then the
 response content will be saved here instead of in the response

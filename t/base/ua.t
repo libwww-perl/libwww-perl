@@ -4,7 +4,7 @@ use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
 
-plan tests => 45;
+plan tests => 46;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -101,6 +101,17 @@ Foo: bar
 Multi: 1
 Multi: 2
 
+x=y&f=ff
+EOT
+
+ok($ua->patch("http://www.example.com", [x => "y", f => "ff"])->content, <<EOT);
+PATCH http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 8
+Content-Type: application/x-www-form-urlencoded
+Foo: bar
+Multi: 1
+Multi: 2
 x=y&f=ff
 EOT
 

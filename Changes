@@ -3,6 +3,7 @@ Change history for libwww-perl
 {{$NEXT}}
     - Add retry handling for a stale nonce with digest authentication (marmotil
       and Frank Maas) (GH#40, GH#313, GH#321)
+    - Add the patch method (GH#116)
 
 6.41      2019-10-28 14:42:06Z
     - Allow mirroring to files called '0' (GH#329) (Mark Fowler)

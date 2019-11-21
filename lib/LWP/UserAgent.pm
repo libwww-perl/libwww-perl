@@ -421,8 +421,9 @@ sub request {
                 next CHALLENGE;
             }
             my $re = $class->authenticate($self, $proxy, $challenge, $response,
-                        $request, $arg, $size);
-            next CHALLENGE if ($re->code == 401);
+                $request, $arg, $size);
+
+            next CHALLENGE if $re->code == HTTP::Status::RC_UNAUTHORIZED;
             return $re;
         }
         return $response;

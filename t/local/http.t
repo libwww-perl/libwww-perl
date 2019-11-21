@@ -63,7 +63,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 106;
+    plan tests => 109;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -313,6 +313,13 @@ sub _test {
         isa_ok($res, 'HTTP::Response', 'digestAuth: good response object');
         is($res->code, 401, 'digestAuth: code 401');
     }
+    { # basic and digest both allowed
+        my $req = HTTP::Request->new(GET => url("/multi_auth", $base));
+        my $res = MyUA3->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'multiAuth: good response object');
+        ok($res->is_success, 'multiAuth: is_success with digestAuth');
+        is($res->header('X-Basic-Called'), 1, 'multiAuth: basicAuth was tried first');
+    }
     { # proxy
         $ua->proxy(ftp => $base);
         my $req = HTTP::Request->new(GET => "ftp://ftp.perl.com/proxy");
@@ -411,6 +418,14 @@ sub _test {
         return undef;
     }
 }
+{
+    package MyUA3;
+    use base 'LWP::UserAgent';
+    sub get_basic_credentials {
+        my($self, $realm, $uri, $proxy) = @_;
+        return ("irrelevant", "xyzzy");
+    }
+}
 sub daemonize {
     my %router;
     $router{delete_echo} = sub {
@@ -468,6 +483,42 @@ sub daemonize {
                     && $auth_params{nonce} eq '"my_stale_nonce"'
                 ? ', stale=true'
                 : '',
+                ", qop=auth\015\012"
+            );
+            $c->send_crlf;
+        }
+    };
+    my $multi_auth_basic_was_called = 0;
+    $router{get_multi_auth} = sub {
+        my($c, $r) = @_;
+
+        my($u,$p) = $r->authorization_basic;
+        $multi_auth_basic_was_called = 1 if $u && $p;
+
+        my $auth = $r->authorization;
+        my %auth_params;
+        if ( defined($auth) && $auth =~ /^Digest\s+(.*)$/ ) {
+            %auth_params = map { split /=/ } split /,\s*/, $1;
+        }
+        if ( %auth_params &&
+                $auth_params{username} eq q{"irrelevant"} &&
+                $auth_params{realm} eq q{"libwww-perl-digest"}
+             ) {
+            # We don't care about the correctness of the headers here.
+            # The get_digest test already does that. This one is for
+            # asserting multiple different auth attempts.
+            $c->send_basic_header(200);
+            $c->print("X-Basic-Called: $multi_auth_basic_was_called\015\012");
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("ok\n");
+        }
+        else {
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Basic realm=\"libwww-perl\"\015\012");
+            $c->print(
+                "WWW-Authenticate: Digest realm=\"libwww-perl-digest\", nonce=\"12345\"",
                 ", qop=auth\015\012"
             );
             $c->send_crlf;

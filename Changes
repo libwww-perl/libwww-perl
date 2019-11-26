@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.43      2019-11-26 13:54:43Z
     - Continue trying different Authentication challenge schemes if 
       credentials are wrong (Roman Galeev, Julien Fiegehenn)

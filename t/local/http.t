@@ -63,7 +63,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 109;
+    plan tests => 125;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -246,6 +246,34 @@ sub _test {
         isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
         is($res->code, 401, 'basicAuth: code 401');
     }
+    { # basic auth, UTF-8
+        for my $charset (qw(UTF-8 utf-8)) {
+            my $ident = "basicAuth, charset=$charset";
+            my $req = HTTP::Request->new(GET => url("/basic_utf8?$charset", $base));
+            my $res = MyUA4->new->request($req);
+            isa_ok($res, 'HTTP::Response', "$ident: good response object");
+
+            ok($res->is_success, "$ident: is_success");
+
+            # Let's try with a $ua that does not pass out credentials
+            $ua->{basic_authentication} = undef;
+            $res = $ua->request($req);
+            isa_ok($res, 'HTTP::Response', "$ident: good response object");
+            is($res->code, 401, "$ident: code 401");
+
+            # Let's try to set credentials for this realm
+            $ua->credentials($req->uri->host_port, "libwww-perl-utf8", "ök 12", "xyzzy ÅK€j!");
+            $res = $ua->request($req);
+            isa_ok($res, 'HTTP::Response', "$ident: good response object");
+            ok($res->is_success, "$ident: is_success");
+
+            # Then illegal credentials
+            $ua->credentials($req->uri->host_port, "libwww-perl-utf8", "user", "passwd");
+            $res = $ua->request($req);
+            isa_ok($res, 'HTTP::Response', "$ident: good response object");
+            is($res->code, 401, "$ident: code 401");
+        }
+    }
     { # digest
         my $req = HTTP::Request->new(GET => url("/digest", $base));
         my $res = MyUA2->new->request($req);
@@ -408,6 +436,17 @@ sub _test {
     }
 }
 {
+    package MyUA4;
+    use base 'LWP::UserAgent';
+    sub get_basic_credentials {
+        my($self, $realm, $uri, $proxy) = @_;
+        if ($realm eq "libwww-perl-utf8" && $uri->rel($base)->path eq "basic_utf8") {
+            return ("ök 12", "xyzzy ÅK€j!");
+        }
+        return undef;
+    }
+}
+{
     package MyUA2;
     use base 'LWP::UserAgent';
     sub get_basic_credentials {
@@ -448,6 +487,23 @@ sub daemonize {
         else {
             $c->send_basic_header(401);
             $c->print("WWW-Authenticate: Basic realm=\"libwww-perl\"\015\012");
+            $c->send_crlf;
+        }
+    };
+    $router{get_basic_utf8} = sub {
+        my($c, $r) = @_;
+        my($u,$p) = $r->authorization_basic;
+        if (defined($u) && utf8::decode($u) && utf8::decode($p) && $u eq 'ök 12' && $p eq 'xyzzy ÅK€j!') {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("$u\n");
+        }
+        else {
+            my $charset = $r->uri->query;
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Basic realm=\"libwww-perl-utf8\", charset=\"$charset\"\015\012");
             $c->send_crlf;
         }
     };

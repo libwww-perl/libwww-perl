@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Support basic authentication charset per RFC 7617 (GH#339) (Ville Skytt)
     - Fixed POD mistake. (GH PR#338. Sebastian Paaske Tørholm)
 
 6.43      2019-11-26 13:54:43Z

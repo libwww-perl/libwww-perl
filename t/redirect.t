@@ -11,7 +11,7 @@ my $ua = LWP::UserAgent->new();
 
 { # default number of redirects
     $ua->timeout(1);
-    my $res = $ua->get('http://10.255.255.1/');
+    my $res = $ua->get('http://198.51.100.123/');
     like(
         $res->header("Client-Warning"),
         qr/Internal Response/i,
@@ -27,7 +27,7 @@ my $ua = LWP::UserAgent->new();
 { # no redirects
     $ua->timeout(1);
     $ua->max_redirect(0);
-    my $res = $ua->get('http://10.255.255.1/');
+    my $res = $ua->get('http://198.51.100.123/');
     like(
         $res->header("Client-Warning"),
         qr/Internal Response/i,

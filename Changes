@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix Client-Warning: Internal response sometimes reset (GH#341) (Jonathan Dahan and Julien Fiegehenn)
 
 6.44      2020-04-14 19:37:45Z
     - Support basic authentication charset per RFC 7617 (GH#339) (Ville Skytt)

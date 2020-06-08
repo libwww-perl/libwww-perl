@@ -109,96 +109,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.44",
+         "version" : "6.45",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.44"
+         "version" : "6.45"
       }
    },
    "release_status" : "stable",
@@ -215,7 +215,7 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.44",
+   "version" : "6.45",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.026001"
@@ -269,7 +269,7 @@
                   "meta_noindex" : 1
                },
                "Dist::Zilla::Role::ModuleMetadata" : {
-                  "Module::Metadata" : "1.000033",
+                  "Module::Metadata" : "1.000037",
                   "version" : "0.004"
                }
             },
@@ -313,7 +313,7 @@
             "class" : "Dist::Zilla::Plugin::Git::Contributors",
             "config" : {
                "Dist::Zilla::Plugin::Git::Contributors" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "include_authors" : 0,
                   "include_releaser" : 1,
                   "order_by" : "name",
@@ -347,7 +347,7 @@
             "class" : "Dist::Zilla::Plugin::InstallGuide",
             "config" : {
                "Dist::Zilla::Role::ModuleMetadata" : {
-                  "Module::Metadata" : "1.000033",
+                  "Module::Metadata" : "1.000037",
                   "version" : "0.004"
                }
             },
@@ -368,12 +368,12 @@
             "class" : "Dist::Zilla::Plugin::DynamicPrereqs",
             "config" : {
                "Dist::Zilla::Role::ModuleMetadata" : {
-                  "Module::Metadata" : "1.000033",
+                  "Module::Metadata" : "1.000037",
                   "version" : "0.004"
                }
             },
             "name" : "DynamicPrereqs",
-            "version" : "0.034"
+            "version" : "0.037"
          },
          {
             "class" : "Dist::Zilla::Plugin::MakeMaker::Awesome",
@@ -383,12 +383,12 @@
                   "version" : "6.014"
                },
                "Dist::Zilla::Role::TestRunner" : {
-                  "default_jobs" : 1,
+                  "default_jobs" : "4",
                   "version" : "6.014"
                }
             },
             "name" : "MakeMaker::Awesome",
-            "version" : "0.47"
+            "version" : "0.48"
          },
          {
             "class" : "Dist::Zilla::Plugin::MojibakeTests",
@@ -471,8 +471,13 @@
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::MinimumVersion",
+            "config" : {
+               "Dist::Zilla::Plugin::Test::MinimumVersion" : {
+                  "max_target_perl" : null
+               }
+            },
             "name" : "Test::MinimumVersion",
-            "version" : "2.000008"
+            "version" : "2.000010"
          },
          {
             "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
@@ -628,7 +633,7 @@
                   "changelog" : "Changes"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "repo_root" : "."
                }
             },
@@ -644,7 +649,7 @@
             "class" : "Dist::Zilla::Plugin::RunExtraTests",
             "config" : {
                "Dist::Zilla::Role::TestRunner" : {
-                  "default_jobs" : 1
+                  "default_jobs" : "4"
                }
             },
             "name" : "RunExtraTests",
@@ -758,7 +763,7 @@
                   "changelog" : "Changes"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "repo_root" : "."
                },
                "Dist::Zilla::Role::Git::StringFormatter" : {
@@ -775,12 +780,12 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.44",
+                  "tag" : "v6.45",
                   "tag_format" : "v%V",
                   "tag_message" : "v%V"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "repo_root" : "."
                },
                "Dist::Zilla::Role::Git::StringFormatter" : {
@@ -830,7 +835,7 @@
                   "changelog" : "Changes"
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "repo_root" : "."
                },
                "Dist::Zilla::Role::Git::StringFormatter" : {
@@ -850,7 +855,7 @@
                   "remotes_must_exist" : 1
                },
                "Dist::Zilla::Role::Git::Repo" : {
-                  "git_version" : "2.26.0",
+                  "git_version" : "2.26.2",
                   "repo_root" : "."
                }
             },
@@ -973,6 +978,7 @@
       "Joe Atzberger <ohiocore@gmail.com>",
       "john9art <john9art@yahoo.com>",
       "John Wittkoski <jwittkoski@gmail.com>",
+      "Jonathan Dahan <jonathan@augwa.com>",
       "Julien Fiegehenn <simbabque@cpan.org>",
       "Karen Etheridge <ether@cpan.org>",
       "Katarina Durechova <katarina.durechova@nic.cz>",

@@ -300,10 +300,12 @@ sub request {
     my $response = $self->simple_request($request, $arg, $size);
     $response->previous($previous) if $previous;
 
-    if ($response->header('Location') && $response->redirects >= $self->{max_redirect}) {
-        $response->header("Client-Warning" =>
+    if ($response->redirects >= $self->{max_redirect}) {
+        if ($response->header('Location')) {
+            $response->header("Client-Warning" =>
                 "Redirect loop detected (max_redirect = $self->{max_redirect})"
-        );
+            );
+        }
         return $response;
     }
 

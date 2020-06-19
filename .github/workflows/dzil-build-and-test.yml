@@ -1,0 +1,153 @@
+---
+name: dzil build and test
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+  schedule:
+    - cron: "15 4 * * 0" # Every Sunday morning
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+    container:
+      image: perldocker/perl-tester:5.30
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Tests with coverage
+        env:
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
+          EXTENDED_TESTING: 1
+          RELEASE_TESTING: 1
+          NO_JIGSAW: 1
+          SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+        run: upgrade-perl-helpers && auto-build-and-test-dist
+      - uses: actions/upload-artifact@master
+        with:
+          name: build_dir
+          path: build_dir
+  test_linux:
+    runs-on: ubuntu-latest
+    name: Test distribution
+    needs: build
+    strategy:
+      matrix:
+        perl-version:
+          - "5.10"
+          - "5.12"
+          - "5.14"
+          - "5.16"
+          - "5.18"
+          - "5.20"
+          - "5.22"
+          - "5.24"
+          - "5.26"
+          - "5.28"
+          - "5.30"
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+      env:
+        AUTHOR_TESTING: 1
+        RELEASE_TESTING: 1
+        NO_JIGSAW: 1
+    steps:
+      - uses: actions/download-artifact@master
+        with:
+          name: build_dir
+          path: .
+      - name: Install deps and test
+        if: success()
+        env:
+          SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
+        run: cpan-install-dist-deps && test-dist
+  test_macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["macos-latest"]
+        perl-version:
+          - "5.10"
+          - "5.12"
+          - "5.14"
+          - "5.16"
+          - "5.18"
+          - "5.20"
+          - "5.22"
+          - "5.24"
+          - "5.26"
+          - "5.28"
+          - "5.30"
+    name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl-version }}
+      - uses: actions/download-artifact@master
+        with:
+          name: build_dir
+          path: .
+      - name: install deps using cpm
+        uses: perl-actions/install-with-cpm@v1.3
+        with:
+          cpanfile: "cpanfile"
+          args: "--with-suggests --with-recommends --with-test"
+      - run: prove -l t xt
+        env:
+          AUTHOR_TESTING: 1
+          RELEASE_TESTING: 1
+          NO_JIGSAW: 1
+          SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
+  test_windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["windows-latest"]
+        perl-version:
+          #- "5.10"
+          #- "5.12"
+          - "5.14"
+          - "5.16"
+          - "5.18"
+          - "5.20"
+          - "5.22"
+          - "5.24"
+          - "5.26"
+          - "5.28"
+          - "5.30"
+    name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl-version }}
+          distribution: strawberry
+      - uses: actions/download-artifact@master
+        with:
+          name: build_dir
+          path: .
+      - name: install deps using cpm
+        uses: perl-actions/install-with-cpm@v1.3
+        with:
+          cpanfile: "cpanfile"
+          args: "--with-suggests --with-recommends --with-test"
+      - run: prove -l t
+        env:
+          AUTHOR_TESTING: 1
+          RELEASE_TESTING: 1
+          NO_JIGSAW: 1

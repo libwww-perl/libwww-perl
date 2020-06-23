@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.46      2020-06-23 21:19:26Z
     - Fix a looping regression in 6.45 for redirect responses without
       a Location header (GH PR#342, Niko Tyni)
 

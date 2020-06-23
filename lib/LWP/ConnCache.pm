@@ -2,7 +2,7 @@ package LWP::ConnCache;
 
 use strict;
 
-our $VERSION = '6.46';
+our $VERSION = '6.47';
 our $DEBUG;
 
 sub new {

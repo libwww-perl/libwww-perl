@@ -49,7 +49,7 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-  test:
+  test-job:
     needs: build-job
     runs-on: ${{ matrix.os }}
     strategy:
@@ -80,7 +80,6 @@ jobs:
             perl-version: "5.32"
     name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
       - name: Set Up Perl
         uses: shogo82148/actions-setup-perl@v1
         with:

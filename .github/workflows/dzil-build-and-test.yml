@@ -44,7 +44,7 @@ jobs:
           name: build_dir
           path: .
       - name: Install deps and test
-        run: cpan-install-dist-deps && test-dist
+        run: cpan-install-dist-deps && cpanm -U -f Test::LeakTrace && test-dist
         env:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto

@@ -12,16 +12,14 @@ on:
     - cron: "15 4 * * 0" # Every Sunday morning
 
 jobs:
-  build:
+  build-job:
     name: Build distribution
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
     container:
-      image: perldocker/perl-tester:5.30
+      image: perldocker/perl-tester:5.32
     steps:
       - uses: actions/checkout@v2
-      - name: Run Tests with coverage
+      - name: Run Tests
         env:
           AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1
@@ -29,17 +27,33 @@ jobs:
           RELEASE_TESTING: 1
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: upgrade-perl-helpers && auto-build-and-test-dist
       - uses: actions/upload-artifact@master
         with:
           name: build_dir
           path: build_dir
-  test_linux:
+  coverage-job:
+    needs: build-job
     runs-on: ubuntu-latest
-    name: Test distribution
-    needs: build
+    container:
+      image: perldocker/perl-tester:5.32
+    steps:
+      - uses: actions/checkout@v2 # codecov wants to be inside a Git repository
+      - uses: actions/download-artifact@master
+        with:
+          name: build_dir
+          path: .
+      - name: Install deps and test
+        run: cpan-install-dist-deps && test-dist
+        env:
+          NO_JIGSAW: 1
+          SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+  test-linux-job:
+    needs: build-job
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         perl-version:
           - "5.10"
@@ -53,12 +67,10 @@ jobs:
           - "5.26"
           - "5.28"
           - "5.30"
+          - "5.32"
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
-      env:
-        AUTHOR_TESTING: 1
-        RELEASE_TESTING: 1
-        NO_JIGSAW: 1
+    name: Perl ${{ matrix.perl-version }}
     steps:
       - uses: actions/download-artifact@master
         with:
@@ -66,15 +78,18 @@ jobs:
           path: .
       - name: Install deps and test
         if: success()
+        run: cpan-install-dist-deps && test-dist
         env:
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
-        run: cpan-install-dist-deps && test-dist
-  test_macos:
-    runs-on: ${{ matrix.os }}
+          AUTHOR_TESTING: 1
+          RELEASE_TESTING: 1
+          NO_JIGSAW: 1
+  test-macos-job:
+    needs: build-job
+    runs-on: macos-latest
     strategy:
       fail-fast: true
       matrix:
-        os: ["macos-latest"]
         perl-version:
           - "5.10"
           - "5.12"
@@ -87,8 +102,8 @@ jobs:
           - "5.26"
           - "5.28"
           - "5.30"
-    name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
-    needs: build
+          - "5.32"
+    name: Perl ${{ matrix.perl-version }} on macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set Up Perl
@@ -110,12 +125,12 @@ jobs:
           RELEASE_TESTING: 1
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
-  test_windows:
-    runs-on: ${{ matrix.os }}
+  test-windows-job:
+    needs: build-job
+    runs-on: windows-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        os: ["windows-latest"]
         perl-version:
           #- "5.10"
           #- "5.12"
@@ -128,8 +143,8 @@ jobs:
           - "5.26"
           - "5.28"
           - "5.30"
-    name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
-    needs: build
+          - "5.32"
+    name: Perl ${{ matrix.perl-version }} on windows-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set Up Perl
@@ -146,7 +161,7 @@ jobs:
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
-      - run: prove -l t
+      - run: prove -l t xt
         env:
           AUTHOR_TESTING: 1
           RELEASE_TESTING: 1

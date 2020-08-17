@@ -4,7 +4,9 @@ use Test::More;
 use Test::Fatal;
 
 use Config;
+use File::Temp qw(tempfile);
 use FindBin qw($Bin);
+use HTTP::Cookies ();
 use HTTP::Daemon;
 use HTTP::Request;
 use IO::Socket;
@@ -63,7 +65,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 127;
+    plan tests => 130;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -413,6 +415,21 @@ sub _test {
         # Put max_size back how we found it.
         $ua->max_size(undef);
         like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
+    }
+    {
+        my ( $jar_fh, $jar_filename ) = tempfile;
+        my $jar = HTTP::Cookies->new( file => $jar_filename );
+        $jar->set_cookie( 1.1, "who", "cookie_man", "/", $base->host );
+        $ua->cookie_jar($jar);
+        my $req = HTTP::Request->new( GET => url("/echo", $base) );
+        my $res = $ua->request( $req );
+        # Must have cookie
+        ok($res->is_success);
+        ok($res->decoded_content =~ /Cookie:[^\n]+who\s*=\s*cookie_man/, "request had cookie header" )
+            or diag( $res->decoded_content );
+        $res = $ua->request( $req );
+        # Must have only one cookie
+        is( scalar( () = $res->decoded_content =~ /who\s*=\s*cookie_man/g ), 1, "request had only one cookie header" )
     }
     { # terminate server
         my $req = HTTP::Request->new(GET => url("/quit", $base));

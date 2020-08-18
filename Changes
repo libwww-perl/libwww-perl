@@ -1,7 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-    - Use GitHub workflows for CI
+    - Only add cookies from the jar if there aren't cookies in the request
+      (GH#347) (Doug Bell and Olaf Alders)
 
 6.46      2020-06-23 21:19:26Z
     - Fix a looping regression in 6.45 for redirect responses without

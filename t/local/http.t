@@ -4,7 +4,6 @@ use Test::More;
 use Test::Fatal;
 
 use Config;
-use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use HTTP::Cookies ();
 use HTTP::Daemon;
@@ -417,8 +416,7 @@ sub _test {
         like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
     }
     {
-        my ( $jar_fh, $jar_filename ) = tempfile;
-        my $jar = HTTP::Cookies->new( file => $jar_filename );
+        my $jar = HTTP::Cookies->new;
         $jar->set_cookie( 1.1, "who", "cookie_man", "/", $base->host );
         $ua->cookie_jar($jar);
         my $req = HTTP::Request->new( GET => url("/echo", $base) );

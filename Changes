@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.47      2020-08-18 15:27:27Z
     - Only add cookies from the jar if there aren't cookies in the request
       (GH#347) (Doug Bell and Olaf Alders)
 

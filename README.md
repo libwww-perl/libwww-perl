@@ -49,24 +49,24 @@ Extra layers of security (note the `cookie_jar` and `protocols_allowed`):
 
 # DESCRIPTION
 
-The [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) is a class implementing a web user agent.
-[LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) objects can be used to dispatch web requests.
+The [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) is a class implementing a web user agent.
+[LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) objects can be used to dispatch web requests.
 
-In normal use the application creates an [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) object, and
+In normal use the application creates an [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object, and
 then configures it with values for timeouts, proxies, name, etc. It
-then creates an instance of [HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) for the request that
+then creates an instance of [HTTP::Request](https://metacpan.org/pod/HTTP::Request) for the request that
 needs to be performed. This request is then passed to one of the
 request method the UserAgent, which dispatches it using the relevant
-protocol, and returns a [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.  There are
+protocol, and returns a [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.  There are
 convenience methods for sending the most common request types:
-["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#head), ["post" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#post),
-["put" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#put) and ["delete" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#delete).  When using these
+["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#head), ["post" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#post),
+["put" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#put) and ["delete" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#delete).  When using these
 methods, the creation of the request object is hidden as shown in the
 synopsis above.
 
 The basic approach of the library is to use HTTP-style communication
 for all protocol schemes.  This means that you will construct
-[HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) objects and receive [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) objects even
+[HTTP::Request](https://metacpan.org/pod/HTTP::Request) objects and receive [HTTP::Response](https://metacpan.org/pod/HTTP::Response) objects even
 for non-HTTP resources like _gopher_ and _ftp_.  In order to achieve
 even more similarity to HTTP-style communications, _gopher_ menus and
 file directories are converted to HTML documents.
@@ -79,7 +79,7 @@ The following constructor methods are available:
 
     my $ua2 = $ua->clone;
 
-Returns a copy of the [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) object.
+Returns a copy of the [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object.
 
 **CAVEAT**: Please be aware that the clone method does not copy or clone your
 `cookie_jar` attribute. Due to the limited restrictions on what can be used
@@ -90,7 +90,7 @@ attribute will be `undef` in the new object instance.
 
     my $ua = LWP::UserAgent->new( %options )
 
-This method constructs a new [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) object and returns it.
+This method constructs a new [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) object and returns it.
 Key/value pair arguments may be provided to set up the initial state.
 The following options correspond to attribute methods described below:
 
@@ -115,11 +115,11 @@ The following options correspond to attribute methods described below:
 
 The following additional options are also accepted: If the `env_proxy` option
 is passed in with a true value, then proxy settings are read from environment
-variables (see ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#env_proxy)). If `env_proxy` isn't provided, the
+variables (see ["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#env_proxy)). If `env_proxy` isn't provided, the
 `PERL_LWP_ENV_PROXY` environment variable controls if
-["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#env_proxy) is called during initialization.  If the
+["env\_proxy" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#env_proxy) is called during initialization.  If the
 `keep_alive` option value is defined and non-zero, then an `LWP::ConnCache` is set up (see
-["conn\_cache" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#conn_cache)).  The `keep_alive` value is passed on as the
+["conn\_cache" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#conn_cache)).  The `keep_alive` value is passed on as the
 `total_capacity` for the connection cache.
 
 `proxy` must be set as an arrayref of key/value pairs. `no_proxy` takes an
@@ -128,7 +128,7 @@ arrayref of domains.
 # ATTRIBUTES
 
 The settings of the configuration attributes modify the behaviour of the
-[LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) when it dispatches requests.  Most of these can also
+[LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent) when it dispatches requests.  Most of these can also
 be initialized by options passed to the constructor method.
 
 The following attribute methods are provided.  The attribute value is
@@ -160,7 +160,7 @@ with an optional version number separated by the `/` character.
     my $cache_obj = $ua->conn_cache;
     $ua->conn_cache( $cache_obj );
 
-Get/set the [LWP::ConnCache](https://metacpan.org/pod/LWP%3A%3AConnCache) object to use.  See [LWP::ConnCache](https://metacpan.org/pod/LWP%3A%3AConnCache)
+Get/set the [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache) object to use.  See [LWP::ConnCache](https://metacpan.org/pod/LWP::ConnCache)
 for details.
 
 ## cookie\_jar
@@ -172,8 +172,8 @@ Get/set the cookie jar object to use.  The only requirement is that
 the cookie jar object must implement the `extract_cookies($response)` and
 `add_cookie_header($request)` methods.  These methods will then be
 invoked by the user agent as requests are sent and responses are
-received.  Normally this will be a [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies) object or some
-subclass.  You are, however, encouraged to use [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP%3A%3ACookieJar%3A%3ALWP)
+received.  Normally this will be a [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) object or some
+subclass.  You are, however, encouraged to use [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP)
 instead.  See ["BEST PRACTICES"](#best-practices) for more information.
 
     use HTTP::CookieJar::LWP ();
@@ -188,8 +188,8 @@ The default is to have no cookie jar, i.e. never automatically add
 `Cookie` headers to the requests.
 
 Shortcut: If a reference to a plain hash is passed in, it is replaced with an
-instance of [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies) that is initialized based on the hash. This form
-also automatically loads the [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies) module.  It means that:
+instance of [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) that is initialized based on the hash. This form
+also automatically loads the [HTTP::Cookies](https://metacpan.org/pod/HTTP::Cookies) module.  It means that:
 
     $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
@@ -226,7 +226,7 @@ This is just a shortcut for
     $ua->default_headers( $headers_obj );
 
 Get/set the headers object that will provide default header values for
-any requests sent.  By default this will be an empty [HTTP::Headers](https://metacpan.org/pod/HTTP%3A%3AHeaders)
+any requests sent.  By default this will be an empty [HTTP::Headers](https://metacpan.org/pod/HTTP::Headers)
 object.
 
 ## from
@@ -240,7 +240,7 @@ defined in [RFC2822](https://tools.ietf.org/html/rfc2822). The `from` value
 is sent as the `From` header in the requests.
 
 The default is to not send a `From` header.  See
-["default\_headers" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#default_headers) for the more general interface that allow
+["default\_headers" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#default_headers) for the more general interface that allow
 any header to be defaulted.
 
 ## local\_address
@@ -250,7 +250,7 @@ any header to be defaulted.
 
 Get/set the local interface to bind to for network connections.  The interface
 can be specified as a hostname or an IP address.  This value is passed as the
-`LocalAddr` argument to [IO::Socket::INET](https://metacpan.org/pod/IO%3A%3ASocket%3A%3AINET).
+`LocalAddr` argument to [IO::Socket::INET](https://metacpan.org/pod/IO::Socket::INET).
 
 ## max\_redirect
 
@@ -260,7 +260,7 @@ can be specified as a hostname or an IP address.  This value is passed as the
 This reads or sets the object's limit of how many times it will obey
 redirection responses in a given request cycle.
 
-By default, the value is `7`. This means that if you call ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request)
+By default, the value is `7`. This means that if you call ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request)
 and the response is a redirect elsewhere which is in turn a
 redirect, and so on seven times, then LWP gives up after that seventh
 request.
@@ -296,7 +296,7 @@ true. _Do not turn this off_ unless you know what you are doing.
     $ua->protocols_allowed(['http',]);      # ONLY allow http
 
 By default, an object has neither a `protocols_allowed` list, nor a
-["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#protocols_forbidden) list.
+["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#protocols_forbidden) list.
 
 This reads (or sets) this user agent's list of protocols that the
 request methods will exclusively allow.  The protocol names are case
@@ -308,7 +308,7 @@ and attempts to use this user agent to access URLs with any other
 schemes (like `ftp://...`) will result in a 500 error.
 
 Note that having a `protocols_allowed` list causes any
-["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#protocols_forbidden) list to be ignored.
+["protocols\_forbidden" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#protocols_forbidden) list to be ignored.
 
 ## protocols\_forbidden
 
@@ -333,7 +333,7 @@ will result in a 500 error.
     $ua->requests_redirectable(['GET', 'HEAD',]); # the default
 
 This reads or sets the object's list of request names that
-["redirect\_ok" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#redirect_ok) will allow redirection for. By default, this
+["redirect\_ok" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#redirect_ok) will allow redirection for. By default, this
 is `['GET', 'HEAD']`, as per [RFC 2616](https://tools.ietf.org/html/rfc2616).
 To change to include `POST`, consider:
 
@@ -394,10 +394,10 @@ The options that LWP relates to are:
     variables `PERL_LWP_SSL_CA_PATH` and `HTTPS_CA_DIR` in order.
 
 Other options can be set and are processed directly by the SSL Socket implementation
-in use.  See [IO::Socket::SSL](https://metacpan.org/pod/IO%3A%3ASocket%3A%3ASSL) or [Net::SSL](https://metacpan.org/pod/Net%3A%3ASSL) for details.
+in use.  See [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL) or [Net::SSL](https://metacpan.org/pod/Net::SSL) for details.
 
 The libwww-perl core no longer bundles protocol plugins for SSL.  You will need
-to install [LWP::Protocol::https](https://metacpan.org/pod/LWP%3A%3AProtocol%3A%3Ahttps) separately to enable support for processing
+to install [LWP::Protocol::https](https://metacpan.org/pod/LWP::Protocol::https) separately to enable support for processing
 https-URLs.
 
 ## timeout
@@ -410,13 +410,13 @@ Get/set the timeout value in seconds. The default value is
 
 The request is aborted if no activity on the connection to the server
 is observed for `timeout` seconds.  This means that the time it takes
-for the complete transaction and the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) method to
+for the complete transaction and the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) method to
 actually return might be longer.
 
 When a request times out, a response object is still returned.  The response
 will have a standard HTTP Status Code (500).  This response will have the
 "Client-Warning" header set to the value of "Internal response".  See the
-["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method description below for further details.
+["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method description below for further details.
 
 # PROXY ATTRIBUTES
 
@@ -491,7 +491,7 @@ the active handlers:
     $ua->add_handler( $phase => \&cb, %matchspec )
 
 Add handler to be invoked in the given processing phase.  For how to
-specify `%matchspec` see ["Matching" in HTTP::Config](https://metacpan.org/pod/HTTP%3A%3AConfig#Matching).
+specify `%matchspec` see ["Matching" in HTTP::Config](https://metacpan.org/pod/HTTP::Config#Matching).
 
 The possible values `$phase` and the corresponding callback signatures are as
 follows.  Note that the handlers are documented in the order in which they will
@@ -529,7 +529,7 @@ be run, which is:
 - request\_send => sub { my($request, $ua, $handler) = @\_; ... }
 
     This handler gets a chance of handling requests before they're sent to the
-    protocol handlers.  It should return an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object if it
+    protocol handlers.  It should return an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object if it
     wishes to terminate the processing; otherwise it should return nothing.
 
     The `response_header` and `response_data` handlers will not be
@@ -563,7 +563,7 @@ be run, which is:
 - response\_redirect => sub { my($response, $ua, $handler) = @\_; ... }
 
     The handler is called in `$ua->request` after `response_done`.  If the
-    handler returns an [HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) object we'll start over with processing
+    handler returns an [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object we'll start over with processing
     this request instead.
 
 For all of these, `$handler` is a code reference to the handler that
@@ -601,7 +601,7 @@ provided, remove handlers from all phases.
 
 Be careful as calling this function with `%matchspec` that is not
 specific enough can remove handlers not owned by you.  It's probably
-better to use the ["set\_my\_handler" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#set_my_handler) method instead.
+better to use the ["set\_my\_handler" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#set_my_handler) method instead.
 
 The removed handlers are returned.
 
@@ -627,11 +627,11 @@ via the user agent.  The following request methods are provided:
     my $res = $ua->delete( $url, $field_name => $value, ... );
 
 This method will dispatch a `DELETE` request on the given URL.  Additional
-headers and content options are the same as for the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get)
+headers and content options are the same as for the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get)
 method.
 
-This method will use the DELETE() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
-to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) for a details on
+This method will use the DELETE() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
 how to pass form content and other advanced features.
 
 ## get
@@ -642,7 +642,7 @@ how to pass form content and other advanced features.
 This method will dispatch a `GET` request on the given URL.  Further
 arguments can be given to initialize the headers of the request. These
 are given as separate name/value pairs.  The return value is a
-response object.  See [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) for a description of the
+response object.  See [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
 interface it provides.
 
 There will still be a response object returned when LWP can't connect to the
@@ -694,7 +694,7 @@ response returned by the get() function.
     my $res = $ua->head( $url , $field_name => $value, ... );
 
 This method will dispatch a `HEAD` request on the given URL.
-Otherwise it works like the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method described above.
+Otherwise it works like the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method described above.
 
 ## is\_protocol\_supported
 
@@ -718,7 +718,7 @@ Tries to determine if you have access to the Internet. Returns `1` (true)
 if the built-in heuristics determine that the user agent is
 able to access the Internet (over HTTP) or `0` (false).
 
-See also [LWP::Online](https://metacpan.org/pod/LWP%3A%3AOnline).
+See also [LWP::Online](https://metacpan.org/pod/LWP::Online).
 
 ## mirror
 
@@ -732,7 +732,7 @@ this time, then nothing happens.  If the document has been updated, it
 will be downloaded again.  The modification time of the file will be
 forced to match that of the server.
 
-The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.
+The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 ## patch
 
@@ -750,16 +750,16 @@ The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3ARespo
 This method will dispatch a `PATCH` request on the given URL, with
 `%form` or `@form` providing the key/value pairs for the fill-in form
 content. Additional headers and content options are the same as for
-the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method.
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method.
 
 CAVEAT:
 
 This method can only accept content that is in key-value pairs when using
-[HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) prior to version `6.12`. Any use of hash or array
+[HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) prior to version `6.12`. Any use of hash or array
 references will result in an error prior to version `6.12`.
 
-This method will use the `PATCH` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
-to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) for a details on
+This method will use the `PATCH` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
 how to pass form content and other advanced features.
 
 ## post
@@ -774,10 +774,10 @@ how to pass form content and other advanced features.
 This method will dispatch a `POST` request on the given URL, with
 `%form` or `@form` providing the key/value pairs for the fill-in form
 content. Additional headers and content options are the same as for
-the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method.
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method.
 
-This method will use the `POST` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
-to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) for a details on
+This method will use the `POST` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
 how to pass form content and other advanced features.
 
 ## put
@@ -796,16 +796,16 @@ how to pass form content and other advanced features.
 This method will dispatch a `PUT` request on the given URL, with
 `%form` or `@form` providing the key/value pairs for the fill-in form
 content. Additional headers and content options are the same as for
-the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method.
+the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method.
 
 CAVEAT:
 
 This method can only accept content that is in key-value pairs when using
-[HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) prior to version `6.07`. Any use of hash or array
+[HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) prior to version `6.07`. Any use of hash or array
 references will result in an error prior to version `6.07`.
 
-This method will use the `PUT` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
-to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon) for a details on
+This method will use the `PUT` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
 how to pass form content and other advanced features.
 
 ## request
@@ -816,20 +816,20 @@ how to pass form content and other advanced features.
     my $res = $ua->request( $request, $content_cb, $read_size_hint );
 
 This method will dispatch the given `$request` object. Normally this
-will be an instance of the [HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) class, but any object with
-a similar interface will do. The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.
+will be an instance of the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) class, but any object with
+a similar interface will do. The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 The `request` method will process redirects and authentication
 responses transparently. This means that it may actually send several
-simple requests via the ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#simple_request) method described below.
+simple requests via the ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#simple_request) method described below.
 
-The request methods described above; ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#head),
-["post" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#post) and ["mirror" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#mirror) will all dispatch the request
+The request methods described above; ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get), ["head" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#head),
+["post" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#post) and ["mirror" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#mirror) will all dispatch the request
 they build via this method. They are convenience methods that simply hide the
 creation of the request object for you.
 
 The `$content_file`, `$content_cb` and `$read_size_hint` all correspond to
-options described with the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method above. Note that errors
+options described with the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get) method above. Note that errors
 writing to the content file (for example due to permission denied
 or the filesystem being full) will be reported via the `Client-Aborted`
 or `X-Died` response headers, and not the `is_success` method.
@@ -849,16 +849,16 @@ signal that there is no more content.
     my $res = $ua->simple_request( $request, $content_cb, $read_size_hint );
 
 This method dispatches a single request and returns the response
-received.  Arguments are the same as for the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) described above.
+received.  Arguments are the same as for the ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) described above.
 
-The difference from ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) is that `simple_request` will not try to
-handle redirects or authentication responses.  The ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) method
+The difference from ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) is that `simple_request` will not try to
+handle redirects or authentication responses.  The ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) method
 will, in fact, invoke this method for each simple request it sends.
 
 # CALLBACK METHODS
 
 The following methods will be invoked as requests are processed. These
-methods are documented here because subclasses of [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent)
+methods are documented here because subclasses of [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent)
 might want to override their behaviour.
 
 ## get\_basic\_credentials
@@ -868,7 +868,7 @@ might want to override their behaviour.
     # or a string that looks like "user:pass"
     my $creds = $ua->get_basic_credentials($realm, $uri, $isproxy);
 
-This is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) to retrieve credentials for documents
+This is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) to retrieve credentials for documents
 protected by Basic or Digest Authentication.  The arguments passed in
 is the `$realm` provided by the server, the `$uri` requested and a
 `boolean flag` to indicate if this is authentication against a proxy server.
@@ -880,13 +880,13 @@ example of this can be found in `lwp-request` program distributed
 with this library.
 
 The base implementation simply checks a set of pre-stored member
-variables, set up with the ["credentials" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#credentials) method.
+variables, set up with the ["credentials" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#credentials) method.
 
 ## prepare\_request
 
     $request = $ua->prepare_request( $request );
 
-This method is invoked by ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#simple_request). Its task is
+This method is invoked by ["simple\_request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#simple_request). Its task is
 to modify the given `$request` object by setting up various headers based
 on the attributes of the user agent. The return value should normally be the
 `$request` object passed in.  If a different request object is returned
@@ -906,14 +906,14 @@ before the request method returns.  In between these `$status` will be
 the fraction of the response currently received or the string "tick"
 if the fraction can't be calculated.
 
-When `$status` is "begin" the second argument is the [HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) object,
-otherwise it is the [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.
+When `$status` is "begin" the second argument is the [HTTP::Request](https://metacpan.org/pod/HTTP::Request) object,
+otherwise it is the [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 ## redirect\_ok
 
     my $bool = $ua->redirect_ok( $prospective_request, $response );
 
-This method is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#request) before it tries to follow a
+This method is called by ["request" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#request) before it tries to follow a
 redirection to the request in `$response`.  This should return a true
 value if this redirection is permissible.  The `$prospective_request`
 will be the request to be sent if this method returns true.
@@ -930,10 +930,10 @@ you can change in order to make your life easier.
 
 ## Handling Cookies
 
-You are encouraged to install [Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla%3A%3APublicSuffix) and use
-[HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP%3A%3ACookieJar%3A%3ALWP) as your cookie jar.  [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP%3A%3ACookieJar%3A%3ALWP) provides a
+You are encouraged to install [Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla::PublicSuffix) and use
+[HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP) as your cookie jar.  [HTTP::CookieJar::LWP](https://metacpan.org/pod/HTTP::CookieJar::LWP) provides a
 better security model matching that of current Web browsers when
-[Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla%3A%3APublicSuffix) is installed.
+[Mozilla::PublicSuffix](https://metacpan.org/pod/Mozilla::PublicSuffix) is installed.
 
     use HTTP::CookieJar::LWP ();
 
@@ -970,12 +970,12 @@ See [LWP](https://metacpan.org/pod/LWP) for a complete overview of libwww-perl5.
 and the scripts `lwp-request` and `lwp-download` for examples of
 usage.
 
-See [HTTP::Request](https://metacpan.org/pod/HTTP%3A%3ARequest) and [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) for a description of the
-message objects dispatched and received.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP%3A%3ARequest%3A%3ACommon)
-and [HTML::Form](https://metacpan.org/pod/HTML%3A%3AForm) for other ways to build request objects.
+See [HTTP::Request](https://metacpan.org/pod/HTTP::Request) and [HTTP::Response](https://metacpan.org/pod/HTTP::Response) for a description of the
+message objects dispatched and received.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+and [HTML::Form](https://metacpan.org/pod/HTML::Form) for other ways to build request objects.
 
-See [WWW::Mechanize](https://metacpan.org/pod/WWW%3A%3AMechanize) and [WWW::Search](https://metacpan.org/pod/WWW%3A%3ASearch) for examples of more
-specialized user agents based on [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent).
+See [WWW::Mechanize](https://metacpan.org/pod/WWW::Mechanize) and [WWW::Search](https://metacpan.org/pod/WWW::Search) for examples of more
+specialized user agents based on [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent).
 
 # COPYRIGHT AND LICENSE
 

@@ -2,6 +2,9 @@ Change history for libwww-perl
 
 {{$NEXT}}
 
+6.48      2020-09-15 21:58:57Z
+    - Support 308 Permanent Redirect (GH#349) (Galen Huntington)
+
 6.47      2020-08-18 15:27:27Z
     - Only add cookies from the jar if there aren't cookies in the request
       (GH#347) (Doug Bell and Olaf Alders)

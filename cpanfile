@@ -22,7 +22,7 @@ on 'runtime' => sub {
     requires 'HTTP::Request' => '6';
     requires 'HTTP::Request::Common' => '6';
     requires 'HTTP::Response' => '6';
-    requires 'HTTP::Status' => '6';
+    requires 'HTTP::Status' => '6.07';
     requires 'IO::Select';
     requires 'IO::Socket';
     requires 'LWP::MediaTypes' => '6';

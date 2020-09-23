@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Require network testing enabled for t/redirect.t (GH#351) (Olaf Alders)
 
 6.48      2020-09-20 15:25:51Z
     - Support 308 Permanent Redirect (GH#349) (Galen Huntington)

@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.49      2020-09-24 00:27:56Z
     - Require network testing enabled for t/redirect.t (GH#351) (Olaf Alders)
 
 6.48      2020-09-20 15:25:51Z

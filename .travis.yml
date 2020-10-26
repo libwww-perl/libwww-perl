@@ -7,9 +7,8 @@ addons:
 dist: trusty
 language: perl
 perl:
-  - dev
-  - "blead"
-  - "blead-thr"
+  - "5.32"
+  - "5.32-thr"
   - "5.30-thr"
   - "5.28-thr"
   - "5.26-thr"
@@ -22,6 +21,10 @@ perl:
   - "5.12-thr"
   - "5.10-thr"
   - "5.8-thr"
+  - "blead"
+  - "blead-thr"
+  - "dev"
+  - "dev-thr"
 cache:
   directories:
     - $HOME/perl5

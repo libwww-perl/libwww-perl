@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.50      2020-12-16 18:35:08Z
     - Fix RT #81381 - Make LWP::UserAgent robust to 5.17.6/5.18 hash
       randomization (GH#355) (Yves Orton and Olaf Alders)

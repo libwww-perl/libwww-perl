@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Sort keys in Pod example of constructor defaults (GH#356) (Olaf Alders)
 
 6.50      2020-12-16 18:35:08Z
     - Fix RT #81381 - Make LWP::UserAgent robust to 5.17.6/5.18 hash

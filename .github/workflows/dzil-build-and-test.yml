@@ -53,6 +53,7 @@ jobs:
     needs: build-job
     runs-on: "ubuntu-latest"
     strategy:
+      fail-fast: true
       matrix:
         os: [ubuntu-latest]
         perl-version:
@@ -95,6 +96,7 @@ jobs:
     needs: build-job
     runs-on: "macos-latest"
     strategy:
+      fail-fast: true
       matrix:
         os: [macos-latest]
         perl-version:
@@ -135,6 +137,7 @@ jobs:
     needs: build-job
     runs-on: "windows-latest"
     strategy:
+      fail-fast: true
       matrix:
         os: [windows-latest]
         perl-version:

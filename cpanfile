@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 on 'configure' => sub {
     requires 'ExtUtils::MakeMaker';
     requires 'Getopt::Long';
@@ -51,6 +54,14 @@ on 'test' => sub {
 
 on 'develop' => sub {
     requires 'Authen::NTLM' => '1.02';
-    requires 'Test::EOL' => '2.00',
-    requires 'Test::LeakTrace' => '0.16',
+    requires 'Pod::Coverage::TrustPod';
+    requires 'Test::EOL' => '2.00';
+    requires 'Test::LeakTrace' => '0.16';
+    requires 'Test::MinimumVersion';
+    requires 'Test::Mojibake';
+    requires 'Test::Pod';
+    requires 'Test::Pod::Coverage';
+    requires 'Test::Portability::Files';
+    requires 'Test::Spelling';
+    requires 'Test::Version';
 };

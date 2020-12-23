@@ -45,7 +45,7 @@ on 'runtime' => sub {
 
 on 'test' => sub {
     requires 'Test::Fatal';
-    requires 'Test::More';
+    requires 'Test::More', '0.96';
     requires 'Test::RequiresInternet';
     requires 'FindBin';
     requires 'Test::Needs';

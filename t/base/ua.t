@@ -162,7 +162,8 @@ is($ua->ssl_opts("verify_hostname"), 1, '$ua->ssl_opts("verify_hostname")');
 
 delete @ENV{grep /_proxy$/i, keys %ENV}; # clean out any proxy vars
 
-{
+SKIP: {
+    skip 'case insensitive ENV on Windows makes this fail', 3, if $^O eq 'MSWin32';
     $ENV{HTTP_PROXY}= "http://example.com";
     $ENV{http_proxy}= "http://otherexample.com";
     my @warn;

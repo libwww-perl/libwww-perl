@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.51      2020-12-29 22:09:04Z
     - Fix proxy test on Windows (GH#358) (Olaf Alders)
     - Sort keys in Pod example of constructor defaults (GH#356) (Olaf Alders)

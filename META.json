@@ -39,7 +39,7 @@
             "IO::Handle" : "0",
             "IPC::Open3" : "0",
             "Pod::Coverage::TrustPod" : "0",
-            "Test::EOL" : "0",
+            "Test::EOL" : "2.00",
             "Test::LeakTrace" : "0.16",
             "Test::MinimumVersion" : "0",
             "Test::Mojibake" : "0",
@@ -100,7 +100,7 @@
             "File::Spec" : "0",
             "FindBin" : "0",
             "Test::Fatal" : "0",
-            "Test::More" : "0",
+            "Test::More" : "0.96",
             "Test::Needs" : "0",
             "Test::RequiresInternet" : "0"
          }
@@ -109,96 +109,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.50",
+         "version" : "6.51",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.50"
+         "version" : "6.51"
       }
    },
    "release_status" : "stable",
@@ -215,10 +215,10 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.50",
+   "version" : "6.51",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.030003"
+         "version" : "5.026001"
       },
       "plugins" : [
          {
@@ -270,7 +270,7 @@
                },
                "Dist::Zilla::Role::ModuleMetadata" : {
                   "Module::Metadata" : "1.000037",
-                  "version" : "0.006"
+                  "version" : "0.004"
                }
             },
             "name" : "MetaProvides::Package",
@@ -321,7 +321,7 @@
                }
             },
             "name" : "Git::Contributors",
-            "version" : "0.035"
+            "version" : "0.036"
          },
          {
             "class" : "Dist::Zilla::Plugin::GithubMeta",
@@ -348,7 +348,7 @@
             "config" : {
                "Dist::Zilla::Role::ModuleMetadata" : {
                   "Module::Metadata" : "1.000037",
-                  "version" : "0.006"
+                  "version" : "0.004"
                }
             },
             "name" : "InstallGuide",
@@ -369,7 +369,7 @@
             "config" : {
                "Dist::Zilla::Role::ModuleMetadata" : {
                   "Module::Metadata" : "1.000037",
-                  "version" : "0.006"
+                  "version" : "0.004"
                }
             },
             "name" : "DynamicPrereqs",
@@ -781,7 +781,7 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.50",
+                  "tag" : "v6.51",
                   "tag_format" : "v%V",
                   "tag_message" : "v%V"
                },
@@ -982,7 +982,6 @@
       "john9art <john9art@yahoo.com>",
       "John Wittkoski <jwittkoski@gmail.com>",
       "Jonathan Dahan <jonathan@augwa.com>",
-      "Julien Fiegehenn <simbabque@cpan.org>",
       "Karen Etheridge <ether@cpan.org>",
       "Katarina Durechova <katarina.durechova@nic.cz>",
       "leedo <leedo@users.noreply.github.com>",
@@ -1015,6 +1014,7 @@
       "Sebastian Paaske T\u00f8rholm <Eckankar@gmail.com>",
       "Sergey Romanov <sromanov-dev@yandex.ru>",
       "Shoichi Kaji <skaji@cpan.org>",
+      "simbabque <simbabque@cpan.org>",
       "Slaven Rezic <slaven@rezic.de>",
       "Spiros Denaxas <s.denaxas@gmail.com>",
       "Steffen Ullrich <Steffen_Ullrich@genua.de>",
@@ -1037,8 +1037,8 @@
       "Yves Orton <yves.orton@booking.com>",
       "Zefram <zefram@fysh.org>"
    ],
-   "x_generated_by_perl" : "v5.30.3",
-   "x_serialization_backend" : "Cpanel::JSON::XS version 4.19",
+   "x_generated_by_perl" : "v5.26.1",
+   "x_serialization_backend" : "Cpanel::JSON::XS version 4.04",
    "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later"
 }
 

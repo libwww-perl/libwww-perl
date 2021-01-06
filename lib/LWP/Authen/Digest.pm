@@ -60,15 +60,6 @@ sub auth_header {
     }
 
     my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response);
-    if($request->method =~ /^(?:POST|PUT)$/) {
-	$md5->add($request->content);
-	my $content = $md5->hexdigest;
-	$md5->reset;
-	$md5->add(join(":", @digest[0..1], $content));
-	$md5->reset;
-	$resp{"message-digest"} = $md5->hexdigest;
-	push(@order, "message-digest");
-    }
     push(@order, "opaque");
     my @pairs;
     for (@order) {

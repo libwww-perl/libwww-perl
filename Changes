@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Remove block of code which creates message-digest auth request field
+      (GH#369) (Olaf Alders)
 
 6.51      2020-12-29 22:09:04Z
     - Fix proxy test on Windows (GH#358) (Olaf Alders)

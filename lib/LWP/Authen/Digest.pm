@@ -59,8 +59,7 @@ sub auth_header {
 	@resp{qw(qop cnonce nc)} = ("auth", $cnonce, $nc);
     }
 
-    my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response);
-    push(@order, "opaque");
+    my(@order) = qw(username realm qop algorithm uri nonce nc cnonce response opaque);
     my @pairs;
     for (@order) {
 	next unless defined $resp{$_};

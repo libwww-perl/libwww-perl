@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.52      2021-01-07 21:20:51Z
     - Remove block of code which creates message-digest auth request field
       (GH#369) (Olaf Alders)
 

@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Require HTTP::Daemon 6.12 for test (GH#374, GH#375) (fitzmorrispr, skaji)
 
 6.52      2021-01-07 21:20:51Z
     - Remove block of code which creates message-digest auth request field

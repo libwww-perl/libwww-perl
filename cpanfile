@@ -19,7 +19,6 @@ on 'runtime' => sub {
     requires 'HTML::Entities';
     requires 'HTML::HeadParser';
     requires 'HTTP::Cookies' => '6';
-    requires 'HTTP::Daemon' => '6';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';
     requires 'HTTP::Request' => '6';
@@ -44,6 +43,7 @@ on 'runtime' => sub {
 };
 
 on 'test' => sub {
+    requires 'HTTP::Daemon' => '6.12';
     requires 'Test::Fatal';
     requires 'Test::More', '0.96';
     requires 'Test::RequiresInternet';

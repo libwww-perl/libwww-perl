@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.53      2021-03-07 16:54:48Z
     - Require HTTP::Daemon 6.12 for test (GH#374, GH#375) (fitzmorrispr, skaji)
 

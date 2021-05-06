@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Be explicit in the prerequisite of HTTP::Status (GH#378) (Max Maischein)
     - Remove Authority section from dist.ini (GH#377) (Olaf Alders)
 
 6.53      2021-03-07 16:54:48Z

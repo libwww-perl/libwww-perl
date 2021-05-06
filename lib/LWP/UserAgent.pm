@@ -10,6 +10,7 @@ use HTTP::Response ();
 use HTTP::Date ();
 
 use LWP ();
+use HTTP::Status ();
 use LWP::Protocol ();
 
 use Scalar::Util qw(blessed);

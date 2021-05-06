@@ -121,7 +121,7 @@ sub daemonize {
         exit;  # terminate HTTP server
     };
 
-    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => '127.0.0.1') || die $!;
+    my $d = HTTP::Daemon->new(Timeout => 10, LocalAddr => 'localhost') || die $!;
     print "Pleased to meet you at: <URL:", $d->url, ">\n";
     open(STDOUT, $^O eq 'VMS'? ">nl: " : ">/dev/null");
 

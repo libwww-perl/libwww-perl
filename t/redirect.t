@@ -12,18 +12,18 @@ use Test::RequiresInternet;
 
 use LWP::UserAgent ();
 
-# Regarding the choice of 198.51.100.123 as a test IP address, please see
-# https://tools.ietf.org/html/rfc5737
+# Regarding the choice of 234.198.51.100 as a test IP address, please see
+# https://tools.ietf.org/html/rfc6676
 #
-# The RFC contains the following description for the block to which this
-# address belongs:
+# RFC 5737 reserves the block 198.51.100.0/24 (TEST-NET-2) for use in
+# documentation. However, some broken network setups may cause packets
+# for TEST-NET-2 to be filtered and this test to fail.
 #
-# Documentation Address Blocks
-#
-# The blocks 192.0.2.0/24 (TEST-NET-1), 198.51.100.0/24 (TEST-NET-2), and
-# 203.0.113.0/24 (TEST-NET-3) are provided for use in documentation.
+# The chosen address 234.198.51.100 is a multicast address derived
+# from TEST-NET-2. Since adjoining addresses might be valid addresses,
+# this particular address is less likely to get filtered.
 
-my $url = 'http://198.51.100.123/';
+my $url = 'http://234.198.51.100/';
 
 my $ua = LWP::UserAgent->new();
 

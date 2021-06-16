@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Attempt to avoid rare fails in redirect.t (GH#380) (Arne Johannessen)
 
 6.54      2021-05-06 17:53:56Z
     - Be explicit in the prerequisite of HTTP::Status (GH#378) (Max Maischein)

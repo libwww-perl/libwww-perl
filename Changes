@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.55      2021-06-17 13:57:06Z
     - Attempt to avoid rare fails in redirect.t (GH#380) (Arne Johannessen)
 

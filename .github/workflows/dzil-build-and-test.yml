@@ -89,10 +89,10 @@ jobs:
           args: "--with-suggests --with-recommends --with-test --with-develop"
       - name: install sendmail
         run: sudo apt-get install -y --no-install-recommends sendmail-bin
-      - run: prove -lr t xt
+      - run: prove -lr t
         env:
-          AUTHOR_TESTING: 1
-          RELEASE_TESTING: 1
+          AUTHOR_TESTING: 0
+          RELEASE_TESTING: 0
           NO_JIGSAW: 1
   macos-test-job:
     needs: build-job
@@ -131,10 +131,10 @@ jobs:
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test --with-develop"
-      - run: prove -lr t xt
+      - run: prove -lr t
         env:
-          AUTHOR_TESTING: 1
-          RELEASE_TESTING: 1
+          AUTHOR_TESTING: 0
+          RELEASE_TESTING: 0
           NO_JIGSAW: 1
   windows-test-job:
     needs: build-job

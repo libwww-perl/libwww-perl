@@ -10,6 +10,7 @@ on:
       - "*"
   schedule:
     - cron: "15 4 * * 0" # Every Sunday morning
+  workflow_dispatch:
 
 jobs:
   build-job:

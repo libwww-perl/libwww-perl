@@ -15,7 +15,7 @@ on:
 jobs:
   build-job:
     name: Build distribution
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: perldocker/perl-tester:5.34
     steps:
@@ -35,7 +35,7 @@ jobs:
           path: build_dir
   coverage-job:
     needs: build-job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: perldocker/perl-tester:5.34
     steps:
@@ -52,11 +52,11 @@ jobs:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
   ubuntu-test-job:
     needs: build-job
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
         perl-version:
           - "5.8"
           - "5.10"

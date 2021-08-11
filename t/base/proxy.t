@@ -35,7 +35,13 @@ for my $varname ( qw(ABSURDLY_NAMED_PROXY MY_PROXY) ) {
         'substitute CGI_HTTP_PROXY used in CGI environment';
 }
 
-{
+SKIP: {
+    skip "Environment variables are case-sensitive on this platform", 1
+	if do {
+	    local $ENV{TEST_CASE_SENSITIVITY} = "a";
+	    local $ENV{test_case_sensitivity} = "b";
+	    $ENV{TEST_CASE_SENSITIVITY} eq $ENV{test_case_sensitivity};
+	};
     my @warnings;
     local $SIG{__WARN__}   = sub { push @warnings, @_ };
     local $ENV{HTTP_PROXY} = 'http://uppercase-proxy.example.org:3128/';

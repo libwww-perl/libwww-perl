@@ -86,7 +86,7 @@ jobs:
         uses: perl-actions/install-with-cpm@v1
         with:
           cpanfile: "cpanfile"
-          args: "--with-suggests --with-recommends --with-test --with-develop"
+          args: "--with-suggests --with-recommends --with-test"
       - name: install sendmail
         run: sudo apt-get install -y --no-install-recommends sendmail-bin
       - run: prove -lr t
@@ -130,7 +130,7 @@ jobs:
         uses: perl-actions/install-with-cpm@v1
         with:
           cpanfile: "cpanfile"
-          args: "--with-suggests --with-recommends --with-test --with-develop"
+          args: "--with-suggests --with-recommends --with-test"
       - run: prove -lr t
         env:
           AUTHOR_TESTING: 0

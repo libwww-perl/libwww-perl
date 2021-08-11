@@ -59,10 +59,9 @@ instructions for doing that is available here:
 
 https://help.github.com/articles/creating-a-pull-request
 
-All pull requests for this distribution will be automatically tested on Linux
-by Travis at: https://travis-ci.com/libwww-perl/libwww-perl
-Results will be visible in the pull request on GitHub. Follow the appropriate
-links for details when tests fail.
+All pull requests for this distribution will be automatically tested on Linux,
+MacOS, and Windows by GitHub Workflows. Results will be visible in the pull
+request on GitHub. Follow the appropriate links for details when tests fail.
 
 If you have found a bug, but do not have an accompanying patch to fix it, you
 can submit an issue report here:
@@ -116,8 +115,8 @@ You can learn more about Dist::Zilla at http://dzil.org/
 
 This distribution maintains the generated `META.json` and either `Makefile.PL`
 or `Build.PL` in the repository. This allows two things:
-[Travis CI](https://travis-ci.org/) can build and test the distribution without
-requiring Dist::Zilla, and the distribution can be installed directly from
+GitHub Workflows can build and test the distribution without requiring
+Dist::Zilla, and the distribution can be installed directly from
 Github or a local git repository using `cpanm` for testing (again, not
 requiring Dist::Zilla).
 

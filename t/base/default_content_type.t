@@ -4,7 +4,7 @@ use Test::More;
 
 use LWP::UserAgent;
 use HTTP::Request ();
-plan tests => 6;
+plan tests => 18;
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -108,5 +108,45 @@ Content-Type: application/json
 
 {"cat":"dog"}
 EOT
+
+}
+
+# Provided Content-Type overrides default
+for my $call (qw(post put patch)) {
+    my $ucall = uc $call;
+
+    my $arg = [ 'Content-Type' => 'text/plain', Content => '{"cat":"dog"}' ];
+
+    is ($ua->$call($url, @$arg)->content, <<"EOT", "$call @$arg with override CT");
+$ucall http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 13
+Content-Type: text/plain
+
+{"cat":"dog"}
+EOT
+
+}
+
+# Any non-true content type means use default
+for my $ct (0, "", undef) {
+    for my $call (qw(post put patch)) {
+        my $ucall = uc $call;
+
+        my $arg = [ 'Content-Type' => $ct, Content => '{"cat":"dog"}' ];
+
+        my $desc = defined($ct) ? $ct : "<undef>";
+
+        my @desc_arg = map { defined $_ ? $_ : "<undef>" } @$arg;
+
+        is ($ua->$call($url, @$arg)->content, <<"EOT", "$call @desc_arg with false override CT '$desc' uses default");
+$ucall http://www.example.com
+User-Agent: foo/0.1
+Content-Length: 13
+Content-Type: application/json
+
+{"cat":"dog"}
+EOT
+    }
 
 }

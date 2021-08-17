@@ -447,7 +447,7 @@ sub get {
 
 sub _maybe_copy_default_content_type {
     my $self = shift;
-    my $req = shift;
+    my $req  = shift;
 
     my $default_ct = $self->default_header('Content-Type');
     return unless defined $default_ct;
@@ -462,11 +462,12 @@ sub _maybe_copy_default_content_type {
     # We only care about the final value, really
     my $ct;
 
-    my($k, $v);
-    while (($k,$v) = splice(@_, 0, 2)) {
+    my ($k, $v);
+    while (($k, $v) = splice(@_, 0, 2)) {
         if (lc($k) eq 'content') {
             $content = $v;
-        } elsif (lc($k) eq 'content-type') {
+        }
+        elsif (lc($k) eq 'content-type') {
             $ct = $v;
         }
     }

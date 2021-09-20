@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Update docs for protocols_allowed and protocols forbidden (GH#386) (Olaf Alders)
 
 6.56      2021-08-17 13:57:12Z
     - Update the CONTRIBUTING doc to no longer reference TravisCI. (GH #384) (Slaven Rezić)

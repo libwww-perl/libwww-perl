@@ -5,7 +5,7 @@ package LWP::Protocol::ftp;
 use base qw(LWP::Protocol);
 use strict;
 
-our $VERSION = '6.57';
+our $VERSION = '6.58';
 
 use Carp            ();
 use HTTP::Status    ();

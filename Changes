@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Add a test for "response_redirect" (GH#387) (James Raspass)
 
 6.57      2021-09-20 20:20:14Z
     - Update docs for protocols_allowed and protocols forbidden (GH#386) (Olaf Alders)

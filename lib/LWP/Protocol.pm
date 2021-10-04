@@ -223,9 +223,9 @@ appropriate for that access method. In other words, the
 L<LWP::Protocol/create> function calls the constructor for one of its
 subclasses.
 
-All derived C<LWP::Protocol> classes need to override the request()
+All derived C<LWP::Protocol> classes need to override the C<request()>
 method which is used to service a request. The overridden method can
-make use of the collect() function to collect together chunks of data
+make use of the C<collect()> method to collect together chunks of data
 as it is received.
 
 =head1 METHODS

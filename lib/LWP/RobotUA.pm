@@ -1,6 +1,6 @@
 package LWP::RobotUA;
 
-use base qw(LWP::UserAgent);
+use parent qw(LWP::UserAgent);
 
 our $VERSION = '6.58';
 

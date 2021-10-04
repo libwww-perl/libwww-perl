@@ -448,7 +448,7 @@ sub _test {
 
 {
     package MyUA;
-    use base 'LWP::UserAgent';
+    use parent 'LWP::UserAgent';
     sub get_basic_credentials {
         my($self, $realm, $uri, $proxy) = @_;
         if ($realm eq "libwww-perl" && $uri->rel($base) eq "basic") {
@@ -459,7 +459,7 @@ sub _test {
 }
 {
     package MyUA4;
-    use base 'LWP::UserAgent';
+    use parent 'LWP::UserAgent';
     sub get_basic_credentials {
         my($self, $realm, $uri, $proxy) = @_;
         if ($realm eq "libwww-perl-utf8" && $uri->rel($base)->path eq "basic_utf8") {
@@ -470,7 +470,7 @@ sub _test {
 }
 {
     package MyUA2;
-    use base 'LWP::UserAgent';
+    use parent 'LWP::UserAgent';
     sub get_basic_credentials {
         my($self, $realm, $uri, $proxy) = @_;
         if ($realm eq "libwww-perl-digest" && $uri->rel($base) eq "digest") {
@@ -481,7 +481,7 @@ sub _test {
 }
 {
     package MyUA3;
-    use base 'LWP::UserAgent';
+    use parent 'LWP::UserAgent';
     sub get_basic_credentials {
         my($self, $realm, $uri, $proxy) = @_;
         return ("irrelevant", "xyzzy");

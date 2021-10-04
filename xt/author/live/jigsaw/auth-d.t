@@ -9,7 +9,7 @@ use LWP::UserAgent;
 {
 
     package MyUA;
-    use base 'LWP::UserAgent';
+    use parent 'LWP::UserAgent';
 
     my @try = (['foo', 'bar'], ['', ''], ['guest', ''], ['guest', 'guest']);
 

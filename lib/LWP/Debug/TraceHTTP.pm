@@ -9,7 +9,7 @@ package LWP::Debug::TraceHTTP;
 # programs that use LWP.
 
 use strict;
-use base 'LWP::Protocol::http';
+use parent 'LWP::Protocol::http';
 
 our $VERSION = '6.58';
 

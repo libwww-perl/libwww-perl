@@ -11,7 +11,7 @@ our $VERSION = '6.58';
 
 require HTTP::Response;
 require HTTP::Status;
-use base qw(LWP::Protocol);
+use parent qw(LWP::Protocol);
 
 sub request {
     my($self, $request) = @_;

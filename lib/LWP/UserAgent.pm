@@ -2,7 +2,7 @@ package LWP::UserAgent;
 
 use strict;
 
-use base qw(LWP::MemberMixin);
+use parent qw(LWP::MemberMixin);
 
 use Carp ();
 use HTTP::Request ();

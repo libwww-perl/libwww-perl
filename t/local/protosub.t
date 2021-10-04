@@ -30,7 +30,7 @@ exit;
 
 {
     package myhttp;
-    use base 'LWP::Protocol';
+    use parent 'LWP::Protocol';
     use Test::More;
 
     sub new {

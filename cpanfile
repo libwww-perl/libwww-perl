@@ -11,7 +11,7 @@ on 'runtime' => sub {
     requires 'perl' => '5.008001';
     requires 'strict';
     requires 'warnings';
-    requires 'base';
+    requires 'parent' => '0.217';
     requires 'Digest::MD5';
     requires 'Encode' => '2.12';
     requires 'Encode::Locale';

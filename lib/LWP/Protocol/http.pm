@@ -8,7 +8,7 @@ require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
 
-use base qw(LWP::Protocol);
+use parent qw(LWP::Protocol);
 
 our @EXTRA_SOCK_OPTS;
 my $CRLF = "\015\012";

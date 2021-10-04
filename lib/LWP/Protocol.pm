@@ -1,6 +1,6 @@
 package LWP::Protocol;
 
-use base 'LWP::MemberMixin';
+use parent 'LWP::MemberMixin';
 
 our $VERSION = '6.58';
 
@@ -210,7 +210,7 @@ LWP::Protocol - Base class for LWP protocols
 =head1 SYNOPSIS
 
  package LWP::Protocol::foo;
- use base qw(LWP::Protocol);
+ use parent qw(LWP::Protocol);
 
 =head1 DESCRIPTION
 

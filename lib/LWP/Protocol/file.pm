@@ -1,6 +1,6 @@
 package LWP::Protocol::file;
 
-use base qw(LWP::Protocol);
+use parent qw(LWP::Protocol);
 
 use strict;
 

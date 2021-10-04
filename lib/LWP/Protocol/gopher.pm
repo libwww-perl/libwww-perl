@@ -16,7 +16,7 @@ require HTTP::Status;
 require IO::Socket;
 require IO::Select;
 
-use base qw(LWP::Protocol);
+use parent qw(LWP::Protocol);
 
 
 my %gopher2mimetype = (

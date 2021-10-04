@@ -23,7 +23,7 @@ exit;
 
 {
     package myhttp;
-    use base 'LWP::Protocol::http';
+    use parent 'LWP::Protocol::http';
 
     sub _conn_class {
         "myconn";
@@ -88,5 +88,6 @@ exit;
 }
 {
     package myhttp::Socket;
-    use base qw(myhttp::SocketMethods Net::HTTP);
+    use parent -norequire => qw(myhttp::SocketMethods);
+    use parent qw(Net::HTTP);
 }

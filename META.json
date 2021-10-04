@@ -77,7 +77,7 @@
             "URI" : "1.10",
             "URI::Escape" : "0",
             "WWW::RobotRules" : "6",
-            "base" : "0",
+            "parent" : "0.217",
             "perl" : "5.008001",
             "strict" : "0",
             "warnings" : "0"
@@ -1038,4 +1038,3 @@
    "x_serialization_backend" : "Cpanel::JSON::XS version 4.04",
    "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later"
 }
-

@@ -2,7 +2,7 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Add a test for "response_redirect" (GH#387) (James Raspass)
-    - Documentation fixes (Julien Fiegehenn)
+    - Improve documentation readability (GH#388) (Julien Fiegehenn)
     - Replace remaining uses of "base" with "parent" (GH#389) (James Raspass)
 
 6.57      2021-09-20 20:20:14Z

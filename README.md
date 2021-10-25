@@ -614,7 +614,7 @@ Set handlers private to the executing subroutine.  Works by defaulting
 an `owner` field to the `%matchspec` that holds the name of the called
 subroutine.  You might pass an explicit `owner` to override this.
 
-If $cb is passed as `undef`, remove the handler.
+If `$cb` is passed as `undef`, remove the handler.
 
 # REQUEST METHODS
 
@@ -630,7 +630,7 @@ This method will dispatch a `DELETE` request on the given URL.  Additional
 headers and content options are the same as for the ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#get)
 method.
 
-This method will use the DELETE() function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
+This method will use the `DELETE()` function from [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common)
 to build the request.  See [HTTP::Request::Common](https://metacpan.org/pod/HTTP::Request::Common) for a details on
 how to pass form content and other advanced features.
 
@@ -662,7 +662,7 @@ content is treated.  The following special field names are recognized:
     ':content_cb'     => \&callback
     ':read_size_hint' => $bytes
 
-If a $filename is provided with the `:content_file` option, then the
+If a `$filename` is provided with the `:content_file` option, then the
 response content will be saved here instead of in the response
 object.  If a callback is provided with the `:content_cb` option then
 this function will be called for each chunk of the response content as
@@ -684,9 +684,9 @@ number of callback invocations.
 
 The callback function is called with 3 arguments: a chunk of data, a
 reference to the response object, and a reference to the protocol
-object.  The callback can abort the request by invoking die().  The
+object.  The callback can abort the request by invoking `die()`.  The
 exception message will show up as the "X-Died" header field in the
-response returned by the get() function.
+response returned by the `$ua->get()` method.
 
 ## head
 

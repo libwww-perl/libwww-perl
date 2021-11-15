@@ -1009,6 +1009,7 @@ sub mirror
 
     my $response = $self->request($request, $tmpfile);
     if ( $response->header('X-Died') ) {
+        unlink($tmpfile);
         die $response->header('X-Died');
     }
 

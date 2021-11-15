@@ -1022,11 +1022,11 @@ sub mirror
 
         if ( defined $content_length and $file_length < $content_length ) {
             unlink($tmpfile);
-            die "Transfer truncated: " . "only $file_length out of $content_length bytes received\n";
+            die "Transfer truncated: only $file_length out of $content_length bytes received\n";
         }
         elsif ( defined $content_length and $file_length > $content_length ) {
             unlink($tmpfile);
-            die "Content-length mismatch: " . "expected $content_length bytes, got $file_length\n";
+            die "Content-length mismatch: expected $content_length bytes, got $file_length\n";
         }
         # The file was the expected length.
         else {

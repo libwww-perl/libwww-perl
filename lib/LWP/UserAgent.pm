@@ -1005,7 +1005,10 @@ sub mirror
             $request->header( 'If-Modified-Since' => HTTP::Date::time2str($mtime) );
         }
     }
-    my $tmpfile = "$file-$$";
+
+    require File::Temp;
+    my ($tmpfh, $tmpfile) = File::Temp::tempfile("$file-XXXXXX");
+    close($tmpfh) or die "Could not close tmpfile '$tmpfile': $!";
 
     my $response = $self->request($request, $tmpfile);
     if ( $response->header('X-Died') ) {

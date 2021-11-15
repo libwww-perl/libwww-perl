@@ -352,7 +352,7 @@ internal error response.
 The library automatically adds a "Host" and a "Content-Length" header
 to the HTTP request before it is sent over the network.
 
-For a GET request you might want to add a "If-Modified-Since" or
+For a GET request you might want to add an "If-Modified-Since" or
 "If-None-Match" header to make the request conditional.
 
 For a POST request you should add the "Content-Type" header.  When you

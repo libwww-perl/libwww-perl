@@ -1050,7 +1050,7 @@ Change history for libwww-perl
         successful ones. The status will still indicate failures.
         Steve Hay <steve.hay@uk.radan.com>.
     - HTML::Form's dump now also print alternative value names.
-    - HTML::Form will now pick up the phrase after a <input type=radio> or
+    - HTML::Form will now pick up the phrase after an <input type=radio> or
         <input type=checkbox> and use that as the name of the checked value.
     - HTML::Form's find_input now returns all inputs that match in array
         context. Based on patch by Mark Stosberg <markstos@cpan.org> in

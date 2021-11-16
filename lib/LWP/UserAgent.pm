@@ -1043,6 +1043,10 @@ sub mirror
             rename( $tmpfile, $file )
                 or die "Cannot rename '$tmpfile' to '$file': $!\n";
 
+            my $mode = 0666 &~ (umask() || 0);
+            chmod $mode, $file
+                or die sprintf("Cannot chmod %o '%s': %s\n", $mode, $file, $!);
+
             # make sure the file has the same last modification time
             if ( my $lm = $response->last_modified ) {
                 utime $lm, $lm, $file

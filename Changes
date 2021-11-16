@@ -3,6 +3,7 @@ Change history for libwww-perl
 {{$NEXT}}
 
 6.60      2021-12-17 22:29:57Z
+    - Mirror temporary file handling fixes (GH#393) (Ville Skyttä)
     - Warn if updating modification time of mirrored file fails (GH#399) (Ville Skyttä)
 
 6.59      2021-12-02 21:16:04Z

@@ -16,6 +16,7 @@ on 'runtime' => sub {
     requires 'Encode' => '2.12';
     requires 'Encode::Locale';
     requires 'File::Listing' => '6';
+    requires 'File::Temp';
     requires 'HTML::Entities';
     requires 'HTML::HeadParser';
     requires 'HTTP::Cookies' => '6';

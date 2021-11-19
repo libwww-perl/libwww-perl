@@ -121,7 +121,7 @@ sub collect
                 });
                 push(@{$response->{handlers}{response_done}}, {
                     callback => sub {
-                        close($fh) or die "Can't write to '$arg': $!";
+                        close($fh) or die "Can't close '$arg': $!";
                         undef($fh);
                     },
                 });

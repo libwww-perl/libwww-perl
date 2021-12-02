@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Use American English aspell master dictionary for POD spelling tests (GH#394) (Ville Skyttä)
+    - Remove unnecessary string concatenations in mirror error messages (GH#391) (Ville Skyttä)
+    - Spelling and grammar fixes (GH#390) (Ville Skyttä)
 
 6.58      2021-10-25 20:40:59Z
     - Add a test for "response_redirect" (GH#387) (James Raspass)

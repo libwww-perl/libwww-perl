@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Warn if updating modification time of mirrored file fails (GH#399) (Ville Skyttä)
 
 6.59      2021-12-02 21:16:04Z
     - Use American English aspell master dictionary for POD spelling tests (GH#394) (Ville Skyttä)

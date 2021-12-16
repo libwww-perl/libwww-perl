@@ -1041,7 +1041,8 @@ sub mirror
 
             # make sure the file has the same last modification time
             if ( my $lm = $response->last_modified ) {
-                utime $lm, $lm, $file;
+                utime $lm, $lm, $file
+                    or warn "Cannot update modification time of '$file': $!\n";
             }
         }
     }

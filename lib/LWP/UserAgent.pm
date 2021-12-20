@@ -14,7 +14,7 @@ use LWP ();
 use HTTP::Status ();
 use LWP::Protocol ();
 
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed openhandle);
 use Try::Tiny qw(try catch);
 
 our $VERSION = '6.62';
@@ -558,11 +558,13 @@ sub _process_colonic_headers {
 	    # Some sanity-checking...
 	    Carp::croak("A :content_file value can't be undef")
 		unless defined $arg;
-	    Carp::croak("A :content_file value can't be a reference")
-		if ref $arg;
-	    Carp::croak("A :content_file value can't be \"\"")
-		unless length $arg;
 
+	    unless ( defined openhandle($arg) ) {
+		    Carp::croak("A :content_file value can't be a reference")
+			if ref $arg;
+		    Carp::croak("A :content_file value can't be \"\"")
+			unless length $arg;
+	    }
 	}
 	elsif ($args->[$i] eq ':read_size_hint') {
 	    $size = $args->[$i + 1];

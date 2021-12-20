@@ -20,6 +20,17 @@ $dst->seek(0,0);
 is $dst->getline, "Test\n",
     "getstore mirrored into the \$dst filehandle";
 
+TODO: { local $TODO = "mirror should support filehandles";
+$dst = File::Temp->new("dst-XXXXXXXXX");
+$src->printflush(''); # update timestamp
+is LWP::Simple::mirror("file:$src", $dst), 200,
+    "Successful getstore into a File::Temp object";
+
+$dst->seek(0,0);
+is $dst->getline, "Test\n",
+    "getstore mirrored into the \$dst filehandle";
+}
+
 $dst = File::Temp->new("dst-XXXXXXXXX");
 my $res = LWP::UserAgent->new
     ->get("file:$src", ':content_file' => $dst);

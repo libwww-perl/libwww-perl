@@ -8,6 +8,7 @@ use strict;
 use Carp ();
 use HTTP::Status ();
 use HTTP::Response ();
+use Scalar::Util qw(openhandle);
 use Try::Tiny qw(try catch);
 
 my %ImplementedBy = (); # scheme => classname
@@ -110,8 +111,10 @@ sub collect
             if (!defined($arg) || !$response->is_success) {
                 $response->{default_add_content} = 1;
             }
-            elsif (!ref($arg) && length($arg)) {
-                open(my $fh, ">", $arg) or die "Can't write to '$arg': $!";
+            elsif (defined(openhandle($arg)) || !ref($arg) && length($arg)) {
+                my $existing_fh = defined(openhandle($arg));
+                my $mode = $existing_fh ? '>&' : '>';
+                open(my $fh, $mode, $arg) or die "Can't write to '$arg': $!";
                 binmode($fh);
                 push(@{$response->{handlers}{response_data}}, {
                     callback => sub {

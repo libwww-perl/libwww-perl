@@ -1043,9 +1043,13 @@ sub mirror
             rename( $tmpfile, $file )
                 or die "Cannot rename '$tmpfile' to '$file': $!\n";
 
-            my $mode = 0666 &~ (umask() || 0);
-            chmod $mode, $file
-                or die sprintf("Cannot chmod %o '%s': %s\n", $mode, $file, $!);
+            # Set standard file permissions if umask is supported.
+            # If not, leave what File::Temp created in effect.
+            if ( defined(my $umask = umask()) ) {
+                my $mode = 0666 &~ $umask;
+                chmod $mode, $file
+                    or die sprintf("Cannot chmod %o '%s': %s\n", $mode, $file, $!);
+            }
 
             # make sure the file has the same last modification time
             if ( my $lm = $response->last_modified ) {

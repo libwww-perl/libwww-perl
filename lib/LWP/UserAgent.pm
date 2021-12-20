@@ -1852,13 +1852,15 @@ Fields names that start with ":" are special.  These will not
 initialize headers of the request but will determine how the response
 content is treated.  The following special field names are recognized:
 
-    ':content_file'   => $filename
+    ':content_file'   => $filename # or $filehandle
     ':content_cb'     => \&callback
     ':read_size_hint' => $bytes
 
-If a C<$filename> is provided with the C<:content_file> option, then the
-response content will be saved here instead of in the response
-object.  If a callback is provided with the C<:content_cb> option then
+If a C<$filename> or C<$filehandle> is provided with the C<:content_file>
+option, then the response content will be saved here instead of in
+the response object.  The C<$filehandle> may also be an object with
+an open file descriptor, such as a L<File::Temp> object.
+If a callback is provided with the C<:content_cb> option then
 this function will be called for each chunk of the response content as
 it is received from the server.  If neither of these options are
 given, then the response content will accumulate in the response

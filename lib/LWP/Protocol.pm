@@ -265,6 +265,7 @@ specified scheme is not supported.
     $response = $protocol->request($request, $proxy, undef);
     $response = $protocol->request($request, $proxy, '/tmp/sss');
     $response = $protocol->request($request, $proxy, \&callback, 1024);
+    $response = $protocol->request($request, $proxy, $fh);
 
 Dispatches a request over the protocol, and returns a response
 object. This method needs to be overridden in subclasses.  Refer to
@@ -281,6 +282,8 @@ file, or by calling a callback. If the first parameter is undefined, then the
 content is stored within the C<$response>. If it's a simple scalar, then it's
 interpreted as a file name and the content is written to this file.  If it's a
 code reference, then content is passed to this routine.
+If it is a filehandle, or similar, such as a L<File::Temp> object,
+content will be written to it.
 
 The collector is a routine that will be called and which is
 responsible for returning pieces (as ref to scalar) of the content to

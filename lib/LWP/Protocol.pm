@@ -113,7 +113,7 @@ sub collect
             }
             elsif (defined(openhandle($arg)) || !ref($arg) && length($arg)) {
                 my $existing_fh = defined(openhandle($arg));
-                my $mode = $existing_fh ? '>&' : '>';
+                my $mode = $existing_fh ? '>&=' : '>';
                 open(my $fh, $mode, $arg) or die "Can't write to '$arg': $!";
                 binmode($fh);
                 push(@{$response->{handlers}{response_data}}, {
@@ -124,7 +124,9 @@ sub collect
                 });
                 push(@{$response->{handlers}{response_done}}, {
                     callback => sub {
-                        close($fh) or die "Can't write to '$arg': $!";
+                        unless ($existing_fh) {
+                            close($fh) or die "Can't write to '$arg': $!";
+                        }
                         undef($fh);
                     },
                 });

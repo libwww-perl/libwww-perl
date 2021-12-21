@@ -5,6 +5,7 @@ use strict;
 use parent qw(LWP::MemberMixin);
 
 use Carp ();
+use File::Copy ();
 use HTTP::Request ();
 use HTTP::Response ();
 use HTTP::Date ();
@@ -1035,12 +1036,9 @@ sub mirror
         # The file was the expected length.
         else {
             # Replace the stale file with a fresh copy
-            if ( -e $file ) {
-                # Some DOSish systems fail to rename if the target exists
-                chmod 0777, $file;
-                unlink $file;
-            }
-            rename( $tmpfile, $file )
+            # File::Copy will attempt to do it atomically,
+            # and fall back to a delete + copy if that fails.
+            File::Copy::move( $tmpfile, $file )
                 or die "Cannot rename '$tmpfile' to '$file': $!\n";
 
             # Set standard file permissions if umask is supported.
@@ -1925,6 +1923,8 @@ time of the file.  If the document on the server has not changed since
 this time, then nothing happens.  If the document has been updated, it
 will be downloaded again.  The modification time of the file will be
 forced to match that of the server.
+
+Uses L<File::Copy/move> to attempt to atomically replace the C<$filename>.
 
 The return value is an L<HTTP::Response> object.
 

@@ -15,6 +15,7 @@ on 'runtime' => sub {
     requires 'Digest::MD5';
     requires 'Encode' => '2.12';
     requires 'Encode::Locale';
+    requires 'File::Copy';
     requires 'File::Listing' => '6';
     requires 'File::Temp';
     requires 'Getopt::Long';

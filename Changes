@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Use File::Copy::move to attempt an atomic mirror (GH#401) (Andrew Fresh)
 
 6.60      2021-12-17 22:29:57Z
     - Mirror temporary file handling fixes (GH#393) (Ville Skyttä)

@@ -732,6 +732,8 @@ this time, then nothing happens.  If the document has been updated, it
 will be downloaded again.  The modification time of the file will be
 forced to match that of the server.
 
+Uses ["move" in File::Copy](https://metacpan.org/pod/File::Copy#move) to attempt to atomically replace the `$filename`.
+
 The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP::Response) object.
 
 ## patch

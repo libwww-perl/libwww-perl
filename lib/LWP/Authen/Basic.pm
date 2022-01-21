@@ -2,7 +2,7 @@ package LWP::Authen::Basic;
 
 use strict;
 
-our $VERSION = '6.61';
+our $VERSION = '6.62';
 
 require Encode;
 require MIME::Base64;

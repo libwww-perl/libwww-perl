@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.61      2022-01-21 21:41:18Z
     - Use File::Copy::move to attempt an atomic mirror (GH#401) (Andrew Fresh)
     - Require Getopt::Long at runtime, too (GH#402) (Ville Skyttä)

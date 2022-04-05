@@ -751,26 +751,43 @@ sub parse_head {
         my $flag = shift;
         my $parser;
         my $old = $self->set_my_handler("response_header", $flag ? sub {
-               my($response, $ua) = @_;
-               require HTML::HeadParser;
-               $parser = HTML::HeadParser->new;
-               $parser->xml_mode(1) if $response->content_is_xhtml;
-               $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
+                my($response, $ua) = @_;
+                require HTML::HeadParser;
+                $parser = HTML::HeadParser->new;
+                $parser->xml_mode(1) if $response->content_is_xhtml;
+                $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
 
-               push(@{$response->{handlers}{response_data}}, {
-		   callback => sub {
-		       return unless $parser;
-		       unless ($parser->parse($_[3])) {
-			   my $h = $parser->header;
-			   my $r = $_[0];
-			   for my $f ($h->header_field_names) {
-			       $r->init_header($f, [$h->header($f)]);
-			   }
-			   undef($parser);
-		       }
-		   },
-	       });
-
+                push(@{$response->{handlers}{response_data}}, {
+                    callback => sub {
+                        return unless $parser;
+                        unless ($parser->parse($_[3])) {
+                            my $h = $parser->header;
+                            my $r = $_[0];
+                            for my $f ($h->header_field_names) {
+                                $r->init_header($f, [$h->header($f)]);
+                            }
+                            undef($parser);
+                        }
+                    },
+                });
+                push(@{$response->{handlers}{response_redirect}}, {
+                    callback => sub {
+                        my ($res, $ua, $handler, $data) = @_;
+                        my ($refresh) = $res->remove_header('refresh')
+                            or return;
+                        my ($url) = $refresh =~ /;\s*url\s*=\s*['"]?([^"'>]+)/i
+                            or return;
+                        require HTML::Entities;
+                        HTML::Entities::decode($url);
+                        my $uri = URI->new_abs($url, $res->request->uri)->canonical;
+                        my $base = $res->request->uri;
+                        my $uri = $base->new_abs($url, $base);
+                        return if $uri == $base;
+                        return HTTP::Request->new(
+                            GET => $uri, [referer => $base]
+                        );
+                    },
+                });
             } : undef,
             m_media_type => "html",
         );

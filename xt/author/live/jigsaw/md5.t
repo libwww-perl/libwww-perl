@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::RequiresInternet ('jigsaw.w3.org' => 80);
+use Test::RequiresInternet ('jigsaw.w3.org' => 443);
 
 use Digest::MD5 qw(md5_base64);
 use HTTP::Request;
@@ -11,7 +11,7 @@ plan tests => 5;
 
 my $ua = LWP::UserAgent->new(keep_alive => 1);
 
-my $req = HTTP::Request->new(GET => "http://jigsaw.w3.org/HTTP/h-content-md5.html");
+my $req = HTTP::Request->new(GET => "https://jigsaw.w3.org/HTTP/h-content-md5.html");
 $req->header("TE", "deflate");
 
 my $res = $ua->request($req);

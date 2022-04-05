@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::RequiresInternet ('jigsaw.w3.org' => 80);
+use Test::RequiresInternet ('jigsaw.w3.org' => 443);
 
 use HTTP::Request;
 use LWP::UserAgent;
@@ -16,7 +16,7 @@ my $data = {foo => 'bar', baz => 'quux'};
 my $encoded_data = encode_utf8(encode_json($data));
 
 # 307 not redirectable.
-my $req = HTTP::Request->new('POST', "http://jigsaw.w3.org/HTTP/300/Go_307", undef, undef);
+my $req = HTTP::Request->new('POST', "https://jigsaw.w3.org/HTTP/300/Go_307", undef, undef);
 my $res = $ua->request($req);
 isa_ok($res, 'HTTP::Response', 'request: Got a proper response');
 is($res->code, 307, 'Got a 307 response');

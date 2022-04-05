@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.62      2022-04-05 01:04:17Z
     - Allow downloading to a filehandle (GH#400) (Andrew Fresh)
 
 6.61      2022-01-21 21:41:18Z

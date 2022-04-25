@@ -4,7 +4,7 @@ use parent qw(LWP::Protocol);
 
 use strict;
 
-our $VERSION = '6.63';
+our $VERSION = '6.64';
 
 require LWP::MediaTypes;
 require HTTP::Request;

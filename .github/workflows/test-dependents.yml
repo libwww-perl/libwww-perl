@@ -1,0 +1,27 @@
+---
+name: test dependent modules
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test-job:
+    name: Build distribution
+    runs-on: ubuntu-20.04
+    container:
+      image: perldocker/perl-tester:5.34
+    steps:
+      - uses: actions/checkout@v2
+      - name: install extra modules
+        run: cpm install -g Test::DependentModules
+      - name: Run Tests
+        env:
+          AUTHOR_TESTING: 0
+          AUTOMATED_TESTING: 1
+          EXTENDED_TESTING: 1
+          RELEASE_TESTING: 1
+        run: auto-build-and-test-dist
+      - name: Test Dependents
+        env:
+          TEST_DEPENDENTS: 1
+        run: prove -l xt/dependent-modules.t

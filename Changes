@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.65      2022-05-09 18:36:14Z
     - fix NAME in Makefile.PL (GH#413) (Graham Knop)
 

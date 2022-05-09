@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - fix NAME in Makefile.PL (GH#413) (Graham Knop)
 
 6.64      2022-04-26 13:16:03Z
     - Remove unused variable introduced in 9d73bc422 (GH#411) (Olaf Alders)

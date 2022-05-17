@@ -64,7 +64,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 134;
+    plan tests => 130;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -229,15 +229,6 @@ sub _test {
         is($ua->max_redirect(), 5, 'redirect loop: max redirect 5');
         $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'redirect loop: good response object');
-    }
-    { # meta refresh
-        my $req = HTTP::Request->new(GET => url("/meta_refresh", $base));
-        my $res = $ua->request($req);
-
-        ok($res->is_success, 'meta_refresh: is_success');
-        like($res->content, qr|/echo/meta_refresh|, 'meta_refresh: content good');
-        is($res->previous->code, 200, 'meta_refresh: code 200');
-        is($res->redirects, 1, 'meta_refresh redirect count: 1');
     }
     { # basic auth
         my $req = HTTP::Request->new(GET => url("/basic", $base));
@@ -654,20 +645,6 @@ sub daemonize {
     $router{get_redirect2} = sub { shift->send_redirect("/redirect3/") };
     $router{get_redirect3} = sub { shift->send_redirect("/redirect2/") };
     $router{get_redirect4} = sub { my $r = HTTP::Response->new(303); shift->send_response($r) };
-    $router{get_meta_refresh} = sub {
-        my($c,$r) = @_;
-        $c->send_basic_header;
-        $c->print("Content-Type: text/html");
-        $c->send_crlf;
-        $c->send_crlf;
-        $c->print(<<'        HTML');
-            <html>
-            <head>
-            <meta http-equiv='refresh' content='0; url=/echo/meta_refresh' />
-            </head>
-            </html>
-        HTML
-    };
     $router{post_echo} = sub {
         my($c,$r) = @_;
         $c->send_basic_header;

@@ -64,7 +64,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 136;
+    plan tests => 134;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -238,12 +238,6 @@ sub _test {
         like($res->content, qr|/echo/meta_refresh|, 'meta_refresh: content good');
         is($res->previous->code, 200, 'meta_refresh: code 200');
         is($res->redirects, 1, 'meta_refresh redirect count: 1');
-
-        $ua->max_redirect(0);
-        $res = $ua->request($req);
-        is($res->redirects, 0, 'meta_refresh redirect loop: 0 redirects');
-        like($res->header("Client-Warning"), qr/loop detected/i, 'meta_refresh redirect loop: client warning');
-        $ua->max_redirect(5);
     }
     { # basic auth
         my $req = HTTP::Request->new(GET => url("/basic", $base));

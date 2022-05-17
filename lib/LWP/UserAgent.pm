@@ -778,6 +778,7 @@ sub parse_head {
                             or return;
                         require HTML::Entities;
                         HTML::Entities::decode($url);
+                        my $uri = URI->new_abs($url, $res->request->uri)->canonical;
                         my $base = $res->request->uri;
                         my $uri = $base->new_abs($url, $base);
                         return if $uri == $base;

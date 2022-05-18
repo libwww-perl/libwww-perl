@@ -112,96 +112,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.65",
+         "version" : "6.66",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.65"
+         "version" : "6.66"
       }
    },
    "release_status" : "stable",
@@ -218,7 +218,7 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.65",
+   "version" : "6.66",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.034001"
@@ -779,7 +779,7 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.65",
+                  "tag" : "v6.66",
                   "tag_format" : "v%V",
                   "tag_message" : "v%V"
                },

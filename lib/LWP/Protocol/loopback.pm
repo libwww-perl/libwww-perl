@@ -2,7 +2,7 @@ package LWP::Protocol::loopback;
 
 use strict;
 
-our $VERSION = '6.66';
+our $VERSION = '6.67';
 
 require HTTP::Response;
 

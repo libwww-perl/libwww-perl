@@ -64,7 +64,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 130;
+    plan tests => 137;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -394,9 +394,21 @@ sub _test {
         ok($res->is_success, 'mirror: is_success');
 
         ok(-s $copy, 'mirror: file exists and is not empty');
+
+        my $res_exists = $ua->mirror(url("/echo/foo", $base), $copy);
+        isa_ok($res_exists, 'HTTP::Response', 'mirror: good response object when file exists');
+        ok($res_exists->is_success, 'mirror: is_success when file exists');
+        ok($res_exists->request->header('if-modified-since'), 'mirror: If-Modified-Since header was set');
         unlink($copy);
 
-        $ua->mirror(url("/echo/foo", $base),q{0});
+        my $res_modified = $ua->mirror(url("/echo_modified/foo", $base), $copy);
+        isa_ok($res_modified, 'HTTP::Response', 'mirror: good response object with modified header');
+        ok($res_modified->is_success, 'mirror: is_success with modified header');
+        ok($res_modified->last_modified, 'mirror: last_modified header set');
+        is( (stat $copy)[9], 1, 'mirror: mtime on file was set');
+        unlink($copy);
+
+        $ua->mirror(url("/echo/foo", $base), q{0});
         ok(1, 'can write to a file called 0');
         unlink('0');
     }
@@ -673,6 +685,15 @@ sub daemonize {
         my($c, $req) = @_;
         $c->send_basic_header(200);
         $c->print("Content-Type: message/http\015\012");
+        $c->send_crlf;
+        $c->print($req->as_string);
+    };
+    $router{get_echo_modified} = sub {
+        my($c, $req) = @_;
+        $c->send_basic_header(200);
+        $c->print("Content-Type: message/http\015\012");
+        $c->print("Last-Modified: Thu, 1 Jan 1970 00:00:01 GMT"); # epoch 1
+        $c->send_crlf;
         $c->send_crlf;
         $c->print($req->as_string);
     };

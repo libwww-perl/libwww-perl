@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Apply perlimports to tests (GH#418) (Olaf Alders)
 
 6.67      2022-06-14 20:20:12Z
     - Remove undocumented LWP::Version sub (GH#416) (James Raspass)

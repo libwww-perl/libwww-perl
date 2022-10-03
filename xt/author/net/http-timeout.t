@@ -2,9 +2,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use FindBin qw($Bin);
-use HTTP::Request;
-use LWP::UserAgent;
+use FindBin qw( $Bin );
+use HTTP::Request ();
+use LWP::UserAgent ();
 
 if (!-e "$Bin/config.pl") {
     plan skip_all => 'no net config file';

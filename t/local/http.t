@@ -1,16 +1,15 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Fatal;
+use Test::Fatal qw( exception );
 
-use Config;
-use FindBin qw($Bin);
+use Config qw( %Config );
+use FindBin qw( $Bin );
 use HTTP::Cookies ();
-use HTTP::Daemon;
-use HTTP::Request;
-use IO::Socket;
-use LWP::UserAgent;
-use URI;
+use HTTP::Daemon ();
+use HTTP::Request ();
+use LWP::UserAgent ();
+use URI ();
 use utf8;
 
 delete $ENV{PERL_LWP_ENV_PROXY};

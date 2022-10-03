@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use LWP::UserAgent;
+use LWP::UserAgent ();
 plan tests => 9;
 
 # Prevent environment from interfering with test:

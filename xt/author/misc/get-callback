@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use LWP::UserAgent;
+use LWP::UserAgent ();
 
 my $url = shift || "";
 $url = "http://localhost:8080/$url" unless $url =~ /:/;

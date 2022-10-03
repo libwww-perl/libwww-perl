@@ -3,8 +3,7 @@ use warnings;
 use Test::More;
 use Test::RequiresInternet ('jigsaw.w3.org' => 443);
 
-use HTTP::Request;
-use LWP::UserAgent;
+use HTTP::Request ();
 
 {
 

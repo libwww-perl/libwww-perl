@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use LWP::UserAgent;
+use LWP::UserAgent ();
 
 my $file = shift || "";
 my $to = $file;

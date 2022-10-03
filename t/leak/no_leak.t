@@ -9,7 +9,7 @@ use Test::More;
 use Test::Needs 'Test::LeakTrace';
 
 use File::Temp ();
-use LWP::UserAgent;
+use LWP::UserAgent ();
 
 plan skip_all => 'skip leak test in COVERAGE' if $ENV{COVERAGE};
 

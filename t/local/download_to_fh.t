@@ -2,10 +2,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use File::Temp;
-use LWP::UserAgent;
-use LWP::Simple;
-require LWP::Protocol::file;
+use File::Temp ();
+use LWP::UserAgent ();
+use LWP::Simple qw( $ua );
 
 my $src = File::Temp->new("src-XXXXXXXXX");
 my $dst = File::Temp->new("dst-XXXXXXXXX");

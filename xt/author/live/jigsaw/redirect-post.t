@@ -3,10 +3,10 @@ use warnings;
 use Test::More;
 use Test::RequiresInternet ('jigsaw.w3.org' => 443);
 
-use HTTP::Request;
-use LWP::UserAgent;
-use JSON::PP qw(encode_json);
-use Encode qw(encode_utf8);
+use HTTP::Request ();
+use LWP::UserAgent ();
+use JSON::PP qw( encode_json );
+use Encode qw( encode_utf8 );
 
 plan tests => 10;
 

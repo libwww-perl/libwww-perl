@@ -2,13 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 
-use Config;
-use FindBin qw($Bin);
-use HTTP::Daemon;
-use HTTP::Request;
-use IO::Socket;
-use LWP::RobotUA;
-use URI;
+use Config qw( %Config );
+use FindBin qw( $Bin );
+use HTTP::Daemon ();
+use LWP::RobotUA ();
+use URI ();
 use utf8;
 
 delete $ENV{PERL_LWP_ENV_PROXY};

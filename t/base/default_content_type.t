@@ -14,17 +14,6 @@ delete $ENV{PERL_LWP_SSL_CA_FILE};
 delete $ENV{PERL_LWP_SSL_CA_PATH};
 delete $ENV{PERL_LWP_ENV_PROXY};
 
-# we can only use HTTP::Request >= 6.07
-my $ver          = $HTTP::Request::VERSION || '6.00';
-my $ver_ok       = eval { HTTP::Request->VERSION("6.07"); };
-my $patch_ver_ok = eval { HTTP::Request->VERSION("6.12"); };
-diag "Some tests for the PUT/PATCH methods can only be run on ";
-diag "HTTP::Request version 6.07/6.12 or higher.";
-diag "If your version isn't good enough, we'll skip those.";
-diag "Your version is $ver and that's "
-    . ($ver_ok ? '' : 'not ')
-    . 'good enough';
-
 # default_header 'Content-Type' should be honored in POST/PUT
 # if the "Content => 'string'" form is used. Otherwise, x-www-form-urlencoded
 # will be used
@@ -36,8 +25,6 @@ $ua->agent("foo/0.1");
 
 # These forms will all be x-www-form-urlencoded
 subtest 'PATCH x-www-form-urlencoded' => sub {
-    plan skip_all => "HTTP::Request version not high enough"
-        unless $patch_ver_ok;
     plan tests => 4;
     for my $arg (
         [{cat => 'dog'}],
@@ -59,7 +46,6 @@ EOT
 
 # These forms will all be x-www-form-urlencoded
 subtest 'PUT x-www-form-urlencoded' => sub {
-    plan skip_all => "HTTP::Request version not high enough" unless $ver_ok;
     plan tests    => 4;
     for my $arg (
         [{cat => 'dog'}],

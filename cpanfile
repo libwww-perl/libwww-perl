@@ -24,9 +24,9 @@ on 'runtime' => sub {
     requires 'HTTP::Cookies' => '6';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';
-    requires 'HTTP::Request' => '6';
-    requires 'HTTP::Request::Common' => '6';
-    requires 'HTTP::Response' => '6';
+    requires 'HTTP::Request' => '6.18';
+    requires 'HTTP::Request::Common' => '6.18';
+    requires 'HTTP::Response' => '6.18';
     requires 'HTTP::Status' => '6.18';
     requires 'IO::Select';
     requires 'IO::Socket';

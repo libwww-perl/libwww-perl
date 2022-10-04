@@ -58,6 +58,7 @@ on 'test' => sub {
 on 'develop' => sub {
     requires 'Authen::NTLM' => '1.02';
     requires 'Pod::Coverage::TrustPod';
+    requires 'Pod::Spell' => '1.25';
     requires 'Test::EOL' => '2.00';
     requires 'Test::LeakTrace' => '0.16';
     requires 'Test::MinimumVersion';

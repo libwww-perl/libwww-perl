@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use LWP::UserAgent;
+use LWP::UserAgent ();
 use HTTP::Request ();
 plan tests => 18;
 

@@ -2,8 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 
-use LWP::UserAgent;
-use URI;
+use LWP::UserAgent ();
+use URI ();
 
 plan tests => 4;
 

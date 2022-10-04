@@ -2,10 +2,9 @@ use strict;
 use warnings;
 use Test::More;
 
-use HTTP::Request;
-use LWP::UserAgent;
-use LWP::Protocol;
-use URI;
+use HTTP::Request ();
+use LWP::UserAgent ();
+use LWP::Protocol ();
 
 plan tests => 2;
 

@@ -2,9 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 
-use File::Temp 'tempdir';
-use LWP::Simple;
-require LWP::Protocol::file;
+use File::Temp qw( tempdir );
+use LWP::Simple qw( get getprint getstore head );
 
 my $TMPDIR = undef;
 

@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Fatal;
+use Test::Fatal qw( exception );
 
-use LWP::UserAgent;
+use LWP::UserAgent ();
 plan tests => 8;
 
 # in case already defined in user's environment

@@ -3,8 +3,8 @@ use warnings;
 use Test::More;
 use Test::RequiresInternet ('jigsaw.w3.org' => 443);
 
-use HTTP::Request;
-use LWP::UserAgent;
+use HTTP::Request ();
+use LWP::UserAgent ();
 
 SKIP: {
     skip 'LIVE_JIGSAW_TESTS not enabled', 3 if $ENV{NO_JIGSAW};

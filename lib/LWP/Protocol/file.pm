@@ -90,6 +90,8 @@ sub request
 	# Make directory listing
 	require URI::Escape;
 	require HTML::Entities;
+	require POSIX;
+	my $localeenc = POSIX::setlocale(&POSIX::LC_CTYPE) =~ s/.*\.//gr;
         my $pathe = $path . ( $^O eq 'MacOS' ? ':' : '/');
 	for (@files) {
 	    my $furl = URI::Escape::uri_escape($_);
@@ -97,7 +99,7 @@ sub request
                 $furl .= '/';
                 $_ .= '/';
             }
-	    my $desc = HTML::Entities::encode($_);
+	    my $desc = HTML::Entities::encode($_, '<>&"');
 	    $_ = qq{<LI><A HREF="$furl">$desc</A>};
 	}
 	# Ensure that the base URL is "/" terminated
@@ -109,6 +111,7 @@ sub request
 			"<HTML>\n<HEAD>",
 			"<TITLE>Directory $path</TITLE>",
 			"<BASE HREF=\"$base\">",
+			"<META CHARSET=\"$localeenc\">",
 			"</HEAD>\n<BODY>",
 			"<H1>Directory listing of $path</H1>",
 			"<UL>", @files, "</UL>",

@@ -11,6 +11,7 @@ require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
 require HTTP::Date;
+require Encode::Locale;
 
 
 sub request
@@ -91,8 +92,8 @@ sub request
 	require URI::Escape;
 	require HTML::Entities;
 	require POSIX;
-	my $localeenc = POSIX::setlocale(&POSIX::LC_CTYPE) =~ s/.*\.//gr;
-        my $pathe = $path . ( $^O eq 'MacOS' ? ':' : '/');
+	my $localeenc = $Encode::Locale::ENCODING_LOCALE_FS;
+	my $pathe = $path . ( $^O eq 'MacOS' ? ':' : '/');
 	for (@files) {
 	    my $furl = URI::Escape::uri_escape($_);
             if ( -d "$pathe$_" ) {

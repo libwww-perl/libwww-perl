@@ -20,7 +20,7 @@ on 'runtime' => sub {
     requires 'File::Temp';
     requires 'Getopt::Long';
     requires 'HTML::Entities';
-    requires 'HTML::HeadParser';
+    requires 'HTML::HeadParser' => '3.71';
     requires 'HTTP::Cookies' => '6';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';

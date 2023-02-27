@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Remove dynamic dependency on HTTP::Status (GH#419) (Graham Knop)
+    - Raise minimum version of HTML::HeadParser to 3.71 (GH#422) (Olaf Alders)
     - Apply perlimports to tests (GH#418) (Olaf Alders)
 
 6.67      2022-06-14 20:20:12Z

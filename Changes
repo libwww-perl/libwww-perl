@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Timeouts for cached connections now update (GH#73) (Eric Johnson)
 
 6.68      2023-02-27 19:18:33Z
     - Remove dynamic dependency on HTTP::Status (GH#419) (Graham Knop)

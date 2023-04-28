@@ -859,21 +859,21 @@ sub from {  # legacy
 
 sub conn_cache {
     my $self = shift;
-    my $old = $self->{conn_cache};
+    my $old  = $self->{conn_cache};
     if (@_) {
-	my $cache = shift;
-	if (ref($cache) eq "HASH") {
-	    require LWP::ConnCache;
-	    $cache = LWP::ConnCache->new(%$cache);
-	}
-        else {
-            for my $conn ($cache->get_connections) {
-                $conn->timeout($self->timeout);
+        my $cache = shift;
+        if ( ref($cache) eq "HASH" ) {
+            require LWP::ConnCache;
+            $cache = LWP::ConnCache->new(%$cache);
+        }
+        elsif ( defined $cache)  {
+            for my $conn ( $cache->get_connections ) {
+                $conn->timeout( $self->timeout );
             }
         }
-	$self->{conn_cache} = $cache;
+        $self->{conn_cache} = $cache;
     }
-    $old;
+    return $old;
 }
 
 

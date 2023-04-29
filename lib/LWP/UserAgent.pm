@@ -1092,7 +1092,7 @@ sub _need_proxy {
     if ($ua->{no_proxy}) {
         if (my $host = eval { $req->uri->host }) {
             for my $domain (@{$ua->{no_proxy}}) {
-                if ($host =~ /\Q$domain\E$/) {
+                if ($host =~ /(?:^|\.)\Q$domain\E$/) {
                     return;
                 }
             }

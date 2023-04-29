@@ -4,6 +4,8 @@ Change history for libwww-perl
     - Timeouts for cached connections now update (GH#73) (Eric Johnson)
     - The conn_cache() can now be unset (GH#424) (Julien Fiegehenn)
     - LWP::Protocol now only attempts to load modules once (GH#62) (Burak Gursoy)
+    - Fix a bug in no_proxy that allowed partial matches to a proxy address
+      to disable a proxy (GH#421) (Julien Fiegehenn)
 
 6.68      2023-02-27 19:18:33Z
     - Remove dynamic dependency on HTTP::Status (GH#419) (Graham Knop)

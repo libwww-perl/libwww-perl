@@ -23,7 +23,6 @@ on 'runtime' => sub {
     requires 'HTML::HeadParser' => '3.71';
     requires 'HTTP::Cookies' => '6';
     requires 'HTTP::CookieJar::LWP';
-    requires 'HTTP::Daemon' => '6';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';
     requires 'HTTP::Request' => '6.18';
@@ -34,6 +33,7 @@ on 'runtime' => sub {
     requires 'IO::Socket';
     requires 'LWP::MediaTypes' => '6';
     requires 'MIME::Base64' => '2.1';
+    requires 'Module::Load';
     requires 'Net::FTP' => '2.58';
     requires 'Net::HTTP' => '6.18';
     requires 'Scalar::Util';

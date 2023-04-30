@@ -86,6 +86,10 @@ sub new
     $requests_redirectable = ['GET', 'HEAD']
       unless defined $requests_redirectable;
 
+    my $cookie_jar_class = delete $cnf{cookie_jar_class};
+    $cookie_jar_class = 'HTTP::Cookies'
+      unless defined $cookie_jar_class;
+
     # Actually ""s are just as good as 0's, but for concision we'll just say:
     Carp::croak("protocols_allowed has to be an arrayref or 0, not \"$protocols_allowed\"!")
       if $protocols_allowed and ref($protocols_allowed) ne 'ARRAY';
@@ -114,6 +118,7 @@ sub new
         protocols_forbidden   => $protocols_forbidden,
         requests_redirectable => $requests_redirectable,
         send_te               => $send_te,
+        cookie_jar_class      => $cookie_jar_class,
     }, $class;
 
     $self->agent(defined($agent) ? $agent : $class->_agent)
@@ -798,28 +803,39 @@ sub parse_head {
 sub cookie_jar {
     my $self = shift;
     my $old = $self->{cookie_jar};
-    if (@_) {
-	my $jar = shift;
-	if (ref($jar) eq "HASH") {
-	    require HTTP::Cookies;
-	    $jar = HTTP::Cookies->new(%$jar);
-	}
-        elsif (ref($jar) eq "ARRAY") {
-            require HTTP::CookieJar::LWP;
-            $jar = HTTP::CookieJar::LWP->new(@$jar);
+
+    return $old unless @_;
+
+    my $jar = shift;
+    if (ref($jar) eq "HASH") {
+        my $class = $self->{cookie_jar_class};
+        try {
+            require Module::Load;
+            Module::Load::load($class);
+            $jar = $class->new(%$jar);
         }
-	$self->{cookie_jar} = $jar;
-        $self->set_my_handler("request_prepare",
-            $jar ? sub {
-                return if $_[0]->header("Cookie");
-                $jar->add_cookie_header($_[0]);
-            } : undef,
-        );
-        $self->set_my_handler("response_done",
-            $jar ? sub { $jar->extract_cookies($_[0]); } : undef,
-        );
+        catch {
+            my $error = $_;
+            if ($error =~ /Can't locate/) {
+                die "cookie_jar_class '$class' not found\n";
+            }
+            else {
+                die "$error\n";
+            }
+        };
     }
-    $old;
+    $self->{cookie_jar} = $jar;
+    $self->set_my_handler("request_prepare",
+        $jar ? sub {
+            return if $_[0]->header("Cookie");
+            $jar->add_cookie_header($_[0]);
+        } : undef,
+    );
+    $self->set_my_handler("response_done",
+        $jar ? sub { $jar->extract_cookies($_[0]); } : undef,
+    );
+
+    return $old;
 }
 
 sub default_headers {
@@ -1307,6 +1323,7 @@ The following options correspond to attribute methods described below:
    agent                   "libwww-perl/#.###"
    conn_cache              undef
    cookie_jar              undef
+   cookie_jar_class        HTTP::Cookies
    default_headers         HTTP::Headers->new
    from                    undef
    local_address           undef
@@ -1395,15 +1412,9 @@ instead.  See L</"BEST PRACTICES"> for more information.
 The default is to have no cookie jar, i.e. never automatically add
 C<Cookie> headers to the requests.
 
-Examples of suitable cookie jar objects include L<HTTP::Cookies> and
-L<HTTP::CookieJar::LWP>.  C<HTTP::CookieJar::LWP> provides a better
-security model matching that of current Web browsers when
-L<Mozilla::PublicSuffix> is installed.
-
-If C<$cookie_jar_obj> contains an unblessed array reference, its
-contents are passed as arguments to to C<HTTP::CookieJar::LWP->new>.  An
-unblessed hash reference has its contents passed to
-C<HTTP::Cookies->new>.  So:
+If C<$jar> contains an unblessed hash reference, a new cookie jar object is
+created for you automatically. The object is of the class set with the
+C<cookie_jar_class> constructor argument, which defaults to L<HTTP::Cookies>.
 
   $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
@@ -1411,6 +1422,20 @@ is really just a shortcut for:
 
   require HTTP::Cookies;
   $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+
+As described above and in L</"BEST PRACTICES">, you should set
+C<cookie_jar_class> to C<"HTTP::CookieJar::LWP"> to get a safer cookie jar.
+
+  my $ua = LWP::UserAgent->new( cookie_jar_class => 'HTTP::CookieJar::LWP' );
+  $ua->cookie_jar({}); # HTTP::CookieJar::LWP takes no args
+
+These can also be combined into the constructor, so a jar is created at
+instantiation.
+
+  my $ua = LWP::UserAgent->new(
+    cookie_jar_class => 'HTTP::CookieJar::LWP',
+    cookie_jar       =>  {},
+  );
 
 =head2 credentials
 

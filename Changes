@@ -1,7 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
-
+    - Add cookie_jar_class attribute to allow different cookie jar modules
+      to be used more easily (GH#91) (Tom Hukins, Julien Fiegehenn)
 6.69      2023-04-29 13:14:31Z
     - Timeouts for cached connections now update (GH#73) (Eric Johnson)
     - The conn_cache() can now be unset (GH#424) (Julien Fiegehenn)

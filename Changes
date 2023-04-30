@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.70      2023-04-30 13:22:56Z
     - Add cookie_jar_class attribute to allow different cookie jar modules
       to be used more easily (GH#91) (Tom Hukins, Julien Fiegehenn)

@@ -1333,8 +1333,10 @@ The following options correspond to attribute methods described below:
    parse_head              1
    protocols_allowed       undef
    protocols_forbidden     undef
-   proxy                   undef
+   proxy                   {}
    requests_redirectable   ['GET', 'HEAD']
+   send_te                 1
+   show_progress           undef
    ssl_opts                { verify_hostname => 1 }
    timeout                 180
 

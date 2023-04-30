@@ -99,6 +99,7 @@ The following options correspond to attribute methods described below:
     agent                   "libwww-perl/#.###"
     conn_cache              undef
     cookie_jar              undef
+    cookie_jar_class        HTTP::Cookies
     default_headers         HTTP::Headers->new
     from                    undef
     local_address           undef
@@ -108,8 +109,10 @@ The following options correspond to attribute methods described below:
     parse_head              1
     protocols_allowed       undef
     protocols_forbidden     undef
-    proxy                   undef
+    proxy                   {}
     requests_redirectable   ['GET', 'HEAD']
+    send_te                 1
+    show_progress           undef
     ssl_opts                { verify_hostname => 1 }
     timeout                 180
 
@@ -187,9 +190,9 @@ instead.  See ["BEST PRACTICES"](#best-practices) for more information.
 The default is to have no cookie jar, i.e. never automatically add
 `Cookie` headers to the requests.
 
-Shortcut: If a reference to a plain hash is passed in, it is replaced with an
-instance of [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies) that is initialized based on the hash. This form
-also automatically loads the [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies) module.  It means that:
+If `$jar` contains an unblessed hash reference, a new cookie jar object is
+created for you automatically. The object is of the class set with the
+`cookie_jar_class` constructor argument, which defaults to [HTTP::Cookies](https://metacpan.org/pod/HTTP%3A%3ACookies).
 
     $ua->cookie_jar({ file => "$ENV{HOME}/.cookies.txt" });
 
@@ -197,6 +200,20 @@ is really just a shortcut for:
 
     require HTTP::Cookies;
     $ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+
+As described above and in ["BEST PRACTICES"](#best-practices), you should set
+`cookie_jar_class` to `"HTTP::CookieJar::LWP"` to get a safer cookie jar.
+
+    my $ua = LWP::UserAgent->new( cookie_jar_class => 'HTTP::CookieJar::LWP' );
+    $ua->cookie_jar({}); # HTTP::CookieJar::LWP takes no args
+
+These can also be combined into the constructor, so a jar is created at
+instantiation.
+
+    my $ua = LWP::UserAgent->new(
+      cookie_jar_class => 'HTTP::CookieJar::LWP',
+      cookie_jar       =>  {},
+    );
 
 ## credentials
 

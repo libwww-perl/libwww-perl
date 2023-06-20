@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Use rather than require Module::Load (GH#435) (Olaf Alders)
 
 6.70      2023-04-30 13:22:56Z
     - Add cookie_jar_class attribute to allow different cookie jar modules

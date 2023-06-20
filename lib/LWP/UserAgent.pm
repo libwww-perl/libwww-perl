@@ -13,6 +13,7 @@ use HTTP::Date ();
 use LWP ();
 use HTTP::Status ();
 use LWP::Protocol ();
+use Module::Load qw( load );
 
 use Scalar::Util qw(blessed openhandle);
 use Try::Tiny qw(try catch);
@@ -810,8 +811,7 @@ sub cookie_jar {
     if (ref($jar) eq "HASH") {
         my $class = $self->{cookie_jar_class};
         try {
-            require Module::Load;
-            Module::Load::load($class);
+            load($class);
             $jar = $class->new(%$jar);
         }
         catch {

@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Don't mangle protocol scheme and don't require it to be valid if implementor is already known (GH#436) (mwgamera)
 
 6.71      2023-06-20 19:44:19Z
     - Use rather than require Module::Load (GH#435) (Olaf Alders)

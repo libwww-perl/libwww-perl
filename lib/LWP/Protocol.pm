@@ -51,16 +51,17 @@ sub implementor
 	$ImplementedBy{$scheme} = $impclass;
     }
 
-    return '' unless $scheme =~ /^([.+\-\w]+)$/;  # check valid URL schemes
-    $scheme = $1; # untaint
-    $scheme =~ tr/.+-/_/;  # make it a legal module name
-
     my $ic = $ImplementedBy{$scheme};
     # module does not exist
     return $ic if $ic || $ImplementorAlreadyTested{$scheme};
 
+    return '' unless $scheme =~ /^([.+\-\w]+)$/;  # check valid URL schemes
+    $scheme = $1; # untaint
+
     # scheme not yet known, look for a 'use'd implementation
-    $ic = "LWP::Protocol::$scheme";  # default location
+    $ic = $scheme;
+    $ic =~ tr/.+-/_/;  # make it a legal module name
+    $ic = "LWP::Protocol::$ic";  # default location
     $ic = "LWP::Protocol::nntp" if $scheme eq 'news'; #XXX ugly hack
     no strict 'refs';
     # check we actually have one for the scheme:

@@ -9,7 +9,7 @@ use LWP::Simple qw(get);
 use File::Temp qw(tempfile);
 
 require POSIX;
-POSIX::setlocale(&POSIX::LC_ALL, 'ja_JP.UTF-8');
+POSIX::setlocale(&POSIX::LC_ALL, 'ja-JP.UTF-8');
 
 my $tmp, my $tmpd;
 $tmpd = File::Temp->newdir();
@@ -18,17 +18,19 @@ $tmp = File::Temp->new(TEMPLATE => 'wwwdata_tempXXXX',
                        DIR => $tmpd,
                        SUFFIX => '.コピペ.test');
 
-open(TMP, '>:utf8', $tmp);
-print TMP 'テスト';
-close(TMP);
+open my $fh, '>:utf8', $tmp or die $!;
+print $fh 'テスト';
+close $fh;
 
-## Test default directory output.
-is($tmp->filename =~ /コピペ/, 1);
+# Test default directory output.
+like($tmp->filename, qr/コピペ/, 'filename contains Unicode string, as expected');
+
 my $res = get('file://' . dirname($tmp->filename));
-is(($res =~ m/コピペ/, $&), 'コピペ');
+like($res, qr/コピペ/, 'fetched data contains Unicode string, as expected');
+
 # Make sure there are no HTML entities.
-isnt(($res =~ m/&/, $&), '&');
+unlike($res, qr/&/, 'output has no HTML entities');
 
 ## Test file output.
 my $res2 = get('file://' . $tmp->filename);
-is($res2, 'テスト');
+is($res2, 'テスト', 'content is Unicode, as expected');

@@ -2,6 +2,8 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Documentation updates for mirror (GH#470) (Julien Fiegehenn)
+    - Allow underscores in headers not to be removed in lwp-request (GH#443)
+      (@JohnHughesAtlantech and Olaf Alders)
 
 6.78      2025-02-20 00:32:06Z
     - Don't warn on proxy as unrecognized option for LWP::UserAgent->new

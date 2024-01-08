@@ -41,4 +41,44 @@ Content-Type: application/json
 
 EOT
 
+$ua->no_proxy();
+is_deeply(
+    $ua->{no_proxy}, [],
+    "no_proxy was cleared"
+);
+$ua->no_proxy('example.org');
+is_deeply(
+    $ua->{no_proxy}, ['example.org'],
+    "no_proxy with base domain got set"
+);
+
+isnt(
+    $ua->get("http://www.example.org")->content,
+    <<EOT , "request does not get proxied" );
+GET http://www.example.org
+User-Agent: foo/0.1
+Content-Type: application/json
+
+EOT
+
+$ua->no_proxy();
+is_deeply(
+    $ua->{no_proxy}, [],
+    "no_proxy was cleared"
+);
+$ua->no_proxy('.example.org');
+is_deeply(
+    $ua->{no_proxy}, ['.example.org'],
+    "no_proxy with dot-prefixed base domain got set"
+);
+
+isnt(
+    $ua->get("http://www.example.org")->content,
+    <<EOT , "request does not get proxied" );
+GET http://www.example.org
+User-Agent: foo/0.1
+Content-Type: application/json
+
+EOT
+
 done_testing;

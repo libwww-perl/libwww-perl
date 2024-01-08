@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix no_proxy subdomain matching (GH#447) (Axel Burri)
 
 6.72      2023-07-17 22:01:19Z
     - Don't mangle protocol scheme and don't require it to be valid if

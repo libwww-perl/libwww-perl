@@ -1112,9 +1112,8 @@ sub _need_proxy {
     if ($ua->{no_proxy}) {
         if (my $host = eval { $req->uri->host }) {
             for my $domain (@{$ua->{no_proxy}}) {
-                if ($host =~ /(?:^|\.)\Q$domain\E$/) {
-                    return;
-                }
+                $domain =~ s/^\.//;
+                return if $host =~ /(?:^|\.)\Q$domain\E$/;
             }
         }
     }
@@ -1696,8 +1695,8 @@ C<CGI_HTTP_PROXY> environment variable can be used instead.
     $ua->no_proxy('localhost', 'example.com');
     $ua->no_proxy(); # clear the list
 
-Do not proxy requests to the given domains.  Calling C<no_proxy> without
-any domains clears the list of domains.
+Do not proxy requests to the given domains, including subdomains.
+Calling C<no_proxy> without any domains clears the list of domains.
 
 =head2 proxy
 

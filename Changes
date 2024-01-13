@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.73      2024-01-13 20:19:09Z
     - Fix no_proxy subdomain matching (GH#447) (Axel Burri)
 

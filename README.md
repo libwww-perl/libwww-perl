@@ -467,8 +467,8 @@ this `HTTP_PROXY` is not honored for CGI scripts.  The
     $ua->no_proxy('localhost', 'example.com');
     $ua->no_proxy(); # clear the list
 
-Do not proxy requests to the given domains.  Calling `no_proxy` without
-any domains clears the list of domains.
+Do not proxy requests to the given domains, including subdomains.
+Calling `no_proxy` without any domains clears the list of domains.
 
 ## proxy
 

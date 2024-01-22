@@ -18,7 +18,7 @@ use Module::Load qw( load );
 use Scalar::Util qw(blessed openhandle);
 use Try::Tiny qw(try catch);
 
-our $VERSION = '6.74';
+our $VERSION = '6.75';
 
 sub new
 {

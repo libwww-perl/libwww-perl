@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Making it possible to use IPv6 in https call through https proxy
+      environment (in case of using CONNECT method to create a tunnel) (GH#450)
+      (Dmitriy Shamatrin)
 
 6.73      2024-01-13 20:19:09Z
     - Fix no_proxy subdomain matching (GH#447) (Axel Burri)

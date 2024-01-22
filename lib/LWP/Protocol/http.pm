@@ -7,7 +7,6 @@ our $VERSION = '6.74';
 require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
-
 use parent qw(LWP::Protocol);
 
 our @EXTRA_SOCK_OPTS;
@@ -152,13 +151,13 @@ sub request
     #   same target
 
     my $ssl_tunnel = $proxy && $url->scheme eq 'https'
-	&& $url->host.":".$url->port;
+	&& $url->host_port();
 
     my ($host,$port) = $proxy
 	? ($proxy->host,$proxy->port)
 	: ($url->host,$url->port);
     my $fullpath =
-	$method eq 'CONNECT' ? $url->host . ":" . $url->port :
+	$method eq 'CONNECT' ? $url->host_port() :
 	$proxy && ! $ssl_tunnel ? $url->as_string :
 	do {
 	    my $path = $url->path_query;

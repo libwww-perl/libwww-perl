@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Making it possible to use IPv6 in https call through https proxy
+      environment (in case of using CONNECT method to create a tunnel) (GH#450)
+      (Dmitriy Shamatrin)
 
 6.72      2023-07-17 22:01:19Z
     - Don't mangle protocol scheme and don't require it to be valid if

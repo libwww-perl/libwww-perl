@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.75      2024-01-24 14:29:17Z
     - Update lwp-request to suport PATCH HTTP method (GH#452) (Javier Puche)
 

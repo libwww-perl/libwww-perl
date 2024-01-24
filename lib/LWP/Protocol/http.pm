@@ -49,8 +49,7 @@ sub _new_socket
 	die "$status\n\n$@";
     }
 
-    # perl 5.005's IO::Socket does not have the blocking method.
-    eval { $sock->blocking(0); };
+    $sock->blocking(0);
 
     $sock;
 }

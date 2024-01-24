@@ -775,7 +775,7 @@ sub parse_head {
                require HTML::HeadParser;
                $parser = HTML::HeadParser->new;
                $parser->xml_mode(1) if $response->content_is_xhtml;
-               $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
+               $parser->utf8_mode(1) if $HTML::Parser::VERSION >= 3.40;
 
                push(@{$response->{handlers}{response_data}}, {
 		   callback => sub {

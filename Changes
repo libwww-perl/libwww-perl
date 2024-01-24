@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Update lwp-request to suport PATCH HTTP method (GH#452) (Javier Puche)
 
 6.74      2024-01-22 17:48:18Z
     - Making it possible to use IPv6 in https call through https proxy

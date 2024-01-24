@@ -2,6 +2,7 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Simplify code slightly for Perl v5.8+ (GH#455) (James Raspass)
+    - Move HTTP::CookieJar::LWP to test requires (GH#453) (Olaf Alders)
 
 6.75      2024-01-24 14:29:17Z
     - Update lwp-request to suport PATCH HTTP method (GH#452) (Javier Puche)

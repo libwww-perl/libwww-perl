@@ -22,7 +22,6 @@ on 'runtime' => sub {
     requires 'HTML::Entities';
     requires 'HTML::HeadParser' => '3.71';
     requires 'HTTP::Cookies' => '6';
-    requires 'HTTP::CookieJar::LWP';
     requires 'HTTP::Date' => '6';
     requires 'HTTP::Negotiate' => '6';
     requires 'HTTP::Request' => '6.18';
@@ -48,6 +47,7 @@ on 'runtime' => sub {
 };
 
 on 'test' => sub {
+    requires 'HTTP::CookieJar::LWP';
     requires 'HTTP::Daemon' => '6.12';
     requires 'Test::Fatal';
     requires 'Test::More', '0.96';

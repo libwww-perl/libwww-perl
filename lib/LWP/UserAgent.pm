@@ -1627,7 +1627,7 @@ Please note that that recently the overall effect of this option with regards to
 SSL handling has changed. As of version 6.11 of LWP::Protocol::https, which is an 
 external module, SSL certificate verification was harmonized to behave in sync with
 IO::Socket::SSL. With this change, setting this option no longer disables all SSL
-certificate verification, only the hostname checks. To disable SSL all verifications,
+certificate verification, only the hostname checks. To disable SSL all verification,
 the SSL_verify_mode option can be disabled using the ssl_opts attribute. For example:
 C<$ua->ssl_opts(SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE);>
 

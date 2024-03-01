@@ -1623,6 +1623,14 @@ This option is initialized from the C<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
 variable.  If this environment variable isn't set; then C<verify_hostname>
 defaults to 1.
 
+Please note that that recently the overall effect of this option with regards to 
+SSL handling has changed. As of version 6.11 of LWP::Protocol::https, which is an 
+external module, SSL certifate verifaction was harmonized to behave in sync with 
+IO::Socket::SSL. With this change, setting this option no longer disables all SSL
+certificate verications, only the hostname checks. To disable SSl verifications the
+SSL_verify_mode option can be disabled using the ssl_opts. For example:  
+C<$ua->ssl_opts(SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE);>
+
 =item C<SSL_ca_file> => $path
 
 The path to a file containing Certificate Authority certificates.

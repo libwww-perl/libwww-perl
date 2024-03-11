@@ -397,6 +397,14 @@ The options that LWP relates to are:
     variable.  If this environment variable isn't set; then `verify_hostname`
     defaults to 1.
 
+    Please note that that recently the overall effect of this option with regards to
+    SSL handling has changed. As of version 6.11 of [LWP::Protocol::https](https://metacpan.org/pod/LWP%3A%3AProtocol%3A%3Ahttps), which is an
+    external module, SSL certificate verification was harmonized to behave in sync with
+    [IO::Socket::SSL](https://metacpan.org/pod/IO%3A%3ASocket%3A%3ASSL). With this change, setting this option no longer disables all SSL
+    certificate verification, only the hostname checks. To disable all verification,
+    use the `SSL_verify_mode` option in the `ssl_opts` attribute. For example:
+    `$ua-`ssl\_opts(SSL\_verify\_mode => IO::Socket::SSL::SSL\_VERIFY\_NONE);>
+
 - `SSL_ca_file` => $path
 
     The path to a file containing Certificate Authority certificates.

@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Documentation updates for GH#448 (GH#457) (Russell Shingleton)
 
 6.76      2024-01-25 18:31:25Z
     - Simplify code slightly for Perl v5.8+ (GH#455) (James Raspass)

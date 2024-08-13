@@ -4,7 +4,7 @@ use Test::More;
 use Test::Fatal qw( exception );
 
 use LWP::UserAgent ();
-plan tests => 20;
+plan tests => 128;
 
 # in case already defined in user's environment
 delete $ENV{$_} for qw(REQUEST_METHOD HTTP_PROXY http_proxy CGI_HTTP_PROXY NO_PROXY no_proxy);
@@ -87,97 +87,128 @@ SKIP: {
 {
     my $proxy_user = '$s3cr=-3t_@dm!m[]]}{_%u$3r';
     my $proxy_pass = '$tr0ng_-%@@2p%41@$$w0rd!';
-    my $proxy_user_sem = $proxy_user . ':';
-    my $proxy_pass_sem = $proxy_pass . ':';
-    my $proxy_host = 'proxy.example.org:3128';
-    my $res = 'http://' . encode_value($proxy_user) . ':' . encode_value($proxy_pass) . '@' . $proxy_host;
-    my $ua = LWP::UserAgent->new;
-    local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass\@$proxy_host";
-    $ua->env_proxy();
-    is(
-        $ua->{proxy}{http},
-        $res,
-        'http_proxy from environment'
+    my $proxy_user_colon = '$s3cr=-3t_@d:m!m[]]}{_%u$3r';
+    my $proxy_pass_colon = '$tr0ng_-%@@2:p%41@$$w0rd!';
+    my @proxy_hosts = qw(
+        proxy.example.org
+        proxy.example.org:3128
+        localhost
+        localhost:3128
+        127.0.0.1
+        127.0.0.1:3128
+        [::1]
+        [::1]:3128
     );
-    local $ENV{http_proxy} = "http://$proxy_user_sem:$proxy_pass\@$proxy_host";
-    like(
-        exception{
-            $ua->env_proxy();
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: user with semicolon: got exception'
-    );
-    local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass_sem\@$proxy_host";
-    like(
-        exception{
-            $ua->env_proxy();
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: password with semicolon: got exception'
-    );
-    local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass\@";
-    like(
-        exception{
-            $ua->env_proxy();
-        },
-        qr/Bad http proxy specification with/,
-        'proxy: no host with env_proxy: got exception'
-    );
-    delete $ENV{http_proxy};
-    $ua->proxy(['http'], "http://$proxy_user:$proxy_pass\@$proxy_host");
-    is(
-        $ua->{proxy}{http},
-        $res,
-        'http_proxy from method'
-    );
-    like(
-        exception{
-            $ua->proxy(['http'], "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: user with semicolon: got exception'
-    );
-    like(
-        exception{
-            $ua->proxy(['http'], "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: password with semicolon: got exception'
-    );
-    like(
-        exception{
-            $ua->proxy(['http'], "http://$proxy_user:$proxy_pass\@");
-        },
-        qr/Bad http proxy specification with/,
-        'proxy: no host: got exception'
-    );
-    $ua->proxy('http' => "http://$proxy_user:$proxy_pass\@$proxy_host");
-    is(
-        $ua->{proxy}{http},
-        $res,
-        'http_proxy from method'
-    );
-    like(
-        exception{
-            $ua->proxy('http' => "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: user with semicolon: got exception'
-    );
-    like(
-        exception{
-            $ua->proxy('http' => "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
-        },
-        qr/Neither user nor password can contain/,
-        'proxy: password with semicolon: got exception'
-    );
-    like(
-        exception{
-            $ua->proxy('http' => "http://$proxy_user:$proxy_pass\@");
-        },
-        qr/Bad http proxy specification with/,
-        'proxy: no host: got exception'
-    );
+    for my $proxy_host (@proxy_hosts) {
+        my $auth_res = 'http://' . encode_value($proxy_user) . ':' . encode_value($proxy_pass) . '@' . $proxy_host;
+        my $no_auth_res = 'http://' . $proxy_host;
+        my $ua = LWP::UserAgent->new;
+        local $ENV{http_proxy} = "http://$proxy_host";
+        $ua->env_proxy();
+        is(
+            $ua->{proxy}{http},
+            $no_auth_res,
+            'http_proxy from env no auth'
+        );
+        local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass\@$proxy_host";
+        $ua->env_proxy();
+        is(
+            $ua->{proxy}{http},
+            $auth_res,
+            'http_proxy from env with auth'
+        );
+        local $ENV{http_proxy} = "http://$proxy_user_colon:$proxy_pass\@$proxy_host";
+        like(
+            exception{
+                $ua->env_proxy();
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from env and user with colon: got exception'
+        );
+        local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass_colon\@$proxy_host";
+        like(
+            exception{
+                $ua->env_proxy();
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from env and password with colon: got exception'
+        );
+        local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass";
+        like(
+            exception{
+                $ua->env_proxy();
+            },
+            qr/Bad http proxy specification with/,
+            'http_proxy from env and no host: got exception'
+        );
+        delete $ENV{http_proxy};
+        $ua->proxy(['http'], "http://$proxy_host");
+        is(
+            $ua->{proxy}{http},
+            $no_auth_res,
+            'http_proxy from method no auth'
+        );
+        $ua->proxy(['http'], "http://$proxy_user:$proxy_pass\@$proxy_host");
+        is(
+            $ua->{proxy}{http},
+            $auth_res,
+            'http_proxy from method with auth'
+        );
+        like(
+            exception{
+                $ua->proxy(['http'], "http://$proxy_user_colon:$proxy_pass\@$proxy_host");
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from method and user with colon: got exception'
+        );
+        like(
+            exception{
+                $ua->proxy(['http'], "http://$proxy_user:$proxy_pass_colon\@$proxy_host");
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from method and password with colon: got exception'
+        );
+        like(
+            exception{
+                $ua->proxy(['http'], "http://$proxy_user:$proxy_pass");
+            },
+            qr/Bad http proxy specification with/,
+            'http_proxy from method and no host: got exception'
+        );
+        $ua->proxy('http' => "http://$proxy_host");
+        is(
+            $ua->{proxy}{http},
+            $no_auth_res,
+            'http_proxy from method no auth'
+        );
+        $ua->proxy('http' => "http://$proxy_user:$proxy_pass\@$proxy_host");
+        is(
+            $ua->{proxy}{http},
+            $auth_res,
+            'http_proxy from method with auth'
+        );
+        like(
+            exception{
+                $ua->proxy('http' => "http://$proxy_user_colon:$proxy_pass\@$proxy_host");
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from method and user with colon: got exception'
+        );
+        like(
+            exception{
+                $ua->proxy('http' => "http://$proxy_user:$proxy_pass_colon\@$proxy_host");
+            },
+            qr/Neither user nor password can contain/,
+            'http_proxy from method and password with colon: got exception'
+        );
+        like(
+            exception{
+                $ua->proxy('http' => "http://$proxy_user:$proxy_pass");
+            },
+            qr/Bad http proxy specification with/,
+            'http_proxy from method and no host: got exception'
+        );
+    }
 }
 
 sub encode_value {

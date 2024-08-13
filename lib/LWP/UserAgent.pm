@@ -1140,18 +1140,21 @@ sub proxy {
         my $url = shift;
         if (defined($url) && length($url)) {
             Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
+            # Proxy host might be an IPv4, IPv6 or a domain name with optional port separated by colon
+            # Additionally, I saw sometimes a trailing slash in the proxy path
+            my $host_re = '^[\w\[\]:.-]+/?$';
             if ( $url =~ m!^(https?://)(.*)! ) {
                 my $scheme = $1;
                 my $path = $2;
                 if ($path =~ /@/) {
                     my ($credentials, $host) = $path =~ /^(.+)@(.*)$/;
-                    Carp::croak("Bad http proxy specification with '$url'") unless $host;
+                    Carp::croak("Bad http proxy specification with '$url'") unless $host && $host =~ m/$host_re/;
                     my ($user, $pass) = $credentials =~ /^(.*):(.*)$/;
                     Carp::croak("Neither user nor password can contain ':' symbol") if $user =~ /:/;
                     $user =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
                     $pass =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
-                    $url = "${scheme}${user}:$pass\@$host";
-                } elsif ( $path !~ m,[\w[], ) {
+                    $url = $scheme . $user . ':' . $pass . '@' . $host;
+                } elsif ( $path !~ /$host_re/ ) {
                     Carp::croak("Bad http proxy specification with '$url'");
                 }
             }

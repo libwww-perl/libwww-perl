@@ -89,7 +89,7 @@ sub _fixup_header
 
     # Extract 'Host' header
     my $hhost = $url->authority;
-    if ($hhost =~ s/^([^\@]*)\@//) {  # get rid of potential "user:pass@"
+    if ($hhost =~ s/^(.*)@//) {  # get rid of potential "user:pass@"
 	# add authorization header if we need them.  HTTP URLs do
 	# not really support specification of user and password, but
 	# we allow it.

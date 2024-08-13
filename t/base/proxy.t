@@ -101,7 +101,7 @@ SKIP: {
     );
     local $ENV{http_proxy} = "http://$proxy_user_sem:$proxy_pass\@$proxy_host";
     like(
-        exception{ 
+        exception{
             $ua->env_proxy();
         },
         qr/Neither user nor password can contain/,
@@ -109,7 +109,7 @@ SKIP: {
     );
     local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass_sem\@$proxy_host";
     like(
-        exception{ 
+        exception{
             $ua->env_proxy();
         },
         qr/Neither user nor password can contain/,
@@ -117,7 +117,7 @@ SKIP: {
     );
     local $ENV{http_proxy} = "http://$proxy_user:$proxy_pass\@";
     like(
-        exception{ 
+        exception{
             $ua->env_proxy();
         },
         qr/Bad http proxy specification with/,
@@ -131,22 +131,22 @@ SKIP: {
         'http_proxy from method'
     );
     like(
-        exception{ 
-            $ua->proxy('http', "http://$proxy_user_sem:$proxy_pass\@$proxy_host"); 
+        exception{
+            $ua->proxy('http', "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: user with semicolon: got exception'
     );
     like(
-        exception{ 
-            $ua->proxy('http', "http://$proxy_user:$proxy_pass_sem\@$proxy_host"); 
+        exception{
+            $ua->proxy('http', "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: password with semicolon: got exception'
     );
     like(
-        exception{ 
-            $ua->proxy(['http'], "http://$proxy_user:$proxy_pass\@"); 
+        exception{
+            $ua->proxy(['http'], "http://$proxy_user:$proxy_pass\@");
         },
         qr/Bad http proxy specification with/,
         'proxy: no host: got exception'
@@ -158,22 +158,22 @@ SKIP: {
         'http_proxy from method'
     );
     like(
-        exception{ 
-            $ua->proxy('http' => "http://$proxy_user_sem:$proxy_pass\@$proxy_host"); 
+        exception{
+            $ua->proxy('http' => "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: user with semicolon: got exception'
     );
     like(
-        exception{ 
-            $ua->proxy('http' => "http://$proxy_user:$proxy_pass_sem\@$proxy_host"); 
+        exception{
+            $ua->proxy('http' => "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: password with semicolon: got exception'
     );
     like(
-        exception{ 
-            $ua->proxy('http' => "http://$proxy_user:$proxy_pass\@"); 
+        exception{
+            $ua->proxy('http' => "http://$proxy_user:$proxy_pass\@");
         },
         qr/Bad http proxy specification with/,
         'proxy: no host: got exception'

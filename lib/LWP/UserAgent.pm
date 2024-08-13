@@ -1140,7 +1140,21 @@ sub proxy {
         my $url = shift;
         if (defined($url) && length($url)) {
             Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
-            Carp::croak("Bad http proxy specification '$url'") if $url =~ /^https?:/ && $url !~ m,^https?://[\w[],;
+            if ( $url =~ m!^(https?://)(.*)! ) {
+                my $scheme = $1;
+                my $path = $2;
+                if ($path =~ /@/) {
+                    my ($credentials, $host) = $path =~ /^(.+)@(.*)$/;
+                    Carp::croak("Bad http proxy specification with '$url'") unless $host;
+                    my ($user, $pass) = $credentials =~ /^(.*):(.*)$/;
+                    Carp::croak("Neither user nor password can contain ':' symbol") if $user =~ /:/;
+                    $user =~ s/([^\w])/sprintf("%%%02X", ord($1))/ge;
+                    $pass =~ s/([^\w])/sprintf("%%%02X", ord($1))/ge;
+                    $url = "${scheme}${user}:$pass\@$host";
+                } elsif ( $path !~ m,[\w[], ) {
+                    Carp::croak("Bad http proxy specification with '$url'");
+                }
+            }
         }
         $self->{proxy}{$key} = $url;
         $self->set_my_handler("request_preprepare", \&_need_proxy)
@@ -1165,7 +1179,7 @@ sub env_proxy {
             next if $k =~ /^HTTP_/;
             $k = "HTTP_PROXY" if $k eq "CGI_HTTP_PROXY";
         }
-	$k = lc($k);
+        $k = lc($k);
         if (my $from_key= $seen{$k}) {
             warn "Environment contains multiple differing definitions for '$k'.\n".
                  "Using value from '$from_key' ($ENV{$from_key}) and ignoring '$real_key' ($v)"
@@ -1175,18 +1189,17 @@ sub env_proxy {
             $seen{$k}= $real_key;
         }
 
-	next unless $k =~ /^(.*)_proxy$/;
-	$k = $1;
-	if ($k eq 'no') {
-	    $self->no_proxy(split(/\s*,\s*/, $v));
-	}
-	else {
+        next unless $k =~ /^(.*)_proxy$/;
+        $k = $1;
+        if ($k eq 'no') {
+            $self->no_proxy(split(/\s*,\s*/, $v));
+        } else {
             # Ignore random _proxy variables, allow only valid schemes
             next unless $k =~ /^$URI::scheme_re\z/;
             # Ignore xxx_proxy variables if xxx isn't a supported protocol
             next unless LWP::Protocol::implementor($k);
-	    $self->proxy($k, Encode::decode(locale => $v));
-	}
+            $self->proxy($k, Encode::decode(locale => $v));
+        }
     }
 }
 
@@ -1721,6 +1734,10 @@ Calling C<no_proxy> without any domains clears the list of domains.
         [ 'http', 'https' ] => 'http://http.example.com:8001/',
     ]);
 
+    # Proxy with authentication:
+    $ua->proxy('http', 'http://username:password@proxy.example.com/');
+    $ua->proxy('http' => 'http://username:password@proxy.example.com/');
+
 Set/retrieve proxy URL for a scheme.
 
 The first form specifies that the URL is to be used as a proxy for
@@ -1732,6 +1749,8 @@ proxy URL for a single access scheme.
 
 The third form demonstrates setting multiple proxies at once. This is also
 the only form accepted by the constructor.
+
+Note: if proxy credentials contain special characters, they will be encoded.
 
 =head1 HANDLERS
 

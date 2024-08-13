@@ -132,14 +132,14 @@ SKIP: {
     );
     like(
         exception{
-            $ua->proxy('http', "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
+            $ua->proxy(['http'], "http://$proxy_user_sem:$proxy_pass\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: user with semicolon: got exception'
     );
     like(
         exception{
-            $ua->proxy('http', "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
+            $ua->proxy(['http'], "http://$proxy_user:$proxy_pass_sem\@$proxy_host");
         },
         qr/Neither user nor password can contain/,
         'proxy: password with semicolon: got exception'
@@ -182,7 +182,7 @@ SKIP: {
 
 sub encode_value {
     my $value = shift;
-    $value =~ s/([^\w])/sprintf("%%%02X", ord($1))/eg;
+    $value =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
     return $value;
 }
 

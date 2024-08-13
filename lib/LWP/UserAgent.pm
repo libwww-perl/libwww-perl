@@ -1148,8 +1148,8 @@ sub proxy {
                     Carp::croak("Bad http proxy specification with '$url'") unless $host;
                     my ($user, $pass) = $credentials =~ /^(.*):(.*)$/;
                     Carp::croak("Neither user nor password can contain ':' symbol") if $user =~ /:/;
-                    $user =~ s/([^\w])/sprintf("%%%02X", ord($1))/ge;
-                    $pass =~ s/([^\w])/sprintf("%%%02X", ord($1))/ge;
+                    $user =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
+                    $pass =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
                     $url = "${scheme}${user}:$pass\@$host";
                 } elsif ( $path !~ m,[\w[], ) {
                     Carp::croak("Bad http proxy specification with '$url'");

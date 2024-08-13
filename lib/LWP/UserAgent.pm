@@ -1137,29 +1137,29 @@ sub proxy {
     Carp::croak("'$key' is not a valid URI scheme") unless $key =~ /^$URI::scheme_re\z/;
     my $old = $self->{'proxy'}{$key};
     if (@_) {
+        require URI;
         my $url = shift;
-        if (defined($url) && length($url)) {
-            Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $url =~ /^$URI::scheme_re:/;
-            # Proxy host might be an IPv4, IPv6 or a domain name with optional port separated by colon
-            # Additionally, I saw sometimes a trailing slash in the proxy path
-            my $host_re = '^[\w\[\]:.-]+/?$';
-            if ( $url =~ m!^(https?://)(.*)! ) {
-                my $scheme = $1;
-                my $path = $2;
-                if ($path =~ /@/) {
-                    my ($credentials, $host) = $path =~ /^(.+)@(.*)$/;
-                    Carp::croak("Bad http proxy specification with '$url'") unless $host && $host =~ m/$host_re/;
-                    my ($user, $pass) = $credentials =~ /^(.*):(.*)$/;
-                    Carp::croak("Neither user nor password can contain ':' symbol") if $user =~ /:/;
-                    $user =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
-                    $pass =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
-                    $url = $scheme . $user . ':' . $pass . '@' . $host;
-                } elsif ( $path !~ /$host_re/ ) {
-                    Carp::croak("Bad http proxy specification with '$url'");
+        my $uri = URI->new($url);
+        if ($uri) {
+            Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $uri->scheme;
+            if ( $uri->scheme =~ /^https?/ ) {
+                # It must be IPv4, IPv6 or a domain name
+                Carp::croak("Bad http proxy specification with '$url'") 
+                    unless $uri->host && $uri->host =~ /^[a-zA-Z0-9.\[\]:-]+$/;
+                if ($uri->userinfo) {
+                    require URI::Escape;
+                    Carp::croak("Neither user nor password can contain ':' symbol") 
+                        if scalar(split /:/, $uri->userinfo) > 2;
+                    # URI doesn't escape all special characters
+                    my ($credentials) = $url =~ m!^https?://(.+)@.+$!;
+                    $uri->userinfo(
+                        # Don't escape ':' as it's used as a separator
+                        URI::Escape::uri_escape($credentials, "^A-Za-z0-9_:")
+                    );
                 }
             }
         }
-        $self->{proxy}{$key} = $url;
+        $self->{proxy}{$key} = $uri->as_string;
         $self->set_my_handler("request_preprepare", \&_need_proxy)
     }
     return $old;

@@ -213,7 +213,6 @@ SKIP: {
 
 sub encode_value {
     my $value = shift;
-    $value =~ s/([^\w])/sprintf("%%%0x", ord($1))/ge;
+    $value =~ s/([^\w])/sprintf("%%%0X", ord($1))/ge;
     return $value;
 }
-

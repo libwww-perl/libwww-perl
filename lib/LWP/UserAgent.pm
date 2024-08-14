@@ -1144,11 +1144,11 @@ sub proxy {
             Carp::croak("Proxy must be specified as absolute URI; '$url' is not") unless $uri->scheme;
             if ( $uri->scheme =~ /^https?/ ) {
                 # It must be IPv4, IPv6 or a domain name
-                Carp::croak("Bad http proxy specification with '$url'") 
+                Carp::croak("Bad http proxy specification with '$url'")
                     unless $uri->host && $uri->host =~ /^[a-zA-Z0-9.\[\]:-]+$/;
                 if ($uri->userinfo) {
                     require URI::Escape;
-                    Carp::croak("Neither user nor password can contain ':' symbol") 
+                    Carp::croak("Neither user nor password can contain ':' symbol")
                         if scalar(split /:/, $uri->userinfo) > 2;
                     # URI doesn't escape all special characters
                     my ($credentials) = $url =~ m!^https?://(.+)@.+$!;

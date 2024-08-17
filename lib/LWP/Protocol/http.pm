@@ -87,30 +87,31 @@ sub _fixup_header
 {
     my($self, $h, $url, $proxy) = @_;
 
-    # Extract 'Host' header
-    my $hhost = $url->authority;
-    if ($hhost =~ s/^(.*)@//) {  # get rid of potential "user:pass@"
-	# add authorization header if we need them.  HTTP URLs do
-	# not really support specification of user and password, but
-	# we allow it.
-	if (defined($1) && not $h->header('Authorization')) {
-	    require URI::Escape;
-	    $h->authorization_basic(map URI::Escape::uri_unescape($_),
-				    split(":", $1, 2));
-	}
+	# get rid of potential "user:pass@" add authorization
+	# header if we need them. HTTP URLs do not really support
+	# specification of user and password, but we allow it.
+    if ($url->userinfo()) {		
+		unless ( $h->header('Authorization')) {
+	    	require URI::Escape;
+			$h->authorization_basic(
+				map URI::Escape::uri_unescape($_),
+				    split(":", $url->userinfo(), 2)
+			);
+		}
     }
-    $h->init_header('Host' => $hhost);
+    $h->init_header('Host' => $url->host());
 
     if ($proxy && $url->scheme ne 'https') {
-	# Check the proxy URI's userinfo() for proxy credentials
-	# export http_proxy="http://proxyuser:proxypass@proxyhost:port".
-	# For https only the initial CONNECT requests needs authorization.
-	my $p_auth = $proxy->userinfo();
-	if(defined $p_auth) {
-	    require URI::Escape;
-	    $h->proxy_authorization_basic(map URI::Escape::uri_unescape($_),
-					  split(":", $p_auth, 2))
-	}
+		# Check the proxy URI's userinfo() for proxy credentials
+		# export http_proxy="http://proxyuser:proxypass@proxyhost:port".
+		# For https only the initial CONNECT requests needs authorization.
+		if ($proxy->userinfo()) {
+			require URI::Escape;
+			$h->proxy_authorization_basic(
+				map URI::Escape::uri_unescape($_),
+					split(":", $proxy->userinfo(), 2)
+			)
+		}
     }
 }
 

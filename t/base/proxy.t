@@ -85,10 +85,11 @@ SKIP: {
 }
 
 {
-    my $proxy_user = '$s3cr=-3t_@dm!m[]]}{_%u$3r';
-    my $proxy_pass = '$tr0ng_-%@@2p%41@$$w0rd!';
-    my $proxy_user_colon = '$s3cr=-3t_@d:m!m[]]}{_%u$3r';
-    my $proxy_pass_colon = '$tr0ng_-%@@2:p%41@$$w0rd!';
+    # user and password with all available special characters
+    my $proxy_user = 'u1!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+    my $proxy_pass = 'p1!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+    my $proxy_user_colon = 'u1!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~';
+    my $proxy_pass_colon = 'p1!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~';
     my @proxy_hosts = qw(
         proxy.example.org
         proxy.example.org:3128

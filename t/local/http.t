@@ -65,7 +65,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 140;
+    plan tests => 148;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -284,22 +284,48 @@ sub _test {
         }
     }
     { # basic auth with special characters
-        # Set userinfo by credentials method
-        use Data::Dumper;
         my $req = HTTP::Request->new(GET => url("/basic_sc", $base));
-        $ua->credentials($req->uri->host_port, "libwww-perl", $user_with_sc, $pass_with_sc);
         my $res = MyUA5->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        ok($res->is_success, 'basicAuth: is_success');
+
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication} = undef;
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth with special characters, no credentials: code 401');
+
+        # Set userinfo by credentials method
+        $ua->credentials($req->uri->host_port, "libwww-perl", $user_with_sc, $pass_with_sc);
+        $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
         ok($res->is_success, 'basicAuth with special characters by credentials: is_success');
 
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth with special characters by credentials: code 401');
+
         # Set userinfo by URI
+        $ua->{basic_authentication} = undef;
         my $uri = URI->new($base);
         $uri->userinfo("$user_with_sc:$pass_with_sc");
         $uri->path("/basic_sc");
         $req = HTTP::Request->new(GET => $uri->as_string);
-        $res = MyUA5->new->request($req);
+        $res = $ua->request($req);
         isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
         ok($res->is_success, 'basicAuth with special characters by URI: is_success');
+
+        # Set incorrect userinfo by URI
+        $ua->{basic_authentication} = undef;
+        $uri = URI->new($base);
+        $uri->userinfo("user:passwd");
+        $uri->path("/basic_sc");
+        $req = HTTP::Request->new(GET => $uri->as_string);
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        is($res->code, 401, 'basicAuth with special characters by URI: code 401');
     }
     { # digest
         my $req = HTTP::Request->new(GET => url("/digest", $base));
@@ -584,7 +610,6 @@ sub daemonize {
     $router{get_basic_sc} = sub {
         my($c, $r) = @_;
         my($u,$p) = $r->authorization_basic;
-
         if (defined($u) && $u eq $user_with_sc && $p eq $pass_with_sc) {
             $c->send_basic_header(200);
             $c->print("Content-Type: text/plain");

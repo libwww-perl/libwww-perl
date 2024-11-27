@@ -729,7 +729,7 @@ Otherwise it works like the ["get" in LWP::UserAgent](https://metacpan.org/pod/L
 
 You can use this method to test whether this user agent object supports the
 specified `scheme`.  (The `scheme` might be a string (like `http` or
-`ftp`) or it might be an [URI](https://metacpan.org/pod/URI) object reference.)
+`ftp`) or it might be a [URI](https://metacpan.org/pod/URI) object reference.)
 
 Whether a scheme is supported is determined by the user agent's
 `protocols_allowed` or `protocols_forbidden` lists (if any), and by

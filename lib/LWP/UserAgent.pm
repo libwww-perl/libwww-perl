@@ -1671,6 +1671,9 @@ will have a standard HTTP Status Code (500).  This response will have the
 "Client-Warning" header set to the value of "Internal response".  See the
 L<LWP::UserAgent/get> method description below for further details.
 
+Disabling the timeout is not supported,
+but it can be set to an arbitrarily large value.
+
 =head1 PROXY ATTRIBUTES
 
 The following methods set up when requests should be passed via a

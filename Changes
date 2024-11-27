@@ -10,7 +10,7 @@ Change history for libwww-perl
     - Move HTTP::CookieJar::LWP to test requires (GH#453) (Olaf Alders)
 
 6.75      2024-01-24 14:29:17Z
-    - Update lwp-request to suport PATCH HTTP method (GH#452) (Javier Puche)
+    - Update lwp-request to support PATCH HTTP method (GH#452) (Javier Puche)
 
 6.74      2024-01-22 17:48:18Z
     - Making it possible to use IPv6 in https call through https proxy

@@ -642,7 +642,7 @@ sub is_protocol_supported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-	# assume we got a reference to an URI object
+	# assume we got a reference to a URI object
 	$scheme = $scheme->scheme;
     }
     else {

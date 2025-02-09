@@ -182,6 +182,9 @@ Gisle Aas <gisle@aas.no>
 
 use strict;
 use warnings;
+use locale;
+require POSIX;
+POSIX::setlocale(&POSIX::LC_ALL, "") and POSIX::setlocale(&POSIX::LC_CTYPE, "");
 
 my $progname = $0;
 $progname =~ s,.*[\\/],,;    # use basename only

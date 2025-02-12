@@ -73,6 +73,8 @@ sub new
     my $no_proxy = exists $cnf{no_proxy} ? delete $cnf{no_proxy} : [];
     Carp::croak(qq{no_proxy must be an arrayref, not $no_proxy!}) if ref $no_proxy ne 'ARRAY';
 
+    my $proxy = exists $cnf{proxy} ? delete $cnf{proxy} : [];
+
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
     my $keep_alive = delete $cnf{keep_alive};
@@ -129,10 +131,10 @@ sub new
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
 
-    if (exists $cnf{proxy}) {
+    if ($proxy) {
         Carp::croak(qq{proxy must be an arrayref, not $cnf{proxy}!})
-            if ref $cnf{proxy} ne 'ARRAY';
-        $self->proxy($cnf{proxy});
+            if ref $proxy ne 'ARRAY';
+        $self->proxy($proxy);
     }
 
     $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;

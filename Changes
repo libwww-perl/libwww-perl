@@ -1,6 +1,8 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Don't warn on proxy as unrecognized option for LWP::UserAgent->new
+      (GH#469) (Austin Hill)
 
 6.77      2024-03-11 00:56:14Z
     - Documentation updates for GH#448 (GH#457) (Russell Shingleton)

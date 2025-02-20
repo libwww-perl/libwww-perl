@@ -397,7 +397,7 @@ The options that LWP relates to are:
     variable.  If this environment variable isn't set; then `verify_hostname`
     defaults to 1.
 
-    Please note that that recently the overall effect of this option with regards to
+    Please note that recently the overall effect of this option with regards to
     SSL handling has changed. As of version 6.11 of [LWP::Protocol::https](https://metacpan.org/pod/LWP%3A%3AProtocol%3A%3Ahttps), which is an
     external module, SSL certificate verification was harmonized to behave in sync with
     [IO::Socket::SSL](https://metacpan.org/pod/IO%3A%3ASocket%3A%3ASSL). With this change, setting this option no longer disables all SSL
@@ -442,6 +442,9 @@ When a request times out, a response object is still returned.  The response
 will have a standard HTTP Status Code (500).  This response will have the
 "Client-Warning" header set to the value of "Internal response".  See the
 ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method description below for further details.
+
+Disabling the timeout is not supported,
+but it can be set to an arbitrarily large value.
 
 # PROXY ATTRIBUTES
 
@@ -729,7 +732,7 @@ Otherwise it works like the ["get" in LWP::UserAgent](https://metacpan.org/pod/L
 
 You can use this method to test whether this user agent object supports the
 specified `scheme`.  (The `scheme` might be a string (like `http` or
-`ftp`) or it might be a [URI](https://metacpan.org/pod/URI) object reference.)
+`ftp`) or it might be an [URI](https://metacpan.org/pod/URI) object reference.)
 
 Whether a scheme is supported is determined by the user agent's
 `protocols_allowed` or `protocols_forbidden` lists (if any), and by

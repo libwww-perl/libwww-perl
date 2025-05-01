@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Documentation updates for mirror (GH#470) (Julien Fiegehenn)
 
 6.78      2025-02-20 00:32:06Z
     - Don't warn on proxy as unrecognized option for LWP::UserAgent->new

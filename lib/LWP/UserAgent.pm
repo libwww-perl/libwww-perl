@@ -2000,6 +2000,8 @@ Uses L<File::Copy/move> to attempt to atomically replace the C<$filename>.
 
 The return value is an L<HTTP::Response> object.
 
+Dies if the response to fetch the document contains an C<X-Died> header.
+
 =head2 patch
 
     # Any version of HTTP::Message works with this form:

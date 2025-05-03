@@ -1,8 +1,31 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Documentation updates for mirror (GH#470) (Julien Fiegehenn)
     - Allow underscores in headers not to be removed in lwp-request (GH#443)
       (@JohnHughesAtlantech and Olaf Alders)
+
+6.78      2025-02-20 00:32:06Z
+    - Don't warn on proxy as unrecognized option for LWP::UserAgent->new
+      (GH#469) (Austin Hill)
+
+6.77      2024-03-11 00:56:14Z
+    - Documentation updates for GH#448 (GH#457) (Russell Shingleton)
+
+6.76      2024-01-25 18:31:25Z
+    - Simplify code slightly for Perl v5.8+ (GH#455) (James Raspass)
+    - Move HTTP::CookieJar::LWP to test requires (GH#453) (Olaf Alders)
+
+6.75      2024-01-24 14:29:17Z
+    - Update lwp-request to support PATCH HTTP method (GH#452) (Javier Puche)
+
+6.74      2024-01-22 17:48:18Z
+    - Making it possible to use IPv6 in https call through https proxy
+      environment (in case of using CONNECT method to create a tunnel) (GH#450)
+      (Dmitriy Shamatrin)
+
+6.73      2024-01-13 20:19:09Z
+    - Fix no_proxy subdomain matching (GH#447) (Axel Burri)
 
 6.72      2023-07-17 22:01:19Z
     - Don't mangle protocol scheme and don't require it to be valid if

@@ -13,9 +13,9 @@ on:
 jobs:
   build-job:
     name: Build distribution
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container:
-      image: perldocker/perl-tester:5.38
+      image: perldocker/perl-tester:5.40
     steps:
       - uses: actions/checkout@v4
       - name: Run Tests
@@ -27,18 +27,18 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
         run: upgrade-perl-helpers && auto-build-and-test-dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build_dir
           path: build_dir
   coverage-job:
     needs: build-job
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container:
-      image: perldocker/perl-tester:5.38
+      image: perldocker/perl-tester:5.40
     steps:
       - uses: actions/checkout@v4 # codecov wants to be inside a Git repository
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build_dir
           path: .
@@ -50,15 +50,12 @@ jobs:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
   ubuntu-test-job:
     needs: build-job
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-24.04]
         perl-version:
-          # - "5.8"
-          # - "5.10"
-          # - "5.12"
           - "5.14"
           - "5.16"
           - "5.18"
@@ -72,13 +69,14 @@ jobs:
           - "5.34"
           - "5.36"
           - "5.38"
+          - "5.40"
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl
         uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: ${{ matrix.perl-version }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build_dir
           path: .
@@ -102,9 +100,6 @@ jobs:
       matrix:
         os: [macos-latest]
         perl-version:
-          # - "5.8"
-          # - "5.10"
-          # - "5.12"
           - "5.14"
           - "5.16"
           - "5.18"
@@ -118,13 +113,14 @@ jobs:
           - "5.34"
           - "5.36"
           - "5.38"
+          - "5.40"
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl
         uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: ${{ matrix.perl-version }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build_dir
           path: .
@@ -146,8 +142,6 @@ jobs:
       matrix:
         os: [windows-latest]
         perl-version:
-          - "5.14"
-          - "5.16"
           - "5.18"
           - "5.20"
           - "5.22"
@@ -162,7 +156,7 @@ jobs:
         with:
           perl-version: ${{ matrix.perl-version }}
           distribution: strawberry # this option only used on windows
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build_dir
           path: .

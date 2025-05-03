@@ -397,6 +397,14 @@ The options that LWP relates to are:
     variable.  If this environment variable isn't set; then `verify_hostname`
     defaults to 1.
 
+    Please note that recently the overall effect of this option with regards to
+    SSL handling has changed. As of version 6.11 of [LWP::Protocol::https](https://metacpan.org/pod/LWP%3A%3AProtocol%3A%3Ahttps), which is an
+    external module, SSL certificate verification was harmonized to behave in sync with
+    [IO::Socket::SSL](https://metacpan.org/pod/IO%3A%3ASocket%3A%3ASSL). With this change, setting this option no longer disables all SSL
+    certificate verification, only the hostname checks. To disable all verification,
+    use the `SSL_verify_mode` option in the `ssl_opts` attribute. For example:
+    `$ua-`ssl\_opts(SSL\_verify\_mode => IO::Socket::SSL::SSL\_VERIFY\_NONE);>
+
 - `SSL_ca_file` => $path
 
     The path to a file containing Certificate Authority certificates.
@@ -435,6 +443,9 @@ will have a standard HTTP Status Code (500).  This response will have the
 "Client-Warning" header set to the value of "Internal response".  See the
 ["get" in LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent#get) method description below for further details.
 
+Disabling the timeout is not supported,
+but it can be set to an arbitrarily large value.
+
 # PROXY ATTRIBUTES
 
 The following methods set up when requests should be passed via a
@@ -467,8 +478,8 @@ this `HTTP_PROXY` is not honored for CGI scripts.  The
     $ua->no_proxy('localhost', 'example.com');
     $ua->no_proxy(); # clear the list
 
-Do not proxy requests to the given domains.  Calling `no_proxy` without
-any domains clears the list of domains.
+Do not proxy requests to the given domains, including subdomains.
+Calling `no_proxy` without any domains clears the list of domains.
 
 ## proxy
 

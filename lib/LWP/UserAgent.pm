@@ -18,7 +18,7 @@ use Module::Load qw( load );
 use Scalar::Util qw(blessed openhandle);
 use Try::Tiny qw(try catch);
 
-our $VERSION = '6.73';
+our $VERSION = '6.79';
 
 sub new
 {
@@ -72,6 +72,8 @@ sub new
     my $env_proxy = exists $cnf{env_proxy} ? delete $cnf{env_proxy} : $ENV{PERL_LWP_ENV_PROXY};
     my $no_proxy = exists $cnf{no_proxy} ? delete $cnf{no_proxy} : [];
     Carp::croak(qq{no_proxy must be an arrayref, not $no_proxy!}) if ref $no_proxy ne 'ARRAY';
+
+    my $proxy = exists $cnf{proxy} ? delete $cnf{proxy} : [];
 
     my $cookie_jar = delete $cnf{cookie_jar};
     my $conn_cache = delete $cnf{conn_cache};
@@ -129,10 +131,10 @@ sub new
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
 
-    if (exists $cnf{proxy}) {
+    if ($proxy) {
         Carp::croak(qq{proxy must be an arrayref, not $cnf{proxy}!})
-            if ref $cnf{proxy} ne 'ARRAY';
-        $self->proxy($cnf{proxy});
+            if ref $proxy ne 'ARRAY';
+        $self->proxy($proxy);
     }
 
     $self->protocols_allowed(  $protocols_allowed  ) if $protocols_allowed;
@@ -642,7 +644,7 @@ sub is_protocol_supported
 {
     my($self, $scheme) = @_;
     if (ref $scheme) {
-	# assume we got a reference to an URI object
+	# assume we got a reference to a URI object
 	$scheme = $scheme->scheme;
     }
     else {
@@ -775,7 +777,7 @@ sub parse_head {
                require HTML::HeadParser;
                $parser = HTML::HeadParser->new;
                $parser->xml_mode(1) if $response->content_is_xhtml;
-               $parser->utf8_mode(1) if $] >= 5.008 && $HTML::Parser::VERSION >= 3.40;
+               $parser->utf8_mode(1) if $HTML::Parser::VERSION >= 3.40;
 
                push(@{$response->{handlers}{response_data}}, {
 		   callback => sub {
@@ -1112,9 +1114,8 @@ sub _need_proxy {
     if ($ua->{no_proxy}) {
         if (my $host = eval { $req->uri->host }) {
             for my $domain (@{$ua->{no_proxy}}) {
-                if ($host =~ /(?:^|\.)\Q$domain\E$/) {
-                    return;
-                }
+                $domain =~ s/^\.//;
+                return if $host =~ /(?:^|\.)\Q$domain\E$/;
             }
         }
     }
@@ -1624,6 +1625,14 @@ This option is initialized from the C<PERL_LWP_SSL_VERIFY_HOSTNAME> environment
 variable.  If this environment variable isn't set; then C<verify_hostname>
 defaults to 1.
 
+Please note that recently the overall effect of this option with regards to
+SSL handling has changed. As of version 6.11 of L<LWP::Protocol::https>, which is an
+external module, SSL certificate verification was harmonized to behave in sync with
+L<IO::Socket::SSL>. With this change, setting this option no longer disables all SSL
+certificate verification, only the hostname checks. To disable all verification,
+use the C<SSL_verify_mode> option in the C<ssl_opts> attribute. For example:
+C<$ua->ssl_opts(SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE);>
+
 =item C<SSL_ca_file> => $path
 
 The path to a file containing Certificate Authority certificates.
@@ -1664,6 +1673,9 @@ will have a standard HTTP Status Code (500).  This response will have the
 "Client-Warning" header set to the value of "Internal response".  See the
 L<LWP::UserAgent/get> method description below for further details.
 
+Disabling the timeout is not supported,
+but it can be set to an arbitrarily large value.
+
 =head1 PROXY ATTRIBUTES
 
 The following methods set up when requests should be passed via a
@@ -1696,8 +1708,8 @@ C<CGI_HTTP_PROXY> environment variable can be used instead.
     $ua->no_proxy('localhost', 'example.com');
     $ua->no_proxy(); # clear the list
 
-Do not proxy requests to the given domains.  Calling C<no_proxy> without
-any domains clears the list of domains.
+Do not proxy requests to the given domains, including subdomains.
+Calling C<no_proxy> without any domains clears the list of domains.
 
 =head2 proxy
 
@@ -1987,6 +1999,8 @@ forced to match that of the server.
 Uses L<File::Copy/move> to attempt to atomically replace the C<$filename>.
 
 The return value is an L<HTTP::Response> object.
+
+Dies if the response to fetch the document contains an C<X-Died> header.
 
 =head2 patch
 

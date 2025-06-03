@@ -334,7 +334,7 @@ sub request {
         my $referral = $request->clone;
 
         # These headers should never be forwarded
-        $referral->remove_header('Host', 'Cookie');
+        $referral->remove_header('Host', 'Cookie', 'Authentication');
 
         if (   $referral->header('Referer')
             && $request->uri->scheme eq 'https'

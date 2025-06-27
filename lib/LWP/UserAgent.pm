@@ -1688,8 +1688,8 @@ proxy server.
 Load proxy settings from C<*_proxy> environment variables.  You might
 specify proxies like this (sh-syntax):
 
-  gopher_proxy=http://proxy.my.place/
-  wais_proxy=http://proxy.my.place/
+  gopher_proxy=http://proxy.example.org/
+  wais_proxy=http://proxy.example.org/
   no_proxy="localhost,example.com"
   export gopher_proxy wais_proxy no_proxy
 

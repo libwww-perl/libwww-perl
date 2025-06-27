@@ -766,6 +766,8 @@ Uses ["move" in File::Copy](https://metacpan.org/pod/File%3A%3ACopy#move) to att
 
 The return value is an [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) object.
 
+Dies if the response to fetch the document contains an `X-Died` header.
+
 ## patch
 
     # Any version of HTTP::Message works with this form:

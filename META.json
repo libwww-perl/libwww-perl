@@ -116,96 +116,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.78",
+         "version" : "6.79",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.78"
+         "version" : "6.79"
       }
    },
    "release_status" : "stable",
@@ -222,10 +222,10 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.78",
+   "version" : "6.79",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.038002"
+         "version" : "5.040000"
       },
       "plugins" : [
          {
@@ -275,7 +275,7 @@
                   "meta_noindex" : 1
                },
                "Dist::Zilla::Role::ModuleMetadata" : {
-                  "Module::Metadata" : "1.000037",
+                  "Module::Metadata" : "1.000038",
                   "version" : "0.006"
                }
             },
@@ -327,7 +327,7 @@
                }
             },
             "name" : "Git::Contributors",
-            "version" : "0.037"
+            "version" : "0.038"
          },
          {
             "class" : "Dist::Zilla::Plugin::GithubMeta",
@@ -348,7 +348,7 @@
             "class" : "Dist::Zilla::Plugin::InstallGuide",
             "config" : {
                "Dist::Zilla::Role::ModuleMetadata" : {
-                  "Module::Metadata" : "1.000037",
+                  "Module::Metadata" : "1.000038",
                   "version" : "0.006"
                }
             },
@@ -487,6 +487,7 @@
                      "Bochner",
                      "BooK",
                      "Buenzli",
+                     "CANONICALIZED",
                      "CGI",
                      "CPAN",
                      "Chamas",
@@ -588,6 +589,7 @@
                      "Zielinski",
                      "Zoest",
                      "afPuUsSedvhx",
+                     "canonicalized",
                      "de",
                      "erik",
                      "getprint",
@@ -762,7 +764,7 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.78",
+                  "tag" : "v6.79",
                   "tag_format" : "v%V",
                   "tag_message" : "v%V"
                },
@@ -943,6 +945,7 @@
       "David Steinbrunner <dsteinbrunner@MountainBook-Pro.local>",
       "dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
       "Desmond Daignault <nawglan@cpan.org>",
+      "Devin Dooley <dooleydevin@github.com>",
       "Dmitriy Shamatrin <dshamatrin@cloudbees.com>",
       "Doug Bell <doug@preaction.me>",
       "Eric Johnson <eric.git@iijo.org>",
@@ -1032,7 +1035,7 @@
       "Yves Orton <yves.orton@booking.com>",
       "Zefram <zefram@fysh.org>"
    ],
-   "x_generated_by_perl" : "v5.38.2",
+   "x_generated_by_perl" : "v5.40.0",
    "x_serialization_backend" : "Cpanel::JSON::XS version 4.39",
    "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later"
 }

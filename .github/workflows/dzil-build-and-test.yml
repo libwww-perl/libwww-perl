@@ -48,28 +48,27 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+  perl-versions:
+    runs-on: ubuntu-latest
+    name: List perl versions
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: v5.14
+
   ubuntu-test-job:
-    needs: build-job
+    needs:
+      - build-job
+      - perl-versions
     runs-on: "ubuntu-24.04"
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-24.04]
-        perl-version:
-          - "5.14"
-          - "5.16"
-          - "5.18"
-          - "5.20"
-          - "5.22"
-          - "5.24"
-          - "5.26"
-          - "5.28"
-          - "5.30"
-          - "5.32"
-          - "5.34"
-          - "5.36"
-          - "5.38"
-          - "5.40"
+        perl-version: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl
@@ -93,27 +92,15 @@ jobs:
           RELEASE_TESTING: 0
           NO_JIGSAW: 1
   macos-test-job:
-    needs: build-job
+    needs:
+      - build-job
+      - perl-versions
     runs-on: "macos-latest"
     strategy:
       fail-fast: true
       matrix:
         os: [macos-latest]
-        perl-version:
-          - "5.14"
-          - "5.16"
-          - "5.18"
-          - "5.20"
-          - "5.22"
-          - "5.24"
-          - "5.26"
-          - "5.28"
-          - "5.30"
-          - "5.32"
-          - "5.34"
-          - "5.36"
-          - "5.38"
-          - "5.40"
+        perl-version: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl

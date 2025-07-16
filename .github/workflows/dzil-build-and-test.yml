@@ -48,13 +48,14 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-  ubuntu-test-job:
+  linux-test-job:
     needs: build-job
     runs-on: "ubuntu-24.04"
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04]
         perl-version:
           - "5.14"
           - "5.16"
@@ -70,12 +71,8 @@ jobs:
           - "5.36"
           - "5.38"
           - "5.40"
-    name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
+    name: perl ${{ matrix.perl-version }}
     steps:
-      - name: set up perl
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: ${{ matrix.perl-version }}
       - uses: actions/download-artifact@v4
         with:
           name: build_dir

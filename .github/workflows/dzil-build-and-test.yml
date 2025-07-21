@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        perl-versions: ${{ fromJson (needs.linux-perl-versions.outputs.perl-versions) }}
+        perl-version: ${{ fromJson (needs.linux-perl-versions.outputs.perl-versions) }}
     name: perl ${{ matrix.perl-version }}
     steps:
       - uses: actions/download-artifact@v4

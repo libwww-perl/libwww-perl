@@ -1799,8 +1799,6 @@ observers between client and proxy to see:
 
 =item * Proxy authentication credentials
 
-=item * Connection timing and data volumes
-
 =back
 
 Using HTTPS to the proxy would encrypt this metadata, but this protection
@@ -1818,24 +1816,25 @@ B<Using stunnel:>
   # Create stunnel configuration
   # /etc/stunnel/lwp-proxy.conf:
   [lwp-proxy]
+  client = yes
   accept = 127.0.0.1:8888
-  connect = proxy.example.com:443
-  cert = /path/to/client.pem  # if client certificates required
+  connect = proxy.example.com:8080
+  # cert = /path/to/client.pem  # if client certificates required
 
   # Start stunnel
   stunnel /etc/stunnel/lwp-proxy.conf
 
-  # Configure LWP to use local tunnel
-  $ua->proxy('https', 'http://username:password@127.0.0.1:8888/');
+  # Configure LWP to use local tunnel for all traffic
+  $ua->proxy(['http', 'https'], 'http://username:password@127.0.0.1:8888/');
 
 B<Using socat:>
 
   # Create SSL tunnel with socat
   socat TCP-LISTEN:8888,fork,bind=127.0.0.1 \
-        OPENSSL:proxy.example.com:443,verify=1
+        OPENSSL:proxy.example.com:8080,verify=1
 
-  # Configure LWP to use local tunnel  
-  $ua->proxy('https', 'http://username:password@127.0.0.1:8888/');
+  # Configure LWP to use local tunnel for all traffic  
+  $ua->proxy(['http', 'https'], 'http://username:password@127.0.0.1:8888/');
 
 The tunnel architecture looks like this:
 
@@ -1846,11 +1845,6 @@ The tunnel architecture looks like this:
 
 This approach avoids nested TLS within the client process while still 
 providing encrypted communication to the proxy.
-
-=head3 Alternative Proxy Protocols
-
-Consider using SOCKS proxies instead of HTTP CONNECT proxies where possible,
-as they may offer different security and encryption options.
 
 =head2 Future Support
 

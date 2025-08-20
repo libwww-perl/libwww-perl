@@ -1738,6 +1738,126 @@ proxy URL for a single access scheme.
 The third form demonstrates setting multiple proxies at once. This is also
 the only form accepted by the constructor.
 
+B<HTTPS Proxy Limitations:> LWP does not currently support HTTP proxies 
+accessed via HTTPS (e.g., C<https://proxy.example.com:8080>). Only traditional 
+HTTP proxies accessed via plain HTTP are supported (e.g., 
+C<http://proxy.example.com:8080>). 
+
+This limitation exists because connecting to an HTTPS server through an HTTPS
+proxy would require nested TLS sessions (TLS to the proxy, and TLS from client
+to server), which L<IO::Socket::SSL> does not currently support. See 
+L</HTTPS PROXY LIMITATIONS> for detailed technical information and workarounds.
+
+=head1 HTTPS PROXY LIMITATIONS
+
+Contrary to recent versions of Python (since 3.8) and curl, LWP does not 
+currently support HTTP proxies which are themselves accessed via HTTPS. 
+LWP only supports "traditional" HTTP proxies accessed via plain HTTP.
+
+=head2 Technical Background
+
+When connecting to an HTTPS server through a proxy, the proxy uses the HTTP 
+CONNECT method to establish a tunnel. The TLS session is end-to-end between 
+the client and the destination server:
+
+  client                   proxy                    server            
+     <------ TCP.cp -------->  <------ TCP.ps ------->
+     <-------------------- TLS.cs -------------------->
+
+However, when the proxy itself is accessed via HTTPS, this creates a nested 
+TLS scenario where the end-to-end TLS session (TLS.cs) must be established 
+inside another TLS session between client and proxy (TLS.cp):
+
+  client                   proxy                    server            
+     <------ TCP.cp -------->  <------ TCP.ps ------->
+     <------ TLS.cp --------> 
+     <-------------------- TLS.cs -------------------->
+
+This nested TLS configuration is not currently supported by L<IO::Socket::SSL>,
+which LWP uses internally for SSL/TLS connections. Adding support for nested
+TLS would require a major design change in L<IO::Socket::SSL>.
+
+=head2 Security Considerations
+
+B<Protection Levels:> HTTPS connections to destination servers provide 
+end-to-end encryption regardless of whether the proxy is accessed via HTTP 
+or HTTPS. The proxy cannot decrypt the content of HTTPS requests.
+
+B<Authentication Security:> A significant security concern exists when using 
+HTTP proxies that require authentication. With plain HTTP proxy connections,
+username and password credentials are sent in cleartext and can be intercepted:
+
+  # INSECURE: Credentials sent in cleartext
+  $ua->proxy('https', 'http://username:password@proxy.example.com:8080/');
+
+B<Traffic Analysis:> Using HTTP to connect to the proxy allows network 
+observers between client and proxy to see:
+
+=over 4
+
+=item * Which destination hosts are being accessed
+
+=item * Proxy authentication credentials
+
+=item * Connection timing and data volumes
+
+=back
+
+Using HTTPS to the proxy would encrypt this metadata, but this protection
+comes at the cost of current incompatibility with LWP.
+
+=head2 Workarounds
+
+=head3 External SSL Tunnels
+
+You can work around this limitation by using external tools to create an 
+SSL tunnel to the proxy, then configure LWP to use the tunnel via plain HTTP:
+
+B<Using stunnel:>
+
+  # Create stunnel configuration
+  # /etc/stunnel/lwp-proxy.conf:
+  [lwp-proxy]
+  accept = 127.0.0.1:8888
+  connect = proxy.example.com:443
+  cert = /path/to/client.pem  # if client certificates required
+
+  # Start stunnel
+  stunnel /etc/stunnel/lwp-proxy.conf
+
+  # Configure LWP to use local tunnel
+  $ua->proxy('https', 'http://username:password@127.0.0.1:8888/');
+
+B<Using socat:>
+
+  # Create SSL tunnel with socat
+  socat TCP-LISTEN:8888,fork,bind=127.0.0.1 \
+        OPENSSL:proxy.example.com:443,verify=1
+
+  # Configure LWP to use local tunnel  
+  $ua->proxy('https', 'http://username:password@127.0.0.1:8888/');
+
+The tunnel architecture looks like this:
+
+  client          tunnel           proxy           server                  
+     <-- TCP.ct ---> <--- TCP.tp ----> <--- TCP.ps --->
+                     <--- TLS.tp ----> 
+     <-------------------- TLS.cs -------------------->
+
+This approach avoids nested TLS within the client process while still 
+providing encrypted communication to the proxy.
+
+=head3 Alternative Proxy Protocols
+
+Consider using SOCKS proxies instead of HTTP CONNECT proxies where possible,
+as they may offer different security and encryption options.
+
+=head2 Future Support
+
+Adding native HTTPS proxy support to LWP would require significant changes
+to L<IO::Socket::SSL> to support nested TLS sessions. This is not currently
+planned but community contributions to L<IO::Socket::SSL> would be welcome.
+
 =head1 HANDLERS
 
 Handlers are code that injected at various phases during the

@@ -508,6 +508,20 @@ proxy URL for a single access scheme.
 The third form demonstrates setting multiple proxies at once. This is also
 the only form accepted by the constructor.
 
+**HTTPS Proxy Limitations:** LWP does not currently support HTTP proxies 
+accessed via HTTPS (e.g., `https://proxy.example.com:8080`). Only traditional 
+HTTP proxies accessed via plain HTTP are supported (e.g., 
+`http://proxy.example.com:8080`). 
+
+This limitation exists because connecting to an HTTPS server through an HTTPS
+proxy would require nested TLS sessions, which IO::Socket::SSL does not 
+currently support. See [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent#HTTPS-PROXY-LIMITATIONS) 
+for detailed technical information and workarounds.
+
+**Security Note:** When using HTTP proxies with authentication, credentials 
+are sent in cleartext. Consider using external SSL tunnels (stunnel, socat) 
+for secure proxy authentication.
+
 # HANDLERS
 
 Handlers are code that injected at various phases during the

@@ -496,6 +496,10 @@ Calling `no_proxy` without any domains clears the list of domains.
         [ 'http', 'https' ] => 'http://http.example.com:8001/',
     ]);
 
+    # Proxy with authentication:
+    $ua->proxy('http', 'http://username:password@proxy.example.com/');
+    $ua->proxy('http' => 'http://username:password@proxy.example.com/');
+
 Set/retrieve proxy URL for a scheme.
 
 The first form specifies that the URL is to be used as a proxy for
@@ -507,6 +511,8 @@ proxy URL for a single access scheme.
 
 The third form demonstrates setting multiple proxies at once. This is also
 the only form accepted by the constructor.
+
+Note: if proxy credentials contain special characters, they will be encoded.
 
 # HANDLERS
 

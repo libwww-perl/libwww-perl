@@ -48,34 +48,31 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-  ubuntu-test-job:
-    needs: build-job
-    runs-on: "ubuntu-24.04"
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-24.04]
-        perl-version:
-          - "5.14"
-          - "5.16"
-          - "5.18"
-          - "5.20"
-          - "5.22"
-          - "5.24"
-          - "5.26"
-          - "5.28"
-          - "5.30"
-          - "5.32"
-          - "5.34"
-          - "5.36"
-          - "5.38"
-          - "5.40"
-    name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
+
+  linux-perl-versions:
+    runs-on: ubuntu-latest
+    name: List perl versions
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
     steps:
-      - name: set up perl
-        uses: shogo82148/actions-setup-perl@v1
+      - id: action
+        uses: perl-actions/perl-versions@v1
         with:
-          perl-version: ${{ matrix.perl-version }}
+          since-perl: v5.14
+
+  linux-test-job:
+    needs:
+      - build-job
+      - linux-perl-versions
+    runs-on: "ubuntu-24.04"
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version: ${{ fromJson (needs.linux-perl-versions.outputs.perl-versions) }}
+    name: perl ${{ matrix.perl-version }}
+    steps:
       - uses: actions/download-artifact@v4
         with:
           name: build_dir
@@ -96,7 +93,7 @@ jobs:
     needs: build-job
     runs-on: "macos-latest"
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [macos-latest]
         perl-version:
@@ -138,7 +135,7 @@ jobs:
     needs: build-job
     runs-on: "windows-latest"
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [windows-latest]
         perl-version:

@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Change the hostname to use localhost in the tests (GH#301) (mschae94)
 
 6.79      2025-06-27 22:43:32Z
     - Remove example references to malicious domain (GH#476) (Devin Dooley)

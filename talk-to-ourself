@@ -12,7 +12,7 @@ use IO::Socket ();
 
 if (@ARGV >= 2 && $ARGV[0] eq "--port") {
     my $port = $ARGV[1];
-    my $host = '127.0.0.1';
+    my $host = 'localhost';
     if (my $socket = IO::Socket::INET->new(PeerAddr => "$host:$port", Timeout => 5)) {
         if (IO::Select->new($socket)->can_read(1)) {
             my($n, $buf);
@@ -33,7 +33,7 @@ if (@ARGV >= 2 && $ARGV[0] eq "--port") {
 }
 
 # server code
-my $socket = IO::Socket::INET->new(Listen => 1, Timeout => 5, LocalAddr => '127.0.0.1');
+my $socket = IO::Socket::INET->new(Listen => 1, Timeout => 5, LocalAddr => 'localhost');
 my $port = $socket->sockport;
 open(my $CLIENT, qq("$^X" "$0" --port $port |)) || die "Can't run $^X $0: $!\n";
 

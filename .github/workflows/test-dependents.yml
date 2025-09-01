@@ -11,7 +11,7 @@ jobs:
     container:
       image: perldocker/perl-tester:5.34
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: install extra modules
         run: cpm install -g Test::DependentModules
       - name: Run Tests

@@ -602,7 +602,7 @@ sub is_online {
 }
 
 
-my @ANI = qw(- \ | /);
+my @ANI = ('-', '\\', '|', '/');
 
 sub progress {
     my($self, $status, $m) = @_;

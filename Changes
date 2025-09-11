@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.80      2025-09-11 22:57:38Z
     - Fix Perl warning for @ANI arrays by changing qw() to explicit list
       notation (GH#484) (Copilot)
     - Test on example.com rather than neverssl.com (GH#479) (Olaf Alders)

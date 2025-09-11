@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix Perl warning for @ANI arrays by changing qw() to explicit list
+      notation (GH#484) (Copilot)
+    - Test on example.com rather than neverssl.com (GH#479) (Olaf Alders)
 
 6.79      2025-06-27 22:43:32Z
     - Remove example references to malicious domain (GH#476) (Devin Dooley)

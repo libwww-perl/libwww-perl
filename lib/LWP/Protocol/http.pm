@@ -7,6 +7,7 @@ our $VERSION = '6.81';
 require HTTP::Response;
 require HTTP::Status;
 require Net::HTTP;
+use Socket qw(SOL_SOCKET SO_KEEPALIVE);
 use parent qw(LWP::Protocol);
 
 our @EXTRA_SOCK_OPTS;
@@ -23,34 +24,43 @@ sub _new_socket
     }
 
     local($^W) = 0;  # IO::Socket::INET can be noisy
+
+	my $keepalive = !!$self->{ua}{conn_cache};
     my $sock = $self->socket_class->new(PeerAddr => $host,
-					PeerPort => $port,
-					LocalAddr => $self->{ua}{local_address},
-					Proto    => 'tcp',
-					Timeout  => $timeout,
-					KeepAlive => !!$self->{ua}{conn_cache},
-					SendTE    => $self->{ua}{send_te},
-					$self->_extra_sock_opts($host, $port),
-				       );
+          PeerPort  => $port,
+          LocalAddr => $self->{ua}{local_address},
+          Proto     => 'tcp',
+          Timeout   => $timeout,
+          KeepAlive => $keepalive,
+          SendTE    => $self->{ua}{send_te},
+          $self->_extra_sock_opts($host, $port),
+    );
+
 
     unless ($sock) {
-	# IO::Socket::INET leaves additional error messages in $@
-	my $status = "Can't connect to $host:$port";
-	if ($@ =~ /\bconnect: (.*)/ ||
-	    $@ =~ /\b(Bad hostname)\b/ ||
-	    $@ =~ /\b(nodename nor servname provided, or not known)\b/ ||
-	    $@ =~ /\b(certificate verify failed)\b/ ||
-	    $@ =~ /\b(Crypt-SSLeay can't verify hostnames)\b/
-	) {
-	    $status .= " ($1)";
-	} elsif ($@) {
-	    $status .= " ($@)";
-	}
-	die "$status\n\n$@";
+        # IO::Socket::INET leaves additional error messages in $@
+        my $status = "Can't connect to $host:$port";
+        if ($@ =~ /\bconnect: (.*)/ ||
+            $@ =~ /\b(Bad hostname)\b/ ||
+            $@ =~ /\b(nodename nor servname provided, or not known)\b/ ||
+            $@ =~ /\b(certificate verify failed)\b/ ||
+            $@ =~ /\b(Crypt-SSLeay can't verify hostnames)\b/
+        ) {
+            $status .= " ($1)";
+        } elsif ($@) {
+            $status .= " ($@)";
+        }
+        die "$status\n\n$@";
     }
 
-    $sock->blocking(0);
+	if ($keepalive) {
+		unless (defined($sock->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1))) {
+			$sock->close();
+            die("Could not set SO_KEEPALIVE on socket: '$!'\n");
+        }
+	}
 
+    $sock->blocking(0);
     $sock;
 }
 

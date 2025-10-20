@@ -33,13 +33,12 @@ subtest 'PATCH x-www-form-urlencoded' => sub {
         [Content => [cat => 'dog'],],
         )
     {
-        is($ua->patch($url, @$arg)->content, <<"EOT", "patch @$arg");
+        is($ua->patch($url, @$arg)->content, <<"EOT" . "cat=dog", "patch @$arg");
 PATCH http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 7
 Content-Type: application/x-www-form-urlencoded
 
-cat=dog
 EOT
     }
 };
@@ -54,13 +53,12 @@ subtest 'PUT x-www-form-urlencoded' => sub {
         [Content => [cat => 'dog'],],
         )
     {
-        is($ua->put($url, @$arg)->content, <<"EOT", "put @$arg");
+        is($ua->put($url, @$arg)->content, <<"EOT" . "cat=dog", "put @$arg");
 PUT http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 7
 Content-Type: application/x-www-form-urlencoded
 
-cat=dog
 EOT
     }
 };
@@ -75,13 +73,12 @@ subtest 'POST x-www-form-urlencoded' => sub {
         [Content => [cat => 'dog'],],
         )
     {
-        is($ua->post($url, @$arg)->content, <<"EOT", "post @$arg");
+        is($ua->post($url, @$arg)->content, <<"EOT" . "cat=dog", "post @$arg");
 POST http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 7
 Content-Type: application/x-www-form-urlencoded
 
-cat=dog
 EOT
     }
 };
@@ -92,13 +89,12 @@ for my $call (qw(post put patch)) {
 
     my $arg = [Content => '{"cat":"dog"}'];
 
-    is($ua->$call($url, @$arg)->content, <<"EOT", "$call @$arg");
+    is($ua->$call($url, @$arg)->content, <<"EOT" . '{"cat":"dog"}', "$call @$arg");
 $ucall http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 13
 Content-Type: application/json
 
-{"cat":"dog"}
 EOT
 
 }
@@ -110,13 +106,12 @@ for my $call (qw(post put patch)) {
     my $arg = ['Content-Type' => 'text/plain', Content => '{"cat":"dog"}'];
 
     is($ua->$call($url, @$arg)->content,
-        <<"EOT", "$call @$arg with override CT");
+        <<"EOT" . '{"cat":"dog"}', "$call @$arg with override CT");
 $ucall http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 13
 Content-Type: text/plain
 
-{"cat":"dog"}
 EOT
 
 }
@@ -133,13 +128,12 @@ for my $ct (0, "", undef) {
         my @desc_arg = map { defined $_ ? $_ : "<undef>" } @$arg;
 
         is($ua->$call($url, @$arg)->content,
-            <<"EOT", "$call @desc_arg with false override CT '$desc' uses default");
+            <<"EOT" . '{"cat":"dog"}', "$call @desc_arg with false override CT '$desc' uses default");
 $ucall http://www.example.com
 User-Agent: foo/0.1
 Content-Length: 13
 Content-Type: application/json
 
-{"cat":"dog"}
 EOT
     }
 

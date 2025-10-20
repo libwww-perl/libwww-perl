@@ -23,6 +23,7 @@ on 'runtime' => sub {
     requires 'HTML::HeadParser' => '3.71';
     requires 'HTTP::Cookies' => '6';
     requires 'HTTP::Date' => '6';
+    requires 'HTTP::Message' => '7.01';
     requires 'HTTP::Negotiate' => '6';
     requires 'HTTP::Request' => '7.01';
     requires 'HTTP::Request::Common' => '6.18';

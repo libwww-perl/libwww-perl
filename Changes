@@ -2,6 +2,8 @@ Change history for libwww-perl
 
 {{$NEXT}}
     - Add Security Policy file SECURITY.md (GH#475) (Mikko Koivunalho)
+    - Update test expectations for HTTP-Message 7.01+ trailing newline fix
+      (GH#492) (Copilot)
 
 6.80      2025-09-11 22:57:38Z
     - Fix Perl warning for @ANI arrays by changing qw() to explicit list

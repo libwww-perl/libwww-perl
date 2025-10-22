@@ -1,6 +1,6 @@
 Change history for libwww-perl
 
-{{$NEXT}}
+6.81      2025-10-22 17:04:53Z
     - Add Security Policy file SECURITY.md (GH#475) (Mikko Koivunalho)
     - Update test expectations for HTTP-Message 7.01+ trailing newline fix
       (GH#492) (Copilot)

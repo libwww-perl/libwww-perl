@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Fix `lwp-request` (`/usr/bin/GET`) for files non-ASCII (Fredrick Brennan)
 
 6.81      2025-10-22 17:04:53Z
     - Add Security Policy file SECURITY.md (GH#475) (Mikko Koivunalho)

@@ -1631,7 +1631,7 @@ external module, SSL certificate verification was harmonized to behave in sync w
 L<IO::Socket::SSL>. With this change, setting this option no longer disables all SSL
 certificate verification, only the hostname checks. To disable all verification,
 use the C<SSL_verify_mode> option in the C<ssl_opts> attribute. For example:
-C<$ua->ssl_opts(SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE);>
+C<< $ua->ssl_opts(SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE); >>
 
 =item C<SSL_ca_file> => $path
 

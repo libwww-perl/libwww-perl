@@ -73,7 +73,6 @@ SKIP: {
 }
 
 {
-    local $TODO = "Test case for GH #372";
     my @warnings;
     local $SIG{__WARN__}   = sub { push @warnings, @_ };
     local $ENV{FOO} = 'BAR';

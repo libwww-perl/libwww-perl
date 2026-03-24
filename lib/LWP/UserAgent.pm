@@ -1169,9 +1169,12 @@ sub env_proxy {
         }
 	$k = lc($k);
         if (my $from_key= $seen{$k}) {
-            warn "Environment contains multiple differing definitions for '$k'.\n".
-                 "Using value from '$from_key' ($ENV{$from_key}) and ignoring '$real_key' ($v)"
-                if $v ne $ENV{$from_key};
+            # Only warn about proxy-related env vars, not unrelated ones (GH #372)
+            if ($k =~ /^(.*)_proxy$/) {
+                warn "Environment contains multiple differing definitions for '$k'.\n".
+                     "Using value from '$from_key' ($ENV{$from_key}) and ignoring '$real_key' ($v)"
+                    if $v ne $ENV{$from_key};
+            }
             next;
         } else {
             $seen{$k}= $real_key;

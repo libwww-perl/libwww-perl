@@ -2,7 +2,9 @@ use strict;
 use warnings;
 use HTTP::Request ();
 use LWP::UserAgent ();
+use Test::Fatal qw( exception );
 use Test::More;
+use Test::Warnings qw( :no_end_test warnings );
 
 # Prevent environment from interfering with test:
 delete $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
@@ -49,6 +51,41 @@ is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
 is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
 is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
+
+{
+    my $err = exception { $ua->default_headers('secret-ish string') };
+    like($err, qr/HTTP::Headers compatible object/,
+        'default_headers croaks on non-object string');
+    like($err, qr/\(got non-reference value\)/,
+        '... describing it by type, without echoing the value (no secret leak)');
+    unlike($err, qr/secret-ish string/,
+        '... and never interpolates the offending value into the croak');
+
+    like(exception { $ua->default_headers({ a => 1 }) },
+        qr/\(got HASH reference\)/,
+        'default_headers croaks on unblessed hashref, described by ref type');
+
+    like(exception { $ua->default_headers(HTTP::Headers->new, HTTP::Headers->new) },
+        qr/single argument/,
+        'default_headers croaks on more than one argument');
+
+    {
+        package NotHeaders;
+        sub new { bless {}, shift }
+    }
+    like(exception { $ua->default_headers(NotHeaders->new) },
+        qr/\(got NotHeaders object\)/,
+        'default_headers croaks on a blessed object missing header_field_names');
+
+    my $undef_err;
+    my @warnings = warnings { $undef_err = exception { $ua->default_headers(undef) } };
+    like($undef_err, qr/HTTP::Headers compatible object/,
+        'default_headers croaks on undef');
+    like($undef_err, qr/\(got undef\)/,
+        '... and labels the value as "undef" rather than empty quotes');
+    is_deeply(\@warnings, [],
+        '... without emitting an "uninitialized value" warning');
+}
 
 # error on malformed request
 {

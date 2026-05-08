@@ -195,8 +195,8 @@ sub request
 	# only if ssl socket class is IO::Socket::SSL we can upgrade
 	# a plain socket to SSL. In case of Net::SSL we fall back to
 	# the old version
+	my $proxy_headers = $self->{ua}{proxy_headers};
 	if ( my $upgrade_sub = $proto_https->can('_upgrade_sock')) {
-	    my $proxy_headers = $self->{ua}->can('proxy_headers') ? $self->{ua}->proxy_headers() : undef;
 	    my $response = $self->request(
 		HTTP::Request->new('CONNECT',"http://$ssl_tunnel", $proxy_headers),
 		$proxy,
@@ -208,6 +208,11 @@ sub request
 		$response->{client_socket},$url)
 		or die "SSL upgrade failed: $@";
 	} else {
+	    if ($proxy_headers && $proxy_headers->header_field_names) {
+		die "Cannot send proxy_headers on CONNECT: the active SSL backend "
+		   ."does not support upgrading a plain socket. Install IO::Socket::SSL "
+		   ."(the LWP default) to enable proxy_headers over HTTPS tunnels.\n";
+	    }
 	    $socket = $proto_https->_new_socket($url->host,$url->port,$timeout);
 	}
     }

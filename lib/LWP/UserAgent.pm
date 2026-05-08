@@ -128,7 +128,7 @@ sub new
     $self->agent(defined($agent) ? $agent : $class->_agent)
         if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
     $self->from($from) if $from;
-    $self->proxy_headers($proxy_headers) if $proxy_headers;
+    $self->proxy_headers($proxy_headers) if defined $proxy_headers;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
@@ -844,7 +844,8 @@ sub cookie_jar {
 
 sub proxy_header {
     my $self = shift;
-    $self->{proxy_headers} ||= HTTP::Headers->new;
+    $self->{proxy_headers} ||= HTTP::Headers->new if @_ > 1;
+    return unless $self->{proxy_headers};
     return $self->{proxy_headers}->header(@_);
 }
 
@@ -1361,6 +1362,7 @@ The following options correspond to attribute methods described below:
    protocols_allowed       undef
    protocols_forbidden     undef
    proxy                   {}
+   proxy_headers           HTTP::Headers->new
    requests_redirectable   ['GET', 'HEAD']
    send_te                 1
    show_progress           undef
@@ -1602,12 +1604,17 @@ will result in a 500 error.
 
 Get/set a single header that will be sent to proxies on the C<CONNECT>
 request used when tunneling HTTPS through an HTTP proxy. This is a shortcut
-for C<< $ua->proxy_headers->header( $field => $value ) >> and corresponds to
-curl's C<--proxy-header> option. A typical use is sending
-C<Proxy-Authorization> on the tunnel request without leaking it to the
-target server.
+for C<< $ua->proxy_headers->header( $field => $value ) >>. A typical use is
+sending C<Proxy-Authorization> on the tunnel request without leaking it to
+the target server.
 
-See L<LWP::UserAgent/proxy_headers> for the underlying header object.
+This applies to the C<CONNECT> tunnel only. It is similar in spirit to
+curl's C<--proxy-header> option, though curl applies that flag to all
+requests sent to the proxy (including non-CONNECT proxied requests),
+whereas LWP applies these headers only to the C<CONNECT> request.
+
+See L<LWP::UserAgent/proxy_headers> for the underlying header object and
+the caveats around SSL backends.
 
 =head2 proxy_headers
 
@@ -1630,6 +1637,19 @@ This may also be passed to the constructor:
 See L<LWP::UserAgent/proxy_header> for setting individual fields and
 L<LWP::UserAgent/default_headers> for the equivalent interface for normal
 (non-CONNECT) requests.
+
+B<SSL backend caveat>: C<proxy_headers> are sent only when LWP is using
+L<IO::Socket::SSL> (the default since LWP 6.00). The legacy L<Net::SSL>
+backend (shipped by L<Crypt::SSLeay>) cannot upgrade an existing socket,
+so the C<CONNECT> request is bypassed entirely on that path. To avoid
+silently dropping the headers, LWP will C<die> if you have set
+C<proxy_headers> while the L<Net::SSL> backend is in use.
+
+B<Note on Proxy-Authorization>: if your proxy URL embeds userinfo
+(e.g. C<http://user:pass@proxy:3128>), L<LWP::Protocol::http> will set
+C<Proxy-Authorization> automatically and that value takes precedence over
+anything in C<proxy_headers>. Either set the credentials via the proxy URL
+B<or> via C<proxy_headers>, not both.
 
 =head2 requests_redirectable
 

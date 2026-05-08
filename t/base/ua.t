@@ -58,6 +58,24 @@ is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
 }
 
 {
+    my $fresh = LWP::UserAgent->new;
+    is($fresh->proxy_header('X-Missing'), undef,
+        'proxy_header($field) returns undef when no headers are set');
+    ok(!exists $fresh->{proxy_headers},
+        'proxy_header($field) does not auto-vivify the headers object');
+
+    $fresh->proxy_header('X-Set' => 'yes');
+    ok(exists $fresh->{proxy_headers},
+        'proxy_header($field => $value) auto-vivifies as a setter');
+}
+
+{
+    my $ua_undef = LWP::UserAgent->new(proxy_headers => undef);
+    ok(!exists $ua_undef->{proxy_headers},
+        'proxy_headers => undef in constructor leaves slot unset');
+}
+
+{
     my $ph = HTTP::Headers->new('Proxy-Authorization' => 'Bearer x');
     my $ua_ctor = LWP::UserAgent->new(proxy_headers => $ph);
     is($ua_ctor->proxy_header('Proxy-Authorization'), 'Bearer x',

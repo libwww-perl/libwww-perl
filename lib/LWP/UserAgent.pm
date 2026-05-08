@@ -840,6 +840,23 @@ sub cookie_jar {
     return $old;
 }
 
+sub proxy_header {
+    my $self = shift;
+    $self->{proxy_headers} ||= HTTP::Headers->new;
+    return $self->{proxy_headers}->header(@_);
+}
+
+sub proxy_headers {
+    my $self = shift;
+    my $old = $self->{proxy_headers} ||= HTTP::Headers->new;
+    if (@_) {
+	Carp::croak("proxy_headers not set to HTTP::Headers compatible object")
+	    unless @_ == 1 && blessed($_[0]) && $_[0]->can("header_field_names");
+	$self->{proxy_headers} = shift;
+    }
+    return $old;
+}
+
 sub default_headers {
     my $self = shift;
     my $old = $self->{def_headers} ||= HTTP::Headers->new;
@@ -1488,6 +1505,12 @@ The default is to not send a C<From> header.  See
 L<LWP::UserAgent/default_headers> for the more general interface that allow
 any header to be defaulted.
 
+=head2 proxy_headers
+
+    my $headers = $ua->proxy_headers;
+
+Get/set all headers that should be sent to proxies via CONNECT requests.
+
 
 =head2 local_address
 
@@ -1571,6 +1594,13 @@ For example: C<< $ua->protocols_forbidden( [ 'file', 'mailto'] ); >>
 means that this user agent will I<not> allow those protocols, and
 attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
+
+=head2 proxy_header
+
+    my $value = $ua->proxy_header( $field );
+    $ua->proxy_header( $field => $value );
+
+Get/set headers that will only be sent to proxies via CONNECT requests.
 
 =head2 requests_redirectable
 

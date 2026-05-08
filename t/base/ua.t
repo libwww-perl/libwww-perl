@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use HTTP::Headers ();
 use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
@@ -49,6 +50,22 @@ is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
 is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
 is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
+
+$ua->proxy_header("Foo" => "bar");
+is($ua->proxy_headers->header("Foo"), "bar", '$ua->proxy_headers->header("Foo")');
+is($ua->proxy_header("Foo"),          "bar", '$ua->proxy_header("Foo")');
+
+my $headers = HTTP::Headers->new(Bar => 'baz');
+$ua->proxy_headers($headers);
+is($ua->proxy_header('Bar'), 'baz', '$ua->proxy_headers accepts an HTTP::Headers object');
+
+eval { $ua->proxy_headers('not an object') };
+like($@, qr/HTTP::Headers compatible object/,
+    'proxy_headers croaks on non-object argument');
+
+eval { $ua->proxy_headers({ a => 1 }) };
+like($@, qr/HTTP::Headers compatible object/,
+    'proxy_headers croaks on unblessed hashref');
 
 # error on malformed request
 {

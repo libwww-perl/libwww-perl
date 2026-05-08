@@ -31,6 +31,7 @@ sub new
     my $agent = delete $cnf{agent};
     my $from  = delete $cnf{from};
     my $def_headers = delete $cnf{default_headers};
+    my $proxy_headers = delete $cnf{proxy_headers};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
@@ -127,6 +128,7 @@ sub new
     $self->agent(defined($agent) ? $agent : $class->_agent)
         if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
     $self->from($from) if $from;
+    $self->proxy_headers($proxy_headers) if defined $proxy_headers;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
@@ -840,6 +842,26 @@ sub cookie_jar {
     return $old;
 }
 
+sub proxy_header {
+    my $self = shift;
+    $self->{proxy_headers} ||= HTTP::Headers->new if @_ > 1;
+    return unless $self->{proxy_headers};
+    return $self->{proxy_headers}->header(@_);
+}
+
+sub proxy_headers {
+    my $self = shift;
+    my $old = $self->{proxy_headers} ||= HTTP::Headers->new;
+    if (@_) {
+	my $arg = $_[0];
+	my $desc = defined($arg) ? qq{"$arg"} : 'undef';
+	Carp::croak("proxy_headers not set to an HTTP::Headers compatible object (got $desc)")
+	    unless @_ == 1 && blessed($arg) && $arg->can("header_field_names");
+	$self->{proxy_headers} = shift;
+    }
+    return $old;
+}
+
 sub default_headers {
     my $self = shift;
     my $old = $self->{def_headers} ||= HTTP::Headers->new;
@@ -1022,6 +1044,10 @@ sub clone
 
     if ($self->{def_headers}) {
         $copy->{def_headers} = $self->{def_headers}->clone;
+    }
+
+    if ($self->{proxy_headers}) {
+        $copy->{proxy_headers} = $self->{proxy_headers}->clone;
     }
 
     # re-enable standard handlers
@@ -1338,6 +1364,7 @@ The following options correspond to attribute methods described below:
    protocols_allowed       undef
    protocols_forbidden     undef
    proxy                   {}
+   proxy_headers           HTTP::Headers->new
    requests_redirectable   ['GET', 'HEAD']
    send_te                 1
    show_progress           undef
@@ -1571,6 +1598,68 @@ For example: C<< $ua->protocols_forbidden( [ 'file', 'mailto'] ); >>
 means that this user agent will I<not> allow those protocols, and
 attempts to use this user agent to access URLs with those schemes
 will result in a 500 error.
+
+=head2 proxy_header
+
+    my $value = $ua->proxy_header( $field );
+    $ua->proxy_header( $field => $value );
+
+Get/set a single header that will be sent to proxies on the C<CONNECT>
+request used when tunneling HTTPS through an HTTP proxy. This is a shortcut
+for C<< $ua->proxy_headers->header( $field => $value ) >>. A typical use is
+sending C<Proxy-Authorization> on the tunnel request without leaking it to
+the target server.
+
+This applies to the C<CONNECT> tunnel only. It is similar in spirit to
+curl's C<--proxy-header> option, though curl applies that flag to all
+requests sent to the proxy (including non-CONNECT proxied requests),
+whereas LWP applies these headers only to the C<CONNECT> request.
+
+See L<LWP::UserAgent/proxy_headers> for the underlying header object and
+the caveats around SSL backends.
+
+=head2 proxy_headers
+
+    my $headers = $ua->proxy_headers;
+    $ua->proxy_headers( $headers_obj );
+
+Get/set the L<HTTP::Headers> object holding the headers that will be sent on
+the C<CONNECT> request when tunneling HTTPS through an HTTP proxy. By
+default this will be an empty L<HTTP::Headers> object that is auto-vivified
+on first access. Setting accepts any object that C<< can("header_field_names") >>
+(i.e. an L<HTTP::Headers> or compatible subclass); passing a non-object or
+unblessed reference croaks.
+
+This may also be passed to the constructor:
+
+  my $ua = LWP::UserAgent->new(
+      proxy_headers => HTTP::Headers->new('Proxy-Authorization' => '...'),
+  );
+
+See L<LWP::UserAgent/proxy_header> for setting individual fields and
+L<LWP::UserAgent/default_headers> for the equivalent interface for normal
+(non-CONNECT) requests.
+
+B<SSL backend caveat>: C<proxy_headers> are sent only when LWP is using
+L<IO::Socket::SSL> (the default since LWP 6.00). The legacy L<Net::SSL>
+backend (shipped by L<Crypt::SSLeay>) cannot upgrade an existing socket,
+so the C<CONNECT> request is bypassed entirely on that path. To avoid
+silently dropping the headers, LWP will C<die> if you have set
+C<proxy_headers> while the L<Net::SSL> backend is in use.
+
+B<Note on Proxy-Authorization>: if your proxy URL embeds userinfo
+(e.g. C<http://user:pass@proxy:3128>), L<LWP::Protocol::http> will set
+C<Proxy-Authorization> automatically and that value takes precedence over
+anything in C<proxy_headers>. Either set the credentials via the proxy URL
+B<or> via C<proxy_headers>, not both.
+
+B<Note on connection caching>: when an L<LWP::ConnCache> is in use, the
+cache key is keyed only on host, port and tunnel target, not on the
+C<proxy_headers> contents. That means a previously established tunnel may
+be reused by a later request even after C<proxy_headers> has changed. If
+you need to rotate per-request headers (e.g. a one-shot proxy auth token),
+either disable the connection cache or call
+C<< $ua->conn_cache->prune >> between requests.
 
 =head2 requests_redirectable
 

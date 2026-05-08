@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use HTTP::Headers ();
 use HTTP::Request ();
 use LWP::UserAgent ();
 use Test::More;
@@ -49,6 +50,80 @@ is(ref($ua->default_headers), "HTTP::Headers", 'ref($ua->default_headers)');
 $ua->default_header("Foo" => "bar", "Multi" => [1, 2]);
 is($ua->default_headers->header("Foo"), "bar", '$ua->default_headers->header("Foo")');
 is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
+
+{
+    my $fresh = LWP::UserAgent->new;
+    is(ref($fresh->proxy_headers), 'HTTP::Headers',
+        '$ua->proxy_headers auto-vivifies an empty HTTP::Headers object');
+}
+
+{
+    my $fresh = LWP::UserAgent->new;
+    is($fresh->proxy_header('X-Missing'), undef,
+        'proxy_header($field) returns undef when no headers are set');
+    ok(!exists $fresh->{proxy_headers},
+        'proxy_header($field) does not auto-vivify the headers object');
+
+    $fresh->proxy_header('X-Set' => 'yes');
+    ok(exists $fresh->{proxy_headers},
+        'proxy_header($field => $value) auto-vivifies as a setter');
+}
+
+{
+    my $ua_undef = LWP::UserAgent->new(proxy_headers => undef);
+    ok(!exists $ua_undef->{proxy_headers},
+        'proxy_headers => undef in constructor leaves slot unset');
+}
+
+{
+    my $ph = HTTP::Headers->new('Proxy-Authorization' => 'Bearer x');
+    my $ua_ctor = LWP::UserAgent->new(proxy_headers => $ph);
+    is($ua_ctor->proxy_header('Proxy-Authorization'), 'Bearer x',
+        'proxy_headers accepted as a constructor option');
+    is($ua_ctor->proxy_headers, $ph,
+        'constructor stores the same HTTP::Headers object (not a copy)');
+
+    eval { LWP::UserAgent->new(proxy_headers => 'not an object') };
+    like($@, qr/HTTP::Headers compatible object/,
+        'proxy_headers constructor option croaks on non-object');
+}
+
+$ua->proxy_header("Foo" => "bar");
+is($ua->proxy_headers->header("Foo"), "bar", '$ua->proxy_headers->header("Foo")');
+is($ua->proxy_header("Foo"),          "bar", '$ua->proxy_header("Foo")');
+
+my $headers = HTTP::Headers->new(Bar => 'baz');
+my $old = $ua->proxy_headers($headers);
+isa_ok($old, 'HTTP::Headers', 'proxy_headers setter returns previous headers object');
+is($ua->proxy_header('Bar'), 'baz', '$ua->proxy_headers accepts an HTTP::Headers object');
+
+{
+    package MyHeaders;
+    our @ISA = ('HTTP::Headers');
+}
+my $sub = MyHeaders->new(Sub => 'class');
+$ua->proxy_headers($sub);
+is($ua->proxy_header('Sub'), 'class',
+    'proxy_headers accepts an HTTP::Headers subclass');
+
+eval { $ua->proxy_headers('not an object') };
+like($@, qr/HTTP::Headers compatible object/,
+    'proxy_headers croaks on non-object argument');
+
+eval { $ua->proxy_headers({ a => 1 }) };
+like($@, qr/HTTP::Headers compatible object/,
+    'proxy_headers croaks on unblessed hashref');
+
+{
+    my $parent = LWP::UserAgent->new;
+    $parent->proxy_header('X-Parent' => 'one');
+    my $clone = $parent->clone;
+    $clone->proxy_header('X-Parent' => 'two');
+    is($parent->proxy_header('X-Parent'), 'one',
+        'clone has an independent proxy_headers object');
+    is($clone->proxy_header('X-Parent'), 'two',
+        'clone retains its own proxy_header changes');
+}
 
 # error on malformed request
 {

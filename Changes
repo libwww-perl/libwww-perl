@@ -3,7 +3,8 @@ Change history for libwww-perl
 {{$NEXT}}
     - Add proxy_header() and proxy_headers() to LWP::UserAgent so that
       headers can be sent on the CONNECT request used to tunnel HTTPS
-      through an HTTP proxy (GH#505) (Mathias Fischer, Olaf Alders).
+      through an HTTP proxy. proxy_headers may also be passed to the
+      constructor (GH#505) (Mathias Fischer, Olaf Alders).
 
 6.82      2026-03-29 17:02:10Z
     - Fix env_proxy() warning for unrelated environment variables (GH#501)

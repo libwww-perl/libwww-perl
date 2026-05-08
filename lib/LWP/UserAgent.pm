@@ -31,6 +31,7 @@ sub new
     my $agent = delete $cnf{agent};
     my $from  = delete $cnf{from};
     my $def_headers = delete $cnf{default_headers};
+    my $proxy_headers = delete $cnf{proxy_headers};
     my $timeout = delete $cnf{timeout};
     $timeout = 3*60 unless defined $timeout;
     my $local_address = delete $cnf{local_address};
@@ -127,6 +128,7 @@ sub new
     $self->agent(defined($agent) ? $agent : $class->_agent)
         if defined($agent) || !$def_headers || !$def_headers->header("User-Agent");
     $self->from($from) if $from;
+    $self->proxy_headers($proxy_headers) if $proxy_headers;
     $self->cookie_jar($cookie_jar) if $cookie_jar;
     $self->parse_head($parse_head);
     $self->env_proxy if $env_proxy;
@@ -1607,9 +1609,6 @@ target server.
 
 See L<LWP::UserAgent/proxy_headers> for the underlying header object.
 
-C<proxy_header> is not accepted as a constructor argument; set it on an
-instance after construction.
-
 =head2 proxy_headers
 
     my $headers = $ua->proxy_headers;
@@ -1621,6 +1620,12 @@ default this will be an empty L<HTTP::Headers> object that is auto-vivified
 on first access. Setting accepts any object that C<< can("header_field_names") >>
 (i.e. an L<HTTP::Headers> or compatible subclass); passing a non-object or
 unblessed reference croaks.
+
+This may also be passed to the constructor:
+
+  my $ua = LWP::UserAgent->new(
+      proxy_headers => HTTP::Headers->new('Proxy-Authorization' => '...'),
+  );
 
 See L<LWP::UserAgent/proxy_header> for setting individual fields and
 L<LWP::UserAgent/default_headers> for the equivalent interface for normal

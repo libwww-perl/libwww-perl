@@ -57,6 +57,17 @@ is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
         '$ua->proxy_headers auto-vivifies an empty HTTP::Headers object');
 }
 
+{
+    my $ph = HTTP::Headers->new('Proxy-Authorization' => 'Bearer x');
+    my $ua_ctor = LWP::UserAgent->new(proxy_headers => $ph);
+    is($ua_ctor->proxy_header('Proxy-Authorization'), 'Bearer x',
+        'proxy_headers accepted as a constructor option');
+
+    eval { LWP::UserAgent->new(proxy_headers => 'not an object') };
+    like($@, qr/HTTP::Headers compatible object/,
+        'proxy_headers constructor option croaks on non-object');
+}
+
 $ua->proxy_header("Foo" => "bar");
 is($ua->proxy_headers->header("Foo"), "bar", '$ua->proxy_headers->header("Foo")');
 is($ua->proxy_header("Foo"),          "bar", '$ua->proxy_header("Foo")');

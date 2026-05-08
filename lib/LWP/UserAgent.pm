@@ -1041,6 +1041,10 @@ sub clone
         $copy->{def_headers} = $self->{def_headers}->clone;
     }
 
+    if ($self->{proxy_headers}) {
+        $copy->{proxy_headers} = $self->{proxy_headers}->clone;
+    }
+
     # re-enable standard handlers
     $copy->parse_head($self->parse_head);
 
@@ -1505,12 +1509,6 @@ The default is to not send a C<From> header.  See
 L<LWP::UserAgent/default_headers> for the more general interface that allow
 any header to be defaulted.
 
-=head2 proxy_headers
-
-    my $headers = $ua->proxy_headers;
-
-Get/set all headers that should be sent to proxies via CONNECT requests.
-
 
 =head2 local_address
 
@@ -1600,7 +1598,33 @@ will result in a 500 error.
     my $value = $ua->proxy_header( $field );
     $ua->proxy_header( $field => $value );
 
-Get/set headers that will only be sent to proxies via CONNECT requests.
+Get/set a single header that will be sent to proxies on the C<CONNECT>
+request used when tunneling HTTPS through an HTTP proxy. This is a shortcut
+for C<< $ua->proxy_headers->header( $field => $value ) >> and corresponds to
+curl's C<--proxy-header> option. A typical use is sending
+C<Proxy-Authorization> on the tunnel request without leaking it to the
+target server.
+
+See L<LWP::UserAgent/proxy_headers> for the underlying header object.
+
+C<proxy_header> is not accepted as a constructor argument; set it on an
+instance after construction.
+
+=head2 proxy_headers
+
+    my $headers = $ua->proxy_headers;
+    $ua->proxy_headers( $headers_obj );
+
+Get/set the L<HTTP::Headers> object holding the headers that will be sent on
+the C<CONNECT> request when tunneling HTTPS through an HTTP proxy. By
+default this will be an empty L<HTTP::Headers> object that is auto-vivified
+on first access. Setting accepts any object that C<< can("header_field_names") >>
+(i.e. an L<HTTP::Headers> or compatible subclass); passing a non-object or
+unblessed reference croaks.
+
+See L<LWP::UserAgent/proxy_header> for setting individual fields and
+L<LWP::UserAgent/default_headers> for the equivalent interface for normal
+(non-CONNECT) requests.
 
 =head2 requests_redirectable
 

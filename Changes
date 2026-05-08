@@ -1,6 +1,12 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Include the proxy URL's userinfo in the LWP::ConnCache key for HTTPS-
+      through-HTTP-proxy tunnels. Rotating proxy credentials between requests
+      now correctly re-establishes the tunnel instead of silently reusing one
+      negotiated with the previous credentials. Behaviour change: callers
+      rotating per-request credentials will see one extra TCP+TLS handshake
+      per token (GH#507) (Olaf Alders, Claude).
 
 6.82      2026-03-29 17:02:10Z
     - Fix env_proxy() warning for unrelated environment variables (GH#501)

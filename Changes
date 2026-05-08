@@ -1,6 +1,10 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Caller-set Proxy-Authorization now takes precedence over proxy URL
+      userinfo in LWP::Protocol::http::_fixup_header, matching the existing
+      Authorization behaviour. Behaviour change: previously the userinfo
+      silently overrode any explicit header (GH#506) (Olaf Alders, Claude).
 
 6.82      2026-03-29 17:02:10Z
     - Fix env_proxy() warning for unrelated environment variables (GH#501)

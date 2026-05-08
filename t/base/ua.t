@@ -62,6 +62,8 @@ is($ua->default_header("Foo"),          "bar", '$ua->default_header("Foo")');
     my $ua_ctor = LWP::UserAgent->new(proxy_headers => $ph);
     is($ua_ctor->proxy_header('Proxy-Authorization'), 'Bearer x',
         'proxy_headers accepted as a constructor option');
+    is($ua_ctor->proxy_headers, $ph,
+        'constructor stores the same HTTP::Headers object (not a copy)');
 
     eval { LWP::UserAgent->new(proxy_headers => 'not an object') };
     like($@, qr/HTTP::Headers compatible object/,

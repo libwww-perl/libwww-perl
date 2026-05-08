@@ -1651,6 +1651,14 @@ C<Proxy-Authorization> automatically and that value takes precedence over
 anything in C<proxy_headers>. Either set the credentials via the proxy URL
 B<or> via C<proxy_headers>, not both.
 
+B<Note on connection caching>: when an L<LWP::ConnCache> is in use, the
+cache key is keyed only on host, port and tunnel target, not on the
+C<proxy_headers> contents. That means a previously established tunnel may
+be reused by a later request even after C<proxy_headers> has changed. If
+you need to rotate per-request headers (e.g. a one-shot proxy auth token),
+either disable the connection cache or call
+C<< $ua->conn_cache->prune >> between requests.
+
 =head2 requests_redirectable
 
     my $aref = $ua->requests_redirectable;

@@ -10,7 +10,8 @@ use Encode qw( encode_utf8 );
 
 plan tests => 10;
 
-my $ua = LWP::UserAgent->new(keep_alive => 1);
+# jigsaw redirects via https->http; opt in to follow the chain.
+my $ua = LWP::UserAgent->new(keep_alive => 1, allow_downgrade => 1);
 
 my $data = {foo => 'bar', baz => 'quux'};
 my $encoded_data = encode_utf8(encode_json($data));

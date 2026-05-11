@@ -180,4 +180,53 @@ subtest 'allow_credentialed_redirects opt-out via accessor' => sub {
         'Authorization forwarded after $ua->allow_credentialed_redirects(1)');
 };
 
+subtest 'https -> http downgrade is refused' => sub {
+    my $ua = Test::CapturingUA->new(
+        _responses => [
+            make_redirect('http://victim.example/profile'),
+            make_ok(),
+        ],
+    );
+    my $res = $ua->request(build_request('https://victim.example/profile'));
+
+    is(scalar @{ $ua->{_requests} }, 1, 'follow-up request was NOT issued');
+    is($res->code, 302, 'returned the original 302 response');
+    like(
+        $res->header('Client-Warning'),
+        qr/Refusing https->http redirect/,
+        'Client-Warning explains the refusal'
+    );
+};
+
+subtest 'allow_downgrade opts in to https -> http (constructor)' => sub {
+    my $ua = Test::CapturingUA->new(
+        allow_downgrade => 1,
+        _responses => [
+            make_redirect('http://victim.example/profile'),
+            make_ok(),
+        ],
+    );
+    my $res = $ua->request(build_request('https://victim.example/profile'));
+
+    is(scalar @{ $ua->{_requests} }, 2, 'follow-up request was issued');
+    is($res->code, 200, 'final response is 200 OK');
+    my $followup = $ua->{_requests}->[1];
+    is($followup->header('Authorization'), undef,
+        'Authorization still stripped (scheme change is cross-origin)');
+};
+
+subtest 'allow_downgrade opts in to https -> http (accessor)' => sub {
+    my $ua = Test::CapturingUA->new(
+        _responses => [
+            make_redirect('http://victim.example/profile'),
+            make_ok(),
+        ],
+    );
+    $ua->allow_downgrade(1);
+    my $res = $ua->request(build_request('https://victim.example/profile'));
+
+    is(scalar @{ $ua->{_requests} }, 2, 'follow-up issued after accessor set');
+    is($res->code, 200, 'final response is 200 OK');
+};
+
 done_testing;

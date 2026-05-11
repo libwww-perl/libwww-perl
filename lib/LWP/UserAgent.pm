@@ -94,6 +94,7 @@ sub new
       unless defined $cookie_jar_class;
 
     my $allow_credentialed_redirects = delete $cnf{allow_credentialed_redirects};
+    my $allow_downgrade              = delete $cnf{allow_downgrade};
 
     # Actually ""s are just as good as 0's, but for concision we'll just say:
     Carp::croak("protocols_allowed has to be an arrayref or 0, not \"$protocols_allowed\"!")
@@ -125,6 +126,7 @@ sub new
         send_te                      => $send_te,
         cookie_jar_class             => $cookie_jar_class,
         allow_credentialed_redirects => $allow_credentialed_redirects,
+        allow_downgrade              => $allow_downgrade,
     }, $class;
 
     $self->agent(defined($agent) ? $agent : $class->_agent)
@@ -391,6 +393,21 @@ sub request {
             {
                 $referral->remove_header('Authorization', 'Proxy-Authorization');
             }
+        }
+
+        # Refuse https->http downgrade by default. A caller who
+        # requested https reasonably expects end-to-end TLS; following
+        # a 3xx to plaintext leaks the body and remaining headers.
+        # Opt-out via allow_downgrade => 1.
+        my $orig_scheme = defined $request->uri->scheme  ? $request->uri->scheme  : q{};
+        my $new_scheme  = defined $referral->uri->scheme ? $referral->uri->scheme : q{};
+        if (   $orig_scheme eq 'https'
+            && $new_scheme  eq 'http'
+            && !$self->{allow_downgrade})
+        {
+            $response->header("Client-Warning" =>
+                "Refusing https->http redirect (set allow_downgrade => 1 to opt in)");
+            return $response;
         }
 
         return $response unless $self->redirect_ok($referral, $response);
@@ -763,6 +780,7 @@ sub local_address{ shift->_elem('local_address',@_); }
 sub max_size     { shift->_elem('max_size',     @_); }
 sub max_redirect { shift->_elem('max_redirect', @_); }
 sub allow_credentialed_redirects { shift->_elem('allow_credentialed_redirects', @_); }
+sub allow_downgrade              { shift->_elem('allow_downgrade', @_); }
 sub show_progress{ shift->_elem('show_progress', @_); }
 sub send_te      { shift->_elem('send_te',      @_); }
 
@@ -1351,6 +1369,7 @@ The following options correspond to attribute methods described below:
    ---------------------------    --------------------
    agent                          "libwww-perl/#.###"
    allow_credentialed_redirects   undef
+   allow_downgrade                undef
    conn_cache                     undef
    cookie_jar                     undef
    cookie_jar_class               HTTP::Cookies
@@ -1376,6 +1395,11 @@ and C<Proxy-Authorization> from the cloned request to avoid leaking
 caller-supplied credentials to the redirect target. Set
 C<allow_credentialed_redirects> to a true value to opt out and
 forward these headers across origins.
+
+A 3xx redirect that downgrades an C<https> request to plain C<http>
+is refused by default; the original response is returned with a
+C<Client-Warning> header explaining the refusal. Set C<allow_downgrade>
+to a true value to opt in to following such redirects.
 
 The following additional options are also accepted: If the C<env_proxy> option
 is passed in with a true value, then proxy settings are read from environment
@@ -1429,6 +1453,19 @@ headers are forwarded across cross-origin 3xx redirects (a different scheme,
 host, or port). Defaults to a false value, meaning the headers are stripped
 on cross-origin redirects to avoid leaking credentials to the redirect target.
 Same-origin redirects always retain these headers.
+
+=head2 allow_downgrade
+
+    my $allow = $ua->allow_downgrade;
+    $ua->allow_downgrade( 1 );
+
+Get/set whether a 3xx redirect from an C<https> request to a plain
+C<http> URL is followed. Defaults to a false value, meaning such
+redirects are refused; the original response is returned with a
+C<Client-Warning> header. Set to a true value to opt in to following
+the redirect. Note that even when C<allow_downgrade> is true,
+cross-origin credential stripping still applies (see
+L</allow_credentialed_redirects>).
 
 =head2 conn_cache
 

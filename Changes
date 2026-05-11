@@ -1,6 +1,12 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - LWP::UserAgent now strips Authorization and Proxy-Authorization headers
+      on cross-origin redirects (a different scheme, host, or port) to prevent
+      credential leakage to the redirect target. Same-origin redirects retain
+      credentials. Opt out with allow_credentialed_redirects => 1.
+      CVE-2026-8368 reported by Kai Zen; PoC and initial patch by Stig
+      Palmquist.
 
 6.82      2026-03-29 17:02:10Z
     - Fix env_proxy() warning for unrelated environment variables (GH#501)

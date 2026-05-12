@@ -117,96 +117,96 @@
    "provides" : {
       "LWP" : {
          "file" : "lib/LWP.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Authen::Basic" : {
          "file" : "lib/LWP/Authen/Basic.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Authen::Digest" : {
          "file" : "lib/LWP/Authen/Digest.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Authen::Ntlm" : {
          "file" : "lib/LWP/Authen/Ntlm.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::ConnCache" : {
          "file" : "lib/LWP/ConnCache.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Debug" : {
          "file" : "lib/LWP/Debug.pm",
-         "version" : "6.82",
+         "version" : "6.83",
          "x_deprecated" : 1
       },
       "LWP::Debug::TraceHTTP" : {
          "file" : "lib/LWP/Debug/TraceHTTP.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::DebugFile" : {
          "file" : "lib/LWP/DebugFile.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::MemberMixin" : {
          "file" : "lib/LWP/MemberMixin.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol" : {
          "file" : "lib/LWP/Protocol.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::cpan" : {
          "file" : "lib/LWP/Protocol/cpan.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::data" : {
          "file" : "lib/LWP/Protocol/data.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::file" : {
          "file" : "lib/LWP/Protocol/file.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::ftp" : {
          "file" : "lib/LWP/Protocol/ftp.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::gopher" : {
          "file" : "lib/LWP/Protocol/gopher.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::http" : {
          "file" : "lib/LWP/Protocol/http.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::loopback" : {
          "file" : "lib/LWP/Protocol/loopback.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::mailto" : {
          "file" : "lib/LWP/Protocol/mailto.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::nntp" : {
          "file" : "lib/LWP/Protocol/nntp.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Protocol::nogo" : {
          "file" : "lib/LWP/Protocol/nogo.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::RobotUA" : {
          "file" : "lib/LWP/RobotUA.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::Simple" : {
          "file" : "lib/LWP/Simple.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       },
       "LWP::UserAgent" : {
          "file" : "lib/LWP/UserAgent.pm",
-         "version" : "6.82"
+         "version" : "6.83"
       }
    },
    "release_status" : "stable",
@@ -223,10 +223,10 @@
       "x_IRC" : "irc://irc.perl.org/#lwp",
       "x_MailingList" : "mailto:libwww@perl.org"
    },
-   "version" : "6.82",
+   "version" : "6.83",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.042000"
+         "version" : "5.042002"
       },
       "plugins" : [
          {
@@ -769,7 +769,7 @@
                   "branch" : null,
                   "changelog" : "Changes",
                   "signed" : 0,
-                  "tag" : "v6.82",
+                  "tag" : "v6.83",
                   "tag_format" : "v%V",
                   "tag_message" : "v%V"
                },
@@ -1042,7 +1042,7 @@
       "Yves Orton <yves.orton@booking.com>",
       "Zefram <zefram@fysh.org>"
    ],
-   "x_generated_by_perl" : "v5.42.0",
+   "x_generated_by_perl" : "v5.42.2",
    "x_serialization_backend" : "Cpanel::JSON::XS version 4.40",
    "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later"
 }

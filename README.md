@@ -94,27 +94,41 @@ This method constructs a new [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3A
 Key/value pair arguments may be provided to set up the initial state.
 The following options correspond to attribute methods described below:
 
-    KEY                     DEFAULT
-    -----------             --------------------
-    agent                   "libwww-perl/#.###"
-    conn_cache              undef
-    cookie_jar              undef
-    cookie_jar_class        HTTP::Cookies
-    default_headers         HTTP::Headers->new
-    from                    undef
-    local_address           undef
-    max_redirect            7
-    max_size                undef
-    no_proxy                []
-    parse_head              1
-    protocols_allowed       undef
-    protocols_forbidden     undef
-    proxy                   {}
-    requests_redirectable   ['GET', 'HEAD']
-    send_te                 1
-    show_progress           undef
-    ssl_opts                { verify_hostname => 1 }
-    timeout                 180
+    KEY                            DEFAULT
+    ---------------------------    --------------------
+    agent                          "libwww-perl/#.###"
+    allow_credentialed_redirects   undef
+    allow_downgrade                undef
+    conn_cache                     undef
+    cookie_jar                     undef
+    cookie_jar_class               HTTP::Cookies
+    default_headers                HTTP::Headers->new
+    from                           undef
+    local_address                  undef
+    max_redirect                   7
+    max_size                       undef
+    no_proxy                       []
+    parse_head                     1
+    protocols_allowed              undef
+    protocols_forbidden            undef
+    proxy                          {}
+    requests_redirectable          ['GET', 'HEAD']
+    send_te                        1
+    show_progress                  undef
+    ssl_opts                       { verify_hostname => 1 }
+    timeout                        180
+
+When following a 3xx redirect to a different origin (a different
+scheme, host, or port), [LWP::UserAgent](https://metacpan.org/pod/LWP%3A%3AUserAgent) strips `Authorization`
+and `Proxy-Authorization` from the cloned request to avoid leaking
+caller-supplied credentials to the redirect target. Set
+`allow_credentialed_redirects` to a true value to opt out and
+forward these headers across origins.
+
+A 3xx redirect that downgrades an `https` request to plain `http`
+is refused by default; the original response is returned with a
+`Client-Warning` header explaining the refusal. Set `allow_downgrade`
+to a true value to opt in to following such redirects.
 
 The following additional options are also accepted: If the `env_proxy` option
 is passed in with a true value, then proxy settings are read from environment
@@ -157,6 +171,30 @@ string is appended to it.
 
 The user agent string should be one or more simple product identifiers
 with an optional version number separated by the `/` character.
+
+## allow\_credentialed\_redirects
+
+    my $allow = $ua->allow_credentialed_redirects;
+    $ua->allow_credentialed_redirects( 1 );
+
+Get/set whether caller-supplied `Authorization` and `Proxy-Authorization`
+headers are forwarded across cross-origin 3xx redirects (a different scheme,
+host, or port). Defaults to a false value, meaning the headers are stripped
+on cross-origin redirects to avoid leaking credentials to the redirect target.
+Same-origin redirects always retain these headers.
+
+## allow\_downgrade
+
+    my $allow = $ua->allow_downgrade;
+    $ua->allow_downgrade( 1 );
+
+Get/set whether a 3xx redirect from an `https` request to a plain
+`http` URL is followed. Defaults to a false value, meaning such
+redirects are refused; the original response is returned with a
+`Client-Warning` header. Set to a true value to opt in to following
+the redirect. Note that even when `allow_downgrade` is true,
+cross-origin credential stripping still applies (see
+["allow\_credentialed\_redirects"](#allow_credentialed_redirects)).
 
 ## conn\_cache
 

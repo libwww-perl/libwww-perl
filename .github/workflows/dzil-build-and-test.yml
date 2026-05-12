@@ -27,7 +27,7 @@ jobs:
           NO_JIGSAW: 1
           SENDMAIL: "/usr/sbin/sendmail" # for compilation test of LWP::Protocol::mailto
         run: upgrade-perl-helpers && auto-build-and-test-dist
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: build_dir
           path: build_dir
@@ -82,7 +82,7 @@ jobs:
           name: build_dir
           path: .
       - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@v2
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
@@ -129,7 +129,7 @@ jobs:
           name: build_dir
           path: .
       - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@v2
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
@@ -165,7 +165,7 @@ jobs:
           name: build_dir
           path: .
       - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@v2
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"

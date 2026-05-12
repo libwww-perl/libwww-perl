@@ -1,5 +1,7 @@
 Change history for libwww-perl
 
+{{$NEXT}}
+
 6.83      2026-05-12 11:41:48Z
     - LWP::UserAgent now strips Authorization and Proxy-Authorization headers
       on cross-origin redirects (a different scheme, host, or port) to prevent

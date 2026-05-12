@@ -15,7 +15,7 @@ jobs:
     name: Build distribution
     runs-on: ubuntu-24.04
     container:
-      image: perldocker/perl-tester:5.40
+      image: perldocker/perl-tester:5.42
     steps:
       - uses: actions/checkout@v6
       - name: Run Tests
@@ -35,7 +35,7 @@ jobs:
     needs: build-job
     runs-on: ubuntu-24.04
     container:
-      image: perldocker/perl-tester:5.40
+      image: perldocker/perl-tester:5.42
     steps:
       - uses: actions/checkout@v6 # codecov wants to be inside a Git repository
       - uses: actions/download-artifact@v8
@@ -70,6 +70,7 @@ jobs:
           - "5.36"
           - "5.38"
           - "5.40"
+          - "5.42"
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl
@@ -85,6 +86,8 @@ jobs:
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
+          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
+          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
       - name: install sendmail
         run: sudo apt-get install -y --no-install-recommends sendmail-bin
       - run: prove -lr t
@@ -114,6 +117,7 @@ jobs:
           - "5.36"
           - "5.38"
           - "5.40"
+          - "5.42"
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
     steps:
       - name: set up perl
@@ -129,6 +133,8 @@ jobs:
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
+          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
+          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
       - run: prove -lr t
         env:
           AUTHOR_TESTING: 0
@@ -136,17 +142,15 @@ jobs:
           NO_JIGSAW: 1
   windows-test-job:
     needs: build-job
-    runs-on: "windows-latest"
+    runs-on: "windows-2025"
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-2025]
         perl-version:
           - "5.18"
           - "5.20"
           - "5.22"
-          - "5.24"
-          - "5.26"
           - "5.28"
           - "5.30"
     name: perl ${{ matrix.perl-version }} on ${{ matrix.os }}
@@ -165,6 +169,8 @@ jobs:
         with:
           cpanfile: "cpanfile"
           args: "--with-suggests --with-recommends --with-test"
+          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
+          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
       - run: prove -lr t
         env:
           AUTHOR_TESTING: 0

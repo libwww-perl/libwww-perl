@@ -27,7 +27,7 @@ In a Perl program, you can call its C<get($url)> function.  It will try
 getting that URL's content.  If it works, then it'll return the
 content; but if there's some error, it'll return undef.
 
-  my $url = 'http://www.npr.org/programs/fa/?todayDate=current';
+  my $url = 'https://www.npr.org/programs/fresh-air';
     # Just an example: the URL for the most recent /Fresh Air/ show
 
   use LWP::Simple;

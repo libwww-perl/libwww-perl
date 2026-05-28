@@ -231,10 +231,10 @@ code similar to this at regular intervals:
   use LWP::Simple;
 
   %mirrors = (
-     'http://www.sn.no/'                       => 'sn.html',
-     'http://www.perl.com/'                    => 'perl.html',
-     'http://search.cpan.org/distlibwww-perl/' => 'lwp.html',
-     'gopher://gopher.sn.no/'                  => 'gopher.html',
+     'http://www.sn.no/'                     => 'sn.html',
+     'http://www.perl.com/'                  => 'perl.html',
+     'https://metacpan.org/dist/libwww-perl' => 'lwp.html',
+     'gopher://gopher.sn.no/'                => 'gopher.html',
   );
 
   while (($url, $localfile) = each(%mirrors)) {

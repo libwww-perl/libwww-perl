@@ -108,7 +108,7 @@ sub collect
 
     # This can't be moved to Try::Tiny due to the closures within causing
     # leaks on any version of Perl prior to 5.18.
-    # https://perl5.git.perl.org/perl.git/commitdiff/a0d2bbd5c
+    # https://github.com/Perl/perl5/commit/a0d2bbd5c
     my $error = do { #catch
         local $@;
         local $\; # protect the print below from surprises

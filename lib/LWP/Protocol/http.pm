@@ -25,7 +25,7 @@ sub _new_socket
 
     local($^W) = 0;  # IO::Socket::INET can be noisy
 
-	my $keepalive = !!$self->{ua}{conn_cache};
+    my $keepalive = !!$self->{ua}{conn_cache};
     my $sock = $self->socket_class->new(PeerAddr => $host,
           PeerPort  => $port,
           LocalAddr => $self->{ua}{local_address},
@@ -35,7 +35,6 @@ sub _new_socket
           SendTE    => $self->{ua}{send_te},
           $self->_extra_sock_opts($host, $port),
     );
-
 
     unless ($sock) {
         # IO::Socket::INET leaves additional error messages in $@
@@ -53,12 +52,19 @@ sub _new_socket
         die "$status\n\n$@";
     }
 
-	if ($keepalive) {
-		unless (defined($sock->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1))) {
-			$sock->close();
-            die("Could not set SO_KEEPALIVE on socket: '$!'\n");
+    if ($keepalive) {
+        # Best-effort: enable TCP keepalive so dead connections in the pool
+        # are detected. This must not be fatal: on platforms where the
+        # SO_KEEPALIVE macro is undefined the constant dies when called, and
+        # setsockopt can still fail at runtime. In either case the request
+        # can proceed without keepalive, so warn rather than die.
+        my $ok = eval { $sock->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1) };
+        unless (defined $ok) {
+            my $reason = $@ || "$!";
+            $reason =~ s/\s+\z//;
+            warn "Could not set SO_KEEPALIVE on socket: $reason\n";
         }
-	}
+    }
 
     $sock->blocking(0);
     $sock;

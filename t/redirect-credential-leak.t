@@ -139,7 +139,10 @@ subtest 'cross-host redirect strips Cookie header' => sub {
 
     is(scalar @{ $ua->{_requests} }, 2, 'two requests issued');
     my $followup = $ua->{_requests}->[1];
+    is($followup->uri, 'http://attacker.example/loot', 'followup hit redirect target');
     is($followup->header('Cookie'), undef, 'Cookie stripped cross-host');
+    is($followup->header('Authorization'),       undef, 'Authorization stripped cross-host');
+    is($followup->header('Proxy-Authorization'), undef, 'Proxy-Authorization stripped cross-host');
 };
 
 subtest 'same-origin redirect also strips Cookie header' => sub {
@@ -153,6 +156,7 @@ subtest 'same-origin redirect also strips Cookie header' => sub {
     $req->header('Cookie' => 'session=s3cr3t');
     $ua->request($req);
 
+    is(scalar @{ $ua->{_requests} }, 2, 'two requests issued');
     my $followup = $ua->{_requests}->[1];
 
     # Contrast: Authorization is only dropped cross-origin and survives here,
@@ -161,6 +165,29 @@ subtest 'same-origin redirect also strips Cookie header' => sub {
         'Authorization retained same-origin');
     is($followup->header('Cookie'), undef,
         'Cookie stripped even same-origin');
+};
+
+subtest 'allow_credentialed_redirects does not restore Cookie' => sub {
+    my $ua = Test::CapturingUA->new(
+        allow_credentialed_redirects => 1,
+        _responses => [
+            make_redirect('http://attacker.example/loot'),
+            make_ok(),
+        ],
+    );
+    my $req = build_request('http://victim.example/profile');
+    $req->header('Cookie' => 'session=s3cr3t');
+    $ua->request($req);
+
+    is(scalar @{ $ua->{_requests} }, 2, 'two requests issued');
+    my $followup = $ua->{_requests}->[1];
+
+    # Cookie stripping is unconditional, so the credential opt-in must not
+    # bring it back even while it forwards Authorization cross-origin.
+    is($followup->header('Cookie'), undef,
+        'Cookie stripped despite allow_credentialed_redirects');
+    is($followup->header('Authorization'), 'Bearer s3cr3t',
+        'Authorization forwarded because allow_credentialed_redirects is set');
 };
 
 subtest 'host comparison is case-insensitive' => sub {

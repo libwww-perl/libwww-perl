@@ -11,6 +11,7 @@ use FindBin qw( $Bin );
 use HTTP::Daemon ();
 use LWP::UserAgent ();
 use Test::Needs 'Test::LeakTrace';
+use URI ();
 
 plan skip_all => 'skip leak test in COVERAGE' if $ENV{COVERAGE};
 
@@ -33,7 +34,7 @@ else {
         open($DAEMON, "$perl $0 daemon |") or die "Can't exec daemon: $!";
         my $greeting = <$DAEMON> || '';
         if ( $greeting =~ /(<[^>]+>)/ ) {
-            $base = $1;
+            $base = URI->new($1);
         }
     }
     _test();
@@ -46,10 +47,17 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 1;
+    plan tests => 2;
 
     my ($tempfh, $tempfile) = File::Temp::tempfile(UNLINK => 0);
     close $tempfh;
+
+    # Sanity-check that the request actually succeeds, so the leak test below
+    # exercises the real success path instead of silently passing on a failed
+    # request.
+    my $res = LWP::UserAgent->new->get($base, ':content_file' => $tempfile);
+    ok($res->is_success, 'request to local daemon succeeded')
+        or diag $res->status_line;
 
     Test::LeakTrace::no_leaks_ok(
         sub {
@@ -59,8 +67,6 @@ sub _test {
     );
 
     unlink $tempfile;
-
-    done_testing;
 }
 
 sub daemonize {

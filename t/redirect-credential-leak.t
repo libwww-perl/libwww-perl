@@ -137,6 +137,7 @@ subtest 'cross-host redirect strips Cookie header' => sub {
     $req->header('Cookie' => 'session=s3cr3t');
     $ua->request($req);
 
+    is(scalar @{ $ua->{_requests} }, 2, 'two requests issued');
     my $followup = $ua->{_requests}->[1];
     is($followup->header('Cookie'), undef, 'Cookie stripped cross-host');
 };

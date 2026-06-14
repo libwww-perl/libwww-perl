@@ -188,6 +188,8 @@ subtest 'allow_credentialed_redirects does not restore Cookie' => sub {
         'Cookie stripped despite allow_credentialed_redirects');
     is($followup->header('Authorization'), 'Bearer s3cr3t',
         'Authorization forwarded because allow_credentialed_redirects is set');
+    is($followup->header('Proxy-Authorization'), 'Basic cHJveHk6c2VjcmV0',
+        'Proxy-Authorization forwarded because allow_credentialed_redirects is set');
 };
 
 subtest 'host comparison is case-insensitive' => sub {

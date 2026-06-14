@@ -85,13 +85,11 @@ jobs:
         with:
           name: build_dir
           path: .
-      - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v2
+      - uses: perl-actions/setup-cpm@v1
         with:
-          cpanfile: "cpanfile"
-          args: "--with-suggests --with-recommends --with-test"
-          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
-          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
+          version: compat
+      - name: install deps using cpm
+        run: cpm install -g --cpanfile cpanfile --with-suggests --with-recommends --with-test
       - name: install sendmail
         run: sudo apt-get install -y --no-install-recommends sendmail-bin
       - run: prove -lr t
@@ -132,13 +130,11 @@ jobs:
         with:
           name: build_dir
           path: .
-      - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v2
+      - uses: perl-actions/setup-cpm@v1
         with:
-          cpanfile: "cpanfile"
-          args: "--with-suggests --with-recommends --with-test"
-          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
-          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
+          version: compat
+      - name: install deps using cpm
+        run: cpm install -g --cpanfile cpanfile --with-suggests --with-recommends --with-test
       - run: prove -lr t
         env:
           AUTHOR_TESTING: 0
@@ -168,13 +164,11 @@ jobs:
         with:
           name: build_dir
           path: .
-      - name: install deps using cpm
-        uses: perl-actions/install-with-cpm@v2
+      - uses: perl-actions/setup-cpm@v1
         with:
-          cpanfile: "cpanfile"
-          args: "--with-suggests --with-recommends --with-test"
-          # App::cpm v0.999.0+ requires Perl 5.24+; pin older Perls to the last compatible release.
-          version: ${{ matrix.perl-version <= '5.22' && '0.998003' || 'main' }}
+          version: compat
+      - name: install deps using cpm
+        run: cpm install -g --cpanfile cpanfile --with-suggests --with-recommends --with-test
       - run: prove -lr t
         env:
           AUTHOR_TESTING: 0

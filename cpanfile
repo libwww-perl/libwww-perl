@@ -53,6 +53,7 @@ on 'test' => sub {
     requires 'Test::Fatal';
     requires 'Test::More', '0.96';
     requires 'Test::RequiresInternet';
+    requires 'Test::Warnings';
     requires 'FindBin';
     requires 'Test::Needs';
     recommends 'Test::LeakTrace';

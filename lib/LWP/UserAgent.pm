@@ -6,6 +6,7 @@ use parent qw(LWP::MemberMixin);
 
 use Carp ();
 use File::Copy ();
+use HTTP::Headers ();
 use HTTP::Request ();
 use HTTP::Response ();
 use HTTP::Date ();
@@ -887,9 +888,20 @@ sub default_headers {
     my $self = shift;
     my $old = $self->{def_headers} ||= HTTP::Headers->new;
     if (@_) {
-	Carp::croak("default_headers not set to HTTP::Headers compatible object")
-	    unless @_ == 1 && $_[0]->can("header_field_names");
-	$self->{def_headers} = shift;
+	Carp::croak('default_headers takes a single argument') if @_ > 1;
+	my $arg = $_[0];
+	unless (blessed($arg) && $arg->can("header_field_names")) {
+	    # Describe the argument by type rather than value so we never
+	    # echo a caller-supplied secret (e.g. an Authorization header)
+	    # into a croak that typically ends up in logs.
+	    my $desc
+		= !defined($arg) ? 'undef'
+		: blessed($arg)  ? blessed($arg) . ' object'
+		: ref($arg)      ? ref($arg) . ' reference'
+		:                  'non-reference value';
+	    Carp::croak("default_headers not set to an HTTP::Headers compatible object (got $desc)");
+	}
+	$self->{def_headers} = $arg;
     }
     return $old;
 }

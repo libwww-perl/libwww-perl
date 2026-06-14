@@ -126,6 +126,42 @@ subtest 'same-origin redirect keeps credential headers' => sub {
         'Proxy-Authorization preserved same-origin');
 };
 
+subtest 'cross-host redirect strips Cookie header' => sub {
+    my $ua = Test::CapturingUA->new(
+        _responses => [
+            make_redirect('http://attacker.example/loot'),
+            make_ok(),
+        ],
+    );
+    my $req = build_request('http://victim.example/profile');
+    $req->header('Cookie' => 'session=s3cr3t');
+    $ua->request($req);
+
+    my $followup = $ua->{_requests}->[1];
+    is($followup->header('Cookie'), undef, 'Cookie stripped cross-host');
+};
+
+subtest 'same-origin redirect also strips Cookie header' => sub {
+    my $ua = Test::CapturingUA->new(
+        _responses => [
+            make_redirect('http://victim.example/profile/new'),
+            make_ok(),
+        ],
+    );
+    my $req = build_request('http://victim.example/profile');
+    $req->header('Cookie' => 'session=s3cr3t');
+    $ua->request($req);
+
+    my $followup = $ua->{_requests}->[1];
+
+    # Contrast: Authorization is only dropped cross-origin and survives here,
+    # whereas Cookie is dropped unconditionally on every redirect.
+    is($followup->header('Authorization'), 'Bearer s3cr3t',
+        'Authorization retained same-origin');
+    is($followup->header('Cookie'), undef,
+        'Cookie stripped even same-origin');
+};
+
 subtest 'host comparison is case-insensitive' => sub {
     my $ua = Test::CapturingUA->new(
         _responses => [

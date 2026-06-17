@@ -11,6 +11,7 @@ require HTTP::Request;
 require HTTP::Response;
 require HTTP::Status;
 require HTTP::Date;
+require Encode::Locale;
 
 
 sub request
@@ -90,14 +91,16 @@ sub request
 	# Make directory listing
 	require URI::Escape;
 	require HTML::Entities;
-        my $pathe = $path . ( $^O eq 'MacOS' ? ':' : '/');
+	require POSIX;
+	my $localeenc = $Encode::Locale::ENCODING_LOCALE_FS;
+	my $pathe = $path . ( $^O eq 'MacOS' ? ':' : '/');
 	for (@files) {
 	    my $furl = URI::Escape::uri_escape($_);
             if ( -d "$pathe$_" ) {
                 $furl .= '/';
                 $_ .= '/';
             }
-	    my $desc = HTML::Entities::encode($_);
+	    my $desc = HTML::Entities::encode($_, '<>&"');
 	    $_ = qq{<LI><A HREF="$furl">$desc</A>};
 	}
 	# Ensure that the base URL is "/" terminated
@@ -109,6 +112,7 @@ sub request
 			"<HTML>\n<HEAD>",
 			"<TITLE>Directory $path</TITLE>",
 			"<BASE HREF=\"$base\">",
+			"<META CHARSET=\"$localeenc\">",
 			"</HEAD>\n<BODY>",
 			"<H1>Directory listing of $path</H1>",
 			"<UL>", @files, "</UL>",

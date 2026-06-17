@@ -35,6 +35,8 @@ if($ENV{PERL_LWP_ENV_HTTP_TEST_URL})
     $DAEMON = 1;
 }
 my $CAN_TEST = (0==system($^X, "$Bin/../../talk-to-ourself"))? 1: 0;
+my $user_with_sc = 'u1!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+my $pass_with_sc = 'p1!"#$%&\'()*+,-:./;<=>?@[\]^_`{|}~';
 
 my $D = shift(@ARGV) || '';
 if ($D eq 'daemon') {
@@ -63,7 +65,7 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 136;
+    plan tests => 148;
 
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
@@ -280,6 +282,50 @@ sub _test {
             isa_ok($res, 'HTTP::Response', "$ident: good response object");
             is($res->code, 401, "$ident: code 401");
         }
+    }
+    { # basic auth with special characters
+        my $req = HTTP::Request->new(GET => url("/basic_sc", $base));
+        my $res = MyUA5->new->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        ok($res->is_success, 'basicAuth: is_success');
+
+        # Let's try with a $ua that does not pass out credentials
+        $ua->{basic_authentication} = undef;
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth with special characters, no credentials: code 401');
+
+        # Set userinfo by credentials method
+        $ua->credentials($req->uri->host_port, "libwww-perl", $user_with_sc, $pass_with_sc);
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        ok($res->is_success, 'basicAuth with special characters by credentials: is_success');
+
+        # Then illegal credentials
+        $ua->credentials($req->uri->host_port, "libwww-perl", "user", "passwd");
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth: good response object');
+        is($res->code, 401, 'basicAuth with special characters by credentials: code 401');
+
+        # Set userinfo by URI
+        $ua->{basic_authentication} = undef;
+        my $uri = URI->new($base);
+        $uri->userinfo("$user_with_sc:$pass_with_sc");
+        $uri->path("/basic_sc");
+        $req = HTTP::Request->new(GET => $uri->as_string);
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        ok($res->is_success, 'basicAuth with special characters by URI: is_success');
+
+        # Set incorrect userinfo by URI
+        $ua->{basic_authentication} = undef;
+        $uri = URI->new($base);
+        $uri->userinfo("user:passwd");
+        $uri->path("/basic_sc");
+        $req = HTTP::Request->new(GET => $uri->as_string);
+        $res = $ua->request($req);
+        isa_ok($res, 'HTTP::Response', 'basicAuth with special characters: good response object');
+        is($res->code, 401, 'basicAuth with special characters by URI: code 401');
     }
     { # digest
         my $req = HTTP::Request->new(GET => url("/digest", $base));
@@ -528,6 +574,14 @@ sub _test {
         return ("irrelevant", "xyzzy");
     }
 }
+{
+    package MyUA5;
+    use parent 'LWP::UserAgent';
+    sub get_basic_credentials {
+        my($self, $realm, $uri, $proxy) = @_;
+        return ($user_with_sc, $pass_with_sc);
+    }
+}
 sub daemonize {
     my %router;
     $router{delete_echo} = sub {
@@ -541,6 +595,22 @@ sub daemonize {
         my($c, $r) = @_;
         my($u,$p) = $r->authorization_basic;
         if (defined($u) && $u eq 'ok 12' && $p eq 'xyzzy') {
+            $c->send_basic_header(200);
+            $c->print("Content-Type: text/plain");
+            $c->send_crlf;
+            $c->send_crlf;
+            $c->print("$u\n");
+        }
+        else {
+            $c->send_basic_header(401);
+            $c->print("WWW-Authenticate: Basic realm=\"libwww-perl\"\015\012");
+            $c->send_crlf;
+        }
+    };
+    $router{get_basic_sc} = sub {
+        my($c, $r) = @_;
+        my($u,$p) = $r->authorization_basic;
+        if (defined($u) && $u eq $user_with_sc && $p eq $pass_with_sc) {
             $c->send_basic_header(200);
             $c->print("Content-Type: text/plain");
             $c->send_crlf;

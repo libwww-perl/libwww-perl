@@ -1,6 +1,17 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - LWP::UserAgent no longer re-applies persistent default headers
+      (default_header/default_headers) that were stripped from a redirect
+      referral. Previously prepare_request() re-initialised a default
+      Authorization, Proxy-Authorization, or Cookie onto the cross-origin
+      target after request() had stripped it, defeating the CVE-2026-8368
+      mitigation for the persistent-header path. Same-origin redirects and
+      allow_credentialed_redirects => 1 retain credentials as before.
+    - Simplify the cross-origin credential strip comparison to use
+      URI->canonical and host_port, keeping it consistent with the rest of
+      the module and removing an inconsistent host/port guard. No behavior
+      change for the http/https redirect targets this code handles. (GH#526)
 
 6.83      2026-05-12 11:41:48Z
     - LWP::UserAgent now strips Authorization and Proxy-Authorization headers

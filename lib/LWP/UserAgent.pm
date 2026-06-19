@@ -263,7 +263,14 @@ sub prepare_request
     $self->run_handlers("request_preprepare", $request);
 
     if (my $def_headers = $self->{def_headers}) {
+	# Headers that request() deliberately stripped from a redirect
+	# referral (e.g. Authorization on a cross-origin hop, or Cookie on
+	# any hop) must not be silently re-applied here from default_headers,
+	# which would re-leak them. See request() for how the set is built.
+	my %skip = map { lc $_ => 1 }
+	    @{ $self->{_stripped_redirect_headers} || [] };
 	for my $h ($def_headers->header_field_names) {
+	    next if $skip{ lc $h };
 	    $request->init_header($h => [$def_headers->header($h)]);
 	}
     }
@@ -325,6 +332,10 @@ sub request {
     }
 
     if (my $req = $self->run_handlers("response_redirect", $response)) {
+        # A response_redirect handler owns the referral request it returns,
+        # including any cross-origin credential decision, so this path
+        # intentionally bypasses the built-in strip and its
+        # _stripped_redirect_headers tracking below.
         return $self->request($req, $arg, $size, $response);
     }
 
@@ -338,8 +349,15 @@ sub request {
     {
         my $referral = $request->clone;
 
+        # Names of headers we deliberately strip from the referral below.
+        # Carried (cumulatively) across the redirect chain via a localized
+        # field so prepare_request() does not re-apply them from
+        # default_headers on this or any later hop and re-leak them.
+        my @stripped = @{ $self->{_stripped_redirect_headers} || [] };
+
         # These headers should never be forwarded
         $referral->remove_header('Host', 'Cookie');
+        push @stripped, 'Host', 'Cookie';
 
         if (   $referral->header('Referer')
             && $request->uri->scheme eq 'https'
@@ -348,6 +366,7 @@ sub request {
             # RFC 2616, section 15.1.3.
             # https -> http redirect, suppressing Referer
             $referral->remove_header('Referer');
+            push @stripped, 'Referer';
         }
 
         if (   $code == HTTP::Status::RC_SEE_OTHER
@@ -379,19 +398,20 @@ sub request {
         # libcurl CVE-2018-1000007. Opt-out via
         # allow_credentialed_redirects => 1.
         unless ($self->{allow_credentialed_redirects}) {
-            my $orig = $request->uri;
-            my $new  = $referral->uri;
+            # canonical() lower-cases scheme and host, and host_port supplies
+            # the scheme's default port when none is given, so http://h/ and
+            # http://h:80/ (and case-only host differences) compare equal.
+            # The scheme comparison short-circuits the || below, so a host-less
+            # scheme (mailto:, data:) never reaches host_port, which would die.
+            my $orig = $request->uri->canonical;
+            my $new  = $referral->uri->canonical;
             my $orig_scheme = defined $orig->scheme ? $orig->scheme : q{};
             my $new_scheme  = defined $new->scheme  ? $new->scheme  : q{};
-            my $orig_host   = defined $orig->host   ? lc $orig->host : q{};
-            my $new_host    = defined $new->host    ? lc $new->host  : q{};
-            my $orig_port   = eval { $orig->port } || 0;
-            my $new_port    = eval { $new->port  } || 0;
             if (   $orig_scheme ne $new_scheme
-                || $orig_host   ne $new_host
-                || $orig_port   != $new_port)
+                || $orig->host_port ne $new->host_port)
             {
                 $referral->remove_header('Authorization', 'Proxy-Authorization');
+                push @stripped, 'Authorization', 'Proxy-Authorization';
             }
         }
 
@@ -411,6 +431,7 @@ sub request {
         }
 
         return $response unless $self->redirect_ok($referral, $response);
+        local $self->{_stripped_redirect_headers} = \@stripped;
         return $self->request($referral, $arg, $size, $response);
 
     }
@@ -1448,11 +1469,18 @@ with an optional version number separated by the C</> character.
     my $allow = $ua->allow_credentialed_redirects;
     $ua->allow_credentialed_redirects( 1 );
 
-Get/set whether caller-supplied C<Authorization> and C<Proxy-Authorization>
-headers are forwarded across cross-origin 3xx redirects (a different scheme,
-host, or port). Defaults to a false value, meaning the headers are stripped
-on cross-origin redirects to avoid leaking credentials to the redirect target.
+Get/set whether C<Authorization> and C<Proxy-Authorization> headers are
+forwarded across cross-origin 3xx redirects (a different scheme, host, or
+port). Defaults to a false value, meaning the headers are stripped on
+cross-origin redirects to avoid leaking credentials to the redirect target.
 Same-origin redirects always retain these headers.
+
+This applies both to headers carried on the request and to persistent
+headers set via L</default_header> / L</default_headers>: a persistent
+credential header is not re-applied to a cross-origin redirect target while
+this is false. (A C<Cookie> set via the persistent headers is dropped on
+every redirect regardless of this setting, mirroring the unconditional
+C<Cookie> strip.)
 
 =head2 allow_downgrade
 
@@ -1554,6 +1582,13 @@ C<< $ua->default_headers->header( $field => $value ) >>.
 Get/set the headers object that will provide default header values for
 any requests sent.  By default this will be an empty L<HTTP::Headers>
 object.
+
+Default headers are applied to redirect referrals as well, but any header
+that the redirect handling deliberately strips from a referral is not
+re-applied from the defaults on that hop or any later one. In addition to
+the credential headers described under L</allow_credentialed_redirects>,
+this covers C<Host> (always recomputed per target) and, on an
+https-to-http hop, C<Referer> (suppressed per RFC 2616 section 15.1.3).
 
 =head2 from
 

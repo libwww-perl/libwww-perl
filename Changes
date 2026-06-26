@@ -521,7 +521,8 @@ Change history for libwww-perl
     - Documentation grammar fixes.
     - Use $uri->secure in m_secure if available.
     - Fix handling of multiple (same) base headers, and parameters in them.
-    - Strip out empty lines separated by CRLF
+    - Strip out empty lines separated by CRLF, preventing a CRLF injection in
+      header serialization (CVE-2010-10018, commit efb15853) (Mark Stosberg)
     - Best Practice: avoid indirect object notation
     - Speed up as_string by 4% by having _sorted_field_names return a reference
     - Speed up scan() a bit. as_string() from this branch is now 6% faster

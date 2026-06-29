@@ -106,7 +106,7 @@ sub _fixup_header
 	# export http_proxy="http://proxyuser:proxypass@proxyhost:port".
 	# For https only the initial CONNECT requests needs authorization.
 	my $p_auth = $proxy->userinfo();
-	if(defined $p_auth) {
+	if (defined $p_auth && not $h->header('Proxy-Authorization')) {
 	    require URI::Escape;
 	    $h->proxy_authorization_basic(map URI::Escape::uri_unescape($_),
 					  split(":", $p_auth, 2))

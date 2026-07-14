@@ -116,7 +116,7 @@ EOT
 is(ref($clone->{proxy}), 'HASH', 'ref($clone->{proxy})');
 
 is($ua->proxy(http => undef), "loopback:", '$ua->proxy(http => undef)');
-is($ua->proxy('http'), undef, "\$ua->proxy('http')");
+is($ua->proxy('http'), '', "\$ua->proxy('http')");
 
 my $res = $ua->get("data:text/html,%3Chtml%3E%3Chead%3E%3Cmeta%20http-equiv%3D%22Content-Script-Type%22%20content%3D%22text%2Fjavascript%22%3E%3Cmeta%20http-equiv%3D%22Content-Style-Type%22%20content%3D%22text%2Fcss%22%3E%3C%2Fhead%3E%3C%2Fhtml%3E");
 ok($res->header("Content-Style-Type", "text/css"),         '$res->header("Content-Style-Type", "text/css")');

@@ -473,12 +473,14 @@ sub request
 	    if ($n == -1) {
 		# A Transfer-Encoding transform consumed this read without
 		# producing output, so collect() -- where max_size lives -- is
-		# never reached. Charge the read against the cap anyway: decoded
-		# output is never smaller than the compressed input it came
-		# from, so a transfer whose consumed bytes already exceed
-		# max_size cannot decode to anything under it. Without this a
-		# peer can hold this loop indefinitely, reading unbounded data
-		# under any cap.
+		# never reached. Charge the read against the cap anyway, using
+		# the read-size hint $size as a coarse, fail-closed proxy: we
+		# cannot see how many bytes Net::HTTP actually consumed here, so
+		# we count the most this read was allowed to pull. This bounds a
+		# single run of empty reads to max_size -- a delivering read
+		# resets the counter below -- which is enough to stop a peer from
+		# holding this loop indefinitely and reading unbounded data under
+		# any cap.
 		$undelivered += $size;
 		if (defined($max_size) && $undelivered > $max_size) {
 		    $response->push_header('Client-Aborted', 'max_size');

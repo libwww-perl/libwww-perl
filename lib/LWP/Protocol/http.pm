@@ -458,6 +458,8 @@ sub request
     $response->push_header('Client-Response-Num', scalar $socket->increment_response_count);
 
     my $complete;
+    my $max_size = $self->{max_size};
+    my $undelivered = 0;
     $response = $self->collect($arg, $response, sub {
 	my $buf = ""; #prevent use of uninitialized value in SSLeay.xs
 	my $n;
@@ -468,8 +470,24 @@ sub request
                 redo READ if $!{EINTR} || $!{EWOULDBLOCK} || $!{EAGAIN} || $!{ENOTTY};
                 die "read failed: $!";
             }
-	    redo READ if $n == -1;
+	    if ($n == -1) {
+		# A Transfer-Encoding transform consumed this read without
+		# producing output, so collect() -- where max_size lives -- is
+		# never reached. Charge the read against the cap anyway: decoded
+		# output is never smaller than the compressed input it came
+		# from, so a transfer whose consumed bytes already exceed
+		# max_size cannot decode to anything under it. Without this a
+		# peer can hold this loop indefinitely, reading unbounded data
+		# under any cap.
+		$undelivered += $size;
+		if (defined($max_size) && $undelivered > $max_size) {
+		    $response->push_header('Client-Aborted', 'max_size');
+		    return \ '';
+		}
+		redo READ;
+	    }
 	}
+	$undelivered = 0;
 	$complete++ if !$n;
         return \$buf;
     } );

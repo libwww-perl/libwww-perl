@@ -417,7 +417,11 @@ sub _test {
         skip 'Compress::Raw::Zlib required to decode deflate transfer-encoding', 2
             unless eval { require Compress::Raw::Zlib; 1 };
 
-        $ua->max_size(3);
+        # Sit max_size above the per-read charge (the read-size hint,
+        # 4096 by default) so the abort can only fire once several empty
+        # reads have accumulated -- proving the running += total, not a
+        # single read, is what crosses the cap.
+        $ua->max_size(5000);
         my $req = HTTP::Request->new(GET => url('/syncflush', $base));
         my $res = $ua->request($req);
         # Put max_size back how we found it.

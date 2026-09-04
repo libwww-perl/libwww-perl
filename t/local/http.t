@@ -63,8 +63,6 @@ sub _test {
     return plan skip_all => 'We could not talk to our daemon' unless $DAEMON;
     return plan skip_all => 'No base URI' unless $base;
 
-    plan tests => 136;
-
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla/0.01 " . $ua->agent);
     $ua->from('gisle@aas.no');
@@ -414,6 +412,25 @@ sub _test {
         $ua->max_size(undef);
         like($res->as_string, qr/Client-Aborted: max_size/, 'partial: aborted'); # Client-Aborted is returned when max_size is given
     }
+    { # max_size honours a Transfer-Encoding that decodes to nothing
+      SKIP: {
+        skip 'Compress::Raw::Zlib required to decode deflate transfer-encoding', 2
+            unless eval { require Compress::Raw::Zlib; 1 };
+
+        # Sit max_size above the per-read charge (the read-size hint,
+        # 4096 by default) so the abort can only fire once several empty
+        # reads have accumulated -- proving the running += total, not a
+        # single read, is what crosses the cap.
+        $ua->max_size(5000);
+        my $req = HTTP::Request->new(GET => url('/syncflush', $base));
+        my $res = $ua->request($req);
+        # Put max_size back how we found it.
+        $ua->max_size(undef);
+        isa_ok($res, 'HTTP::Response', 'syncflush: good response object');
+        like($res->as_string, qr/Client-Aborted: max_size/,
+            'syncflush: undelivered reads are charged against max_size');
+      }
+    }
     {
         my $jar = HTTP::Cookies->new;
         $jar->set_cookie( 1.1, "who", "cookie_man", "/", $base->host );
@@ -485,6 +502,8 @@ sub _test {
         my $res = $ua->request( HTTP::Request->new( GET => url("/echo", $base) ) );
         ok( $res->decoded_content !~ /^TE:/m, "TE header not added" );
     }
+
+    done_testing();
 }
 
 {
@@ -663,6 +682,30 @@ sub daemonize {
         print $c "Content-Type: image/jpeg\015\012";
         $c->send_crlf;
         print $c "some fake JPEG content";
+    };
+    $router{get_syncflush} = sub {
+        my($c) = @_;
+        # A Transfer-Encoding: deflate stream may consist of zlib sync-flush
+        # markers, each of which inflates to zero bytes. Net::HTTP answers such
+        # reads with -1 ("consumed input, produced no output"), so the decoded
+        # body stays empty no matter how much the peer sends. Emit a bounded run
+        # of markers so a client with a small max_size can prove the cap fires.
+        # A client honouring max_size will abort and drop the connection long
+        # before we finish writing, so ignore the resulting broken pipe and stop
+        # rather than take a SIGPIPE.
+        local $SIG{PIPE} = 'IGNORE';
+        $c->send_basic_header(200);
+        print $c "Content-Type: application/octet-stream\015\012";
+        print $c "Transfer-Encoding: deflate, chunked\015\012";
+        $c->send_crlf;
+        my $header = pack('H*', '789c');       # zlib stream header
+        my $marker = pack('H*', '000000ffff'); # empty stored block -> inflates to nothing
+        for my $chunk ($header, ($marker) x 1000) {
+            printf($c "%x\015\012", length($chunk)) or return;
+            print($c $chunk)                        or return;
+            print($c "\015\012")                    or return;
+        }
+        print $c "0\015\012\015\012";          # terminating chunk
     };
     $router{get_proxy} = sub {
         my($c,$r) = @_;

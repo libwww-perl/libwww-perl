@@ -1,6 +1,12 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Load HTTP::Headers explicitly in LWP::UserAgent. Improve the
+      default_headers croak to describe a bad argument by type (rather
+      than echoing its value, which could leak a secret into logs),
+      handle unblessed references cleanly, and croak with a distinct
+      message when more than one argument is passed (GH#508)
+      (Olaf Alders, Claude).
 
 6.83      2026-05-12 11:41:48Z
     - LWP::UserAgent now strips Authorization and Proxy-Authorization headers

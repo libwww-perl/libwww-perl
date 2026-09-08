@@ -114,6 +114,31 @@ sub _fixup_header
     }
 }
 
+sub _conn_cache_key {
+    my ($self, $host, $port, $ssl_tunnel, $proxy) = @_;
+
+    # Base key: which TCP endpoint we connected to. For non-tunnel use this
+    # is enough — every request sends its own headers down the socket, so
+    # reuse is safe regardless of header churn.
+    my $key = "$host:$port";
+    return $key unless $ssl_tunnel;
+
+    # Tunnel keys must additionally fingerprint anything that gets baked
+    # into the synthetic CONNECT request. A cached tunnel was negotiated
+    # with one set of CONNECT headers; reusing it for a request that would
+    # have produced different CONNECT headers silently bypasses the new
+    # values. Today the only varying input is the proxy URL's userinfo —
+    # _fixup_header derives Proxy-Authorization from it. The Host header
+    # is fully determined by $ssl_tunnel.
+    #
+    # INVARIANT: any input that influences the CONNECT request must be
+    # reflected here, otherwise rotating it between requests will be
+    # silently dropped.
+    my $userinfo = defined($proxy) && defined($proxy->userinfo)
+        ? $proxy->userinfo : '';
+    return "$key!$ssl_tunnel\0$userinfo";
+}
+
 sub hlist_remove {
     my($hlist, $k) = @_;
     $k = lc $k;
@@ -168,12 +193,7 @@ sub request
     my $conn_cache = $self->{ua}{conn_cache};
     my $cache_key;
     if ( $conn_cache ) {
-	$cache_key = "$host:$port";
-	# For https we reuse the socket immediately only if it has an established
-	# tunnel to the target. Otherwise a CONNECT request followed by an SSL
-	# upgrade need to be done first. The request itself might reuse an
-	# existing non-ssl connection to the proxy
-	$cache_key .= "!".$ssl_tunnel if $ssl_tunnel;
+	$cache_key = $self->_conn_cache_key($host, $port, $ssl_tunnel, $proxy);
 	if ( $socket = $conn_cache->withdraw($self->socket_type,$cache_key)) {
 	    if ($socket->can_read(0)) {
 		# if the socket is readable, then either the peer has closed the

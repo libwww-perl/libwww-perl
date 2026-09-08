@@ -1,6 +1,7 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Change the hostname to use localhost in the tests (GH#301) (mschae94)
 
 6.83      2026-05-12 11:41:48Z
     - LWP::UserAgent now strips Authorization and Proxy-Authorization headers

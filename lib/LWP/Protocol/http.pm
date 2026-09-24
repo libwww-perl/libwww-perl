@@ -458,6 +458,8 @@ sub request
     $response->push_header('Client-Response-Num', scalar $socket->increment_response_count);
 
     my $complete;
+    my $max_size = $self->{max_size};
+    my $undelivered = 0;
     $response = $self->collect($arg, $response, sub {
 	my $buf = ""; #prevent use of uninitialized value in SSLeay.xs
 	my $n;
@@ -468,7 +470,22 @@ sub request
                 redo READ if $!{EINTR} || $!{EWOULDBLOCK} || $!{EAGAIN} || $!{ENOTTY};
                 die "read failed: $!";
             }
-	    redo READ if $n == -1;
+	    if ($n == -1) {
+		# A Transfer-Encoding transform consumed this read without
+		# producing output, so collect() -- where max_size lives -- is
+		# never reached. Charge the actual encoded bytes consumed. Keep
+		# this cumulative so a peer cannot alternate empty and delivering
+		# reads to evade the limit.
+		my $bytes = $socket->can('last_entity_bytes')
+		    ? $socket->last_entity_bytes
+		    : $size;
+		$undelivered += $bytes;
+		if (defined($max_size) && $undelivered > $max_size) {
+		    $response->push_header('Client-Aborted', 'max_size');
+		    return \ '';
+		}
+		redo READ;
+	    }
 	}
 	$complete++ if !$n;
         return \$buf;
@@ -517,5 +534,30 @@ package # hide from PAUSE
     LWP::Protocol::http::Socket;
 
 use parent -norequire, qw(LWP::Protocol::http::SocketMethods Net::HTTP);
+
+sub sysread {
+    my ($self) = @_;
+    my $n = @_ == 4
+        ? IO::Handle::sysread($_[0], $_[1], $_[2], $_[3])
+        : IO::Handle::sysread($_[0], $_[1], $_[2]);
+    ${*$self}{'lwp_sysread_bytes'} = (${*$self}{'lwp_sysread_bytes'} || 0) + $n if defined($n) && $n > 0;
+    return $n;
+}
+
+sub read_entity_body {
+    my ($self, $buf, $size) = @_;
+    my $rbuf_before = $self->_rbuf_length;
+    my $sysread_before = ${*$self}{'lwp_sysread_bytes'} || 0;
+    my $n = $self->SUPER::read_entity_body($_[1], $_[2]);
+    my $rbuf_consumed = $rbuf_before - $self->_rbuf_length;
+    my $sysread_consumed = (${*$self}{'lwp_sysread_bytes'} || 0) - $sysread_before;
+    ${*$self}{'lwp_last_entity_bytes'} = $rbuf_consumed + $sysread_consumed;
+    return $n;
+}
+
+sub last_entity_bytes {
+    my $self = shift;
+    return ${*$self}{'lwp_last_entity_bytes'} || 0;
+}
 
 1;

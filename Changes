@@ -1,6 +1,9 @@
 Change history for libwww-perl
 
 {{$NEXT}}
+    - Set SO_KEEPALIVE on the socket when a connection cache is in use, so
+      dead pooled connections are detected. Best-effort: warns rather than
+      failing the request on platforms that lack SO_KEEPALIVE (GH#488)
 
 6.83      2026-05-12 11:41:48Z
     - LWP::UserAgent now strips Authorization and Proxy-Authorization headers
